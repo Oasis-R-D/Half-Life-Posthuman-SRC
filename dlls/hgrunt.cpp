@@ -80,13 +80,14 @@ int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when so
 
 #define TORSO_GRUNT 0
 #define TORSO_M249 1
-#define TORSO_NONE 2
+#define TORSO_NONE 2 // ugly as hell
 #define TORSO_SHOTGUN 3
 
 #define GUN_MP5 0
 #define GUN_SHOTGUN 1
 #define GUN_M249 2
 #define GUN_NONE 3
+#define GUN_M727 4 //implement at some point
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -1048,8 +1049,15 @@ void CHGrunt::Spawn()
 		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
 		SetBodygroup(TORSO_GROUP, TORSO_M249);
 		SetBodygroup(GUN_GROUP, GUN_M249);
-		m_cClipSize = 50;
+		m_cClipSize = 200;
 	}
+	// else if (FBitSet(pev->weapons, HGRUNT_M727))
+	// {
+	//	SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+	//	SetBodygroup(TORSO_GROUP, TORSO_M249);
+	//	SetBodygroup(GUN_GROUP, GUN_M727);
+	//	m_cClipSize = 200;
+	// }
 	else
 	{
 		SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
