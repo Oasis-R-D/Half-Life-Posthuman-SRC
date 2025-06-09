@@ -66,6 +66,8 @@ public:
 	void RenderFinalPasses(bool bSecond = false);
 	void DrawWorld(void);
 
+	void LoadWADDecals(void);
+
 	void GetRenderEnts(void);
 	void AddEntity(cl_entity_t* pEntity);
 	int FilterEntities(int type, struct cl_entity_s* pEntity, const char* modelname); //
@@ -176,11 +178,10 @@ public:
 	void FindIntersectionPoint(const vec3_t& p1, const vec3_t& p2, const vec3_t& normal, const vec3_t& planepoint, vec3_t& newpoint);
 
 public:
-	int* oldvisframes;//old trinity visframes
-	int numnodes;
-	int enginevisframe; //this MUST, BY ALL MEANS, match
+	int saved_leaf_visframe;//this MUST, BY ALL MEANS, match
 						//goldsrc's r_visframecount, otherwise temp entities (beams, particles) 
 						//will NOT be rendered
+	int trinity_visframes[262144];
 
 	GLuint m_uiBufferIndex;
 	brushvertex_t* m_pBufferData;
