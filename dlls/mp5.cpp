@@ -572,51 +572,12 @@ void CM727::PrimaryAttack()
 
 void CM727::SecondaryAttack()
 {
-	if (pev->weapons == 0)
-	{
-		if (0 == m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType])
-			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
-		else
-		{
-			pev->weapons = 1;
-			SendWeaponAnim(MP5_IDLE_TO_M203);
-			MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-			WRITE_SHORT(0);
-			MESSAGE_END();
-		}
-	}
-	else
-	{
-		pev->weapons = 0;
-		SendWeaponAnim(MP5_M203_TO_IDLE);
-		MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-		WRITE_SHORT(pev->armortype);
-		MESSAGE_END();
-	}
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 0.12;
-	m_flNextTertiaryAttack = gpGlobals->time + 0.12;
+
 }
 
 void CM727::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.5;
-	m_flNextTertiaryAttack = gpGlobals->time + 0.5;
-
-	if (pev->armortype == 1)
-	{
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Burst-Fire Mode");
-		pev->armortype = 2;
-	}
-	else if (pev->armortype == 2)
-	{
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Full-Auto Mode");
-		pev->armortype = 1;
-	}
-	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
-
-	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(pev->armortype);
-	MESSAGE_END();
+	
 }
 
 void CM727::Reload()
