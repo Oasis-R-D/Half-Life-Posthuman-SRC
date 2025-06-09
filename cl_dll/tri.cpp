@@ -20,11 +20,18 @@
 
 #include "particleman.h"
 #include "tri.h"
-// STENCIL SHADOWS BEGIN
-#include "stencil/svd_render.h"
-#include "stencil/lightlist.h"
-// STENCIL SHADOWS END
 extern IParticleMan* g_pParticleMan;
+
+// RENDERERS START
+#include "../renderer/bsprenderer.h"
+#include "../renderer/propmanager.h"
+#include "../renderer/particle_engine.h"
+#include "../renderer/watershader.h"
+#include "../renderer/mirrormanager.h"
+
+#include "studio.h"
+#include "StudioModelRenderer.h"
+#include "GameStudioModelRenderer.h"
 
 /*
 =================
@@ -37,10 +44,14 @@ void DLLEXPORT HUD_DrawNormalTriangles()
 {
 	//	RecClDrawNormalTriangles();
 
+	#ifdef TRINITY
+	// RENDERERS START
+	// 2012-02-25
+	R_DrawNormalTriangles();
+	// RENDERERS END
+	#endif
+
 	gHUD.m_Spectator.DrawOverview();
-	// STENCIL SHADOWS BEGIN
-	gLightList.DrawNormal();
-	// STENCIL SHADOWS END
 }
 
 
@@ -55,10 +66,14 @@ void DLLEXPORT HUD_DrawTransparentTriangles()
 {
 	//	RecClDrawTransparentTriangles();
 
+	#ifdef TRINITY
+	// RENDERERS START
+	// 2012-02-25
+	R_DrawTransparentTriangles();
+	// RENDERERS END
+	#endif
+
 
 	if (g_pParticleMan)
 		g_pParticleMan->Update();
-	// STENCIL SHADOWS BEGIN
-	SVD_DrawTransparentTriangles();
-	// STENCIL SHADOWS END
 }

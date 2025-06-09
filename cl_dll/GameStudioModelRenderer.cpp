@@ -26,9 +26,10 @@
 #include "StudioModelRenderer.h"
 #include "GameStudioModelRenderer.h"
 #include "Exports.h"
-// STENCIL SHADOWS BEGIN
-#include "stencil/svd_render.h"
-// STENCIL SHADOWS END
+
+// RENDERER START
+#include "../renderer/bsprenderer.h"
+// RENDERER END 
 
 //
 // Override the StudioModelRender virtual member functions here to implement custom bone
@@ -62,6 +63,14 @@ R_StudioDrawPlayer
 */
 int R_StudioDrawPlayer(int flags, entity_state_t* pplayer)
 {
+	#ifdef TRINITY
+	// RENDERER START
+	gBSPRenderer.DrawNormalTriangles();
+	// RENDERER END 
+	#endif
+
+	g_StudioRenderer.m_pCurrentEntity = IEngineStudio.GetCurrentEntity();
+
 	return static_cast<int>(g_StudioRenderer.StudioDrawPlayer(flags, pplayer));
 }
 
@@ -73,6 +82,16 @@ R_StudioDrawModel
 */
 int R_StudioDrawModel(int flags)
 {
+	#ifdef TRINITY
+
+	// RENDERER START
+	if (IEngineStudio.GetCurrentEntity() != gEngfuncs.GetViewModel())
+		gBSPRenderer.DrawNormalTriangles();
+	// RENDERER END
+	#endif
+
+	g_StudioRenderer.m_pCurrentEntity = IEngineStudio.GetCurrentEntity();
+
 	return static_cast<int>(g_StudioRenderer.StudioDrawModel(flags));
 }
 
@@ -85,9 +104,6 @@ R_StudioInit
 void R_StudioInit()
 {
 	g_StudioRenderer.Init();
-	// STENCIL SHADOWS BEGIN
-	SVD_Init();
-	// STENCIL SHADOWS END
 }
 
 // The simple drawing interface we'll pass back to the engine
@@ -124,10 +140,3 @@ int DLLEXPORT HUD_GetStudioModelInterface(int version, struct r_studio_interface
 	// Success
 	return 1;
 }
-
-// FULLBRIGHT START
-void CacheFullbrightModels()
-{
-	g_StudioRenderer.StudioCacheFullbrightNames();
-}
-// FULLBRIGHT END

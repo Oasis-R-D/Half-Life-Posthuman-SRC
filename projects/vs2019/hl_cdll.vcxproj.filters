@@ -64,8 +64,11 @@
     <Filter Include="Source Files\cl_dll\particleman">
       <UniqueIdentifier>{7085339d-2b33-4cdf-846c-0e4c7d33add8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cl_dll\stencil">
-      <UniqueIdentifier>{c43cc9d6-e77f-4af9-81f1-f96093da6a07}</UniqueIdentifier>
+    <Filter Include="Header Files\cl_dll\renderer">
+      <UniqueIdentifier>{1d76c495-db74-4c63-ad71-7c54e7b955a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cl_dll\renderer">
+      <UniqueIdentifier>{aa8e383b-36c5-4343-89cb-ddfdd36c32d7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -327,20 +330,35 @@
     <ClCompile Include="..\..\dlls\m249.cpp">
       <Filter>Source Files\_hl\dlls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\stencil\lightlist.cpp">
-      <Filter>Header Files\cl_dll\stencil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\stencil\studio_stencil.cpp">
-      <Filter>Header Files\cl_dll\stencil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\stencil\svd_render.cpp">
-      <Filter>Header Files\cl_dll\stencil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\stencil\svdformat.cpp">
-      <Filter>Header Files\cl_dll\stencil</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\spitthrower.cpp">
       <Filter>Source Files\_hl\dlls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\bsprenderer.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\frustum.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\mirrormanager.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\particle_engine.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\propmanager.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\rendererdefs.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\tent.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\textureloader.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\watershader.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -617,26 +635,32 @@
     <ClInclude Include="..\..\cl_dll\particleman\CBaseParticle.h">
       <Filter>Header Files\cl_dll\particleman</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\stencil\elight.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\bsprenderer.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\stencil\lightlist.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\frustum.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\stencil\svd_render.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\mirrormanager.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\stencil\svdformat.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\particle_engine.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\gl\glew.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\propmanager.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\gl\glext.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\rendererdefs.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\gl\glut.h">
-      <Filter>Header Files\cl_dll\stencil</Filter>
+    <ClInclude Include="..\..\cl_dll\renderer\stb_image_write.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\textureloader.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\watershader.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

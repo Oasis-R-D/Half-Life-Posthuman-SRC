@@ -31,6 +31,20 @@
 #include "cl_dll.h"
 #include "ammo.h"
 
+// RENDERERS START
+#include "..\renderer\frustum.h"
+
+struct fog_settings_t
+{
+	vec3_t color;
+	int start;
+	int end;
+
+	bool affectsky;
+	bool active;
+};
+// RENDERERS END
+
 #define DHN_DRAWZERO 1
 #define DHN_2DIGITS 2
 #define DHN_3DIGITS 4
@@ -196,7 +210,7 @@ public:
 	bool MsgFunc_Train(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE m_hSprite;
+	HSPRITE_GLDSRC m_hSprite;
 	int m_iPos;
 };
 
@@ -332,8 +346,8 @@ public:
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE m_hSprite1;
-	HSPRITE m_hSprite2;
+	HSPRITE_GLDSRC m_hSprite1;
+	HSPRITE_GLDSRC m_hSprite2;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	int m_iBat;
@@ -342,9 +356,9 @@ private:
 	int m_iHeight; // width of the battery innards
 	int m_iHunger;
 	int m_iFireMode;
-	HSPRITE m_hFireMode;
+	HSPRITE_GLDSRC m_hFireMode;
 	Rect* m_rFireMode;
-	HSPRITE m_hHunger;
+	HSPRITE_GLDSRC m_hHunger;
 	Rect* m_rHunger;
 };
 
@@ -363,9 +377,9 @@ public:
 	bool MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE m_hSprite1;
-	HSPRITE m_hSprite2;
-	HSPRITE m_hBeam;
+	HSPRITE_GLDSRC m_hSprite1;
+	HSPRITE_GLDSRC m_hSprite2;
+	HSPRITE_GLDSRC m_hBeam;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prcBeam;
@@ -477,7 +491,7 @@ private:
 	typedef struct
 	{
 		char szSpriteName[MAX_ICONSPRITENAME_LENGTH];
-		HSPRITE spr;
+		HSPRITE_GLDSRC spr;
 		Rect rc;
 		unsigned char r, g, b;
 	} icon_sprite_t;
@@ -494,7 +508,7 @@ class CHud
 {
 private:
 	HUDLIST* m_pHudList;
-	HSPRITE m_hsprLogo;
+	HSPRITE_GLDSRC m_hsprLogo;
 	int m_iLogo;
 	client_sprite_t* m_pSpriteList;
 	int m_iSpriteCount;
@@ -503,7 +517,7 @@ private:
 	int m_iConcussionEffect;
 
 public:
-	HSPRITE m_hsprCursor;
+	HSPRITE_GLDSRC m_hsprCursor;
 	float m_flTime;		  // the current client time
 	float m_fOldTime;	  // the time at which the HUD was last redrawn
 	double m_flTimeDelta; // the difference between flTime and fOldTime
@@ -545,14 +559,14 @@ public:
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
 	// freed in ~CHud()
-	HSPRITE* m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
+	HSPRITE_GLDSRC* m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
 	Rect* m_rgrcRects;							  /*[HUD_SPRITE_COUNT]*/
 	char* m_rgszSpriteNames;					  /*[HUD_SPRITE_COUNT][MAX_SPRITE_NAME_LENGTH]*/
 
 	struct cvar_s* default_fov;
 
 public:
-	HSPRITE GetSprite(int index)
+	HSPRITE_GLDSRC GetSprite(int index)
 	{
 		return (index < 0) ? 0 : m_rghSprites[index];
 	}
@@ -616,6 +630,23 @@ public:
 	void AddHudElem(CHudBase* p);
 
 	float GetSensitivity();
+
+	// RENDERERS START
+	fog_settings_t m_pSkyFogSettings;
+	fog_settings_t m_pFogSettings;
+	FrustumCheck viewFrustum;
+
+	bool MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_LightStyle(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_StudioDecal(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_FreeEnt(const char* pszName, int iSize, void* pbuf);
+
+	bool MsgFunc_CreateDecal(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_SkyMark_S(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_SkyMark_W(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_DynLight(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_CreateSystem(const char* pszName, int iSize, void* pbuf);
+	// RENDERERS END
 };
 
 extern CHud gHUD;

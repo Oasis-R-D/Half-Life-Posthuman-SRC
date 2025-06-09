@@ -20,10 +20,12 @@
 #include "hltv.h"
 #include "Exports.h"
 
-// STENCIL SHADOWS BEGIN
-#include "stencil/svd_render.h"
-#include "stencil/lightlist.h"
-// STENCIL SHADOWS END
+// RENDERERS START
+#include "../renderer/bsprenderer.h"
+#include "../renderer/propmanager.h"
+#include "../renderer/mirrormanager.h"
+#include "../renderer/watershader.h"
+// RENDERERS END
 
 int CL_IsThirdPerson();
 void CL_CameraOffset(float* ofs);
@@ -1716,10 +1718,6 @@ void DLLEXPORT V_CalcRefdef(struct ref_params_s* pparams)
 	{
 		V_CalcNormalRefdef(pparams);
 	}
-	// STENCIL SHADOWS BEGIN
-	gLightList.CalcRefDef();
-	SVD_CalcRefDef(pparams);
-	// STENCIL SHADOWS END
 	/*
 // Example of how to overlay the whole screen with red at 50 % alpha
 #define SF_TEST
@@ -1738,6 +1736,13 @@ void DLLEXPORT V_CalcRefdef(struct ref_params_s* pparams)
 	}
 #endif
 */
+	#ifdef TRINITY
+
+	// RENDERER START
+	// 2012-02-25
+	R_CalcRefDef(pparams);
+	// RENDERER END
+	#endif
 }
 
 /*

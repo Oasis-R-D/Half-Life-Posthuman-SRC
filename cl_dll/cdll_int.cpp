@@ -38,9 +38,37 @@
 #include "vgui_TeamFortressViewport.h"
 #include "filesystem_utils.h"
 
+// RENDERERS START
+#include "../renderer/rendererdefs.h"
+#include "../renderer/particle_engine.h"
+#include "../renderer/bsprenderer.h"
+#include "../renderer/propmanager.h"
+#include "../renderer/textureloader.h"
+#include "../renderer/watershader.h"
+#include "../renderer/mirrormanager.h"
+
+#include "studio.h"
+#include "StudioModelRenderer.h"
+#include "GameStudioModelRenderer.h"
+
+extern CGameStudioModelRenderer g_StudioRenderer;
+
+extern engine_studio_api_t IEngineStudio;
+// RENDERERS END
+
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
 TeamFortressViewport* gViewPort = NULL;
+
+// RENDERERS START
+CBSPRenderer gBSPRenderer;
+CParticleEngine gParticleEngine;
+CWaterShader gWaterShader;
+
+CTextureLoader gTextureLoader;
+CPropManager gPropManager;
+CMirrorManager gMirrorManager;
+// RENDERERS END
 
 
 #include "particleman.h"
@@ -136,6 +164,8 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 {
 	gEngfuncs = *pEnginefuncs;
 
+	g_StudioRenderer.StudioResetTextures(); //fix "_restart" messing up textures
+
 	//	RecClInitialize(pEnginefuncs, iVersion);
 
 	if (iVersion != CLDLL_INTERFACE_VERSION)
@@ -151,6 +181,13 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 		gEngfuncs.pfnClientCmd("quit\n");
 		return 0;
 	}
+
+	#ifdef TRINITY
+
+	// RENDERERS START
+	R_DisableSteamMSAA();
+	// RENDERERS END
+	#endif
 
 	return 1;
 }
@@ -204,11 +241,22 @@ redraw the HUD.
 ===========================
 */
 
+#ifdef TRINITY
+// RENDERERS START
+extern void HUD_PrintSpeeds(void);
+// RENDERERS END
+#endif
+
 int DLLEXPORT HUD_Redraw(float time, int intermission)
 {
 	//	RecClHudRedraw(time, intermission);
 
 	gHUD.Redraw(time, 0 != intermission);
+	#ifdef TRINITY
+	// RENDERERS START
+	HUD_PrintSpeeds();
+	// RENDERERS END
+	#endif
 
 	return 1;
 }
@@ -409,5 +457,20 @@ public:
 		}
 	}
 };
+
+// RENDERERS_START
+/*
+==========================
+CL_GetModelData
+
+
+==========================
+*/
+extern "C" __declspec(dllexport) void CL_GetModelByIndex(int iIndex, void** pPointer)
+{
+	void* pModel = IEngineStudio.GetModelByIndex(iIndex);
+	*pPointer = pModel;
+}
+// RENDERERS_END
 
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);

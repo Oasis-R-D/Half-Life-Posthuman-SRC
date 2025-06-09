@@ -1,19 +1,22 @@
 /***
-*
-*	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
-*	All Rights Reserved.
-*
-*   Use, distribution, and modification of this source code and/or resulting
-*   object code is restricted to non-commercial enhancements to products from
-*   Valve LLC.  All other use, distribution, or modification is prohibited
-*   without written permission from Valve LLC.
-*
-****/
+ *
+ *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
+ *
+ *	This product contains software technology licensed from Id
+ *	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
+ *	All Rights Reserved.
+ *
+ *   Use, distribution, and modification of this source code and/or resulting
+ *   object code is restricted to non-commercial enhancements to products from
+ *   Valve LLC.  All other use, distribution, or modification is prohibited
+ *   without written permission from Valve LLC.
+ *
+ ****/
 
-#pragma once
+#ifndef _STUDIO_H_
+#define _STUDIO_H_
+
+#pragma warning(disable : 4966)
 
 /*
 ==============================================================================
@@ -25,20 +28,21 @@ Studio models are position independent, so the cache manager can move them.
 */
 
 
-#define MAXSTUDIOTRIANGLES 20000 // TODO: tune this
-#define MAXSTUDIOVERTS 2048		 // TODO: tune this
-#define MAXSTUDIOSEQUENCES 2048	 // total animation sequences -- KSH incremented
-#define MAXSTUDIOSKINS 100		 // total textures
-#define MAXSTUDIOSRCBONES 512	 // bones allowed at source movement
-#define MAXSTUDIOBONES 128		 // total bones actually used
-#define MAXSTUDIOMODELS 32		 // sub-models per model
+#define MAXSTUDIOTRIANGLES 4096 // TODO: tune this
+#define MAXSTUDIOVERTS 8196		// TODO: tune this
+#define MAXSTUDIOSEQUENCES 256	// total animation sequences
+#define MAXSTUDIOSKINS 100		// total textures
+#define MAXSTUDIOSRCBONES 512	// bones allowed at source movement
+#define MAXSTUDIOBONES 128		// total bones actually used
+#define MAXSTUDIOMODELS 32		// sub-models per model
 #define MAXSTUDIOBODYPARTS 32
 #define MAXSTUDIOGROUPS 16
-#define MAXSTUDIOANIMATIONS 2048
+#define MAXSTUDIOANIMATIONS 512 // per sequence
 #define MAXSTUDIOMESHES 256
 #define MAXSTUDIOEVENTS 1024
 #define MAXSTUDIOPIVOTS 256
 #define MAXSTUDIOCONTROLLERS 8
+
 
 typedef struct
 {
@@ -48,12 +52,12 @@ typedef struct
 	char name[64];
 	int length;
 
-	Vector eyeposition; // ideal eye position
-	Vector min;			// ideal movement hull size
-	Vector max;
+	vec3_t eyeposition; // ideal eye position
+	vec3_t min;			// ideal movement hull size
+	vec3_t max;
 
-	Vector bbmin; // clipping bounding box
-	Vector bbmax;
+	vec3_t bbmin; // clipping bounding box
+	vec3_t bbmax;
 
 	int flags;
 
@@ -133,8 +137,8 @@ typedef struct
 {
 	int bone;
 	int group;	  // intersection group
-	Vector bbmin; // bounding box
-	Vector bbmax;
+	vec3_t bbmin; // bounding box
+	vec3_t bbmax;
 } mstudiobbox_t;
 
 #if !defined(CACHE_USER) && !defined(QUAKEDEF_H)
@@ -145,15 +149,13 @@ typedef struct cache_user_s
 } cache_user_t;
 #endif
 
-//
 // demand loaded sequence groups
-//
 typedef struct
 {
-	char label[32]; // textual name
-	char name[64];	// file name
-	int32 unused1;	// was "cache"  - index pointer
-	int unused2;	// was "data" -  hack for group 0
+	char label[32];		// textual name
+	char name[64];		// file name
+	cache_user_t cache; // cache index pointer
+	int data;			// hack for group 0
 } mstudioseqgroup_t;
 
 // sequence descriptions
@@ -177,12 +179,12 @@ typedef struct
 
 	int motiontype;
 	int motionbone;
-	Vector linearmovement;
+	vec3_t linearmovement;
 	int automoveposindex;
 	int automoveangleindex;
 
-	Vector bbmin; // per sequence bounding box
-	Vector bbmax;
+	vec3_t bbmin; // per sequence bounding box
+	vec3_t bbmax;
 
 	int numblends;
 	int animindex; // mstudioanim_t pointer relative to start of sequence group data
@@ -205,7 +207,7 @@ typedef struct
 // events
 #include "studio_event.h"
 /*
-typedef struct 
+typedef struct
 {
 	int 				frame;
 	int					event;
@@ -217,7 +219,7 @@ typedef struct
 // pivots
 typedef struct
 {
-	Vector org; // pivot point
+	vec3_t org; // pivot point
 	int start;
 	int end;
 } mstudiopivot_t;
@@ -228,8 +230,8 @@ typedef struct
 	char name[32];
 	int type;
 	int bone;
-	Vector org; // attachment point
-	Vector vectors[3];
+	vec3_t org; // attachment point
+	vec3_t vectors[3];
 } mstudioattachment_t;
 
 typedef struct
@@ -289,17 +291,17 @@ typedef struct
 
 	int numverts;	   // number of unique vertices
 	int vertinfoindex; // vertex bone info
-	int vertindex;	   // vertex Vector
+	int vertindex;	   // vertex vec3_t
 	int numnorms;	   // number of unique surface normals
 	int norminfoindex; // normal bone info
-	int normindex;	   // normal Vector
+	int normindex;	   // normal vec3_t
 
 	int numgroups; // deformation groups
 	int groupindex;
 } mstudiomodel_t;
 
 
-// Vector	boundingbox[model][bone][2];	// complex intersection info
+// vec3_t	boundingbox[model][bone][2];	// complex intersection info
 
 
 // meshes
@@ -309,7 +311,7 @@ typedef struct
 	int triindex;
 	int skinref;
 	int numnorms;  // per mesh normals
-	int normindex; // normal Vector
+	int normindex; // normal vec3_t
 } mstudiomesh_t;
 
 // triangles
@@ -325,11 +327,10 @@ typedef struct
 // lighting options
 #define STUDIO_NF_FLATSHADE 0x0001
 #define STUDIO_NF_CHROME 0x0002
-#define STUDIO_NF_FULLBRIGHT 0x0004
-#define STUDIO_NF_NOMIPS 0x0008
-#define STUDIO_NF_ALPHA 0x0010
-#define STUDIO_NF_ADDITIVE 0x0020
-#define STUDIO_NF_MASKED 0x0040
+#define STUDIO_NF_ADDITIVE 32  // buz
+#define STUDIO_NF_ALPHATEST 64 // buz
+#define STUDIO_NF_FULLBRIGHT 512
+#define STUDIO_NF_NOMIPMAP 256
 
 // motion flags
 #define STUDIO_X 0x0001
@@ -361,3 +362,7 @@ typedef struct
 
 #define RAD_TO_STUDIO (32768.0 / M_PI)
 #define STUDIO_TO_RAD (M_PI / 32768.0)
+
+
+
+#endif

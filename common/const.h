@@ -1,17 +1,17 @@
 /***
-*
-*	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
-*	All Rights Reserved.
-*
-*   Use, distribution, and modification of this source code and/or resulting
-*   object code is restricted to non-commercial enhancements to products from
-*   Valve LLC.  All other use, distribution, or modification is prohibited
-*   without written permission from Valve LLC.
-*
-****/
+ *
+ *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
+ *
+ *	This product contains software technology licensed from Id
+ *	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
+ *	All Rights Reserved.
+ *
+ *   Use, distribution, and modification of this source code and/or resulting
+ *   object code is restricted to non-commercial enhancements to products from
+ *   Valve LLC.  All other use, distribution, or modification is prohibited
+ *   without written permission from Valve LLC.
+ *
+ ****/
 
 #pragma once
 
@@ -67,8 +67,8 @@
 
 // edict->movetype values
 #define MOVETYPE_NONE 0 // never moves
-//#define	MOVETYPE_ANGLENOCLIP	1
-//#define	MOVETYPE_ANGLECLIP		2
+// #define	MOVETYPE_ANGLENOCLIP	1
+// #define	MOVETYPE_ANGLECLIP		2
 #define MOVETYPE_WALK 3			  // Player only - moving on the ground
 #define MOVETYPE_STEP 4			  // gravity, special edge handling -- monsters use this
 #define MOVETYPE_FLY 5			  // No gravity, but still collides with stuff
@@ -113,10 +113,19 @@
 #define EF_NIGHTVISION 256	// player nightvision
 #define EF_SNIPERLASER 512	// sniper laser effect
 #define EF_FIBERCAMERA 1024 // fiber camera
+#define FL_ELIGHT 2048
+#define FL_DLIGHT 4096
+#define FL_SPOTLIGHT 8192
+#define FL_WATERSHADER 16384
+#define FL_MIRROR 32768
+#define FL_NOSHADOW 65536
+#define FL_NOMODEL 131072
 
 
 // entity flags
-#define EFLAG_SLERP 1 // do studio interpolation of this entity
+#define EFLAG_SLERP 1		// do studio interpolation of this entity
+#define EFLAG_FLESH_SOUND 2 // JoshA: Whether this entity should sound like flesh. (ie. pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+#define EFLAG_CONVEYOR 3
 
 //
 // temp entity events
@@ -713,8 +722,7 @@ enum
 	kRenderFxExplode,		  // Scale up really big!
 	kRenderFxGlowShell,		  // Glowing Shell
 	kRenderFxClampMinScale,	  // Keep this sprite from getting very small (SPRITES only!)
-	kRenderFxLightMultiplier, //CTM !!!CZERO added to tell the studiorender that the value in iuser2 is a lightmultiplier
-	kRenderFxNoShadow = 101,
+	kRenderFxLightMultiplier, // CTM !!!CZERO added to tell the studiorender that the value in iuser2 is a lightmultiplier
 };
 
 #define _DEF_BYTE_

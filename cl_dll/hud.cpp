@@ -30,16 +30,22 @@
 #include "demo_api.h"
 #include "vgui_ScorePanel.h"
 
-// FULLBRIGHT START
-extern bool m_bCacheFullbrightModels;
-// FULLBRIGHT END
+// RENDERERS START
+#include "..\renderer\bsprenderer.h"
+#include "..\renderer\propmanager.h"
+#include "..\renderer\textureloader.h"
+#include "..\renderer\particle_engine.h"
+#include "..\renderer\watershader.h"
+#include "..\renderer\mirrormanager.h"
+#include "r_efx.h"
 
-// STENCIL SHADOWS BEGIN
-#include "stencil/lightlist.h"
-#include "stencil/svd_render.h"
-#include "stencil/svdformat.h"
-#include "stencil/svd_render.h"
-// STENCIL SHADOWS END
+#include "studio.h"
+#include "StudioModelRenderer.h"
+#include "GameStudioModelRenderer.h"
+
+extern CGameStudioModelRenderer g_StudioRenderer;
+extern engine_studio_api_t IEngineStudio;
+// RENDERERS END
 
 hud_player_info_t g_PlayerInfoList[MAX_PLAYERS_HUD + 1];	// player info from the engine
 extra_player_info_t g_PlayerExtraInfo[MAX_PLAYERS_HUD + 1]; // additional player info sent directly to the client dll
@@ -295,6 +301,49 @@ int __MsgFunc_AllowSpec(const char* pszName, int iSize, void* pbuf)
 	return 0;
 }
 
+#ifdef TRINITY
+
+// RENDERERS START
+int __MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gHUD.MsgFunc_SetFog(pszName, iSize, pbuf));
+}
+int __MsgFunc_LightStyle(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gHUD.MsgFunc_LightStyle(pszName, iSize, pbuf));
+}
+int __MsgFunc_CreateDecal(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gBSPRenderer.MsgCustomDecal(pszName, iSize, pbuf));
+}
+int __MsgFunc_StudioDecal(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gHUD.MsgFunc_StudioDecal(pszName, iSize, pbuf));
+}
+int __MsgFunc_SkyMark_S(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gBSPRenderer.MsgSkyMarker_Sky(pszName, iSize, pbuf));
+}
+int __MsgFunc_SkyMark_W(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gBSPRenderer.MsgSkyMarker_World(pszName, iSize, pbuf));
+}
+int __MsgFunc_DynLight(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gBSPRenderer.MsgDynLight(pszName, iSize, pbuf));
+}
+int __MsgFunc_FreeEnt(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gHUD.MsgFunc_FreeEnt(pszName, iSize, pbuf));
+}
+int __MsgFunc_Particle(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gParticleEngine.MsgCreateSystem(pszName, iSize, pbuf));
+}
+// RENDERERS END
+
+#endif
+
 // This is called every time the DLL is loaded
 void CHud::Init()
 {
@@ -339,6 +388,23 @@ void CHud::Init()
 
 	CVAR_CREATE("hud_classautokill", "1", FCVAR_ARCHIVE | FCVAR_USERINFO); // controls whether or not to suicide immediately on TF class switch
 	CVAR_CREATE("hud_takesshots", "0", FCVAR_ARCHIVE);					   // controls whether or not to automatically take screenshots at the end of a round
+
+	#ifdef TRINITY
+
+	// RENDERERS START
+	HOOK_MESSAGE(SetFog);
+	HOOK_MESSAGE(LightStyle);
+	HOOK_MESSAGE(CreateDecal);
+	HOOK_MESSAGE(StudioDecal);
+	HOOK_MESSAGE(SkyMark_S);
+	HOOK_MESSAGE(SkyMark_W);
+	HOOK_MESSAGE(DynLight);
+	HOOK_MESSAGE(FreeEnt);
+	HOOK_MESSAGE(Particle);
+
+	R_Init();
+	// RENDERERS END
+	#endif
 
 	m_iLogo = 0;
 	m_iFOV = 0;
@@ -390,10 +456,6 @@ void CHud::Init()
 	m_Menu.Init();
 
 	MsgFunc_ResetHUD(0, 0, NULL);
-
-	// STENCIL SHADOWS BEGIN
-	gLightList.Init();
-	// STENCIL SHADOWS END
 }
 
 // CHud destructor
@@ -416,9 +478,12 @@ CHud::~CHud()
 		m_pHudList = NULL;
 	}
 
-	// STENCIL SHADOWS BEGIN
-	SVD_Shutdown();
-	// STENCIL SHADOWS END
+	#ifdef TRINITY
+
+	// RENDERERS START
+	R_Shutdown();
+	// RENDERERS END
+	#endif
 }
 
 // GetSpriteIndex()
@@ -477,7 +542,7 @@ void CHud::VidInit()
 			}
 
 			// allocated memory for sprite handle arrays
-			m_rghSprites = new HSPRITE[m_iSpriteCount];
+			m_rghSprites = new HSPRITE_GLDSRC[m_iSpriteCount];
 			m_rgrcRects = new Rect[m_iSpriteCount];
 			m_rgszSpriteNames = new char[m_iSpriteCount * MAX_SPRITE_NAME_LENGTH];
 
@@ -541,13 +606,11 @@ void CHud::VidInit()
 	m_TextMessage.VidInit();
 	m_StatusIcons.VidInit();
 	GetClientVoiceMgr()->VidInit();
-	// FULLBRIGHT START
-	m_bCacheFullbrightModels = true;
-	// FULLBRIGHT END
-	// STENCIL SHADOWS BEGIN
-	gLightList.VidInit();
-	SVD_VidInit();
-	// STENCIL SHADOWS END
+	#ifdef TRINITY
+	// RENDERERS START
+	R_VidInit();
+	// RENDERERS_END
+	#endif
 }
 
 bool CHud::MsgFunc_Logo(const char* pszName, int iSize, void* pbuf)
