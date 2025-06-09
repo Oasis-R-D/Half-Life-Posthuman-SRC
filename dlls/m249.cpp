@@ -235,14 +235,13 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.067;
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.07;
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
-
+	m_pPlayer->pev->punchangle.x -= 1;
+	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1.125, 1.125);
 #ifndef CLIENT_DLL
-	m_pPlayer->pev->punchangle.x = RANDOM_FLOAT(-2, 2);
-
-	m_pPlayer->pev->punchangle.y = RANDOM_FLOAT(-1, 1);
+	
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
@@ -250,7 +249,7 @@ void CM249::PrimaryAttack()
 
 	const float flZVel = m_pPlayer->pev->velocity.z;
 
-	Vector vecInvPushDir = gpGlobals->v_forward * 35.0;
+	Vector vecInvPushDir = gpGlobals->v_forward * 20.0;
 
 	float flNewZVel = CVAR_GET_FLOAT("sv_maxspeed");
 
