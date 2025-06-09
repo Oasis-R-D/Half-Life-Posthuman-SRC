@@ -397,7 +397,7 @@ LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 void CM727::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_9mmAR.mdl");
+	SET_MODEL(ENT(pev), "models/w_9mmAR.mdl"); //to-do: get a m727 Wmodel
 	m_iId = WEAPON_M727;
 	m_iDefaultAmmo = 30;
 	FallInit(); // get ready to fall down.
@@ -412,7 +412,7 @@ void CM727::Precache()
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 
-	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
+	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl"); // brass shellTE_MODEL
 
 	PRECACHE_SOUND("items/9mmclip1.wav");
 	PRECACHE_SOUND("items/clipinsert1.wav");
@@ -553,7 +553,7 @@ void CM727::PrimaryAttack()
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
-			m_flNextPrimaryAttack = 0.12;
+			m_flNextPrimaryAttack = 0.10;
 		}
 		else
 		{
@@ -562,11 +562,11 @@ void CM727::PrimaryAttack()
 		}
 	}
 	else
-		m_flNextPrimaryAttack = 0.12;
+		m_flNextPrimaryAttack = 0.10;
 
 	m_flTimeWeaponIdle = 5;
-	m_pPlayer->pev->punchangle.x -= 0.5f;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-0.5f, 0.5f);
+	m_pPlayer->pev->punchangle.x -= 1.125;
+	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1.125, 1.125);
 }
 
 void CM727::SecondaryAttack()
