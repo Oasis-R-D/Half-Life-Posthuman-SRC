@@ -68,12 +68,15 @@ int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when so
 #define GUN_GROUP 3
 
 #define HEAD_GRUNT 0
-#define HEAD_COMMANDER 1
-#define HEAD_SHOTGUN 2
-#define HEAD_M249_1 3
-#define HEAD_M249_2 4
+#define HEAD_GRUNT_BLACK 1
+#define HEAD_COMMANDER 2
+#define HEAD_SHOTGUN 3
+#define HEAD_M249_1 4
+#define HEAD_M249_2 5
 #define HEAD_M203_1 6
 #define HEAD_M203_2 7
+#define HEAD_MEDIC 8
+#define HEAD_MEDIC_BLACK 9
 
 #define TORSO_GRUNT 0
 #define TORSO_M249 1
@@ -1049,7 +1052,7 @@ void CHGrunt::Spawn()
 	}
 	else
 	{
-		SetBodygroup(HEAD_GROUP, HEAD_GRUNT);
+		SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;
