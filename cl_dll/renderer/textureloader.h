@@ -26,6 +26,7 @@ Written by Andrew Lucas
 #include "parsemsg.h"
 #include "cvardef.h"
 #include "rendererdefs.h"
+#include "wad.h"
 
 #define MAX_WADFILES 12
 
@@ -37,24 +38,6 @@ Written by Andrew Lucas
 
 #define D3DFMT_DXT1 '1TXD' //  DXT1 compression texture format
 #define D3DFMT_DXT5 '5TXD' //  DXT5 compression texture format
-
-typedef struct
-{
-	char identification[4]; // should be WAD2/WAD3
-	int numlumps;
-	int infotableofs;
-} wadinfo_t;
-
-typedef struct
-{
-	int filepos;
-	int disksize;
-	int size;
-	char type;
-	char compression;
-	char pad1, pad2;
-	char name[16];
-} lumpinfo_t;
 
 struct wadfile_t
 {

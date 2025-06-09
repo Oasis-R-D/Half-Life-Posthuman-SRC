@@ -579,6 +579,9 @@ void CBSPRenderer::Init(void)
 	m_iFrameCount = 0;
 	m_iVisFrame = 0;
 	m_bDontPromptShadersError = true;
+	oldvisframes = nullptr;
+	numnodes = 0;
+	enginevisframe = 0;
 
 	gEngfuncs.pfnAddCommand("te_dump", RenderersDumpInfo);
 	gEngfuncs.pfnAddCommand("te_detail_auto", GenDetail);
@@ -826,7 +829,11 @@ void CBSPRenderer::VidInit(void)
 	m_bMirroring = false;
 	m_bSpecialFog = false;
 	m_iNumFlashlightTextures = NULL;
-	memset(trinity_visframes, 0, sizeof(trinity_visframes));
+	if (oldvisframes)
+		delete[] oldvisframes;
+	oldvisframes = nullptr;
+	numnodes = 0;
+	enginevisframe = 0;
 
 	ClearDetailObjects();
 	DeleteDecals();
@@ -1203,6 +1210,22 @@ void CBSPRenderer::SetupPreFrame(ref_params_t* pparams)
 {
 	// Get the leaf we're on
 	m_pWorld = IEngineStudio.GetModelByIndex(1);
+	if (oldvisframes != nullptr)
+	{
+		int numleafnodes = 0;
+		for (int i = 0; i < m_pWorld->numleafs; i++)
+		{
+			mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
+			do
+			{
+				node->visframe = oldvisframes[numleafnodes];
+				node = node->parent;
+				numleafnodes++;
+			} while (node);
+		}
+		delete[] oldvisframes;
+		oldvisframes = nullptr;
+	}
 	m_pViewLeaf = Mod_PointInLeaf(pparams->vieworg, m_pWorld);
 
 	// Ensure proper shadow maps
@@ -1248,9 +1271,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 			continue;
 
 		// Make sure the spotlight sees it's polygons
-		// actually no these mess up r_visframecount sync and im already pISSED ABUT THIS SHIT so just dont to that
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
-		//R_MarkLeaves(pLeaf);
+		mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
+		R_MarkLeaves(pLeaf);
 	}
 	for (int i = 0; i < m_iNumModelShadows; i++, pShadow++)
 	{
@@ -1258,8 +1280,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 			return;
 
 		// Make sure the spotlight sees it's polygons
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
-		//R_MarkLeaves(pLeaf);
+		mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
+		R_MarkLeaves(pLeaf);
 	}
 }
 
@@ -1335,7 +1357,6 @@ void CBSPRenderer::SetupRenderer(void)
 	gTextureLoader.LoadTextureScript();
 	gPropManager.GenerateEntityList();
 	gTextureLoader.LoadWADFiles();
-	LoadWADDecals();
 
 	g_StudioRenderer.StudioSwapEngineCache();
 	CheckTextures(); // Do it for world seperately
@@ -1426,7 +1447,6 @@ void CBSPRenderer::RestoreWorldDrawing(void)
 	// Restore and clear pointer
 	m_pWorld->nodes = m_pTrueRootNode;
 	m_pTrueRootNode = nullptr;
-	saved_leaf_visframe = m_pWorld->nodes[0].visframe;
 
 	// Mark all leaves with current visframe
 	R_MarkLeaves(m_pViewLeaf);
@@ -2441,29 +2461,27 @@ void CBSPRenderer::LoadWADDecals()
 {
 	char waddir[64];
 	sprintf(waddir, "%s/decals.wad", gEngfuncs.pfnGetGameDirectory());
-	int length;
-	byte* wadfile = gEngfuncs.COM_LoadFile(waddir, 5, &length);
-	if (!wadfile)
+	FILE *decalwad = fopen(waddir, "rb");
+	if (!decalwad)
 	{
 		strcpy(waddir, "valve/decals.wad");
-		wadfile = gEngfuncs.COM_LoadFile(waddir, 5, &length);
-		if (!wadfile) // impossible but whatever
+		if (!decalwad) // impossible but whatever
 		{
 			gEngfuncs.Con_DPrintf("ERROR: FAILED TO GET DECALS WAD!!!");
 			return;
 		}
 	}
-	wadinfo_t* pInfo = (wadinfo_t*)wadfile;
+	wadinfo_t* pInfo = (wadinfo_t*)pFile;
 	if (strncmp("WAD3", pInfo->identification, 4))
 	{
-		gEngfuncs.COM_FreeFile(wadfile);
-		return;
+		gEngfuncs.COM_FreeFile(pFile);
+		continue;
 	}
 
-	wadfile_t* pWADFile = &gTextureLoader.m_pWADFiles[gTextureLoader.m_iNumWADFiles];
-	gTextureLoader.m_iNumWADFiles++;
+	wadfile_t* pWADFile = &m_pWADFiles[m_iNumWADFiles];
+	m_iNumWADFiles++;
 
-	pWADFile->wadfile = wadfile;
+	pWADFile->wadfile = pFile;
 	pWADFile->info = (wadinfo_t*)pWADFile->wadfile;
 
 	pWADFile->lumps = new lumpinfo_t[pWADFile->info->numlumps];
@@ -2509,16 +2527,6 @@ void CBSPRenderer::DrawNormalTriangles(void)
 {
 	if (!m_bCanDraw)
 	{
-		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-		{
-			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-			do
-			{
-				node->visframe = saved_leaf_visframe;
-				node = node->parent;
-			} while (node);
-		}
-		gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
 		return;
 	}
 
@@ -2542,18 +2550,19 @@ void CBSPRenderer::DrawNormalTriangles(void)
 
 	// So it's called only once
 	m_bCanDraw = false;
-	gEngfuncs.Con_Printf("%d", saved_leaf_visframe);
 
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
+	if (enginevisframe != 0 && gBSPRenderer.m_pWorld->nodes->contents != enginevisframe)
 	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-		do
+		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
 		{
-			node->visframe = saved_leaf_visframe;
-			node = node->parent;
-		} while (node);
+			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
+			do
+			{
+				node->visframe = enginevisframe;
+				node = node->parent;
+			} while (node);
+		}
 	}
-	gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
 };
 
 
@@ -6918,7 +6927,7 @@ void CBSPRenderer::RecursiveWorldNodeSolid(mnode_t* node)
 		{
 			do
 			{
-				//(*mark)->visframe = m_iFrameCount;
+				(*mark)->visframe = m_iFrameCount;
 				mark++;
 			} while (--c);
 		}

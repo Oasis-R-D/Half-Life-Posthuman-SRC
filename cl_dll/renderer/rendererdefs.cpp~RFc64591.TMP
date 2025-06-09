@@ -758,7 +758,11 @@ void R_MarkLeaves(mleaf_t* pLeaf)
 	cl_entity_t* worldent = gEngfuncs.GetEntityByIndex(1);
 	byte *vis;
 	byte solid[4096];
-	r_visframecount++;
+
+	gBSPRenderer.enginevisframe = pWorld->nodes[0].visframe;
+	r_visframecount += 1 + 
+	gEngfuncs.Con_Printf("%d", gBSPRenderer.enginevisframe);
+
 	for (int i = 0; i < pWorld->numleafs; i++)
 	{
 		mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
@@ -768,7 +772,6 @@ void R_MarkLeaves(mleaf_t* pLeaf)
 			node = node->parent;
 		} while (node);
 	}
-
 	/*
 
 	int numleafnodes = 0;
