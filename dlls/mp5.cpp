@@ -408,6 +408,7 @@ void CM727::Precache()
 	PRECACHE_MODEL("models/v_9mmAR.mdl");
 	PRECACHE_MODEL("models/w_9mmAR.mdl");
 	PRECACHE_MODEL("models/p_9mmAR.mdl");
+	PRECACHE_MODEL("models/v_727.mdl");
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 
@@ -519,7 +520,7 @@ void CM727::PrimaryAttack()
 		return;
 	}
 
-	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater or if emptied
 	{
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
@@ -553,7 +554,7 @@ void CM727::PrimaryAttack()
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
-			m_flNextPrimaryAttack = 0.066;
+			m_flNextPrimaryAttack = 0.12;
 		}
 		else
 		{
@@ -562,7 +563,7 @@ void CM727::PrimaryAttack()
 		}
 	}
 	else
-		m_flNextPrimaryAttack = 0.066;
+		m_flNextPrimaryAttack = 0.12;
 
 	m_flTimeWeaponIdle = 5;
 	m_pPlayer->pev->punchangle.x -= 0.5f;
