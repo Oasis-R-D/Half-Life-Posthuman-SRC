@@ -181,7 +181,7 @@ public:
 	int saved_leaf_visframe;//this MUST, BY ALL MEANS, match
 						//goldsrc's r_visframecount, otherwise temp entities (beams, particles) 
 						//will NOT be rendered
-	int trinity_visframes[262144];
+	int* oldvisframes;
 
 	GLuint m_uiBufferIndex;
 	brushvertex_t* m_pBufferData;

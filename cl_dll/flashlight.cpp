@@ -25,6 +25,8 @@
 #include <string.h>
 #include <stdio.h>
 
+extern bool g_iNightVision;
+
 
 
 DECLARE_MESSAGE(m_Flash, FlashBat)
@@ -96,6 +98,7 @@ bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pb
 
 bool CHudFlashlight::Draw(float flTime)
 {
+	g_iNightVision = m_fOn;
 	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 		return true;
 

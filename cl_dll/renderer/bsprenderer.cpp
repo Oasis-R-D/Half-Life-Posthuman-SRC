@@ -595,6 +595,8 @@ void CBSPRenderer::Init(void)
 	m_pCvarShadows = CVAR_CREATE("te_shadows", "1", FCVAR_ARCHIVE);
 	m_pCvarFixTextCorruption = CVAR_CREATE("te_fix_text_corruption", "1", FCVAR_ARCHIVE);
 
+	oldvisframes = nullptr;
+
 	//
 	// Load shaders
 	//
@@ -826,7 +828,7 @@ void CBSPRenderer::VidInit(void)
 	m_bMirroring = false;
 	m_bSpecialFog = false;
 	m_iNumFlashlightTextures = NULL;
-	memset(trinity_visframes, 0, sizeof(trinity_visframes));
+	oldvisframes = nullptr;
 
 	ClearDetailObjects();
 	DeleteDecals();
@@ -1427,6 +1429,23 @@ void CBSPRenderer::RestoreWorldDrawing(void)
 	m_pWorld->nodes = m_pTrueRootNode;
 	m_pTrueRootNode = nullptr;
 	saved_leaf_visframe = m_pWorld->nodes[0].visframe;
+	int numleafnodes = 0;
+
+	if (oldvisframes != nullptr)
+	{
+		for (int i = 0; i < m_pWorld->numleafs; i++)
+		{
+			mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
+			do
+			{
+				node->visframe = oldvisframes[numleafnodes];
+				node = node->parent;
+				numleafnodes++;
+			} while (node);
+		}
+		delete[] oldvisframes;
+		oldvisframes = nullptr;
+	}
 
 	// Mark all leaves with current visframe
 	R_MarkLeaves(m_pViewLeaf);
@@ -2542,7 +2561,7 @@ void CBSPRenderer::DrawNormalTriangles(void)
 
 	// So it's called only once
 	m_bCanDraw = false;
-	gEngfuncs.Con_Printf("%d", saved_leaf_visframe);
+	//gEngfuncs.Con_Printf("%d", saved_leaf_visframe);
 
 	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
 	{

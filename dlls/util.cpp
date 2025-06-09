@@ -1299,15 +1299,17 @@ void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber)
 		}
 	}
 
-	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
-	WRITE_BYTE(message);
-	WRITE_COORD(pTrace->vecEndPos.x);
-	WRITE_COORD(pTrace->vecEndPos.y);
-	WRITE_COORD(pTrace->vecEndPos.z);
-	WRITE_BYTE(index);
-	if (0 != entityIndex)
-		WRITE_SHORT(entityIndex);
-	MESSAGE_END();
+	//MESSAGE_BEGIN(MSG_BROADCAST, gmsgTrinityDecals);
+
+	//MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+	//WRITE_BYTE(message);
+	//WRITE_COORD(pTrace->vecEndPos.x);
+	//WRITE_COORD(pTrace->vecEndPos.y);
+	//WRITE_COORD(pTrace->vecEndPos.z);
+	//WRITE_BYTE(index);
+	//if (0 != entityIndex)
+	//	WRITE_SHORT(entityIndex);
+	//MESSAGE_END();
 }
 
 /*

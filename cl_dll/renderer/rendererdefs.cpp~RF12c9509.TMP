@@ -759,79 +759,16 @@ void R_MarkLeaves(mleaf_t* pLeaf)
 	cl_entity_t* worldent = gEngfuncs.GetEntityByIndex(1);
 	byte *vis;
 	byte solid[4096];
-	if (r_oldviewleaf == pLeaf)
+	r_visframecount++;
+	for (int i = 0; i < pWorld->numleafs; i++)
 	{
-		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
-			goto savevis;
-
-		r_visframecount++;
-		goto label;
-	}
-	else
-	{
-		r_visframecount++;
-		r_oldviewleaf = pLeaf;
-		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
-		{
-			vis = Mod_LeafPVS(pLeaf, pWorld);
-		}
-		else
-		{
-		label:
-			memset(solid, 255, (pWorld->numleafs + 7) >> 3);
-			vis = solid;
-		}
-	}
-
-	if (pWorld->numleafs > 0)
-	{
-		for (int i = 0; i < pWorld->numleafs; i++)
-		{
-			if (vis[i >> 3] & (1 << (i & 7)))
-			{
-				mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
-				do
-				{
-					if (node->visframe == r_visframecount)
-						break;
-
-					node->visframe = r_visframecount;
-					node = node->parent;
-				} while (node);
-			}
-		}
-	}
-
-	savevis:
-
-	int numleafnodes = 0;
-
-	if (gBSPRenderer.oldvisframes == nullptr)
-	{
-		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
-		{
-			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
-			do
-			{
-				node = node->parent;
-				numleafnodes++;
-			} while (node);
-		}
-		gBSPRenderer.oldvisframes = new int[numleafnodes];
-	}
-	numleafnodes = 0;
-
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
-	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
+		mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
 		do
 		{
-			gBSPRenderer.oldvisframes[numleafnodes] = node->visframe;
+			node->visframe = r_visframecount;
 			node = node->parent;
-			numleafnodes++;
 		} while (node);
 	}
-	numleafnodes = numleafnodes;
 
 	/*
 
@@ -1011,7 +948,7 @@ void R_CalcRefDef(ref_params_t* pparams)
 	// Set this at start
 	RenderFog();
 
-	if (g_iNightVision)
+	if (g_iFlashLight)
 	{
 		SetupFlashlight(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
 	}
