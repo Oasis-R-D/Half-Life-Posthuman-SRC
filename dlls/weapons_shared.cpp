@@ -240,7 +240,9 @@ void CBasePlayer::SelectLastItem()
 
 	m_pActiveItem->UpdateItemInfo();
 }
-
+//=========================================================
+// Deagle (why? WHY NOT!)
+//=========================================================
 #ifndef CLIENT_DLL
 TYPEDESCRIPTION CEagle::m_SaveData[] =
 	{
