@@ -669,6 +669,21 @@ private:
 	unsigned short m_usMP52;
 };
 
+enum m727_e
+{
+	M727_IDLE1, //0
+	M727_IDLE2, //1
+	M727_IDLE3, //2
+	M727_RELOAD_EMPTY, //3
+	M727_RELOAD_TACTICAL, //4
+	M727_DRAW, //5
+	M727_DRAW_FIRST,//6
+	M727_HOLSTER, //7
+	M727_SHOOT1, //8
+	M727_SHOOT2, //9
+	M727_SHOOT3, //10
+};
+
 enum crossbow_e
 {
 	CROSSBOW_IDLE1 = 0, // full

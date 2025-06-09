@@ -417,9 +417,9 @@ void CM727::Precache()
 	PRECACHE_SOUND("items/9mmclip1.wav");
 	PRECACHE_SOUND("items/clipinsert1.wav");
 	PRECACHE_SOUND("items/cliprelease1.wav");
-	PRECACHE_SOUND("weapons/hks1.wav"); // H to the K
-	PRECACHE_SOUND("weapons/hks2.wav"); // H to the K
-	PRECACHE_SOUND("weapons/hks3.wav"); // H to the K
+	PRECACHE_SOUND("weapons/727_hks1.wav"); // H to the K 727 times
+	PRECACHE_SOUND("weapons/727_hks2.wav"); // H to the K 727 times
+	PRECACHE_SOUND("weapons/727_hks3.wav"); // H to the K 727 times
 	PRECACHE_SOUND("weapons/glauncher.wav");
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
@@ -454,10 +454,9 @@ bool CM727::Deploy()
 	if (NotFirstDraw)
 	{
 		if (pev->weapons == 0)
-			return DefaultDeploy("models/v_9mmAR.mdl", "models/p_9mmAR.mdl", MP5_DRAW, "mp5");
-		return DefaultDeploy("models/v_9mmAR.mdl", "models/p_9mmAR.mdl", MP5_DRAW_M203, "mp5");
+			return DefaultDeploy("models/v_727.mdl", "models/p_9mmAR.mdl", M727_DRAW, "mp5");
 	}
-	return DefaultDeploy("models/v_9mmAR.mdl", "models/p_9mmAR.mdl", MP5_DRAW_FIRST, "mp5");
+	return DefaultDeploy("models/v_727.mdl", "models/p_9mmAR.mdl", M727_DRAW_FIRST, "mp5");
 }
 
 void CM727::Holster()
@@ -540,8 +539,8 @@ void CM727::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
-	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
-	EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
+	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+	EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/727_hks1.wav", 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
@@ -586,9 +585,9 @@ void CM727::Reload()
 		return;
 
 	if (m_iClip == 0)
-		DefaultReload(30, MP5_RELOAD_EMPTY, 3);
+		DefaultReload(30, M727_RELOAD_EMPTY, 2);
 	else
-		DefaultReload(30, MP5_RELOAD_TACTICAL, 2);
+		DefaultReload(30, M727_RELOAD_TACTICAL, 1);
 
 	pev->armorvalue = 0;
 }
@@ -607,25 +606,9 @@ void CM727::WeaponIdle()
 	if (pev->weapons == 0)
 	{
 		if (RANDOM_LONG(0, 1))
-			SendWeaponAnim(MP5_IDLE1), m_flTimeWeaponIdle = 5.37;
+			SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = 2.5;
 		else
-			SendWeaponAnim(MP5_IDLE2), m_flTimeWeaponIdle = 4.5;
+			SendWeaponAnim(M727_IDLE2), m_flTimeWeaponIdle = 4;
 	}
-	else
-	{
-		if (pev->frags == 2)
-		{
-			if (0 == m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType])
-				SecondaryAttack();
-			else
-				pev->frags = 1;
-		}
-		else if (pev->frags == 0)
-			SendWeaponAnim(MP5_IDLE_M203), m_flTimeWeaponIdle = 1.63;
-		else
-		{
-			SendWeaponAnim(MP5_RELOAD_M203), m_flTimeWeaponIdle = 1.73;
-			pev->frags = 0;
-		}
-	}
+		
 }
