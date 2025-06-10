@@ -361,7 +361,7 @@ void CFuncVehicle ::UpdateSound(void)
 
 void CFuncVehicle ::CheckTurning(void)
 {
-	float maxspeed;
+	float maxspeed = 0;
 	TraceResult tr;
 
 	bool bTurnIntoWall = false;

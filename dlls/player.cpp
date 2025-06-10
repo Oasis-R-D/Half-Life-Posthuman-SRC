@@ -4407,6 +4407,8 @@ void CBasePlayer::UpdateClientData()
 //=========================================================
 void CBasePlayer::InitializeEntities()
 {
+	CVAR_SET_FLOAT("sv_maxvelocity", 4000); // ugly but required for crossbow bolts
+
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);
 	CBaseEntity* pEntity;
 

@@ -22,7 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 
-#define BOLT_AIR_VELOCITY 2000
+#define BOLT_AIR_VELOCITY 3000
 #define BOLT_WATER_VELOCITY 1000
 
 LINK_ENTITY_TO_CLASS(weapon_crossbow, CCrossbow);

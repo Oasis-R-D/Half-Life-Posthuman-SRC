@@ -753,17 +753,17 @@ bool CBaseEntity::IsInWorld()
 	if (pev->origin.z <= -4096)
 		return false;
 	// speed
-	if (pev->velocity.x >= 2000)
+	if (pev->velocity.x >= 4096)
 		return false;
-	if (pev->velocity.y >= 2000)
+	if (pev->velocity.y >= 4096)
 		return false;
-	if (pev->velocity.z >= 2000)
+	if (pev->velocity.z >= 4096)
 		return false;
-	if (pev->velocity.x <= -2000)
+	if (pev->velocity.x <= -4096)
 		return false;
-	if (pev->velocity.y <= -2000)
+	if (pev->velocity.y <= -4096)
 		return false;
-	if (pev->velocity.z <= -2000)
+	if (pev->velocity.z <= -4096)
 		return false;
 
 	return true;
