@@ -405,9 +405,10 @@ struct decal_msg_cache
 {
 	vec3_t pos;
 	vec3_t normal;
-	char name[16];
+	char name[32];
 	int persistent;
 	int fromwad;
+	float angle;
 };
 
 struct clientsurfdata_t

@@ -37,6 +37,10 @@
 
 CGlobalState gGlobalState;
 
+int saving = 0; // 1 means the save command got called, 2 means we finished saving
+int loaded = 0;
+char savefile[128];
+
 extern void W_Precache();
 
 //
@@ -128,6 +132,7 @@ void CDecal::SendInitMessages(CBaseEntity* pPlayer)
 		WRITE_STRING(STRING(decalname));
 		WRITE_BYTE(0); // persistent
 		WRITE_BYTE(1); // from wad
+		WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
 		MESSAGE_END();
 		pev->targetname = 1;
 	}
@@ -181,6 +186,7 @@ void CDecal::TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 	WRITE_STRING(STRING(decalname));
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
+	WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
 	MESSAGE_END();
 
 	SetThink(&CDecal::SUB_Remove);
@@ -212,6 +218,7 @@ void CDecal::StaticDecal()
 	WRITE_STRING(STRING(decalname));
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
+	WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
 	MESSAGE_END();
 
 	SUB_Remove();
@@ -482,6 +489,21 @@ void SaveGlobalState(SAVERESTOREDATA* pSaveData)
 
 	CSave saveHelper(*pSaveData);
 	gGlobalState.Save(saveHelper);
+
+	saving = 2;
+	char* cmd = strdup(CMD_ARGV(0));
+	if (strcmp(cmd, "autosave"))
+	{
+		strcpy(savefile, CMD_ARGV(1));
+	}
+	else
+	{ // check for all autosave files in "SAVE/"
+		int cursavenum;
+		char* dir;
+		GET_GAME_DIR(dir);
+		strcat(dir, "/SAVE/autosave.sav");
+		strcpy(savefile, "autosave");
+	}
 }
 
 
@@ -494,6 +516,18 @@ void RestoreGlobalState(SAVERESTOREDATA* pSaveData)
 
 	CRestore restoreHelper(*pSaveData);
 	gGlobalState.Restore(restoreHelper);
+
+	loaded = 1;
+	char* cmd = strdup(CMD_ARGV(0));
+	strcpy(savefile, CMD_ARGV(1));
+	if (!strcmp(savefile, ""))
+	{
+		g_engfuncs.pfnServerPrint("!!!couldn't get savefile path!!!");
+		loaded = 0;
+		return;
+	}
+	if (!strstr(savefile, ".sav"))
+		strcat(savefile, ".sav");
 }
 
 

@@ -68,6 +68,8 @@ CWaterShader gWaterShader;
 CTextureLoader gTextureLoader;
 CPropManager gPropManager;
 CMirrorManager gMirrorManager;
+
+CTempEntity gTempEntities;
 // RENDERERS END
 
 
@@ -474,3 +476,143 @@ extern "C" __declspec(dllexport) void CL_GetModelByIndex(int iIndex, void** pPoi
 // RENDERERS_END
 
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);
+
+
+typedef struct decal_load
+{
+	vec3_t position;
+	vec3_t normal;
+	int fromwad;
+	//float angle; havent implemented these yet
+	char name[64];
+};
+
+void RestoreDecals(const char* savefile)
+{
+	char szPath[512];
+	char message[16];
+	char name[64];
+	long pStart;
+	int numdecals;
+	int numstaticdecals;
+	decal_load decal;
+
+	gBSPRenderer.LoadDecals();
+
+	_snprintf(szPath, sizeof(szPath), "%s/SAVE/%s", gEngfuncs.pfnGetGameDirectory(), savefile);
+
+	FILE* pFile = fopen(szPath, "rb");
+	if (!pFile)
+		return;
+	fseek(pFile, -sizeof(long), SEEK_END);
+	fread(&pStart, sizeof(long), 1, pFile);
+	fseek(pFile, pStart, SEEK_SET);
+	fread(&message, sizeof(message), 1, pFile);
+	if (strcmp(message, "DECALSSTART"))
+	{
+		fclose(pFile);
+		return;
+	}
+
+	fread(&numdecals, sizeof(int), 1, pFile);
+	fread(&numstaticdecals, sizeof(int), 1, pFile);
+	for (int i = 0; i < numdecals; i++)
+	{
+		size_t r1 = fread(&decal, sizeof(decal_load), 1, pFile);
+		gBSPRenderer.CreateDecal(decal.position, decal.normal, decal.name, 0, decal.fromwad);
+		gEngfuncs.Con_DPrintf("%f, %f, %f, %i\n", decal.position.x, decal.position.y, decal.position.z, ftell(pFile));
+		gEngfuncs.Con_DPrintf("%i\n", r1);
+	}
+	for (int i = 0; i < numstaticdecals; i++)
+	{
+		size_t r1 = fread(&decal, sizeof(decal_load), 1, pFile);
+		gBSPRenderer.CreateDecal(decal.position, decal.normal, decal.name, 1, decal.fromwad);
+		gEngfuncs.Con_DPrintf("%f, %f, %f, %i\n", decal.position.x, decal.position.y, decal.position.z, ftell(pFile));
+		gEngfuncs.Con_DPrintf("%i\n", r1);
+	}
+
+	fclose(pFile);
+
+	gEngfuncs.Con_DPrintf("%i decals restored, %i static decals restored.\n", numdecals, numstaticdecals);
+}
+
+void SaveDecals(const char* savefile)
+{
+	char szPath[512];
+	char message[16] = "DECALSSTART";
+	char name[64];
+	long pStart = 0;
+	int clearstring = 0;
+	int i = 0;
+	int j = 0;
+	if (gBSPRenderer.m_iNumDecals == 0 && gBSPRenderer.m_iNumStaticDecals == 0)
+		return;
+
+	_snprintf(szPath, sizeof(szPath), "%s/SAVE/%s", gEngfuncs.pfnGetGameDirectory(), savefile);
+
+	FILE* pFile = fopen(szPath, "ab");
+	FILE* pFile2 = fopen(szPath, "rb");
+	if (!pFile)
+		return;
+	if (!pFile2)
+		return;
+
+	fseek(pFile2, 0, SEEK_END);
+	pStart = ftell(pFile2); // position where the information starts
+	fclose(pFile2);
+
+	fwrite(&message, sizeof(message), 1, pFile);					 // 16 bytes
+	fwrite(&gBSPRenderer.m_iNumDecals, sizeof(int), 1, pFile);		 // 4 bytes
+	fwrite(&gBSPRenderer.m_iNumStaticDecals, sizeof(int), 1, pFile); // 4 bytes
+
+	for (i = 0; i < gBSPRenderer.m_iNumDecals; i++)
+	{
+		fwrite(&gBSPRenderer.m_pDecals[i].position, sizeof(float), 3, pFile);
+		fwrite(&gBSPRenderer.m_pDecals[i].normal, sizeof(float), 3, pFile);
+		int fromwad = gBSPRenderer.m_pDecals[i].texinfo->szName[0] == '{' ? 1 : 0;
+		fwrite(&fromwad, sizeof(int), 1, pFile);
+		strcpy_s(name, gBSPRenderer.m_pDecals[i].texinfo->szName);
+		for (j = 0; j < 64; j++)
+		{
+			if (clearstring == 1)
+				name[j] = '\0';
+
+			if (name[j] == '\0')
+				clearstring = 1;
+		}
+		clearstring = 0;
+		fwrite(&name, sizeof(char), 64, pFile);
+
+		gEngfuncs.Con_DPrintf("%f, %f, %f\n", gBSPRenderer.m_pDecals[i].position.x,
+			gBSPRenderer.m_pDecals[i].position.y,
+			gBSPRenderer.m_pDecals[i].position.z);
+	}
+	for (i = 0; i < gBSPRenderer.m_iNumStaticDecals; i++)
+	{
+		fwrite(&gBSPRenderer.m_pStaticDecals[i].position, sizeof(float), 3, pFile);
+		fwrite(&gBSPRenderer.m_pStaticDecals[i].normal, sizeof(float), 3, pFile);
+		strcpy_s(name, gBSPRenderer.m_pStaticDecals[i].texinfo->szName);
+		for (j = 0; j < 64; j++)
+		{
+			if (clearstring == 1)
+				name[j] = '\0';
+
+			if (name[j] == '\0')
+				clearstring = 1;
+		}
+		clearstring = 0;
+		fwrite(&name, sizeof(char), 64, pFile);
+
+		gEngfuncs.Con_DPrintf("%f, %f, %f\n", gBSPRenderer.m_pStaticDecals[i].position.x,
+			gBSPRenderer.m_pStaticDecals[i].position.y,
+			gBSPRenderer.m_pStaticDecals[i].position.z);
+	}
+
+	fwrite(&pStart, sizeof(long), 1, pFile);
+
+	fclose(pFile);
+
+	gEngfuncs.Con_DPrintf("%i decals saved, %i static decals saved.\n", gBSPRenderer.m_iNumDecals, gBSPRenderer.m_iNumStaticDecals);
+
+	// ReadSaveFileTest(savefile);
+}

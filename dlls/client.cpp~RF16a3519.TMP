@@ -50,10 +50,6 @@
 
 DLL_GLOBAL unsigned int g_ulFrameCount;
 
-extern int saving;
-extern int loaded;
-extern char savefile[128];
-
 extern void CopyToBodyQue(entvars_t* pev);
 
 void LinkUserMessages();
@@ -1175,7 +1171,7 @@ void SetupVisibility(edict_t* pViewEntity, edict_t* pClient, unsigned char** pvs
 	Vector org;
 	edict_t* pView = pClient;
 
-	if (loaded == 1)
+		if (loaded == 1)
 	{
 		ClientPrint(&pClient->v, HUD_PRINTCONSOLE, UTIL_VarArgs("we just saved to %s ! we can start writing to it now.\n"), savefile);
 

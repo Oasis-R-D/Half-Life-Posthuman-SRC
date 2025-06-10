@@ -57,6 +57,8 @@ extern int r_visframecount;
 
 bool loaded_decal_wad = false;
 
+extern mleaf_t *r_oldviewleaf;
+
 //using namespace std;
 
 extern "C" {
@@ -831,6 +833,7 @@ void CBSPRenderer::VidInit(void)
 	m_bSpecialFog = false;
 	m_iNumFlashlightTextures = NULL;
 	oldvisframes = nullptr;
+	r_oldviewleaf = nullptr;
 
 	ClearDetailObjects();
 	DeleteDecals();
@@ -4805,7 +4808,7 @@ CreateDecal
 
 ====================
 */
-void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad)
+void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad, float angle)
 {
 	vec3_t mins, maxs;
 	vec3_t decalpos, decalnormal;
@@ -4823,6 +4826,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 		m_pMsgCache[m_iCacheDecals].pos = endpos;
 		m_pMsgCache[m_iCacheDecals].persistent = persistent;
 		m_pMsgCache[m_iCacheDecals].fromwad = fromwad;
+		m_pMsgCache[m_iCacheDecals].angle = angle;
 		m_iCacheDecals++;
 		return;
 	}
@@ -4851,7 +4855,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 				m_vDecalMaxs[1] = endpos[1] + radius;
 				m_vDecalMaxs[2] = endpos[2] + radius;
 
-				RecursiveCreateDecal(m_pWorld->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal);
+				RecursiveCreateDecal(m_pWorld->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
 
 
 				for (int j = 1; j < MAXRENDERENTS; j++)
@@ -5124,7 +5128,7 @@ RecursiveCreateDecal
 
 ====================
 */
-void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal)
+void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle)
 {
 	if (node->contents == CONTENTS_SOLID)
 		return; // solid
@@ -5166,7 +5170,7 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 		side = 1;
 
 	// recurse down the children, front side first
-	RecursiveCreateDecal(node->children[side], texptr, pDecal, endpos, pnormal);
+	RecursiveCreateDecal(node->children[side], texptr, pDecal, endpos, pnormal, angle);
 
 	// draw stuff
 	int c = node->numsurfaces;
@@ -5200,16 +5204,16 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 					if (DotProduct(normal, pnormal) < 0.01)
 						continue;
 
-					DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal);
+					DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal, angle);
 
 				}
 				else
-					DecalSurface(surf, texptr, NULL, pDecal, endpos, normal);
+					DecalSurface(surf, texptr, NULL, pDecal, endpos, normal, angle);
 			}
 		}
 	}
 
-	RecursiveCreateDecal(node->children[!side], texptr, pDecal, endpos, pnormal);
+	RecursiveCreateDecal(node->children[!side], texptr, pDecal, endpos, pnormal, angle);
 }
 
 /*
@@ -5218,7 +5222,7 @@ DecalSurface
 
 ====================
 */
-void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_entity_t* pEntity, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal)
+void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_entity_t* pEntity, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle)
 {
 	vec3_t norm;
 	vec3_t right, up;
@@ -5235,7 +5239,36 @@ void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_
 	if (surf->flags & SURF_DRAWTURB || surf->flags & SURF_DRAWSKY)
 		return;
 
-	GetUpRight(pnormal, up, right);
+	mtexinfo_t* texinfo = surf->texinfo;
+
+	vec3_t sAxis = {texinfo->vecs[0][0], texinfo->vecs[0][1], texinfo->vecs[0][2]};
+	vec3_t tAxis = {texinfo->vecs[1][0], texinfo->vecs[1][1], texinfo->vecs[1][2]};
+
+	VectorNormalize(sAxis);
+	VectorNormalize(tAxis);
+
+	VectorCopy(sAxis, right);
+	VectorCopy(tAxis, up);
+
+	if (angle != 0)
+	{
+		float radians = angle * (M_PI / 180.0f);
+		float cosA = cosf(radians);
+		float sinA = sinf(radians);
+
+		vec3_t newRight, newUp;
+
+		for (int i = 0; i < 3; ++i)
+		{
+			newRight[i] = right[i] * cosA + up[i] * sinA;
+			newUp[i] = up[i] * cosA - right[i] * sinA;
+		}
+
+		VectorCopy(newRight, right);
+		VectorCopy(newUp, up);
+	}
+
+	//GetUpRight(pnormal, up, right);
 
 	int xsize = texptr->xsize;
 	int ysize = texptr->ysize;
@@ -5343,7 +5376,7 @@ void CBSPRenderer::CreateCachedDecals(void)
 
 	for (int i = 0; i < m_iCacheDecals; i++)
 	{
-		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad);
+		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad, m_pMsgCache[i].angle);
 	}
 
 	m_iCacheDecals = 0;
@@ -5531,8 +5564,9 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 	const char* decalname = READ_STRING();
 	int persistent = READ_BYTE();
 	int fromwad = READ_BYTE();
+	float angle = READ_COORD();
 
-	CreateDecal(pos, normal, decalname, persistent, fromwad);
+	CreateDecal(pos, normal, decalname, persistent, fromwad, angle);
 	return 1;
 }
 

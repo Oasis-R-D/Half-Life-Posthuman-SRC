@@ -575,6 +575,9 @@
 // byte ( color ) this is an index into an array of color vectors in the engine. (0 - )
 // byte ( length * 10 )
 
+#define TE_DECALS_SAVE_AND_RESTORE 69
+// string (savefile)
+// short (type) || 0 = save decals || 1 = load decals
 
 
 #define MSG_BROADCAST 0		 // unreliable to all

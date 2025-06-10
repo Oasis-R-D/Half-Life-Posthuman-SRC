@@ -45,8 +45,6 @@
 
 extern CGameStudioModelRenderer g_StudioRenderer;
 extern engine_studio_api_t IEngineStudio;
-
-extern CTempEntity gTempEntities;
 // RENDERERS END
 
 hud_player_info_t g_PlayerInfoList[MAX_PLAYERS_HUD + 1];	// player info from the engine
@@ -341,10 +339,6 @@ int __MsgFunc_FreeEnt(const char* pszName, int iSize, void* pbuf)
 int __MsgFunc_Particle(const char* pszName, int iSize, void* pbuf)
 {
 	return static_cast<int>(gParticleEngine.MsgCreateSystem(pszName, iSize, pbuf));
-}
-int __MsgFunc_TempEnt(const char* pszName, int iSize, void* pbuf)
-{
-	return static_cast<int>(gTempEntities.TempEntities(pszName, iSize, pbuf));
 }
 // RENDERERS END
 

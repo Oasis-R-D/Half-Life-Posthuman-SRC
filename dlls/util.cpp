@@ -1310,6 +1310,7 @@ void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_STRING(gDecals[decalNumber].name);
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
+	WRITE_COORD(0); // NEW!! : decal rotation
 	MESSAGE_END();
 }
 
@@ -1393,6 +1394,7 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_STRING(gDecals[decalNumber].name);
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
+	WRITE_COORD(0); // NEW!! : decal rotation
 	MESSAGE_END();
 }
 

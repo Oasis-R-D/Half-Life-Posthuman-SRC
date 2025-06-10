@@ -476,8 +476,6 @@ static bool SV_InitServer()
 	return true;
 }
 
-extern char savefile[128];
-
 // Register your console variables here
 // This gets called one time when the game is initialied
 void GameDLLInit()

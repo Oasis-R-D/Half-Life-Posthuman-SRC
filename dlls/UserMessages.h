@@ -62,4 +62,6 @@ inline int gmsgFireMode = 0;
 
 inline int gmsgCreateDecal = 0;
 
+inline int gmsgTempEntities = 0;
+
 void LinkUserMessages();

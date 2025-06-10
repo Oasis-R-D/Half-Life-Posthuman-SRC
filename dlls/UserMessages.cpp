@@ -72,4 +72,6 @@ void LinkUserMessages()
 	gmsgFireMode = REG_USER_MSG("FireMode", -1);
 
 	gmsgCreateDecal = REG_USER_MSG("CreateDecal", -1);
+
+	gmsgTempEntities = REG_USER_MSG("TempEnt", -1);
 }
