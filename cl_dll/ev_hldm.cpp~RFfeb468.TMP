@@ -265,7 +265,8 @@ void EV_HLDM_GunshotDecalTrace(pmtrace_t* pTrace, char* decalName)
 	{
 		if (CVAR_GET_FLOAT("r_decals"))
 		{
-			gBSPRenderer.CreateDecal(pTrace->endpos, pTrace->plane.normal, decalName, 0, 1);
+			gBSPRenderer.CreateDecal(pTrace->endpos, pTrace->plane.normal, decalname, 0, 1)
+				gEngfuncs.pEventAPI->EV_IndexFromTrace(pTrace), 0, pTrace->endpos, 0);
 		}
 	}
 }

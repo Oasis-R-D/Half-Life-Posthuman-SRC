@@ -22,21 +22,6 @@ Written by Andrew Lucas
 
 #pragma warning(disable : 4018)
 
-//taken from quake
-static const struct
-{
-	const char* name;
-	GLenum minimize, maximize;
-} texModes[] = {
-	//?? remove this later:
-	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},								  // box filter, no mipmaps
-	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},								  // linear filter, no mipmaps
-	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST}, // no (box) filter
-	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},	  // bilinear filter
-	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}, // trilinear filter
-};
-
 /*
 ====================
 Init
@@ -64,13 +49,6 @@ void CTextureLoader::VidInit(void)
 
 	memset(m_pTextures, NULL, sizeof(m_pTextures));
 	m_iNumTextures = NULL;
-
-	for (int i = 0; i < m_iNumWADDecals; i++)
-		delete m_pWAD_Decals[i].texinfo;
-
-	memset(m_pWAD_Decals, 0, sizeof(m_pWAD_Decals));
-
-	m_iNumWADDecals = 0;
 }
 
 /*
@@ -532,9 +510,6 @@ void CTextureLoader::LoadWADFiles(void)
 		}
 
 		FilenameFromPath(szWAD, szFile);
-		if (!strcmp(szFile, "decals"))
-			continue; //we load decals separately
-
 		strcat(szFile, ".wad");
 
 		int iSize = 0;
@@ -552,7 +527,6 @@ void CTextureLoader::LoadWADFiles(void)
 		wadfile_t* pWADFile = &m_pWADFiles[m_iNumWADFiles];
 		m_iNumWADFiles++;
 
-		strcpy(pWADFile->wadname, szFile);
 		pWADFile->wadfile = pFile;
 		pWADFile->info = (wadinfo_t*)pWADFile->wadfile;
 
@@ -647,7 +621,7 @@ LoadPallettedTexture
 
 ====================
 */
-void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture, bool isdecal)
+void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture)
 {
 	int row1[1024], row2[1024], col1[1024], col2[1024];
 	byte *pix1, *pix2, *pix3, *pix4;
@@ -681,85 +655,59 @@ void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* p
 		row2[i] = (int)((i + 0.75) * (pTexture->iHeight / (float)outheight)) * pTexture->iWidth;
 	}
 
-	if (isdecal)
+	for (int i = 0; i < outheight; i++)
 	{
-		for (int i = 0; i < outheight; i++)
+		for (int j = 0; j < outwidth; j++, out += 4)
 		{
-			for (int j = 0; j < outwidth; j++, out += 4)
+			pix1 = &pal[data[row1[i] + col1[j]] * 3];
+			pix2 = &pal[data[row1[i] + col2[j]] * 3];
+			pix3 = &pal[data[row2[i] + col1[j]] * 3];
+			pix4 = &pal[data[row2[i] + col2[j]] * 3];
+			alpha1 = 0xFF;
+			alpha2 = 0xFF;
+			alpha3 = 0xFF;
+			alpha4 = 0xFF;
+
+			if (pTexture->szName[0] == '{')
 			{
-				byte index = data[row1[i] + col1[j]];
-
-				byte* pix = &pal[index * 3];
-				byte r = pix[0], g = pix[1], b = pix[2];
-
-				float luminance = (0.30f * r + 0.59f * g + 0.11f * b);
-
-				byte alpha = 255 - static_cast<byte>(luminance);
-				pix = &pal[255 * 3];
-
-				out[0] = pix[0];
-				out[1] = pix[1];
-				out[2] = pix[2];
-				out[3] = alpha;
-			}
-		}
-	}
-	else
-	{
-		for (int i = 0; i < outheight; i++)
-		{
-			for (int j = 0; j < outwidth; j++, out += 4)
-			{
-				pix1 = &pal[data[row1[i] + col1[j]] * 3];
-				pix2 = &pal[data[row1[i] + col2[j]] * 3];
-				pix3 = &pal[data[row2[i] + col1[j]] * 3];
-				pix4 = &pal[data[row2[i] + col2[j]] * 3];
-				alpha1 = 0xFF;
-				alpha2 = 0xFF;
-				alpha3 = 0xFF;
-				alpha4 = 0xFF;
-
-				if (pTexture->szName[0] == '{')
+				if (data[row1[i] + col1[j]] == 0xFF)
 				{
-					if (data[row1[i] + col1[j]] == 0xFF)
-					{
-						pix1[0] = 0;
-						pix1[1] = 0;
-						pix1[2] = 0;
-						alpha1 = 0;
-					}
-
-					if (data[row1[i] + col2[j]] == 0xFF)
-					{
-						pix2[0] = 0;
-						pix2[1] = 0;
-						pix2[2] = 0;
-						alpha2 = 0;
-					}
-
-					if (data[row2[i] + col1[j]] == 0xFF)
-					{
-						pix3[0] = 0;
-						pix3[1] = 0;
-						pix3[2] = 0;
-						alpha3 = 0;
-					}
-
-					if (data[row2[i] + col2[j]] == 0xFF)
-					{
-						pix4[0] = 0;
-						pix4[1] = 0;
-						pix4[2] = 0;
-						alpha4 = 0;
-					}
+					pix1[0] = 0;
+					pix1[1] = 0;
+					pix1[2] = 0;
+					alpha1 = 0;
 				}
 
-				out[0] = (pix1[0] + pix2[0] + pix3[0] + pix4[0]) >> 2;
-				out[1] = (pix1[1] + pix2[1] + pix3[1] + pix4[1]) >> 2;
-				out[2] = (pix1[2] + pix2[2] + pix3[2] + pix4[2]) >> 2;
+				if (data[row1[i] + col2[j]] == 0xFF)
+				{
+					pix2[0] = 0;
+					pix2[1] = 0;
+					pix2[2] = 0;
+					alpha2 = 0;
+				}
 
-				out[3] = (alpha1 + alpha2 + alpha3 + alpha4) >> 2;
+				if (data[row2[i] + col1[j]] == 0xFF)
+				{
+					pix3[0] = 0;
+					pix3[1] = 0;
+					pix3[2] = 0;
+					alpha3 = 0;
+				}
+
+				if (data[row2[i] + col2[j]] == 0xFF)
+				{
+					pix4[0] = 0;
+					pix4[1] = 0;
+					pix4[2] = 0;
+					alpha4 = 0;
+				}
 			}
+
+			out[0] = (pix1[0] + pix2[0] + pix3[0] + pix4[0]) >> 2;
+			out[1] = (pix1[1] + pix2[1] + pix3[1] + pix4[1]) >> 2;
+			out[2] = (pix1[2] + pix2[2] + pix3[2] + pix4[2]) >> 2;
+
+			out[3] = (alpha1 + alpha2 + alpha3 + alpha4) >> 2;
 		}
 	}
 

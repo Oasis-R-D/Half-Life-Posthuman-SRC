@@ -41,6 +41,7 @@ Written by Andrew Lucas
 
 struct wadfile_t
 {
+	char wadname[64];
 	byte* wadfile;
 	wadinfo_t* info;
 
@@ -80,6 +81,12 @@ struct dds_header_t
 	byte bPFFourCC[4];
 };
 
+struct waddecals_t
+{
+	char name[16];
+	decalgroupentry_t* texinfo;
+};
+
 /*
 =======================
 CTextureLoader
@@ -105,7 +112,7 @@ public:
 
 	bool LoadTGAFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip, bool bBorder);
 	bool LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip);
-	void LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture);
+	void LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture, bool isdecal = false);
 
 	void LoadTextureScript(void);
 	bool TextureHasFlag(const char* szModel, char* szTexture, int iFlag);
@@ -121,6 +128,9 @@ public:
 
 	wadfile_t m_pWADFiles[MAX_WADFILES];
 	int m_iNumWADFiles;
+
+	waddecals_t m_pWAD_Decals[512];
+	int m_iNumWADDecals;
 };
 extern CTextureLoader gTextureLoader;
 #endif

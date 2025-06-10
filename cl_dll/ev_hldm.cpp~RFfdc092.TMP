@@ -42,8 +42,6 @@
 #include "r_studioint.h"
 #include "com_model.h"
 
-#include "../renderer/bsprenderer.h"
-
 extern engine_studio_api_t IEngineStudio;
 
 static int tracerCount[MAX_PLAYERS];
@@ -265,7 +263,9 @@ void EV_HLDM_GunshotDecalTrace(pmtrace_t* pTrace, char* decalName)
 	{
 		if (CVAR_GET_FLOAT("r_decals"))
 		{
-			gBSPRenderer.CreateDecal(pTrace->endpos, pTrace->plane.normal, decalName, 0, 1);
+			gBSPRenderer.CreateDecals()
+				gEngfuncs.pEfxAPI->Draw_DecalIndex(gEngfuncs.pEfxAPI->Draw_DecalIndexFromName(decalName)),
+				gEngfuncs.pEventAPI->EV_IndexFromTrace(pTrace), 0, pTrace->endpos, 0);
 		}
 	}
 }

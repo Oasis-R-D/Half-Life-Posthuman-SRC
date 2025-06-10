@@ -33,6 +33,7 @@
 #include "weapons.h"
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
+#include "UserMessages.h"
 
 CGlobalState gGlobalState;
 
@@ -105,11 +106,32 @@ public:
 	void Spawn() override;
 	bool KeyValue(KeyValueData* pkvd) override;
 	void EXPORT StaticDecal();
+	void SendInitMessages(CBaseEntity* pPlayer = NULL) override;
 	void EXPORT TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	string_t decalname;
 };
 
 LINK_ENTITY_TO_CLASS(infodecal, CDecal);
+
+void CDecal::SendInitMessages(CBaseEntity* pPlayer)
+{
+	if (pPlayer && FStringNull(pev->targetname))
+	{
+		MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
+		// TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
+		WRITE_COORD(pev->origin.x);
+		WRITE_COORD(pev->origin.y);
+		WRITE_COORD(pev->origin.z);
+		WRITE_COORD(-999.f);
+		WRITE_COORD(-999.f);
+		WRITE_COORD(-999.f);
+		WRITE_STRING(STRING(decalname));
+		WRITE_BYTE(0); // persistent
+		WRITE_BYTE(1); // from wad
+		MESSAGE_END();
+		pev->targetname = 1;
+	}
+}
 
 // UNDONE:  These won't get sent to joining players in multi-player
 void CDecal::Spawn()
@@ -120,15 +142,8 @@ void CDecal::Spawn()
 		return;
 	}
 
-	if (FStringNull(pev->targetname))
+	if (!FStringNull(pev->targetname))
 	{
-		SetThink(&CDecal::StaticDecal);
-		// if there's no targetname, the decal will spray itself on as soon as the world is done spawning.
-		pev->nextthink = gpGlobals->time;
-	}
-	else
-	{
-		// if there IS a targetname, the decal sprays itself on when it is triggered.
 		SetThink(&CDecal::SUB_DoNothing);
 		SetUse(&CDecal::TriggerDecal);
 	}
@@ -155,6 +170,19 @@ void CDecal::TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 	//	WRITE_SHORT((int)VARS(trace.pHit)->modelindex);
 	//MESSAGE_END();
 
+	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
+	// TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
+	WRITE_COORD(pev->origin.x);
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z);
+	WRITE_COORD(0.f);
+	WRITE_COORD(0.f);
+	WRITE_COORD(0.f);
+	WRITE_STRING(STRING(decalname));
+	WRITE_BYTE(0); // persistent
+	WRITE_BYTE(1); // from wad
+	MESSAGE_END();
+
 	SetThink(&CDecal::SUB_Remove);
 	pev->nextthink = gpGlobals->time + 0.1;
 }
@@ -173,7 +201,18 @@ void CDecal::StaticDecal()
 	else
 		modelIndex = 0;
 
-	g_engfuncs.pfnStaticDecal(pev->origin, (int)pev->skin, entityIndex, modelIndex);
+	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
+	// TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
+	WRITE_COORD(pev->origin.x);
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z);
+	WRITE_COORD(0.f);
+	WRITE_COORD(0.f);
+	WRITE_COORD(0.f);
+	WRITE_STRING(STRING(decalname));
+	WRITE_BYTE(0); // persistent
+	WRITE_BYTE(1); // from wad
+	MESSAGE_END();
 
 	SUB_Remove();
 }

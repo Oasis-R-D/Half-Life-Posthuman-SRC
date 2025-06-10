@@ -172,31 +172,11 @@ void CLight::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType
 	}
 }
 
-extern int gmsgLightSource;
 void CLight::SendInitMessages(CBaseEntity* pPlayer)
 {
 	if (pPlayer && !m_isActive)
 		return;
 
-	if (pPlayer)
-		MESSAGE_BEGIN(MSG_ONE, gmsgLightSource, NULL, pPlayer->pev);
-	else
-		MESSAGE_BEGIN(MSG_ALL, gmsgLightSource, NULL);
-
-	WRITE_SHORT(entindex());
-	WRITE_BYTE(m_isActive ? 1 : 0);
-
-	if (m_isActive)
-	{
-		WRITE_COORD(pev->origin.x);
-		WRITE_COORD(pev->origin.y);
-		WRITE_COORD(pev->origin.z);
-		WRITE_BYTE(m_colorR);
-		WRITE_BYTE(m_colorG);
-		WRITE_BYTE(m_colorB);
-		WRITE_COORD((float)m_brightness / 9);
-	}
-	MESSAGE_END();
 }
 // STENCIL SHADOWS END
 

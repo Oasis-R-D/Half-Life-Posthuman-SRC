@@ -66,10 +66,10 @@ void LinkUserMessages()
 
 	gmsgWeapons = REG_USER_MSG("Weapons", 8);
 	gmsgHeadcrab = REG_USER_MSG("Headcrab", -1);
-	// STENCIL SHADOWS BEGIN
-	gmsgLightSource = REG_USER_MSG("LightSource", -1);
-	// STENCIL SHADOWS END
+
 	gmsgFlashHUD = REG_USER_MSG("FlashHUD", -1);
 	gmsgHunger = REG_USER_MSG("Hunger", -1);
 	gmsgFireMode = REG_USER_MSG("FireMode", -1);
+
+	gmsgCreateDecal = REG_USER_MSG("CreateDecal", -1);
 }

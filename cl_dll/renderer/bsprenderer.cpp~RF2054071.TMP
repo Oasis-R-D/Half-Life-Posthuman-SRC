@@ -55,8 +55,6 @@ extern CGameStudioModelRenderer g_StudioRenderer;
 
 extern int r_visframecount;
 
-bool loaded_decal_wad = false;
-
 //using namespace std;
 
 extern "C" {
@@ -2460,7 +2458,6 @@ bool CBSPRenderer::HasDynLights(void)
 
 void CBSPRenderer::LoadWADDecals()
 {
-	bool loaded_valve_decals = false;
 	char waddir[64];
 	sprintf(waddir, "%s/decals.wad", gEngfuncs.pfnGetGameDirectory());
 	int length;
@@ -2469,7 +2466,6 @@ void CBSPRenderer::LoadWADDecals()
 	{
 		strcpy(waddir, "valve/decals.wad");
 		wadfile = gEngfuncs.COM_LoadFile(waddir, 5, &length);
-		loaded_valve_decals = true;
 		if (!wadfile) // impossible but whatever
 		{
 			gEngfuncs.Con_DPrintf("ERROR: FAILED TO GET DECALS WAD!!!");
@@ -2486,31 +2482,13 @@ void CBSPRenderer::LoadWADDecals()
 	wadfile_t* pWADFile = &gTextureLoader.m_pWADFiles[gTextureLoader.m_iNumWADFiles];
 	gTextureLoader.m_iNumWADFiles++;
 
-	strcpy(pWADFile->wadname, "decals.wad");
+	strcpy(pWADFile->wadname, szFile);
 	pWADFile->wadfile = wadfile;
 	pWADFile->info = (wadinfo_t*)pWADFile->wadfile;
 
 	pWADFile->lumps = new lumpinfo_t[pWADFile->info->numlumps];
 	memcpy(pWADFile->lumps, (pWADFile->wadfile + pWADFile->info->infotableofs), sizeof(lumpinfo_t) * pWADFile->info->numlumps);
 	pWADFile->numlumps = pWADFile->info->numlumps;
-
-	if (!loaded_valve_decals)
-	{
-		strcpy(waddir, "valve/decals.wad");
-		wadfile = gEngfuncs.COM_LoadFile(waddir, 5, &length);
-		loaded_valve_decals = true;
-
-		wadfile_t* pWADFile = &gTextureLoader.m_pWADFiles[gTextureLoader.m_iNumWADFiles];
-		gTextureLoader.m_iNumWADFiles++;
-
-		strcpy(pWADFile->wadname, "decals.wad");
-		pWADFile->wadfile = wadfile;
-		pWADFile->info = (wadinfo_t*)pWADFile->wadfile;
-
-		pWADFile->lumps = new lumpinfo_t[pWADFile->info->numlumps];
-		memcpy(pWADFile->lumps, (pWADFile->wadfile + pWADFile->info->infotableofs), sizeof(lumpinfo_t) * pWADFile->info->numlumps);
-		pWADFile->numlumps = pWADFile->info->numlumps;
-	}
 	
 }
 
@@ -4438,8 +4416,16 @@ LoadDecalTexture
 
 ====================
 */
-cl_texture_t* CBSPRenderer::LoadDecalTexture(const char* texname)
+cl_texture_t* CBSPRenderer::LoadDecalTexture(const char* texname, bool fromwad)
 {
+	if (fromwad)
+	{
+		char cast_texname[64];
+		strcpy(cast_texname, texname);
+		cl_texture_t* pTexture = gTextureLoader.LoadWADTexture(cast_texname);
+
+		return;
+	}
 	char path[256];
 	sprintf(path, "gfx/textures/decals/%s.dds", texname);
 
@@ -4551,119 +4537,9 @@ void CBSPRenderer::LoadDecals(void)
 		}
 	}
 
-
 getout:
 	gEngfuncs.COM_FreeFile(pfile);
 	gEngfuncs.Con_Printf("BSP Renderer: %d decal groups created\n", counter);
-
-	//load decals.wad
-
-	//if (loaded_decal_wad)
-	//	return;
-
-	cl_texture_t* pTexture = nullptr;
-	bool gonna_load_valve_decals = false;
-	for (int i = 0; i < gTextureLoader.m_iNumWADFiles; i++)
-	{
-		if (!strcmp(gTextureLoader.m_pWADFiles[i].wadname, "decals.wad") && !gonna_load_valve_decals)
-		{
-			byte* pFile = gTextureLoader.m_pWADFiles[i].wadfile;
-			wadinfo_t* pInfo = gTextureLoader.m_pWADFiles[i].info;
-			for (int j = 0; j < pInfo->numlumps; j++)
-			{
-				lumpinfo_t* pLump = &gTextureLoader.m_pWADFiles[i].lumps[j];
-				if (pLump->type != 0 && !(pLump->type & 0x43))
-					continue;
-
-				pTexture = &gTextureLoader.m_pTextures[gTextureLoader.m_iNumTextures];
-				gTextureLoader.m_iNumTextures++;
-
-				// Fill in data
-				strcpy(pTexture->szName, pLump->name);
-				pTexture->iWidth = ByteToUInt(pFile + pLump->filepos + 16);
-				pTexture->iHeight = ByteToUInt(pFile + pLump->filepos + 20);
-				pTexture->iBpp = 4;
-
-				// Get offsets
-				int iIndexOffset = ByteToUInt(pFile + pLump->filepos + 24);
-				int iMip3Offset = ByteToUInt(pFile + pLump->filepos + 36);
-
-				byte* pPalette;
-				if (pLump->type & 0x43)
-					pPalette = pFile + pLump->filepos + iMip3Offset + ((pTexture->iWidth / 8) * (pTexture->iHeight / 8)) + 2;
-				else
-					pPalette = pFile + pLump->filepos + iIndexOffset + (pTexture->iWidth * pTexture->iHeight) + 2;
-
-				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
-				gTextureLoader.LoadPallettedTexture(pPixels, pPalette, pTexture, true);
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].name, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo = new decalgroupentry_t;
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->szName, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->gl_texid = pTexture->iIndex;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->xsize = pTexture->iWidth / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->ysize = pTexture->iHeight / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->group = nullptr; //unused
-				gTextureLoader.m_iNumWADDecals++;
-				loaded_decal_wad = true;
-				gonna_load_valve_decals = true;
-			}
-		}
-		else if (gonna_load_valve_decals)
-		{
-			byte* pFile = gTextureLoader.m_pWADFiles[i].wadfile;
-			wadinfo_t* pInfo = gTextureLoader.m_pWADFiles[i].info;
-			for (int j = 0; j < pInfo->numlumps; j++)
-			{
-				bool alreadyexists = false;
-				lumpinfo_t* pLump = &gTextureLoader.m_pWADFiles[i].lumps[j];
-				if (pLump->type != 0 && !(pLump->type & 0x43))
-					continue;
-
-				strLower(pLump->name);
-
-				for (int k = 0; k < gTextureLoader.m_iNumTextures; k++)
-				{
-					if (!strcmp(gTextureLoader.m_pTextures[k].szName, pLump->name))
-						alreadyexists = true;
-				}
-				if (alreadyexists)
-					continue;
-
-				pTexture = &gTextureLoader.m_pTextures[gTextureLoader.m_iNumTextures];
-				gTextureLoader.m_iNumTextures++;
-
-				// Fill in data
-				strcpy(pTexture->szName, pLump->name);
-				pTexture->iWidth = ByteToUInt(pFile + pLump->filepos + 16);
-				pTexture->iHeight = ByteToUInt(pFile + pLump->filepos + 20);
-				pTexture->iBpp = 4;
-
-				// Get offsets
-				int iIndexOffset = ByteToUInt(pFile + pLump->filepos + 24);
-				int iMip3Offset = ByteToUInt(pFile + pLump->filepos + 36);
-
-				byte* pPalette;
-				if (pLump->type & 0x43)
-					pPalette = pFile + pLump->filepos + iMip3Offset + ((pTexture->iWidth / 8) * (pTexture->iHeight / 8)) + 2;
-				else
-					pPalette = pFile + pLump->filepos + iIndexOffset + (pTexture->iWidth * pTexture->iHeight) + 2;
-
-				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
-				gTextureLoader.LoadPallettedTexture(pPixels, pPalette, pTexture, true);
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].name, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo = new decalgroupentry_t;
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->szName, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->gl_texid = pTexture->iIndex;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->xsize = pTexture->iWidth / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->ysize = pTexture->iHeight / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->group = nullptr; // unused
-				gTextureLoader.m_iNumWADDecals++;
-				loaded_decal_wad = true;
-			}
-			return;
-		}
-	}
-
 };
 
 /*
@@ -4805,146 +4681,23 @@ CreateDecal
 
 ====================
 */
-void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad)
+void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent)
 {
 	vec3_t mins, maxs;
 	vec3_t decalpos, decalnormal;
 	decalgroupentry_t* pDecalTex;
 
 	m_pWorld = IEngineStudio.GetModelByIndex(1);
-	if (!m_pWorld || (fromwad && gTextureLoader.m_iNumWADDecals == 0))
+	if (!m_pWorld)
 	{
 		if (m_iCacheDecals >= MAX_DECAL_MSG_CACHE)
 			return;
 
 		strcpy(m_pMsgCache[m_iCacheDecals].name, name);
-		strLower(m_pMsgCache[m_iCacheDecals].name);
 		m_pMsgCache[m_iCacheDecals].normal = pnormal;
 		m_pMsgCache[m_iCacheDecals].pos = endpos;
 		m_pMsgCache[m_iCacheDecals].persistent = persistent;
-		m_pMsgCache[m_iCacheDecals].fromwad = fromwad;
 		m_iCacheDecals++;
-		return;
-	}
-
-	char lowername[128];
-	strcpy(lowername, name);
-	strLower(lowername);
-
-	if (fromwad)
-	{
-		customdecal_t* pDecal = NULL;
-		for (int i = 0; i < gTextureLoader.m_iNumWADDecals; i++)
-		{
-			if (!strcmp(gTextureLoader.m_pWAD_Decals[i].texinfo->szName, lowername))
-			{
-				pDecal = AllocDecal();
-				pDecal->texinfo = gTextureLoader.m_pWAD_Decals[i].texinfo;
-				VectorCopy(endpos, pDecal->position);
-				VectorCopy(pnormal, pDecal->normal);
-				float radius = (pDecal->texinfo->xsize > pDecal->texinfo->ysize) ? pDecal->texinfo->xsize : pDecal->texinfo->ysize;
-
-				m_vDecalMins[0] = endpos[0] - radius;
-				m_vDecalMins[1] = endpos[1] - radius;
-				m_vDecalMins[2] = endpos[2] - radius;
-				m_vDecalMaxs[0] = endpos[0] + radius;
-				m_vDecalMaxs[1] = endpos[1] + radius;
-				m_vDecalMaxs[2] = endpos[2] + radius;
-
-				RecursiveCreateDecal(m_pWorld->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal);
-
-
-				for (int j = 1; j < MAXRENDERENTS; j++)
-				{
-					cl_entity_t* pEntity = gEngfuncs.GetEntityByIndex(j);
-
-					if (!pEntity)
-						break;
-
-					if (!pEntity->model)
-						continue;
-
-					if (pEntity->model->type != mod_brush)
-						continue;
-
-					if (pEntity->curstate.solid == SOLID_NOT)
-						continue;
-
-					if (pEntity->angles[0] || pEntity->angles[1] || pEntity->angles[2])
-					{
-						mins[0] = pEntity->origin[0] - pEntity->model->radius;
-						mins[1] = pEntity->origin[1] - pEntity->model->radius;
-						mins[2] = pEntity->origin[2] - pEntity->model->radius;
-						maxs[0] = pEntity->origin[0] + pEntity->model->radius;
-						maxs[1] = pEntity->origin[1] + pEntity->model->radius;
-						maxs[2] = pEntity->origin[2] + pEntity->model->radius;
-					}
-					else
-					{
-						mins = pEntity->origin + pEntity->model->mins;
-						maxs = pEntity->origin + pEntity->model->maxs;
-					}
-
-					if (CullDecalBBox(mins, maxs))
-						continue;
-
-					if (pEntity->origin[0] || pEntity->origin[1] || pEntity->origin[2])
-					{
-						VectorSubtract(endpos, pEntity->origin, decalpos);
-						if (pEntity->angles[0] || pEntity->angles[1] || pEntity->angles[2])
-						{
-							vec3_t temp, forward, right, up;
-							AngleVectors(pEntity->angles, forward, right, up);
-
-							VectorCopy(decalpos, temp);
-							decalpos[0] = DotProduct(temp, forward);
-							decalpos[1] = -DotProduct(temp, right);
-							decalpos[2] = DotProduct(temp, up);
-
-							VectorCopy(pnormal, temp);
-							decalnormal[0] = DotProduct(temp, forward);
-							decalnormal[1] = -DotProduct(temp, right);
-							decalnormal[2] = DotProduct(temp, up);
-						}
-						else
-						{
-							VectorSubtract(endpos, pEntity->origin, decalpos);
-							VectorCopy(pnormal, decalnormal);
-						}
-					}
-					else
-					{
-						VectorCopy(pnormal, decalnormal);
-						VectorCopy(endpos, decalpos);
-					}
-
-					msurface_t* surf = &m_pWorld->surfaces[pEntity->model->firstmodelsurface];
-					for (int k = 0; k < pEntity->model->nummodelsurfaces; k++, surf++)
-					{
-						float dot;
-						mplane_t* pplane = surf->plane;
-						SSEDotProductSub(&dot, &decalpos, &pplane->normal, &pplane->dist);
-
-						if (dot < 0)
-							dot *= -1;
-
-						if (dot < radius)
-						{
-							vec3_t normal = pplane->normal;
-
-							if (surf->flags & SURF_PLANEBACK)
-								VectorInverse(normal);
-
-							if (DotProduct(normal, decalnormal) < 0.01)
-								continue;
-
-							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal);
-						}
-					}
-				}
-
-			}
-		}
 		return;
 	}
 
@@ -5195,16 +4948,10 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 				if (surf->flags & SURF_PLANEBACK)
 					VectorInverse(normal);
 
-				if (pnormal.x != -999)
-				{
-					if (DotProduct(normal, pnormal) < 0.01)
-						continue;
+				if (DotProduct(normal, pnormal) < 0.01)
+					continue;
 
-					DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal);
-
-				}
-				else
-					DecalSurface(surf, texptr, NULL, pDecal, endpos, normal);
+				DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal);
 			}
 		}
 	}
@@ -5343,7 +5090,7 @@ void CBSPRenderer::CreateCachedDecals(void)
 
 	for (int i = 0; i < m_iCacheDecals; i++)
 	{
-		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad);
+		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent);
 	}
 
 	m_iCacheDecals = 0;
@@ -5359,19 +5106,6 @@ DrawSingleDecal
 void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 {
 	Bind2DTexture(GL_TEXTURE0_ARB, decal->texinfo->gl_texid);
-	if (decal->texinfo->szName[0] == '{')
-	{
-		// oy you! shut yo mouth and looka mah waaad!
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); use this if you want decals to glow!! (wow so cool!)
-	}
-	else
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-	}
 
 	for (int i = 0; i < decal->inumpolys; i++)
 	{
@@ -5457,14 +5191,9 @@ void CBSPRenderer::DrawDecals(void)
 
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_FALSE);
-	
-	//normal decals
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 
-	//wad decals
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 
 	glPolygonOffset(-1, -1);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -5528,11 +5257,8 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 	normal.x = READ_COORD();
 	normal.y = READ_COORD();
 	normal.z = READ_COORD();
-	const char* decalname = READ_STRING();
-	int persistent = READ_BYTE();
-	int fromwad = READ_BYTE();
 
-	CreateDecal(pos, normal, decalname, persistent, fromwad);
+	CreateDecal(pos, normal, READ_STRING(), READ_BYTE());
 	return 1;
 }
 

@@ -407,6 +407,7 @@ struct decal_msg_cache
 	vec3_t normal;
 	char name[16];
 	int persistent;
+	int fromwad;
 };
 
 struct clientsurfdata_t

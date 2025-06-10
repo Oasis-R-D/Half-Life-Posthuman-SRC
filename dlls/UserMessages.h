@@ -55,12 +55,11 @@ inline int gmsgStatusValue = 0;
 
 inline int gmsgWeapons = 0;
 inline int gmsgHeadcrab = 0;
-// STENCIL SHADOWS BEGIN
-inline int gmsgLightSource = 0;
-// STENCIL SHADOWS END
 
 inline int gmsgFlashHUD = 0;
 inline int gmsgHunger = 0;
 inline int gmsgFireMode = 0;
+
+inline int gmsgCreateDecal = 0;
 
 void LinkUserMessages();
