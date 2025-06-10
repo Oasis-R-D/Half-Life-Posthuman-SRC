@@ -732,10 +732,10 @@ void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* p
 	};
 
 	glBindTexture(GL_TEXTURE_2D, pTexture->iIndex);
-	const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
+	char* texturemode;
 	for (int i = 0; i < sizeof(texModes) / sizeof(texModes[0]); i++)
 	{
-		if (stricmp(texModes[i].name, texturemode))
+		if (stricmp(texModes[i].name, gEngfuncs.pfnGetCvarString("gl_texturemode")))
 			continue;
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texModes[i].minimize);

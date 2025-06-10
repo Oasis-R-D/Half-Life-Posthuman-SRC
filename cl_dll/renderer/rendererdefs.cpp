@@ -1378,11 +1378,13 @@ void FixVectorForSpotlight(vec3_t& vec)
 void R_DisableSteamMSAA(void)
 {
 	// make sure we start with FBO / AA disabled
-	gEngfuncs.pfnClientCmd("_set_vid_level 1");
-	gEngfuncs.pfnClientCmd("_sethdmodels 0");
-	gEngfuncs.pfnClientCmd("gl_texturemode GL_LINEAR_MIPMAP_LINEAR");
-	gEngfuncs.pfnClientCmd("gl_round_down 0");
-	gEngfuncs.pfnClientCmd("_restart");
+	//gEngfuncs.pfnClientCmd("_set_vid_level 1");
+	//gEngfuncs.pfnClientCmd("_sethdmodels 0");
+	//gEngfuncs.pfnClientCmd("gl_texturemode GL_LINEAR_MIPMAP_LINEAR");
+	//gEngfuncs.pfnClientCmd("gl_round_down 0");
+	//gEngfuncs.pfnClientCmd("_restart");
+	//
+	//pretty sure this is obsolete
 }
 #ifdef HL25_UPDATE
 bool g_areVertexShadersEnabled = false;
