@@ -755,9 +755,9 @@ it doesnt even work but ill try to fix it
 */
 void R_MarkLeaves(mleaf_t* pLeaf)
 {
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
+	model_t *pWorld = IEngineStudio.GetModelByIndex(1);
 	cl_entity_t* worldent = gEngfuncs.GetEntityByIndex(1);
-	byte* vis;
+	byte *vis;
 	byte solid[4096];
 	if (r_oldviewleaf == pLeaf)
 	{
@@ -802,7 +802,7 @@ void R_MarkLeaves(mleaf_t* pLeaf)
 		}
 	}
 
-savevis:
+	savevis:
 
 	int numleafnodes = 0;
 
@@ -832,6 +832,129 @@ savevis:
 		} while (node);
 	}
 	numleafnodes = numleafnodes;
+
+	/*
+
+	int numleafnodes = 0;
+
+
+	if (gBSPRenderer.enginevisframe == 0 && pWorld->nodes[0].visframe != 0)
+	{
+		if (pWorld->nodes[0].visframe - r_visframecount <= 0)
+			gBSPRenderer.enginevisframe = pWorld->nodes[0].visframe;
+		else
+			gBSPRenderer.enginevisframe = pWorld->nodes[0].visframe - r_visframecount;
+		r_oldviewleaf = nullptr;
+		for (int i = 0; i < pWorld->numleafs; i++)
+		{
+			mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
+			do
+			{
+				node->visframe = r_visframecount;
+				node = node->parent;
+			} while (node);
+		}
+		return;
+	}
+	numleafnodes = 0;
+
+	if (gBSPRenderer.oldvisframes != nullptr && gBSPRenderer.m_pWorld->nodes->visframe == gBSPRenderer.enginevisframe)
+	{
+		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
+		{
+			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
+			do
+			{
+				node->visframe = gBSPRenderer.oldvisframes[numleafnodes];
+				node = node->parent;
+				numleafnodes++;
+			} while (node);
+		}
+	}
+
+	if (r_oldviewleaf == pLeaf)
+	{
+		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
+			goto savevis;
+		
+		r_visframecount++;
+		goto label;
+	}
+	else
+	{
+		r_visframecount++;
+		r_oldviewleaf = pLeaf;
+		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
+		{
+			vis = Mod_LeafPVS(pLeaf, pWorld);
+		}
+		else
+		{
+			label:
+			memset(solid, 255, (pWorld->numleafs + 7) >> 3);
+			vis = solid;
+		}
+	}
+	//gBSPRenderer.m_pViewLeaf->visframe = r_visframecount;
+	//gBSPRenderer.m_iVisFrame = r_visframecount;
+
+	if (gBSPRenderer.enginevisframe == 0 && pWorld->nodes[0].visframe != 0)
+	{
+		gBSPRenderer.enginevisframe = pWorld->nodes[0].visframe;
+	}
+	else if (pWorld->nodes[0].visframe - r_visframecount > 0)
+	{
+		gBSPRenderer.enginevisframe = pWorld->nodes[0].visframe - r_visframecount;
+	}
+
+	if (pWorld->numleafs > 0)
+	{
+		for (int i = 0; i < pWorld->numleafs; i++)
+		{
+			if (vis[i >> 3] & (1 << (i & 7)))
+			{
+				mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
+				do
+				{
+					if (node->visframe == r_visframecount)
+						break;
+
+					node->visframe = r_visframecount;
+					node = node->parent;
+				} while (node);
+			}
+		}
+	}
+
+	savevis:
+
+	if (gBSPRenderer.oldvisframes == nullptr)
+	{
+		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
+		{
+			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
+			do
+			{
+				node = node->parent;
+				numleafnodes++;
+			} while (node);
+		}
+		gBSPRenderer.oldvisframes = new int[numleafnodes];
+	}
+	numleafnodes = 0;
+
+	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
+	{
+		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
+		do
+		{
+			gBSPRenderer.oldvisframes[numleafnodes] = node->visframe;
+			node = node->parent;
+			numleafnodes++;
+		} while (node);
+	}
+	numleafnodes = numleafnodes;
+	*/
 }
 
 byte* ResizeArray(byte* pOriginal, int iSize, int iCount)
@@ -958,7 +1081,7 @@ void R_DrawNormalTriangles(void)
 			node = node->parent;
 		} while (node);
 	}
-	gBSPRenderer.m_pWorld->nodes[0].visframe = gBSPRenderer.saved_leaf_visframe;
+	gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
 
 	//PLANNED: optional motion blur
 	// either read pixels from gpu (pretty fucking slow) or render the scene again.

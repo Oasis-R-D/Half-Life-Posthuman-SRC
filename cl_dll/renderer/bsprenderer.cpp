@@ -2528,16 +2528,16 @@ void CBSPRenderer::DrawNormalTriangles(void)
 {
 	if (!m_bCanDraw)
 	{
-		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-		{
-			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-			do
-			{
-				node->visframe = saved_leaf_visframe;
-				node = node->parent;
-			} while (node);
-		}
-		gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
+		//for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
+		//{
+		//	mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
+		//	do
+		//	{
+		//		node->visframe = saved_leaf_visframe;
+		//		node = node->parent;
+		//	} while (node);
+		//}
+		//gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
 		return;
 	}
 
@@ -2561,18 +2561,6 @@ void CBSPRenderer::DrawNormalTriangles(void)
 
 	// So it's called only once
 	m_bCanDraw = false;
-	//gEngfuncs.Con_Printf("%d", saved_leaf_visframe);
-
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-		do
-		{
-			node->visframe = saved_leaf_visframe;
-			node = node->parent;
-		} while (node);
-	}
-	gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
 };
 
 

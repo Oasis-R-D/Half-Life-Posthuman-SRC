@@ -49,6 +49,8 @@ extern PhyStudioModelRenderer g_StudioRenderer;
 extern CGameStudioModelRenderer g_StudioRenderer;
 #endif
 
+extern int r_visframecount;
+
 /*
 ====================
 Init
@@ -1656,7 +1658,7 @@ void CParticleEngine::DrawParticles(void)
 		// Check if it's in VIS
 		if (psystem->leaf)
 		{
-			if (psystem->leaf->visframe != gBSPRenderer.m_iVisFrame)
+			if (psystem->leaf->visframe != r_visframecount)
 			{
 				particle_system_t* pnext = psystem->next;
 				psystem = pnext;
