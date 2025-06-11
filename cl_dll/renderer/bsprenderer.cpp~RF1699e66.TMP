@@ -235,8 +235,8 @@ const char* modelshadow_fragment =
 		vec3 lightToFrag = normalize(fragPos - lightPos);
 
 		float dist = length(fragPos - lightPos);
-		float fadeStart = 170.0;
-		float fadeEnd = 270.0;
+		float fadeStart = 20.0;
+		float fadeEnd = 60.0;
 		float shadowFade = clamp((fadeEnd - dist) / (fadeEnd - fadeStart), 0.0, 1.0);
 
 		// Spotlight cone test
@@ -260,12 +260,10 @@ const char* modelshadow_fragment =
 
 		vec3 baseColor = vec3(1.0, 1.0, 1.0);  // white
 
-		vec3 shadowColor = baseColor * 0.4;
-
-		vec3 litColor = mix(shadowColor, baseColor, shadowFactor);  //fadeout based on distance
+		vec3 shadowColor = baseColor * 0.4; //fadeout based on distance
 
 		// Blend based on shadow factor: 1.0 = lit, 0.0 = shadow
-		vec3 finalColor = mix(baseColor, litColor, shadowFade);
+		vec3 finalColor = mix(shadowColor, baseColor, shadowFactor);
 
 		gl_FragColor = vec4(finalColor, 1.0);
 	}

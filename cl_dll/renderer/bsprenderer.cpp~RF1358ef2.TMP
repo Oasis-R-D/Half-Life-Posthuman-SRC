@@ -234,11 +234,6 @@ const char* modelshadow_fragment =
 			
 		vec3 lightToFrag = normalize(fragPos - lightPos);
 
-		float dist = length(fragPos - lightPos);
-		float fadeStart = 170.0;
-		float fadeEnd = 270.0;
-		float shadowFade = clamp((fadeEnd - dist) / (fadeEnd - fadeStart), 0.0, 1.0);
-
 		// Spotlight cone test
 		float cosAngle = dot(-lightToFrag, normalize(spotDir)); // Use negative because we're going FROM light TO frag
 		if (cosAngle < spotCosCutoff) {
@@ -258,14 +253,14 @@ const char* modelshadow_fragment =
 		else
 			shadowFactor = shadow2D(shadowMap, shadowCoord).r;
 
+		// Define your base (lit) color
 		vec3 baseColor = vec3(1.0, 1.0, 1.0);  // white
 
-		vec3 shadowColor = baseColor * 0.4;
-
-		vec3 litColor = mix(shadowColor, baseColor, shadowFactor);  //fadeout based on distance
+		// Optionally define shadow color (darker version)
+		vec3 shadowColor = baseColor * 0.4;    // 40% intensity in shadow
 
 		// Blend based on shadow factor: 1.0 = lit, 0.0 = shadow
-		vec3 finalColor = mix(baseColor, litColor, shadowFade);
+		vec3 finalColor = mix(shadowColor, baseColor, shadowFactor);
 
 		gl_FragColor = vec4(finalColor, 1.0);
 	}
@@ -1440,27 +1435,11 @@ void CBSPRenderer::RestoreWorldDrawing(void)
 	// Restore and clear pointer
 	m_pWorld->nodes = m_pTrueRootNode;
 	m_pTrueRootNode = nullptr;
-	saved_leaf_visframe = m_pWorld->nodes[0].visframe;
-	int numleafnodes = 0;
 
-	if (oldvisframes != nullptr)
-	{
-		for (int i = 0; i < m_pWorld->numleafs; i++)
-		{
-			mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
-			do
-			{
-				node->visframe = oldvisframes[numleafnodes];
-				node = node->parent;
-				numleafnodes++;
-			} while (node);
-		}
-		delete[] oldvisframes;
-		oldvisframes = nullptr;
-	}
+	float m_fSavedMinsMaxs[6];
 
 	// Mark all leaves with current visframe
-	R_MarkLeaves(m_pViewLeaf);
+	//R_MarkLeaves(m_pViewLeaf);
 };
 
 /*
