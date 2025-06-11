@@ -286,6 +286,8 @@ public:
 
 	cvar_t* m_pCvarViewmodelFov;
 
+	cvar_t* m_pCvarHeatVisionType;
+
 public:
 	virtual void StudioDrawExternalEntity(cl_entity_t* pEntity);
 	virtual void StudioRenderModelEXT(void);

@@ -1812,6 +1812,8 @@ void CStudioModelRenderer::Init(void)
 
 	m_pCvarViewmodelFov = gEngfuncs.pfnRegisterVariable("viewmodel_fov", "70", FCVAR_ARCHIVE); // best matches the half-life 2 viewmodel fov
 
+	m_pCvarHeatVisionType = gEngfuncs.pfnRegisterVariable("r_heatvision_type", "0", FCVAR_ARCHIVE);
+
 	IEngineStudio.GetModelCounters(&m_pStudioModelCount, &m_pModelsDrawn);
 
 	// Get pointers to engine data structures
@@ -4221,7 +4223,14 @@ void CStudioModelRenderer::StudioSetupLighting(void)
 	{
 		m_pLighting.diffuselight = Vector(1, 0, 0);
 		m_pLighting.ambientlight = Vector(1, 0, 0);
-		m_pLighting.lightdir = Vector(0, 0, 0);
+		if (m_pCvarHeatVisionType->value == 0)
+			m_pLighting.lightdir = Vector(0, 0, 0);
+		else
+		{
+			Vector forward;
+			AngleVectors(gBSPRenderer.m_vViewAngles, forward, nullptr, nullptr);
+			m_pLighting.lightdir = -forward;
+		}
 	}
 	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxAlly)
 	{
