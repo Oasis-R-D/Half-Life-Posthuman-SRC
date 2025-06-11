@@ -1228,7 +1228,7 @@ void SetupFlashlight(vec3_t origin, vec3_t angles, float time, float frametime)
 	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
 	flashlight->origin = origin;
 	flashlight->radius = 300;
-	flashlight->color = Vector(0.6, 0.6, 0.6);
+	flashlight->color = Vector(0.3, 0.3, 0.3);
 	flashlight->die = time + 0.1;
 }
 float Q_rsqrt(float number)

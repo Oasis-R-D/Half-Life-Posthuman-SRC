@@ -3381,6 +3381,7 @@ void CBasePlayer::FlashlightTurnOn()
 	if (HasSuit())
 	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		//TODO: fix UTIL_ScreenFade nulling out green and blue color brightness
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
 		SetBits(pev->effects, EF_BRIGHTLIGHT);
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
@@ -3394,8 +3395,13 @@ void CBasePlayer::FlashlightTurnOn()
 			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || 
 				pEntity->Classify() == CLASS_HUMAN_MILITARY)
 			{
-				pEntity->pev->renderfx = kRenderFxGlowShell;
+				pEntity->pev->renderfx = kRenderFxLightMultiplier;
 				pEntity->pev->rendercolor = Vector(128, 0, 0);
+			}
+			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
+			{
+				pEntity->pev->renderfx = kRenderFxAlly;
+				pEntity->pev->rendercolor = Vector(128, 128, 128);
 			}
 		}
 	}
@@ -3417,6 +3423,10 @@ void CBasePlayer::FlashlightTurnOff()
 	{
 		if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
 			pEntity->Classify() == CLASS_HUMAN_MILITARY)
+		{
+			pEntity->pev->renderfx = kRenderFxNone;
+		}
+		else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
 		{
 			pEntity->pev->renderfx = kRenderFxNone;
 		}
@@ -4066,6 +4076,25 @@ void CBasePlayer::UpdateClientData()
 		WRITE_SHORT(Hunger);
 		MESSAGE_END();
 
+		if (FlashlightIsOn())
+		{
+			CBaseEntity* pEntity = NULL;
+			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
+			{
+				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
+					pEntity->Classify() == CLASS_HUMAN_MILITARY)
+				{
+					pEntity->pev->renderfx = kRenderFxLightMultiplier;
+					pEntity->pev->rendercolor = Vector(128, 0, 0);
+				}
+				else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
+				{
+					pEntity->pev->renderfx = kRenderFxAlly;
+					pEntity->pev->rendercolor = Vector(128, 128, 128);
+				}
+			}
+		}
+
 		if (Hunger <= 10)
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
@@ -4075,7 +4104,7 @@ void CBasePlayer::UpdateClientData()
 					pEntity->Classify() == CLASS_HUMAN_MILITARY)
 					&& pEntity->BloodColor() != DONT_BLEED)
 				{
-					pEntity->pev->renderfx = kRenderFxGlowShell;
+					pEntity->pev->renderfx = kRenderFxLightMultiplier;
 					pEntity->pev->rendercolor = Vector(128, 0, 0);
 				}
 			}

@@ -499,7 +499,7 @@ void SaveGlobalState(SAVERESTOREDATA* pSaveData)
 	else
 	{ // check for all autosave files in "SAVE/"
 		int cursavenum;
-		char* dir;
+		char dir[128];
 		GET_GAME_DIR(dir);
 		strcat(dir, "/SAVE/autosave.sav");
 		strcpy(savefile, "autosave");

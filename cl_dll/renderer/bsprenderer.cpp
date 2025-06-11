@@ -59,6 +59,8 @@ bool loaded_decal_wad = false;
 
 extern mleaf_t *r_oldviewleaf;
 
+extern bool g_iNightVision;
+
 //using namespace std;
 
 extern "C" {
@@ -2881,6 +2883,8 @@ void CBSPRenderer::RenderFirstPass(bool bSecond)
 		glDisable(GL_FOG);
 
 	// Render lightmaps only now
+
+
 	for (int i = 0; i < m_iNumTextures; i++)
 	{
 		texture_t* pTexture = &m_pMultiPassTextureList[i];
@@ -4578,6 +4582,8 @@ getout:
 				if (pLump->type != 0 && !(pLump->type & 0x43))
 					continue;
 
+				strLower(pLump->name);
+
 				pTexture = &gTextureLoader.m_pTextures[gTextureLoader.m_iNumTextures];
 				gTextureLoader.m_iNumTextures++;
 
@@ -5396,9 +5402,17 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 	{
 		// oy you! shut yo mouth and looka mah waaad!
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); use this if you want decals to glow!! (wow so cool!)
+		int index = decal->texinfo->szName[6] - '0';
+		char blood[64];
+		sprintf(blood, "{blood%d", index);
+		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
+		}
+		else 
+		{
+			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+		}
 	}
 	else
 	{

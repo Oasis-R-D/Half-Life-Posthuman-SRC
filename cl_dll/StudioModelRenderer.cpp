@@ -51,6 +51,8 @@ Transparency code by Neil "Jed" Jedrzejewski
 // Global engine <-> studio model rendering code interface
 engine_studio_api_t IEngineStudio;
 
+extern bool g_iNightVision;
+
 //===========================================
 // GLSL SHADER
 //
@@ -3603,17 +3605,29 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	if (m_pCurrentEntity == gEngfuncs.GetViewModel() && m_pCvarViewmodelFov->value != 0.0f)
 	{
 		SetViewmodelFovProjection();
+		if (g_iNightVision)
+		{
+			m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
+			m_pCurrentEntity->curstate.rendercolor.r = 50;
+		}
+		else
+		{
+			m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
+			m_pCurrentEntity->curstate.rendercolor.r = 0;
+		}
 	}
 
-	if (m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell)
+	if (m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || m_pCurrentEntity->curstate.renderfx == kRenderFxAlly)
 	{
+		int oldfx = m_pCurrentEntity->curstate.renderfx;
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
+		m_bChromeShell = false;
 		StudioRenderFinal();
 
 		glFogfv(GL_FOG_COLOR, g_vecZero);
 		m_bChromeShell = true;
 
-		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
+		m_pCurrentEntity->curstate.renderfx = oldfx;
 		StudioRenderFinal();
 
 		glFogfv(GL_FOG_COLOR, gHUD.m_pFogSettings.color);
@@ -4053,7 +4067,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 		}
 	}
 
-	if (m_pCvarModelsLightDebug->value > 0)
+	if (m_pCvarModelsLightDebug->value > 0 || m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
 	{
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_FRAGMENT_PROGRAM_ARB);
@@ -4079,7 +4093,7 @@ void CStudioModelRenderer::StudioRestoreRenderer(void)
 	glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	if (m_pCvarModelsLightDebug->value > 0)
+	if (m_pCvarModelsLightDebug->value > 0 || m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
 		glEnable(GL_TEXTURE_2D);
 
 	if (!m_bChromeShell)
@@ -4202,6 +4216,20 @@ void CStudioModelRenderer::StudioSetupLighting(void)
 	m_pLighting.lightdir.x = 0;
 	m_pLighting.lightdir.y = 0;
 	m_pLighting.lightdir.z = -0.5f;
+
+	if (m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
+	{
+		m_pLighting.diffuselight = Vector(1, 0, 0);
+		m_pLighting.ambientlight = Vector(1, 0, 0);
+		m_pLighting.lightdir = Vector(0, 0, 0);
+	}
+	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxAlly)
+	{
+		//util_fadescreen doesnt let us render green stuff for some reason.. :(
+		//m_pLighting.diffuselight = Vector(0, 0, 0);
+		//m_pLighting.ambientlight = Vector(0, 0, 0);
+		//m_pLighting.lightdir = Vector(0, 0, 0);
+	}
 
 	if (pInfo)
 	{
@@ -4704,6 +4732,7 @@ void CStudioModelRenderer::StudioDrawPoints(void)
 		for (int i = 0; i < m_pSubModel->numverts; i++)
 		{
 			VectorScale(pstudioverts[i], flScale, vTemp);
+			VectorScale(pstudioverts[i], 1.01, vTemp); //avoid z-fighting
 			VectorTransform(vTemp, (*m_pbonetransform)[pvertbone[i]], m_pVertexTransform[i]);
 			// VectorTransformSSE(vTemp, (*m_pbonetransform)[pvertbone[i]], m_pVertexTransform[i]);
 		}
@@ -4792,6 +4821,8 @@ StudioDrawMesh
 */
 void CStudioModelRenderer::StudioDrawMesh(mstudiomesh_t* pmesh, mstudiotexture_t* ptex)
 {
+	//fullbright textures and chrome shell do not go well!! fucks the entire engine up
+
 	if (gBSPRenderer.m_bShaderSupport && m_pCvarModelShaders->value > 0 && !(ptex->flags & STUDIO_NF_FULLBRIGHT) && !m_bChromeShell)
 	{
 		gBSPRenderer.glProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, 11, 1.0 / (float)ptex->width, 1.0 / (float)ptex->height, 0, 0);
@@ -4802,7 +4833,7 @@ void CStudioModelRenderer::StudioDrawMesh(mstudiomesh_t* pmesh, mstudiotexture_t
 		glScalef(1.0 / (float)ptex->width, 1.0 / (float)ptex->height, 1);
 	}
 
-	if (ptex->flags & STUDIO_NF_FULLBRIGHT)
+	if (ptex->flags & STUDIO_NF_FULLBRIGHT && !m_bChromeShell)
 	{
 		glColor4f(0.5, 0.5, 0.5, m_fAlpha);
 
@@ -4884,7 +4915,7 @@ void CStudioModelRenderer::StudioDrawMesh(mstudiomesh_t* pmesh, mstudiotexture_t
 		glMatrixMode(GL_MODELVIEW);
 	}
 
-	if (ptex->flags & STUDIO_NF_FULLBRIGHT)
+	if (ptex->flags & STUDIO_NF_FULLBRIGHT && !m_bChromeShell)
 	{
 		glColor4f(GL_ONE, GL_ONE, GL_ONE, m_fAlpha);
 
