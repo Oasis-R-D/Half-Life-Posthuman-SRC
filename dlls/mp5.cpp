@@ -397,7 +397,7 @@ LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 void CM727::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_9mmAR.mdl"); //to-do: get a m727 Wmodel
+	SET_MODEL(ENT(pev), "models/w_727.mdl"); //to-do: get a accurate m727 Wmodel
 	m_iId = WEAPON_M727;
 	m_iDefaultAmmo = 30;
 	FallInit(); // get ready to fall down.
@@ -405,12 +405,11 @@ void CM727::Spawn()
 
 void CM727::Precache()
 {
-	PRECACHE_MODEL("models/v_9mmAR.mdl");
-	PRECACHE_MODEL("models/w_9mmAR.mdl");
+	PRECACHE_MODEL("models/w_727.mdl");
 	PRECACHE_MODEL("models/p_9mmAR.mdl");
 	PRECACHE_MODEL("models/v_727.mdl");
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
-	PRECACHE_MODEL("models/w_9mmARclip.mdl");
+	PRECACHE_MODEL("models/w_727mag.mdl");
 
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl"); // brass shellTE_MODEL
 
@@ -539,7 +538,7 @@ void CM727::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
-	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+	SendWeaponAnim(RANDOM_LONG(RANDOM_LONG(M727_SHOOT1,M727_SHOOT2), M727_SHOOT3));
 	EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/727_hks1.wav", 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
