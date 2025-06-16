@@ -616,7 +616,7 @@
 @PointClass base(Weapon, Targetx) studio("models/w_357ammobox.mdl") = ammo_357 : "357 Ammo" []
 @PointClass base(Weapon, Targetx) studio("models/w_rpgammo.mdl") = ammo_rpgclip : "RPG Ammo" []
 @PointClass base(Weapon, Targetx) studio("models/w_saw_clip.mdl") = ammo_556 : "Saw+m727 Ammo" []
-@PointClass base(Weapon, Targetx) studio("models/w_727mag.mdl") = ammo_556 : "Saw+m727 Ammo" []
+@PointClass base(Weapon, Targetx) studio("models/w_727mag.mdl") = ammo_556mag : "Saw+m727 Ammo" []
 @PointClass base(Weapon, Targetx) studio("models/w_crossbow_clip.mdl") = ammo_crossbow : "Crossbow Ammo" []
 
 @SolidClass base(Target, ZHLT) = button_target : "Target Button"
