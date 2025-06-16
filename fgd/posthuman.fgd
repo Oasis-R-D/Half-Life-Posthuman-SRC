@@ -2771,6 +2771,7 @@
 @PointClass base(Weapon, Targetx) studio("models/w_shotgun.mdl") = weapon_shotgun : "Shotgun" []
 @PointClass base(Weapon, Targetx) studio("models/w_rpg.mdl") = weapon_rpg : "RPG" []
 @PointClass base(Weapon, Targetx) studio("models/w_saw.mdl") = weapon_m249 : "M249 SAW" []
+@PointClass base(Weapon, Targetx) studio("models/w_727.mdl") = weapon_m727 : "M727" []
 @PointClass base(Weapon, Targetx) studio("models/w_crossbow.mdl") = weapon_crossbow : "Crossbow" 
 [
 	sequence(choices) : "Placement" : 0 =
