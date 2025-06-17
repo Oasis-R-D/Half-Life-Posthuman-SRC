@@ -611,3 +611,27 @@ void CM727::WeaponIdle()
 	}
 		
 }
+class CM727AmmoClip : public CBasePlayerAmmo
+{
+	void Spawn() override
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_727mag.mdl");
+		CBasePlayerAmmo::Spawn();
+	}
+	void Precache() override
+	{
+		PRECACHE_MODEL("models/w_727mag.mdl");
+		PRECACHE_SOUND("items/9mmclip1.wav");
+	}
+	bool AddAmmo(CBaseEntity* pOther) override
+	{
+		bool bResult = (pOther->GiveAmmo(30, "556", 200) != -1);
+		if (bResult)
+		{
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+		}
+		return bResult;
+	}
+};
+LINK_ENTITY_TO_CLASS(ammo_556mag, CM727AmmoClip);
