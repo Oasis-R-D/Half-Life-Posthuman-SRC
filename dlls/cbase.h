@@ -169,6 +169,10 @@ public:
 	virtual int ObjectCaps() { return FCAP_ACROSS_TRANSITION; }
 	virtual void Activate() {}
 
+	// RENDERERS START
+	virtual void SendInitMessage(CBasePlayer* player) {};
+	// RENDERERS END
+
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void SetObjectCollisionBox();
 

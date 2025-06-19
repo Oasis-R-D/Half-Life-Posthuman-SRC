@@ -205,6 +205,8 @@ public:
 
 	char m_szTeamName[TEAM_NAME_LENGTH];
 
+	bool m_bUpdateEffects;
+
 	void Spawn() override;
 	void Pain();
 
@@ -330,9 +332,9 @@ public:
 	int GetCustomDecalFrames();
 
 	void TabulateAmmo();
-	// STENCIL SHADOWS BEGIN
-	void InitializeEntities(void);
-	// STENCIL SHADOWS END
+	
+	void ClearEffects();
+	void SendInitMessages();
 
 	float m_flStartCharge;
 	float m_flAmmoStartCharge;

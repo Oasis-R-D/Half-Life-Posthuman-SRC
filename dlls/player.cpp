@@ -1243,6 +1243,9 @@ void CBasePlayer::PlayerDeathThink()
 
 	respawn(pev, (m_afPhysicsFlags & PFLAG_OBSERVER) == 0); // don't copy a corpse if we're in deathcam.
 	pev->nextthink = -1;
+	// RENDERERS START
+	m_bUpdateEffects = true;
+	// RENDERERS END
 }
 
 //=========================================================
@@ -2986,6 +2989,10 @@ void CBasePlayer::Precache()
 	// STENCIL SHADOWS BEGIN
 	m_sentInitMessages = false;
 	// STENCIL SHADOWS END
+
+	// RENDERERS START
+	m_bUpdateEffects = true;
+	// RENDERERS END
 }
 
 
@@ -4111,6 +4118,15 @@ void CBasePlayer::UpdateClientData()
 		}
 	}
 
+		// RENDERERS START
+	if (m_bUpdateEffects)
+	{
+		ClearEffects();
+		SendInitMessages();
+		m_bUpdateEffects = false;
+	}
+	// RENDERERS END
+
 	// Flashing HUD
 	if (FlashingHUDDelay > gpGlobals->time)
 	{
@@ -4124,14 +4140,6 @@ void CBasePlayer::UpdateClientData()
 		WRITE_BYTE(0);
 		MESSAGE_END();
 	}
-
-	// STENCIL SHADOWS BEGIN
-	if (!m_sentInitMessages)
-	{
-		InitializeEntities();
-		m_sentInitMessages = true;
-	}
-	// STENCIL SHADOWS END
 
 	if (BabyHeadcrabCount < 10 && BabyHeadcrabDelay < gpGlobals->time && HasNamedPlayerItem("weapon_snark"))
 	{
@@ -4430,31 +4438,40 @@ void CBasePlayer::UpdateClientData()
 	//Handled anything that needs resetting
 	m_bRestored = false;
 }
-
-// STENCIL SHADOWS BEGIN
-//=========================================================
-// InitializeEntities
-//=========================================================
-void CBasePlayer::InitializeEntities()
+// RENDERERS START
+void CBasePlayer ::ClearEffects(void)
 {
-	CVAR_SET_FLOAT("sv_maxvelocity", 4000); // ugly but required for crossbow bolts
+	MESSAGE_BEGIN(MSG_ONE, gmsgSetFog, NULL, pev);
+	WRITE_SHORT(0);
+	WRITE_SHORT(0);
+	WRITE_SHORT(0);
+	WRITE_SHORT(0);
+	WRITE_SHORT(0);
+	MESSAGE_END();
+}
 
+// Thanks BUzer
+void CBasePlayer ::SendInitMessages(void)
+{
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);
 	CBaseEntity* pEntity;
 
-	for (int i = 0; i < gpGlobals->maxEntities; i++, pEdict++)
+	if (!pEdict)
+		return;
+
+	for (int i = 1; i < gpGlobals->maxEntities; i++, pEdict++)
 	{
-		if (pEdict->free)
+		if (pEdict->free == true) // Not in use
 			continue;
 
 		pEntity = CBaseEntity::Instance(pEdict);
 		if (!pEntity)
-			break;
+			continue;
 
-		pEntity->SendInitMessages(this);
+		pEntity->SendInitMessage(this);
 	}
 }
-// STENCIL SHADOWS END
+// RENDERERS END
 
 //=========================================================
 // FBecomeProne - Overridden for the player to set the proper

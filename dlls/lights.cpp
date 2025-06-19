@@ -1,17 +1,17 @@
 /***
-*
-*	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
-*	All Rights Reserved.
-*
-*   Use, distribution, and modification of this source code and/or resulting
-*   object code is restricted to non-commercial enhancements to products from
-*   Valve LLC.  All other use, distribution, or modification is prohibited
-*   without written permission from Valve LLC.
-*
-****/
+ *
+ *	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
+ *
+ *	This product contains software technology licensed from Id
+ *	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
+ *	All Rights Reserved.
+ *
+ *   Use, distribution, and modification of this source code and/or resulting
+ *   object code is restricted to non-commercial enhancements to products from
+ *   Valve LLC.  All other use, distribution, or modification is prohibited
+ *   without written permission from Valve LLC.
+ *
+ ****/
 /*
 
 ===== lights.cpp ========================================================
@@ -24,18 +24,18 @@
 #include "util.h"
 #include "cbase.h"
 
+#include "player.h"
+
 
 
 class CLight : public CPointEntity
 {
 public:
+	void Spawn(void);
+	void Precache(void);
 	bool KeyValue(KeyValueData* pkvd) override;
-	void Spawn() override;
+	virtual void SendInitMessage(CBasePlayer* player) override;
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
-
-	// STENCIL SHADOWS BEGIN
-	void SendInitMessages(CBaseEntity* pPlayer = NULL);
-	// STENCIL SHADOWS END
 
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
@@ -45,14 +45,7 @@ public:
 private:
 	int m_iStyle;
 	int m_iszPattern;
-
-	// STENCIL SHADOWS BEGIN
-	int m_colorR;
-	int m_colorG;
-	int m_colorB;
-	int m_brightness;
-	bool m_isActive;
-	// STENCIL SHADOWS END
+	bool m_bAlreadySent;
 };
 LINK_ENTITY_TO_CLASS(light, CLight);
 
@@ -60,21 +53,60 @@ TYPEDESCRIPTION CLight::m_SaveData[] =
 	{
 		DEFINE_FIELD(CLight, m_iStyle, FIELD_INTEGER),
 		DEFINE_FIELD(CLight, m_iszPattern, FIELD_STRING),
-		// STENCIL SHADOWS BEGIN
-		DEFINE_FIELD(CLight, m_colorR, FIELD_INTEGER),
-		DEFINE_FIELD(CLight, m_colorG, FIELD_INTEGER),
-		DEFINE_FIELD(CLight, m_colorB, FIELD_INTEGER),
-		DEFINE_FIELD(CLight, m_brightness, FIELD_INTEGER),
-		DEFINE_FIELD(CLight, m_isActive, FIELD_BOOLEAN),
-		// STENCIL SHADOWS END
+		DEFINE_FIELD(CLight, m_bAlreadySent, FIELD_BOOLEAN),
 };
 
 IMPLEMENT_SAVERESTORE(CLight, CPointEntity);
+
+void CLight::Spawn()
+{
+	Precache();
+	SET_MODEL(ENT(pev), "sprites/null.spr"); // should be visible to send to client
+											 // if (FClassnameIs(pev, "light"))
+	if (!strcmp(STRING(pev->classname), "light_spot"))
+		pev->renderamt *= 0.3;
+	pev->effects |= FL_ELIGHT;
+}
+
+void CLight::Precache()
+{
+	PRECACHE_MODEL("sprites/null.spr");
+}
 
 
 //
 // Cache user-entity-field values until spawn is called.
 //
+//
+// Cache user-entity-field values until spawn is called.
+//
+extern int gmsgLightStyle;
+void CLight ::SendInitMessage(CBasePlayer* player)
+{
+	char szPattern[64];
+	memset(szPattern, 0, sizeof(szPattern));
+
+	if (m_iStyle >= 32)
+	{
+		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
+			strcpy(szPattern, "a");
+		else if (m_iszPattern)
+			strcpy(szPattern, (char*)STRING(m_iszPattern));
+		else
+			strcpy(szPattern, "m");
+
+		if (player)
+			MESSAGE_BEGIN(MSG_ONE, gmsgLightStyle, NULL, player->pev);
+		else
+			MESSAGE_BEGIN(MSG_ALL, gmsgLightStyle, NULL);
+
+		WRITE_BYTE(m_iStyle);
+		WRITE_STRING(szPattern);
+		MESSAGE_END();
+	}
+
+	m_bAlreadySent = true;
+}
 bool CLight::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "style"))
@@ -92,93 +124,63 @@ bool CLight::KeyValue(KeyValueData* pkvd)
 		m_iszPattern = ALLOC_STRING(pkvd->szValue);
 		return true;
 	}
-	// STENCIL SHADOWS BEGIN
 	else if (FStrEq(pkvd->szKeyName, "_light"))
 	{
-		int r, g, b, v, j;
-		v = 0;
+		char light[128];
+		strcpy(light, pkvd->szValue);
+		const char* token = strtok(light, " ");
 
-		j = sscanf(pkvd->szValue, "%d %d %d %d\n", &r, &g, &b, &v);
-		if (j == 1)
-			g = b = r;
+		if (token)
+			pev->rendercolor.x = atof(token) * 0.6;
+		token = strtok(NULL, " ");
+		if (token)
+			pev->rendercolor.y = atof(token) * 0.6;
+		token = strtok(NULL, " ");
+		if (token)
+			pev->rendercolor.z = atof(token) * 0.6;
+		token = strtok(NULL, " ");
+		if (token)
+			pev->renderamt = atof(token);
 
-		if (v == 0)
-			v = 64;
-
-		m_colorR = r;
-		m_colorG = g;
-		m_colorB = b;
-		m_brightness = v;
+		pev->renderamt /= 5;
 		return true;
 	}
-	// STENCIL SHADOWS END
 
 	return CPointEntity::KeyValue(pkvd);
 }
 
-/*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) LIGHT_START_OFF
-Non-displayed light.
-Default light value is 300
-Default style is 0
-If targeted, it will toggle between on or off.
-*/
-
-// STENCIL SHADOWS BEGIN
-void CLight::Spawn()
-{
-	if (m_iStyle >= 32)
-	{
-		//        CHANGE_METHOD(ENT(pev), em_use, light_use);
-		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
-		{
-			LIGHT_STYLE(m_iStyle, "a");
-			m_isActive = false;
-		}
-		else
-		{
-			if (!FStringNull(m_iszPattern))
-				LIGHT_STYLE(m_iStyle, (char*)STRING(m_iszPattern));
-			else
-				LIGHT_STYLE(m_iStyle, "m");
-
-			m_isActive = true;
-		}
-	}
-}
 
 void CLight::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
+	char szPattern[64];
+	memset(szPattern, 0, sizeof(szPattern));
+
 	if (m_iStyle >= 32)
 	{
-		if (!ShouldToggle(useType, m_isActive))
+		if (!ShouldToggle(useType, !FBitSet(pev->spawnflags, SF_LIGHT_START_OFF)))
 			return;
 
-		if (!m_isActive)
+		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
 		{
-			if (!FStringNull(m_iszPattern))
-				LIGHT_STYLE(m_iStyle, (char*)STRING(m_iszPattern));
+			if (m_iszPattern)
+				strcpy(szPattern, (char*)STRING(m_iszPattern));
 			else
-				LIGHT_STYLE(m_iStyle, "m");
-
-			m_isActive = true;
+				strcpy(szPattern, "m");
+			ClearBits(pev->spawnflags, SF_LIGHT_START_OFF);
 		}
 		else
 		{
-			LIGHT_STYLE(m_iStyle, "a");
-			m_isActive = false;
+			strcpy(szPattern, "a");
+			SetBits(pev->spawnflags, SF_LIGHT_START_OFF);
 		}
-
-		SendInitMessages(NULL);
 	}
-}
 
-void CLight::SendInitMessages(CBaseEntity* pPlayer)
-{
-	if (pPlayer && !m_isActive)
-		return;
-
+	MESSAGE_BEGIN(MSG_ALL, gmsgLightStyle, NULL);
+	WRITE_BYTE(m_iStyle);
+	WRITE_STRING(szPattern);
+	MESSAGE_END();
+	LIGHT_STYLE(m_iStyle, szPattern);
 }
-// STENCIL SHADOWS END
 
 //
 // shut up spawn functions for new spotlights
