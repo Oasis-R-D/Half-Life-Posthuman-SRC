@@ -3426,25 +3426,22 @@ void CBSPRenderer::SurfaceToChain(msurface_t* psurfbase, msurface_t* s, bool dyn
 	brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
 	clientsurfdata_t* pclsurf = &m_pSurfaces[pbrushface->index];
 
-	if (s->styles[0] != 255) //fixes surfaces with no lightmap data (pitch-black)
+	for (int i = 0; i < MAXLIGHTMAPS || s->dlightframe; i++)
 	{
-		for (int i = 1; i < MAXLIGHTMAPS && s->styles[i] != 255 || s->dlightframe; i++)
+
+		if (m_iLightStyleValue[s->styles[i]] != pclsurf->cached_light[i] || s->dlightframe)
 		{
+			BuildLightmap(s, surfaceIndex, m_pEngineLightmaps);
 
-			if (m_iLightStyleValue[s->styles[i]] != pclsurf->cached_light[i] || s->dlightframe)
-			{
-				BuildLightmap(s, surfaceIndex, m_pEngineLightmaps);
+			int smax = (s->extents[0] >> 4) + 1;
+			int tmax = (s->extents[1] >> 4) + 1;
 
-				int smax = (s->extents[0] >> 4) + 1;
-				int tmax = (s->extents[1] >> 4) + 1;
-
-				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				Bind2DTexture(GL_TEXTURE0_ARB, m_iEngineLightmapIndex);
-				glTexSubImage2D(GL_TEXTURE_2D, 0, pclsurf->light_s, pclsurf->light_t, smax, tmax, GL_RGB, GL_UNSIGNED_BYTE, m_pBlockLights);
-				glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-				break;
-			}
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			Bind2DTexture(GL_TEXTURE0_ARB, m_iEngineLightmapIndex);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, pclsurf->light_s, pclsurf->light_t, smax, tmax, GL_RGB, GL_UNSIGNED_BYTE, m_pBlockLights);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+			break;
 		}
 	}
 
@@ -3672,6 +3669,13 @@ void CBSPRenderer::AnimateLight(void)
 			m_iLightStyleValue[j] = 256;
 			continue;
 		}
+		else if (m_pLightStyles[j].length == 1)
+		{
+			// single length style so don't bother interpolating
+			m_iLightStyleValue[j] = (m_pLightStyles[j].map[0] - 'a') * 22;
+			continue;
+		}
+
 		k = i % m_pLightStyles[j].length;
 		k = m_pLightStyles[j].map[k] - 'a';
 		k = k * 22;
@@ -3769,45 +3773,51 @@ BuildLightmap
 
 ====================
 */
-void CBSPRenderer::BuildLightmap(msurface_t* surf, int surfindex, color24* out)
+void CBSPRenderer::BuildLightmap(msurface_t* surf, int surfindex, color24* out, bool pitchblack)
 {
-	color24* bl = m_pBlockLights;
-	color24* lightmap = surf->samples;
-	msurface_t surfacetest = *surf;
+	const int smax = (surf->extents[0] >> 4) + 1;
+	const int tmax = (surf->extents[1] >> 4) + 1;
+	const int size = smax * tmax;
 
-	int smax = (surf->extents[0] >> 4) + 1;
-	int tmax = (surf->extents[1] >> 4) + 1;
-	int size = smax * tmax;
-
-	if (lightmap == 0 || size > BLOCKLIGHTS_SIZE || surf->styles[0] == 255) //fixes surfaces with no lightmap data (pitch-black)
-		return;
-
-	for (int i = 0; i < size; i++)
+	if (!surf->samples || size > BLOCKLIGHTS_SIZE || surf->styles[0] == 255)
 	{
-		m_pBlockLights[i].r = lightmap[i].r;
-		m_pBlockLights[i].g = lightmap[i].g;
-		m_pBlockLights[i].b = lightmap[i].b;
+		// No valid lightmap: clear to black
+		memset(m_pBlockLights, 0, sizeof(color24) * size);
 	}
-
-	for (int maps = 1; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
+	else
 	{
-		lightmap += size; // skip to next lightmap
+		memset(m_pBlockLights, 0, sizeof(color24) * size);
+		color24* lightmap = surf->samples;
 
-		if (m_iLightStyleValue[surf->styles[maps]] < 0)
-			m_iLightStyleValue[surf->styles[maps]] = 255;
-
-		m_pSurfaces[surfindex].cached_light[maps] = m_iLightStyleValue[surf->styles[maps]];
-
-		float scale = (float)m_iLightStyleValue[surf->styles[maps]] / 255;
-		if (m_pSurfaces[surfindex].cached_light[maps] != 0)
+		for (int maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; ++maps)
 		{
-			for (int i = 0; i < size; i++)
+			const int style = surf->styles[maps];
+			int styleValue = m_iLightStyleValue[style];
+
+			if (styleValue < 0)
+				styleValue = 255;
+
+			m_pSurfaces[surfindex].cached_light[maps] = styleValue;
+
+			if (styleValue == 0)
 			{
-				int iR = m_pBlockLights[i].r + lightmap[i].r * scale;
-				int iG = m_pBlockLights[i].g + lightmap[i].g * scale;
-				int iB = m_pBlockLights[i].b + lightmap[i].b * scale;
-				ClampColor(iR, iG, iB, &m_pBlockLights[i]);
+				lightmap += size; // skip this lightmap layer
+				continue;
 			}
+
+			const float scale = styleValue / 255.0f;
+
+			for (int i = 0; i < size; ++i)
+			{
+				const color24& sample = lightmap[i];
+				color24& dst = m_pBlockLights[i];
+
+				dst.r = std::min(255, dst.r + int(sample.r * scale));
+				dst.g = std::min(255, dst.g + int(sample.g * scale));
+				dst.b = std::min(255, dst.b + int(sample.b * scale));
+			}
+
+			lightmap += size;
 		}
 	}
 
@@ -3816,51 +3826,44 @@ void CBSPRenderer::BuildLightmap(msurface_t* surf, int surfindex, color24* out)
 	else if (surf->dlightframe && surf->dlightframe != m_iFrameCount)
 		surf->dlightframe = 0;
 
-	for (int i = 0; i < size; i++)
+	const bool fullbright = gEngfuncs.pfnGetCvarFloat("r_fullbright") != 0.0f;
+
+	for (int i = 0; i < size; ++i)
 	{
-		// Darken pixels with low values, helps make maps darker
-		float flIntensity = (m_pBlockLights[i].r + m_pBlockLights[i].g + m_pBlockLights[i].b);
-		// flIntensity = flIntensity * 15;
+		color24& c = m_pBlockLights[i];
 
-		if (flIntensity > 1)
-			flIntensity = 1;
-
-		if (gEngfuncs.pfnGetCvarFloat("r_fullbright"))
+		if (fullbright)
 		{
-			m_pBlockLights[i].r = 180;
-			m_pBlockLights[i].g = 180;
-			m_pBlockLights[i].b = 180;
+			c.r = c.g = c.b = 180;
 		}
 		else
 		{
-			m_pBlockLights[i].r = m_pBlockLights[i].r * flIntensity;
-			m_pBlockLights[i].g = m_pBlockLights[i].g * flIntensity;
-			m_pBlockLights[i].b = m_pBlockLights[i].b * flIntensity;
-		}
+			// Intensity darkening
+			float intensity = (c.r + c.g + c.b);
+			intensity = std::min(1.0f, intensity);
 
-		ClampColor(m_pBlockLights[i].r, m_pBlockLights[i].g, m_pBlockLights[i].b, &m_pBlockLights[i]);
+			c.r = c.r * intensity;
+			c.g = c.g * intensity;
+			c.b = c.b * intensity;
+		}
 	}
 
-	int column = surf->lightmaptexturenum % LIGHTMAP_NUMROWS;
-	int row = (surf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
+	// Store texture atlas position
+	const int column = surf->lightmaptexturenum % LIGHTMAP_NUMROWS;
+	const int row = (surf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
 
 	m_pSurfaces[surfindex].light_s = surf->light_s + BLOCK_WIDTH * column;
 	m_pSurfaces[surfindex].light_t = surf->light_t + BLOCK_HEIGHT * row;
 
-	for (int i = 0; i < tmax; i++)
+	for (int i = 0; i < tmax; ++i)
 	{
+		color24* src = &m_pBlockLights[i * smax];
 		color24* dest = out + BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_NUMCOLUMNS * row + BLOCK_WIDTH * column;
-		dest += (((BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * surf->light_t) + surf->light_s) + (BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * i));
+		dest += ((BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * surf->light_t) + surf->light_s) + (BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * i);
 
-		for (int j = 0; j < smax; j++)
-		{
-			dest[j].r = bl->r;
-			dest[j].g = bl->g;
-			dest[j].b = bl->b;
-			bl++;
-		}
+		memcpy(dest, src, sizeof(color24) * smax);
 	}
-};
+}
 
 /*
 ====================

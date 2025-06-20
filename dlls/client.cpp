@@ -1193,7 +1193,7 @@ void SetupVisibility(edict_t* pViewEntity, edict_t* pClient, unsigned char** pvs
 	// we do this here since engine calls this function regardless if the game is paused or not
 	if (saving == 2 && gpGlobals->pSaveData == 0)
 	{
-		ClientPrint(&pClient->v, HUD_PRINTCONSOLE, UTIL_VarArgs("we just saved to %s ! we can start writing to it now.\n"), savefile);
+		ClientPrint(&pClient->v, HUD_PRINTCONSOLE, UTIL_VarArgs("we just saved to %s ! we can start writing to it now.\n", savefile));
 
 		MESSAGE_BEGIN(MSG_BROADCAST, gmsgTempEntities);
 		WRITE_BYTE(TE_DECALS_SAVE_AND_RESTORE);

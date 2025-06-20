@@ -4321,7 +4321,7 @@ int CStudioModelRenderer::StudioRecursiveLightPoint(entextrainfo_t* ext, mnode_t
 		ds >>= 4;
 		dt >>= 4;
 
-		if (surf->styles[0] == 255) // fixes surfaces with no lightmap data (pitch-black)
+		if (surf->styles[0] >= 32) // fixes surfaces with no lightmap data (pitch-black)
 		{
 			color.x = 0;
 			color.y = 0;
