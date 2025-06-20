@@ -117,7 +117,7 @@ public:
 
 LINK_ENTITY_TO_CLASS(infodecal, CDecal);
 
-void CDecal::SendInitMessage(CBasePlayer* pPlayer)
+void CDecal::SendInitMessage(CBaseEntity* pPlayer)
 {
 	if (pPlayer && FStringNull(pev->targetname))
 	{

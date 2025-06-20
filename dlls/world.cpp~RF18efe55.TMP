@@ -110,14 +110,14 @@ public:
 	void Spawn() override;
 	bool KeyValue(KeyValueData* pkvd) override;
 	void EXPORT StaticDecal();
-	void SendInitMessage(CBasePlayer* player = NULL) override;
+	void SendInitMessage(CBaseEntity* pPlayer = NULL) override;
 	void EXPORT TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	string_t decalname;
 };
 
 LINK_ENTITY_TO_CLASS(infodecal, CDecal);
 
-void CDecal::SendInitMessage(CBasePlayer* pPlayer)
+void CDecal::SendInitMessage(CBaseEntity* pPlayer)
 {
 	if (pPlayer && FStringNull(pev->targetname))
 	{

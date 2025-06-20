@@ -170,7 +170,7 @@ public:
 	virtual void Activate() {}
 
 	// RENDERERS START
-	virtual void SendInitMessage(CBasePlayer* player) {};
+	virtual void SendInitMessage(CBasePlayer* player = NULL) {};
 	// RENDERERS END
 
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
