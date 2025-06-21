@@ -613,8 +613,9 @@ void CHeadcrabGrenade::Precache()
 	PRECACHE_MODEL("models/w_sqknest.mdl");
 	PRECACHE_MODEL("models/v_headcrab.mdl");
 	PRECACHE_MODEL("models/p_squeak.mdl");
-	PRECACHE_SOUND("squeek/sqk_hunt2.wav");
-	PRECACHE_SOUND("squeek/sqk_hunt3.wav");
+	PRECACHE_SOUND("headcrab/hc_alert1.wav");
+	PRECACHE_SOUND("headcrab/hc_attack1.wav");
+	PRECACHE_SOUND("headcrab/hc_attack3.wav");
 	// UTIL_PrecacheOther("monster_snark");
 	UTIL_PrecacheOther("monster_headcrab");
 
@@ -643,10 +644,7 @@ bool CHeadcrabGrenade::Deploy()
 	// play hunt sound
 	float flRndSound = RANDOM_FLOAT(0, 1);
 
-	if (flRndSound <= 0.5)
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 100);
-	else
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 100);
+	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_alert1.wav", 1, ATTN_NORM, 0, 100);
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
@@ -654,7 +652,7 @@ bool CHeadcrabGrenade::Deploy()
 
 	if (result)
 	{
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.7;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + (40.f / 30.f);
 	}
 
 	return result;
@@ -715,25 +713,25 @@ void CHeadcrabGrenade::PrimaryAttack()
 			CBaseEntity* pSqueak = CBaseEntity::Create("monster_headcrab", tr.vecEndPos, angle, m_pPlayer->edict());
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+			pSqueak->pev->angles.y = pev->angles.y;
 #endif
 
 			// play hunt sound
 			float flRndSound = RANDOM_FLOAT(0, 1);
 
-			if (flRndSound <= 0.5)
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
-			else
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
+			//if (flRndSound <= 0.5)
+			//	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_attack1.wav", 1, ATTN_NORM, 0, 105);
+			//else
+			//	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_attack2.wav", 1, ATTN_NORM, 0, 105);
 
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 
 			m_fJustThrown = true;
-
-			m_flNextPrimaryAttack = GetNextAttackDelay(0.3);
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 		}
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.7);
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.4;
 	}
 }
 
