@@ -1110,8 +1110,8 @@ void CWaterShader::DrawWater(void)
 		glEnable(GL_TEXTURE_2D);
 
 		// Optimization: Try and find a water entity on the same z coord
-		// int j = 0;
-		// for (; j < i; j++)
+		//int j = 0;
+		//for (; j < i; j++)
 		//{
 		//	if (m_pWaterEntities[j].draw)
 		//	{
@@ -1122,8 +1122,8 @@ void CWaterShader::DrawWater(void)
 		//		}
 		//	}
 		//}
-		//
-		// if (j == i)
+		
+		//if (j == i)
 		gBSPRenderer.Bind2DTexture(GL_TEXTURE2_ARB, m_pCurWater->reflect);
 
 		for (int j = 0; j < m_pCurWater->numsurfaces; j++)
