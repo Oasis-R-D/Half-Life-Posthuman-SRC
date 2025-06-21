@@ -61,17 +61,23 @@ public:
 	bool ViewInWater(void);
 	bool ShouldReflect(int index);
 
-	vec3_t GetWaterOrigin(cl_water_t* pwater = nullptr);
+	Vector GetWaterOrigin(cl_water_t* pwater = nullptr);
+
+	int MsgWaterInfo(const char* pszName, int iSize, void* pbuf);
 
 public:
 	bool m_bViewInWater;
-	vec3_t m_vViewOrigin;
+	Vector m_vViewOrigin;
+
+	cl_waterinfo_t m_pWaterEntInfo[MAX_WATER_ENTITIES]; // each func_water can control how the shader works :)
+	int m_iNumWaterData;
 
 	cl_water_t m_pWaterEntities[MAX_WATER_ENTITIES];
 	int m_iNumWaterEntities;
 
 	cvar_t* m_pCvarWaterShader;
 	cvar_t* m_pCvarWaterDebug;
+	cvar_t* m_pCvarWaterResolution;
 
 	cl_texture_t* m_pNormalTexture;
 	cl_water_t* m_pCurWater;
@@ -79,17 +85,16 @@ public:
 	ref_params_t* m_pViewParams;
 	ref_params_t m_pWaterParams;
 
-	vec3_t m_vWaterOrigin;
-	vec3_t m_vWaterPlaneMins;
-	vec3_t m_vWaterPlaneMaxs;
-	vec3_t m_vWaterEntMins;
-	vec3_t m_vWaterEntMaxs;
+	Vector m_vWaterOrigin;
+	Vector m_vWaterPlaneMins;
+	Vector m_vWaterPlaneMaxs;
+	Vector m_vWaterEntMins;
+	Vector m_vWaterEntMaxs;
 
 	int m_iNumPasses;
 
 public:
-	GLuint m_uiVertexPrograms[MAX_WATER_VERTEX_SHADERS];
-	GLuint m_uiFragmentPrograms[MAX_WATER_FRAGMENT_SHADERS];
+	GLuint m_WaterFragmentShader;
 
 public:
 	fog_settings_t m_pMainFogSettings;

@@ -5038,7 +5038,7 @@ qboolean CStudioModelRenderer::StudioCheckBBox(void)
 
 		for (int j = 0; j < m_pStudioHeader->numbonecontrollers; j++)
 		{
-			if (!(pbonecontroller[j].type & STUDIO_Z)) // STUDIO_Y))
+			if (!(pbonecontroller[j].type & STUDIO_Y))
 				continue;
 
 			if (pbonecontroller[j].type & STUDIO_RLOOP)

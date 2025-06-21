@@ -485,6 +485,19 @@ struct cl_shadow_t
 //				WATER SHADER STRUCTS
 //
 //==================================================
+
+struct cl_waterinfo_t
+{
+	cl_entity_s* entity;
+	Vector waterfog_color;
+	int waterfog_start;
+	int waterfog_end;
+	float watertex_scale;
+	float refraction_scale, reflection_scale;
+	float normal_scale;
+	float fresnel;
+};
+
 struct cl_water_t
 {
 	int index;
@@ -503,6 +516,9 @@ struct cl_water_t
 
 	msurface_t** surfaces;
 	int numsurfaces;
+
+	// bacontsu - custom res per water surface
+	float res = 0.0f;
 };
 
 //==================================================

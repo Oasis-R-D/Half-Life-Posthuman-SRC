@@ -344,8 +344,70 @@ LoadScript
 */
 void CWaterShader::LoadScript(void)
 {
-	//no script, every func_water has their own fog settings
-	m_pWaterFogSettings.active = true;
+	char szFile[64];
+	char szMapName[64];
+	const char* levelname = gEngfuncs.pfnGetLevelName();
+
+	FilenameFromPath((char*)levelname, szMapName);
+	sprintf(szFile, "scripts/water_%s.txt", szMapName);
+
+	char* pFile = (char*)gEngfuncs.COM_LoadFile(szFile, 5, NULL);
+
+	if (!pFile)
+		pFile = (char*)gEngfuncs.COM_LoadFile("scripts/water_default.txt", 5, NULL);
+
+	if (!pFile)
+	{
+		gEngfuncs.Con_Printf("Could not load default water definition file 'scripts/water_default.txt'!\n");
+
+		memset(&m_pWaterFogSettings, 0, sizeof(fog_settings_t));
+		m_flFresnelTerm = 1;
+		return;
+	}
+
+	char* pToken = pFile;
+	while (1)
+	{
+		char szField[32];
+		char szValue[32];
+
+		pToken = gEngfuncs.COM_ParseFile(pToken, szField);
+
+		if (!pToken)
+			break;
+
+		pToken = gEngfuncs.COM_ParseFile(pToken, szValue);
+
+		if (!pToken)
+			break;
+
+		if (!strcmp(szField, "fresnel"))
+			m_flFresnelTerm = atof(szValue);
+		else if (!strcmp(szField, "colr"))
+			m_pWaterFogSettings.color[0] = atof(szValue) / 255.0;
+		else if (!strcmp(szField, "colg"))
+			m_pWaterFogSettings.color[1] = atof(szValue) / 255.0;
+		else if (!strcmp(szField, "colb"))
+			m_pWaterFogSettings.color[2] = atof(szValue) / 255.0;
+		else if (!strcmp(szField, "fogend"))
+			m_pWaterFogSettings.end = atof(szValue);
+		else if (!strcmp(szField, "fogstart"))
+			m_pWaterFogSettings.start = atof(szValue);
+		else
+			gEngfuncs.Con_Printf("Unknown field: %s\n", szField);
+	}
+	gEngfuncs.COM_FreeFile(pFile);
+
+	// always true
+	m_pWaterFogSettings.affectsky = true;
+
+	if (m_pWaterFogSettings.end < 1 && m_pWaterFogSettings.start < 1)
+		m_pWaterFogSettings.active = false;
+	else
+		m_pWaterFogSettings.active = true;
+
+	// if (m_flFresnelTerm <= 0)
+	//	m_flFresnelTerm = 1;
 }
 
 /*
@@ -1026,9 +1088,9 @@ void CWaterShader::DrawWater(void)
 	gBSPRenderer.glUseProgram(m_WaterFragmentShader);
 
 	glGetFloatv(GL_PROJECTION_MATRIX, flMatrix);
-	gBSPRenderer.glUniformMatrix4fv(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "projectionMatrix"), 1, GL_FALSE, flMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(m_WaterFragmentShader, "projectionMatrix"), 1, GL_FALSE, flMatrix);
 
-	gBSPRenderer.glUniform1i(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "underwater"), m_bViewInWater ? 1 : 0);
+	glUniform1i(glGetUniformLocation(m_WaterFragmentShader, "underwater"), m_bViewInWater ? 1 : 0);
 
 
 	bool onlyrenderthiswater = false;
@@ -1056,15 +1118,15 @@ void CWaterShader::DrawWater(void)
 				m_pWaterFogSettings.start = m_pWaterEntInfo[j].waterfog_start;
 				m_pWaterFogSettings.end = m_pWaterEntInfo[j].waterfog_end;
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "normalscale"), m_pWaterEntInfo[j].normal_scale);
+				glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "normalscale"), m_pWaterEntInfo[j].normal_scale);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), m_pWaterEntInfo[j].watertex_scale);
+				glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), m_pWaterEntInfo[j].watertex_scale);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "refraction_scale"), m_pWaterEntInfo[j].refraction_scale);
+				glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "refraction_scale"), m_pWaterEntInfo[j].refraction_scale);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "reflection_scale"), m_pWaterEntInfo[j].reflection_scale);
+				glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "reflection_scale"), m_pWaterEntInfo[j].reflection_scale);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "m_flFresnelTerm"), m_pWaterEntInfo[j].fresnel);
+				glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "m_flFresnelTerm"), m_pWaterEntInfo[j].fresnel);
 			}
 		}
 
@@ -1087,25 +1149,25 @@ void CWaterShader::DrawWater(void)
 
 		MultiplyMatrices4x4_OpenGLStyle(modelViewMatrix, flMatrix, modelMatrix);
 
-		gBSPRenderer.glUniformMatrix4fv(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "modelMatrix"), 1, GL_FALSE, modelViewMatrix);
+		glUniformMatrix4fv(glGetUniformLocation(m_WaterFragmentShader, "modelMatrix"), 1, GL_FALSE, modelViewMatrix);
 
 		if (ViewInWater())
 			glCullFace(GL_BACK);
 
-		gBSPRenderer.glUniform3fv(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "renderorigin"), 1, gBSPRenderer.m_vRenderOrigin);
-		gBSPRenderer.glUniform3fv(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "waterfog"), 1, m_pWaterFogSettings.color);
-		gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "flTime"), flTime);
-		gBSPRenderer.glUniform1i(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "texture0"), 0);
-		gBSPRenderer.glUniform1i(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "texture1"), 1);
-		gBSPRenderer.glUniform1i(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "texture2"), 2);
-		gBSPRenderer.glUniform1i(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "texture3"), 3); // original water texture
+		glUniform3fv(glGetUniformLocation(m_WaterFragmentShader, "renderorigin"), 1, gBSPRenderer.m_vRenderOrigin);
+		glUniform3fv(glGetUniformLocation(m_WaterFragmentShader, "waterfog"), 1, m_pWaterFogSettings.color);
+		glUniform1f(glGetUniformLocation(m_WaterFragmentShader, "flTime"), flTime);
+		glUniform1i(glGetUniformLocation(m_WaterFragmentShader, "texture0"), 0);
+		glUniform1i(glGetUniformLocation(m_WaterFragmentShader, "texture1"), 1);
+		glUniform1i(glGetUniformLocation(m_WaterFragmentShader, "texture2"), 2);
+		glUniform1i(glGetUniformLocation(m_WaterFragmentShader, "texture3"), 3); // original water texture
 
 		gBSPRenderer.Bind2DTexture(GL_TEXTURE0_ARB, m_pNormalTexture->iIndex);
 		gBSPRenderer.Bind2DTexture(GL_TEXTURE1_ARB, m_pCurWater->refract);
 		// gBSPRenderer.Bind2DTexture(GL_TEXTURE3_ARB, m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum);
 		int idx = GL_TEXTURE3_ARB - GL_TEXTURE0_ARB;
 		gBSPRenderer.m_uiCurrentBinds[idx] = m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum;
-		gBSPRenderer.glActiveTextureARB(GL_TEXTURE3_ARB);
+		glActiveTextureARB(GL_TEXTURE3_ARB);
 		glBindTexture(GL_TEXTURE_2D, m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum);
 		glEnable(GL_TEXTURE_2D);
 
@@ -1136,11 +1198,11 @@ void CWaterShader::DrawWater(void)
 
 	glCullFace(GL_FRONT);
 
-	gBSPRenderer.glUseProgram(0);
+	glUseProgram(0);
 
 	int idx = GL_TEXTURE3_ARB - GL_TEXTURE0_ARB;
 	gBSPRenderer.m_uiCurrentBinds[idx] = 0;
-	gBSPRenderer.glActiveTextureARB(GL_TEXTURE3_ARB);
+	glActiveTextureARB(GL_TEXTURE3_ARB);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
 

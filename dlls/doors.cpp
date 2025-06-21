@@ -22,6 +22,7 @@
 #include "util.h"
 #include "cbase.h"
 #include "doors.h"
+#include "UserMessages.h"
 
 
 extern void SetMovedir(entvars_t* ev);
@@ -38,6 +39,7 @@ public:
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
 	void Blocked(CBaseEntity* pOther) override;
 
+	void SendInitMessage(CBasePlayer* player) override; // for water shader
 
 	int ObjectCaps() override
 	{
@@ -74,6 +76,13 @@ public:
 	byte m_bLockedSentence;
 	byte m_bUnlockedSound;
 	byte m_bUnlockedSentence;
+
+	//water shader stuff
+
+	bool m_bDisableWaterShader;
+
+	int waterfog_start, waterfog_end;
+	float normal_scale, watertex_scale, refraction_scale, reflection_scale, fresnel;
 };
 
 
@@ -87,6 +96,15 @@ TYPEDESCRIPTION CBaseDoor::m_SaveData[] =
 		DEFINE_FIELD(CBaseDoor, m_bLockedSentence, FIELD_CHARACTER),
 		DEFINE_FIELD(CBaseDoor, m_bUnlockedSound, FIELD_CHARACTER),
 		DEFINE_FIELD(CBaseDoor, m_bUnlockedSentence, FIELD_CHARACTER),
+
+		DEFINE_FIELD(CBaseDoor, m_bDisableWaterShader, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBaseDoor, waterfog_start, FIELD_INTEGER),
+		DEFINE_FIELD(CBaseDoor, waterfog_end, FIELD_INTEGER),
+		DEFINE_FIELD(CBaseDoor, watertex_scale, FIELD_FLOAT),
+		DEFINE_FIELD(CBaseDoor, refraction_scale, FIELD_FLOAT),
+		DEFINE_FIELD(CBaseDoor, reflection_scale, FIELD_FLOAT),
+		DEFINE_FIELD(CBaseDoor, refraction_scale, FIELD_FLOAT),
+		DEFINE_FIELD(CBaseDoor, normal_scale, FIELD_FLOAT),
 
 };
 
@@ -240,8 +258,87 @@ bool CBaseDoor::KeyValue(KeyValueData* pkvd)
 		pev->scale = atof(pkvd->szValue) * (1.0 / 8.0);
 		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "nowatershader"))
+	{
+		m_bDisableWaterShader = 1;
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "waterfog_start"))
+	{
+		waterfog_start = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "waterfog_end"))
+	{
+		waterfog_end = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "watertex_scale"))
+	{
+		watertex_scale = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "refraction_scale"))
+	{
+		refraction_scale = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "reflection_scale"))
+	{
+		reflection_scale = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "normal_scale"))
+	{
+		normal_scale = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "fresnel"))
+	{
+		fresnel = atof(pkvd->szValue);
+		return true;
+	}
 
 	return CBaseToggle::KeyValue(pkvd);
+}
+
+void CBaseDoor::SendInitMessage(CBasePlayer* player)
+{
+	if (m_bDisableWaterShader || !FClassnameIs(pev, "func_water"))
+		return;
+
+	// order:
+	//  entindex
+	//  waterfog_color
+	//  waterfog_start
+	//  waterfog_end
+	//  watertex_scale
+	//  normal_scale
+	//  fresnel
+
+	// if (player)
+	//	MESSAGE_BEGIN(MSG_ONE, gmsgWaterData, nullptr, player->pev);
+	// else
+	MESSAGE_BEGIN(MSG_ALL, gmsgWaterInfo, nullptr);
+
+	WRITE_LONG(entindex());
+	WRITE_FLOAT(pev->rendercolor.x);
+	WRITE_FLOAT(pev->rendercolor.y);
+	WRITE_FLOAT(pev->rendercolor.z);
+	WRITE_LONG(waterfog_start);
+	WRITE_LONG(waterfog_end);
+	char dummy[128];
+	sprintf_s(dummy, "%f", watertex_scale);
+	WRITE_STRING(dummy);
+	sprintf_s(dummy, "%f", refraction_scale);
+	WRITE_STRING(dummy);
+	sprintf_s(dummy, "%f", reflection_scale);
+	WRITE_STRING(dummy);
+	sprintf_s(dummy, "%f", normal_scale);
+	WRITE_STRING(dummy);
+	sprintf_s(dummy, "%f", fresnel);
+	WRITE_STRING(dummy);
+	MESSAGE_END();
 }
 
 /*QUAKED func_door (0 .5 .8) ? START_OPEN x DOOR_DONT_LINK TOGGLE
@@ -290,6 +387,9 @@ void CBaseDoor::Spawn()
 	}
 	else
 	{ // special contents
+		if (!m_bDisableWaterShader)
+			pev->effects |= FL_WATERSHADER;
+
 		pev->solid = SOLID_NOT;
 		SetBits(pev->spawnflags, SF_DOOR_SILENT); // water is silent for now
 	}
