@@ -1344,11 +1344,23 @@ private:
 	float m_flReloadStartTime;
 	float m_flReloadStart;
 };
-
+enum HeadcrabGrenade
+{
+	DRAW = 0,
+	FIDGET,
+	IDLE,
+	IDLE2,
+	PET,
+	THROW
+};
 class CHeadcrabGrenade : public CSqueak
 {
 public:
+	void Precache() override;
 	void Spawn() override;
+	bool Deploy() override;
+	void Holster() override;
+	void WeaponIdle() override;
 	int iItemSlot() override { return 5; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void PrimaryAttack() override;

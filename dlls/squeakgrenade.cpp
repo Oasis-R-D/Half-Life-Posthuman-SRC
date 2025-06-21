@@ -608,7 +608,19 @@ void CHeadcrabGrenade::Spawn()
 	pev->animtime = gpGlobals->time;
 	pev->framerate = 1.0;
 }
+void CHeadcrabGrenade::Precache()
+{
+	PRECACHE_MODEL("models/w_sqknest.mdl");
+	PRECACHE_MODEL("models/v_headcrab.mdl");
+	PRECACHE_MODEL("models/p_squeak.mdl");
+	PRECACHE_SOUND("squeek/sqk_hunt2.wav");
+	PRECACHE_SOUND("squeek/sqk_hunt3.wav");
+	// UTIL_PrecacheOther("monster_snark");
+	UTIL_PrecacheOther("monster_headcrab");
 
+
+	m_usSnarkFire = PRECACHE_EVENT(1, "events/snarkfire.sc");
+}
 bool CHeadcrabGrenade::GetItemInfo(ItemInfo* p)
 {
 	p->pszName = STRING(pev->classname);
@@ -626,6 +638,44 @@ bool CHeadcrabGrenade::GetItemInfo(ItemInfo* p)
 	return true;
 }
 
+bool CHeadcrabGrenade::Deploy()
+{
+	// play hunt sound
+	float flRndSound = RANDOM_FLOAT(0, 1);
+
+	if (flRndSound <= 0.5)
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 100);
+	else
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 100);
+
+	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
+
+	const bool result = DefaultDeploy("models/v_headcrab.mdl", "models/p_squeak.mdl", DRAW, "squeak");
+
+	if (result)
+	{
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.7;
+	}
+
+	return result;
+}
+
+
+void CHeadcrabGrenade::Holster()
+{
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
+	/*
+	if (0 == m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+	{
+		m_pPlayer->ClearWeaponBit(m_iId);
+		SetThink(&CSqueak::DestroyItem);
+		pev->nextthink = gpGlobals->time + 0.1;
+		return;
+	}
+	*/
+	SendWeaponAnim(DRAW);
+	// EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
+}
 void CHeadcrabGrenade::PrimaryAttack()
 {
 	if (0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
@@ -685,6 +735,52 @@ void CHeadcrabGrenade::PrimaryAttack()
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 		}
 	}
+}
+
+
+void CHeadcrabGrenade::WeaponIdle()
+{
+	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
+		return;
+
+	if (m_fJustThrown)
+	{
+		m_fJustThrown = false;
+
+		if (0 == m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()])
+		{
+			RetireWeapon();
+			return;
+		}
+
+		SendWeaponAnim(DRAW);
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+		return;
+	}
+
+	int iAnim;
+	float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
+	if (flRand <= 0.375)
+	{
+		iAnim = IDLE;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.03;
+	}
+	else if (flRand <= 0.75)
+	{
+		iAnim = IDLE2;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.03;
+	}
+	else if (flRand <= 0.875)
+	{
+		iAnim = FIDGET;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.27;
+	}
+	else
+	{
+		iAnim = PET;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 4.7;
+	}
+	SendWeaponAnim(iAnim);
 }
 
 LINK_ENTITY_TO_CLASS(weapon_headcrab_fast, CHeadcrabGrenadeFast);
