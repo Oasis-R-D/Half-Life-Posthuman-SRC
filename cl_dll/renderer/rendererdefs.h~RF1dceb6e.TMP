@@ -513,7 +513,7 @@ struct cl_water_t
 	GLuint refract;
 	GLuint reflect;
 	GLuint waterFBO;
-	GLuint depthbuffer;
+	GLuint dbuffer;
 
 	msurface_t** surfaces;
 	int numsurfaces;

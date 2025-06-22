@@ -33,8 +33,6 @@ Written by Andrew Lucas
 #include <memory.h>
 #include <math.h>
 
-#include "SDL2/SDL.h"
-
 #include "propmanager.h"
 #include "particle_engine.h"
 #include "bsprenderer.h"
@@ -57,8 +55,6 @@ extern CGameStudioModelRenderer g_StudioRenderer;
 #endif
 
 extern inline float sgn(float a);
-
-extern SDL_Window* game_sdl_window;
 
 GLint oldfbo;
 
@@ -272,8 +268,8 @@ void CWaterShader::ClearEntities(void)
 	{
 		glDeleteTextures(1, &m_pWaterEntities[i].reflect);
 		glDeleteTextures(1, &m_pWaterEntities[i].refract);
-		gBSPRenderer.glDeleteFramebuffersEXT(1, &m_pWaterEntities[i].waterFBO);
-		gBSPRenderer.glDeleteRenderbuffersEXT(1, &m_pWaterEntities[i].depthbuffer);
+		gBSPRenderer.glDeleteFramebuffers(1, &m_pWaterEntities[i].waterFBO);
+		gBSPRenderer.glDeleteRenderbuffers(1, &m_pWaterEntities[i] .depthbuffer);
 		free(m_pWaterEntities[i].surfaces);
 	}
 
@@ -523,11 +519,11 @@ void CWaterShader::AddEntity(cl_entity_t* entity)
 	//pWater->depthbuffer = current_ext_texture_id;
 	//current_ext_texture_id++;
 
-	gBSPRenderer.glGenFramebuffersEXT(1, &pWater->waterFBO);
-	gBSPRenderer.glGenFramebuffersEXT(1, &pWater->depthbuffer);
+	gBSPRenderer.glGenFramebuffers(1, &pWater->waterFBO);
+	gBSPRenderer.glGenFramebuffers(1, &pWater->depthbuffer);
 
-	gBSPRenderer.glBindRenderbufferEXT(GL_RENDERBUFFER, pWater->depthbuffer);
-	gBSPRenderer.glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+	gBSPRenderer.glBindRenderbuffer(GL_RENDERBUFFER, pWater->depthbuffer);
+	gBSPRenderer.glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
 		m_pCvarWaterResolution->value,
 		m_pCvarWaterResolution->value);
 }
@@ -861,12 +857,12 @@ void CWaterShader::SetupRefract(void)
 
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfbo);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, m_pCurWater->waterFBO);
-	gBSPRenderer.glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pCurWater->refract, 0);
-	gBSPRenderer.glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pCurWater->depthbuffer);
+	gBSPRenderer.glBindFramebuffer(GL_FRAMEBUFFER, m_pCurWater->waterFBO);
+	gBSPRenderer.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pCurWater->refract, 0);
+	gBSPRenderer.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pCurWater->depthbuffer);
 
 	// Check FBO completeness (do once)
-	GLenum status = gBSPRenderer.glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
+	GLenum status = gBSPRenderer.glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
 		gEngfuncs.Con_Printf("FBO is incomplete! Error: 0x%x\n", status);
 
@@ -915,7 +911,7 @@ void CWaterShader::FinishRefract(void)
 	//else
 	//	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, m_pCurWater->res, m_pCurWater->res, 0);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, oldfbo);
+	gBSPRenderer.glBindFramebuffer(GL_FRAMEBUFFER, oldfbo);
 
 	// Completely clear everything
 	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
@@ -965,14 +961,14 @@ void CWaterShader::SetupReflect(void)
 
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfbo);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, m_pCurWater->waterFBO);
-	gBSPRenderer.glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pCurWater->reflect, 0);
-	gBSPRenderer.glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pCurWater->depthbuffer);
+	gBSPRenderer.glBindFramebuffer(GL_FRAMEBUFFER, m_pCurWater->waterFBO);
+	gBSPRenderer.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pCurWater->reflect, 0);
+	gBSPRenderer.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pCurWater->depthbuffer);
 
 	// Check FBO completeness (do once)
-	GLenum status = gBSPRenderer.glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
+	GLenum status = gBSPRenderer.glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
-		gEngfuncs.Con_Printf("FBO is incomplete! Error: 0x%x\n", status);
+		printf("FBO is incomplete! Error: 0x%x\n", status);
 
 	glCullFace(GL_FRONT);
 	glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
@@ -1020,7 +1016,7 @@ void CWaterShader::FinishReflect(void)
 	//else
 	//	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, m_pCurWater->res, m_pCurWater->res, 0);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, oldfbo);
+	gBSPRenderer.glBindFramebuffer(GL_FRAMEBUFFER, oldfbo);
 
 	// Completely clear everything
 	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);

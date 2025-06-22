@@ -23,6 +23,9 @@
 #include "camera.h"
 #include "in_defs.h"
 #include "vgui_TeamFortressViewport.h"
+#include "SDL2/SDL.h"
+
+extern SDL_Window* game_sdl_window;
 
 using namespace vgui;
 

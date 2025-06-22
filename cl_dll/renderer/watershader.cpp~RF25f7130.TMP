@@ -728,6 +728,7 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 		}
 
 		SetupRefract();
+
 		DrawScene(m_pViewParams, true);
 		FinishRefract();
 

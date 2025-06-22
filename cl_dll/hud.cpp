@@ -25,6 +25,7 @@
 #include "parsemsg.h"
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
+#include "SDL2/SDL.h"
 
 #include "demo.h"
 #include "demo_api.h"
@@ -51,6 +52,8 @@ extern CTempEntity gTempEntities;
 
 hud_player_info_t g_PlayerInfoList[MAX_PLAYERS_HUD + 1];	// player info from the engine
 extra_player_info_t g_PlayerExtraInfo[MAX_PLAYERS_HUD + 1]; // additional player info sent directly to the client dll
+
+SDL_Window* game_sdl_window;
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
 {
@@ -432,6 +435,17 @@ void CHud::Init()
 	cl_bobtilt = CVAR_CREATE("cl_bobtilt", "0", FCVAR_ARCHIVE);
 
 	m_pSpriteList = NULL;
+
+	// transparent game icon
+	for (Uint32 id = 0; id < UINT32_MAX; ++id)
+	{
+		auto window = SDL_GetWindowFromID(id);
+		if (window)
+		{
+			game_sdl_window = window;
+			break;
+		}
+	}
 
 	// Clear any old HUD list
 	if (m_pHudList)
