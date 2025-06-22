@@ -542,7 +542,7 @@ void CBSPRenderer::Init(void)
 	glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)wglGetProcAddress("glFramebufferTexture2DEXT");
 	glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)wglGetProcAddress("glFramebufferRenderbufferEXT");
 	glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)wglGetProcAddress("glCheckFramebufferStatusEXT");
-	glDeleteFramebuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)wglGetProcAddress("glDeleteRenderbuffersEXT");
+	glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)wglGetProcAddress("glDeleteFramebuffersEXT");
 
 	glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC)wglGetProcAddress("glGenRenderbuffersEXT");
 	glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC)wglGetProcAddress("glBindRenderbufferEXT");
@@ -618,7 +618,7 @@ void CBSPRenderer::Init(void)
 	m_pCvarShadows = CVAR_CREATE("te_shadows", "1", FCVAR_ARCHIVE);
 	m_pCvarFixTextCorruption = CVAR_CREATE("te_fix_text_corruption", "1", FCVAR_ARCHIVE);
 
-	oldvisframes = nullptr;
+	memset(oldvisframes, 0, sizeof(oldvisframes));
 
 	//
 	// Load shaders
@@ -851,7 +851,7 @@ void CBSPRenderer::VidInit(void)
 	m_bMirroring = false;
 	m_bSpecialFog = false;
 	m_iNumFlashlightTextures = NULL;
-	oldvisframes = nullptr;
+	memset(oldvisframes, 0, sizeof(oldvisframes));
 	r_oldviewleaf = nullptr;
 
 	ClearDetailObjects();
@@ -1275,8 +1275,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 
 		// Make sure the spotlight sees it's polygons
 		// actually no these mess up r_visframecount sync and im already pISSED ABUT THIS SHIT so just dont to that
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
-		//R_MarkLeaves(pLeaf);
+		mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
+		R_MarkLeaves(pLeaf);
 	}
 	for (int i = 0; i < m_iNumModelShadows; i++, pShadow++)
 	{
@@ -1284,8 +1284,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 			return;
 
 		// Make sure the spotlight sees it's polygons
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
-		//R_MarkLeaves(pLeaf);
+		mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
+		R_MarkLeaves(pLeaf);
 	}
 }
 
@@ -1413,8 +1413,7 @@ void CBSPRenderer::RendererRefDef(ref_params_t* pparams)
 
 	PushDynLights();
 	ClearToFogColor();
-	if (!m_bMirroring)
-		DisableWorldDrawing(pparams);
+	DisableWorldDrawing(pparams);
 
 	if (!pparams->onlyClientDraw)
 		m_bCanDraw = true;
@@ -1428,6 +1427,8 @@ DisableWorldDrawing
 */
 void CBSPRenderer::DisableWorldDrawing(ref_params_t* pparams)
 {
+	if (m_bMirroring)
+		return;
 	if (m_pTrueRootNode)
 	{
 		gEngfuncs.Con_Printf("%s - Called without having been restored first!\n");
@@ -1448,29 +1449,41 @@ void CBSPRenderer::RestoreWorldDrawing(void)
 {
 	// Shouldn't happen
 	if (!m_pTrueRootNode)
+	{
+		if(m_bMirroring)
+		{
+			int numleafnodes = 0;
+			for (int i = 0; i < m_pWorld->numleafs; i++)
+			{
+				mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
+				do
+				{
+					node->visframe = oldvisframes[numleafnodes];
+					node = node->parent;
+					numleafnodes++;
+				} while (node);
+			}
+			// Mark all leaves with current visframe
+			R_MarkLeaves(m_pViewLeaf);
+		}
 		return;
+	}
 
 	// Restore and clear pointer
 	m_pWorld->nodes = m_pTrueRootNode;
 	m_pTrueRootNode = nullptr;
-	if (!m_bMirroring) 
-		saved_leaf_visframe = m_pWorld->nodes[0].visframe;
+	saved_leaf_visframe = m_pWorld->nodes[0].visframe;
 	int numleafnodes = 0;
 
-	if (oldvisframes != nullptr)
+	for (int i = 0; i < m_pWorld->numleafs; i++)
 	{
-		for (int i = 0; i < m_pWorld->numleafs; i++)
+		mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
+		do
 		{
-			mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
-			do
-			{
-				node->visframe = oldvisframes[numleafnodes];
-				node = node->parent;
-				numleafnodes++;
-			} while (node);
-		}
-		delete[] oldvisframes;
-		oldvisframes = nullptr;
+			node->visframe = oldvisframes[numleafnodes];
+			node = node->parent;
+			numleafnodes++;
+		} while (node);
 	}
 
 	// Mark all leaves with current visframe
@@ -2603,6 +2616,22 @@ void CBSPRenderer::DrawNormalTriangles(void)
 	RenderFog();
 
 	DrawSky();
+	float projection[16];
+	if (m_bMirroring)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glGetFloatv(GL_PROJECTION_MATRIX, projection);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+	}
+	if (m_bMirroring)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadMatrixf(projection);
+
+		glMatrixMode(GL_MODELVIEW);
+	}
 	DrawWorld();
 	R_RestoreGLStates();
 
@@ -2652,8 +2681,7 @@ DrawWorld
 void CBSPRenderer::DrawWorld(void)
 {
 	// Restore mins/maxs
-	if (!m_bMirroring)
-		RestoreWorldDrawing();
+	RestoreWorldDrawing();
 
 	if (!m_pCvarDrawWorld->value)
 		return;
@@ -6730,7 +6758,16 @@ void CBSPRenderer::DrawSky(void)
 	static float projection[16];
 
 	if (!m_bDrawSky)
+	{
+		if (m_bMirroring)
+		{
+			//fix weird water framebuffer issue
+			ResetRenderer();
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
+
 		return;
+	}
 
 	if (gHUD.m_pSkyFogSettings.active)
 	{

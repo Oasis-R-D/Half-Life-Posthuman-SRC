@@ -60,7 +60,7 @@ extern inline float sgn(float a);
 
 extern SDL_Window* game_sdl_window;
 
-GLint oldfbo = 0;
+GLint oldfbo;
 
 GLuint waterfbo = 0;
 GLuint depthbuffer = 0;
@@ -268,7 +268,6 @@ ClearEntities
 */
 void CWaterShader::ClearEntities(void)
 {
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, oldfbo);
 	if (!m_iNumWaterEntities)
 		return;
 
@@ -276,9 +275,8 @@ void CWaterShader::ClearEntities(void)
 	{
 		glDeleteTextures(1, &m_pWaterEntities[i].reflect);
 		glDeleteTextures(1, &m_pWaterEntities[i].refract);
-		gBSPRenderer.glDeleteFramebuffersEXT(1, &m_pWaterEntities[i].waterFBO);
-		gBSPRenderer.glDeleteRenderbuffersEXT(1, &m_pWaterEntities[i].depthbuffer);
-		m_pWaterEntities[i].waterFBO = m_pWaterEntities[i].depthbuffer = 0;
+		gBSPRenderer.glDeleteFramebuffersEXT(1, &waterfbo);
+		gBSPRenderer.glDeleteRenderbuffersEXT(1, &depthbuffer);
 		free(m_pWaterEntities[i].surfaces);
 	}
 
@@ -392,7 +390,6 @@ AddEntity
 */
 void CWaterShader::AddEntity(cl_entity_t* entity)
 {
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER, oldfbo);
 	if (m_iNumWaterEntities == MAX_WATER_ENTITIES)
 		return;
 
@@ -529,29 +526,13 @@ void CWaterShader::AddEntity(cl_entity_t* entity)
 	//pWater->depthbuffer = current_ext_texture_id;
 	//current_ext_texture_id++;
 
-	gBSPRenderer.glGenFramebuffersEXT(1, &pWater->waterFBO);
-	gBSPRenderer.glGenFramebuffersEXT(1, &pWater->depthbuffer);
+	gBSPRenderer.glGenFramebuffersEXT(1, &waterfbo);
+	gBSPRenderer.glGenFramebuffersEXT(1, &depthbuffer);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pWater->waterFBO);
-
-	gBSPRenderer.glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, pWater->depthbuffer);
+	gBSPRenderer.glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
 	gBSPRenderer.glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24,
 		m_pCvarWaterResolution->value,
 		m_pCvarWaterResolution->value);
-
-	gBSPRenderer.glFramebufferTexture2DEXT(
-		GL_FRAMEBUFFER_EXT,
-		GL_COLOR_ATTACHMENT0_EXT,
-		GL_TEXTURE_2D,
-		pWater->reflect,
-		0);
-
-	GLenum status = gBSPRenderer.glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-	{
-		gEngfuncs.Con_Printf("FBO is incomplete! Error: 0x%x\n", status);
-	}
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 /*
@@ -749,8 +730,6 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 			}
 		}
 		SetupRefract();
-		//glClearColor(1.0f, 0.0f, 0.0f, 1.0f); // solid red
-		//glClear(GL_COLOR_BUFFER_BIT);
 		DrawScene(m_pViewParams, true);
 		FinishRefract();
 
@@ -793,9 +772,6 @@ void CWaterShader::DrawScene(ref_params_t* pparams, bool isrefracting)
 {
 	// Set world renderer
 	gBSPRenderer.RendererRefDef(pparams);
-
-	glClearColor(gHUD.m_pFogSettings.color[0], gHUD.m_pFogSettings.color[1], gHUD.m_pFogSettings.color[2], 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw world
 	gBSPRenderer.DrawNormalTriangles();
@@ -887,7 +863,7 @@ void CWaterShader::SetupRefract(void)
 
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oldfbo);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_pCurWater->waterFBO);
+	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, waterfbo);
 	gBSPRenderer.glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_pCurWater->refract, 0);
 	gBSPRenderer.glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
 
@@ -985,9 +961,9 @@ void CWaterShader::SetupReflect(void)
 
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oldfbo);
 
-	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_pCurWater->waterFBO);
+	gBSPRenderer.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, waterfbo);
 	gBSPRenderer.glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_pCurWater->reflect, 0);
-	gBSPRenderer.glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_pCurWater->depthbuffer);
+	gBSPRenderer.glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
 
 	// Check FBO completeness (do once)
 	GLenum status = gBSPRenderer.glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -1121,9 +1097,9 @@ void CWaterShader::DrawWater(void)
 				m_pWaterFogSettings.start = m_pWaterEntInfo[j].waterfog_start;
 				m_pWaterFogSettings.end = m_pWaterEntInfo[j].waterfog_end;
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "normalscale"), m_pWaterEntInfo[j].normal_scale);
+				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "normalscale"), 0);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), m_pWaterEntInfo[j].watertex_scale);
+				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), 0);
 
 				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "refraction_scale"), m_pWaterEntInfo[j].refraction_scale);
 

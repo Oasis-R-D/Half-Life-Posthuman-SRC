@@ -1121,9 +1121,9 @@ void CWaterShader::DrawWater(void)
 				m_pWaterFogSettings.start = m_pWaterEntInfo[j].waterfog_start;
 				m_pWaterFogSettings.end = m_pWaterEntInfo[j].waterfog_end;
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "normalscale"), m_pWaterEntInfo[j].normal_scale);
+				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "normalscale"), 0);
 
-				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), m_pWaterEntInfo[j].watertex_scale);
+				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "watertex_scale"), 0);
 
 				gBSPRenderer.glUniform1f(gBSPRenderer.glGetUniformLocation(m_WaterFragmentShader, "refraction_scale"), m_pWaterEntInfo[j].refraction_scale);
 

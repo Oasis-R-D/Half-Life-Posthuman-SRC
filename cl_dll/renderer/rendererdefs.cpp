@@ -806,21 +806,6 @@ savevis:
 
 	int numleafnodes = 0;
 
-	if (gBSPRenderer.oldvisframes == nullptr)
-	{
-		for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
-		{
-			mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
-			do
-			{
-				node = node->parent;
-				numleafnodes++;
-			} while (node);
-		}
-		gBSPRenderer.oldvisframes = new int[numleafnodes];
-	}
-	numleafnodes = 0;
-
 	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
 	{
 		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
@@ -886,7 +871,8 @@ R_CalcRefDef
 void R_CalcRefDef(ref_params_t* pparams)
 {
 	// Set this at start
-	int recovervisleafs = gBSPRenderer.saved_leaf_visframe;
+
+	gBSPRenderer.saved_leaf_visframe = gBSPRenderer.m_pWorld->nodes[0].visframe;
 	RenderFog();
 
 	if (g_iNightVision)
@@ -906,7 +892,8 @@ void R_CalcRefDef(ref_params_t* pparams)
 	// Render mirror perspectives
 	gMirrorManager.DrawMirrorPasses(pparams);
 
-	gBSPRenderer.saved_leaf_visframe = recovervisleafs;
+	// Set up basic rendering
+	gBSPRenderer.RendererRefDef(pparams);
 
 	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
 	{
@@ -918,9 +905,6 @@ void R_CalcRefDef(ref_params_t* pparams)
 		} while (node);
 	}
 	gBSPRenderer.m_pWorld->nodes[0].visframe = gBSPRenderer.saved_leaf_visframe;
-
-	// Set up basic rendering
-	gBSPRenderer.RendererRefDef(pparams);
 }
 
 /*
