@@ -1275,8 +1275,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 
 		// Make sure the spotlight sees it's polygons
 		// actually no these mess up r_visframecount sync and im already pISSED ABUT THIS SHIT so just dont to that
-		mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
-		R_MarkLeaves(pLeaf);
+		//mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
+		//R_MarkLeaves(pLeaf);
 	}
 	for (int i = 0; i < m_iNumModelShadows; i++, pShadow++)
 	{
@@ -1284,8 +1284,8 @@ void CBSPRenderer::SetupSpotlightVis(void)
 			return;
 
 		// Make sure the spotlight sees it's polygons
-		mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
-		R_MarkLeaves(pLeaf);
+		//mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
+		//R_MarkLeaves(pLeaf);
 	}
 }
 
