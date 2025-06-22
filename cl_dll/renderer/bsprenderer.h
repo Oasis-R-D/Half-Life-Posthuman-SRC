@@ -28,6 +28,7 @@ Extended and/or recoded by Andrew Lucas
 #include "cvardef.h"
 #include "textureloader.h"
 #include "rendererdefs.h"
+#include "bspfile.h"
 
 /*
 ====================
@@ -181,7 +182,7 @@ public:
 	int saved_leaf_visframe;//this MUST, BY ALL MEANS, match
 						//goldsrc's r_visframecount, otherwise temp entities (beams, particles) 
 						//will NOT be rendered
-	int oldvisframes[MAX_MAP_LEAFS] = {};
+	int oldvisframes[MAX_MAP_NODES] = {};
 
 	GLuint m_uiBufferIndex;
 	brushvertex_t* m_pBufferData;
