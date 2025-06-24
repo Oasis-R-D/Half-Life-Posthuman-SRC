@@ -8685,7 +8685,6 @@ void CStudioModelRenderer::StudioRenderFinal()
 }
 
 #endif
-More actions
 	/*
 	====================
 	InitCamAnimInfo
@@ -8698,6 +8697,7 @@ More actions
 	"v_357.mdl"		1			1.0
 	====================
 	*/
+
 	void
 	CStudioModelRenderer::InitCamAnimInfo()
 {
