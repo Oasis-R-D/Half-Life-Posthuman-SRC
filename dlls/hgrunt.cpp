@@ -282,7 +282,7 @@ void CHGrunt::SpeakSentence()
 //=========================================================
 int CHGrunt::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua"))) //implement advsec
 	{
 		return R_NM;
 	}

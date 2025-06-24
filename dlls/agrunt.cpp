@@ -194,7 +194,7 @@ const char* CAGrunt::pAlertSounds[] =
 //=========================================================
 int CAGrunt::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_human_grunt"))
+	if (FClassnameIs(pTarget->pev, "monster_human_grunt")) // add advsec?
 	{
 		return R_NM;
 	}
@@ -596,6 +596,7 @@ void CAGrunt::Spawn()
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
+	pev->skin = RANDOM_LONG(0, 13);
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
 	pev->health = gSkillData.agruntHealth;
