@@ -585,33 +585,36 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	if (ptr->iHitgroup == 0)
 	{
 		// make sure we're wearing one
-		if (GetBodygroup(1) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0) or HEAD_GRUNT_BLACK && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
+		if (GetBodygroup(1) == HEAD_GRUNT || HEAD_GRUNT_BLACK)
 		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
+			if (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB) != 0);
 			{
-				//UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
+				// absorb damage
+				flDamage -= 20;
+				if (flDamage <= 0)
+				{
+					// UTIL_Ricochet(ptr->vecEndPos, 1.0);
+					flDamage = 0.01;
+					UTIL_Sparks(ptr->vecEndPos);
+					Vector vecTracerDir = vecDir;
 
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
 
-				vecTracerDir = vecTracerDir * -512;
+					vecTracerDir = vecTracerDir * -512;
 
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
+					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+					WRITE_BYTE(TE_TRACER);
+					WRITE_COORD(ptr->vecEndPos.x);
+					WRITE_COORD(ptr->vecEndPos.y);
+					WRITE_COORD(ptr->vecEndPos.z);
 
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
+					WRITE_COORD(vecTracerDir.x);
+					WRITE_COORD(vecTracerDir.y);
+					WRITE_COORD(vecTracerDir.z);
+					MESSAGE_END();
+				}
 			}
 		}
 		// it's head shot anyways

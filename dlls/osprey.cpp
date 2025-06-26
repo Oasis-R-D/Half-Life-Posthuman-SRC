@@ -33,6 +33,37 @@ typedef struct
 
 #define SF_WAITFORTRIGGER 0x40
 
+#define HGRUNT_9MMAR (1 << 0)
+#define HGRUNT_HANDGRENADE (1 << 1)
+#define HGRUNT_GRENADELAUNCHER (1 << 2)
+#define HGRUNT_SHOTGUN (1 << 3)
+#define HGRUNT_M249 (1 << 4)
+
+#define HEAD_GROUP 1
+#define TORSO_GROUP 2
+#define GUN_GROUP 3
+
+#define HEAD_GRUNT 0
+#define HEAD_GRUNT_BLACK 1
+#define HEAD_COMMANDER 2
+#define HEAD_SHOTGUN 3
+#define HEAD_M249_1 4
+#define HEAD_M249_2 5
+#define HEAD_M203_1 6
+#define HEAD_M203_2 7
+#define HEAD_MEDIC 8
+#define HEAD_MEDIC_BLACK 9
+
+#define TORSO_GRUNT 0
+#define TORSO_M249 1
+#define TORSO_NONE 2 // ugly as hell
+#define TORSO_SHOTGUN 3
+
+#define GUN_MP5 0
+#define GUN_SHOTGUN 1
+#define GUN_M249 2
+#define GUN_NONE 3
+#define GUN_M727 4 // implement at some point
 
 #define MAX_CARRY 24
 
@@ -103,6 +134,8 @@ public:
 
 	int m_iDoLeftSmokePuff;
 	int m_iDoRightSmokePuff;
+
+	
 };
 
 LINK_ENTITY_TO_CLASS(monster_osprey, COsprey);
@@ -308,15 +341,32 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 			switch (RANDOM_LONG(0, 3))
 			{
 			case 0:
+				pGrunt->pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
+				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
+				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
+				pGrunt->m_cClipSize = 30;
 				break;
 			case 1:
-				pGrunt->pev->weapons = HGRUNT_SHOTGUN
+				pGrunt->pev->weapons = HGRUNT_SHOTGUN;
+				pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
+				pGrunt->SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
+				pGrunt->m_cClipSize = 8;
 				break;
 			case 2:
-				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER
+				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER;
+				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
+				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
+				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
+				pGrunt->m_cClipSize = 30;
 				break;
 			case 3:
-				pGrunt->pev->weapons = HGRUNT_M249
+				pGrunt->pev->weapons = HGRUNT_M249;
+				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
+				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
+				pGrunt->SetBodygroup(GUN_GROUP, GUN_M249);
+				pGrunt->m_cClipSize = 200;
 				break;
 			}
 
