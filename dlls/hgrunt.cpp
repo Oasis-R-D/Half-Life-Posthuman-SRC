@@ -585,7 +585,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	if (ptr->iHitgroup == 0)
 	{
 		// make sure we're wearing one
-		if (GetBodygroup(1) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
+		if (GetBodygroup(1) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0) or HEAD_GRUNT_BLACK && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
 		{
 			// absorb damage
 			flDamage -= 20;

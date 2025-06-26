@@ -235,7 +235,7 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.07;
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.06;
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 	m_pPlayer->pev->punchangle.x -= 1;

@@ -305,6 +305,20 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 			pGrunt->pev->movetype = MOVETYPE_FLY;
 			pGrunt->pev->velocity = Vector(0, 0, RANDOM_FLOAT(-196, -128));
 			pGrunt->SetActivity(ACT_GLIDE);
+			switch (RANDOM_LONG(0, 3))
+			{
+			case 0:
+				break;
+			case 1:
+				pGrunt->pev->weapons = HGRUNT_SHOTGUN
+				break;
+			case 2:
+				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER
+				break;
+			case 3:
+				pGrunt->pev->weapons = HGRUNT_M249
+				break;
+			}
 
 			CBeam* pBeam = CBeam::BeamCreate("sprites/rope.spr", 10);
 			pBeam->PointEntInit(vecSrc + Vector(0, 0, 112), pGrunt->entindex());
