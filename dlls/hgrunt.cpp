@@ -587,7 +587,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// make sure we're wearing one
 		if (GetBodygroup(1) == HEAD_GRUNT || HEAD_GRUNT_BLACK)
 		{
-			if (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB) != 0);
+			if (bitsDamageType && ((DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
 			{
 				// absorb damage
 				flDamage -= 20;
@@ -851,7 +851,7 @@ void CHGrunt::M249()
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_MONSTER_MP5, 1);
+	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -880,8 +880,10 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 			DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
 		else if (FBitSet(pev->weapons, HGRUNT_M249))
 			DropItem("weapon_m249", vecGunPos, vecGunAngles);
-		else
+		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
+		else
+			DropItem("weapon_m727", vecGunPos, vecGunAngles);
 
 		if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
@@ -1054,16 +1056,33 @@ void CHGrunt::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_M249);
 		m_cClipSize = 200;
 	}
-	// else if (FBitSet(pev->weapons, HGRUNT_M727))
-	// {
-	//	SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
-	//	SetBodygroup(TORSO_GROUP, TORSO_M249);
-	//	SetBodygroup(GUN_GROUP, GUN_M727);
-	//	m_cClipSize = 200;
-	// }
+	/* else if (FBitSet(pev->weapons, HGRUNT_M727))
+	 {
+		switch (RANDOM_LONG(0, 1))
+	{
+		case 0:
+		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+		break;
+		case 1:
+		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+		break;
+	};
+		SetBodygroup(TORSO_GROUP, TORSO_M249);
+		SetBodygroup(GUN_GROUP, GUN_M727);
+		m_cClipSize = 200;
+	}
+*/
 	else
 	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+			break;
+		case 1:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+			break;
+		};
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;

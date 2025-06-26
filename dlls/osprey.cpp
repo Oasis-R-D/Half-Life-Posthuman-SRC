@@ -342,31 +342,39 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 			{
 			case 0:
 				pGrunt->pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
-				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK), RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+				switch(RANDOM_LONG(0,1))
+					{
+					case 0:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+					break;
+					case 1:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+					break;
+					};
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
-				pGrunt->m_cClipSize = 30;
+				//pGrunt->m_cClipSize = 30;
 				break;
 			case 1:
 				pGrunt->pev->weapons = HGRUNT_SHOTGUN;
 				pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
-				pGrunt->m_cClipSize = 8;
+				//pGrunt->m_cClipSize = 8;
 				break;
 			case 2:
 				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER;
 				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
-				pGrunt->m_cClipSize = 30;
+				//pGrunt->m_cClipSize = 30;
 				break;
 			case 3:
 				pGrunt->pev->weapons = HGRUNT_M249;
 				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_M249);
-				pGrunt->m_cClipSize = 200;
+				//pGrunt->m_cClipSize = 200;
 				break;
 			}
 
