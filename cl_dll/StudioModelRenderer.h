@@ -350,16 +350,7 @@ public:
 
 #pragma once
 
-#include <map>
-#include <string>
-
-struct caminfo_s
-{
-	int bone = 0;
-	float flScale = 1.0f;
-};
-
-	/*
+/*
 ====================
 CStudioModelRenderer
 
@@ -531,25 +522,6 @@ public:
 	// Concatenated bone and light transforms
 	float (*m_pbonetransform)[MAXSTUDIOBONES][3][4];
 	float (*m_plighttransform)[MAXSTUDIOBONES][3][4];
-
-private:
-	Add commentMore actions void InitCamAnimInfo();
-	void UpdateCamInfo();
-
-	std::map<std::string, caminfo_s> m_CamInfos;
-	const caminfo_s* m_pCurrentCamInfo;
-	model_t* m_pCachedViewModel;
-
-	float m_basetransform[MAXSTUDIOBONES][3][4];
-
-	Vector m_vBaseCamAngles;
-	Vector m_vPrevCamAngles;
-	Vector m_vNewCamAngles;
-
-	bool m_bCalcBaseAngles = false;
-
-public:
-	Vector m_vCamAngles;
 };
 
 #endif
