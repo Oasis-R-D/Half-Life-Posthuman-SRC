@@ -79,6 +79,14 @@ public:
 	cvar_t* m_pCvarWaterDebug;
 	cvar_t* m_pCvarWaterResolution;
 
+	cvar_t* m_pCvarWaterFogStart;
+	cvar_t* m_pCvarWaterFogEnd;
+	cvar_t* m_pCvarWaterTexscale;
+	cvar_t* m_pCvarWaterRefractScale;
+	cvar_t* m_pCvarWaterReflectScale;
+	cvar_t* m_pCvarWaterNormalScale;
+	cvar_t* m_pCvarWaterFresnel;
+
 	cl_texture_t* m_pNormalTexture;
 	cl_water_t* m_pCurWater;
 

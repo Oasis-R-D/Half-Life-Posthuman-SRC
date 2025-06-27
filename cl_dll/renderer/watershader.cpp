@@ -254,10 +254,19 @@ void CWaterShader::Init(void)
 	m_pCvarWaterDebug = gEngfuncs.pfnRegisterVariable("te_water_debug", "0", 0);
 	m_pCvarWaterResolution = gEngfuncs.pfnRegisterVariable("te_water_resolution", "512", FCVAR_ARCHIVE); // MAX:1024
 
+	m_pCvarWaterFogStart = gEngfuncs.pfnRegisterVariable("te_water_fogstart", "200", 0);
+	m_pCvarWaterFogEnd = gEngfuncs.pfnRegisterVariable("te_water_fogend", "600", 0);
+	m_pCvarWaterTexscale = gEngfuncs.pfnRegisterVariable("te_water_texscale", "0.9", 0);
+	m_pCvarWaterRefractScale = gEngfuncs.pfnRegisterVariable("te_water_refractscale", "1.4", 0);
+	m_pCvarWaterReflectScale = gEngfuncs.pfnRegisterVariable("te_water_reflectscale", "2.4", 0);
+	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("te_water_normalscale", "0.13", 0);
+	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("te_water_fresnel", "0.5", 0);
+	
 	if (!gBSPRenderer.m_bShaderSupport)
 		return;
 
 	m_WaterFragmentShader = gBSPRenderer.createShaderProgram(water_depth_vertex, water_fragment_water_regular);
+
 }
 
 /*
@@ -1266,25 +1275,25 @@ int CWaterShader::MsgWaterInfo(const char* pszName, int iSize, void* pbuf)
 		waterinfo->waterfog_color = Vector(70.f / 255.f, 155.f / 255.f, 155.f / 255.f); // default water fog color
 
 	if (!waterinfo->waterfog_start)
-		waterinfo->waterfog_start = 200;
+		waterinfo->waterfog_start = m_pCvarWaterFogStart->value;
 
 	if (!waterinfo->waterfog_end)
-		waterinfo->waterfog_end = 600;
+		waterinfo->waterfog_end = m_pCvarWaterFogEnd->value;
 
 	if (!waterinfo->watertex_scale)
-		waterinfo->watertex_scale = 0.9;
+		waterinfo->watertex_scale = m_pCvarWaterTexscale->value;
 
 	if (!waterinfo->refraction_scale)
-		waterinfo->refraction_scale = 1.4;
+		waterinfo->refraction_scale = m_pCvarWaterRefractScale->value;
 
 	if (!waterinfo->reflection_scale)
-		waterinfo->reflection_scale = 2.4;
+		waterinfo->reflection_scale = m_pCvarWaterReflectScale->value;
 
 	if (!waterinfo->normal_scale)
-		waterinfo->normal_scale = 0.13;
+		waterinfo->normal_scale = m_pCvarWaterNormalScale->value;
 
 	if (!waterinfo->fresnel)
-		waterinfo->fresnel = 0.5;
+		waterinfo->fresnel = m_pCvarWaterFresnel->value;
 
 	return 1;
 }
