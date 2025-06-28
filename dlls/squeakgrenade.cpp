@@ -616,7 +616,11 @@ void CHeadcrabGrenade::Precache()
 	PRECACHE_SOUND("headcrab/hc_alert1.wav");
 	PRECACHE_SOUND("headcrab/hc_attack1.wav");
 	PRECACHE_SOUND("headcrab/hc_attack3.wav");
-	// UTIL_PrecacheOther("monster_snark");
+	PRECACHE_SOUND("headcrab/hc_idle1.wav");
+	PRECACHE_SOUND("headcrab/hc_idle2.wav");
+	PRECACHE_SOUND("headcrab/hc_idle3.wav");
+	PRECACHE_SOUND("headcrab/hc_idle4.wav");
+	PRECACHE_SOUND("headcrab/hc_idle5.wav");
 	UTIL_PrecacheOther("monster_headcrab");
 
 
@@ -762,11 +766,47 @@ void CHeadcrabGrenade::WeaponIdle()
 	{
 		iAnim = IDLE;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.03;
+		switch (0, 5)
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle3.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle4.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 2:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle5.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		}
 	}
 	else if (flRand <= 0.75)
 	{
 		iAnim = IDLE2;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.03;
+		switch (0, 5)
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle3.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle4.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 2:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_idle5.wav", 1, ATTN_NORM, 0, 100);
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		}
 	}
 	else if (flRand <= 0.875)
 	{
