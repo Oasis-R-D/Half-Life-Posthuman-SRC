@@ -561,7 +561,7 @@ void CM727::PrimaryAttack()
 		}
 	}
 	else
-		m_flNextPrimaryAttack = 0.10;
+		m_flNextPrimaryAttack = 0.0825;
 
 	m_flTimeWeaponIdle = 5;
 	m_pPlayer->pev->punchangle.x -= 1.125;
