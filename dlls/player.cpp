@@ -126,7 +126,7 @@ void CBasePlayer::Pain()
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
 	if (RANDOM_LONG(0, 5) < 2)
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_LONG(0, 1) ? "zombie/zo_pain1.wav" : "zombie/zo_pain2.wav", 1.0, ATTN_NORM, 0, pitch);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_LONG(0, 1) ? "derek/pain1.wav" : "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch);
 }
 
 /* 
@@ -225,17 +225,17 @@ void CBasePlayer::DeathSound()
 	}
 	*/
 
-	// temporarily using pain sounds for death sounds
+	// temporarily using pain sounds for death sounds // temporarily my ass - PackMan
 	switch (RANDOM_LONG(1, 5))
 	{
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death1.wav", 1, ATTN_NORM);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death2.wav", 1, ATTN_NORM);
 		break;
 	case 3:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death3.wav", 1, ATTN_NORM);
 		break;
 	}
 
