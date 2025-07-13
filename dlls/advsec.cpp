@@ -262,7 +262,7 @@ void CAdvSec::SpeakSentence()
 //=========================================================
 int CAdvSec::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua") || (FClassnameIs(pTarget->pev, "monster_human_grunt" ))))
 	{
 		return R_NM;
 	}
