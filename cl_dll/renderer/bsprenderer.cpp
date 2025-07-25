@@ -5476,7 +5476,15 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		customdecalpoly_t* ppoly = &decal->polys[i];
 
 		if (ppoly->surface->visframe != m_iFrameCount)
-			continue;
+		{
+			if (ppoly->entity)
+			{
+				if (!IsEntityTransparent(ppoly->entity))
+					continue;
+			}
+			else 
+				continue;
+		}
 
 		if (ppoly->entity)
 		{
@@ -5487,6 +5495,7 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 				R_RotateForEntity(ppoly->entity);
 				ppoly->entity->angles[0] = -ppoly->entity->angles[0]; // stupid quake bug
 			}
+
 		}
 
 		glBegin(GL_POLYGON);
