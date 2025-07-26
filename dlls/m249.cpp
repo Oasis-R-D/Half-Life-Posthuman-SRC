@@ -211,7 +211,7 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_MONSTER_MP5, 1);
+	m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1, 4);
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
 	switch (RANDOM_LONG(0, 2))
