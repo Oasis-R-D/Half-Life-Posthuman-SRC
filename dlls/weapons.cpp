@@ -831,7 +831,7 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 	SendWeaponAnim(iAnim, body);
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3;
+	m_flTimeWeaponIdle = 5;
 	m_flLastFireTime = 0.0;
 	m_pPlayer->pev->punchangle.z += RANDOM_LONG(-5, 5);
 

@@ -430,8 +430,8 @@ bool CM727::GetItemInfo(ItemInfo* p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "556";
 	p->iMaxAmmo1 = 200;
-	p->pszAmmo2 = "ARgrenades";
-	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
+	p->pszAmmo2 = NULL;
+	p->iMaxAmmo2 = -1;
 	p->iMaxClip = 30;
 	p->iSlot = 2;
 	p->iPosition = 3;
@@ -527,19 +527,16 @@ void CM727::PrimaryAttack()
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
-
 	m_iClip--;
-
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
-
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
-	SendWeaponAnim(RANDOM_LONG(RANDOM_LONG(M727_SHOOT1,M727_SHOOT2), M727_SHOOT3));
-	EMIT_SOUND(edict(), CHAN_WEAPON, "weapons/727_hks1.wav", 1, ATTN_NORM);
+	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/727_hks1.wav", 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 9 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
@@ -584,9 +581,9 @@ void CM727::Reload()
 		return;
 
 	if (m_iClip == 0)
-		DefaultReload(30, M727_RELOAD_EMPTY, 2);
+		DefaultReload(30, M727_RELOAD_EMPTY, 1.8);
 	else
-		DefaultReload(30, M727_RELOAD_TACTICAL, 1);
+		DefaultReload(30, M727_RELOAD_TACTICAL, 1.2);
 
 	pev->armorvalue = 0;
 }
