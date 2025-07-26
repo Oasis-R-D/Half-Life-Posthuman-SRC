@@ -1180,8 +1180,6 @@ void UTIL_BloodStream(const Vector& origin, const Vector& direction, int color, 
 	if (!UTIL_ShouldShowBlood(color))
 		return;
 
-	if (g_Language == LANGUAGE_GERMAN)
-		color = 0;
 
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, origin);
 	WRITE_BYTE(TE_BLOODSTREAM);
