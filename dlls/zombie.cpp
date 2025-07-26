@@ -80,17 +80,28 @@ public:
 	{
 		if (pev->armortype == 0)
 		{
-			pev->armortype = 1;
-			pev->body = 1;
-			UTIL_MakeVectors(pev->angles);
-			const char* monster;
-			if (FClassnameIs(pev, "monster_zombie_fast"))
-				monster = "monster_headcrab_fast";
-			else
-				monster = "monster_headcrab";
-			auto headcrab = Create(monster, pev->origin + Vector(0, 0, 64), pev->angles, edict());
-			headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
-			headcrab->pev->velocity = gpGlobals->v_forward * 128;
+			switch (RANDOM_LONG(0, 2)) //33% of unlatching occuring
+			{
+			case 0:
+			{
+				pev->armortype = 1;
+				pev->body = 1;
+				UTIL_MakeVectors(pev->angles);
+				const char* monster;
+				if (FClassnameIs(pev, "monster_zombie_fast"))
+					monster = "monster_headcrab_fast";
+				else
+					monster = "monster_headcrab";
+				auto headcrab = Create(monster, pev->origin + Vector(0, 0, 64), pev->angles, edict());
+				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+				headcrab->pev->velocity = gpGlobals->v_forward * 128;
+			}
+			break;
+			case 1:
+			break;
+			case 2:
+			break;
+			}
 		}
 		CTalkMonster::Killed(pevAttacker, iGib);
 	}

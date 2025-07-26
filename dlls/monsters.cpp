@@ -507,7 +507,7 @@ CSound* CBaseMonster::PBestScent()
 	return NULL;
 }
 
-void CBaseMonster::Railed()
+void CBaseMonster::Railed() //:troll:
 {
 	if (m_bRailed)
 	{
