@@ -102,7 +102,10 @@ void CGlock::ItemPostFrame()
 
 void CGlock::PrimaryAttack()
 {
-	GlockFire(pev->body ? 0.01 : 0.02, 0.1, true);
+	if (pev->armortype == 0)
+		GlockFire(pev->body ? 0.01 : 0.02, 0.1, true);
+	else
+		GlockFire(pev->body ? 0.01 : 0.02, 0.2, true);
 }
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
@@ -164,8 +167,11 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
 	m_flTimeWeaponIdle = 1;
-	m_pPlayer->pev->punchangle.x -= 2;
 	m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
+	if (pev->armortype == 0)
+		m_pPlayer->pev->punchangle.x -= 2;
+	else
+		m_pPlayer->pev->punchangle.x -= 4;
 }
 
 void CGlock::Reload()
