@@ -813,3 +813,64 @@ CBaseEntity* CBaseEntity::Create(const char* szName, const Vector& vecOrigin, co
 	DispatchSpawn(pEntity->edict());
 	return pEntity;
 }
+struct TITLECOMMENT
+{
+	const char* pBSPName;
+	const char* pTitleName;
+};
+
+TITLECOMMENT gTitleComments[] =
+	{
+		{"ph_over1", "OVERGROWTH"},
+		{"ba_yard", "#BA_YARDTITLE"}
+		// More title entries here
+};
+
+extern "C" void DLLEXPORT SV_SaveGameComment(char* pszBuffer, int iSizeBuffer);
+
+extern "C" void SV_SaveGameComment(char* pszBuffer, int iSizeBuffer)
+{
+	const char* mapName = STRING(gpGlobals->mapname);
+
+	const char* titleName = nullptr;
+
+	for (int i = 0; i < ARRAYSIZE(gTitleComments); ++i)
+	{
+		const size_t length = strlen(gTitleComments[i].pBSPName);
+
+		if (!strnicmp(mapName, gTitleComments[i].pBSPName, length))
+		{
+			titleName = gTitleComments[i].pTitleName;
+
+			if (titleName)
+			{
+				break;
+			}
+		}
+	}
+
+	if (!titleName)
+	{
+		titleName = mapName;
+
+		if (!titleName || !(*titleName))
+		{
+			edict_t* world = ENT(0);
+
+			// Use the full map name (e.g. "maps/c1a0.bsp").
+			// The engine uses the value it sends to clients (aka a variable used by client code) but this should always be valid here
+			// The engine sets the model field on worldspawn when it loads the map
+			titleName = STRING(world->v.model);
+
+			if (!strlen(titleName))
+			{
+				// The engine assigns mapName here again, but that's known to be either null or empty so to be sure this always assigns empty,
+				// since strncpy has undefined behavior for null src pointers
+				titleName = "";
+			}
+		}
+	}
+
+	strncpy(pszBuffer, titleName, iSizeBuffer - 1);
+	pszBuffer[iSizeBuffer - 1] = '\0';
+}
