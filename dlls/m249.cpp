@@ -211,7 +211,7 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1, 4);
+	m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
 	switch (RANDOM_LONG(0, 2))
@@ -238,8 +238,16 @@ void CM249::PrimaryAttack()
 	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.06;
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
-	m_pPlayer->pev->punchangle.x -= 1;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1.125, 1.125);
+	m_pPlayer->pev->punchangle.x -= 0.5;
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0:
+		m_pPlayer->pev->punchangle.y += 1.125;
+		break;
+	case 1:
+		m_pPlayer->pev->punchangle.y += -1.125;
+		break;
+	}
 #ifndef CLIENT_DLL
 	
 
