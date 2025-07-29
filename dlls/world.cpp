@@ -113,6 +113,7 @@ public:
 	void SendInitMessage(CBasePlayer* player = NULL) override;
 	void EXPORT TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	string_t decalname;
+	float m_iRadius;
 };
 
 LINK_ENTITY_TO_CLASS(infodecal, CDecal);
@@ -133,6 +134,7 @@ void CDecal::SendInitMessage(CBasePlayer* pPlayer)
 		WRITE_BYTE(0); // persistent
 		WRITE_BYTE(1); // from wad
 		WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
+		WRITE_COORD(m_iRadius); // NEW!! : decal radius
 		MESSAGE_END();
 		pev->targetname = 1;
 	}
@@ -187,6 +189,7 @@ void CDecal::TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
 	WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
+	WRITE_COORD(m_iRadius);		// NEW!! : decal radius
 	MESSAGE_END();
 
 	SetThink(&CDecal::SUB_Remove);
@@ -219,6 +222,7 @@ void CDecal::StaticDecal()
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
 	WRITE_COORD(pev->angles.x); // NEW!! : decal rotation
+	WRITE_COORD(m_iRadius);		// NEW!! : decal radius
 	MESSAGE_END();
 
 	SUB_Remove();
@@ -238,6 +242,10 @@ bool CDecal::KeyValue(KeyValueData* pkvd)
 		}
 
 		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "radius"))
+	{
+		m_iRadius = atof(pkvd->szValue);
 	}
 
 	return CBaseEntity::KeyValue(pkvd);

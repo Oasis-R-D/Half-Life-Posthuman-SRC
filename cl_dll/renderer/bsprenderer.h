@@ -162,7 +162,7 @@ public:
 	decalgroupentry_t* FindDecalByName(const char* szName);
 
 	bool CullDecalBBox(vec3_t mins, vec3_t maxs);
-	void CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent = 0, int fromwad = 0, float angle = 0);
+	void CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent = 0, int fromwad = 0, float angle = 0, float customradius = 0);
 	void RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle = 0);
 	void DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_entity_t* pEntity, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle = 0);
 

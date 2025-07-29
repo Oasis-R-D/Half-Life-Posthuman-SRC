@@ -4865,7 +4865,7 @@ CreateDecal
 
 ====================
 */
-void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad, float angle)
+void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad, float angle, float customradius)
 {
 	vec3_t mins, maxs;
 	vec3_t decalpos, decalnormal;
@@ -4884,6 +4884,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 		m_pMsgCache[m_iCacheDecals].persistent = persistent;
 		m_pMsgCache[m_iCacheDecals].fromwad = fromwad;
 		m_pMsgCache[m_iCacheDecals].angle = angle;
+		m_pMsgCache[m_iCacheDecals].radius = customradius;
 		m_iCacheDecals++;
 		return;
 	}
@@ -4904,6 +4905,8 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 				VectorCopy(endpos, pDecal->position);
 				VectorCopy(pnormal, pDecal->normal);
 				float radius = (pDecal->texinfo->xsize > pDecal->texinfo->ysize) ? pDecal->texinfo->xsize : pDecal->texinfo->ysize;
+				if (customradius)
+					radius = customradius;
 
 				m_vDecalMins[0] = endpos[0] - radius;
 				m_vDecalMins[1] = endpos[1] - radius;
@@ -4911,6 +4914,9 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 				m_vDecalMaxs[0] = endpos[0] + radius;
 				m_vDecalMaxs[1] = endpos[1] + radius;
 				m_vDecalMaxs[2] = endpos[2] + radius;
+
+				pDecal->angle = angle;
+				pDecal->radius = radius;
 
 				RecursiveCreateDecal(m_pWorld->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
 
@@ -4999,7 +5005,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 							if (DotProduct(normal, decalnormal) < 0.01)
 								continue;
 
-							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal);
+							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal, angle);
 						}
 					}
 				}
@@ -5200,6 +5206,8 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 	int ysize = texptr->ysize;
 
 	float radius = (xsize > ysize) ? xsize : ysize;
+	if (pDecal->radius)
+		radius = pDecal->radius;
 
 	int side;
 	float dot;
@@ -5433,7 +5441,7 @@ void CBSPRenderer::CreateCachedDecals(void)
 
 	for (int i = 0; i < m_iCacheDecals; i++)
 	{
-		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad, m_pMsgCache[i].angle);
+		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad, m_pMsgCache[i].angle, m_pMsgCache[i].radius);
 	}
 
 	m_iCacheDecals = 0;
@@ -5639,8 +5647,9 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 	int persistent = READ_BYTE();
 	int fromwad = READ_BYTE();
 	float angle = READ_COORD();
+	float radius = READ_COORD();
 
-	CreateDecal(pos, normal, decalname, persistent, fromwad, angle);
+	CreateDecal(pos, normal, decalname, persistent, fromwad, angle, radius);
 	return 1;
 }
 
