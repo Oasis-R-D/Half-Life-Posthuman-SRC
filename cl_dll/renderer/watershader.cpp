@@ -256,11 +256,11 @@ void CWaterShader::Init(void)
 
 	m_pCvarWaterFogStart = gEngfuncs.pfnRegisterVariable("te_water_fogstart", "200", 0);
 	m_pCvarWaterFogEnd = gEngfuncs.pfnRegisterVariable("te_water_fogend", "600", 0);
-	m_pCvarWaterTexscale = gEngfuncs.pfnRegisterVariable("te_water_texscale", "0.9", 0);
+	m_pCvarWaterTexscale = gEngfuncs.pfnRegisterVariable("te_water_texscale", "0.75", 0);
 	m_pCvarWaterRefractScale = gEngfuncs.pfnRegisterVariable("te_water_refractscale", "1.4", 0);
 	m_pCvarWaterReflectScale = gEngfuncs.pfnRegisterVariable("te_water_reflectscale", "2.4", 0);
-	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("te_water_normalscale", "0.13", 0);
-	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("te_water_fresnel", "0.5", 0);
+	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("te_water_normalscale", "0.05", 0);
+	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("te_water_fresnel", "0.75", 0);
 	
 	if (!gBSPRenderer.m_bShaderSupport)
 		return;
