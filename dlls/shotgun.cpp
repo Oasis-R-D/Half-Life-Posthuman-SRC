@@ -116,8 +116,9 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	m_pPlayer->FireBullets(6, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
+	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
+	Vector spread = pev->armorvalue == 0 ? Vector(0.08716, 0.015, 0.08716) : Vector(0.17432, 0.01746, 0.17432);
+	m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 
 	if (pev->armorvalue == 0)
 	{
@@ -179,7 +180,7 @@ void CShotgun::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	m_pPlayer->FireBullets(12, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1);
+	m_pPlayer->FireBullets(18, vecSrc, vecAiming, Vector(0.25, 0.02, 0.25), 2048, BULLET_PLAYER_BUCKSHOT, 1);
 
 	if (pev->armorvalue == 0)
 		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT2_PUMP_EMPTY : SHOTGUN_SHOOT2_PUMP);
