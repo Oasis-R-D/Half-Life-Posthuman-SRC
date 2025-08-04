@@ -90,9 +90,9 @@ public:
 // weapon clip/carry ammo capacities
 #define URANIUM_MAX_CARRY 100
 #define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
-#define _357_MAX_CARRY 36
+#define _357_MAX_CARRY 24
 #define BUCKSHOT_MAX_CARRY 99
-#define BOLT_MAX_CARRY 15
+#define BOLT_MAX_CARRY 10
 #define ROCKET_MAX_CARRY 3
 #define HANDGRENADE_MAX_CARRY 5
 #define SATCHEL_MAX_CARRY 5

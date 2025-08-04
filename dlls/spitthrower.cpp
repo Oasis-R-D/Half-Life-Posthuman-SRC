@@ -91,7 +91,7 @@ void CSpitThrower::PrimaryAttack()
 bool CSpitThrower::GetItemInfo(ItemInfo* p)
 {
 	p->pszAmmo1 = "spit";
-	p->iMaxAmmo1 = 250;
+	p->iMaxAmmo1 = 125;
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = nullptr;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
