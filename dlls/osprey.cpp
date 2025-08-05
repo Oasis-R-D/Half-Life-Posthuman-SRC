@@ -38,7 +38,7 @@ typedef struct
 #define HGRUNT_GRENADELAUNCHER (1 << 2)
 #define HGRUNT_SHOTGUN (1 << 3)
 #define HGRUNT_M249 (1 << 4)
-
+#define HGRUNT_M727 (1 << 5)
 #define HEAD_GROUP 1
 #define TORSO_GROUP 2
 #define GUN_GROUP 3
@@ -375,6 +375,21 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_M249);
 				//pGrunt->m_cClipSize = 200;
+				break;
+			case 4:
+				pGrunt->pev->weapons = HGRUNT_M727;
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+					break;
+				case 1:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+					break;
+				};
+				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
+				pGrunt->SetBodygroup(GUN_GROUP, GUN_M727);
+				// pGrunt->m_cClipSize = 200;
 				break;
 			}
 
