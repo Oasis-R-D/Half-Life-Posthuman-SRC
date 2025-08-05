@@ -62,6 +62,7 @@ int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when so
 #define HGRUNT_GRENADELAUNCHER (1 << 2)
 #define HGRUNT_SHOTGUN (1 << 3)
 #define HGRUNT_M249 (1 << 4)
+#define HGRUNT_M727 (1 << 5)
 
 #define HEAD_GROUP 1
 #define TORSO_GROUP 2
@@ -160,6 +161,7 @@ public:
 	void Shoot();
 	void Shotgun();
 	void M249();
+	void ShootM727();
 	void PrescheduleThink() override;
 	void SpeakSentence();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
@@ -897,6 +899,32 @@ void CHGrunt::Shoot()
 }
 
 //=========================================================
+// Shoot 727
+//=========================================================
+void CHGrunt::ShootM727()
+{
+	if (m_hEnemy == NULL)
+	{
+		return;
+	}
+
+	Vector vecShootOrigin = GetGunPosition();
+	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+
+	UTIL_MakeVectors(pev->angles);
+
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
+	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
+	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_7DEGREES, 2048, BULLET_MONSTER_727, 1); // shoot +-3.5 degrees
+
+	pev->effects |= EF_MUZZLEFLASH;
+
+	m_cAmmoLoaded--; // take away a bullet!
+
+	Vector angDir = UTIL_VecToAngles(vecShootDir);
+	SetBlending(0, angDir.x);
+}
+//=========================================================
 // Shoot
 //=========================================================
 void CHGrunt::Shotgun()
@@ -913,7 +941,7 @@ void CHGrunt::Shotgun()
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-	FireBullets(gSkillData.hgruntShotgunPellets, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1); // shoot +-7.5 degrees
+	FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1); // shoot +-7.5 degrees
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -969,6 +997,8 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 		else if (FBitSet(pev->weapons, HGRUNT_M249))
 			DropItem("weapon_m249", vecGunPos, vecGunAngles);
 		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
+		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
 		else
 			DropItem("weapon_m727", vecGunPos, vecGunAngles);
@@ -1044,6 +1074,14 @@ void CHGrunt::HandleAnimEvent(MonsterEvent_t* pEvent)
 		{
 			Shotgun();
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
+		}
+		else if (FBitSet(pev->weapons, HGRUNT_M727))
+		{
+			ShootM727();
+			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
+				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_1.wav", 1, ATTN_NORM);
+			else
+				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_2.wav", 1, ATTN_NORM);
 		}
 		else
 			M249();
@@ -1128,7 +1166,7 @@ void CHGrunt::Spawn()
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
-		m_cClipSize = 8;
+		m_cClipSize = 9;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
@@ -1144,7 +1182,7 @@ void CHGrunt::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_M249);
 		m_cClipSize = 200;
 	}
-	/* else if (FBitSet(pev->weapons, HGRUNT_M727))
+	else if (FBitSet(pev->weapons, HGRUNT_M727))
 	 {
 		switch (RANDOM_LONG(0, 1))
 	{
@@ -1157,9 +1195,8 @@ void CHGrunt::Spawn()
 	};
 		SetBodygroup(TORSO_GROUP, TORSO_M249);
 		SetBodygroup(GUN_GROUP, GUN_M727);
-		m_cClipSize = 200;
+		m_cClipSize = 30;
 	}
-*/
 	else
 	{
 		switch (RANDOM_LONG(0, 1))
@@ -1192,6 +1229,8 @@ void CHGrunt::Precache()
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");
 	PRECACHE_SOUND("hgrunt/gr_mgun2.wav");
+	PRECACHE_SOUND("hgrunt/gr_727_1.wav");
+	PRECACHE_SOUND("hgrunt/gr_727_2.wav");
 
 	PRECACHE_SOUND("fgrunt/death1.wav");
 	PRECACHE_SOUND("fgrunt/death2.wav");
