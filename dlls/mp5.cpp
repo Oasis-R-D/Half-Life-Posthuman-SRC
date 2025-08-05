@@ -563,7 +563,7 @@ void CM727::PrimaryAttack()
 		m_flNextPrimaryAttack = 0.0825;
 
 	m_flTimeWeaponIdle = 5;
-	m_pPlayer->pev->punchangle.x -= 0.75;
+	m_pPlayer->pev->punchangle.x -= 1;
 	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1, 1);
 }
 
