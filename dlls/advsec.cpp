@@ -61,6 +61,7 @@ int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when s
 #define HGRUNT_HANDGRENADE (1 << 1)
 #define HGRUNT_GRENADELAUNCHER (1 << 2)
 #define HGRUNT_SHOTGUN (1 << 3)
+#define ADVSEC_RAILCANNON (1 << 4)
 
 #define HEAD_GROUP 1
 #define HEAD_GRUNT 0
@@ -71,6 +72,7 @@ int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when s
 #define GUN_MP5 0
 #define GUN_SHOTGUN 1
 #define GUN_NONE 2
+#define GUN_RAILCANNON 3
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -141,6 +143,7 @@ public:
 	void IdleSound() override;
 	Vector GetGunPosition() override;
 	void Shoot();
+	void Railcannon();
 	void Shotgun();
 	void PrescheduleThink() override;
 	void GibMonster() override;
@@ -286,6 +289,10 @@ void CAdvSec::GibMonster()
 		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 		{
 			pGun = DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
+		}
+		else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
+		{
+			pGun = DropItem("weapon_crossbow", vecGunPos, vecGunAngles);
 		}
 		else
 		{
@@ -810,6 +817,30 @@ void CAdvSec::Shoot()
 //=========================================================
 // Shoot
 //=========================================================
+void CAdvSec::Railcannon()
+{
+	if (m_hEnemy == NULL)
+	{
+		return;
+	}
+
+	Vector vecShootOrigin = GetGunPosition();
+	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+
+	UTIL_MakeVectors(pev->angles);
+
+	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
+	//^^^ this needs replaced with a crossbow bolt
+	pev->effects |= EF_MUZZLEFLASH; //this needs to be a different sprite
+
+	m_cAmmoLoaded--; // take away a bullet!
+
+	Vector angDir = UTIL_VecToAngles(vecShootDir);
+	SetBlending(0, angDir.x);
+}
+//=========================================================
+// Shoot
+//=========================================================
 void CAdvSec::Shotgun()
 {
 	if (m_hEnemy == NULL)
@@ -824,7 +855,7 @@ void CAdvSec::Shotgun()
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-	FireBullets(gSkillData.hgruntShotgunPellets, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0); // shoot +-7.5 degrees
+	FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0); // shoot +-7.5 degrees
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -927,18 +958,24 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_NORM);
 			}
 		}
-		else
+		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 		{
 			Shotgun();
 
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
+		}
+		else
+		{
+			Railcannon();
+			//EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/xbowfire.wav", 1, ATTN_NORM);
+			//^^ commented out until I get the sound name
 		}
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
 
-	case HGRUNT_AE_BURST2:
+	case HGRUNT_AE_BURST2: // what's going on here?
 	case HGRUNT_AE_BURST3:
 		Shoot();
 		break;
@@ -1013,7 +1050,8 @@ void CAdvSec::Spawn()
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
-		m_cClipSize = 8;
+		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+		m_cClipSize = 9;
 	}
 	else
 	{
@@ -1022,20 +1060,21 @@ void CAdvSec::Spawn()
 	m_cAmmoLoaded = m_cClipSize;
 
 	if (RANDOM_LONG(0, 99) < 80)
-		pev->skin = 0; // light skin
+		pev->skin = 0; // light skin //does this make the darker skin advsec rarer? :skull: (even though that is technically more realistic)
 	else
 		pev->skin = 1; // dark skin
 
-	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
-	{
-		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
-	}
-	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+	
+	if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
 		SetBodygroup(HEAD_GROUP, HEAD_M203);
 		pev->skin = 1; // alway dark skin
 	}
-
+	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
+	{
+		SetBodygroup(HEAD_GROUP, HEAD_M203);
+		SetBodygroup(GUN_GROUP, GUN_RAILCANNON);
+	}
 	CTalkMonster::g_talkWaitTime = 0;
 
 	MonsterInit();
