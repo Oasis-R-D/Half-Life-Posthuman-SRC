@@ -112,7 +112,7 @@ void CSquidSpit::Animate()
 	}
 }
 
-void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
+void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity) // we should make it like BM:S where there's multiple, like a shotgun
 {
 	CSquidSpit* pSpit = GetClassPtr((CSquidSpit*)NULL);
 	pSpit->Spawn();
@@ -169,7 +169,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.bullsquidDmgSpit, DMG_GENERIC);
+		pOther->TakeDamage(pev, pev, gSkillData.bullsquidDmgSpit, DMG_ACID); //switch to chemical?
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);
