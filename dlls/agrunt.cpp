@@ -194,7 +194,7 @@ const char* CAGrunt::pAlertSounds[] =
 //=========================================================
 int CAGrunt::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_human_grunt")) // add advsec?
+	if (FClassnameIs(pTarget->pev, "monster_human_grunt" || "monster_advsec")) 
 	{
 		return R_NM;
 	}
