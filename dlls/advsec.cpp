@@ -2018,7 +2018,7 @@ Schedule_t* CAdvSec::GetSchedule()
 					SENTENCEG_PlayRndSz(ENT(pev), "HG_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
-				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
+				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND); //I wouldn't call a grenade a "best" sound -PM
 			}
 			/*
 			if (!HasConditions( bits_COND_SEE_ENEMY ) && ( pSound->m_iType & (bits_SOUND_PLAYER | bits_SOUND_COMBAT) ))
@@ -2370,7 +2370,7 @@ Schedule_t* CAdvSec::GetScheduleOfType(int Type)
 
 
 //=========================================================
-// CAdvSecRepel - when triggered, spawns a monster_human_grunt
+// CAdvSecRepel - when triggered, spawns a monster_advsec
 // repelling down a line.
 //=========================================================
 
@@ -2408,7 +2408,7 @@ void CAdvSecRepel::RepelUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_T
 		return NULL;
 	*/
 
-	CBaseEntity* pEntity = Create("monster_human_grunt", pev->origin, pev->angles);
+	CBaseEntity* pEntity = Create("monster_advsec", pev->origin, pev->angles);
 	CBaseMonster* pGrunt = pEntity->MyMonsterPointer();
 	pGrunt->pev->movetype = MOVETYPE_FLY;
 	pGrunt->pev->velocity = Vector(0, 0, RANDOM_FLOAT(-196, -128));
@@ -2429,7 +2429,7 @@ void CAdvSecRepel::RepelUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_T
 
 
 //=========================================================
-// DEAD HGRUNT PROP
+// DEAD ADVSEC PROP				Still needs implemented in the FGD -PM
 //=========================================================
 class CDeadAdvSec : public CBaseMonster
 {
@@ -2459,12 +2459,12 @@ bool CDeadAdvSec::KeyValue(KeyValueData* pkvd)
 LINK_ENTITY_TO_CLASS(monster_advsec_dead, CDeadAdvSec);
 
 //=========================================================
-// ********** DeadHGrunt SPAWN **********
+// ********** DeadAdvsec SPAWN **********
 //=========================================================
 void CDeadAdvSec::Spawn()
 {
-	PRECACHE_MODEL("models/hgrunt.mdl");
-	SET_MODEL(ENT(pev), "models/hgrunt.mdl");
+	PRECACHE_MODEL("models/advsec.mdl");
+	SET_MODEL(ENT(pev), "models/advsec.mdl");
 
 	pev->effects = 0;
 	pev->yaw_speed = 8;
@@ -2475,7 +2475,7 @@ void CDeadAdvSec::Spawn()
 
 	if (pev->sequence == -1)
 	{
-		ALERT(at_console, "Dead hgrunt with bad pose\n");
+		ALERT(at_console, "Dead Advsec with bad pose\n");
 	}
 
 	// Corpses have less health
