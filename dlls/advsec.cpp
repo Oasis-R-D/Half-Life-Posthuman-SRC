@@ -1106,6 +1106,8 @@ void CAdvSec::Precache()
 
 	PRECACHE_SOUND("weapons/sbarrel1.wav");
 
+	//PRECACHE_SOUND("weapons/xbow.wav"); 
+	
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 
 	// get voice pitch
