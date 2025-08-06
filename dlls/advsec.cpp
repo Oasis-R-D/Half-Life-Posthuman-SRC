@@ -967,8 +967,8 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else
 		{
 			Railcannon();
-			//EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/xbowfire.wav", 1, ATTN_NORM);
-			//^^ commented out until I get the sound name
+			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/xbow_fire1.wav", 1, ATTN_NORM);
+		
 		}
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
@@ -1106,7 +1106,7 @@ void CAdvSec::Precache()
 
 	PRECACHE_SOUND("weapons/sbarrel1.wav");
 
-	//PRECACHE_SOUND("weapons/xbow.wav"); 
+	PRECACHE_SOUND("weapons/xbow_fire1.wav"); 
 	
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 
