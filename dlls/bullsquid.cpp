@@ -13,7 +13,7 @@
 *
 ****/
 //=========================================================
-// bullsquid - big, spotty tentacle-mouthed meanie.
+// bullsquid - big, spotty tentacle-mouthed meanie. // just like your mo- -PM
 //=========================================================
 
 #include "extdll.h"
@@ -27,8 +27,8 @@
 #include "soundent.h"
 #include "game.h"
 
-#define SQUID_SPRINT_DIST 256 // how close the squid has to get before starting to sprint and refusing to swerve
-
+#define SQUID_SPRINT_DIST 256
+ // ^^^^ how close the squid has to get before starting to sprint and refusing to swerve
 int iSquidSpitSprite;
 
 
@@ -92,7 +92,7 @@ void CSquidSpit::Spawn()
 
 	SET_MODEL(ENT(pev), "sprites/bigspit.spr");
 	pev->frame = 0;
-	pev->scale = 0.5;
+	pev->scale = 0.25;
 
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
@@ -116,9 +116,12 @@ void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 {
 	CSquidSpit* pSpit = GetClassPtr((CSquidSpit*)NULL);
 	pSpit->Spawn();
-
+	pSpit->Spawn();
+	pSpit->Spawn(); // just a little more :D
+	pSpit->Spawn();
+	pSpit->Spawn();
 	UTIL_SetOrigin(pSpit->pev, vecStart);
-	pSpit->pev->velocity = vecVelocity;
+	pSpit->pev->velocity = vecVelocity; // No clue how adding spread works
 	pSpit->pev->owner = ENT(pevOwner);
 
 	pSpit->SetThink(&CSquidSpit::Animate);
@@ -169,7 +172,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.bullsquidDmgSpit, DMG_ACID);
+		pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 3), DMG_ACID); //made damage lower to account for more projectiles
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);
