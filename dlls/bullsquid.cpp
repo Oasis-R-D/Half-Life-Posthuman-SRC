@@ -169,7 +169,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.bullsquidDmgSpit, DMG_CHEMICAL); //switch to chemical?
+		pOther->TakeDamage(pev, pev, gSkillData.bullsquidDmgSpit, DMG_ACID);
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);
