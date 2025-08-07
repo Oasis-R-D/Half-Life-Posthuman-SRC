@@ -121,7 +121,7 @@ void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 	pSpit->Spawn();
 	pSpit->Spawn();
 	UTIL_SetOrigin(pSpit->pev, vecStart);
-	pSpit->pev->velocity = vecVelocity + VECTOR_CONE_15DEGREES; // No clue how adding spread works
+	pSpit->pev->velocity = vecVelocity + Vector(RANDOM_LONG(-0.50, 0.50), RANDOM_LONG(-0.50, 0.50), RANDOM_LONG(-0.50, 0.50)); // No clue how adding spread works
 	pSpit->pev->owner = ENT(pevOwner);
 
 	pSpit->SetThink(&CSquidSpit::Animate);
