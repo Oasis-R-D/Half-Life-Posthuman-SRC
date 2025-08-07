@@ -85,7 +85,6 @@ void CSquidSpit::Spawn()
 {
 	pev->movetype = MOVETYPE_FLY;
 	pev->classname = MAKE_STRING("squidspit");
-
 	pev->solid = SOLID_BBOX;
 	pev->rendermode = kRenderTransAlpha;
 	pev->renderamt = 255;
@@ -117,7 +116,7 @@ void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 	CSquidSpit* pSpit = GetClassPtr((CSquidSpit*)NULL);
 	pSpit->Spawn();
 	UTIL_SetOrigin(pSpit->pev, vecStart);
-	pSpit->pev->velocity = vecVelocity + Vector(RANDOM_FLOAT(-0.50, 0.50), RANDOM_FLOAT(-0.50, 0.50), RANDOM_FLOAT(-0.50, 0.50)); // No clue how adding spread works
+	pSpit->pev->velocity = vecVelocity + Vector(RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50)); // No clue how adding spread works
 	pSpit->pev->owner = ENT(pevOwner);
 
 	pSpit->SetThink(&CSquidSpit::Animate);
@@ -168,7 +167,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 3), DMG_ACID); //made damage lower to account for more projectiles
+		pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 2), DMG_ACID); //made damage lower to account for more projectiles
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);
@@ -550,9 +549,9 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			vecSpitOffset = (pev->origin + vecSpitOffset);
 			vecSpitDir = ((m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs) - vecSpitOffset).Normalize();
 
-			vecSpitDir.x += RANDOM_FLOAT(-0.05, 0.05);
-			vecSpitDir.y += RANDOM_FLOAT(-0.05, 0.05);
-			vecSpitDir.z += RANDOM_FLOAT(-0.05, 0);
+			vecSpitDir.x += RANDOM_FLOAT(-0.025, 0.025);
+			vecSpitDir.y += RANDOM_FLOAT(-0.025, 0.025);
+			vecSpitDir.z += RANDOM_FLOAT(-0.025, 0);
 
 
 			// do stuff for this event.
@@ -572,12 +571,11 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			WRITE_BYTE(210);			   // speed
 			WRITE_BYTE(25);				   // noise ( client will divide by 100 )
 			MESSAGE_END();
-
-			CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
-			CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
-			CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
-			CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
-			CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
+			constexpr float bull_spits = 10;
+			for (int i = 0; i < bull_spits; i++) // 25 is the amount of projectiles
+				{
+					CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
+				}
 		}
 	}
 	break;
