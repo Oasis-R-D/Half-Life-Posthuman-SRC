@@ -204,7 +204,14 @@ void CMP5::PrimaryAttack()
 		m_flNextPrimaryAttack = 0.066;
 
 	m_flTimeWeaponIdle = 5;
-	m_pPlayer->pev->punchangle.x -= 1;
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+			m_pPlayer->pev->punchangle.x -= 0.75;
+		}
+	else
+	{
+	m_pPlayer->pev->punchangle.x -= 1.00;
+	}
 	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1, 1);
 }
 
@@ -563,8 +570,16 @@ void CM727::PrimaryAttack()
 		m_flNextPrimaryAttack = 0.0825;
 
 	m_flTimeWeaponIdle = 5;
-	m_pPlayer->pev->punchangle.x -= 1;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1, 1);
+	
+if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+			m_pPlayer->pev->punchangle.x -= 0.75;
+		}
+else
+		{
+			m_pPlayer->pev->punchangle.x -= 1.00;
+		}
+			m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-1, 1);
 }
 
 void CM727::SecondaryAttack()
