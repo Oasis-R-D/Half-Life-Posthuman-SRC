@@ -169,9 +169,23 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	m_flTimeWeaponIdle = 1;
 	m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
 	if (pev->armortype == 0)
-		m_pPlayer->pev->punchangle.x -= 2;
+		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+			m_pPlayer->pev->punchangle.x -= 1;
+		}
+		else
+		{
+			m_pPlayer->pev->punchangle.x -= 2;
+		}
 	else
-		m_pPlayer->pev->punchangle.x -= 4;
+		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+			m_pPlayer->pev->punchangle.x -= 3;
+		}
+		else
+		{
+			m_pPlayer->pev->punchangle.x -= 4;
+		}
 }
 
 void CGlock::Reload()
