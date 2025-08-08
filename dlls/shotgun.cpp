@@ -143,8 +143,17 @@ void CShotgun::PrimaryAttack()
 	m_fInSpecialReload = 0;
 	
 	pev->armortype = 1;
-
-	m_pPlayer->pev->punchangle.x -= 5;
+	
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+		m_pPlayer->pev->punchangle.x -= 4;
+		}
+	else
+		{
+		m_pPlayer->pev->punchangle.x -= 5;
+		}
+	
+		m_pPlayer->pev->punchangle.y -= RANDOM_LONG(-2, 2);
 }
 
 
