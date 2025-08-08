@@ -517,6 +517,7 @@ void CSqueak::PrimaryAttack()
 			pSqueak->pev->angles.y = pev->angles.y;
 			pSqueak->pev->angles.x = 0;
 			pSqueak->pev->angles.z = 0;
+			pSqueak->pev->owner = NULL;
 #endif
 
 			// play hunt sound
