@@ -319,8 +319,7 @@ bool COsprey::HasDead()
 CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 {
 	CBaseEntity* pEntity;
-	CBaseMonster* pGrunt;
-
+	CHGrunt* pGrunt;
 	TraceResult tr;
 	UTIL_TraceLine(vecSrc, vecSrc + Vector(0, 0, -4096.0), dont_ignore_monsters, ENT(pev), &tr);
 	if (tr.pHit && Instance(tr.pHit)->pev->solid != SOLID_BSP)
@@ -335,7 +334,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				m_hGrunt[i]->SUB_StartFadeOut();
 			}
 			pEntity = Create("monster_human_grunt", vecSrc, pev->angles);
-			pGrunt = pEntity->MyMonsterPointer();
+			pGrunt = (CHGrunt*)pEntity->MyMonsterPointer();
 			pGrunt->pev->movetype = MOVETYPE_FLY;
 			pGrunt->pev->velocity = Vector(0, 0, RANDOM_FLOAT(-196, -128));
 			pGrunt->SetActivity(ACT_GLIDE);
@@ -361,7 +360,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
-				//pGrunt->m_cClipSize = 8;
+				pGrunt->ClipSize(9);
 				break;
 			case 2:
 				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER;
@@ -375,7 +374,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_M249);
-				//pGrunt->m_cClipSize = 200;
+				pGrunt->ClipSize(200);
 				break;
 			case 4:
 				pGrunt->pev->weapons = HGRUNT_M727;
@@ -390,7 +389,6 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				};
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_M727);
-				ClipSize(30);
 				break;
 			}
 
