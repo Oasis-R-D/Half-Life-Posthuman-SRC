@@ -514,6 +514,9 @@ void CSqueak::PrimaryAttack()
 			CBaseEntity* pSqueak = CBaseEntity::Create("monster_babycrab", tr.vecEndPos, angle, m_pPlayer->edict());
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+			pSqueak->pev->angles.y = pev->angles.y;
+			pSqueak->pev->angles.x = 0;
+			pSqueak->pev->angles.z = 0;
 #endif
 
 			// play hunt sound
@@ -718,6 +721,8 @@ void CHeadcrabGrenade::PrimaryAttack()
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 			pSqueak->pev->angles.y = pev->angles.y;
+			pSqueak->pev->angles.x = 0;
+			pSqueak->pev->angles.z = 0;
 			pSqueak->pev->targetname = ALLOC_STRING("thrownHC");
 #endif
 
@@ -896,6 +901,9 @@ void CHeadcrabGrenadeFast::PrimaryAttack()
 			CBaseEntity* pSqueak = CBaseEntity::Create("monster_headcrab_fast", tr.vecEndPos, angle, m_pPlayer->edict());
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+			pSqueak->pev->angles.y = pev->angles.y;
+			pSqueak->pev->angles.x = 0;
+			pSqueak->pev->angles.z = 0;
 #endif
 
 			// play hunt sound
@@ -992,6 +1000,9 @@ void CHeadcrabGrenadePoison::PrimaryAttack()
 			CBaseEntity* pSqueak = CBaseEntity::Create("monster_headcrab_poison", tr.vecEndPos, angle, m_pPlayer->edict());
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+			pSqueak->pev->angles.y = pev->angles.y;
+			pSqueak->pev->angles.x = 0;
+			pSqueak->pev->angles.z = 0;
 #endif
 
 			// play hunt sound
