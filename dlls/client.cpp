@@ -1010,6 +1010,9 @@ void ClientPrecache()
 	PRECACHE_SOUND("player/pl_pain5.wav");
 	PRECACHE_SOUND("player/pl_pain6.wav");
 	PRECACHE_SOUND("player/pl_pain7.wav");
+	PRECACHE_SOUND("derek/pain1.wav");
+	PRECACHE_SOUND("derek/pain3.wav"); // hah! Get forked perfectionists!!!!! -your friendly neighborhood perfectionist PM
+	PRECACHE_SOUND("derek/pain2.wav");
 
 	PRECACHE_MODEL("models/player.mdl");
 
@@ -1030,6 +1033,12 @@ void ClientPrecache()
 	PRECACHE_SOUND("player/geiger3.wav");
 	PRECACHE_SOUND("player/geiger2.wav");
 	PRECACHE_SOUND("player/geiger1.wav");
+
+	// derek literally fucking dying
+
+	PRECACHE_SOUND("derek/death1.wav");
+	PRECACHE_SOUND("derek/death3.wav"); //  :3
+	PRECACHE_SOUND("derek/death2.wav");
 
 	if (giPrecacheGrunt)
 		UTIL_PrecacheOther("monster_human_grunt");

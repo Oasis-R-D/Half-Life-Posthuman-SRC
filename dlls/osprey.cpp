@@ -20,6 +20,7 @@
 #include "soundent.h"
 #include "effects.h"
 #include "customentity.h"
+#include "hgrunt.h"
 
 typedef struct
 {
@@ -389,7 +390,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				};
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->SetBodygroup(GUN_GROUP, GUN_M727);
-				// pGrunt->m_cClipSize = 200;
+				ClipSize(30);
 				break;
 			}
 
