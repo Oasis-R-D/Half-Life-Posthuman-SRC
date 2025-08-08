@@ -387,6 +387,9 @@ cvar_t sk_9mm_bullet1 = {"sk_9mm_bullet1", "0"};
 cvar_t sk_9mm_bullet2 = {"sk_9mm_bullet2", "0"};
 cvar_t sk_9mm_bullet3 = {"sk_9mm_bullet3", "0"};
 
+cvar_t sk_M727_bullet1 = {"sk_M727_bullet1", "0"};
+cvar_t sk_M727_bullet2 = {"sk_M727_bullet2", "0"};
+cvar_t sk_M727_bullet3 = {"sk_M727_bullet3", "0"};
 
 // HORNET
 cvar_t sk_hornet_dmg1 = {"sk_hornet_dmg1", "0"};
@@ -869,6 +872,9 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_9mm_bullet2); // {"sk_9mm_bullet2","0"};
 	CVAR_REGISTER(&sk_9mm_bullet3); // {"sk_9mm_bullet3","0"};
 
+	CVAR_REGISTER(&sk_M727_bullet1); // no comments for you!!!!!
+	CVAR_REGISTER(&sk_M727_bullet2); // no comments for you!!!!!
+	CVAR_REGISTER(&sk_M727_bullet3); // no comments for you!!!!!
 
 	// HORNET
 	CVAR_REGISTER(&sk_hornet_dmg1); // {"sk_hornet_dmg1","0"};

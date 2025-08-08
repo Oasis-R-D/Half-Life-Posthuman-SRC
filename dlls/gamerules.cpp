@@ -291,7 +291,7 @@ void CGameRules::RefreshSkillData()
 
 	// M727
 	gSkillData.plrDmgM727 = GetSkillCvar("sk_plr_m727");
-
+	
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = GetSkillCvar("sk_plr_crowbar");
 
@@ -337,7 +337,7 @@ void CGameRules::RefreshSkillData()
 	gSkillData.monDmg12MM = GetSkillCvar("sk_12mm_bullet");
 	gSkillData.monDmgMP5 = GetSkillCvar("sk_9mmAR_bullet");
 	gSkillData.monDmg9MM = GetSkillCvar("sk_9mm_bullet");
-
+	gSkillData.monDmgM727 = GetSkillCvar("sk_M727_bullet");
 	// MONSTER HORNET
 	gSkillData.monDmgHornet = GetSkillCvar("sk_hornet_dmg");
 
