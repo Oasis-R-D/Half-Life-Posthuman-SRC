@@ -718,6 +718,7 @@ void CHeadcrabGrenade::PrimaryAttack()
 			pSqueak->pev->velocity = gpGlobals->v_forward * 200 + m_pPlayer->pev->velocity;
 			pSqueak->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 			pSqueak->pev->angles.y = pev->angles.y;
+			pSqueak->pev->targetname = ALLOC_STRING("thrownHC");
 #endif
 
 			// play hunt sound
