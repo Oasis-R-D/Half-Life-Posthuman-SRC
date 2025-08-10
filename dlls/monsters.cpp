@@ -2244,7 +2244,7 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL}, //PLAYER (duh)
 			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_DL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT}, //SCIENTIST
 			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
-			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //VORTS AND AGRUNTS
 			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENPREY   */	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
@@ -2253,7 +2253,7 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //CRABS
 			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL,	R_NO,	R_DL},
 			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL},
-			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL},
+			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL}, //SUPERCRABS
   /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
 			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO}  //HASSN (duh)
 

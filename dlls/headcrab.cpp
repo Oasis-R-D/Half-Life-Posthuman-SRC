@@ -694,8 +694,6 @@ class CHeadcrabSuper : public CHeadCrab
 		pev->effects = 0;
 		pev->view_ofs = Vector(0, 0, 20); // position of the eyes relative to monster's origin.
 		pev->yaw_speed = 5;				  //!!! should we put this in the monster's changeanim function since turn rates may vary with state/anim?
-		pev->renderfx = kRenderFxGlowShell;
-		pev->rendercolor = Vector(0, 100, 100);
 
 		m_bloodColor = BLOOD_COLOR_CYAN;
 		m_flFieldOfView = 0.5;			  // indicates the width of this monster's forward view cone ( as a dotproduct result )
@@ -717,6 +715,7 @@ class CHeadcrabSuper : public CHeadCrab
 		PRECACHE_SOUND_ARRAY(pDeathSounds);
 		PRECACHE_SOUND_ARRAY(pBiteSounds);
 	}
+
 	void GibMonster()
 	{
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
@@ -771,7 +770,6 @@ class CHeadcrabSuper : public CHeadCrab
 };
 
 LINK_ENTITY_TO_CLASS(monster_headcrab_super, CHeadcrabSuper);
-
 class SHGibs : public CBaseEntity
 {
 	void Spawn()
@@ -782,8 +780,6 @@ class SHGibs : public CBaseEntity
 		pev->nextthink = gpGlobals->time + 0.1;
 		pev->dmgtime = gpGlobals->time + 10;
 		pev->body = RANDOM_LONG(0, 5);
-		pev->rendercolor = Vector(0, 100, 100);
-		pev->renderamt = 0;
 	}
 	void Think()
 	{
