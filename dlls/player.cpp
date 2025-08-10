@@ -3388,7 +3388,7 @@ void CBasePlayer::FlashlightTurnOn()
 	if (HasSuit())
 	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
-		//TODO: fix UTIL_ScreenFade nulling out green and blue color brightness
+		//TODO: fix UTIL_ScreenFade nulling out green and blue color brightness //do we really need to? I think it's fine the way it is. Go for it and if it looks better we'll keep it
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
 		SetBits(pev->effects, EF_BRIGHTLIGHT);
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);

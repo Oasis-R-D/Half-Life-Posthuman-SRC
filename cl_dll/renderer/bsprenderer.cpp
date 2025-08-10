@@ -5464,6 +5464,7 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		int index = decal->texinfo->szName[6] - '0';
 		char blood[64];
 		sprintf(blood, "{blood%d", index);
+
 		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
@@ -5471,6 +5472,14 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		else 
 		{
 			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		int index2 = decal->texinfo->szName[7] - '0';
+		char bblood[64];
+		sprintf(bblood, "{bblood%d", index2);
+
+		if (!strcmp(decal->texinfo->szName, bblood))
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
 		}
 	}
 	else
