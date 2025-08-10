@@ -40,10 +40,19 @@
 #define BARNEY_BODY_GUNDRAWN 1
 #define BARNEY_BODY_GUNGONE 2
 
+#define ARMOR_RANDOM -1
+#define ARMOR_VEST 0
+#define ARMOR_NONE 1
+
+#define HEADWEAR_RANDOM -1
+#define HEADWEAR_HELM 0
+#define HEADWEAR_OFF 1
+
 class CBarney : public CSquadMonster
 {
 public:
 	void Spawn() override;
+	bool KeyValue(KeyValueData* pkvd);
 	void Precache() override;
 	void SetYawSpeed() override;
 	int ISoundMask() override;
@@ -76,6 +85,8 @@ public:
 	float m_checkAttackTime;
 	bool m_lastAttackCheck;
 	int m_iShell;
+	int m_iArmor;
+	int m_iHelmet;
 
 	CUSTOM_SCHEDULES;
 };
@@ -349,7 +360,23 @@ void CBarney::BarneyFirePistol()
 	// UNDONE: Reload?
 	m_cAmmoLoaded--; // take away a bullet!
 }
-
+bool CBarney::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "Armor"))
+	{
+	m_iArmor = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "Helmet"))
+	{
+	m_iHelmet = atoi(pkvd->szValue);
+		return true;
+	}
+	else
+	{
+		return CBaseEntity::KeyValue(pkvd);
+	}
+}
 //=========================================================
 // HandleAnimEvent - catches the monster-specific messages
 // that occur when tagged animation frames are played.
@@ -366,13 +393,13 @@ void CBarney::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case BARNEY_AE_DRAW:
 		// barney's bodygroup switches here so he can pull gun from holster
-		pev->body = BARNEY_BODY_GUNDRAWN;
+		SetBodygroup(2, BARNEY_BODY_GUNDRAWN);
 		m_fGunDrawn = true;
 		break;
 
 	case BARNEY_AE_HOLSTER:
 		// change bodygroup to replace gun in holster
-		pev->body = BARNEY_BODY_GUNHOLSTERED;
+		SetBodygroup(2, BARNEY_BODY_GUNHOLSTERED);
 		m_fGunDrawn = false;
 		break;
 
@@ -387,6 +414,8 @@ void CBarney::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CBarney::Spawn()
 {
 	Precache();
+
+
 
 	if (FClassnameIs(pev, "monster_barney_adv"))
 	{
@@ -409,13 +438,38 @@ void CBarney::Spawn()
 	m_flFieldOfView = VIEW_FIELD_WIDE; // NOTE: we need a wide field of view so npc will notice player and say hello
 	m_MonsterState = MONSTERSTATE_NONE;
 
-	pev->body = 0; // gun in holster
+	SetBodygroup(2, 0);
 	m_fGunDrawn = false;
 
 	m_afCapability = bits_CAP_HEAR | bits_CAP_TURN_HEAD | bits_CAP_DOORS_GROUP;
 
 	MonsterInit();
 	//SetUse(&CBarney::FollowerUse);
+	if (m_iArmor == ARMOR_RANDOM)
+		{
+		SetBodygroup(0, RANDOM_LONG(0, 1));
+		}
+	else if (m_iArmor == ARMOR_VEST)
+		{
+		SetBodygroup(0, ARMOR_VEST);
+		}
+	else
+		{
+		SetBodygroup(0, ARMOR_NONE);
+		}
+
+		if (m_iHelmet == HEADWEAR_RANDOM)
+		{
+		SetBodygroup(3, RANDOM_LONG(0, 1));
+		}
+	else if (m_iHelmet == HEADWEAR_HELM)
+		{
+		SetBodygroup(3, HEADWEAR_HELM);
+		}
+	else
+		{
+		SetBodygroup(3, HEADWEAR_OFF);
+		}
 }
 
 //=========================================================
@@ -503,17 +557,28 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	case HITGROUP_STOMACH:
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
-			flDamage = flDamage / 2;
+			if (GetBodygroup(0) != 1)
+			{
+				flDamage = flDamage / 2;
+			}
+			else
+			{
+				flDamage = flDamage;
+				break;
+			}
 		}
 		break;
 	case 10:
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
 		{
-			flDamage -= 20;
-			if (flDamage <= 0)
+			if (GetBodygroup(3) != 1)
 			{
-				UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
+				flDamage -= 20;
+				if (flDamage <= 0)
+				{
+					UTIL_Ricochet(ptr->vecEndPos, 1.0);
+					flDamage = 0.01;
+				}
 			}
 		}
 		// always a head shot
@@ -527,15 +592,15 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 
 void CBarney::Killed(entvars_t* pevAttacker, int iGib)
 {
-	if (pev->body < BARNEY_BODY_GUNGONE)
+	if (GetBodygroup(2) != BARNEY_BODY_GUNGONE)
 	{ // drop the gun!
 		Vector vecGunPos;
 		Vector vecGunAngles;
 
-		pev->body = BARNEY_BODY_GUNGONE;
+		SetBodygroup(2, BARNEY_BODY_GUNGONE);
 		GetAttachment(0, vecGunPos, vecGunAngles);
 
-		if (FClassnameIs(pev, "monster_barney_adv"))
+		if (FClassnameIs(pev, "monster_barney_adv")) //tf? That still exists?
 			CBaseEntity* pGun = DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
 		else
 			CBaseEntity* pGun = DropItem("weapon_9mmhandgun", vecGunPos, vecGunAngles);
