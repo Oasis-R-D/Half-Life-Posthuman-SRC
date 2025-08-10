@@ -3428,8 +3428,8 @@ void CBasePlayer::FlashlightTurnOff()
 	CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
 	{
-		if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-			pEntity->Classify() == CLASS_HUMAN_MILITARY)
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || 
+				pEntity->Classify() == CLASS_HASSN			|| pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_ALIEN_PREDATOR )
 		{
 			pEntity->pev->renderfx = kRenderFxNone;
 		}

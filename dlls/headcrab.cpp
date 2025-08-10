@@ -782,7 +782,6 @@ class SHGibs : public CBaseEntity
 		pev->nextthink = gpGlobals->time + 0.1;
 		pev->dmgtime = gpGlobals->time + 10;
 		pev->body = RANDOM_LONG(0, 5);
-		pev->renderfx = kRenderFxGlowShell;
 		pev->rendercolor = Vector(0, 100, 100);
 		pev->renderamt = 0;
 	}
