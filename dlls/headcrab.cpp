@@ -360,7 +360,7 @@ void CHeadCrab::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	pev->health = gSkillData.headcrabHealth;
 	pev->effects = 0;
-	pev->view_ofs = Vector(4, 0, 4); // position of the eyes relative to monster's origin.
+	pev->view_ofs = Vector(0, 0, 20); // position of the eyes relative to monster's origin.
 	pev->yaw_speed = 5;				  //!!! should we put this in the monster's changeanim function since turn rates may vary with state/anim?
 	
 	m_bloodColor = BLOOD_COLOR_GREEN;
