@@ -2237,23 +2237,37 @@ bool CBaseMonster::TaskIsRunning()
 //=========================================================
 int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 {
-	static int iEnemy[15][15] =
-		{//						 NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   DISLIKEALL
-			/*NONE*/			{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
-			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL},
-			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_NO,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL},
-			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_AL,   R_NO,   R_NO,   R_DL},
-			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_HT,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL},
-			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_HT,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
-			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
-			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
-			/*ALIENPREY   */	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
-			/*ALIENPREDATO*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
-			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL},
-			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_AL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
-			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL},
-			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL},
-			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO}
+	static int iEnemy[17][17] =
+		{// 					 NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   HATEALL	VHCL	HASSN
+			/*NONE*/			{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO}, //NONE
+			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL},
+			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL}, //PLAYER (duh)
+			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_DL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT}, //SCIENTIST
+			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_HT,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
+			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*ALIENPREY   */	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*ALIENPREDATO*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //BULLSQUID
+			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //ROACH
+			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //CRABS
+			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL,	R_NO,	R_DL},
+			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL},
+			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL},
+  /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
+			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO}  //HASSN (duh)
+
+
+
+
+/*
+R_AL(ALLY) pals. Good alternative to R_NO when applicable.
+R_FR(FEAR) will run from
+R_NO(NO RELATIONSHIP) disregard
+R_DL(DISLIKE) will attack
+R_HT(HATE) will attack this character instead of any visible DISLIKED characters
+R_NM(NEMESIS)  A monster Will ALWAYS attack its nemsis, no matter what
+*/
 	};
 
 	return iEnemy[Classify()][pTarget->Classify()];

@@ -223,7 +223,7 @@ int CBarney::ISoundMask()
 //=========================================================
 int CBarney::Classify()
 {
-	return CLASS_ALIEN_MONSTER;
+	return CLASS_HUMAN_PASSIVE;
 }
 
 //=========================================================

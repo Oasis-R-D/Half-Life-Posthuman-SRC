@@ -423,7 +423,7 @@ int CBullsquid::ISoundMask()
 //=========================================================
 int CBullsquid::Classify()
 {
-	return CLASS_ALIEN_MONSTER;
+	return CLASS_ALIEN_PREDATOR;
 }
 
 //=========================================================

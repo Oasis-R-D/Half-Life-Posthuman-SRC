@@ -738,7 +738,7 @@ void CMOFAssassin::CheckAmmo()
 //=========================================================
 int CMOFAssassin::Classify()
 {
-	return CLASS_HUMAN_MILITARY;
+	return CLASS_HASSN;
 }
 
 //=========================================================

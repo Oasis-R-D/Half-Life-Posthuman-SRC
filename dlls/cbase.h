@@ -110,7 +110,7 @@ typedef void (CBaseEntity::*USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCalle
 #define CLASS_ALIEN_BIOWEAPON 13  // hornets and snarks.launched by the alien menace
 #define CLASS_DISLIKE_ALL 14
 #define CLASS_VEHICLE 15
-
+#define CLASS_HASSN 16
 class CBaseEntity;
 class CBaseMonster;
 class CBasePlayerItem;

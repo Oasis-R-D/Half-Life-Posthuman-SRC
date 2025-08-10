@@ -746,7 +746,7 @@ void CAdvSec::CheckAmmo()
 //=========================================================
 int CAdvSec::Classify()
 {
-	return CLASS_ALIEN_MONSTER;
+	return CLASS_HUMAN_PASSIVE;
 }
 
 //=========================================================

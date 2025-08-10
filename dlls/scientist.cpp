@@ -567,7 +567,7 @@ void CScientist::RunTask(Task_t* pTask)
 //=========================================================
 int CScientist::Classify()
 {
-	return CLASS_ALIEN_MONSTER;
+	return CLASS_HUMAN_PASSIVE;
 }
 
 
