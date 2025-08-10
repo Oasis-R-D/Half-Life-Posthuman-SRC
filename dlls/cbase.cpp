@@ -821,13 +821,13 @@ struct TITLECOMMENT
 
 TITLECOMMENT gTitleComments[] =
 	{
-		
-		{"ph_emer1", "EMERGENCY"},
-		{"ph_emer2", "EMERGENCY"},
-		{"ph_emer3", "EMERGENCY"},
-		{"ph_emer4", "EMERGENCY"},
-		{"ph_over1", "OVERGROWTH"},
-		{"ph_over2", "OVERGROWTH"},
+		{"ph_train1", "FIELD DAY"},
+		{"ph_emer1", "Emergency"},
+		{"ph_emer2", "Emergency"},
+		{"ph_emer3", "Emergency"},
+		{"ph_emer4", "Emergency"},
+		{"ph_over1", "OverGrowth"},
+		{"ph_over2", "OverGrowth"},
 		{"test", "DEVSHIT!!!!!!!!!"},
 		{"test_range", "WPN DEVSHIT!!!!!!!!!"},
 		// More title entries here
