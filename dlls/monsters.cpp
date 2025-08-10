@@ -2238,54 +2238,23 @@ bool CBaseMonster::TaskIsRunning()
 int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 {
 	static int iEnemy[15][15] =
-		{//   NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   DISLIKEALL
-			/*NONE*/ {
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_NO,
-				R_DL,
-			},
-			/*MACHINE*/ {R_NO, R_NO, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL},
-			/*PLAYER*/ {R_NO, R_DL, R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_DL, R_DL, R_DL},
-			/*HUMANPASSIVE*/ {R_NO, R_NO, R_AL, R_AL, R_HT, R_HT, R_NO, R_HT, R_DL, R_DL, R_NO, R_AL, R_NO, R_NO, R_DL},
-			/*HUMANMILITAR*/ {R_NO, R_NO, R_HT, R_DL, R_NO, R_HT, R_DL, R_DL, R_DL, R_DL, R_NO, R_HT, R_NO, R_NO, R_DL},
-			/*ALIENMILITAR*/ {R_NO, R_DL, R_HT, R_DL, R_HT, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL, R_NO, R_NO, R_DL},
-			/*ALIENPASSIVE*/ {R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL},
-			/*ALIENMONSTER*/ {R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL, R_NO, R_NO, R_DL},
-			/*ALIENPREY   */ {R_NO, R_NO, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_NO, R_FR, R_NO, R_DL, R_NO, R_NO, R_DL},
-			/*ALIENPREDATO*/ {R_NO, R_NO, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_HT, R_DL, R_NO, R_DL, R_NO, R_NO, R_DL},
-			/*INSECT*/ {R_FR, R_FR, R_FR, R_FR, R_FR, R_NO, R_FR, R_FR, R_FR, R_FR, R_NO, R_FR, R_NO, R_NO, R_DL},
-			/*PLAYERALLY*/ {R_NO, R_DL, R_AL, R_AL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_NO, R_DL},
-			/*PBIOWEAPON*/ {R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_NO, R_DL, R_DL},
-			/*ABIOWEAPON*/ {R_NO, R_NO, R_DL, R_DL, R_DL, R_AL, R_NO, R_DL, R_DL, R_NO, R_NO, R_DL, R_DL, R_NO, R_DL},
-			/*DISLIKEALL*/ {
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_DL,
-				R_NO,
-			}};
+		{//						 NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   DISLIKEALL
+			/*NONE*/			{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
+			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL},
+			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_NO,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL},
+			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_AL,   R_NO,   R_NO,   R_DL},
+			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_HT,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL},
+			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_HT,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
+			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
+			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
+			/*ALIENPREY   */	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
+			/*ALIENPREDATO*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL},
+			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL},
+			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_AL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL},
+			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL},
+			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL},
+			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO}
+	};
 
 	return iEnemy[Classify()][pTarget->Classify()];
 }
