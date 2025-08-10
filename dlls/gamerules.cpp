@@ -236,6 +236,12 @@ void CGameRules::RefreshSkillData()
 	gSkillData.hgruntShotgunPellets = GetSkillCvar("sk_hgrunt_pellets");
 	gSkillData.hgruntGrenadeSpeed = GetSkillCvar("sk_hgrunt_gspeed");
 
+	// Assassin of the male variety
+	gSkillData.massassinHealth = GetSkillCvar("sk_massassin_health");
+	gSkillData.massassinDmgKick = GetSkillCvar("sk_massassin_kick");
+	gSkillData.massassinGrenadeSpeed = GetSkillCvar("sk_massassin_gspeed");
+
+	gSkillData.plrDmg556 = GetSkillCvar("sk_plr_556_bullet");
 	// Houndeye
 	gSkillData.houndeyeHealth = GetSkillCvar("sk_houndeye_health");
 	gSkillData.houndeyeDmgBlast = GetSkillCvar("sk_houndeye_dmg_blast");

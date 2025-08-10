@@ -55,6 +55,10 @@ struct skilldata_t
 	float hgruntDmgKick;
 	float hgruntShotgunPellets;
 	float hgruntGrenadeSpeed;
+	
+	float massassinHealth;
+	float massassinDmgKick;
+	float massassinGrenadeSpeed;
 
 	float houndeyeHealth;
 	float houndeyeDmgBlast;
@@ -118,7 +122,7 @@ struct skilldata_t
 	float monDmgM727;
 	float monDmg12MM;
 	float monDmgHornet;
-
+	float plrDmg556;
 	// health/suit charge
 	float suitchargerCapacity;
 	float batteryCapacity;
