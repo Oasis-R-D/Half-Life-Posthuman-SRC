@@ -2243,7 +2243,7 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL},
 			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL}, //PLAYER (duh)
 			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_DL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT}, //SCIENTIST
-			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_HT,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
+			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
 			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
