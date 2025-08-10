@@ -2241,16 +2241,16 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 		{// 					 NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   HATEALL	VHCL	HASSN
 			/*NONE*/			{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO}, //NONE
 			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL},
-			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL}, //PLAYER (duh)
+			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_AL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL}, //PLAYER (duh)
 			/*HUMANPASSIVE*/	{R_NO,   R_NO,   R_DL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT}, //SCIENTIST
-			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
+			/*HUMANMILITAR*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //HECU
 			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //VORTS AND AGRUNTS
 			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENPREY   */	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*ALIENPREDATO*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //BULLSQUID
 			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //ROACH
-			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL}, //CRABS
+			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_HT,	 R_HT,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_AL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT}, //CRABS
 			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL,	R_NO,	R_DL},
 			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL},
 			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL}, //SUPERCRABS
