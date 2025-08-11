@@ -70,7 +70,7 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		return false;
 	}
 
-	if (pPlayer->TakeHealth(gSkillData.healthkitCapacity, DMG_GENERIC))
+	if (pPlayer->TakeHealth(gSkillData.healthkitCapacity + (RANDOM_LONG(-3, 10)), DMG_GENERIC))
 	{
 		MESSAGE_BEGIN(MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev);
 		WRITE_STRING(STRING(pev->classname));
@@ -164,7 +164,7 @@ void CWallHealth::Spawn()
 	UTIL_SetOrigin(pev, pev->origin); // set size and link into world
 	UTIL_SetSize(pev, pev->mins, pev->maxs);
 	SET_MODEL(ENT(pev), STRING(pev->model));
-	m_iJuice = gSkillData.healthchargerCapacity;
+	m_iJuice = (gSkillData.healthchargerCapacity + (RANDOM_LONG(-5, 10)));
 	pev->frame = 0;
 }
 
