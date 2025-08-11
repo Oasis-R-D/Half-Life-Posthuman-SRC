@@ -212,7 +212,7 @@ class CItemBattery : public CItem
 	void Precache() override
 	{
 		PRECACHE_MODEL("models/w_battery.mdl");
-		PRECACHE_SOUND("items/gunpickup2.wav");
+		PRECACHE_SOUND("items/battery.wav");
 	}
 	bool MyTouch(CBasePlayer* pPlayer) override
 	{
@@ -227,10 +227,10 @@ class CItemBattery : public CItem
 			int pct;
 			char szcharge[64];
 
-			pPlayer->pev->armorvalue += gSkillData.batteryCapacity;
+			pPlayer->pev->armorvalue += (gSkillData.batteryCapacity + (RANDOM_LONG(-3, 10)));
 			pPlayer->pev->armorvalue = V_min(pPlayer->pev->armorvalue, MAX_NORMAL_BATTERY);
 
-			EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM);
+			EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/battery.wav", 1, ATTN_NORM);
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev);
 			WRITE_STRING(STRING(pev->classname));
