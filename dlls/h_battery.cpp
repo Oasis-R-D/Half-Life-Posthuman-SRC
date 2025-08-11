@@ -182,7 +182,7 @@ void CRecharge::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 void CRecharge::Recharge()
 {
-	m_iJuice = gSkillData.suitchargerCapacity;
+	m_iJuice = (gSkillData.suitchargerCapacity + (RANDOM_LONG(-5, 10)));
 	pev->frame = 0;
 	SetThink(&CRecharge::SUB_DoNothing);
 }
