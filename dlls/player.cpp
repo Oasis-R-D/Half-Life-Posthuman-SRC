@@ -4083,7 +4083,7 @@ void CBasePlayer::UpdateClientData()
 		WRITE_SHORT(Hunger);
 		MESSAGE_END();
 
-		if (FlashlightIsOn())
+		if (FlashlightIsOn()) //TO-DO: update classes
 		{
 			CBaseEntity* pEntity = NULL;
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
@@ -4102,14 +4102,13 @@ void CBasePlayer::UpdateClientData()
 			}
 		}
 
-		if (Hunger <= 10)
+		if (Hunger <= 10) //TO-DO: fix NPCS not unhighlighting
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
-				if ((pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY)
-					&& pEntity->BloodColor() != DONT_BLEED)
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || 
+				pEntity->Classify() == CLASS_HASSN			|| pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_ALIEN_PREDATOR ) && pEntity->BloodColor() != DONT_BLEED)
 				{
 					pEntity->pev->renderfx = kRenderFxLightMultiplier;
 					pEntity->pev->rendercolor = Vector(128, 0, 0);
