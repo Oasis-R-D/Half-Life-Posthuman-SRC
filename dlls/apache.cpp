@@ -553,10 +553,6 @@ void CApache::HuntThink()
 			if (m_flGoalSpeed > 400)
 				m_flGoalSpeed = 400;
 		}
-
-		// don't fire rockets and gun on easy mode
-		if (g_iSkillLevel == SKILL_EASY)
-			m_flNextRocket = gpGlobals->time + 10.0;
 	}
 
 	UTIL_MakeAimVectors(pev->angles);
