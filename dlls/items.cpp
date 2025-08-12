@@ -230,7 +230,7 @@ class CItemBattery : public CItem
 			pPlayer->pev->armorvalue += (gSkillData.batteryCapacity + (RANDOM_LONG(-3, 10)));
 			pPlayer->pev->armorvalue = V_min(pPlayer->pev->armorvalue, MAX_NORMAL_BATTERY);
 
-			EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/battery.wav", 1, ATTN_NORM);
+			EMIT_SOUND(pPlayer->edict(), CHAN_AUTO, "items/battery.wav", 1, ATTN_NORM);
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev);
 			WRITE_STRING(STRING(pev->classname));
