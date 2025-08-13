@@ -42,15 +42,12 @@
 #define HEAD_MEDIC_BLACK 9
 
 #define TORSO_GRUNT 0
-#define TORSO_M249 1
 #define TORSO_NONE 2 // ugly as hell
 #define TORSO_SHOTGUN 3
 
 #define GUN_MP5 0
 #define GUN_SHOTGUN 1
-#define GUN_M249 2
 #define GUN_NONE 3
-#define GUN_M727 4 // implement at some point
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -89,8 +86,6 @@ public:
 	Vector GetGunPosition() override;
 	void Shoot();
 	void Shotgun();
-	void M249();
-	void ShootM727();
 	void ClipSize(int clipsize);
 	void PrescheduleThink() override;
 	void SpeakSentence();
