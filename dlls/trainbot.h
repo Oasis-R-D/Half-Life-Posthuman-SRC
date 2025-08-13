@@ -66,7 +66,7 @@
 #define HGRUNT_AE_CAUGHT_ENEMY (10) // grunt established sight with an enemy (player only) that had previously eluded the squad.
 #define HGRUNT_AE_DROP_GUN (11)		// grunt (probably dead) is dropping his mp5.
 
-class CHGrunt : public CSquadMonster
+class CHGruntRobo : public CSquadMonster
 {
 public:
 	void Spawn() override;
