@@ -156,11 +156,6 @@ void ChgruntRobo::SpeakSentence()
 //=========================================================
 int ChgruntRobo::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua") || (FClassnameIs(pTarget->pev, "monster_advsec"))))
-	{
-		return R_NM;
-	}
-
 	return CSquadMonster::IRelationship(pTarget);
 }
 
