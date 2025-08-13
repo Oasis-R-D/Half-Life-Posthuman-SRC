@@ -153,12 +153,6 @@ int CHornet::IRelationship(CBaseEntity* pTarget)
 //=========================================================
 int CHornet::Classify()
 {
-
-	if (pev->owner && (pev->owner->v.flags & FL_CLIENT) != 0)
-	{
-		return CLASS_PLAYER_BIOWEAPON;
-	}
-
 	return CLASS_ALIEN_BIOWEAPON;
 }
 
@@ -311,14 +305,10 @@ void CHornet::TrackTarget()
 
 	pev->velocity = (vecFlightDir + vecDirToEnemy).Normalize();
 
-	if (pev->owner && (pev->owner->v.flags & FL_MONSTER) != 0)
-	{
-		// random pattern only applies to hornets fired by monsters, not players.
 
 		pev->velocity.x += RANDOM_FLOAT(-0.10, 0.10); // scramble the flight dir a bit.
 		pev->velocity.y += RANDOM_FLOAT(-0.10, 0.10);
 		pev->velocity.z += RANDOM_FLOAT(-0.10, 0.10);
-	}
 
 	switch (m_iHornetType)
 	{
