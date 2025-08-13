@@ -647,41 +647,7 @@ void ChgruntRobo::SetYawSpeed()
 
 void ChgruntRobo::IdleSound()
 {
-	if (FOkToSpeak() && (0 != g_fGruntQuestion || RANDOM_LONG(0, 1)))
-	{
-		if (0 == g_fGruntQuestion)
-		{
-			// ask question or make statement
-			switch (RANDOM_LONG(0, 2))
-			{
-			case 0: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CHECK", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntQuestion = 1;
-				break;
-			case 1: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntQuestion = 2;
-				break;
-			case 2: // statement
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_IDLE", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			}
-		}
-		else
-		{
-			switch (g_fGruntQuestion)
-			{
-			case 1: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CLEAR", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			case 2: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_ANSWER", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			}
-			g_fGruntQuestion = 0;
-		}
-		JustSpoke();
-	}
+return;
 }
 
 //=========================================================
