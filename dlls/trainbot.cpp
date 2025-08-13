@@ -789,34 +789,6 @@ void ChgruntRobo::Shotgun()
 	SetBlending(0, angDir.x);
 }
 
-void ChgruntRobo::M249()
-{
-	if (m_cAmmoLoaded <= 0)
-	{
-		EMIT_SOUND(edict(), CHAN_AUTO, "weapons/357_cock1.wav", 1, ATTN_NORM);
-		return;
-	}
-
-	Vector vecShootOrigin = GetGunPosition();
-	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
-
-	UTIL_MakeVectors(pev->angles);
-
-	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
-	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
-	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
-
-	pev->effects |= EF_MUZZLEFLASH;
-
-	m_cAmmoLoaded--; // take away a bullet!
-
-	Vector angDir = UTIL_VecToAngles(vecShootDir);
-	SetBlending(0, angDir.x);
-
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_fire1.wav", 1, ATTN_NORM);
-}
-
 void ChgruntRobo::Killed(entvars_t* pevAttacker, int iGib)
 {
 	if (GetBodygroup(GUN_GROUP) != GUN_NONE)
@@ -832,14 +804,10 @@ void ChgruntRobo::Killed(entvars_t* pevAttacker, int iGib)
 		// now spawn a gun.
 		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 			DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_M249))
-			DropItem("weapon_m249", vecGunPos, vecGunAngles);
 		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
 		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
-		else
-			DropItem("weapon_m727", vecGunPos, vecGunAngles);
 
 		if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
@@ -859,8 +827,6 @@ void ChgruntRobo::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/reload3.wav", 1, ATTN_NORM);
-		else if (FBitSet(pev->weapons, HGRUNT_M249))
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_reload2.wav", 1, ATTN_NORM);
 		else
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_reload1.wav", 1, ATTN_NORM);
 		m_cAmmoLoaded = m_cClipSize;
@@ -1011,28 +977,6 @@ void ChgruntRobo::Spawn()
 		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
-		m_cClipSize = 30;
-	}
-	else if (FBitSet(pev->weapons, HGRUNT_M249))
-	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
-		SetBodygroup(TORSO_GROUP, TORSO_M249);
-		SetBodygroup(GUN_GROUP, GUN_M249);
-		m_cClipSize = 200;
-	}
-	else if (FBitSet(pev->weapons, HGRUNT_M727))
-	 {
-		switch (RANDOM_LONG(0, 1))
-	{
-		case 0:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
-		break;
-		case 1:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
-		break;
-	};
-		SetBodygroup(TORSO_GROUP, TORSO_M249);
-		SetBodygroup(GUN_GROUP, GUN_M727);
 		m_cClipSize = 30;
 	}
 	else
