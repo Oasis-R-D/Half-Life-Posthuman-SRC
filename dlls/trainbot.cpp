@@ -737,33 +737,7 @@ void ChgruntRobo::Shoot()
 }
 
 //=========================================================
-// Shoot 727
-//=========================================================
-void ChgruntRobo::ShootM727()
-{
-	if (m_hEnemy == NULL)
-	{
-		return;
-	}
-
-	Vector vecShootOrigin = GetGunPosition();
-	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
-
-	UTIL_MakeVectors(pev->angles);
-
-	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
-	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_7DEGREES, 2048, BULLET_MONSTER_727, 1); // shoot +-3.5 degrees
-
-	pev->effects |= EF_MUZZLEFLASH;
-
-	m_cAmmoLoaded--; // take away a bullet!
-
-	Vector angDir = UTIL_VecToAngles(vecShootDir);
-	SetBlending(0, angDir.x);
-}
-//=========================================================
-// Shoot
+// Shoot shot the gun
 //=========================================================
 void ChgruntRobo::Shotgun()
 {
