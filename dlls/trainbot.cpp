@@ -43,7 +43,7 @@
 #include "effects.h"
 #include "customentity.h"
 #include "pm_materials.h"
-#include "hgrunt.h"
+#include "trainbot.h"
 
 int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
 
