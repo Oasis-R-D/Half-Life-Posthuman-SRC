@@ -625,6 +625,7 @@ void ChgruntRobo::Shotgun()
 
 void ChgruntRobo::Killed(entvars_t* pevAttacker, int iGib)
 {
+	pev->skin = 1;
 	if (GetBodygroup(GUN_GROUP) != GUN_NONE)
 	{
 		Vector vecGunPos;
@@ -763,14 +764,14 @@ void ChgruntRobo::Spawn()
 {
 	Precache();
 
-	SET_MODEL(ENT(pev), "models/hgrunt_opfor.mdl");
+	SET_MODEL(ENT(pev), "models/train_bot.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
-	m_bloodColor = BLOOD_COLOR_RED;
+	m_bloodColor = DONT_BLEED;
 	pev->effects = 0;
-	pev->health = gSkillData.hgruntHealth;
+	pev->health = 40;
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
@@ -814,12 +815,10 @@ void ChgruntRobo::ClipSize(int clipsize)
 //=========================================================
 void ChgruntRobo::Precache()
 {
-	PRECACHE_MODEL("models/hgrunt_opfor.mdl");
+	PRECACHE_MODEL("models/train_bot.mdl");
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");
 	PRECACHE_SOUND("hgrunt/gr_mgun2.wav");
-	PRECACHE_SOUND("hgrunt/gr_727_1.wav");
-	PRECACHE_SOUND("hgrunt/gr_727_2.wav");
 
 	PRECACHE_SOUND("fgrunt/death1.wav");
 	PRECACHE_SOUND("fgrunt/death2.wav");
@@ -844,8 +843,6 @@ void ChgruntRobo::Precache()
 	m_voicePitch = RANDOM_LONG(90, 110);
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
-	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl");
-	m_iLink = PRECACHE_MODEL("models/saw_link.mdl");
 }
 
 //=========================================================
@@ -1558,13 +1555,7 @@ void ChgruntRobo::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-		{
-			if (m_fStanding)
-				iSequence = LookupSequence("standing_mp5");
-			else
-				iSequence = LookupSequence("crouching_mp5");
-		}
+		
 		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 		{
 			if (m_fStanding)
@@ -1575,9 +1566,9 @@ void ChgruntRobo::SetActivity(Activity NewActivity)
 		else
 		{
 			if (m_fStanding)
-				iSequence = LookupSequence("standing_saw");
+				iSequence = LookupSequence("standing_mp5");
 			else
-				iSequence = LookupSequence("crouching_saw");
+				iSequence = LookupSequence("crouching_mp5");
 		}
 	}
 	break;
