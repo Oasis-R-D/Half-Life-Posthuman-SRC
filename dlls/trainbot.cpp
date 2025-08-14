@@ -14,7 +14,7 @@
 *
 ****/
 //=========================================================
-// hgrunt
+// training room bots
 //=========================================================
 
 //=========================================================
@@ -28,7 +28,7 @@
 
 */
 
-
+#include "trainbot.h"
 #include "extdll.h"
 #include "plane.h"
 #include "util.h"
@@ -43,7 +43,6 @@
 #include "effects.h"
 #include "customentity.h"
 #include "pm_materials.h"
-#include "trainbot.h"
 
 int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
 
@@ -445,141 +444,6 @@ bool ChgruntRobo::CheckRangeAttack2(float flDot, float flDist)
 }
 
 
-//=========================================================
-// TraceAttack - make sure we're not taking it in the helmet
-//=========================================================
-void ChgruntRobo::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
-{
-	// check for helmet shot
-	if (ptr->iHitgroup == 0)
-	{
-		// make sure we're wearing one
-		if (GetBodygroup(1) == HEAD_GRUNT)
-		{
-			if (bitsDamageType && ((DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
-			{
-				// absorb damage
-				flDamage -= 20;
-				if (flDamage <= 0)
-				{
-					// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-					flDamage = 0.01;
-					UTIL_Sparks(ptr->vecEndPos);
-					Vector vecTracerDir = vecDir;
-
-					vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-					vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-					vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-					vecTracerDir = vecTracerDir * -512;
-
-					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-					WRITE_BYTE(TE_TRACER);
-					WRITE_COORD(ptr->vecEndPos.x);
-					WRITE_COORD(ptr->vecEndPos.y);
-					WRITE_COORD(ptr->vecEndPos.z);
-
-					WRITE_COORD(vecTracerDir.x);
-					WRITE_COORD(vecTracerDir.y);
-					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END();
-				}
-			}
-		}
-		if (GetBodygroup(1) == HEAD_GRUNT_BLACK)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
-
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);					
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
-				
-			}
-		}
-		if (GetBodygroup(1) == HEAD_MEDIC)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
-
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
-			}
-		}
-		if (GetBodygroup(1) == HEAD_MEDIC_BLACK)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
-
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
-			}
-		}
-		// it's head shot anyways
-		ptr->iHitgroup = HITGROUP_HEAD;
-	}
-	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
-}
-
 
 //=========================================================
 // TakeDamage - overridden for the grunt because the grunt
@@ -843,21 +707,11 @@ void ChgruntRobo::HandleAnimEvent(MonsterEvent_t* pEvent)
 			else
 				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_NORM);
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else
 		{
 			Shotgun();
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
-		{
-			ShootM727();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_1.wav", 1, ATTN_NORM);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_2.wav", 1, ATTN_NORM);
-		}
-		else
-			M249();
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
@@ -868,8 +722,6 @@ void ChgruntRobo::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			Shoot();
-		else
-			M249();
 	}
 	break;
 	case HGRUNT_AE_KICK:
@@ -941,30 +793,13 @@ void ChgruntRobo::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		m_cClipSize = 9;
 	}
-	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+	else
 	{
 		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;
 	}
-	else
-	{
-		switch (RANDOM_LONG(0, 1))
-		{
-		case 0:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
-			break;
-		case 1:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
-			break;
-		};
-		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-		SetBodygroup(GUN_GROUP, GUN_MP5);
-		m_cClipSize = 30;
-	}
-
-	pev->skin = RANDOM_LONG(0, 1);
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
 

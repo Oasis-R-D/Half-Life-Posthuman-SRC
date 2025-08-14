@@ -23,8 +23,6 @@
 #define HGRUNT_HANDGRENADE (1 << 1)
 #define HGRUNT_GRENADELAUNCHER (1 << 2)
 #define HGRUNT_SHOTGUN (1 << 3)
-#define HGRUNT_M249 (1 << 4)
-#define HGRUNT_M727 (1 << 5)
 
 #define HEAD_GROUP 1
 #define TORSO_GROUP 2
@@ -63,7 +61,7 @@
 #define HGRUNT_AE_CAUGHT_ENEMY (10) // grunt established sight with an enemy (player only) that had previously eluded the squad.
 #define HGRUNT_AE_DROP_GUN (11)		// grunt (probably dead) is dropping his mp5.
 
-class CHGruntRobo : public CSquadMonster
+class ChgruntRobo : public CSquadMonster
 {
 public:
 	void Spawn() override;
@@ -97,7 +95,6 @@ public:
 	CBaseEntity* Kick();
 	Schedule_t* GetSchedule() override;
 	Schedule_t* GetScheduleOfType(int Type) override;
-	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 
 	int IRelationship(CBaseEntity* pTarget) override;
