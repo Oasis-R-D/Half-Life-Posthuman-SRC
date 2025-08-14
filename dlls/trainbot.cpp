@@ -788,15 +788,11 @@ void ChgruntRobo::Spawn()
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
-		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
-		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		m_cClipSize = 9;
 	}
 	else
 	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
-		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;
 	}
