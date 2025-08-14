@@ -295,9 +295,11 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		default:
 			break;
 		}
-
-		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
-		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+		if (pevAttacker != "monster_training_bot")
+		{
+			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 	}
 }

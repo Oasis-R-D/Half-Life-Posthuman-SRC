@@ -586,7 +586,7 @@ void ChgruntRobo::Shoot()
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_5DEGREES, 2048, BULLET_MONSTER_MP5, 0, 1); // shoot +-5 degrees
+	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_5DEGREES, 2048, BULLET_MONSTER_MP5, 2, 1); // shoot +-2.5 degrees
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -613,7 +613,7 @@ void ChgruntRobo::Shotgun()
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-	FireBullets(3, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 1); // shoot +-7.5 degrees
+	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1, 1); // shoot +-5 degrees
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -625,28 +625,7 @@ void ChgruntRobo::Shotgun()
 
 void ChgruntRobo::Killed(entvars_t* pevAttacker, int iGib)
 {
-	pev->skin = 1;
-	if (GetBodygroup(GUN_GROUP) != GUN_NONE)
-	{
-		Vector vecGunPos;
-		Vector vecGunAngles;
-
-		GetAttachment(0, vecGunPos, vecGunAngles);
-
-		// switch to body group with no gun.
-		SetBodygroup(GUN_GROUP, GUN_NONE);
-
-		// now spawn a gun.
-		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
-			DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
-
-		if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
-	}
+	pev->skin = 1; // player can't use rubber bullet weapons so.....
 	CSquadMonster::Killed(pevAttacker, iGib);
 }
 
