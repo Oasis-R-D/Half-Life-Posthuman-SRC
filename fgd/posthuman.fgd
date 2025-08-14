@@ -286,8 +286,8 @@
 		7: "Machine Gun Grenades"
 		8: "Shotgun"
 		9: "Shotgun Shells"
-		10: "Crossbow"
-		11: "Crossbow Bolts"
+		10: "Railcannon"
+		11: "Railcannon bolt"
 		12: "357"
 		13: "357 clip"
 		14: "RPG"
@@ -1483,6 +1483,7 @@
 
 @SolidClass base(Door, ZHLT) = func_water : "Liquid" 
 [
+
 	spawnflags(flags) =
 	[
 		1 : "Starts Open" : 0
@@ -1495,6 +1496,19 @@
 		-5: "Lava"
 	]
 	WaveHeight(string) : "Wave Height" : "3.2"
+	waterfog_start(integer) : "Fog start" : 200
+
+    waterfog_end(integer) : "Fog end" : 600
+
+    watertex_scale(string) : "Base water tex scale" : "0.9"
+
+    reflection_scale(string) : "Reflection Scale" : "1.0"
+
+    refraction_scale(string) : "Refraction Scale" : "2.4"
+
+    normal_scale(string) : "Ripple Tex scale" : "0.13"
+
+    fresnel(string) : "Fresnel" : "0.5"
 ]
 
 //
@@ -1643,9 +1657,10 @@
 // info entities
 //
 
-@PointClass decal() base(Targetname, Appearflags) = infodecal : "Decal"
+@PointClass decal() base(Targetname, Appearflags, Angles) = infodecal : "Decal"
 [
 	texture(decal)
+	radius(string) : "Decal apply radius" : "1"
 ]
 
 @PointClass base(Targetname) size(-24 -24 0, 24 24 16) color(20 190 60) = info_bigmomma : "Big Mamma Node" 
@@ -1824,7 +1839,21 @@
 ]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/baby_headcrab.mdl") = monster_babycrab : "Baby Headcrab" []
 @PointClass base(RenderFields, Sequence) size(-16 -16 -36, 16 16 0) studio("models/barnacle.mdl") = monster_barnacle : "Barnacle Monster" []
-@PointClass base(Monster,TalkMonster, Sequence) size(-16 -16 0, 16 16 72) studio("models/barney.mdl") = monster_barney : "Barney" []
+@PointClass base(Monster,TalkMonster, Sequence) size(-16 -16 0, 16 16 72) studio("models/barney.mdl") = monster_barney : "Barney" 
+[
+ Armor(Choices) : "Armor" : 0 =
+    [
+       -1 : "Random"
+		0 : "Vest"
+		1 : "None"
+    ]
+ Helmet(Choices) : "Headwear" : 0 =
+    [
+       -1 : "Random"
+		0 : "Helmet"
+		1 : "None"
+    ]
+]
 @PointClass base(RenderFields,Appearflags, Angles, Sequence) size(-16 -16 0, 16 16 72) = monster_barney_dead : "Dead Barney" 
 [
       pose(Choices) : "Pose" : 0 =
@@ -1908,7 +1937,35 @@
 		32 : "SquadLeader" : 0
 	]
 ]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/hassassin.mdl") = monster_human_assassin : "Human Assassin" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/hassassin.mdl") = monster_human_assassin : "Female Assassin" []
+@PointClass base(Monster, Sequence) studio("models/massn.mdl") = monster_assassin_repel : "Male Assassin (Repel)" []
+@PointClass base(Monster, Sequence) studio("models/massn.mdl") = monster_male_assassin : "Male Assassin"
+[
+    netname(string) : "Squad Name"
+    
+    spawnflags(Flags) =
+    [
+        32 : "SquadLeader" : 0
+    ]
+
+    head(Choices) : "Heads" : 0 =
+    [
+       -1 : "Random"
+        0 : "Ski Mask White"
+        1 : "Ski Mask Black"
+        2 : "Night Goggles"
+    ]
+
+    weapons(Choices) : "Weapons" : 3 =
+    [
+        0 : "None"
+        1 : "9mmAR"
+        3 : "9mmAR + HG"
+        5 : "9mmAR + GL"
+        8 : "Sniper Rifle"
+    ]
+    standgroundrange(string) : "Stand Ground Range" : "0.0"
+]
 @PointClass base(Monster) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_human_grunt : "Human Grunt (camo)" 
 [
 	spawnflags(Flags) =
@@ -1925,6 +1982,107 @@
 		10 : "Shotgun + HG"
 		16 : M249
 		18 : "M249 + HG"
+	]
+	sequence(Choices) : "Animation Sequence (editor)" : 11 =
+	[
+		0 : "walk1"
+		1 : "run"
+		2 : "victorydance"
+		3 : "cower"
+		4 : "smflinch"
+		5 : "leftlegsmflinch"
+		6 : "rightlegsmflinch"
+		7 : "rightarmflinch"
+		8 : "leftarmflinch"
+		9 : "launchgrenade"
+		10 : "throwgrenade"
+		11 : "idle1"
+		12 : "idle2"
+		13 : "combatidle"
+		14 : "frontkick"
+		15 : "crouching_idle"
+		16 : "crouching_wait"
+		17 : "crouching_mp5"
+		18 : "standing_mp5"
+		19 : "reload_mp5"
+		20 : "crouching_shotgun"
+		21 : "standing_shotgun"
+		22 : "reload_shotgun"
+		23 : "advance_signal"
+		24 : "flank_signal"
+		25 : "retreat_signal"
+		26 : "drop_grenade"
+		27 : "limpingwalk"
+		28 : "limpingrun"
+		29 : "180L"
+		30 : "180R"
+		31 : "strafeleft"
+		32 : "straferight"
+		33 : "dieback1"
+		34 : "dieforward"
+		35 : "diesimple"
+		36 : "diebackwards"
+		37 : "dieheadshot"
+		38 : "diegutshot"
+		39 : "barnacled1"
+		40 : "barnacled2"
+		41 : "barnacled3"
+		42 : "barnacled4"
+		43 : "dead_on_stomach"
+		44 : "deadstomach"
+		45 : "deadside"
+		46 : "deadsitting"
+		47 : "repel_jump"
+		48 : "repel_repel"
+		49 : "repel_shoot"
+		50 : "repel_land"
+		51 : "repel_die"
+		52 : "dragholeidle"
+		53 : "draghole"
+		54 : "bustwall"
+		55 : "hoprail"
+		56 : "converse1"
+		57 : "converse2"
+		58 : "startleleft"
+		59 : "startleright"
+		60 : "divecover"
+		61 : "defuse"
+		62 : "corner1"
+		63 : "corner2"
+		64 : "stonetoss"
+		65 : "cliffdie"
+		66 : "diveaside_idle"
+		67 : "diveaside"
+		68 : "kneeldive_idle"
+		69 : "kneeldive"
+		70 : "WM_button"
+		71 : "WM_moatjump"
+		72 : "bustwindow"
+		73 : "dragleft"
+		74 : "dragright"
+		75 : "trackwave"
+		76 : "trackdive"
+		77 : "flyback"
+		78 : "impaled"
+		79 : "jumptracks"
+		80 : "pipetoss"
+		81 : "plunger"
+	]
+]
+@PointClass base(Monster) size(-16 -16 0, 16 16 72) studio("models/train_bot.mdl") = monster_training_bot : "Training robot" 
+[
+	spawnflags(Flags) =
+	[
+		32 : "SquadLeader" : 0
+	]
+	netname(string) : "Squad Name"
+	weapons(Choices) : "Weapons" : 1 =
+	[
+		1 : "9mmAR"
+		3 : "9mmAR + HG"
+		5 : "9mmAR + GL"
+		8 : "Shotgun"
+		10 : "Shotgun + HG"
 	]
 	sequence(Choices) : "Animation Sequence (editor)" : 11 =
 	[
@@ -2773,7 +2931,7 @@
 @PointClass base(Weapon, Targetx) studio("models/w_rpg.mdl") = weapon_rpg : "RPG" []
 @PointClass base(Weapon, Targetx) studio("models/w_saw.mdl") = weapon_m249 : "M249 SAW" []
 @PointClass base(Weapon, Targetx) studio("models/w_727.mdl") = weapon_m727 : "M727" []
-@PointClass base(Weapon, Targetx) studio("models/w_crossbow.mdl") = weapon_crossbow : "Crossbow" 
+@PointClass base(Weapon, Targetx) studio("models/w_crossbow.mdl") = weapon_crossbow : "Railcannon" 
 [
 	sequence(choices) : "Placement" : 0 =
 	[
