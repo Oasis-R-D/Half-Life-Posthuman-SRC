@@ -209,7 +209,8 @@ public:
 
 	void Spawn() override;
 	void Pain();
-
+	str m_sAttacker;
+	string m_sAttacker;
 	//	void Think() override;
 	virtual void Jump();
 	virtual void Duck();

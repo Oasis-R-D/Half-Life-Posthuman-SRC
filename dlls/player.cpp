@@ -295,7 +295,9 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		default:
 			break;
 		}
-		if (pevAttacker != "monster_training_bot")
+		#define attacker
+		attacker == MAKE_STRING(pevAttacker);
+		if (!strcmp(attacker, "monster_training_bot"))
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
