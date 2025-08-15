@@ -102,11 +102,11 @@ IMPLEMENT_SAVERESTORE(ChgruntRobo, CSquadMonster);
 
 const char* ChgruntRobo::pGruntSentences[] =
 	{
-		"HG_GREN",	  // grenade scared grunt
-		"HG_ALERT",	  // sees player
-		"HG_MONSTER", // sees monster
+		"TB_GREN",	  // grenade scared grunt
+		"TB_ALERT",	  // sees player
+		"TB_ALERT", // sees monster
 		"HG_COVER",	  // running to cover
-		"HG_THROW",	  // about to throw grenade
+		"TB_GREN",	  // about to throw grenade
 		"HG_CHARGE",  // running out to get the enemy
 		"HG_TAUNT",	  // say rude things
 };
@@ -724,7 +724,7 @@ void ChgruntRobo::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		if (FOkToSpeak())
 		{
-			SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+			SENTENCEG_PlayRndSz(ENT(pev), "TB_ALERT", 0.45, GRUNT_ATTN, 0, m_voicePitch);
 			JustSpoke();
 		}
 	}
@@ -909,7 +909,7 @@ void ChgruntRobo::PainSound()
 {
 	if (gpGlobals->time > m_flNextPainTime)
 	{
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/pain%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
+		SENTENCEG_PlayRndSz(ENT(pev), "TB_PAIN", 0.45, GRUNT_ATTN, 0, m_voicePitch);
 		m_flNextPainTime = gpGlobals->time + 1;
 	}
 }
@@ -919,7 +919,7 @@ void ChgruntRobo::PainSound()
 //=========================================================
 void ChgruntRobo::DeathSound()
 {
-	EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
+	SENTENCEG_PlayRndSz(ENT(pev), "TB_DEATH", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 }
 
 //=========================================================
@@ -1668,7 +1668,7 @@ Schedule_t* ChgruntRobo::GetSchedule()
 
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "TB_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
@@ -1715,15 +1715,8 @@ Schedule_t* ChgruntRobo::GetSchedule()
 					// before he starts pluggin away.
 					if (FOkToSpeak()) // && RANDOM_LONG(0,1))
 					{
-						if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
-							// player
-							SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-						else if ((m_hEnemy != NULL) &&
-								 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-								 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
-								 (m_hEnemy->Classify() != CLASS_MACHINE))
-							// monster
-							SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+
+							SENTENCEG_PlayRndSz(ENT(pev), "TB_ALERT", 0.45, GRUNT_ATTN, 0, m_voicePitch);
 
 						JustSpoke();
 					}
@@ -1825,7 +1818,7 @@ Schedule_t* ChgruntRobo::GetSchedule()
 				//!!!KELLY - this grunt is about to throw or fire a grenade at the player. Great place for "fire in the hole"  "frag out" etc
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "TB_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
@@ -1834,12 +1827,6 @@ Schedule_t* ChgruntRobo::GetSchedule()
 			{
 				//!!!KELLY - grunt cannot see the enemy and has just decided to
 				// charge the enemy's position.
-				if (FOkToSpeak()) // && RANDOM_LONG(0,1))
-				{
-					//SENTENCEG_PlayRndSz( ENT(pev), "HG_CHARGE", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-					m_iSentence = HGRUNT_SENT_CHARGE;
-					//JustSpoke();
-				}
 
 				return GetScheduleOfType(SCHED_GRUNT_ESTABLISH_LINE_OF_FIRE);
 			}
@@ -1848,11 +1835,6 @@ Schedule_t* ChgruntRobo::GetSchedule()
 				//!!!KELLY - grunt is going to stay put for a couple seconds to see if
 				// the enemy wanders back out into the open, or approaches the
 				// grunt's covered position. Good place for a taunt, I guess?
-				if (FOkToSpeak() && RANDOM_LONG(0, 1))
-				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_TAUNT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-					JustSpoke();
-				}
 				return GetScheduleOfType(SCHED_STANDOFF);
 			}
 		}
@@ -1882,7 +1864,7 @@ Schedule_t* ChgruntRobo::GetScheduleOfType(int Type)
 			{
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "TB_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return slRoboGruntTossGrenadeCover;
