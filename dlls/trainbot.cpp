@@ -444,7 +444,35 @@ bool ChgruntRobo::CheckRangeAttack2(float flDot, float flDist)
 	return m_fThrowGrenade;
 }
 
+//=========================================================
+// makes the tracer effects
+//=========================================================
+void ChgruntRobo::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	if (bitsDamageType && ((DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
+	{
+		UTIL_Sparks(ptr->vecEndPos);
+		Vector vecTracerDir = vecDir;
 
+		vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
+		vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
+		vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
+
+		vecTracerDir = vecTracerDir * -512;
+
+		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+		WRITE_BYTE(TE_TRACER);
+		WRITE_COORD(ptr->vecEndPos.x);
+		WRITE_COORD(ptr->vecEndPos.y);
+		WRITE_COORD(ptr->vecEndPos.z);
+
+		WRITE_COORD(vecTracerDir.x);
+		WRITE_COORD(vecTracerDir.y);
+		WRITE_COORD(vecTracerDir.z);
+		MESSAGE_END();
+	}
+		CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+}
 
 //=========================================================
 // TakeDamage - overridden for the grunt because the grunt
