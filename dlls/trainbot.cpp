@@ -450,7 +450,7 @@ bool ChgruntRobo::CheckRangeAttack2(float flDot, float flDist)
 void ChgruntRobo::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	if (bitsDamageType && ((DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
-	{
+	{ 
 		UTIL_Sparks(ptr->vecEndPos);
 		Vector vecTracerDir = vecDir;
 
