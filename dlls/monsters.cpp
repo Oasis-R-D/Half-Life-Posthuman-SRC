@@ -2255,8 +2255,8 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL}, //HORNETS
 			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_DL,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL,	R_NO}, //SUPERCRABS
   /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
-			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO,	R_NO}  //HASSN (duh)
-			/*HUMANFRIEND*/		{R_NO,   R_NO,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_NO}, //BMRF STAFF (FRIENDLY
+			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO,	R_NO},  //HASSN (duh)
+			/*HUMANFRIEND*/		{R_NO,   R_NO,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_NO} //BMRF STAFF (FRIENDLY
 
 
 
