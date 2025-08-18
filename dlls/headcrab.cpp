@@ -26,6 +26,7 @@
 #include "UserMessages.h"
 #include "decals.h"
 
+#define FRIENDLY (1)
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -92,6 +93,8 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void Touch(CBaseEntity* pOther)
 	{
+		if (FRIENDLY == 1)
+		{
 		if (pOther->IsPlayer() && pev->deadflag == DEAD_NO)
 		{
 			if (FClassnameIs(pev, "monster_headcrab"))
@@ -145,6 +148,7 @@ public:
 					UTIL_Remove(this);
 				}
 			}
+		}
 		}
 		if (pev->owner)
 			pev->owner = NULL;
