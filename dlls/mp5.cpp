@@ -451,11 +451,6 @@ bool CM727::GetItemInfo(ItemInfo* p)
 
 bool CM727::Deploy()
 {
-	pev->armorvalue = 0;
-	if (pev->armortype == 0)
-		pev->armortype = 1;
-	WRITE_SHORT(pev->armortype);
-	MESSAGE_END();
 	if (NotFirstDraw)
 	{
 		if (pev->weapons == 0)
@@ -468,62 +463,10 @@ void CM727::Holster()
 {
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
-	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(0);
-	MESSAGE_END();
 }
 
 void CM727::PrimaryAttack()
 {
-	if (pev->weapons == 1)
-	{
-		// don't fire underwater
-		if (m_pPlayer->pev->waterlevel == 3)
-		{
-			PlayEmptySound();
-			m_flNextPrimaryAttack = 0.15;
-			return;
-		}
-
-		if (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] == 0)
-		{
-			PlayEmptySound();
-			return;
-		}
-
-		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
-		m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
-		m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
-
-		m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
-
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
-		UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-
-		// we don't add in player velocity anymore.
-		CGrenade::ShootContact(m_pPlayer->pev,
-			m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16,
-			gpGlobals->v_forward * 1000);
-
-		SendWeaponAnim(MP5_SHOOT_M203);
-
-		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 2.3;
-		m_flTimeWeaponIdle = 0.57;
-		m_flNextTertiaryAttack = gpGlobals->time + 2.3;
-
-		if (0 == m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]) // HEV suit - indicate out of ammo condition
-		{
-			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
-			pev->frags = 2;
-		}
-		else
-			pev->frags = 1;
-
-		return;
-	}
-
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater or if emptied
 	{
 		PlayEmptySound();
@@ -552,20 +495,6 @@ void CM727::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	if (pev->armortype == 2)
-	{
-		if (pev->armorvalue < 2)
-		{
-			pev->armorvalue++;
-			m_flNextPrimaryAttack = 0.10;
-		}
-		else
-		{
-			pev->armorvalue = 0;
-			m_flNextPrimaryAttack = 0.25;
-		}
-	}
-	else
 		m_flNextPrimaryAttack = 0.0825;
 
 	m_flTimeWeaponIdle = 5;
@@ -593,15 +522,11 @@ void CM727::TertiaryAttack()
 
 void CM727::Reload()
 {
-	if (pev->weapons == 1)
-		return;
-
 	if (m_iClip == 0)
 		DefaultReload(30, M727_RELOAD_EMPTY, 1.8);
 	else
 		DefaultReload(30, M727_RELOAD_TACTICAL, 1.2);
 
-	pev->armorvalue = 0;
 }
 
 void CM727::WeaponIdle()
@@ -615,13 +540,10 @@ void CM727::WeaponIdle()
 
 	NotFirstDraw = true;
 
-	if (pev->weapons == 0)
-	{
-		if (RANDOM_LONG(0, 1))
-			SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = 2.5;
-		else
-			SendWeaponAnim(M727_IDLE2), m_flTimeWeaponIdle = 4;
-	}
+	if (RANDOM_LONG(0, 1))
+		SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = 2.5;
+	else
+		SendWeaponAnim(M727_IDLE2), m_flTimeWeaponIdle = 4;
 		
 }
 class CM727AmmoClip : public CBasePlayerAmmo
