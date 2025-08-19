@@ -73,7 +73,6 @@ int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when s
 #define GUN_SHOTGUN 1
 #define GUN_NONE 2
 #define GUN_RAILCANNON 3
-
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -177,6 +176,7 @@ public:
 	bool m_fThrowGrenade;
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
+	bool m_bPrehuman;
 	int m_cClipSize;
 
 	int m_voicePitch;
@@ -746,7 +746,14 @@ void CAdvSec::CheckAmmo()
 //=========================================================
 int CAdvSec::Classify()
 {
-	return CLASS_HUMAN_PASSIVE;
+	if (m_bPrehuman == 0)
+	{
+		return CLASS_HUMAN_PASSIVE;
+	}
+	else
+	{
+		return CLASS_HUMAN_ALLY;
+	}
 }
 
 //=========================================================
@@ -1017,7 +1024,10 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CAdvSec::Spawn()
 {
 	Precache();
-
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	{
+		m_bPrehuman = 1;
+	}
 	SET_MODEL(ENT(pev), "models/advsec.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 

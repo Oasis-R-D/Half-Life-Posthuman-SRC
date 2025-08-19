@@ -1853,6 +1853,10 @@
 		0 : "Helmet"
 		1 : "None"
     ]
+ spawnflags(Flags) = 
+	[
+		1024 : "Pre-Human"	: 0
+	]
 ]
 @PointClass base(RenderFields,Appearflags, Angles, Sequence) size(-16 -16 0, 16 16 72) = monster_barney_dead : "Dead Barney" 
 [
@@ -1893,10 +1897,28 @@
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/gman.mdl") = monster_gman : "G-Man" []
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_grunt_repel : "Human Grunt (Repel)" []
 @PointClass base(Weapon, Targetx, RenderFields, Sequence) studio("models/w_grenade.mdl") = monster_handgrenade : "Live Handgrenade" []
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab.mdl") = monster_headcrab : "Head Crab" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab.mdl") = monster_headcrab : "Head Crab"
+[
+	spawnflags(Flags) = 
+	[
+		1024 : "Pre-Human"	: 0
+	]
+]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_super.mdl") = monster_headcrab_super : "Super Head Crab" []
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_fast.mdl") = monster_headcrab_fast : "Fast Head Crab" []
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_poison.mdl") = monster_headcrab_poison : "Poison Head Crab" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_fast.mdl") = monster_headcrab_fast : "Fast Head Crab" 
+[
+	spawnflags(Flags) = 
+	[
+		1024 : "Pre-Human"	: 0
+	]
+]
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_poison.mdl") = monster_headcrab_poison : "Poison Head Crab"
+[
+	spawnflags(Flags) = 
+	[
+		1024 : "Pre-Human"	: 0
+	]
+]
 @PointClass base(Appearflags,RenderFields, Angles, Sequence) size(-16 -16 0, 16 16 72) = monster_hevsuit_dead : "Dead HEV Suit" 
 [
       pose(Choices) : "Pose" : 0 =
@@ -2378,6 +2400,10 @@
 		125 : "gluonshow"
 		126 : "crouch"
 		127 : "kneel"
+	]
+	spawnflags(Flags) = 
+	[
+		1024 : "Pre-Human"	: 0
 	]
 ]
 @PointClass base(Appearflags,RenderFields, Angles) size(-16 -16 0, 16 16 72) studio("models/scientist.mdl") = monster_scientist_dead : "Dead Scientist" 
@@ -2979,6 +3005,7 @@
 	spawnflags(Flags) =
 	[
 		32 : "SquadLeader" : 0
+		1024 : "Pre-Human" : 0
 	]
 	netname(string) : "Squad Name"
 	weapons(Choices) : "Weapons" : 1 =

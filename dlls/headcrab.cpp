@@ -25,8 +25,6 @@
 #include "player.h"
 #include "UserMessages.h"
 #include "decals.h"
-
-#define FRIENDLY (1)
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -91,9 +89,10 @@ public:
 	bool CheckRangeAttack1(float flDot, float flDist) override;
 	bool CheckRangeAttack2(float flDot, float flDist) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+	bool m_bPrehuman;
 	void Touch(CBaseEntity* pOther)
 	{
-		if (FRIENDLY == 1)
+		if (m_bPrehuman == 0)
 		{
 		if (pOther->IsPlayer() && pev->deadflag == DEAD_NO)
 		{
@@ -223,7 +222,14 @@ const char* CHeadCrab::pBiteSounds[] =
 //=========================================================
 int CHeadCrab::Classify()
 {
-	return CLASS_PLAYER_ALLY;
+	if (m_bPrehuman == 0)
+	{
+		return CLASS_PLAYER_ALLY;
+	}
+	else
+	{
+		return CLASS_ALIEN_PREY;
+	}
 }
 
 //=========================================================
@@ -350,7 +356,10 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CHeadCrab::Spawn()
 {
 	Precache();
-
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	{
+		m_bPrehuman = 1;
+	}
 	if (FClassnameIs(pev, "monster_headcrab_fast"))
 		SET_MODEL(ENT(pev), "models/headcrab_fast.mdl");
 	else if (FClassnameIs(pev, "monster_headcrab_poison"))

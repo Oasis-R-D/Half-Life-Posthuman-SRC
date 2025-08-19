@@ -26,7 +26,6 @@
 #include "scripted.h"
 #include "animation.h"
 #include "soundent.h"
-
 enum
 {
 	SCHED_HIDE = LAST_TALKMONSTER_SCHEDULE + 1,
@@ -81,6 +80,7 @@ public:
 	float CoverRadius() override { return 1200; } // Need more room for cover because scientists want to get far away!
 	bool DisregardEnemy(CBaseEntity* pEnemy) { return !pEnemy->IsAlive() || (gpGlobals->time - m_fearTime) > 15; }
 
+	bool m_bPrehuman;
 	bool CanHeal();
 	void Heal();
 	void Scream();
@@ -567,7 +567,14 @@ void CScientist::RunTask(Task_t* pTask)
 //=========================================================
 int CScientist::Classify()
 {
-	return CLASS_HUMAN_PASSIVE;
+	if (m_bPrehuman == 0)
+	{
+		return CLASS_HUMAN_PASSIVE;
+	}
+	else
+	{
+		return CLASS_HUMAN_ALLY;
+	}
 }
 
 
@@ -633,6 +640,10 @@ void CScientist::HandleAnimEvent(MonsterEvent_t* pEvent)
 //=========================================================
 void CScientist::Spawn()
 {
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	{
+		m_bPrehuman = 1;
+	}
 	if (pev->armorvalue == -1)
 		pev->armorvalue = RANDOM_LONG(0, 16); // pick a head, any head
 

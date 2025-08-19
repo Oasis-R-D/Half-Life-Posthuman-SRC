@@ -27,7 +27,6 @@
 #include "scripted.h"
 #include "weapons.h"
 #include "soundent.h"
-
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -87,7 +86,7 @@ public:
 	int m_iShell;
 	int m_iArmor;
 	int m_iHelmet;
-
+	bool m_bPrehuman;
 	CUSTOM_SCHEDULES;
 };
 
@@ -234,7 +233,14 @@ int CBarney::ISoundMask()
 //=========================================================
 int CBarney::Classify()
 {
-	return CLASS_HUMAN_PASSIVE;
+	if (m_bPrehuman == 0)
+	{
+		return CLASS_HUMAN_PASSIVE;
+	}
+	else
+	{
+		return CLASS_HUMAN_ALLY;
+	}
 }
 
 //=========================================================
@@ -415,8 +421,10 @@ void CBarney::Spawn()
 {
 	Precache();
 
-
-
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	{
+		m_bPrehuman = 1;
+	}
 	if (FClassnameIs(pev, "monster_barney_adv"))
 	{
 		SET_MODEL(ENT(pev), "models/barney_adv.mdl");
