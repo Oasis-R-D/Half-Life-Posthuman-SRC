@@ -45,7 +45,7 @@ public:
 	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	int IgnoreConditions() override;
-
+	bool m_bPrehuman;
 	float m_flNextFlinch;
 
 	void PainSound() override;
@@ -413,6 +413,14 @@ IMPLEMENT_CUSTOM_SCHEDULES(CZombie, CTalkMonster);
 int CZombie::Classify()
 {
 	return CLASS_PLAYER_ALLY;
+		if (m_bPrehuman == 0)
+	{
+		return CLASS_PLAYER_ALLY;
+	}
+	else
+	{
+		return CLASS_ALIEN_PREY;
+	}
 }
 
 //=========================================================
@@ -604,8 +612,11 @@ void CZombie::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CZombie::Spawn()
 {
 	Precache();
-
-	if (FClassnameIs(pev, "monster_zombie_barney"))
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	{
+		m_bPrehuman = 1;
+	}
+	if (FClassnameIs(pev, "monster_zombie_barney")) // TO-DO: Implement vest mechanics
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");
 		pev->health = gSkillData.zombieHealth * 1.5;
@@ -618,9 +629,9 @@ void CZombie::Spawn()
 	else if (FClassnameIs(pev, "monster_zombie_fast"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_fast.mdl");
-		pev->health = gSkillData.zombieHealth;
+		pev->health = gSkillData.zombieHealth - 10;
 	}
-	else if (FClassnameIs(pev, "monster_zombie_hev"))
+	else if (FClassnameIs(pev, "monster_zombie_hev")) // unused
 	{
 		SET_MODEL(ENT(pev), "models/zombie_hev.mdl");
 		pev->health = 10;
@@ -643,7 +654,11 @@ void CZombie::Spawn()
 	m_afCapability = bits_CAP_DOORS_GROUP;
 
 	MonsterInit();
-	SetUse(&CZombie::FollowerUse);
+	if (m_bPrehuman == 0)
+	{
+		SetUse(&CZombie::FollowerUse);
+	}
+	
 }
 
 //=========================================================
