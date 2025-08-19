@@ -72,8 +72,19 @@ public:
 			m_bloodColor = BLOOD_COLOR_GREEN;
 		}
 		else
+		{
 			m_bloodColor = BLOOD_COLOR_RED;
-
+		}
+		if (FClassnameIs(pev, "monster_zombie_barney"))
+		{
+			if (ptr->iHitgroup == HITGROUP_CHEST)
+			{
+					if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+					{
+					flDamage = flDamage / 2;
+					}
+			}
+		}
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
@@ -616,7 +627,7 @@ void CZombie::Spawn()
 	{
 		m_bPrehuman = 1;
 	}
-	if (FClassnameIs(pev, "monster_zombie_barney")) // TO-DO: Implement vest mechanics
+	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");
 		pev->health = gSkillData.zombieHealth * 1.5;
