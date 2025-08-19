@@ -128,7 +128,7 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 				monster->SetThink(&CBaseMonster::DeadMonsterThink);
 			}
 			monster->m_bRailed = true;
-			monster->m_flRailChargeTime = gpGlobals->time + 3.5;
+			monster->m_flRailChargeTime = gpGlobals->time + 1.5;
 		}
 		ClearMultiDamage();
 		pOther->TraceAttack(pevOwner, 2, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
