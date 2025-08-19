@@ -454,7 +454,6 @@ bool CM727::Deploy()
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
-	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(pev->armortype);
 	MESSAGE_END();
 	if (NotFirstDraw)
