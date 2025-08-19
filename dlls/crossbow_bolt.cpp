@@ -43,7 +43,7 @@ void CCrossbowBolt::Spawn()
 	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
-	pev->gravity = 0.25;
+	pev->gravity = 0.125;
 
 	SET_MODEL(ENT(pev), "models/crossbow_bolt.mdl");
 
@@ -99,7 +99,7 @@ void CCrossbowBolt::Stay()
 	pev->velocity = Vector(0, 0, 0);
 	pev->avelocity.z = 0;
 	pev->angles.z = RANDOM_LONG(0, 360);
-	pev->nextthink = gpGlobals->time + 3.5;
+	pev->nextthink = gpGlobals->time + 1.5;
 	//pev->renderfx = kRenderFxGlowShell;
 	//pev->rendercolor = Vector(0, 128, 128);
 
