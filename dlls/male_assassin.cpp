@@ -646,13 +646,13 @@ bool CMOFAssassin::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CMOFAssassin::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	// check for helmet shot
-	if (ptr->iHitgroup == 11)
+	if (ptr->iHitgroup == 2)
 	{
-		// it's head shot anyways
-		ptr->iHitgroup = HITGROUP_HEAD;
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+		{
+			flDamage = flDamage / 2;
+		}
 	}
-
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 }
 

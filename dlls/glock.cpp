@@ -105,7 +105,7 @@ void CGlock::PrimaryAttack()
 	if (pev->armortype == 0)
 		GlockFire(pev->body ? 0.01 : 0.02, 0.1, true);
 	else
-		GlockFire(pev->body ? 0.01 : 0.02, 0.2, true);
+		GlockFire(pev->body ? 0.008 : 0.02, 0.2, true);
 }
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
@@ -149,12 +149,22 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		vecAiming = gpGlobals->v_forward;
 	}
-
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 	if (pev->armortype == 0)
-		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
+	{
+		m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
+	}
 	else
+	{
+		m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+	}
+	if (pev->armortype == 0)
+	{
+		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
+	}
+	else
+	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY_SILENCER : GLOCK_SHOOT_SILENCER, 1);
+	}
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, pev->body ? "weapons/pl_gun1.wav" : "weapons/pl_gun3.wav", 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;

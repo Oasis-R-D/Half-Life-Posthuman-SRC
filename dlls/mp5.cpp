@@ -139,7 +139,7 @@ void CMP5::PrimaryAttack()
 		// we don't add in player velocity anymore.
 		CGrenade::ShootContact(m_pPlayer->pev,
 			m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16,
-			gpGlobals->v_forward * 1000);
+			gpGlobals->v_forward * 2000);
 
 		SendWeaponAnim(MP5_SHOOT_M203);
 
