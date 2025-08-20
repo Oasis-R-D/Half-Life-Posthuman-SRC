@@ -41,11 +41,11 @@ class CPhysbullet : public CBaseEntity
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 
 public:
-	static CPhysbullet* BulletCreate(float BLLTDamage, Vector vecDir, int bitsDamageType); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static CPhysbullet* BulletCreate(float BLLTDamage, Vector vecDir); // add damage, spread and owner so entities calling this can give it the proper stuff
 };
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 
-CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir, int bitsDamageType)
+CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -107,11 +107,11 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		if (pOther->IsPlayer())
 		{
-			pOther->TraceAttack(pevOwner, gSkillData.plrDmgCrossbowClient, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			pOther->TraceAttack(pevOwner, BLLTDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		}
 		else
 		{
-			pOther->TraceAttack(pevOwner, gSkillData.plrDmgCrossbowMonster, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			pOther->TraceAttack(pevOwner, BLLTDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		}
 
 		ApplyMultiDamage(pev, pevOwner);
