@@ -21,7 +21,7 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-
+#include "physical_bullet.h" // TO-DO: Implement physical bullets (and maybe make a 357 tracer type)
 LINK_ENTITY_TO_CLASS(weapon_python, CPython);
 LINK_ENTITY_TO_CLASS(weapon_357, CPython);
 
