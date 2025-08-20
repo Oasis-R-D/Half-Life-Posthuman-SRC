@@ -41,11 +41,11 @@ class CPhysbullet : public CBaseEntity
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 
 public:
-	static CPhysbullet* BulletCreate(float BLLTDamage, Vector vecDir); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static CPhysbullet* BulletCreate(float BLLTDamage, Vector vecDir, Vector vecSpread); // add damage, spread and owner so entities calling this can give it the proper stuff
 };
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 
-CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir)
+CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir, Vector vecSpread)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
