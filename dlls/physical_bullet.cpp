@@ -135,20 +135,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		SetThink(&CPhysbullet::SUB_Remove);
 		pev->nextthink = gpGlobals->time; // this will get changed below if the bolt is allowed to stick in what it hit.
 
-		if (FClassnameIs(pOther->pev, "worldspawn"))
-		{
-			// if what we hit is static architecture, can stay around for a while.
-			Vector vecDir = pev->velocity.Normalize();
-			UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
-			pev->angles = UTIL_VecToAngles(vecDir);
-			pev->solid = SOLID_NOT;
-			pev->movetype = MOVETYPE_FLY;
-			pev->velocity = Vector(0, 0, 0);
-			pev->avelocity.z = 0;
-			pev->angles.z = RANDOM_LONG(0, 360);
-			pev->nextthink = gpGlobals->time + 10.0;
-		}
-
 		if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
 		{
 			UTIL_Sparks(pev->origin);
