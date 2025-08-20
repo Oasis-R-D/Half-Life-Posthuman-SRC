@@ -17,7 +17,6 @@ class CPhysbullet : public CBaseEntity
 	void Spawn() override;
 	void Precache() override;
 	int Classify() override;
-  int BulletDAMAGE;
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 
