@@ -32,7 +32,7 @@
 //
 // speed - the ideal magnitude of my velocity
 
-CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir, Vector vecSpread)
+CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir, Vector vecSpread, int FlareType)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -49,9 +49,16 @@ void CPhysbullet::Spawn()
 	pev->solid = SOLID_BBOX;
 
 	pev->gravity = 0.25;
-
+	if (FlareType == 556) // probably 556, idk
+	{
+	}
+	else if (FlareType == 12) // 12 gauge
+	{
+	}
+	else //	9MM
+	{
 	SET_MODEL(ENT(pev), "models/crossbow_bolt.mdl");
-
+	}
 	UTIL_SetOrigin(pev, pev->origin);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
