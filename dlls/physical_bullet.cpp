@@ -41,7 +41,7 @@ class CPhysbullet : public CBaseEntity
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 
 public:
-	static CPhysbullet* BulletCreate();
+	static CPhysbullet* BulletCreate(); // add damage, spread and owner so entities calling this can give it the proper stuff
 };
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 
