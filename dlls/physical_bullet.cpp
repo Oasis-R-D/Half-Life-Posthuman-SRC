@@ -21,7 +21,7 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-
+#include "physical_bullet.h"
 #ifndef CLIENT_DLL
 #define BOLT_AIR_VELOCITY 6000
 #define BOLT_WATER_VELOCITY 5000 //replace with a speed change perhaps?
