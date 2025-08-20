@@ -32,14 +32,14 @@
 //
 // speed - the ideal magnitude of my velocity
 
-CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector vecDir, Vector vecSpread, int FlareType)
+CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, Vector vecSpread, int FlareType)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
-	pBullet->pev->classname = MAKE_STRING("bolt");
+	pBullet->pev->classname = MAKE_STRING("bullet");
 	pBullet->Spawn();
 
-	return pBolt;
+	return pBullet;
 }
 
 void CPhysbullet::Spawn()
@@ -61,11 +61,11 @@ void CPhysbullet::Spawn()
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 	}
-	UTIL_SetOrigin(pev, pev->origin);
+	UTIL_SetOrigin(pev, VecSpawnPos);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
 	SetTouch(&CPhysbullet::BoltTouch);
-	SetThink(&CPhysbullet::BubbleThink);
+	SetThink(&CPhysbullet::AirThink);
 	pev->nextthink = gpGlobals->time + 0.2;
 }
 
@@ -141,12 +141,12 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	}
 }
 
-void CPhysbullet::BubbleThink()
+void CPhysbullet::AirThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	if (pev->waterlevel == 0)
-		return;
+	return;
 
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
 }
