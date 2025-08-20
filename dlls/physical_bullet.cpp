@@ -51,13 +51,15 @@ void CPhysbullet::Spawn()
 	pev->gravity = 0.25;
 	if (FlareType == 556) // probably 556, idk
 	{
+		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 	}
 	else if (FlareType == 12) // 12 gauge
 	{
+		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 	}
 	else //	9MM
 	{
-	SET_MODEL(ENT(pev), "models/crossbow_bolt.mdl");
+		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 	}
 	UTIL_SetOrigin(pev, pev->origin);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
@@ -70,6 +72,9 @@ void CPhysbullet::Spawn()
 
 void CPhysbullet::Precache()
 {
+	PRECACHE_MODEL("sprites/tracer_9mm.spr");
+	PRECACHE_MODEL("sprites/tracer_556mm.spr");
+	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_MODEL("models/crossbow_bolt.mdl");
 	PRECACHE_SOUND("weapons/xbow_hitbod1.wav");
 	PRECACHE_SOUND("weapons/xbow_hitbod2.wav");
