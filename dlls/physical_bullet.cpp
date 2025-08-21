@@ -58,7 +58,7 @@ void CPhysbullet::Spawn()
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
-	pev->gravity = 0.5;
+	pev->gravity = 0.66;
 	pev->angles = m_direction;
 	if (m_Flare == 556) // probably 556, idk
 	{
