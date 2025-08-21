@@ -33,7 +33,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, Vector vecSpread, int FlareType)
+CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, int FlareType)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -60,7 +60,7 @@ void CPhysbullet::Spawn()
 	pev->solid = SOLID_BBOX;
 	
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = m_direction * BOLT_AIR_VELOCITY;
+	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
 	pev->gravity = 0.25;
 	pev->angles = m_direction;

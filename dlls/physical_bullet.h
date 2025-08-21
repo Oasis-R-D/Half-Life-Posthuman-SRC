@@ -23,13 +23,13 @@ public:
 	int Classify() override;
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static CPhysbullet* BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, Vector vecSpread, int FlareType); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static CPhysbullet* BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, int FlareType); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
 	int m_Flare;
 	float m_BulletDamage;
 	Vector m_SpawnPos;
 	Vector m_direction;
-	Vector m_Spread;
+	float m_Spread;
 };
 #endif

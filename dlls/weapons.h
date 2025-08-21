@@ -445,6 +445,18 @@ inline MULTIDAMAGE gMultiDamage;
 #define VECTOR_CONE_15DEGREES Vector(0.13053, 0.13053, 0.13053)
 #define VECTOR_CONE_20DEGREES Vector(0.17365, 0.17365, 0.17365)
 
+#define CONE_1DEGREES 0.00873
+#define CONE_2DEGREES 0.01745
+#define CONE_3DEGREES 0.02618
+#define CONE_4DEGREES 0.03490
+#define CONE_5DEGREES 0.04362
+#define CONE_6DEGREES 0.05234
+#define CONE_7DEGREES 0.06105
+#define CONE_8DEGREES 0.06976
+#define CONE_9DEGREES 0.07846
+#define CONE_10DEGREES 0.08716
+#define CONE_15DEGREES 0.13053
+#define CONE_20DEGREES 0.17365
 //=========================================================
 // CWeaponBox - a single entity that can store weapons
 // and ammo.
