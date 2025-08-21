@@ -106,7 +106,7 @@ int CPhysbullet::Classify()
 {
 	return CLASS_NONE;
 }
-void CPhysbullet::Stay()
+void CPhysbullet::Stay() //TO-DO: add imapct sounds
 {
 	Vector vecDir = pev->velocity.Normalize();
 	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
@@ -119,6 +119,22 @@ void CPhysbullet::Stay()
 	pev->angles.z = RANDOM_LONG(0, 360);
 	
 	TraceResult tr = UTIL_GetGlobalTrace();
+	switch (RANDOM_LONG(0, 2))
+	{
+		case 0:
+		{
+			break;
+		}
+		case 1:
+		{
+			break;
+		}
+		case 2:
+		{
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/ric%d.wav", 1, ATTN_NORM);
+			break;
+		}
+	}
 	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
@@ -158,12 +174,10 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		SetThink(&CPhysbullet::SUB_Remove);
 		pev->nextthink = gpGlobals->time;
 	}
-	else
+	else 
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, "weapons/xbow_hit1.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 98 + RANDOM_LONG(0, 7));
-
 		SetThink(&CPhysbullet::SUB_Remove);
-		pev->nextthink = gpGlobals->time; // this will get changed below if the bolt is allowed to stick in what it hit.
+		pev->nextthink = gpGlobals->time;
 		if (FClassnameIs(pOther->pev, "worldspawn"))
 			Stay();
 	}
