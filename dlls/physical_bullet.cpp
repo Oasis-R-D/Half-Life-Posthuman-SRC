@@ -33,19 +33,25 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-CPhysbullet* CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, int FlareType)
+CPhysbullet* CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
-	pBullet->pev->classname = MAKE_STRING("bullet");
-	//BLLTamnt not turned into a variable since it's only used here
-	pBullet->m_BulletAmount = BLLTamnt;
-	pBullet->m_BulletDamage = BLLTDamage;
-	pBullet->m_SpawnPos = VecSpawnPos;
-	pBullet->m_direction = vecDir;
-	pBullet->m_Spread = vecSpread;
-	pBullet->m_Flare = FlareType; //tracer type
-	pBullet->Spawn();
+	for (int i = 0; i < BLLTamnt; i++)
+	{
+		
+		pBullet->pev->classname = MAKE_STRING("bullet");
+		// BLLTamnt not turned into a variable since it's only used here
+		pBullet->m_BulletAmount = BLLTamnt;
+		pBullet->m_BulletDamage = BLLTDamage;
+		pBullet->m_SpawnPos = VecSpawnPos;
+		pBullet->m_direction = vecDir;
+		pBullet->m_Spread = vecSpread;
+		pBullet->m_SpreadVert = vecSpreadvert;
+		pBullet->m_Flare = FlareType; // tracer type
+		pBullet->Spawn();
+		
+	}
 	return pBullet;
 }
 
@@ -55,7 +61,7 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
+	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_SpreadVert, m_SpreadVert * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
 	pev->gravity = 0.66;
 	pev->angles = m_direction;

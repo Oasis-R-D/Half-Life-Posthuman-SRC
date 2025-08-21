@@ -21,7 +21,7 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-
+#include "physical_bullet.h"
 // special deathmatch shotgun spreads
 #define VECTOR_CONE_DM_SHOTGUN Vector(0.08716, 0.04362, 0.00)		// 10 degrees by 5 degrees
 #define VECTOR_CONE_DM_DOUBLESHOTGUN Vector(0.17365, 0.04362, 0.00) // 20 degrees by 5 degrees
@@ -117,9 +117,13 @@ void CShotgun::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : Vector(0.17432, 0.01746, 0.17432);
-	m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
-
+	float spread = pev->armorvalue == 0 ? CONE_5DEGREES : 0.17432;
+	float spreadvert = pev->armorvalue == 0 ? CONE_5DEGREES : 0.01746;
+	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet *physbullet = CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, vecSrc, vecAiming, spread, spreadvert, 12);
+	physbullet->pev->owner = m_pPlayer->edict();
+	#endif
 	if (pev->armorvalue == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT1_PUMP_EMPTY : SHOTGUN_SHOOT1_PUMP);
@@ -189,9 +193,13 @@ void CShotgun::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_15DEGREES : Vector(0.25, 0.02, 0.25);
-	m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
-	
+	float spread = pev->armorvalue == 0 ? CONE_15DEGREES : 0.25;
+	float spreadvert = pev->armorvalue == 0 ? CONE_15DEGREES : 0.02;
+	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet *physbullet = CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, vecSrc, vecAiming, spread, spreadvert, 12);
+	physbullet->pev->owner = m_pPlayer->edict();
+	#endif
 	
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, Vector(0.25, 0.02, 0.25), 2048, BULLET_PLAYER_BUCKSHOT, 1);
 
