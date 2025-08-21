@@ -106,7 +106,21 @@ int CPhysbullet::Classify()
 {
 	return CLASS_NONE;
 }
+void CPhysbullet::Stay()
+{
+	Vector vecDir = pev->velocity.Normalize();
+	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
 
+	pev->angles = UTIL_VecToAngles(vecDir);
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_FLY;
+	pev->velocity = Vector(0, 0, 0);
+	pev->avelocity.z = 0;
+	pev->angles.z = RANDOM_LONG(0, 360);
+	
+	TraceResult tr = UTIL_GetGlobalTrace();
+	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
+}
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {
 	SetTouch(NULL);
@@ -128,6 +142,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		ApplyMultiDamage(pev, pevOwner);
 
 		pev->velocity = Vector(0, 0, 0);
+		if (pOther->IsBSPModel())
+			Stay();
+		else
 		// play body "thwack" sound
 		switch (RANDOM_LONG(0, 1))
 		{
@@ -147,12 +164,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		SetThink(&CPhysbullet::SUB_Remove);
 		pev->nextthink = gpGlobals->time; // this will get changed below if the bolt is allowed to stick in what it hit.
-
+		if (FClassnameIs(pOther->pev, "worldspawn"))
+			Stay();
+	}
 		if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
 		{
 			UTIL_Sparks(pev->origin);
 		}
-	}
 }
 
 void CPhysbullet::AirThink()

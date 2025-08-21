@@ -21,6 +21,7 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int Classify() override;
+	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 	static CPhysbullet* BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, int FlareType); // add damage, spread and owner so entities calling this can give it the proper stuff
