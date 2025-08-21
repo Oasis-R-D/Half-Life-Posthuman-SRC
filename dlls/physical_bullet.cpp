@@ -76,6 +76,8 @@ void CPhysbullet::Spawn()
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 	}
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	pev->scale = 0.25;
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->renderamt = 255;
 	pev->rendermode = kRenderTransAdd;
@@ -119,14 +121,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
 
-		if (pOther->IsPlayer())
-		{
-			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-		}
-		else
-		{
-			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-		}
+		pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+	
 
 		ApplyMultiDamage(pev, pevOwner);
 
@@ -135,12 +131,14 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		switch (RANDOM_LONG(0, 1))
 		{
 		case 0:
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/xbow_hitbod1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
 			break;
 		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/xbow_hitbod2.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 			break;
 		}
+		SetThink(&CPhysbullet::SUB_Remove);
+		pev->nextthink = gpGlobals->time;
 	}
 	else
 	{
