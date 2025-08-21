@@ -20,6 +20,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "monsters.h"
+#include "physical_bullet.h"
 
 #ifndef CLIENT_DLL
 TYPEDESCRIPTION CM249::m_SaveData[] =
@@ -168,7 +169,7 @@ void CM249::PrimaryAttack()
 
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
-	Vector vecSpread;
+	float vecSpread;
 
 #ifdef CLIENT_DLL
 	if (bIsMultiplayer())
@@ -178,40 +179,44 @@ void CM249::PrimaryAttack()
 	{
 		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
-			vecSpread = VECTOR_CONE_3DEGREES;
+			vecSpread = CONE_3DEGREES;
 		}
 		else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
 											   IN_MOVELEFT |
 											   IN_FORWARD |
 											   IN_BACK)) != 0)
 		{
-			vecSpread = VECTOR_CONE_15DEGREES;
+			vecSpread = CONE_15DEGREES;
 		}
 		else
 		{
-			vecSpread = VECTOR_CONE_6DEGREES;
+			vecSpread = CONE_6DEGREES;
 		}
 	}
 	else
 	{
 		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
-			vecSpread = VECTOR_CONE_2DEGREES;
+			vecSpread = CONE_2DEGREES;
 		}
 		else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
 											   IN_MOVELEFT |
 											   IN_FORWARD |
 											   IN_BACK)) != 0)
 		{
-			vecSpread = VECTOR_CONE_10DEGREES;
+			vecSpread = CONE_10DEGREES;
 		}
 		else
 		{
-			vecSpread = VECTOR_CONE_4DEGREES;
+			vecSpread = CONE_4DEGREES;
 		}
 	}
 
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
+	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet *physbullet = CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, vecSrc, vecAiming, vecSpread, 556);
+	physbullet->pev->owner = m_pPlayer->edict();
+	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
 	switch (RANDOM_LONG(0, 2))
