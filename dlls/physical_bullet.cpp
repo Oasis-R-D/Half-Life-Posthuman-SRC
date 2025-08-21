@@ -22,38 +22,53 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_bullet.h"
+
 #ifndef CLIENT_DLL
-#define BOLT_AIR_VELOCITY 6000
-#define BOLT_WATER_VELOCITY 5000 //replace with a speed change perhaps?
+#define BOLT_AIR_VELOCITY 3000
+#define BOLT_WATER_VELOCITY 2000 //replace with a speed change perhaps?
 
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
 //
 // OVERLOADS SOME ENTVARS:
 //
 // speed - the ideal magnitude of my velocity
-
+LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, Vector vecSpread, int FlareType)
 {
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 	pBullet->pev->classname = MAKE_STRING("bullet");
 	pBullet->Spawn();
-
+	pBullet->m_BulletDamage = BLLTDamage;
+	pBullet->m_SpawnPos = VecSpawnPos;
+	pBullet->m_direction = vecDir;
+	pBullet->m_Spread = vecSpread;
+	pBullet->m_Flare = FlareType;
 	return pBullet;
 }
-
+/*	
+BulletDamage;
+SpawnPos;
+direction;
+Spread;
+Flare;
+*/
 void CPhysbullet::Spawn()
 {
 	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
-
+	
+	UTIL_SetOrigin(pev, m_SpawnPos);
+	pev->velocity = m_direction * BOLT_AIR_VELOCITY;
+	pev->speed = BOLT_AIR_VELOCITY;
 	pev->gravity = 0.25;
-	if (FlareType == 556) // probably 556, idk
+	pev->angles = m_direction;
+	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 	}
-	else if (FlareType == 12) // 12 gauge
+	else if (m_Flare == 12) // 12 gauge
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 	}
@@ -61,9 +76,8 @@ void CPhysbullet::Spawn()
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 	}
-	UTIL_SetOrigin(pev, VecSpawnPos);
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-
+	//pev->renderamt = 255;
+	pev->rendermode = kRenderNormal;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
 	pev->nextthink = gpGlobals->time + 0.2;
@@ -106,11 +120,11 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		if (pOther->IsPlayer())
 		{
-			pOther->TraceAttack(pevOwner, BLLTDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		}
 		else
 		{
-			pOther->TraceAttack(pevOwner, BLLTDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		}
 
 		ApplyMultiDamage(pev, pevOwner);

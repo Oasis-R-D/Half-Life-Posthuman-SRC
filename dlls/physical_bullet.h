@@ -12,15 +12,22 @@
 // OVERLOADS SOME ENTVARS:
 //
 // speed - the ideal magnitude of my velocity
+#ifndef CLIENT_DLL
 class CPhysbullet : public CBaseEntity
 {
+public:
 	void Spawn() override;
 	void Precache() override;
 	int Classify() override;
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-
-public:
 	static CPhysbullet* BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vector vecDir, Vector vecSpread, int FlareType); // add damage, spread and owner so entities calling this can give it the proper stuff
+
+private:
+	int m_Flare;
+	float m_BulletDamage;
+	Vector m_SpawnPos;
+	Vector m_direction;
+	Vector m_Spread;
 };
-LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
+#endif

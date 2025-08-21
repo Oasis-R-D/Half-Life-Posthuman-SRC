@@ -21,7 +21,8 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-#include "physical_bullet.h" // TO-DO: Implement physical bullets (and maybe make a 357 tracer type)
+#include "physical_bullet.h"
+
 LINK_ENTITY_TO_CLASS(weapon_python, CPython);
 LINK_ENTITY_TO_CLASS(weapon_357, CPython);
 
@@ -68,7 +69,7 @@ void CPython::Precache()
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("weapons/357_shot1.wav");
 	PRECACHE_SOUND("weapons/357_shot2.wav");
-
+	UTIL_PrecacheOther("phys_bullet");
 	m_usFirePython = PRECACHE_EVENT(1, "events/python.sc");
 }
 
@@ -171,8 +172,10 @@ void CPython::PrimaryAttack()
 
 	Vector vecDir;
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
-
+	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(gSkillData.plrDmg357, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 0);
+	#endif
 	int flags;
 #if defined(CLIENT_WEAPONS)
 	flags = FEV_NOTHOST;
