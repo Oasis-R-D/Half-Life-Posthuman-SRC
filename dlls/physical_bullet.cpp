@@ -38,12 +38,12 @@ CPhysbullet* CPhysbullet::BulletCreate(float BLLTDamage, Vector VecSpawnPos, Vec
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 	pBullet->pev->classname = MAKE_STRING("bullet");
-	pBullet->Spawn();
 	pBullet->m_BulletDamage = BLLTDamage;
 	pBullet->m_SpawnPos = VecSpawnPos;
 	pBullet->m_direction = vecDir;
 	pBullet->m_Spread = vecSpread;
 	pBullet->m_Flare = FlareType;
+	pBullet->Spawn();
 	return pBullet;
 }
 /*	
@@ -59,7 +59,7 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 	
-	UTIL_SetOrigin(pev, m_SpawnPos);
+	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = m_direction * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
 	pev->gravity = 0.25;
@@ -76,8 +76,9 @@ void CPhysbullet::Spawn()
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 	}
-	//pev->renderamt = 255;
-	pev->rendermode = kRenderNormal;
+	pev->rendercolor = Vector(255, 255, 255);
+	pev->renderamt = 255;
+	pev->rendermode = kRenderTransAdd;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
 	pev->nextthink = gpGlobals->time + 0.2;
