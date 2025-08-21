@@ -63,17 +63,22 @@ void CPhysbullet::Spawn()
 	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
+		//pev->scale = 0.25;
+		pev->scale = RANDOM_FLOAT(0.23, 0.27);
 	}
 	else if (m_Flare == 12) // 12 gauge
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
+		//pev->scale = 0.15;
+		pev->scale = RANDOM_FLOAT(0.13, 0.17);
 	}
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
+		//pev->scale = 0.2;
+		pev->scale = RANDOM_FLOAT(0.18, 0.22);
 	}
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	pev->scale = 0.25;
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->renderamt = 255;
 	pev->rendermode = kRenderTransAdd;
