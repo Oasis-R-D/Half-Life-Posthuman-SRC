@@ -54,7 +54,6 @@ void CPhysbullet::Spawn()
 	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
-	
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
@@ -93,12 +92,13 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_9mm.spr");
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
-	PRECACHE_MODEL("models/crossbow_bolt.mdl");
-	PRECACHE_SOUND("weapons/xbow_hitbod1.wav");
-	PRECACHE_SOUND("weapons/xbow_hitbod2.wav");
 	PRECACHE_SOUND("weapons/xbow_fly1.wav");
-	PRECACHE_SOUND("weapons/xbow_hit1.wav");
 	PRECACHE_SOUND("fvox/beep.wav"); // why is this here
+	PRECACHE_SOUND("weapons/ric1.wav");
+	PRECACHE_SOUND("weapons/ric2.wav");
+	PRECACHE_SOUND("weapons/ric3.wav");
+	PRECACHE_SOUND("weapons/ric4.wav");
+	PRECACHE_SOUND("weapons/ric5.wav");
 }
 
 
@@ -109,7 +109,6 @@ int CPhysbullet::Classify()
 void CPhysbullet::Stay() //TO-DO: add imapct sounds
 {
 	Vector vecDir = pev->velocity.Normalize();
-	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
 
 	pev->angles = UTIL_VecToAngles(vecDir);
 	pev->solid = SOLID_NOT;
@@ -135,7 +134,8 @@ void CPhysbullet::Stay() //TO-DO: add imapct sounds
 			break;
 		}
 	}
-	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
+	DecalGunshot(&tr, BULLET_PLAYER_9MM);
+	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, pev->origin, BULLET_PLAYER_9MM);
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {
@@ -161,7 +161,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		if (pOther->IsBSPModel())
 			Stay();
 		else
-		// play body "thwack" sound
+		// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
 		switch (RANDOM_LONG(0, 1))
 		{
 		case 0:
@@ -181,10 +181,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		if (FClassnameIs(pOther->pev, "worldspawn"))
 			Stay();
 	}
-		if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
-		{
-			UTIL_Sparks(pev->origin);
-		}
+
 }
 
 void CPhysbullet::AirThink()
