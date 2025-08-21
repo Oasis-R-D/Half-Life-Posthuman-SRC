@@ -174,8 +174,7 @@ void CPython::PrimaryAttack()
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet *physbullet = CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 556);
-	physbullet->pev->owner = m_pPlayer->edict();
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 556, m_pPlayer->edict());
 	#endif
 	int flags;
 #if defined(CLIENT_WEAPONS)

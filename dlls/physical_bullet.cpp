@@ -33,13 +33,12 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-CPhysbullet* CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter)
 {
-	// Create a new entity with CPhysbullet private data
-	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 	for (int i = 0; i < BLLTamnt; i++)
 	{
-		
+		// Create a new entity with CPhysbullet private data
+		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("bullet");
 		// BLLTamnt not turned into a variable since it's only used here
 		pBullet->m_BulletAmount = BLLTamnt;
@@ -50,9 +49,8 @@ CPhysbullet* CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector Ve
 		pBullet->m_SpreadVert = vecSpreadvert;
 		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->Spawn();
-		
+		pBullet->pev->owner = shooter;
 	}
-	return pBullet;
 }
 
 void CPhysbullet::Spawn()
@@ -61,7 +59,7 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, m_Spread * (-1)), RANDOM_FLOAT(m_SpreadVert, m_SpreadVert * (-1)), RANDOM_FLOAT(m_Spread, m_Spread * (-1)))) * BOLT_AIR_VELOCITY;
+	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * BOLT_AIR_VELOCITY;
 	pev->speed = BOLT_AIR_VELOCITY;
 	pev->gravity = 0.66;
 	pev->angles = m_direction;
@@ -100,11 +98,6 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_SOUND("weapons/xbow_fly1.wav");
 	PRECACHE_SOUND("fvox/beep.wav"); // why is this here
-	PRECACHE_SOUND("weapons/ric1.wav");
-	PRECACHE_SOUND("weapons/ric2.wav");
-	PRECACHE_SOUND("weapons/ric3.wav");
-	PRECACHE_SOUND("weapons/ric4.wav");
-	PRECACHE_SOUND("weapons/ric5.wav");
 }
 
 
@@ -124,22 +117,6 @@ void CPhysbullet::Stay() //TO-DO: add imapct sounds
 	pev->angles.z = RANDOM_LONG(0, 360);
 	
 	TraceResult tr = UTIL_GetGlobalTrace();
-	switch (RANDOM_LONG(0, 2))
-	{
-		case 0:
-		{
-			break;
-		}
-		case 1:
-		{
-			break;
-		}
-		case 2:
-		{
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/ric%d.wav", 1, ATTN_NORM);
-			break;
-		}
-	}
 	DecalGunshot(&tr, BULLET_PLAYER_9MM);
 	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, pev->origin, BULLET_PLAYER_9MM);
 }
