@@ -854,7 +854,7 @@ bool CApache::FireGun()
 #if 1
 		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, posGun, vecGun, CONE_8DEGREES, CONE_8DEGREES, 556, edict());
+		CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_8DEGREES, CONE_8DEGREES, 12, edict());
 		#endif
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
 #else
