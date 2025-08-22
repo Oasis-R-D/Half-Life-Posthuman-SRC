@@ -27,6 +27,7 @@
 #include "scripted.h"
 #include "weapons.h"
 #include "soundent.h"
+#include "physical_bullet.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -350,14 +351,17 @@ void CBarney::BarneyFirePistol()
 	}
 	else
 	{
-		Vector cone;
+		float cone;
 		switch (g_iSkillLevel)
 		{
-		case SKILL_EASY: cone = VECTOR_CONE_10DEGREES; break;
-		case SKILL_MEDIUM: cone = VECTOR_CONE_5DEGREES; break;
-		case SKILL_HARD: cone = VECTOR_CONE_2DEGREES; break;
+		case SKILL_EASY: cone = CONE_8DEGREES; break;
+		case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
+		case SKILL_HARD: cone = CONE_2DEGREES; break;
 		}
-		FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
+		//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
+		#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, vecShootOrigin, vecShootDir, cone, cone, 9, edict());
+		#endif
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
 	}
 

@@ -19,7 +19,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "effects.h"
-
+#include "physical_bullet.h"
 #define SF_WAITFORTRIGGER (0x04 | 0x40) // UNDONE: Fix!
 #define SF_NOWRECKAGE 0x08
 
@@ -852,7 +852,10 @@ bool CApache::FireGun()
 	if (DotProduct(vecGun, vecTarget) > 0.98)
 	{
 #if 1
-		FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
+		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
+		#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, posGun, vecGun, CONE_8DEGREES, CONE_8DEGREES, 556, edict());
+		#endif
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
 #else
 		static float flNext;
@@ -965,7 +968,7 @@ void CApache::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	if (ptr->iHitgroup == 6 && (bitsDamageType & (DMG_ENERGYBEAM | DMG_BULLET | DMG_CLUB)) != 0)
 		return;
 
-	// hit hard, hits cockpit, hits engines
+	//	hit hard,			hits cockpit,			hits engines
 	if (flDamage > 50 || ptr->iHitgroup == 1 || ptr->iHitgroup == 2)
 	{
 		// ALERT( at_console, "%.0f\n", flDamage );
