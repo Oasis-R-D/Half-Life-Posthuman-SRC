@@ -360,7 +360,7 @@ void CBarney::BarneyFirePistol()
 		}
 		//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
 		#endif
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
 	}

@@ -41,7 +41,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter)
 {
 	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
@@ -49,12 +49,12 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("bullet");
 		pBullet->m_muzzlevelocity = BLLTSpeed;
-		pBullet->m_BulletAmount = BLLTamnt; // Unused?
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_direction = vecDir;
 		pBullet->m_Spread = vecSpread;
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
+		pBullet->m_Gravity = BLLTGravity;
 		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->Spawn();
 		pBullet->pev->owner = shooter;
@@ -64,13 +64,14 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 void CPhysbullet::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_BOUNCE;
+	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity;
-	pev->speed = m_muzzlevelocity;
-	pev->gravity = 0.66;
+	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
+	pev->speed = m_muzzlevelocity; // I have no fucking clue what the difference between speed and velocity is :3
+	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction;
+	
 	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
@@ -104,16 +105,23 @@ void CPhysbullet::Spawn()
 		//pev->scale = 0.2;
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
 	}
+	
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	if (m_Flare != 420)
+
+	if (m_Flare == 420)
 	{
-	pev->rendercolor = Vector(255, 255, 255);
-	pev->rendermode = kRenderTransAdd;
+
+		pev->rendercolor = Vector(255, 70, 170);
+		pev->rendermode = kRenderTransAdd;
+	}
+	else if (m_Flare == 69)
+	{
+		pev->rendermode = kRenderNormal;
 	}
 	else
 	{
-	pev->rendercolor = Vector(255, 70, 170);
-	pev->rendermode = kRenderNormal;
+		pev->rendercolor = Vector(255, 255, 255);
+		pev->rendermode = kRenderTransAdd;	
 	}
 	pev->renderamt = 255;
 	SetTouch(&CPhysbullet::BoltTouch);

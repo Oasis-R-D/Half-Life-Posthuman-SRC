@@ -179,7 +179,7 @@ void CMP5::PrimaryAttack()
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 9, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.66, 9, m_pPlayer->edict());
 	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
@@ -488,7 +488,7 @@ void CM727::PrimaryAttack()
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 556, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.66, 556, m_pPlayer->edict());
 	#endif
 	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
 	char wpnsnd2[256];

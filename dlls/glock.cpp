@@ -153,14 +153,14 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 9, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 		#endif
 	}
 	else
 	{
 		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM+2), 6333, vecSrc, vecAiming, flSpread, flSpread, 9, m_pPlayer->edict()); // make it not have tracers?
+		CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM+2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict()); // make it not have tracers?
 		#endif
 	}
 	if (pev->armortype == 0)
