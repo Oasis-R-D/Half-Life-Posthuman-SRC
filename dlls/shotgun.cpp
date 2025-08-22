@@ -83,9 +83,22 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 bool CShotgun::Deploy()
 {
+	if (m_Prehuman = true
+	{
+		// set bodygroup
+	}
+	if (m_Training = true)
+	{
+	if (!NotFirstDraw)
+		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
+	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", pev->armorvalue ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
+	}
+	else
+	{
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", pev->armorvalue ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+	}
 }
 
 void CShotgun::PrimaryAttack()
