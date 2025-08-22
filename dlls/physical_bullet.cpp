@@ -100,13 +100,14 @@ void CPhysbullet::Spawn()
 	if (m_Flare != 420)
 	{
 	pev->rendercolor = Vector(255, 255, 255);
+	pev->rendermode = kRenderTransAdd;
 	}
 	else
 	{
 	pev->rendercolor = Vector(255, 70, 170);
+	pev->rendermode = kRenderNormal;
 	}
 	pev->renderamt = 255;
-	pev->rendermode = kRenderTransAdd;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
 	pev->nextthink = gpGlobals->time + 0.2;
