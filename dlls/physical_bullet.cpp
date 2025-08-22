@@ -35,19 +35,18 @@
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter)
 {
-	for (int i = 0; i < BLLTamnt; i++)
+	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("bullet");
-		// BLLTamnt not turned into a variable since it's only used here
 		pBullet->m_muzzlevelocity = BLLTSpeed;
-		pBullet->m_BulletAmount = BLLTamnt;
+		pBullet->m_BulletAmount = BLLTamnt; // Unused?
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_direction = vecDir;
 		pBullet->m_Spread = vecSpread;
-		pBullet->m_SpreadVert = vecSpreadvert;
+		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->Spawn();
 		pBullet->pev->owner = shooter;
@@ -82,14 +81,14 @@ void CPhysbullet::Spawn()
 		//pev->scale = 0.3;
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
 	}
-	else if (m_Flare == 69)
+	else if (m_Flare == 69) // Training weapons
 	{
-		//rubber bullet
+		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
 	}
-	else if (m_Flare == 420)
+	else if (m_Flare == 420) // HC Deagle
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
-		pev->scale = 50
+		pev->scale = 50;
 	}
 	else //	9MM
 	{
@@ -109,6 +108,7 @@ void CPhysbullet::Spawn()
 
 void CPhysbullet::Precache()
 {
+	PRECACHE_MODEL("models/rubber_bullet.mdl");
 	PRECACHE_MODEL("sprites/tracer_9mm.spr");
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
