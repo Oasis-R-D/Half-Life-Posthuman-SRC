@@ -529,7 +529,8 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void ItemPostFrame();
-
+	bool m_Training;
+	bool m_Prehuman;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -669,7 +670,8 @@ public:
 	void Holster() override;
 
 	int m_iShell;
-
+	bool m_Training;
+	bool m_Prehuman;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -803,7 +805,8 @@ public:
 	int m_fInReload; //TODO: not used, remove
 	float m_flNextReload;
 	int m_iShell;
-
+	bool m_Training;
+	bool m_Prehuman;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
