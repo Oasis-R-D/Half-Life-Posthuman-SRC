@@ -761,7 +761,7 @@ void CHGrunt::Shoot()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5, 1); // shoot +-5 degrees
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_8DEGREES, 9, edict());
+	CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_8DEGREES, 9, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -790,7 +790,7 @@ void CHGrunt::ShootM727()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_7DEGREES, 2048, BULLET_MONSTER_727, 1); // shoot +-3.5 degrees
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_5DEGREES, 556, edict());
+	CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_5DEGREES, 556, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -818,7 +818,7 @@ void CHGrunt::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 	//FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1); // shoot +-7.5 degrees
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 12, edict());
+	CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 12, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -846,7 +846,7 @@ void CHGrunt::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, vecShootOrigin, vecShootDir, CONE_20DEGREES, CONE_15DEGREES, 556, edict());
+	CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_20DEGREES, CONE_15DEGREES, 556, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
