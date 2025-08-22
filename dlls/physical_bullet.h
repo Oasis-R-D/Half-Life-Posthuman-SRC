@@ -28,11 +28,12 @@ public:
 
 private:
 	int m_Flare;
-	float m_BulletDamage;
+	int m_BulletAmount;
+	int m_muzzlevelocity;
 	Vector m_SpawnPos;
 	Vector m_direction;
 	float m_Spread;
 	float m_SpreadVert;
-	int m_BulletAmount;
+	float m_BulletDamage;
 };
 #endif
