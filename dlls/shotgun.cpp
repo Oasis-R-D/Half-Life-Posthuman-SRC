@@ -127,7 +127,7 @@ void CShotgun::PrimaryAttack()
 	m_iClip--;
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
 	float spread = pev->armorvalue == 0 ? CONE_5DEGREES : 0.17432;
@@ -203,7 +203,7 @@ void CShotgun::SecondaryAttack()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	float spread = pev->armorvalue == 0 ? CONE_15DEGREES : 0.25;
 	float spreadvert = pev->armorvalue == 0 ? CONE_15DEGREES : 0.02;
