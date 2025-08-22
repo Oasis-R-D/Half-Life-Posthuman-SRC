@@ -119,6 +119,7 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("models/rubber_bullet.mdl");
 	PRECACHE_MODEL("sprites/tracer_9mm.spr");
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
+	PRECACHE_MODEL("sprites/tracer_357mm.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_SOUND("weapons/xbow_fly1.wav");
 	PRECACHE_SOUND("fvox/beep.wav"); // why is this here
