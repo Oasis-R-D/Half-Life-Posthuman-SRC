@@ -75,6 +75,10 @@ void CPhysbullet::Spawn()
 		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
 	}
+	else if (m_Flare == 69)
+	{
+		//rubber bullet
+	}
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
