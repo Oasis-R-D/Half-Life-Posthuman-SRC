@@ -41,6 +41,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("bullet");
 		// BLLTamnt not turned into a variable since it's only used here
+		pBullet->m_muzzlevelocity = BLLTSpeed;
 		pBullet->m_BulletAmount = BLLTamnt;
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
@@ -59,8 +60,8 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * BOLT_AIR_VELOCITY;
-	pev->speed = BOLT_AIR_VELOCITY;
+	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity;
+	pev->speed = m_muzzlevelocity;
 	pev->gravity = 0.66;
 	pev->angles = m_direction;
 	if (m_Flare == 556) // probably 556, idk
