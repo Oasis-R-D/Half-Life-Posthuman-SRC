@@ -30,7 +30,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "effects.h"
-
+#include "physical_bullet.h"
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
 #define TURRET_SHOTS 2
@@ -616,6 +616,9 @@ void CBaseTurret::ActiveThink()
 void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 556, edict());
+	#endif
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.6);
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
@@ -623,8 +626,10 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 
 void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
-	FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1);
-
+	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 9, edict());
+	#endif
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
@@ -1188,8 +1193,10 @@ void CSentry::Spawn()
 
 void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
-	FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_MP5, 1);
-
+	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_MP5, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 9, edict());
+	#endif
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:

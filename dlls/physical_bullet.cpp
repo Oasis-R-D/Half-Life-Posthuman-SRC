@@ -27,6 +27,14 @@
 #define BOLT_AIR_VELOCITY 6000
 #define BOLT_WATER_VELOCITY 5000 //replace with a speed change perhaps?
 
+/*
+* 9MM MV: 6000
+* 556 MV: 7000
+* 357 MV: 7500
+* 12G MV: 5750
+* 
+*/
+
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
 //
 // OVERLOADS SOME ENTVARS:
