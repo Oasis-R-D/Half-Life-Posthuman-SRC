@@ -123,10 +123,10 @@ void CPhysbullet::Spawn()
 		pev->rendercolor = Vector(255, 255, 255);
 		pev->rendermode = kRenderTransAdd;	
 	}
-	pev->renderamt = 255;
+	pev->renderamt = 0;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-	pev->nextthink = gpGlobals->time + 0.2;
+	pev->nextthink = gpGlobals->time;
 }
 
 
@@ -137,8 +137,6 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
 	PRECACHE_MODEL("sprites/tracer_357mm.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
-	PRECACHE_SOUND("weapons/xbow_fly1.wav");
-	PRECACHE_SOUND("fvox/beep.wav"); // why is this here
 }
 
 
@@ -210,8 +208,11 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.1;
-
+	pev->nextthink = gpGlobals->time + 0.05;
+	if (pev->renderamt < 225)
+	{
+		pev->renderamt += 75;
+	}
 	if (pev->waterlevel == 0)
 	return;
 
