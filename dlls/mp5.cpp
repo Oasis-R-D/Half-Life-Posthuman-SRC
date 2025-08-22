@@ -22,7 +22,7 @@
 #include "soundent.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-
+#include "physical_bullet.h"
 LINK_ENTITY_TO_CLASS(weapon_mp5, CMP5);
 LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 
@@ -177,7 +177,10 @@ void CMP5::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
+	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 9, m_pPlayer->edict());
+	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
 
@@ -483,7 +486,10 @@ void CM727::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
-	m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
+	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 556, m_pPlayer->edict());
+	#endif
 	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
 	char wpnsnd2[256];
 	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));

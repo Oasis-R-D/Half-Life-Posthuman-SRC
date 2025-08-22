@@ -19,7 +19,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "player.h"
-
+#include "physical_bullet.h"
 LINK_ENTITY_TO_CLASS(weapon_glock, CGlock);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CGlock);
 
@@ -151,11 +151,17 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	}
 	if (pev->armortype == 0)
 	{
-		m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
+		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
+		#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, vecSrc, vecAiming, flSpread, flSpread, 9, m_pPlayer->edict());
+		#endif
 	}
 	else
 	{
-		m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+		#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM+2), vecSrc, vecAiming, flSpread, flSpread, 9, m_pPlayer->edict()); // make it not have tracers?
+		#endif
 	}
 	if (pev->armortype == 0)
 	{
