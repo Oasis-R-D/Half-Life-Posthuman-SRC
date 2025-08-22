@@ -24,7 +24,7 @@ public:
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static void BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
 	int m_Flare;
