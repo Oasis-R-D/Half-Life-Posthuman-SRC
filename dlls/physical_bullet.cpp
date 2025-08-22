@@ -33,7 +33,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int FlareType, edict_t *shooter)
 {
 	for (int i = 0; i < BLLTamnt; i++)
 	{
@@ -75,9 +75,20 @@ void CPhysbullet::Spawn()
 		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
 	}
+	else if (m_Flare == 357)
+	{
+		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
+		//pev->scale = 0.3;
+		pev->scale = RANDOM_FLOAT(0.28, 0.32);
+	}
 	else if (m_Flare == 69)
 	{
 		//rubber bullet
+	}
+	else if (m_Flare == 420)
+	{
+		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
+		pev->scale = 50
 	}
 	else //	9MM
 	{
