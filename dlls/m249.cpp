@@ -214,7 +214,7 @@ void CM249::PrimaryAttack()
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, vecSrc, vecAiming, vecSpread, vecSpread, 556, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 556, m_pPlayer->edict());
 	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
