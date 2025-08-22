@@ -97,7 +97,14 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
 	}
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	if (m_Flare != 420)
+	{
 	pev->rendercolor = Vector(255, 255, 255);
+	}
+	else
+	{
+	pev->rendercolor = Vector(255, 70, 170);
+	}
 	pev->renderamt = 255;
 	pev->rendermode = kRenderTransAdd;
 	SetTouch(&CPhysbullet::BoltTouch);
