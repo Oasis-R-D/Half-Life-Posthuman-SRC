@@ -116,9 +116,6 @@ void CPhysbullet::Stay() //TO-DO: add imapct sounds
 	pev->avelocity.z = 0;
 	pev->angles.z = RANDOM_LONG(0, 360);
 	
-	TraceResult tr = UTIL_GetGlobalTrace();
-	DecalGunshot(&tr, BULLET_PLAYER_9MM);
-	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, pev->origin, BULLET_PLAYER_9MM);
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {
@@ -164,6 +161,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		if (FClassnameIs(pOther->pev, "worldspawn"))
 			Stay();
 	}
+	TraceResult tr = UTIL_GetGlobalTrace();
+	DecalGunshot(&tr, BULLET_PLAYER_9MM);
+	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, pev->origin, BULLET_PLAYER_9MM);
 
 }
 
