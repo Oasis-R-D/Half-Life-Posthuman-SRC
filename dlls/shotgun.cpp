@@ -83,11 +83,11 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 bool CShotgun::Deploy()
 {
-	if (m_Prehuman = true
+	if (m_Prehuman == true)
 	{
 		// set bodygroup
 	}
-	if (m_Training = true)
+	if (m_Training == true)
 	{
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
