@@ -19,7 +19,7 @@
 #include "weapons.h"
 #include "gamerules.h"
 #include "monsters.h"
-
+#include "physical_bullet.h"
 // Precaches the ammo and queues the ammo info for sending to clients
 void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 {
@@ -414,11 +414,10 @@ void CEagle::PrimaryAttack()
 
 	const float flSpread = m_bLaserActive ? 0.001 : 0.1;
 	
-	m_pPlayer->FireBullets(
-		1,
-		vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread),
-		8192.0, BULLET_PLAYER_357, 1, 1000);
-
+	//m_pPlayer->FireBullets(1,vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192.0, BULLET_PLAYER_357, 1, 1000);
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, 5000, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
+	#endif
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
 	m_pPlayer->pev->punchangle.x -= 5;

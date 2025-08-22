@@ -97,7 +97,7 @@ void CPhysbullet::Spawn()
 	else if (m_Flare == 420) // HC Deagle
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
-		pev->scale = 50;
+		pev->scale = 2;
 	}
 	else //	9MM
 	{
@@ -170,9 +170,14 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
-
-		pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-	
+		if (m_Flare != 420)
+		{
+			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+		}
+		else
+		{
+			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+		}
 
 		ApplyMultiDamage(pev, pevOwner);
 
