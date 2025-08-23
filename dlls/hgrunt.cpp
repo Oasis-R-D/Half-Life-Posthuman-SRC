@@ -471,13 +471,11 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					UTIL_Sparks(ptr->vecEndPos);
 					Vector vecTracerDir = vecDir;
 
-					vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-					vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-					vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
 					vecTracerDir = vecTracerDir * -512;
-
-					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 9, edict());
+					#endif
+					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
 					WRITE_BYTE(TE_TRACER);
 					WRITE_COORD(ptr->vecEndPos.x);
 					WRITE_COORD(ptr->vecEndPos.y);
@@ -486,7 +484,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					WRITE_COORD(vecTracerDir.x);
 					WRITE_COORD(vecTracerDir.y);
 					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END();
+					MESSAGE_END(); */
 				}
 			}
 		}
@@ -496,27 +494,25 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			flDamage -= 20;
 			if (flDamage <= 0)
 			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
+			// UTIL_Ricochet(ptr->vecEndPos, 1.0);
+					flDamage = 0.01;
+					UTIL_Sparks(ptr->vecEndPos);
+					Vector vecTracerDir = vecDir;
 
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir = vecTracerDir * -512;
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 9, edict());
+					#endif
+					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+					WRITE_BYTE(TE_TRACER);
+					WRITE_COORD(ptr->vecEndPos.x);
+					WRITE_COORD(ptr->vecEndPos.y);
+					WRITE_COORD(ptr->vecEndPos.z);
 
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);					
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
+					WRITE_COORD(vecTracerDir.x);
+					WRITE_COORD(vecTracerDir.y);
+					WRITE_COORD(vecTracerDir.z);
+					MESSAGE_END(); */
 				
 			}
 		}
@@ -527,26 +523,24 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			if (flDamage <= 0)
 			{
 				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
+					flDamage = 0.01;
+					UTIL_Sparks(ptr->vecEndPos);
+					Vector vecTracerDir = vecDir;
 
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir = vecTracerDir * -512;
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 9, edict());
+					#endif
+					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+					WRITE_BYTE(TE_TRACER);
+					WRITE_COORD(ptr->vecEndPos.x);
+					WRITE_COORD(ptr->vecEndPos.y);
+					WRITE_COORD(ptr->vecEndPos.z);
 
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
+					WRITE_COORD(vecTracerDir.x);
+					WRITE_COORD(vecTracerDir.y);
+					WRITE_COORD(vecTracerDir.z);
+					MESSAGE_END(); */
 			}
 		}
 		if (GetBodygroup(1) == HEAD_MEDIC_BLACK)
@@ -556,26 +550,24 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			if (flDamage <= 0)
 			{
 				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-				flDamage = 0.01;
-				UTIL_Sparks(ptr->vecEndPos);
-				Vector vecTracerDir = vecDir;
+					flDamage = 0.01;
+					UTIL_Sparks(ptr->vecEndPos);
+					Vector vecTracerDir = vecDir;
 
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
+					vecTracerDir = vecTracerDir * -512;
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 9, edict());
+					#endif
+					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
+					WRITE_BYTE(TE_TRACER);
+					WRITE_COORD(ptr->vecEndPos.x);
+					WRITE_COORD(ptr->vecEndPos.y);
+					WRITE_COORD(ptr->vecEndPos.z);
 
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
+					WRITE_COORD(vecTracerDir.x);
+					WRITE_COORD(vecTracerDir.y);
+					WRITE_COORD(vecTracerDir.z);
+					MESSAGE_END(); */
 			}
 		}
 		// it's head shot anyways
