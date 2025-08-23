@@ -1231,7 +1231,7 @@ void CHGrunt::PainSound()
 //=========================================================
 void CHGrunt::DeathSound()
 {
-	if (m_bRailed = false)
+	if (m_bRailed == false)
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
 }
 

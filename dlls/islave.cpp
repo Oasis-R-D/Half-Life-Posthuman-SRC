@@ -225,8 +225,10 @@ void CISlave::PainSound()
 
 void CISlave::DeathSound()
 {
-	if (m_bRailed = false)
-	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, m_voicePitch);
+	if (m_bRailed == false)
+	{
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, m_voicePitch);
+	}
 }
 
 

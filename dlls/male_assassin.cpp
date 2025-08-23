@@ -1141,7 +1141,7 @@ void CMOFAssassin::PainSound()
 //=========================================================
 void CMOFAssassin::DeathSound()
 {
-	if (m_bRailed = false)
+	if (m_bRailed == false)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{

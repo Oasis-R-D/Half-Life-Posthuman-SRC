@@ -581,7 +581,7 @@ void CHeadCrab::PainSound()
 //=========================================================
 void CHeadCrab::DeathSound()
 {
-	if (m_bRailed = false)
+	if (m_bRailed == false)
 	{
 		if (FClassnameIs(pev, "monster_headcrab_poison"))
 			EMIT_SOUND_DYN(edict(), CHAN_VOICE, UTIL_VarArgs("headcrab_poison/pain%d.wav", RANDOM_LONG(1, 3)), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch());

@@ -255,8 +255,10 @@ void CController::AttackSound()
 
 void CController::DeathSound()
 {
-	if (m_bRailed = false)
-	EMIT_SOUND_ARRAY_DYN(CHAN_VOICE, pDeathSounds);
+	if (m_bRailed == false)
+	{
+		EMIT_SOUND_ARRAY_DYN(CHAN_VOICE, pDeathSounds);
+	}
 }
 
 //=========================================================

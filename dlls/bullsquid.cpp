@@ -749,7 +749,7 @@ void CBullsquid::Precache()
 //=========================================================
 void CBullsquid::DeathSound()
 {
-	if (m_bRailed = false)
+	if (m_bRailed == false)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{

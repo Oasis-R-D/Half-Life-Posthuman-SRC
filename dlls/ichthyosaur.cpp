@@ -206,8 +206,10 @@ void CIchthyosaur::BiteSound()
 
 void CIchthyosaur::DeathSound()
 {
-	if (m_bRailed = false)
-	EMIT_ICKY_SOUND(CHAN_VOICE, pDieSounds);
+	if (m_bRailed == false)
+	{
+		EMIT_ICKY_SOUND(CHAN_VOICE, pDieSounds);
+	}
 }
 
 void CIchthyosaur::PainSound()

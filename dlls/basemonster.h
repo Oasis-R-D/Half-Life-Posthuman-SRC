@@ -110,7 +110,7 @@ public:
 	float m_flLastYawTime;
 
 	bool m_AllowItemDropping = true;
-	bool m_bRailed;
+	bool m_bRailed = false;
 	float m_flRailChargeTime;
 
 	bool Save(CSave& save) override;

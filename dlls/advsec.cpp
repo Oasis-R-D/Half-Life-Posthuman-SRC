@@ -1255,7 +1255,7 @@ void CAdvSec::PainSound()
 //=========================================================
 void CAdvSec::DeathSound()
 {
-	if (m_bRailed = false)
+	if (m_bRailed == false)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{
