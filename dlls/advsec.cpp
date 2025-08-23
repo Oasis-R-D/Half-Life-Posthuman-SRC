@@ -1255,17 +1255,20 @@ void CAdvSec::PainSound()
 //=========================================================
 void CAdvSec::DeathSound()
 {
-	switch (RANDOM_LONG(0, 2))
+	if (m_bRailed = false)
 	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
-		break;
+		switch (RANDOM_LONG(0, 2))
+		{
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
+			break;
+		}
 	}
 }
 

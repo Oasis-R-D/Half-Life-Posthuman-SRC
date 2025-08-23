@@ -22,7 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 
-#define BOLT_AIR_VELOCITY 3000
+#define BOLT_AIR_VELOCITY 4500
 #define BOLT_WATER_VELOCITY 1000
 
 LINK_ENTITY_TO_CLASS(weapon_crossbow, CCrossbow);
@@ -165,7 +165,7 @@ void CCrossbow::FireBolt()
 		return;
 	}
 
-	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
+	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 
 	m_iClip--;
 
@@ -185,8 +185,8 @@ void CCrossbow::FireBolt()
 	UTIL_MakeVectors(anglesAim);
 
 	anglesAim.x = -anglesAim.x;
-	Vector vecSrc = m_pPlayer->GetGunPosition() - gpGlobals->v_up * 2;
-	Vector vecDir = gpGlobals->v_forward;
+	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
+	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 #ifndef CLIENT_DLL
 	auto pBolt = Create("crossbow_bolt", vecSrc, vecDir, m_pPlayer->edict());

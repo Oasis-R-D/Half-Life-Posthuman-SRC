@@ -749,17 +749,20 @@ void CBullsquid::Precache()
 //=========================================================
 void CBullsquid::DeathSound()
 {
-	switch (RANDOM_LONG(0, 2))
+	if (m_bRailed = false)
 	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die1.wav", 1, ATTN_NORM);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die2.wav", 1, ATTN_NORM);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die3.wav", 1, ATTN_NORM);
-		break;
+		switch (RANDOM_LONG(0, 2))
+		{
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die1.wav", 1, ATTN_NORM);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die2.wav", 1, ATTN_NORM);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "bullchicken/bc_die3.wav", 1, ATTN_NORM);
+			break;
+		}
 	}
 }
 

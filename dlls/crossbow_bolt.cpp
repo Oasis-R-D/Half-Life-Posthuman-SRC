@@ -42,7 +42,7 @@ void CCrossbowBolt::Spawn()
 	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
-	pev->gravity = 0.125;
+	pev->gravity = 0.5;
 
 	SET_MODEL(ENT(pev), "models/crossbow_bolt.mdl");
 
@@ -78,7 +78,7 @@ void CCrossbowBolt::Precache()
 	PRECACHE_SOUND("fvox/beep.wav");
 	PRECACHE_SOUND("weapons/bolt_impact.wav");
 	PRECACHE_SOUND("weapons/bolt_impact_con.wav");
-	m_iTrail = PRECACHE_MODEL("sprites/streak.spr");
+	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
 }
 
 int CCrossbowBolt::Classify()
@@ -130,13 +130,12 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 			monster->m_flRailChargeTime = gpGlobals->time + 1.5;
 		}
 		ClearMultiDamage();
-		pOther->TraceAttack(pevOwner, 2, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+		pOther->TraceAttack(pevOwner, 30, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		ApplyMultiDamage(pev, pevOwner);
 		if (pOther->IsBSPModel())
 			Stay();
 		else
 		{
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, UTIL_VarArgs("weapons/xbow_hitbod%d.wav", RANDOM_LONG(1, 2)), 1, ATTN_NORM);
 			UTIL_Remove(this);
 			UTIL_BloodPuff(tr, pOther->BloodColor());
 		}
