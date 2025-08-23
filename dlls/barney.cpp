@@ -588,8 +588,14 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				flDamage -= 20;
 				if (flDamage <= 0)
 				{
-					UTIL_Ricochet(ptr->vecEndPos, 1.0);
 					flDamage = 0.01;
+					UTIL_Sparks(ptr->vecEndPos);
+					Vector vecTracerDir = vecDir;
+
+					vecTracerDir = vecTracerDir * -512;
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+					#endif
 				}
 			}
 		}
