@@ -98,6 +98,12 @@ DLL_DECALLIST gDecals[] = {
 	{"{bloodspray4", 0},	// DECAL_BLOODSPRAY4
 	{"{bloodspray5", 0},	// DECAL_BLOODSPRAY5
 	{"{bloodspray6", 0},	// DECAL_BLOODSPRAY6
+	{"{abloodspray1", 0},	// DECAL_ABLOODSPRAY1
+	{"{abloodspray2", 0},	// DECAL_ABLOODSPRAY2
+	{"{abloodspray3", 0},	// DECAL_ABLOODSPRAY3
+	{"{abloodspray4", 0},	// DECAL_ABLOODSPRAY4
+	{"{abloodspray5", 0},	// DECAL_ABLOODSPRAY5
+	{"{abloodspray6", 0},	// DECAL_ABLOODSPRAY6
 }; 
 
 /*

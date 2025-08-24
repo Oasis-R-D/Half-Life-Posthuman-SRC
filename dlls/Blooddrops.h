@@ -24,10 +24,11 @@ public:
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static void BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity, int BloodType); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
 	int m_BloodDropVel;
+	int m_BloodType; // Always B positive guys!
 	Vector m_SpawnPos;
 	Vector m_direction;
 	float m_Spread;

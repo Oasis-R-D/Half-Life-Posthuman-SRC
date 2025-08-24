@@ -41,7 +41,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity)
+void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity, int BloodType)
 {
 	for (int i = 0; i < BLDamnt; i++) // Allows multishot
 	{
@@ -53,6 +53,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		pBlood->m_direction = vecDir;
 		pBlood->m_Spread = vecSpread;
 		pBlood->m_Gravity = BLLTGravity;
+		pBlood->m_BloodType = BloodType;
 		pBlood->Spawn();
 	}
 }
@@ -72,7 +73,14 @@ void CPhysblood::Spawn()
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
 	pev->scale = RANDOM_FLOAT(0.40, 0.60);
 	pev->renderamt = 225;
-	pev->rendercolor = Vector(RANDOM_LONG(100, 120), 0, 0);
+	if (m_BloodType == BLOOD_COLOR_RED)
+	{
+		pev->rendercolor = Vector(RANDOM_LONG(100, 120), 0, 0);
+	}
+	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+	{
+		pev->rendercolor = Vector(RANDOM_LONG(205, 255), RANDOM_LONG(185, 235), RANDOM_LONG(82, 160));
+	}
 	pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
@@ -130,7 +138,14 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 			Stay();
 	}
 	TraceResult tr = UTIL_GetGlobalTrace();
+		if (m_BloodType == BLOOD_COLOR_RED)
+	{
 	UTIL_DecalTrace(&tr, RANDOM_LONG(45, 50));
+	}
+	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+	{
+	UTIL_DecalTrace(&tr, RANDOM_LONG(51, 56));
+	}
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 

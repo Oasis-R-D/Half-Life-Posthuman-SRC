@@ -1282,7 +1282,14 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 				//Spawn blud dwops UwU
 				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1);
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_RED);
+				#endif
+			}
+			else if (blood == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+			{
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_YELLOW);
 				#endif
 			}
 		}
@@ -1336,7 +1343,14 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			{
 				//Spawn blud dwops UwU
 				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1);
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_RED);
+				#endif
+			}
+			else if (BloodColor() == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+			{
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_YELLOW);
 				#endif
 			}
 		}
