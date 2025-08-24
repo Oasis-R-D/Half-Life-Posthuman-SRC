@@ -1276,8 +1276,8 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 
 		if (blood != DONT_BLEED && blood !=BLOOD_COLOR_CYAN)
 		{
-			SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
-			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+			//SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
+			//TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 			if (blood == BLOOD_COLOR_RED)
 			{
 				//Spawn blud dwops UwU
@@ -1304,7 +1304,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	Vector vecOrigin = ptr->vecEndPos;
 	int BLDAMNT;
 
-	BLDAMNT = round(flDamage / 2);
+	BLDAMNT = round(flDamage * 0.66);
 
 	if (0 != pev->takedamage)
 	{

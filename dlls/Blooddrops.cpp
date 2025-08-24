@@ -45,9 +45,9 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
-		if (BLDamnt > 14)
+		if (BLDamnt > 16)
 		{
-			BLDamnt = 14;
+			BLDamnt = 16;
 		}
 		for (int i = 0; i < BLDamnt; i++) // Allows multishot
 		{
