@@ -5461,25 +5461,36 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 	{
 		// oy you! shut yo mouth and looka mah waaad!
 		glEnable(GL_BLEND);
+
+		////////////////////////////////////
 		int index = decal->texinfo->szName[6] - '0';
 		char blood[64];
 		sprintf(blood, "{blood%d", index);
+
+		int index2 = decal->texinfo->szName[7] - '0';
+		char bblood[64];
+		sprintf(bblood, "{bblood%d", index2); 
+
+		int index3 = decal->texinfo->szName[11] - '0'; // all possible values ( [] = name length minus { )
+		char bloodspray[64]; // texture name without { + #
+		sprintf(bloodspray, "{bloodspray%d", index3);
+		////////////////////////////////////
 
 		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
 		}
+		else if (!strcmp(decal->texinfo->szName, bloodspray)  && g_iNightVision) // if texture = bloodspray#
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
+		}		
+		else if (!strcmp(decal->texinfo->szName, bblood))
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
+		}
 		else 
 		{
 			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		int index2 = decal->texinfo->szName[7] - '0';
-		char bblood[64];
-		sprintf(bblood, "{bblood%d", index2);
-
-		if (!strcmp(decal->texinfo->szName, bblood))
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
 		}
 	}
 	else
