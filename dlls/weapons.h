@@ -368,8 +368,9 @@ public:
 	bool m_fInReload;			   // Are we in the middle of a reload;
 	int m_iDefaultAmmo; // how much ammo you get when you pick up this weapon as placed by a level designer.
 	bool NotFirstDraw;
+	bool m_hasbeeped;
 
-	// hle time creep vars
+	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
 };
@@ -396,7 +397,7 @@ inline DLL_GLOBAL short g_sModelIndexSmoke;		 // holds the index for the smoke c
 inline DLL_GLOBAL short g_sModelIndexWExplosion; // holds the index for the underwater explosion
 inline DLL_GLOBAL short g_sModelIndexBubbles;	 // holds the index for the bubbles model
 inline DLL_GLOBAL short g_sModelIndexBloodDrop;	 // holds the sprite index for blood drops
-inline DLL_GLOBAL short g_sModelIndexBloodSpray; // holds the sprite index for blood spray (bigger)
+inline DLL_GLOBAL short g_sModelIndexBloodSpray; // holds the sprite index for blood spray (bigger) // (not the physics one)
 inline DLL_GLOBAL short g_sModelIndexShrapnel; // holds the sprite index for shrapnel
 
 extern void ClearMultiDamage();

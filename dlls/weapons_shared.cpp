@@ -87,7 +87,7 @@ bool CBasePlayerWeapon::DefaultReload(int iClipSize, int iAnim, float fDelay, in
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3;
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
 	m_pPlayer->pev->punchangle.z += RANDOM_LONG(-5, 5);
-
+	m_hasbeeped = false;
 	return true;
 }
 
@@ -187,10 +187,16 @@ void CBasePlayerWeapon::ItemPostFrame()
 			if (m_iClip == 0 && (iFlags() & ITEM_FLAG_NOAUTORELOAD) == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
 			{
 				Reload();
+
 				return;
 			}
 		}
-
+		if (m_iClip <= round(0.15 * iMaxClip())  && m_hasbeeped == false)
+		{
+			EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo.wav", 1, ATTN_NONE);
+			m_hasbeeped = true;
+		}
+		
 		WeaponIdle();
 		return;
 	}
