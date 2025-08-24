@@ -43,23 +43,26 @@
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity, int BloodType)
 {
-	if (BLDamnt > 14)
+	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
-		BLDamnt = 14;
-	}
-	for (int i = 0; i < BLDamnt; i++) // Allows multishot
-	{
-		// Create a new entity with CPhysblood private data
-		CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
-		pBlood->pev->classname = MAKE_STRING("blooddrop");
-		pBlood->m_BloodDropVel = BLDSpeed + RANDOM_LONG(-150, 150);
-		pBlood->m_SpawnPos = VecSpawnPos;
-		pBlood->m_direction = vecDir;
-		pBlood->m_Spread = vecSpread;
-		pBlood->m_Gravity = BLLTGravity;
-		pBlood->m_BloodType = BloodType;
-	
-		pBlood->Spawn();
+		if (BLDamnt > 14)
+		{
+			BLDamnt = 14;
+		}
+		for (int i = 0; i < BLDamnt; i++) // Allows multishot
+		{
+			// Create a new entity with CPhysblood private data
+			CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
+			pBlood->pev->classname = MAKE_STRING("blooddrop");
+			pBlood->m_BloodDropVel = BLDSpeed + RANDOM_LONG(-150, 150);
+			pBlood->m_SpawnPos = VecSpawnPos;
+			pBlood->m_direction = vecDir;
+			pBlood->m_Spread = vecSpread;
+			pBlood->m_Gravity = BLLTGravity;
+			pBlood->m_BloodType = BloodType;
+
+			pBlood->Spawn();
+		}
 	}
 }
 
@@ -89,7 +92,7 @@ void CPhysblood::Spawn()
 	
 	
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
-	pev->scale = RANDOM_FLOAT(0.40, 0.60);
+	pev->scale = RANDOM_FLOAT(0.55, 0.75);
 	pev->renderamt = 225;
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
