@@ -191,7 +191,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 				return;
 			}
 		}
-		if (m_iClip <= round(0.15 * iMaxClip())  && m_hasbeeped == false)
+		if (m_iClip <= round(0.2 * iMaxClip())  && m_hasbeeped == false)
 		{
 			EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo.wav", 1, ATTN_NONE);
 			m_hasbeeped = true;
