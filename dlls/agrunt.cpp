@@ -25,7 +25,7 @@
 #include "weapons.h"
 #include "soundent.h"
 #include "hornet.h"
-
+#include "Blooddrops.h"
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -259,8 +259,15 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	}
 	else
 	{
+		Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+		int BLDAMNT;
+
+		BLDAMNT = round(flDamage / 2);
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+		#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_YELLOW);
+		#endif
 	}
 
 	AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
