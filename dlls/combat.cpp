@@ -1278,20 +1278,11 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		{
 			SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-			if (blood == BLOOD_COLOR_RED)
-			{
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_RED);
-				#endif
-			}
-			else if (blood == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
-			{
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_YELLOW);
-				#endif
-			}
+			//Spawn blud dwops UwU
+			#ifndef CLIENT_DLL
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, blood);
+			#endif
+
 		}
 	}
 }
@@ -1339,20 +1330,10 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-			if (BloodColor() == BLOOD_COLOR_RED)
-			{
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_RED);
-				#endif
-			}
-			else if (BloodColor() == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
-			{
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BLOOD_COLOR_YELLOW);
-				#endif
-			}
+			//Spawn blud dwops UwU
+			#ifndef CLIENT_DLL
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BloodColor());
+			#endif
 		}
 
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
