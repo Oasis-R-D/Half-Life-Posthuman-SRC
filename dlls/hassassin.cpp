@@ -26,7 +26,7 @@
 #include "weapons.h"
 #include "soundent.h"
 #include "game.h"
-
+#include "physical_bullet.h"
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -211,7 +211,10 @@ void CHAssassin::Shoot()
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(pev->origin + gpGlobals->v_up * 32 + gpGlobals->v_forward * 12, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	FireBullets(1, vecShootOrigin, vecShootDir, Vector(m_flDiviation, m_flDiviation, m_flDiviation), 2048, BULLET_MONSTER_9MM); // shoot +-8 degrees
+	//FireBullets(1, vecShootOrigin, vecShootDir, Vector(m_flDiviation, m_flDiviation, m_flDiviation), 2048, BULLET_MONSTER_9MM); // shoot +-8 degrees
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6333, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict());
+	#endif
 
 	switch (RANDOM_LONG(0, 1))
 	{

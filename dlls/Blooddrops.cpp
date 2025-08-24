@@ -86,12 +86,12 @@ void CPhysblood::Spawn()
 	if (m_opposite == 1)
 	{
 		pev->scale = RANDOM_FLOAT(0.4, 0.65);
-		m_BloodDropVel -= RANDOM_LONG(125, -175);
+		m_BloodDropVel -= RANDOM_LONG(200, -200);
 
 	}
 	else
 	{
-		m_BloodDropVel -= RANDOM_LONG(100, 250);
+		m_BloodDropVel -= RANDOM_LONG(0, 350);
 		pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
