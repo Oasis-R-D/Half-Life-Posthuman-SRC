@@ -64,7 +64,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 void CPhysbullet::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
+	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
@@ -154,7 +154,8 @@ void CPhysbullet::Stay() //TO-DO: add imapct sounds
 	pev->velocity = Vector(0, 0, 0);
 	pev->avelocity.z = 0;
 	pev->angles.z = RANDOM_LONG(0, 360);
-	
+	SetThink(&CPhysbullet::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {

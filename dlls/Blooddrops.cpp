@@ -109,7 +109,8 @@ void CPhysblood::Stay()
 	pev->movetype = MOVETYPE_FLY;
 	pev->velocity = Vector(0, 0, 0);
 	pev->avelocity.z = 0;
-	
+	SetThink(&CPhysblood::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
 }
 void CPhysblood::BoltTouch(CBaseEntity* pOther)
 {
