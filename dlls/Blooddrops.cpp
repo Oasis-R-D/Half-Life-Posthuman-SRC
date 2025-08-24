@@ -54,7 +54,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			// Create a new entity with CPhysblood private data
 			CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
 			pBlood->pev->classname = MAKE_STRING("blooddrop");
-			pBlood->m_BloodDropVel = BLDSpeed + RANDOM_LONG(-150, 150);
+			pBlood->m_BloodDropVel = BLDSpeed;
 			pBlood->m_SpawnPos = VecSpawnPos;
 			pBlood->m_direction = vecDir;
 			pBlood->m_Spread = vecSpread;
@@ -69,9 +69,9 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 void CPhysblood::Spawn()
 {
 	Precache();
-	switch (RANDOM_LONG(1, 2))
+	switch (RANDOM_LONG(1, 3))
 		{
-			case 1:
+			case 1 || 3:
 			{
 				m_opposite = 1;
 				break;
@@ -82,17 +82,28 @@ void CPhysblood::Spawn()
 				break;
 			}
 		}
+	SET_MODEL(ENT(pev), "sprites/blood.spr");
+	if (m_opposite == 1)
+	{
+		pev->scale = RANDOM_FLOAT(0.4, 0.65);
+		m_BloodDropVel -= RANDOM_LONG(125, -175);
+
+	}
+	else
+	{
+		m_BloodDropVel -= RANDOM_LONG(100, 250);
+		pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
+	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 24); //spawn a little bit more forward
+	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 48) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->speed = m_BloodDropVel; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction;
 	
 	
-	SET_MODEL(ENT(pev), "sprites/blood.spr");
-	pev->scale = RANDOM_FLOAT(0.55, 0.75);
+	
 	pev->renderamt = 225;
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
@@ -130,13 +141,6 @@ int CPhysblood::Classify()
 }
 void CPhysblood::Stay()
 {
-	Vector vecDir = pev->velocity.Normalize();
-
-	pev->angles = UTIL_VecToAngles(vecDir);
-	pev->solid = SOLID_NOT;
-	pev->movetype = MOVETYPE_FLY;
-	pev->velocity = Vector(0, 0, 0);
-	pev->avelocity.z = 0;
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
@@ -148,38 +152,26 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	if (0 != pOther->pev->takedamage)
 	{
 		TraceResult tr = UTIL_GetGlobalTrace();
+		Stay();
 
-		if (pOther->IsBSPModel())
-		{
-			Stay();
-		}
-		else
-		{
-			SetThink(&CPhysblood::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-		}
 	}
 	else 
 	{
-		SetThink(&CPhysblood::SUB_Remove);
-		pev->nextthink = gpGlobals->time;
-		if (FClassnameIs(pOther->pev, "worldspawn"))
-			Stay();
+		Stay();
 	}
 	TraceResult tr = UTIL_GetGlobalTrace();
-		if (m_BloodType == BLOOD_COLOR_RED)
+	if (m_BloodType == BLOOD_COLOR_RED)
 	{
-	UTIL_DecalTrace(&tr, RANDOM_LONG(45, 50));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(45, 52));
 	}
 	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
 	{
-	UTIL_DecalTrace(&tr, RANDOM_LONG(51, 56));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58));
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 3));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
-	SetThink(&CPhysblood::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
+	Stay();
 
 }
 
