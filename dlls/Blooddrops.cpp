@@ -93,6 +93,13 @@ void CPhysblood::Spawn()
 void CPhysblood::Precache()
 {
 	PRECACHE_MODEL("sprites/blood.spr");
+	PRECACHE_SOUND("common/drip_01.wav");
+	PRECACHE_SOUND("common/drip_02.wav");
+	PRECACHE_SOUND("common/drip_03.wav");
+	PRECACHE_SOUND("common/drip_04.wav");
+	PRECACHE_SOUND("common/drip_05.wav");
+	PRECACHE_SOUND("common/drip_06.wav");
+	PRECACHE_SOUND("common/drip_07.wav");
 }
 
 
@@ -147,6 +154,9 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 	UTIL_DecalTrace(&tr, RANDOM_LONG(51, 56));
 	}
+	char dripsnd[256];
+	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 3));
+	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 

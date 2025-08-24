@@ -416,7 +416,7 @@ void CEagle::PrimaryAttack()
 	
 	//m_pPlayer->FireBullets(1,vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192.0, BULLET_PLAYER_357, 1, 1000);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, 5000, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(1, 200, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
 	#endif
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
