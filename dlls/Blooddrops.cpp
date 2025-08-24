@@ -43,6 +43,10 @@
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity, int BloodType)
 {
+	if (BLDamnt > 14)
+	{
+		BLDamnt = 14;
+	}
 	for (int i = 0; i < BLDamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysblood private data
