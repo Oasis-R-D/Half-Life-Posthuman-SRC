@@ -54,6 +54,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		pBlood->m_Spread = vecSpread;
 		pBlood->m_Gravity = BLLTGravity;
 		pBlood->m_BloodType = BloodType;
+	
 		pBlood->Spawn();
 	}
 }
@@ -61,10 +62,23 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 void CPhysblood::Spawn()
 {
 	Precache();
+	switch (RANDOM_LONG(1, 2))
+		{
+			case 1:
+			{
+				m_opposite = 1;
+				break;
+			}
+			case 2:
+			{
+				m_opposite = -1;
+				break;
+			}
+		}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 24); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel; // Applies spread and velocity
+	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->speed = m_BloodDropVel; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction;
@@ -164,11 +178,11 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.25;
 	if (pev->waterlevel == 0)
 	return;
 	
-	pev->renderamt -= 75;
-	pev->scale += RANDOM_FLOAT(0.125, 0.025);
+	SetThink(&CPhysblood::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
 }
 #endif

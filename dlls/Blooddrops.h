@@ -33,5 +33,6 @@ private:
 	Vector m_direction;
 	float m_Spread;
 	float m_Gravity;
+	int m_opposite;
 };
 #endif
