@@ -264,7 +264,8 @@ void W_Precache()
 	giAmmoIndex = 0;
 
 	// custom items...
-
+	UTIL_PrecacheOther("phys_blood");
+	UTIL_PrecacheOther("phys_bullet");
 	// common world objects
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_battery");

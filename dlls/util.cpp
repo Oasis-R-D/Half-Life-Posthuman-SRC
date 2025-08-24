@@ -1296,6 +1296,7 @@ void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber)
 			index -= 256;
 		}
 	}
+	int DCrot = RANDOM_LONG(0,180);
 
 	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
 	//TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
@@ -1308,7 +1309,7 @@ void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_STRING(gDecals[decalNumber].name);
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
-	WRITE_COORD(0); // NEW!! : decal rotation
+	WRITE_COORD(DCrot); // NEW!! : decal rotation
 	WRITE_COORD(0); // NEW!! : decal radius
 	MESSAGE_END();
 }
@@ -1381,6 +1382,8 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_SHORT((short)ENTINDEX(pTrace->pHit));
 	WRITE_BYTE(-1); //no decals, just the effect
 	MESSAGE_END();
+	
+	int DCrot = RANDOM_LONG(0,180);
 
 	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
 	// TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
@@ -1393,7 +1396,7 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_STRING(gDecals[decalNumber].name);
 	WRITE_BYTE(0); // persistent
 	WRITE_BYTE(1); // from wad
-	WRITE_COORD(0); // NEW!! : decal rotation
+	WRITE_COORD(DCrot); // NEW!! : decal rotation
 	WRITE_COORD(0); // NEW!! : decal radius
 	MESSAGE_END();
 }

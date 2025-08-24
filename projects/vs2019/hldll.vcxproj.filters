@@ -393,6 +393,9 @@
     <ClCompile Include="..\..\dlls\physical_bullet.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\Blooddrops.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -660,6 +663,9 @@
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\physical_bullet.h">
+      <Filter>Header Files\dlls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\Blooddrops.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
   </ItemGroup>

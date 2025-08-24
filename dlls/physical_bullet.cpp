@@ -64,7 +64,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 void CPhysbullet::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
+	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
@@ -165,7 +165,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	{
 		TraceResult tr = UTIL_GetGlobalTrace();
 		entvars_t* pevOwner;
-
+		m_Endpos = pev->origin;
 		pevOwner = VARS(pev->owner);
 
 		// UNDONE: this needs to call TraceAttack instead
@@ -183,20 +183,24 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		pev->velocity = Vector(0, 0, 0);
 		if (pOther->IsBSPModel())
-			Stay();
-		else
-		// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
-		switch (RANDOM_LONG(0, 1))
 		{
-		case 0:
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
-			break;
-		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
-			break;
+			Stay();
 		}
-		SetThink(&CPhysbullet::SUB_Remove);
-		pev->nextthink = gpGlobals->time;
+		else
+		{
+			// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
+			switch (RANDOM_LONG(0, 1))
+			{
+			case 0:
+				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
+				break;
+			}
+			SetThink(&CPhysbullet::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else 
 	{

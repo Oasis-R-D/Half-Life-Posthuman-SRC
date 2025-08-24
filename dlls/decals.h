@@ -65,6 +65,12 @@ enum decal_e
 	DECAL_BBLOOD1,
 	DECAL_BBLOOD2,
 	DECAL_BBLOOD3,
+	DECAL_BLOODSPRAY1, // 45-50: For the blood drop system, might add alien variants sometime
+	DECAL_BLOODSPRAY2,
+	DECAL_BLOODSPRAY3,
+	DECAL_BLOODSPRAY4,
+	DECAL_BLOODSPRAY5,
+	DECAL_BLOODSPRAY6,
 };
 
 typedef struct

@@ -29,6 +29,7 @@
 #include "animation.h"
 #include "weapons.h"
 #include "func_break.h"
+#include "Blooddrops.h"
 
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
@@ -1263,6 +1264,9 @@ TraceAttack
 void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+	int BLDAMNT;
+
+	BLDAMNT = round(flDamage / 2);
 
 	if (0 != pev->takedamage)
 	{
@@ -1274,6 +1278,13 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		{
 			SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+			if (blood == BLOOD_COLOR_RED)
+			{
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1);
+				#endif
+			}
 		}
 	}
 }
@@ -1283,6 +1294,11 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 //=========================================================
 void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
+	Vector vecOrigin = ptr->vecEndPos;
+	int BLDAMNT;
+
+	BLDAMNT = round(flDamage / 2);
+
 	if (0 != pev->takedamage)
 	{
 		m_LastHitGroup = ptr->iHitgroup;
@@ -1316,6 +1332,13 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+			if (BloodColor() == BLOOD_COLOR_RED)
+			{
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1);
+				#endif
+			}
 		}
 
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
