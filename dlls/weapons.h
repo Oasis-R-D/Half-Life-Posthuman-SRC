@@ -88,6 +88,8 @@ public:
 
 
 // weapon clip/carry ammo capacities
+if (g_iSkillLevel != SKILL_HARD)
+{
 #define URANIUM_MAX_CARRY 100
 #define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
 #define _357_MAX_CARRY 24
@@ -100,7 +102,22 @@ public:
 #define SNARK_MAX_CARRY 15
 #define HORNET_MAX_CARRY 8
 #define M203_GRENADE_MAX_CARRY 3
-
+}
+else
+{
+#define URANIUM_MAX_CARRY 35
+#define _9MM_MAX_CARRY 90 //implement +1 ammo in the glock to make this make sense
+#define _357_MAX_CARRY 12
+#define BUCKSHOT_MAX_CARRY 18
+#define BOLT_MAX_CARRY 1
+#define ROCKET_MAX_CARRY 1
+#define HANDGRENADE_MAX_CARRY 2
+#define SATCHEL_MAX_CARRY 2
+#define TRIPMINE_MAX_CARRY 2
+#define SNARK_MAX_CARRY 15
+#define HORNET_MAX_CARRY 8
+#define M203_GRENADE_MAX_CARRY 2
+}
 // the maximum amount of ammo each weapon's clip can hold
 #define WEAPON_NOCLIP -1
 
