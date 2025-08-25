@@ -102,7 +102,6 @@ public:
 #define HORNET_MAX_CARRY 8
 #define M203_GRENADE_MAX_CARRY 3
 
-}
 // the maximum amount of ammo each weapon's clip can hold
 #define WEAPON_NOCLIP -1
 
