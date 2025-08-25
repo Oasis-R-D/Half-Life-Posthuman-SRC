@@ -454,6 +454,20 @@ bool CHGrunt::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
+	if (ptr->iHitgroup == 2)
+	{
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+		{
+			if (g_iSkillLevel != SKILL_HARD)
+			{
+				flDamage = round(flDamage * 0.8);
+			}
+			else
+			{
+				flDamage = round(flDamage * 0.7);
+			}
+		}
+	}
 	// check for helmet shot
 	if (ptr->iHitgroup == 0)
 	{
