@@ -86,6 +86,10 @@ public:
 #define SATCHEL_WEIGHT -10
 #define TRIPMINE_WEIGHT -10
 
+
+// weapon clip/carry ammo capacities
+if (g_iSkillLevel != SKILL_HARD)
+{
 #define URANIUM_MAX_CARRY 100
 #define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
 #define _357_MAX_CARRY 24
@@ -98,9 +102,8 @@ public:
 #define SNARK_MAX_CARRY 15
 #define HORNET_MAX_CARRY 8
 #define M203_GRENADE_MAX_CARRY 3
-
-// weapon clip/carry ammo capacities
-if (g_iSkillLevel == SKILL_HARD)
+}
+else
 {
 #define URANIUM_MAX_CARRY 35
 #define _9MM_MAX_CARRY 90 //implement +1 ammo in the glock to make this make sense
