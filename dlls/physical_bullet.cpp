@@ -153,14 +153,6 @@ int CPhysbullet::Classify()
 }
 void CPhysbullet::Stay() //TO-DO: add imapct sounds
 {
-	Vector vecDir = pev->velocity.Normalize();
-
-	pev->angles = UTIL_VecToAngles(vecDir);
-	pev->solid = SOLID_NOT;
-	pev->movetype = MOVETYPE_FLY;
-	pev->velocity = Vector(0, 0, 0);
-	pev->avelocity.z = 0;
-	pev->angles.z = RANDOM_LONG(0, 360);
 	SetThink(&CPhysbullet::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
@@ -206,16 +198,12 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
-			SetThink(&CPhysbullet::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
+			Stay();
 		}
 	}
 	else 
 	{
-		SetThink(&CPhysbullet::SUB_Remove);
-		pev->nextthink = gpGlobals->time;
-		if (FClassnameIs(pOther->pev, "worldspawn"))
-			Stay();
+		Stay();
 	}
 	TraceResult tr = UTIL_GetGlobalTrace();
 	DecalGunshot(&tr, BULLET_PLAYER_9MM);
