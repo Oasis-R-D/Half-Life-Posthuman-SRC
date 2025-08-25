@@ -134,5 +134,7 @@ public:
 	int m_iShell;
 	int m_iLink;
 
+	int m_helmDUR = 3;
+
 	static const char* pGruntSentences[];
 };
