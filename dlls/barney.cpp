@@ -588,7 +588,14 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(0) != 1)
 			{
-				flDamage = flDamage / 2;
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					flDamage = flDamage / 2;
+				}
+				else
+				{
+					flDamage = round(flDamage * 0.66);
+				}
 			}
 			else
 			{

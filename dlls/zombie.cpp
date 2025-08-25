@@ -81,7 +81,14 @@ public:
 			{
 					if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 					{
-					flDamage = flDamage / 2;
+						if (g_iSkillLevel != SKILL_HARD)
+						{
+							flDamage = flDamage / 2;
+						}
+						else
+						{
+							flDamage = round(flDamage * 0.8);
+						}
 					}
 			}
 		}
