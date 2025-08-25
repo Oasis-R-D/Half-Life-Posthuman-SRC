@@ -40,7 +40,14 @@ void CSpitThrower::Spawn()
 	Precache();
 	m_iId = WEAPON_SPITTHROWER;
 	SET_MODEL(edict(), "models/w_spitthrower.mdl");
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 	m_iDefaultAmmo = 50;
+	}
+	else
+	{
+			m_iDefaultAmmo = 25;
+	}
 	FallInit(); // get ready to fall down.
 }
 
@@ -91,7 +98,14 @@ void CSpitThrower::PrimaryAttack()
 bool CSpitThrower::GetItemInfo(ItemInfo* p)
 {
 	p->pszAmmo1 = "spit";
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 	p->iMaxAmmo1 = 125;
+	}
+	else
+	{
+	p->iMaxAmmo1 = 50;
+	}
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = nullptr;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
@@ -126,7 +140,7 @@ class CSpitAmmo : public CBasePlayerAmmo
 	}
 	bool AddAmmo(CBaseEntity* pOther) override
 	{
-		if (pOther->GiveAmmo(50, "spit", 250) != -1)
+		if (pOther->GiveAmmo(25, "spit", 250) != -1)
 		{
 			EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip1.wav", VOL_NORM, ATTN_NORM);
 			return true;
