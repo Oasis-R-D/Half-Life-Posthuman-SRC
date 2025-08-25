@@ -134,7 +134,14 @@ void CShotgun::PrimaryAttack()
 	float spreadvert = pev->armorvalue == 0 ? CONE_5DEGREES : 0.01746;
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, CONE_2DEGREES, CONE_2DEGREES, 1, 12, m_pPlayer->edict());
+	}
 	#endif
 	if (pev->armorvalue == 0)
 	{
@@ -175,6 +182,10 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack()
 {
+	if (g_iSkillLevel == SKILL_HARD)
+	{
+		return;
+	}
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
 

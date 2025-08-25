@@ -360,7 +360,14 @@ void CBarney::BarneyFirePistol()
 		}
 		//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
+		}
+		else
+		{
+			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
+		}
 		#endif
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
 	}
@@ -438,7 +445,14 @@ void CBarney::Spawn()
 	else
 	{
 		SET_MODEL(ENT(pev), "models/barney.mdl");
-		pev->health = gSkillData.barneyHealth;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pev->health = gSkillData.barneyHealth;
+		}
+		else
+		{
+			pev->health = 100;
+		}
 		m_cAmmoLoaded = pev->armortype = 17;
 	}
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);

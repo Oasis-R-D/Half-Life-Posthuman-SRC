@@ -149,19 +149,40 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		vecAiming = gpGlobals->v_forward;
 	}
-	if (pev->armortype == 0)
+	if (g_iSkillLevel != SKILL_HARD)
 	{
-		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
+		if (pev->armortype == 0)
+		{
+		// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 		#endif
+		}
+		else
+		{
+			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+			#ifndef CLIENT_DLL
+			CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict()); // make it not have tracers?
+			#endif
+		}
 	}
-	else
+	else // realism diff (hardcoded damages to prevent cheaters)
 	{
-		//m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+	
+		if (pev->armortype == 0)
+		{
+		// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 		#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM+2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict()); // make it not have tracers?
+			CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 		#endif
+		}
+		else
+		{
+			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
+			#ifndef CLIENT_DLL
+			CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict()); // make it not have tracers?
+			#endif
+		}
 	}
 	if (pev->armortype == 0)
 	{

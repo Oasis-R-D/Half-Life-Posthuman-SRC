@@ -41,6 +41,7 @@
 #include "soundent.h"
 #include "effects.h"
 #include "customentity.h"
+#include "physical_bullet.h"
 
 extern DLL_GLOBAL int g_iSkillLevel;
 
@@ -803,12 +804,31 @@ void CMOFAssassin::Shoot()
 	{
 		Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 		EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
-		FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
+		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
+		#ifndef CLIENT_DLL
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_4DEGREES, 0.66, 9, edict());
+		}
+		else
+		{
+			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_4DEGREES, 1, 9, edict());
+		}
+		#endif
 	}
 	else
 	{
-		//TODO: why is this 556? is 762 too damaging?
-		FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_1DEGREES, 2048, BULLET_PLAYER_556);
+		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_1DEGREES, 2048, BULLET_PLAYER_556);
+#ifndef CLIENT_DLL
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg556, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 0.66, 357, edict());
+		}
+		else
+		{
+			CPhysbullet::BulletCreate(1, 50, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 1, 357, edict());
+		}
+#endif
 	}
 
 	pev->effects |= EF_MUZZLEFLASH;
@@ -959,7 +979,14 @@ void CMOFAssassin::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
-	pev->health = gSkillData.massassinHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.massassinHealth;
+	}
+	else
+	{
+		pev->health = 100;
+	}
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;

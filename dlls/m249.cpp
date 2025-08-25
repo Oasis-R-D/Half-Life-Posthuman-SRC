@@ -214,7 +214,14 @@ void CM249::PrimaryAttack()
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 0.75, 556, m_pPlayer->edict());
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 0.75, 556, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, vecSpread * 0.75, vecSpread * 0.75, 1, 556, m_pPlayer->edict());
+	}
 	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
