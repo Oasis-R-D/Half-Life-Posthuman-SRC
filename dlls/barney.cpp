@@ -602,7 +602,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(3) != 1)
 			{
-				if (flDamage < 20 && m_helmDUR > 0)
+				if (flDamage < 45 && m_helmDUR > 0)
 				{
 					m_helmDUR -= 1;
 					if (m_helmDUR == 0)
@@ -618,7 +618,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
 					#endif
 				}
-				else if (flDamage > 50 && m_helmDUR > 0)
+				else if (flDamage > 44 && m_helmDUR > 0)
 				{
 					m_helmDUR = 0;
 					SetBodygroup(3, HEADWEAR_OFF);
