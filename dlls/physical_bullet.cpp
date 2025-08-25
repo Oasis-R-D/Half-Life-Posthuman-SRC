@@ -48,7 +48,14 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("bullet");
-		pBullet->m_muzzlevelocity = BLLTSpeed;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pBullet->m_muzzlevelocity = BLLTSpeed;
+		}
+		else
+		{
+			pBullet->m_muzzlevelocity = BLLTSpeed * 1.25;
+		}
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_direction = vecDir;

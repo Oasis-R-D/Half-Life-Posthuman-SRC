@@ -174,7 +174,16 @@ void CPython::PrimaryAttack()
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 	#ifndef CLIENT_DLL
 	CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+	}
 	#endif
+
 	int flags;
 #if defined(CLIENT_WEAPONS)
 	flags = FEV_NOTHOST;

@@ -25,7 +25,7 @@
 #include "weapons.h"
 #include "soundent.h"
 #include "decals.h"
-
+#include "physical_bullet.h"
 
 //===================grenade
 
@@ -39,10 +39,10 @@ LINK_ENTITY_TO_CLASS(grenade, CGrenade);
 // Grenade Explode
 //
 void CGrenade::Explode(Vector vecSrc, Vector vecAim)
-{
+{ 
+
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -32), ignore_monsters, ENT(pev), &tr);
-
 	Explode(&tr, DMG_BLAST);
 }
 
@@ -209,7 +209,9 @@ void CGrenade::Detonate()
 
 	vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
-
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(20, gSkillData.monDmg9MM, 3500, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+	#endif
 	Explode(&tr, DMG_BLAST);
 }
 
@@ -226,7 +228,9 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
-
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(20, gSkillData.monDmg9MM, 3500, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+	#endif
 	Explode(&tr, DMG_BLAST);
 }
 
