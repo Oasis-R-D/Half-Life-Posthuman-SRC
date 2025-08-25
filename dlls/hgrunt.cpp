@@ -471,119 +471,33 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	// check for helmet shot
 	if (ptr->iHitgroup == 0)
 	{
-		// make sure we're wearing one
-		if (GetBodygroup(1) == HEAD_GRUNT)
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
 		{
-			if (bitsDamageType && ((DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
+			if (GetBodygroup(1) == (1 || 0) || (8 || 9))
 			{
-				// absorb damage
-				flDamage -= 20;
-				if (flDamage <= 0)
+				if (flDamage < 45 && m_helmDUR > 0)
 				{
-					// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-					flDamage = 0.01;
+					m_helmDUR -= 1;
+					if (m_helmDUR == 0)
+					{
+					 // Figure out something to do here
+					}
+					flDamage = round(flDamage * 0.2);
 					UTIL_Sparks(ptr->vecEndPos);
 					Vector vecTracerDir = vecDir;
 
 					vecTracerDir = vecTracerDir * -512;
 					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
 					#endif
-					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-					WRITE_BYTE(TE_TRACER);
-					WRITE_COORD(ptr->vecEndPos.x);
-					WRITE_COORD(ptr->vecEndPos.y);
-					WRITE_COORD(ptr->vecEndPos.z);
-
-					WRITE_COORD(vecTracerDir.x);
-					WRITE_COORD(vecTracerDir.y);
-					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END(); */
 				}
-			}
-		}
-		if (GetBodygroup(1) == HEAD_GRUNT_BLACK)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-			// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-					flDamage = 0.01;
-					UTIL_Sparks(ptr->vecEndPos);
-					Vector vecTracerDir = vecDir;
-
-					vecTracerDir = vecTracerDir * -512;
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
-					#endif
-					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-					WRITE_BYTE(TE_TRACER);
-					WRITE_COORD(ptr->vecEndPos.x);
-					WRITE_COORD(ptr->vecEndPos.y);
-					WRITE_COORD(ptr->vecEndPos.z);
-
-					WRITE_COORD(vecTracerDir.x);
-					WRITE_COORD(vecTracerDir.y);
-					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END(); */
-				
-			}
-		}
-		if (GetBodygroup(1) == HEAD_MEDIC)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-					flDamage = 0.01;
-					UTIL_Sparks(ptr->vecEndPos);
-					Vector vecTracerDir = vecDir;
-
-					vecTracerDir = vecTracerDir * -512;
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
-					#endif
-					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-					WRITE_BYTE(TE_TRACER);
-					WRITE_COORD(ptr->vecEndPos.x);
-					WRITE_COORD(ptr->vecEndPos.y);
-					WRITE_COORD(ptr->vecEndPos.z);
-
-					WRITE_COORD(vecTracerDir.x);
-					WRITE_COORD(vecTracerDir.y);
-					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END(); */
-			}
-		}
-		if (GetBodygroup(1) == HEAD_MEDIC_BLACK)
-		{
-			// absorb damage
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				// UTIL_Ricochet(ptr->vecEndPos, 1.0);
-					flDamage = 0.01;
-					UTIL_Sparks(ptr->vecEndPos);
-					Vector vecTracerDir = vecDir;
-
-					vecTracerDir = vecTracerDir * -512;
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
-					#endif
-					/* MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-					WRITE_BYTE(TE_TRACER);
-					WRITE_COORD(ptr->vecEndPos.x);
-					WRITE_COORD(ptr->vecEndPos.y);
-					WRITE_COORD(ptr->vecEndPos.z);
-
-					WRITE_COORD(vecTracerDir.x);
-					WRITE_COORD(vecTracerDir.y);
-					WRITE_COORD(vecTracerDir.z);
-					MESSAGE_END(); */
-			}
-		}
+				else if (flDamage > 44 && m_helmDUR > 0)
+				{
+					m_helmDUR = 0;
+					SetBodygroup(3, HEADWEAR_OFF);
+				}
+		
+	
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
