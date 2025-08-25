@@ -87,22 +87,21 @@ public:
 #define TRIPMINE_WEIGHT -10
 
 #define URANIUM_MAX_CARRY 100
-#define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
-#define _357_MAX_CARRY 24
-#define BUCKSHOT_MAX_CARRY 99
-#define BOLT_MAX_CARRY 10
-#define ROCKET_MAX_CARRY 3
-#define HANDGRENADE_MAX_CARRY 5
-#define SATCHEL_MAX_CARRY 5
-#define TRIPMINE_MAX_CARRY 5
-#define SNARK_MAX_CARRY 15
+int _9MM_MAX_CARRY = 180; //implement +1 ammo in the glock to make this make sense
+int _357_MAX_CARRY = 24;
+int BUCKSHOT_MAX_CARRY = 99;
+int BOLT_MAX_CARRY = 10;
+int ROCKET_MAX_CARRY = 3;
+int HANDGRENADE_MAX_CARRY = 5;
+int SATCHEL_MAX_CARRY = 5;
+int TRIPMINE_MAX_CARRY = 5;
+int SNARK_MAX_CARRY = 15;
 #define HORNET_MAX_CARRY 8
-#define M203_GRENADE_MAX_CARRY 3
+int M203_GRENADE_MAX_CARRY = 3;
 
 // weapon clip/carry ammo capacities
 if (g_iSkillLevel == SKILL_HARD)
 {
-URANIUM_MAX_CARRY = 35;
 _9MM_MAX_CARRY = 90; //implement +1 ammo in the glock to make this make sense
 _357_MAX_CARRY = 12;
 BUCKSHOT_MAX_CARRY = 18;
@@ -112,7 +111,6 @@ HANDGRENADE_MAX_CARRY = 2;
 SATCHEL_MAX_CARRY = 2;
 TRIPMINE_MAX_CARRY = 2;
 SNARK_MAX_CARRY = 15;
-HORNET_MAX_CARRY = 8;
 M203_GRENADE_MAX_CARRY = 2;
 }
 // the maximum amount of ammo each weapon's clip can hold
