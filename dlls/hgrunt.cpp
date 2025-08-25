@@ -494,7 +494,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				else if (flDamage > 44 && m_helmDUR > 0)
 				{
 					m_helmDUR = 0;
-					SetBodygroup(3, HEADWEAR_OFF);
+					// Figure out something to do here
 				}
 		
 	
