@@ -87,6 +87,7 @@ public:
 	int m_iShell;
 	int m_iArmor;
 	int m_iHelmet;
+	int m_helmDUR = 3;
 	bool m_bPrehuman;
 	CUSTOM_SCHEDULES;
 };
@@ -431,7 +432,6 @@ void CBarney::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CBarney::Spawn()
 {
 	Precache();
-
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
 		m_bPrehuman = 1;
@@ -602,10 +602,14 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(3) != 1)
 			{
-				flDamage -= 20;
-				if (flDamage <= 0)
+				if (flDamage < 20 && m_helmDUR > 0)
 				{
-					flDamage = 0.01;
+					m_helmDUR -= 1;
+					if (m_helmDUR == 0)
+					{
+						SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
+					}
+					flDamage = round(flDamage * 0.2);
 					UTIL_Sparks(ptr->vecEndPos);
 					Vector vecTracerDir = vecDir;
 
@@ -613,6 +617,11 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					#ifndef CLIENT_DLL
 					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
 					#endif
+				}
+				else if (flDamage > 50 && m_helmDUR > 0)
+				{
+					m_helmDUR = 0;
+					SetBodygroup(3, HEADWEAR_OFF);
 				}
 			}
 		}
