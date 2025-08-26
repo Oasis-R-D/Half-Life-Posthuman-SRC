@@ -149,18 +149,10 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	SetTouch(NULL);
 	SetThink(NULL);
 
-	if (0 != pOther->pev->takedamage) // if the ent can take damage
+	if (0 != pOther->pev->takedamage)
 	{
-		if (pOther->IsBSPModel()) // if it's a world object
-		{
-			Stay();
-		}
-		else // if it's a tasty scientist
-		{
-			SetTouch(&CPhysblood::BoltTouch);
-			SetThink(&CPhysblood::AirThink);
-			return; // continue along, ignore the NPC
-		}
+		TraceResult tr = UTIL_GetGlobalTrace();
+		Stay();
 
 	}
 	else 
