@@ -284,25 +284,46 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			break;
 		case HITGROUP_HEAD:
 			flDamage *= gSkillData.plrHead;
-			 health_head -= flDamage;
+			 health_head += flDamage;
+			if (health_head > 100)
+			{
+			health_head = 100;
+			}
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
-			health_chest -= flDamage;
+			health_chest += flDamage;
+			if (health_chest > 100)
+			{
+			health_chest = 100;
+			}
 			break;
 		case HITGROUP_STOMACH:
 			flDamage *= gSkillData.plrStomach;
-			health_stomach -= flDamage;
+			health_stomach += flDamage;
+			if (health_stomach > 100)
+			{
+			health_stomach = 100;
+			}
 			break;
 		case HITGROUP_LEFTARM:
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
-			health_arms -= flDamage;
+			health_arms += flDamage;
+			if (health_arms > 100)
+			{
+			health_arms = 100;
+			}
 			break;
 		case HITGROUP_LEFTLEG:
 		case HITGROUP_RIGHTLEG:
 			flDamage *= gSkillData.plrLeg;
-			health_legs -= flDamage;
+		
+			health_legs += flDamage;
+			if (health_legs > 100)
+			{
+			health_legs = 100;
+			}
 			break;
 		default:
 			break;
@@ -538,9 +559,9 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			ffound = true;
 		}
 	}
-
-	pev->punchangle.x = -2;
-
+	float punchangle = (health_head/25) + 1;
+	pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
+	pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75)
 	{
 		// first time we take major damage...
