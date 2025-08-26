@@ -284,20 +284,25 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			break;
 		case HITGROUP_HEAD:
 			flDamage *= gSkillData.plrHead;
+			 health_head -= flDamage;
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
+			health_chest -= flDamage;
 			break;
 		case HITGROUP_STOMACH:
 			flDamage *= gSkillData.plrStomach;
+			health_stomach -= flDamage;
 			break;
 		case HITGROUP_LEFTARM:
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
+			health_arms -= flDamage;
 			break;
 		case HITGROUP_LEFTLEG:
 		case HITGROUP_RIGHTLEG:
 			flDamage *= gSkillData.plrLeg;
+			health_legs -= flDamage;
 			break;
 		default:
 			break;
@@ -574,6 +579,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 	return fTookDamage;
 }
+
 void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vector EXCTDMGlocation)
 {
 
