@@ -71,7 +71,7 @@ void CPhysblood::Spawn()
 	Precache();
 	switch (RANDOM_LONG(1, 3))
 		{
-			case 1 || 3:
+			case 1:
 			{
 				m_opposite = 1;
 				break;
@@ -81,17 +81,20 @@ void CPhysblood::Spawn()
 				m_opposite = -1;
 				break;
 			}
+			case 3:
+				m_opposite = 1;
+				break;
 		}
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
 	if (m_opposite == 1)
 	{
 		pev->scale = RANDOM_FLOAT(0.4, 0.65);
-		m_BloodDropVel -= RANDOM_LONG(200, -200);
+		m_BloodDropVel -= RANDOM_LONG(0, 350);
 
 	}
 	else
 	{
-		m_BloodDropVel -= RANDOM_LONG(0, 350);
+		m_BloodDropVel -= RANDOM_LONG(0, 275);
 		pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
