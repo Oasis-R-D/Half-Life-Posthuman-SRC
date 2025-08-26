@@ -87,11 +87,11 @@ enum sbar_data
 class CBasePlayer : public CBaseMonster
 {
 public:
-	int health_head = 100;
-	int health_chest = 100;
-	int health_stomach = 100;
-	int health_arms = 100;
-	int health_legs = 100;
+	int health_head = 0;
+	int health_chest = 0;
+	int health_stomach = 0;
+	int health_arms = 0;
+	int health_legs = 0;
 	float m_bleedtime = 0;
 	float m_bleedAMNT;
 	Vector hitlocation;
