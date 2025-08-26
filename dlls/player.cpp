@@ -41,6 +41,7 @@
 #include "hltv.h"
 #include "UserMessages.h"
 #include "client.h"
+#include "Blooddrops.h"
 
 // #define DUCKFIX
 
@@ -267,6 +268,12 @@ Vector CBasePlayer::GetGunPosition()
 //=========================================================
 void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
+	Vector vecOrigin = ptr->vecEndPos;
+	Vector hitlocation = ptr->vecEndPos;
+	int BLDAMNT;
+
+	BLDAMNT = round(flDamage * 0.5);
+
 	if (0 != pev->takedamage)
 	{
 		m_LastHitGroup = ptr->iHitgroup;
@@ -304,6 +311,9 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		{
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+		#ifndef CLIENT_DLL
+		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BloodColor());
+		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 	}
@@ -382,7 +392,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 		flDamage = flNew;
 	}
-
+	Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 	// this cast to INT is critical!!! If a player ends up with 0.5 health, the engine will get that
 	// as an int (zero) and think the player is dead! (this will incite a clientside screentilt, etc)
 	fTookDamage = CBaseMonster::TakeDamage(pevInflictor, pevAttacker, (int)flDamage, bitsDamageType);
@@ -564,7 +574,43 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 	return fTookDamage;
 }
+void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vector EXCTDMGlocation)
+{
 
+/////////////////////////
+	switch (bitsDamageType)
+	{
+	case HITGROUP_HEAD:
+		m_bleedAMNT = 8;
+		break;
+	case HITGROUP_GENERIC:
+	case HITGROUP_CHEST:
+		m_bleedAMNT = 5;
+		break;
+	case HITGROUP_STOMACH:
+		m_bleedAMNT = 4;
+		break;
+	case HITGROUP_LEFTARM:
+	case HITGROUP_RIGHTARM:
+	case HITGROUP_RIGHTLEG:
+	case HITGROUP_LEFTLEG:
+		if (flDamage > 6)
+		{
+			m_bleedAMNT = 3;
+		}
+		break;
+	}
+	/////////////////////////
+
+	hitlocation = EXCTDMGlocation;
+	if (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB) != 0)
+	{
+		if (m_bleedtime == 0)
+		{
+			m_bleedtime = (m_bleedAMNT + gpGlobals->time);
+		}
+	}
+}
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
 // pack up the appropriate weapons and ammo items, and to
@@ -1768,7 +1814,7 @@ void CBasePlayer::UpdateStatusBar()
 #define CLIMB_PUNCH_X -7		 // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z 7			 // how far to 'punch' client Z axis when climbing
 
-void CBasePlayer::PreThink()
+void CBasePlayer::PreThink() // sjadwjwd
 {
 	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
 
@@ -1778,7 +1824,29 @@ void CBasePlayer::PreThink()
 	m_afButtonReleased = buttonsChanged & (~pev->button); // The ones not down are "released"
 
 	g_pGameRules->PlayerThink(this);
-
+	if (m_bleedtime != 0)
+	{
+		if (m_bleedtime > gpGlobals->time)
+		{
+			if (pev->health > 0)
+			{
+				Hunger -= 1;
+				if (g_iSkillLevel == SKILL_HARD)
+				{
+					pev->health -= 1;
+				}
+#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(2, 0, hitlocation, VECTOR_CONE_20DEGREES, CONE_20DEGREES, 1, BloodColor());
+#endif	
+			
+			}	
+			
+		}
+		if (m_bleedtime < gpGlobals->time)
+		{
+			m_bleedtime = 0;
+		}
+	}
 	if (g_fGameOver)
 		return; // intermission or finale
 

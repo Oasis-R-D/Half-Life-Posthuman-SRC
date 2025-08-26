@@ -87,6 +87,9 @@ enum sbar_data
 class CBasePlayer : public CBaseMonster
 {
 public:
+	float m_bleedtime = 0;
+	float m_bleedAMNT;
+	Vector hitlocation;
 	// Spectator camera
 	void Observer_FindNextPlayer(bool bReverse);
 	void Observer_HandleButtons();
@@ -219,6 +222,7 @@ public:
 	bool TakeHealth(float flHealth, int bitsDamageType) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+	void Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vector EXCTDMGlocation);
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 	Vector BodyTarget(const Vector& posSrc) override { return Center() + pev->view_ofs * RANDOM_FLOAT(0.5, 1.1); } // position to shoot at
 	void StartSneaking() override { m_tSneaking = gpGlobals->time - 1; }
