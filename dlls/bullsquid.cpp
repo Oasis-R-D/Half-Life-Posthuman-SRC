@@ -167,7 +167,15 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 2), DMG_ACID); //made damage lower to account for more projectiles
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 2), DMG_ACID); //made damage lower to account for more projectiles
+		}
+		else
+		{
+			pOther->TakeDamage(pev, pev, 15, DMG_ACID); //made damage lower to account for more projectiles
+		}
+
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);
@@ -689,7 +697,15 @@ void CBullsquid::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	pev->health = gSkillData.bullsquidHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.bullsquidHealth;
+	}
+	else
+	{
+		pev->health = 125;
+	}
+
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 
