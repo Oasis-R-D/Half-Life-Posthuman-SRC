@@ -509,7 +509,15 @@ void CISlave::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	pev->health = gSkillData.slaveHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.slaveHealth;
+	}
+	else
+	{
+	pev->health = 105;
+	}
+
 	pev->view_ofs = Vector(0, 0, 64);  // position of the eyes relative to monster's origin.
 	m_flFieldOfView = VIEW_FIELD_WIDE; // NOTE: we need a wide field of view so npc will notice player and say hello
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -807,7 +815,15 @@ void CISlave::ZapBeam(int side)
 	pEntity = CBaseEntity::Instance(tr.pHit);
 	if (pEntity != NULL && 0 != pEntity->pev->takedamage)
 	{
-		pEntity->TraceAttack(pev, gSkillData.slaveDmgZap, vecAim, &tr, DMG_SHOCK);
+		
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pEntity->TraceAttack(pev, gSkillData.slaveDmgZap, vecAim, &tr, DMG_SHOCK);
+		}
+		else
+		{
+			pEntity->TraceAttack(pev, RANDOM_LONG(25, 75), vecAim, &tr, DMG_SHOCK); // MASSIVE variance (it isn't an instant heart attack 100% of the time)
+		}
 	}
 	UTIL_EmitAmbientSound(ENT(pev), tr.vecEndPos, "weapons/electro4.wav", 0.5, ATTN_NORM, 0, RANDOM_LONG(140, 160));
 }
