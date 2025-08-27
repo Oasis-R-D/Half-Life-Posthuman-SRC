@@ -86,6 +86,7 @@ enum sbar_data
 
 class CBasePlayer : public CBaseMonster
 {
+
 public:
 	int health_head = 0;
 	int health_chest = 0;
@@ -107,7 +108,7 @@ public:
 	int m_iObserverLastMode; // last used observer mode
 	bool IsObserver() { return 0 != pev->iuser1; }
 
-	int random_seed; // See that is shared between client & server for shared weapons code
+	int random_seed; // Seed that is shared between client & server for shared weapons code
 
 	int m_iPlayerSound;		// the index of the sound list slot reserved for this player
 	int m_iTargetVolume;	// ideal sound volume.

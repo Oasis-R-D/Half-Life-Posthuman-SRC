@@ -312,7 +312,7 @@ public:
 	bool AddSecondaryAmmo(int iCount, char* szName, int iMaxCarry);
 
 	void UpdateItemInfo() override {} // updates HUD state
-
+	void Recoil(float RecoilUp, float RecoilHorz);
 	bool m_iPlayEmptySound;
 	bool m_fFireOnEmpty; // True when the gun is empty and the player is still holding down the
 						 // attack key(s)

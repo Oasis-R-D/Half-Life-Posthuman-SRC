@@ -284,11 +284,12 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			break;
 		case HITGROUP_HEAD:
 			flDamage *= gSkillData.plrHead;
-			 health_head += flDamage;
+			 health_head += flDamage*2;
 			if (health_head > 100)
 			{
 			health_head = 100;
 			}
+			ALERT(at_console, " HEAD HEALTH: %d\n", health_head);
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
@@ -309,11 +310,12 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		case HITGROUP_LEFTARM:
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
-			health_arms += flDamage;
+			health_arms += flDamage*1.25;
 			if (health_arms > 100)
 			{
 			health_arms = 100;
 			}
+			ALERT(at_console, " ARMS HEALTH: %d\n", health_arms);
 			break;
 		case HITGROUP_LEFTLEG:
 		case HITGROUP_RIGHTLEG:
@@ -342,6 +344,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+		
 	}
 }
 
@@ -559,7 +562,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			ffound = true;
 		}
 	}
-	float punchangle = (health_head/25) + 1;
+	float punchangle = (health_head/10) + 1;
 	pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
 	pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75)
@@ -1320,7 +1323,6 @@ void CBasePlayer::PlayerDeathThink()
 	m_iRespawnFrames = 0;
 
 	//ALERT(at_console, "Respawn\n");
-
 	respawn(pev, (m_afPhysicsFlags & PFLAG_OBSERVER) == 0); // don't copy a corpse if we're in deathcam.
 	pev->nextthink = -1;
 	// RENDERERS START

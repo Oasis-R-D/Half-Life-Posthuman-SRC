@@ -166,17 +166,16 @@ void CShotgun::PrimaryAttack()
 	m_fInSpecialReload = 0;
 	
 	pev->armortype = 1;
-	
+#ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
-		m_pPlayer->pev->punchangle.x -= 4;
+		CBasePlayerWeapon::Recoil(2, RANDOM_LONG(-2, 2));
 		}
 	else
 		{
-		m_pPlayer->pev->punchangle.x -= 5;
+		CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-3, 2));
 		}
-	
-		m_pPlayer->pev->punchangle.y -= RANDOM_LONG(-2, 2);
+#endif
 }
 
 

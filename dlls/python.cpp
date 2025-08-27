@@ -199,8 +199,11 @@ void CPython::PrimaryAttack()
 
 	m_flNextPrimaryAttack = 0.125;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-	m_pPlayer->pev->punchangle.x -= 7.5;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-2, 2);
+#ifndef CLIENT_DLL
+		CBasePlayerWeapon::Recoil(5, RANDOM_LONG(-2, 2));
+#endif
+
+
 }
 
 

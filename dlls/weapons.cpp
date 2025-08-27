@@ -777,7 +777,12 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount, char* szName, int iMax)
 	}
 	return iIdAmmo > 0 ? true : false;
 }
-
+void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz)
+{
+	float punchang = (m_pPlayer->health_arms/50);
+	m_pPlayer->pev->punchangle.x -= punchang + RecoilUp;
+	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-punchang-RecoilHorz, punchang+RecoilHorz);
+}
 //=========================================================
 // IsUseable - this function determines whether or not a
 // weapon is useable by the player in its current state.
