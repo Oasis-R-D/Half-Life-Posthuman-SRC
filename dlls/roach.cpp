@@ -95,8 +95,7 @@ void CRoach::Touch(CBaseEntity* pOther)
 	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -24), ignore_monsters, ENT(pev), &tr);
 
 	// This isn't really blood.  So you don't have to screen it out based on violence levels (UTIL_ShouldShowBlood())
-	UTIL_DecalTrace(&tr, DECAL_YBLOOD1 + RANDOM_LONG(0, 5));
-
+	UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58));
 	TakeDamage(pOther->pev, pOther->pev, pev->health, DMG_CRUSH);
 }
 
