@@ -369,7 +369,15 @@ void CController::Spawn()
 	pev->movetype = MOVETYPE_FLY;
 	pev->flags |= FL_FLY;
 	m_bloodColor = BLOOD_COLOR_GREEN;
-	pev->health = gSkillData.controllerHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.controllerHealth;
+	}
+	else
+	{
+		pev->health = 90;
+	}
+
 	pev->view_ofs = Vector(0, 0, -2);  // position of the eyes relative to monster's origin.
 	m_flFieldOfView = VIEW_FIELD_FULL; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -1224,7 +1232,14 @@ void CControllerHeadBall::HuntThink()
 		if (pEntity != NULL && 0 != pEntity->pev->takedamage)
 		{
 			ClearMultiDamage();
+			if (g_iSkillLevel != SKILL_HARD)
+			{
 			pEntity->TraceAttack(m_hOwner->pev, gSkillData.controllerDmgZap, pev->velocity, &tr, DMG_SHOCK);
+			}
+			else
+			{
+			pEntity->TraceAttack(m_hOwner->pev, RANDOM_LONG(10,50), pev->velocity, &tr, DMG_SHOCK);
+			}
 			ApplyMultiDamage(pev, m_hOwner->pev);
 		}
 
@@ -1406,7 +1421,15 @@ void CControllerZapBall::ExplodeTouch(CBaseEntity* pOther)
 		}
 
 		ClearMultiDamage();
+		
+		if (g_iSkillLevel != SKILL_HARD)
+		{
 		pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
+		}
+		else
+		{
+		pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall+15, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
+		}
 		ApplyMultiDamage(pevOwner, pevOwner);
 
 		UTIL_EmitAmbientSound(ENT(pev), tr.vecEndPos, "weapons/electro4.wav", 0.3, ATTN_NORM, 0, RANDOM_LONG(90, 99));
