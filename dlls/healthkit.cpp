@@ -82,6 +82,17 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		pPlayer->health_head -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_chest -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_stomach -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		if (pPlayer->health_arms < 0)
+			pPlayer->health_arms = 0;
+		if (pPlayer->health_legs < 0)
+			pPlayer->health_legs = 0;
+		if (pPlayer->health_head < 0)
+			pPlayer->health_head = 0;
+		if (pPlayer->health_chest < 0)
+			pPlayer->health_chest = 0;
+		if (pPlayer->health_stomach < 0)
+			pPlayer->health_stomach = 0;
+		ALERT(at_console, " HEAD HEALTH: %d\n", pPlayer->health_head);
 		//TODO: incorrect check here, but won't respawn due to respawn delay being -1 in singleplayer
 		if (0 != g_pGameRules->ItemShouldRespawn(this))
 		{
@@ -240,6 +251,17 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 		player->health_head -= 1;
 		player->health_chest -= 1;
 		player->health_stomach -= 1;
+		if (player->health_arms < 0)
+			player->health_arms = 0;
+		if (player->health_legs < 0)
+			player->health_legs = 0;
+		if (player->health_head < 0)
+			player->health_head = 0;
+		if (player->health_chest < 0)
+			player->health_chest = 0;
+		if (player->health_stomach < 0)
+			player->health_stomach = 0;
+		ALERT(at_console, " HEAD HEALTH: %d\n", player->health_head);
 	}
 
 	// govern the rate of charge
