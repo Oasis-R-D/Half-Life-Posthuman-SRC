@@ -610,7 +610,15 @@ void CAGrunt::Spawn()
 	pev->skin = RANDOM_LONG(0, 13);
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	pev->health = gSkillData.agruntHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.agruntHealth;
+	}
+	else
+	{
+		pev->health = 135;
+	}
+
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_afCapability = 0;
