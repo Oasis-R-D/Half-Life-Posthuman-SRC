@@ -1300,30 +1300,59 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	if (0 != pev->takedamage)
 	{
 		m_LastHitGroup = ptr->iHitgroup;
-
-		switch (ptr->iHitgroup)
+		if (g_iSkillLevel != SKILL_HARD)
 		{
-		case HITGROUP_GENERIC:
-			break;
-		case HITGROUP_HEAD:
-			flDamage *= gSkillData.monHead;
-			break;
-		case HITGROUP_CHEST:
-			flDamage *= gSkillData.monChest;
-			break;
-		case HITGROUP_STOMACH:
-			flDamage *= gSkillData.monStomach;
-			break;
-		case HITGROUP_LEFTARM:
-		case HITGROUP_RIGHTARM:
-			flDamage *= gSkillData.monArm;
-			break;
-		case HITGROUP_LEFTLEG:
-		case HITGROUP_RIGHTLEG:
-			flDamage *= gSkillData.monLeg;
-			break;
-		default:
-			break;
+			switch (ptr->iHitgroup)
+			{
+			case HITGROUP_GENERIC:
+				break;
+			case HITGROUP_HEAD:
+				flDamage *= gSkillData.monHead;
+				break;
+			case HITGROUP_CHEST:
+				flDamage *= gSkillData.monChest;
+				break;
+			case HITGROUP_STOMACH:
+				flDamage *= gSkillData.monStomach;
+				break;
+			case HITGROUP_LEFTARM:
+			case HITGROUP_RIGHTARM:
+				flDamage *= gSkillData.monArm;
+				break;
+			case HITGROUP_LEFTLEG:
+			case HITGROUP_RIGHTLEG:
+				flDamage *= gSkillData.monLeg;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			switch (ptr->iHitgroup)
+			{
+			case HITGROUP_GENERIC:
+				break;
+			case HITGROUP_HEAD:
+				flDamage *= 5;
+				break;
+			case HITGROUP_CHEST:
+				flDamage *= 1.1;
+				break;
+			case HITGROUP_STOMACH:
+				flDamage *= 1;
+				break;
+			case HITGROUP_LEFTARM:
+			case HITGROUP_RIGHTARM:
+				flDamage *= 0.8;
+				break;
+			case HITGROUP_LEFTLEG:
+			case HITGROUP_RIGHTLEG:
+				flDamage *= 0.8;
+				break;
+			default:
+				break;
+			}
 		}
 
 		if (BloodColor() != BLOOD_COLOR_CYAN)
