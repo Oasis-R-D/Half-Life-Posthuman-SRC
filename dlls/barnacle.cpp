@@ -111,8 +111,16 @@ void CBarnacle::Spawn()
 	pev->movetype = MOVETYPE_NONE;
 	pev->takedamage = DAMAGE_AIM;
 	m_bloodColor = BLOOD_COLOR_RED;
-	pev->effects = EF_INVLIGHT; // take light from the ceiling
-	pev->health = 25;
+	pev->effects = EF_INVLIGHT; // take light from the ceiling\
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = 25;
+	}
+	else
+	{
+		pev->health = 75;
+	}
+
 	m_flFieldOfView = 0.5; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flKillVictimTime = 0;
