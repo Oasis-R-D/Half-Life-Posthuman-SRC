@@ -14,7 +14,7 @@
 ****/
 
 //=========================================================
-// icthyosaur - evin, satan fish monster
+// icthyosaur - evil, satan fish monster
 //=========================================================
 
 #include "extdll.h"
@@ -482,7 +482,14 @@ void CIchthyosaur::Spawn()
 	pev->solid = SOLID_BBOX;
 	pev->movetype = MOVETYPE_FLY;
 	m_bloodColor = BLOOD_COLOR_GREEN;
-	pev->health = gSkillData.ichthyosaurHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.ichthyosaurHealth;
+	}
+	else
+	{
+		pev->health = 225;
+	}
 	pev->view_ofs = Vector(0, 0, 16);
 	m_flFieldOfView = VIEW_FIELD_WIDE;
 	m_MonsterState = MONSTERSTATE_NONE;
