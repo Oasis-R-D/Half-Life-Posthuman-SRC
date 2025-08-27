@@ -815,11 +815,11 @@ void CMOFAssassin::Shoot()
 		#ifndef CLIENT_DLL
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_4DEGREES, 0.66, 9, edict());
+			CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 0.66, 9, edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_4DEGREES, 1, 9, edict());
+			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
 		}
 		#endif
 	}

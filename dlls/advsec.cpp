@@ -814,11 +814,11 @@ void CAdvSec::Shoot()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_8DEGREES, CONE_6DEGREES, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_6DEGREES, 0.66, 9, edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_8DEGREES, CONE_6DEGREES, 1, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_6DEGREES, 1, 9, edict());
 	}
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
