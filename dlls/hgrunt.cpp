@@ -473,7 +473,53 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
 		{
-			if (GetBodygroup(1) == (1 || 0) || (8 || 9))
+			if (GetBodygroup(1) == 1 || 0)
+			{
+				if (flDamage < 45 && m_helmDUR > 0)
+				{
+					m_helmDUR -= 1;
+					if (m_helmDUR == 0)
+					{
+					 // Figure out something to do here
+					}
+					flDamage = round(flDamage * 0.2);
+					UTIL_Sparks(ptr->vecEndPos);
+	
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+					#endif
+				}
+				else if (flDamage > 44 && m_helmDUR > 0)
+				{
+					m_helmDUR = 0;
+					// Figure out something to do here
+				}
+		
+			}
+			if (GetBodygroup(1) == 9)
+			{
+				if (flDamage < 45 && m_helmDUR > 0)
+				{
+					m_helmDUR -= 1;
+					if (m_helmDUR == 0)
+					{
+					 // Figure out something to do here
+					}
+					flDamage = round(flDamage * 0.2);
+					UTIL_Sparks(ptr->vecEndPos);
+	
+					#ifndef CLIENT_DLL
+					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+					#endif
+				}
+				else if (flDamage > 44 && m_helmDUR > 0)
+				{
+					m_helmDUR = 0;
+					// Figure out something to do here
+				}
+		
+			}
+			if (GetBodygroup(1) == 8)
 			{
 				if (flDamage < 45 && m_helmDUR > 0)
 				{
