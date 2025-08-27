@@ -123,7 +123,15 @@ void CApache::Spawn()
 
 	pev->flags |= FL_MONSTER;
 	pev->takedamage = DAMAGE_AIM;
-	pev->health = gSkillData.apacheHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.apacheHealth;
+	}
+	else
+	{
+		pev->health = 3000;
+	}
+
 	pev->max_health = pev->health;
 
 	m_flFieldOfView = -0.707; // 270 degrees
