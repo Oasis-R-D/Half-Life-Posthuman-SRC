@@ -169,11 +169,11 @@ void CShotgun::PrimaryAttack()
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
-		CBasePlayerWeapon::Recoil(2, RANDOM_LONG(-2, 2));
+		CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-2, 2));
 		}
 	else
 		{
-		CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-3, 2));
+		CBasePlayerWeapon::Recoil(4, RANDOM_LONG(-3, 2));
 		}
 #endif
 }

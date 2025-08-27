@@ -253,10 +253,10 @@ void CM249::PrimaryAttack()
 	switch (RANDOM_LONG(0, 1))
 	{
 	case 0:
-		CBasePlayerWeapon::Recoil(0.35, 1.125);
+		CBasePlayerWeapon::Recoil(0.4, 1.125);
 		break;
 	case 1:
-		CBasePlayerWeapon::Recoil(0.35, -1.125);
+		CBasePlayerWeapon::Recoil(0.4, -1.125);
 		break;
 	}
 

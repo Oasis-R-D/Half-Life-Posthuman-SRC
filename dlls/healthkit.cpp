@@ -77,7 +77,11 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		MESSAGE_END();
 
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
-
+		pPlayer->health_arms -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_legs -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_head -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_chest -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_stomach -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		//TODO: incorrect check here, but won't respawn due to respawn delay being -1 in singleplayer
 		if (0 != g_pGameRules->ItemShouldRespawn(this))
 		{
@@ -231,6 +235,11 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 	if (player->TakeHealth(1, DMG_GENERIC))
 	{
 		m_iJuice--;
+		player->health_arms -= 1;
+		player->health_legs -= 1;
+		player->health_head -= 1;
+		player->health_chest -= 1;
+		player->health_stomach -= 1;
 	}
 
 	// govern the rate of charge

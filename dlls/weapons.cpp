@@ -779,7 +779,7 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount, char* szName, int iMax)
 }
 void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz)
 {
-	float punchang = (m_pPlayer->health_arms/50);
+	float punchang = (m_pPlayer->health_arms/95);
 	m_pPlayer->pev->punchangle.x -= punchang + RecoilUp;
 	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-punchang-RecoilHorz, punchang+RecoilHorz);
 }
