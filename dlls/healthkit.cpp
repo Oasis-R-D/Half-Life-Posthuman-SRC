@@ -95,7 +95,7 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 			pPlayer->health_chest = 0;
 		if (pPlayer->health_stomach < 0)
 			pPlayer->health_stomach = 0;
-		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pPlayer->pev);
 		WRITE_BYTE(pPlayer->health_head);
 		WRITE_BYTE(pPlayer->health_chest);
 		WRITE_BYTE(pPlayer->health_stomach);
@@ -273,7 +273,7 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 			player->health_chest = 0;
 		if (player->health_stomach < 0)
 			player->health_stomach = 0;
-		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, player->pev);
 		WRITE_BYTE(player->health_head);
 		WRITE_BYTE(player->health_chest);
 		WRITE_BYTE(player->health_stomach);

@@ -118,7 +118,12 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 
 	BEGIN_READ(pbuf, iSize);
 	m_iHealth_head = READ_BYTE();
-
+	m_iHealth_chest = READ_BYTE();
+	m_iHealth_stmch = READ_BYTE();
+	m_iHealth_Larm = READ_BYTE();
+	m_iHealth_Rarm = READ_BYTE();
+	m_iHealth_Lleg = READ_BYTE(); // This is both legs currently
+	gEngfuncs.Con_Printf(" CLIENT LARM HEALTH: %d\n", m_iHealth_Larm);
 	return true;
 }
 
