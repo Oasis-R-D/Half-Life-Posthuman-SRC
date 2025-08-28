@@ -35,6 +35,13 @@ bool CHudBattery::Init()
 	m_iBat = 0;
 	m_fFade = 0;
 	m_iFlags = 0;
+	m_iHealth_head = 0;
+	m_iHealth_chest = 0;
+	m_iHealth_Larm = 100;
+	m_iHealth_Rarm = 100;
+	m_iHealth_stmch = 0;
+	m_iHealth_Lleg = 0;	
+	m_iHealth_Rleg = 0;	
 
 	HOOK_MESSAGE(Battery);
 	HOOK_MESSAGE(Hunger);
