@@ -97,7 +97,7 @@ bool CHudBattery::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
-	m_iHealth_head = READ_BYTE();
+	m_iHunger = READ_SHORT();
 
 	return true;
 }
@@ -117,7 +117,7 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
-	m_iFireMode = READ_SHORT();
+	m_iHealth_head = READ_BYTE();
 
 	return true;
 }
