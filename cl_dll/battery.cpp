@@ -37,8 +37,8 @@ bool CHudBattery::Init()
 	m_iFlags = 0;
 	m_iHealth_head = 0;
 	m_iHealth_chest = 0;
-	m_iHealth_Larm = 100;
-	m_iHealth_Rarm = 100;
+	m_iHealth_Larm = 0; // Make sure to make this opposite (Armhealth = 100 - Armhealth) since it counts down from 100 for the arms instead of counting up
+	m_iHealth_Rarm = 0; // Make sure to make this opposite (Armhealth = 100 - Armhealth) since it counts down from 100 for the arms instead of counting up
 	m_iHealth_stmch = 0;
 	m_iHealth_Lleg = 0;	
 	m_iHealth_Rleg = 0;	
