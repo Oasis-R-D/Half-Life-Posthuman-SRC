@@ -341,6 +341,13 @@ public:
 	bool Init() override;
 	bool VidInit() override;
 	bool Draw(float flTime) override;
+	bool DrawDMGHEAD(float flTime);
+	bool DrawDMGCHST(float flTime);
+	bool DrawDMGSTMCH(float flTime);
+	bool DrawDMGLARM(float flTime);
+	bool DrawDMGRARM(float flTime);
+	bool DrawDMGLLEG(float flTime);
+	bool DrawDMGRLEG(float flTime);
 	bool MsgFunc_Battery(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
@@ -349,8 +356,16 @@ public:
 private:
 	HSPRITE_GLDSRC m_hSprite1;
 	HSPRITE_GLDSRC m_hSprite2;
+	HSPRITE_GLDSRC m_hHeadDMG;
+	HSPRITE_GLDSRC m_hChstDMG;
+	HSPRITE_GLDSRC m_hStmchDMG;
+	HSPRITE_GLDSRC m_hLarmDMG;
+	HSPRITE_GLDSRC m_hRarmDMG;
+	HSPRITE_GLDSRC m_hLlegDMG;
+	HSPRITE_GLDSRC m_hRlegDMG;
 	Rect* m_prc1;
 	Rect* m_prc2;
+	Rect* m_prc3;
 	int m_iBat;
 	int m_iBatMax;
 	float m_fFade;

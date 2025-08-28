@@ -79,7 +79,8 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
 		pPlayer->health_armR += (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_armL += (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_legs -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_legL -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+		pPlayer->health_legR -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_head -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_chest -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
 		pPlayer->health_stomach -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
@@ -87,8 +88,10 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 			pPlayer->health_armR = 100;
 		if (pPlayer->health_armL > 100)
 			pPlayer->health_armL = 100;
-		if (pPlayer->health_legs < 0)
-			pPlayer->health_legs = 0;
+		if (pPlayer->health_legL < 0)
+			pPlayer->health_legL = 0;
+		if (pPlayer->health_legR < 0)
+			pPlayer->health_legR = 0;
 		if (pPlayer->health_head < 0)
 			pPlayer->health_head = 0;
 		if (pPlayer->health_chest < 0)
@@ -101,7 +104,8 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		WRITE_BYTE(pPlayer->health_stomach);
 		WRITE_BYTE(pPlayer->health_armL);
 		WRITE_BYTE(pPlayer->health_armR);
-		WRITE_BYTE(pPlayer->health_legs);
+		WRITE_BYTE(pPlayer->health_legL);
+		WRITE_BYTE(pPlayer->health_legR);
 		MESSAGE_END();
 		//TODO: incorrect check here, but won't respawn due to respawn delay being -1 in singleplayer
 		if (0 != g_pGameRules->ItemShouldRespawn(this))
@@ -257,7 +261,8 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 	{
 		m_iJuice--;
 		player->health_armR += 1;
-		player->health_legs -= 1;
+		player->health_legL -= 1;
+		player->health_legR -= 1;
 		player->health_head -= 1;
 		player->health_chest -= 1;
 		player->health_stomach -= 1;
@@ -265,8 +270,10 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 			player->health_armR = 100;
 		if (player->health_armL > 100)
 			player->health_armL = 100;
-		if (player->health_legs < 0)
-			player->health_legs = 0;
+		if (player->health_legL < 0)
+			player->health_legL = 0;
+		if (player->health_legR < 0)
+			player->health_legR = 0;
 		if (player->health_head < 0)
 			player->health_head = 0;
 		if (player->health_chest < 0)
@@ -279,7 +286,8 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 		WRITE_BYTE(player->health_stomach);
 		WRITE_BYTE(player->health_armL);
 		WRITE_BYTE(player->health_armR);
-		WRITE_BYTE(player->health_legs);
+		WRITE_BYTE(player->health_legL);
+		WRITE_BYTE(player->health_legR);
 		MESSAGE_END();
 	}
 

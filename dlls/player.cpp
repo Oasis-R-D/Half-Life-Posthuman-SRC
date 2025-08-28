@@ -325,13 +325,21 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			ALERT(at_console, " ARM R HEALTH: %d\n", health_armR);
 			break;
 		case HITGROUP_LEFTLEG:
+			flDamage *= gSkillData.plrLeg;
+		
+			health_legL += flDamage;
+			if (health_legL > 100)
+			{
+			health_legL = 100;
+			}
+			break;
 		case HITGROUP_RIGHTLEG:
 			flDamage *= gSkillData.plrLeg;
 		
-			health_legs += flDamage;
-			if (health_legs > 100)
+			health_legR += flDamage;
+			if (health_legR > 100)
 			{
-			health_legs = 100;
+			health_legR = 100;
 			}
 			break;
 		default:
@@ -357,7 +365,8 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		WRITE_BYTE(health_stomach);
 		WRITE_BYTE(health_armL);
 		WRITE_BYTE(health_armR);
-		WRITE_BYTE(health_legs);
+		WRITE_BYTE(health_legL);
+		WRITE_BYTE(health_legR);
 		MESSAGE_END();
 	}
 }

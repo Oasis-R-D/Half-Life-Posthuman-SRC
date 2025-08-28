@@ -37,8 +37,8 @@ bool CHudBattery::Init()
 	m_iFlags = 0;
 	m_iHealth_head = 0;
 	m_iHealth_chest = 0;
-	m_iHealth_Larm = 0; // Make sure to make this opposite (Armhealth = 100 - Armhealth) since it counts down from 100 for the arms instead of counting up
-	m_iHealth_Rarm = 0; // Make sure to make this opposite (Armhealth = 100 - Armhealth) since it counts down from 100 for the arms instead of counting up
+	m_iHealth_Larm = 0;
+	m_iHealth_Rarm = 0;
 	m_iHealth_stmch = 0;
 	m_iHealth_Lleg = 0;	
 	m_iHealth_Rleg = 0;	
@@ -60,8 +60,11 @@ bool CHudBattery::VidInit()
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
 	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
 	m_hSprite1 = m_hSprite2 = 0; // delaying get sprite handles until we know the sprites are loaded
+	m_hHeadDMG = m_hChstDMG = m_hStmchDMG = m_hLarmDMG = m_hRarmDMG = m_hLlegDMG = m_hRlegDMG = 0;
 	m_prc1 = &gHUD.GetSpriteRect(HUD_suit_empty);
 	m_prc2 = &gHUD.GetSpriteRect(HUD_suit_full);
+	m_prc3 = &gHUD.GetSpriteRect(HUD_suit_dmg);
+
 	m_iHeight = m_prc2->bottom - m_prc1->top;
 	m_fFade = 0;
 	m_iHunger = 0;
@@ -122,7 +125,8 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	m_iHealth_stmch = READ_BYTE();
 	m_iHealth_Larm = (100 - READ_BYTE());
 	m_iHealth_Rarm = (100 - READ_BYTE());
-	m_iHealth_Lleg = READ_BYTE(); // This is both legs currently
+	m_iHealth_Lleg = READ_BYTE();
+	m_iHealth_Rleg = READ_BYTE();
 	gEngfuncs.Con_Printf(" CLIENT LARM HEALTH: %d\n", m_iHealth_Larm);
 	return true;
 }
@@ -178,8 +182,8 @@ bool CHudBattery::Draw(float flTime)
 		FillRGBA(x, y, m_iHunger, gHUD.m_iFontHeight / 2, r, g, b, a);
 	}
 
-	if (m_iBat <= 0)
-		return true;
+	//if (m_iBat <= 0)
+		//return true;
 
 	rc = *m_prc2;
 	rc.top += m_iHeight * ((float)(100 - (V_min(100, m_iBat))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1
@@ -221,9 +225,24 @@ bool CHudBattery::Draw(float flTime)
 		m_hSprite1 = gHUD.GetSprite(gHUD.GetSpriteIndex("suit_empty"));
 	if (0 == m_hSprite2)
 		m_hSprite2 = gHUD.GetSprite(gHUD.GetSpriteIndex("suit_full"));
-
+	if (0 == m_hChstDMG)
+		m_hChstDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hHeadDMG)
+		m_hHeadDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hLarmDMG)
+		m_hLarmDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hLlegDMG)
+		m_hLlegDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hRarmDMG)
+		m_hRarmDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hRlegDMG)
+		m_hRlegDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hStmchDMG)
+		m_hStmchDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
 	SPR_Set(m_hSprite1, r, g, b);
 	SPR_DrawAdditive(0, x, y - iOffset, m_prc1);
+
+
 
 	if (rc.bottom > rc.top)
 	{
@@ -247,6 +266,139 @@ bool CHudBattery::Draw(float flTime)
 		else
 			SPR_DrawAdditive(1, x, y - iOffset, m_rFireMode);
 	}
+	DrawDMGHEAD(flTime);
+	DrawDMGCHST(flTime);
+	DrawDMGSTMCH(flTime);
+	DrawDMGLARM(flTime);
+	DrawDMGRARM(flTime);
+	DrawDMGLLEG(flTime);
+	DrawDMGRLEG(flTime);
+	return true;
+}
+bool CHudBattery::DrawDMGHEAD(float flTime)
+{
+	int r, g, b, x, y, a;
 
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_head);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+
+	SPR_Set(m_hHeadDMG, r, g, b);
+	SPR_DrawAdditive(1, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGCHST(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_chest);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hChstDMG, r, g, b);
+	SPR_DrawAdditive(0, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGSTMCH(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_stmch);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hStmchDMG, r, g, b);
+	SPR_DrawAdditive(6, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGRARM(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_Rarm);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hRarmDMG, r, g, b);
+	SPR_DrawAdditive(4, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGLARM(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_Larm);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hLarmDMG, r, g, b);
+	SPR_DrawAdditive(2, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGRLEG(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_Rleg);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hRlegDMG, r, g, b);
+	SPR_DrawAdditive(5, x, y - iOffset, m_prc3);
+	return true;
+}
+bool CHudBattery::DrawDMGLLEG(float flTime)
+{
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = round(2.5 * m_iHealth_Lleg);
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	x = (m_prc1->right - m_prc1->left) * 3;
+
+	// Body dmg sprite
+	SPR_Set(m_hLlegDMG, r, g, b);
+	SPR_DrawAdditive(3, x, y - iOffset, m_prc3);
 	return true;
 }
