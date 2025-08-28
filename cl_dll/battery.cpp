@@ -28,6 +28,7 @@
 DECLARE_MESSAGE(m_Battery, Battery)
 DECLARE_MESSAGE(m_Battery, Hunger)
 DECLARE_MESSAGE(m_Battery, FireMode)
+DECLARE_MESSAGE(m_Battery, LimbDMG)
 
 bool CHudBattery::Init()
 {
@@ -38,6 +39,7 @@ bool CHudBattery::Init()
 	HOOK_MESSAGE(Battery);
 	HOOK_MESSAGE(Hunger);
 	HOOK_MESSAGE(FireMode);
+	HOOK_MESSAGE(LimbDMG);
 
 	gHUD.AddHudElem(this);
 
@@ -88,12 +90,22 @@ bool CHudBattery::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
-	m_iHunger = READ_SHORT();
+	m_iHealth_head = READ_BYTE();
 
 	return true;
 }
 
 bool CHudBattery::MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf)
+{
+	m_iFlags |= HUD_ACTIVE;
+
+	BEGIN_READ(pbuf, iSize);
+	m_iFireMode = READ_SHORT();
+
+	return true;
+}
+
+bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 {
 	m_iFlags |= HUD_ACTIVE;
 

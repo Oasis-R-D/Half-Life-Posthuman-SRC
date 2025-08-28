@@ -33,6 +33,7 @@ void LinkUserMessages()
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG("Health", 2);
 	gmsgDamage = REG_USER_MSG("Damage", 12);
+	gmsgDamageLIMB = REG_USER_MSG("LimbDMG", -1);
 	gmsgBattery = REG_USER_MSG("Battery", 2);
 	gmsgTrain = REG_USER_MSG("Train", 1);
 	//gmsgHudText = REG_USER_MSG( "HudTextPro", -1 );

@@ -344,6 +344,7 @@ public:
 	bool MsgFunc_Battery(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf);
 
 private:
 	HSPRITE_GLDSRC m_hSprite1;
@@ -356,6 +357,13 @@ private:
 	int m_iHeight; // width of the battery innards
 	int m_iHunger;
 	int m_iFireMode;
+	int m_iHealth_head;
+	int m_iHealth_chest;
+	int m_iHealth_stmch;
+	int m_iHealth_Larm;
+	int m_iHealth_Rarm;
+	int m_iHealth_Lleg;
+	int m_iHealth_Rleg;
 	HSPRITE_GLDSRC m_hFireMode;
 	Rect* m_rFireMode;
 	HSPRITE_GLDSRC m_hHunger;
