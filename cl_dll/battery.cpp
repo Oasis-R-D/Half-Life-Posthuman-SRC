@@ -49,7 +49,7 @@ bool CHudBattery::VidInit()
 {
 	int HUD_suit_empty = gHUD.GetSpriteIndex("suit_empty");
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
-
+	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
 	m_hSprite1 = m_hSprite2 = 0; // delaying get sprite handles until we know the sprites are loaded
 	m_prc1 = &gHUD.GetSpriteRect(HUD_suit_empty);
 	m_prc2 = &gHUD.GetSpriteRect(HUD_suit_full);
