@@ -351,7 +351,14 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
-		
+		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+		WRITE_SHORT(health_head);
+		WRITE_SHORT(health_chest);
+		WRITE_SHORT(health_stomach);
+		WRITE_SHORT(health_armL);
+		WRITE_SHORT(health_armR);
+		WRITE_SHORT(health_legs);
+		MESSAGE_END();
 	}
 }
 
