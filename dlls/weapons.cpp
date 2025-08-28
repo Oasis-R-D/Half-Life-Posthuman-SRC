@@ -779,9 +779,21 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount, char* szName, int iMax)
 }
 void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz)
 {
-	float punchang = (m_pPlayer->health_arms/95);
-	m_pPlayer->pev->punchangle.x -= punchang + RecoilUp;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-punchang-RecoilHorz, punchang+RecoilHorz);
+	m_pPlayer->pev->punchangle.x -= RecoilUp;
+	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-RecoilHorz, RecoilHorz);
+	if (m_pPlayer->health_arms != 0)
+	{
+		if (m_pPlayer->health_arms < 100 && RANDOM_LONG(0, m_pPlayer->health_arms) / m_pPlayer->health_arms > 0.25)
+		{
+			m_pPlayer->pev->punchangle.x -= 10;
+			m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
+		}
+	}
+	else
+	{
+		m_pPlayer->pev->punchangle.x -= 10;
+		m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
+	}
 }
 //=========================================================
 // IsUseable - this function determines whether or not a
