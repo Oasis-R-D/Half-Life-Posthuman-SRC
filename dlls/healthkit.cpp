@@ -260,12 +260,12 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 	if (player->TakeHealth(1, DMG_GENERIC))
 	{
 		m_iJuice--;
-		player->health_armR += 1;
-		player->health_legL -= 1;
-		player->health_legR -= 1;
-		player->health_head -= 1;
-		player->health_chest -= 1;
-		player->health_stomach -= 1;
+		player->health_armR += RANDOM_LONG(1, 3);
+		player->health_legL -= RANDOM_LONG(1, 3);
+		player->health_legR -= RANDOM_LONG(1, 3);
+		player->health_head -= RANDOM_LONG(1, 3);
+		player->health_chest -= RANDOM_LONG(1, 3);
+		player->health_stomach -= RANDOM_LONG(1, 3);
 		if (player->health_armR > 100)
 			player->health_armR = 100;
 		if (player->health_armL > 100)
