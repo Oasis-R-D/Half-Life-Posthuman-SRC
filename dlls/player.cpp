@@ -321,7 +321,6 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 			health_armL = 0;
 			}
-			ALERT(at_console, " ARM L HEALTH: %d\n", health_armL);
 			break;
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
@@ -330,7 +329,6 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 			health_armR = 0;
 			}
-			ALERT(at_console, " ARM R HEALTH: %d\n", health_armR);
 			break;
 		case HITGROUP_LEFTLEG:
 			flDamage *= gSkillData.plrLeg;
