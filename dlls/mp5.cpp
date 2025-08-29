@@ -202,7 +202,14 @@ void CMP5::PrimaryAttack()
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
-			m_flNextPrimaryAttack = 0.066;
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					m_flNextPrimaryAttack = 0.066;
+				}
+				else
+				{
+					m_flNextPrimaryAttack = 0.075;
+				}
 		}
 		else
 		{
@@ -211,7 +218,15 @@ void CMP5::PrimaryAttack()
 		}
 	}
 	else
-		m_flNextPrimaryAttack = 0.066;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+
+			m_flNextPrimaryAttack = 0.066;
+		}
+		else
+		{
+			m_flNextPrimaryAttack = 0.075;	
+		}
 
 	m_flTimeWeaponIdle = 5;
 	#ifndef CLIENT_DLL
@@ -514,21 +529,28 @@ void CM727::PrimaryAttack()
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 9 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+	{
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
-
+	}
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 		m_flNextPrimaryAttack = 0.0825;
-
+	}
+	else
+	{
+		m_flNextPrimaryAttack = 0.0727; // this is the actual fire rate, you adult I notn't
+	}
 	m_flTimeWeaponIdle = 5;
 #ifndef CLIENT_DLL
-		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
-			m_pPlayer->pev->punchangle.x -= 0.75;
-			CBasePlayerWeapon::Recoil(0.75, 1);
-		}
-		else
-		{
-			CBasePlayerWeapon::Recoil(1, 1);
-		}
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		m_pPlayer->pev->punchangle.x -= 0.75;
+		CBasePlayerWeapon::Recoil(0.75, 1);
+	}
+	else
+	{
+		CBasePlayerWeapon::Recoil(1, 1);
+	}
 #endif
 }
 
