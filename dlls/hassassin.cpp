@@ -710,7 +710,7 @@ void CHAssassin::RunAI()
 
 	// always visible if moving
 	// always visible is not on hard
-	if (g_iSkillLevel != SKILL_MEDIUM || m_hEnemy == NULL || pev->deadflag != DEAD_NO || m_Activity == ACT_RUN || m_Activity == ACT_WALK || (pev->flags & FL_ONGROUND) == 0)
+	if (g_iSkillLevel == SKILL_EASY || m_hEnemy == NULL || pev->deadflag != DEAD_NO || m_Activity == ACT_RUN || m_Activity == ACT_WALK || (pev->flags & FL_ONGROUND) == 0)
 		m_iTargetRanderamt = 255;
 	else
 		m_iTargetRanderamt = 20;
