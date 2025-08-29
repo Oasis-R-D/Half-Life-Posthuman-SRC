@@ -2133,6 +2133,26 @@ void CBasePlayer::PreThink()
 	{
 		pev->velocity = g_vecZero;
 	}
+	if (health_legL && health_legR >= 90)
+	{
+		pev->maxspeed = 250;
+	}
+	else if (health_legL && health_legR >= 80)
+	{
+		pev->maxspeed = 275;
+	}
+	else if (health_legL && health_legR >= 70)
+	{
+		pev->maxspeed = 300;
+	}
+	else if (health_legL && health_legR >= 60)
+	{
+		pev->maxspeed = 325;
+	}
+	else if (health_legL && health_legR >= 50)
+	{
+		pev->maxspeed = 350;
+	}
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:
