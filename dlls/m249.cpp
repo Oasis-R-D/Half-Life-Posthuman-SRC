@@ -68,7 +68,7 @@ void CM249::Spawn()
 
 bool CM249::Deploy()
 {
-	m_pPlayer->pev->maxspeed = 200;
+	m_pPlayer->pev->maxspeed = 192;
 	return DefaultDeploy("models/v_saw.mdl", "models/p_saw.mdl", M249_DRAW, "mp5");
 }
 

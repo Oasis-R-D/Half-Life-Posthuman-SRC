@@ -2158,6 +2158,10 @@ void CBasePlayer::PreThink()
 	{
 		pev->maxspeed = 350;
 	}
+	else
+	{
+		CVAR_SET_FLOAT("sv_maxspeed", 192 * 2);
+	}
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:
