@@ -281,38 +281,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		switch (ptr->iHitgroup)
 		{
 		case HITGROUP_GENERIC:
-			if (bitsDamageType == DMG_FALL)
-			{
-				switch(RANDOM_LONG(0, 2))
-				{
-				case 0:
-					health_legL += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
-					if (health_legL > 100)
-					{
-						health_legL = 100;
-					}
-				break;
-				case 1:
-					health_legR += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
-					if (health_legR > 100)
-					{
-						health_legR = 100;
-					}
-				break;
-				case 2:
-					health_legR += round(flDamage * RANDOM_FLOAT(0.5, 1.0));
-					if (health_legR > 100)
-					{
-						health_legR = 100;
-					}
-					health_legL += round(flDamage * RANDOM_FLOAT(0.5, 1.0));
-					if (health_legL > 100)
-					{
-						health_legL = 100;
-					}
-				break;
-				}
-			}
+			
 			break;
 		case HITGROUP_HEAD:
 			flDamage *= gSkillData.plrHead;
@@ -415,6 +384,40 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 
 bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
+if (bitsDamageType == DMG_FALL)
+		{
+			switch(RANDOM_LONG(0, 4))
+			{
+			case 0:
+				health_legL += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+				if (health_legL > 100)
+				{
+					health_legL = 100;
+				}
+			break;
+			case 1:
+				health_legR += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+				if (health_legR > 100)
+				{
+					health_legR = 100;
+				}
+			break;
+			case 2:
+			case 3:
+			case 4:
+				health_legR += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
+				if (health_legR > 100)
+				{
+					health_legR = 100;
+				}
+				health_legL += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
+				if (health_legL > 100)
+				{
+					health_legL = 100;
+				}
+			break;
+			}
+		}
 	// have suit diagnose the problem - ie: report damage type
 	int bitsDamage = bitsDamageType;
 	bool ffound = true;
@@ -656,6 +659,15 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			SetSuitUpdate("!HEV_HLTH1", false, SUIT_NEXT_IN_10MIN); // health dropping
 	}
 
+	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+	WRITE_BYTE(health_head);
+	WRITE_BYTE(health_chest);
+	WRITE_BYTE(health_stomach);
+	WRITE_BYTE(health_armL);
+	WRITE_BYTE(health_armR);
+	WRITE_BYTE(health_legL);
+	WRITE_BYTE(health_legR);
+	MESSAGE_END();
 	return fTookDamage;
 }
 
