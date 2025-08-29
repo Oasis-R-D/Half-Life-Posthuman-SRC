@@ -118,6 +118,13 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, BabyHeadcrabDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, Hunger, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_head, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_chest, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_stomach, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_armR, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_armL, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_legL, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, health_legR, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
