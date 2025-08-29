@@ -1866,7 +1866,7 @@ void CBasePlayer::UpdateStatusBar()
 #define CLIMB_PUNCH_X -7		 // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z 7			 // how far to 'punch' client Z axis when climbing
 
-void CBasePlayer::PreThink() // sjadwjwd
+void CBasePlayer::PreThink()
 {
 	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
 
@@ -2664,9 +2664,9 @@ void CBasePlayer::UpdatePlayerSound()
 			WRITE_COORD(GetGunPosition().y); // Y
 			WRITE_COORD(GetGunPosition().z); // Z
 			WRITE_BYTE(m_iWeaponFlash / 10); // radius * 0.1
-			WRITE_BYTE(255);				 // r
-			WRITE_BYTE(128);				 // g
-			WRITE_BYTE(0);					 // b
+			WRITE_BYTE(RANDOM_LONG(255, 235));// r
+			WRITE_BYTE(RANDOM_LONG(128, 108));// g
+			WRITE_BYTE(RANDOM_LONG(0, 10));	 // b
 			WRITE_BYTE(1);					 // time * 10
 			WRITE_BYTE(0);					 // decay * 0.1
 			MESSAGE_END();
@@ -3082,7 +3082,15 @@ void CBasePlayer::Spawn()
 	m_lastx = m_lasty = 0;
 	m_flNextChatTime = gpGlobals->time;
 	Hunger = 100;
-
+	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+	WRITE_BYTE(health_head);
+	WRITE_BYTE(health_chest);
+	WRITE_BYTE(health_stomach);
+	WRITE_BYTE(health_armL);
+	WRITE_BYTE(health_armR);
+	WRITE_BYTE(health_legL);
+	WRITE_BYTE(health_legR);
+	MESSAGE_END();
 	g_pGameRules->PlayerSpawn(this);
 }
 
@@ -3214,7 +3222,15 @@ bool CBasePlayer::Restore(CRestore& restore)
 	m_bResetViewEntity = true;
 
 	m_bRestored = true;
-
+	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+	WRITE_BYTE(health_head);
+	WRITE_BYTE(health_chest);
+	WRITE_BYTE(health_stomach);
+	WRITE_BYTE(health_armL);
+	WRITE_BYTE(health_armR);
+	WRITE_BYTE(health_legL);
+	WRITE_BYTE(health_legR);
+	MESSAGE_END();
 	return status;
 }
 
