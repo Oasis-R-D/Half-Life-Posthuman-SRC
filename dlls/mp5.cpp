@@ -174,7 +174,7 @@ void CMP5::PrimaryAttack()
 
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
-	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 5.3 + gpGlobals->v_up * -9.25;
+	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 5.3 + gpGlobals->v_up * -9.25;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
@@ -506,7 +506,7 @@ void CM727::PrimaryAttack()
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
-	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
+	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);

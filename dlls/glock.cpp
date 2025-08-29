@@ -138,7 +138,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 	}
 
-	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 17 + gpGlobals->v_right * 8 + gpGlobals->v_up * -3;
+	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 17 + gpGlobals->v_right * 8 + gpGlobals->v_up * -3;
 	Vector vecAiming;
 
 	if (fUseAutoAim)

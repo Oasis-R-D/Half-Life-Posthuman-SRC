@@ -213,7 +213,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.05;
+	pev->nextthink = gpGlobals->time + 0.075; // was 0.05
 	if (pev->renderamt < 225)
 	{
 		pev->renderamt += 75;
