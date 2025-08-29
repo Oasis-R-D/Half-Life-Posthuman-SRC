@@ -281,6 +281,38 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		switch (ptr->iHitgroup)
 		{
 		case HITGROUP_GENERIC:
+			if (bitsDamageType == DMG_FALL)
+			{
+				switch(RANDOM_LONG(0, 2))
+				{
+				case 0:
+					health_legL += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+					if (health_legL > 100)
+					{
+						health_legL = 100;
+					}
+				break;
+				case 1:
+					health_legR += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+					if (health_legR > 100)
+					{
+						health_legR = 100;
+					}
+				break;
+				case 2:
+					health_legR += round(flDamage * RANDOM_FLOAT(0.5, 1.0));
+					if (health_legR > 100)
+					{
+						health_legR = 100;
+					}
+					health_legL += round(flDamage * RANDOM_FLOAT(0.5, 1.0));
+					if (health_legL > 100)
+					{
+						health_legL = 100;
+					}
+				break;
+				}
+			}
 			break;
 		case HITGROUP_HEAD:
 			flDamage *= gSkillData.plrHead;
