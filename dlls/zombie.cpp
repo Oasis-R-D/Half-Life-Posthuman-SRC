@@ -480,7 +480,7 @@ bool CZombie::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 			{
 				// Alright, now I'm pissed!
 				//PlaySentence("BA_MAD", 4, VOL_NORM, ATTN_NORM);
-
+				m_bPrehuman = 1;
 				Remember(bits_MEMORY_PROVOKED);
 				StopFollowing(true);
 			}
