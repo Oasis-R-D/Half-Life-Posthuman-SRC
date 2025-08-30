@@ -113,6 +113,8 @@ public:
 				auto headcrab = Create(monster, pev->origin + Vector(0, 0, 64), pev->angles, edict());
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
+				if (m_bPrehuman == 1)
+						headcrab->pev->spawnflags |= SF_PREHUMAN;
 			}
 			break;
 			case 1:
@@ -633,6 +635,18 @@ void CZombie::Spawn()
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
 		m_bPrehuman = 1;
+	}
+	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
+	{
+		if (g_iSkillLevel == SKILL_HARD)
+			SetThink(&CZombie::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
+	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
+	{
+		if (g_iSkillLevel != SKILL_HARD)
+			SetThink(&CZombie::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
 	}
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{

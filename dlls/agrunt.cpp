@@ -601,7 +601,18 @@ void CAGrunt::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CAGrunt::Spawn()
 {
 	Precache();
-
+	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
+	{
+		if (g_iSkillLevel == SKILL_HARD)
+			SetThink(&CAGrunt::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
+	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
+	{
+		if (g_iSkillLevel != SKILL_HARD)
+			SetThink(&CAGrunt::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
 	SET_MODEL(ENT(pev), "models/agrunt.mdl");
 	UTIL_SetSize(pev, Vector(-32, -32, 0), Vector(32, 32, 64));
 

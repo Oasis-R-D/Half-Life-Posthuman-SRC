@@ -978,7 +978,18 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CMOFAssassin::Spawn()
 {
 	Precache();
-
+	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
+	{
+		if (g_iSkillLevel == SKILL_HARD)
+			SetThink(&CMOFAssassin::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
+	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
+	{
+		if (g_iSkillLevel != SKILL_HARD)
+			SetThink(&CMOFAssassin::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
 	SET_MODEL(ENT(pev), "models/massn.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 

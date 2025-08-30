@@ -436,6 +436,18 @@ void CBarney::Spawn()
 	{
 		m_bPrehuman = 1;
 	}
+	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
+	{
+		if (g_iSkillLevel == SKILL_HARD)
+			SetThink(&CBarney::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
+	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
+	{
+		if (g_iSkillLevel != SKILL_HARD)
+			SetThink(&CBarney::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+	}
 	if (FClassnameIs(pev, "monster_barney_adv"))
 	{
 		SET_MODEL(ENT(pev), "models/barney_adv.mdl");
