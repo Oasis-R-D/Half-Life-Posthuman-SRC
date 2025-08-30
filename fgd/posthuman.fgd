@@ -198,6 +198,8 @@
 		128: "WaitForScript" 	: 0
 		256: "Pre-Disaster" 	: 0
 		512: "Fade Corpse"	: 0
+		2048 : "Only Hard" : 0
+		4096 : "Not in Hard" : 0
 	]
 ]
 
