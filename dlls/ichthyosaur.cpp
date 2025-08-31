@@ -475,7 +475,7 @@ void CIchthyosaur::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CIchthyosaur::Spawn()
 {
 	Precache();
-	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
+	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
 			SetThink(&CIchthyosaur::SUB_Remove);
