@@ -105,21 +105,27 @@ public:
 				pev->armortype = 1;
 				pev->body = 1;
 				UTIL_MakeVectors(pev->angles);
-				const char* monster;
+				char* monster;
 				if (FClassnameIs(pev, "monster_zombie_fast"))
 					monster = "monster_headcrab_fast";
 				else
 					monster = "monster_headcrab";
-				auto headcrab = Create(monster, pev->origin + Vector(0, 0, 64), pev->angles, edict());
+				CBaseEntity* headcrab = Create(monster, pev->origin + Vector(0, 0, 64), pev->angles, edict());
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
+				{
+					headcrab->pev->spawnflags |= SF_PREHUMAN;
+					ALERT(at_console, "Headcrab SHOULD hate you\n");
+				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
-				if (m_bPrehuman == 1)
-						headcrab->pev->spawnflags |= SF_PREHUMAN;
+
 			}
 			break;
 			case 1:
+
 			break;
 			case 2:
+
 			break;
 			}
 		}
@@ -480,6 +486,7 @@ bool CZombie::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 				// Alright, now I'm pissed!
 				//PlaySentence("BA_MAD", 4, VOL_NORM, ATTN_NORM);
 				m_bPrehuman = 1;
+				ALERT(at_console, "Zombie hates you\n");
 				Remember(bits_MEMORY_PROVOKED);
 				StopFollowing(true);
 			}

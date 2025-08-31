@@ -71,7 +71,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 void CPhysbullet::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
+	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
@@ -153,17 +153,20 @@ int CPhysbullet::Classify()
 }
 void CPhysbullet::Stay() //TO-DO: add imapct sounds
 {
+	pev->velocity = Vector(0, 0, 0);
+	pev->avelocity.z = 0;
 	SetThink(&CPhysbullet::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {
+	TraceResult tr = UTIL_GetGlobalTrace();
+	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
 	SetThink(NULL);
 
 	if (0 != pOther->pev->takedamage)
 	{
-		TraceResult tr = UTIL_GetGlobalTrace();
 		entvars_t* pevOwner;
 		m_Endpos = pev->origin;
 		pevOwner = VARS(pev->owner);
@@ -181,7 +184,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 		ApplyMultiDamage(pev, pevOwner);
 
-		pev->velocity = Vector(0, 0, 0);
 		if (pOther->IsBSPModel())
 		{
 			Stay();
@@ -198,16 +200,15 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
-			Stay();
+			UTIL_Remove(this);
 		}
 	}
-	else 
+	else
 	{
 		Stay();
 	}
-	TraceResult tr = UTIL_GetGlobalTrace();
 	DecalGunshot(&tr, BULLET_PLAYER_9MM);
-	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, pev->origin, BULLET_PLAYER_9MM);
+	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 
 }
 

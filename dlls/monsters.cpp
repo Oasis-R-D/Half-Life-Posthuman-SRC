@@ -2247,7 +2247,7 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL}, //VORTS AND AGRUNTS
 			/*ALIENPASSIVE*/	{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_NO}, //BOIDS?
 			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL}, //HOUNDEYE <3
-			/*ALIENPREY*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL}, //CRABS (ENEMY)
+			/*ALIENPREY*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_AL,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL}, //CRABS (ENEMY)
 			/*ALIENPREDATO*/	{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_NO}, //BULLSQUID
 			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_NO}, //ROACH
 			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_HT,	 R_HT,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_AL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_AL}, //CRABS (FRIENDLY)
