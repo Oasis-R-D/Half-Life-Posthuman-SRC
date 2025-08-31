@@ -109,6 +109,7 @@ void CBarnacle::Spawn()
 		{
 			SetThink(&CBarnacle::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -117,6 +118,7 @@ void CBarnacle::Spawn()
 		{
 			SetThink(&CBarnacle::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/barnacle.mdl");

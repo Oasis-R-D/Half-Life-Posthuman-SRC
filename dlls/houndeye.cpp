@@ -334,6 +334,7 @@ void CHoundeye::Spawn()
 		{
 			SetThink(&CHoundeye::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -342,6 +343,7 @@ void CHoundeye::Spawn()
 		{
 			SetThink(&CHoundeye::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/houndeye.mdl");

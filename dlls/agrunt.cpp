@@ -607,6 +607,7 @@ void CAGrunt::Spawn()
 		{
 			SetThink(&CAGrunt::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -615,6 +616,7 @@ void CAGrunt::Spawn()
 		{
 			SetThink(&CAGrunt::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/agrunt.mdl");

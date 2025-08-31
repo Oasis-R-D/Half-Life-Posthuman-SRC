@@ -366,6 +366,7 @@ void CHeadCrab::Spawn()
 		{
 			SetThink(&CHeadCrab::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -374,6 +375,7 @@ void CHeadCrab::Spawn()
 		{
 			SetThink(&CHeadCrab::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	if (FClassnameIs(pev, "monster_headcrab_fast"))

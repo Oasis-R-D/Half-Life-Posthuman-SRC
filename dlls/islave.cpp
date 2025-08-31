@@ -507,6 +507,7 @@ void CISlave::Spawn()
 		{
 			SetThink(&CISlave::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -515,6 +516,7 @@ void CISlave::Spawn()
 		{
 			SetThink(&CISlave::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/islave.mdl");

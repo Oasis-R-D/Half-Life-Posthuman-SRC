@@ -984,6 +984,7 @@ void CMOFAssassin::Spawn()
 		{
 			SetThink(&CMOFAssassin::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -992,6 +993,7 @@ void CMOFAssassin::Spawn()
 		{
 			SetThink(&CMOFAssassin::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/massn.mdl");

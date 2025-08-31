@@ -650,6 +650,7 @@ void CScientist::Spawn()
 		{
 			SetThink(&CScientist::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -658,6 +659,7 @@ void CScientist::Spawn()
 		{
 			SetThink(&CScientist::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	if (pev->armorvalue == -1)

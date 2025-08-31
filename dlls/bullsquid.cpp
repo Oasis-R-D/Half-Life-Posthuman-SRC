@@ -695,6 +695,7 @@ void CBullsquid::Spawn()
 		{
 			SetThink(&CBullsquid::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -703,6 +704,7 @@ void CBullsquid::Spawn()
 		{
 			SetThink(&CBullsquid::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/bullsquid.mdl");

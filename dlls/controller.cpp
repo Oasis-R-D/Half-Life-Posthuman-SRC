@@ -367,6 +367,7 @@ void CController::Spawn()
 		{
 			SetThink(&CController::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -375,6 +376,7 @@ void CController::Spawn()
 		{
 			SetThink(&CController::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/controller.mdl");

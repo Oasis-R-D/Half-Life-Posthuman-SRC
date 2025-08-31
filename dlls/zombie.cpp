@@ -641,6 +641,7 @@ void CZombie::Spawn()
 		{
 			SetThink(&CZombie::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -649,6 +650,7 @@ void CZombie::Spawn()
 		{
 			SetThink(&CZombie::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	if (FClassnameIs(pev, "monster_zombie_barney"))

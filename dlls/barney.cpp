@@ -442,6 +442,7 @@ void CBarney::Spawn()
 		{
 			SetThink(&CBarney::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -450,6 +451,7 @@ void CBarney::Spawn()
 		{
 			SetThink(&CBarney::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	if (FClassnameIs(pev, "monster_barney_adv"))

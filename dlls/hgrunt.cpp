@@ -1012,6 +1012,7 @@ void CHGrunt::Spawn()
 		{
 			SetThink(&CHGrunt::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -1020,6 +1021,7 @@ void CHGrunt::Spawn()
 		{
 			SetThink(&CHGrunt::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/hgrunt_opfor.mdl");

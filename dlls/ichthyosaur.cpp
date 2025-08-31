@@ -481,6 +481,7 @@ void CIchthyosaur::Spawn()
 		{
 			SetThink(&CIchthyosaur::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
@@ -489,6 +490,7 @@ void CIchthyosaur::Spawn()
 		{
 			SetThink(&CIchthyosaur::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+			return;
 		}
 	}
 	SET_MODEL(ENT(pev), "models/icky.mdl");
