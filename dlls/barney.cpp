@@ -439,14 +439,18 @@ void CBarney::Spawn()
 	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
+		{
 			SetThink(&CBarney::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
 	{
 		if (g_iSkillLevel != SKILL_HARD)
+		{
 			SetThink(&CBarney::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	if (FClassnameIs(pev, "monster_barney_adv"))
 	{

@@ -638,14 +638,18 @@ void CZombie::Spawn()
 	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
+		{
 			SetThink(&CZombie::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
 	{
 		if (g_iSkillLevel != SKILL_HARD)
+		{
 			SetThink(&CZombie::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{

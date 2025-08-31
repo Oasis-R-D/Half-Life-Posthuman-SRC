@@ -478,14 +478,18 @@ void CIchthyosaur::Spawn()
 	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
+		{
 			SetThink(&CIchthyosaur::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
 	{
 		if (g_iSkillLevel != SKILL_HARD)
+		{
 			SetThink(&CIchthyosaur::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	SET_MODEL(ENT(pev), "models/icky.mdl");
 	UTIL_SetSize(pev, Vector(-32, -32, -32), Vector(32, 32, 32));

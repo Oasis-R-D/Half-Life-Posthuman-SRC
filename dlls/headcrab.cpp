@@ -363,14 +363,18 @@ void CHeadCrab::Spawn()
 	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
+		{
 			SetThink(&CHeadCrab::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
 	{
 		if (g_iSkillLevel != SKILL_HARD)
+		{
 			SetThink(&CHeadCrab::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	if (FClassnameIs(pev, "monster_headcrab_fast"))
 		SET_MODEL(ENT(pev), "models/headcrab_fast.mdl");

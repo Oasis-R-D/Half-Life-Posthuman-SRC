@@ -106,14 +106,18 @@ void CBarnacle::Spawn()
 	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
 		if (g_iSkillLevel == SKILL_HARD)
+		{
 			SetThink(&CBarnacle::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
 	{
 		if (g_iSkillLevel != SKILL_HARD)
+		{
 			SetThink(&CBarnacle::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
+		}
 	}
 	SET_MODEL(ENT(pev), "models/barnacle.mdl");
 	UTIL_SetSize(pev, Vector(-16, -16, -32), Vector(16, 16, 0));
