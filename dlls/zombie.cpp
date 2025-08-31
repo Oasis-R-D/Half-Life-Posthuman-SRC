@@ -432,8 +432,7 @@ IMPLEMENT_CUSTOM_SCHEDULES(CZombie, CTalkMonster);
 //=========================================================
 int CZombie::Classify()
 {
-	return CLASS_PLAYER_ALLY;
-		if (m_bPrehuman == 0)
+	if (m_bPrehuman == 0)
 	{
 		return CLASS_PLAYER_ALLY;
 	}
