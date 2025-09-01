@@ -322,9 +322,15 @@ void W_Precache()
 
 	UTIL_PrecacheOtherWeapon("weapon_spitthrower");
 	UTIL_PrecacheOther("ammo_spit");
-
+	
+	// HC deagle
 	UTIL_PrecacheOtherWeapon("weapon_eagle");
+	
+	// M727
 	UTIL_PrecacheOtherWeapon("weapon_m727");
+
+	// Crystal launcher
+	UTIL_PrecacheOtherWeapon("weapon_crystallauncher");
 
 	if (g_pGameRules->IsDeathmatch())
 	{

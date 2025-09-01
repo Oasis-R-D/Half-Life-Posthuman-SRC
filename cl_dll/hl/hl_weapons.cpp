@@ -71,6 +71,7 @@ CHeadcrabGrenadePoison g_HeadcrabPoison;
 CSpitThrower g_SpitThrower;
 CEagle g_Eagle;
 CM727 g_M727;
+CCrystal_launcher g_CRYST;
 
 /*
 ======================
@@ -478,6 +479,7 @@ void HUD_InitClientWeapons()
 	HUD_PrepEntity(&g_SpitThrower, &player);
 	HUD_PrepEntity(&g_Eagle, &player);
 	HUD_PrepEntity(&g_M727, &player);
+	HUD_PrepEntity(&g_CRYST, &player);
 }
 
 /*
@@ -620,6 +622,9 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		break;
 	case WEAPON_M727:
 		pWeapon = &g_M727;
+		break;
+	case WEAPON_CRYST:
+		pWeapon = &g_CRYST;
 		break;
 	}
 

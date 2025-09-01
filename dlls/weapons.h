@@ -86,7 +86,7 @@ public:
 #define SNARK_WEIGHT 5
 #define SATCHEL_WEIGHT -10
 #define TRIPMINE_WEIGHT -10
-
+#define CRYST_WEIGHT -1
 
 // weapon clip/carry ammo capacities
 #define URANIUM_MAX_CARRY 100
@@ -120,7 +120,7 @@ public:
 #define SATCHEL_MAX_CLIP WEAPON_NOCLIP
 #define TRIPMINE_MAX_CLIP WEAPON_NOCLIP
 #define SNARK_MAX_CLIP WEAPON_NOCLIP
-
+#define CRYST_MAX_CLIP WEAPON_NOCLIP
 
 // the default amount of ammo that comes with each gun when it spawns
 #define GLOCK_DEFAULT_GIVE 17
@@ -138,7 +138,7 @@ public:
 #define TRIPMINE_DEFAULT_GIVE 1
 #define SNARK_DEFAULT_GIVE 5
 #define HIVEHAND_DEFAULT_GIVE 8
-
+#define CRYST_DEFAULT_GIVE 9
 // The amount of ammo given to a player by an ammo item.
 #define AMMO_URANIUMBOX_GIVE 20
 #define AMMO_GLOCKCLIP_GIVE GLOCK_MAX_CLIP
@@ -1537,4 +1537,30 @@ public:
 		return false;
 #endif
 	}
+};
+class CCrystal_launcher : public CBasePlayerWeapon
+{
+public:
+
+	void Spawn() override;
+	void Precache() override;
+	int iItemSlot() override { return 3; }
+	bool GetItemInfo(ItemInfo* p) override;
+
+	void PrimaryAttack() override;
+	void SecondaryAttack() override;
+
+	bool Deploy() override;
+	void Reload() override;	void WeaponIdle() override;
+	float m_flNextReload;
+	int m_crystaltype;
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+
 };
