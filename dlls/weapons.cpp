@@ -266,6 +266,8 @@ void W_Precache()
 	// custom items...
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
+	UTIL_PrecacheOther("phys_cryst");
+
 	// common world objects
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_battery");

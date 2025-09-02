@@ -21,7 +21,7 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-#include "physical_bullet.h"
+#include "physical_cryst.h"
 
 
 LINK_ENTITY_TO_CLASS(weapon_crystallauncher, CCrystal_launcher);
@@ -29,6 +29,7 @@ LINK_ENTITY_TO_CLASS(weapon_crystallauncher, CCrystal_launcher);
 void CCrystal_launcher::Spawn()
 {
 	Precache();
+	m_crystaltype = 0;
 	m_iId = WEAPON_CRYST;
 	SET_MODEL(ENT(pev), "models/w_shotgun.mdl");
 
@@ -81,53 +82,24 @@ bool CCrystal_launcher::Deploy()
 
 void CCrystal_launcher::PrimaryAttack()
 {
-	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
-		return;
-
-	if (m_pPlayer->pev->waterlevel == 3) // don't fire underwater
-	{
-		PlayEmptySound();
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.15);
-		return;
-	}
-
-	if (m_iClip <= 0)
-	{
-		Reload();
-		if (m_iClip == 0)
-			PlayEmptySound();
-		return;
-	}
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = DIM_GUN_FLASH;
 
-	m_iClip--;
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	float spread = pev->armorvalue == 0 ? CONE_5DEGREES : 0.17432;
-	float spreadvert = pev->armorvalue == 0 ? CONE_5DEGREES : 0.01746;
-	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
+	float spread = 0.17432;
+	float spreadvert = 0.01746;
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
-	}
-	else
-	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, CONE_2DEGREES, CONE_2DEGREES, 1, 12, m_pPlayer->edict());
-	}
+	CPhyscryst::CrystalCreate(9, vecSrc, vecAiming, spread, spreadvert, m_crystaltype, m_pPlayer->edict(), 1);
 	#endif
 	SendWeaponAnim(SHOTGUN_SHOOT1_SEMI);
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
-	
-	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
-		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
 	m_flNextPrimaryAttack = 0.2;
 	m_flTimeWeaponIdle = 1;
@@ -152,72 +124,13 @@ void CCrystal_launcher::SecondaryAttack()
 	}
 	else if (m_crystaltype == 2)
 	{
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Crystal type is pebis"); // orange
-	}
-}
-
-void CCrystal_launcher::Reload()
-{
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 || m_iClip == 3)
-		return;
-
-	// don't reload until recoil is done
-	if (m_flNextPrimaryAttack > UTIL_WeaponTimeBase())
-		return;
-
-	// check to see if we're ready to reload
-	if (m_fInSpecialReload == 0)
-	{
-		if (m_iClip == 0)
-		{
-			SendWeaponAnim(SHOTGUN_RELOAD_START_SEMI);
-			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.37;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.37;
-			m_flNextPrimaryAttack = GetNextAttackDelay(0.37);
-			m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.37;
-			m_fInSpecialReload = 1;
-		}
-		else
-		{
-			SendWeaponAnim(SHOTGUN_RELOAD_START_SEMI);
-			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.37;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.37;
-			m_flNextPrimaryAttack = GetNextAttackDelay(0.37);
-			m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.37;
-			m_fInSpecialReload = 1;
-		}
-		return;
-	}
-	else if (m_fInSpecialReload == 1)
-	{
-		if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
-			return;
-		// was waiting for gun to move to side
-		m_fInSpecialReload = 2;
-
-		if (RANDOM_LONG(0, 1))
-			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload1.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f));
-		else
-			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload3.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f));
-
-		SendWeaponAnim(SHOTGUN_RELOAD_INSERT_SEMI);
-
-		m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
-	}
-	else
-	{
-		// Add them to the clip
-		m_iClip += 3;
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
-		m_fInSpecialReload = 1;
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Crystal type is NULL"); // orange
 	}
 }
 
 
 void CCrystal_launcher::WeaponIdle()
 {
-	ResetEmptySound();
 
 	m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 

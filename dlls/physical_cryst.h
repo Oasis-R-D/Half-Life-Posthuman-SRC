@@ -24,12 +24,14 @@ public:
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static void CrystalCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int CrystType, edict_t *shooter); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void CrystalCreate(int BLLTamnt, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int CrystType, edict_t *shooter, int OG); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
 	int m_Crysttype;
 	int m_BulletAmount;
 	int m_muzzlevelocity;
+	int m_bounceamnt;
+	bool m_original;
 	Vector m_SpawnPos;
 	Vector m_direction;
 	Vector m_Endpos;

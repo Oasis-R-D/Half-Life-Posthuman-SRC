@@ -1551,7 +1551,7 @@ public:
 	void SecondaryAttack() override;
 
 	bool Deploy() override;
-	void Reload() override;	void WeaponIdle() override;
+	void WeaponIdle() override;
 	float m_flNextReload;
 	int m_crystaltype;
 	bool UseDecrement() override
