@@ -356,7 +356,7 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CHeadCrab::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	if (FBitSet(pev->spawnflags, SF_PREHUMAN) || pev->armortype == 1)
 	{
 		m_bPrehuman = 1;
 	}
