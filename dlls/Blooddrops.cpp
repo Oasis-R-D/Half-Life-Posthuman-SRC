@@ -99,13 +99,10 @@ void CPhysblood::Spawn()
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 48) * m_opposite); //spawn a little bit more forward
+	UTIL_SetOrigin(pev, (m_SpawnPos + (m_direction * 48)) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->speed = m_BloodDropVel; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	pev->angles = m_direction;
-	
-	
 	
 	pev->renderamt = 225;
 	if (m_BloodType == BLOOD_COLOR_RED)
@@ -115,6 +112,10 @@ void CPhysblood::Spawn()
 	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(205, 255), RANDOM_LONG(185, 235), RANDOM_LONG(82, 160));
+	}
+	else if (m_BloodType == BLOOD_COLOR_CYAN)
+	{
+		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
 	pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
@@ -170,6 +171,10 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58));
+	}
+	else if (m_BloodType == BLOOD_COLOR_CYAN)
+	{
+		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58)); // TO-DO: IMPLEMENT
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 3));
