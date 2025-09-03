@@ -826,7 +826,8 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_train3", "FIELD DAY"},
 		{"ph_prologue1", "PROLOGUE"},
 		{"ph_prologue2", "PROLOGUE"}, // Find a better name to make it seem like GM wasn't expecting what happened
-		{"ph_prologue3", "PROLOGUE"},
+		{"ph_res1", "Ressurection"},
+		{"ph_res2", "Ressurection"},
 		{"ph_emer1", "Emergency"}, // Names no longer uppercase (like in Episode 1 to show GM's uninvolvement)
 		{"ph_emer2", "Emergency"},
 		{"ph_emer3", "Emergency"},
@@ -840,8 +841,8 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_surf1", "Resurfaced"},
 		{"ph_surf2", "Resurfaced"},
 		{"ph_surf3", "Resurfaced"},
-		{"ph_res1", "gibberish here"}, // ICH is named RES for some reason, forgot why (also maybe every map has a new chapter name that when connected and decoded says something
-		{"ph_res2", "gibberish here"},
+		{"PHhem1", "gibberish here"}, // ICH
+		{"PHhem2", "gibberish here"},
 		{"ph_rec1", "RV"},
 		{"ph_rec2", "RV"}, // Probably RecX
 		{"ph_rec3", "RV"},
