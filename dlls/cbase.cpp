@@ -819,18 +819,50 @@ struct TITLECOMMENT
 	const char* pTitleName;
 };
 
-TITLECOMMENT gTitleComments[] =
+TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in the game weren't cut or anything, they were just added just in case there needed to be more maps
 	{
 		{"ph_train1", "FIELD DAY"},
-		{"ph_emer1", "Emergency"},
+		{"ph_train2", "FIELD DAY"},
+		{"ph_train3", "FIELD DAY"},
+		{"ph_prologue1", "PROLOGUE"},
+		{"ph_prologue2", "PROLOGUE"}, // Find a better name to make it seem like GM wasn't expecting what happened
+		{"ph_prologue3", "PROLOGUE"},
+		{"ph_emer1", "Emergency"}, // Names no longer uppercase (like in Episode 1 to show GM's uninvolvement)
 		{"ph_emer2", "Emergency"},
 		{"ph_emer3", "Emergency"},
 		{"ph_emer4", "Emergency"},
 		{"ph_over1", "OverGrowth"},
 		{"ph_over2", "OverGrowth"},
-		{"test", "DEVSHIT!!!!!!!!!"},
-		{"test_range", "WPN DEVSHIT!!!!!!!!!"},
-		// More title entries here
+		{"ph_tech1", "Technical Difficulties"},
+		{"ph_tech2", "Technical Difficulties"},
+		{"ph_insur1", "Insurrection"},
+		{"ph_insur2", "Insurrection"},
+		{"ph_surf1", "Resurfaced"},
+		{"ph_surf2", "Resurfaced"},
+		{"ph_surf3", "Resurfaced"},
+		{"ph_res1", "gibberish here"}, // ICH is named RES for some reason, forgot why (also maybe every map has a new chapter name that when connected and decoded says something
+		{"ph_res2", "gibberish here"},
+		{"ph_rec1", "RV"},
+		{"ph_rec2", "RV"}, // Probably RecX
+		{"ph_rec3", "RV"},
+		{"ph_cont1", "Contentious Morals"}, // I am hilarious (looking)
+		{"ph_cont2", "Contentious Morals"}, // SHC boss
+		{"ph_drive1", "Driven"},
+		{"ph_drive2", "Driven"},
+		{"ph_drive3", "Driven"},
+		{"ph_drive4", "Driven"}, // driveX
+		{"ph_confine1", "Confinement"},
+		{"ph_confine2", "Confinement"},
+		{"ph_mutat1", "Mutation"}, // SHC final boss
+		{"ph_mutat2", "Mutation"}, 
+		{"ph_cliff1", "Cliffhanger"},
+		{"ph_cliff2", "Cliffhanger"}, // Miller final boss
+		{"ph_ext1", "Extinction"}, //ending
+		{"ph_ext2", "Extinct"}, //post-cred
+		{"ph_erad1", "Eradication"}, // alt ending start
+		{"ph_erad2", "Eradication"},
+		{"test", "DEV!!!!!!!!!"},
+		{"test_range", "WPN DEV!!!!!!!!!"},
 };
 
 extern "C" void DLLEXPORT SV_SaveGameComment(char* pszBuffer, int iSizeBuffer);
