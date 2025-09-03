@@ -826,9 +826,9 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_train3", "FIELD DAY"},
 		{"ph_prologue1", "PROLOGUE"},
 		{"ph_prologue2", "PROLOGUE"}, // Find a better name to make it seem like GM wasn't expecting what happened
-		{"ph_res1", "Ressurection"},
+		{"ph_res1", "Ressurection"}, // Names no longer uppercase (like in Episode 1 to show GM's uninvolvement)
 		{"ph_res2", "Ressurection"},
-		{"ph_emer1", "Emergency"}, // Names no longer uppercase (like in Episode 1 to show GM's uninvolvement)
+		{"ph_emer1", "Emergency"},
 		{"ph_emer2", "Emergency"},
 		{"ph_emer3", "Emergency"},
 		{"ph_emer4", "Emergency"},
