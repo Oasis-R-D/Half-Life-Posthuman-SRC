@@ -1274,7 +1274,7 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 
 		int blood = BloodColor();
 
-		if (blood != DONT_BLEED && blood !=BLOOD_COLOR_CYAN)
+		if (blood != DONT_BLEED)
 		{
 			SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
@@ -1334,10 +1334,10 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			case HITGROUP_GENERIC:
 				break;
 			case HITGROUP_HEAD:
-				flDamage *= 5;
+				flDamage *= 6;
 				break;
 			case HITGROUP_CHEST:
-				flDamage *= 1.1;
+				flDamage *= 1.125;
 				break;
 			case HITGROUP_STOMACH:
 				flDamage *= 1;
@@ -1355,7 +1355,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			}
 		}
 
-		if (BloodColor() != BLOOD_COLOR_CYAN)
+		if (BloodColor() != DONT_BLEED)
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
