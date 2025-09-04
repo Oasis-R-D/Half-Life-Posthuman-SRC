@@ -99,7 +99,7 @@ void CPhysblood::Spawn()
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, (m_SpawnPos + (m_direction * 48)) * m_opposite); //spawn a little bit more forward
+	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 48) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->speed = m_BloodDropVel; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
