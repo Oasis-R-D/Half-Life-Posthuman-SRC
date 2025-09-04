@@ -114,7 +114,7 @@ public:
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
-					headcrab->pev->armortype = 1;
+					headcrab->pev->armorvalue = 1;
 					
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
