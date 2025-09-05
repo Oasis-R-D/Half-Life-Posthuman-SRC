@@ -190,10 +190,21 @@ void COsprey::Spawn()
 	//Set FL_FLY so the Osprey model is interpolated.
 	pev->flags |= FL_MONSTER | FL_FLY;
 	pev->takedamage = DAMAGE_YES;
-	m_flRightHealth = 200;
-	m_flLeftHealth = 200;
-	pev->health = 400;
-	pev->max_health = pev->health;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		m_flRightHealth = 200;
+		m_flLeftHealth = 200;
+		pev->health = 400;
+		pev->max_health = pev->health;
+	}
+	else
+	{
+		m_flRightHealth = 500;
+		m_flLeftHealth = 500;
+		pev->health = 1000;
+		pev->max_health = pev->health;
+	}
+	
 
 	m_flFieldOfView = 0; // 180 degrees
 
