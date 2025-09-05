@@ -129,7 +129,7 @@ void CApache::Spawn()
 	}
 	else
 	{
-		pev->health = 1250;
+		pev->health = 1000;
 	}
 
 	pev->max_health = pev->health;
@@ -864,11 +864,11 @@ bool CApache::FireGun()
 		#ifndef CLIENT_DLL
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 556, edict());
+			CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
+			CPhysbullet::BulletCreate(2, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 		}
 		#endif
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
