@@ -26,6 +26,7 @@
 #include "soundent.h"
 #include "hornet.h"
 #include "Blooddrops.h"
+#include "physical_bullet.h"
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -227,7 +228,9 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// hit armor
 		if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
 		{
-			UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(1, 2));
+			#ifndef CLIENT_DLL
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+			#endif
 			pev->dmgtime = gpGlobals->time;
 		}
 
@@ -255,7 +258,7 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 
 		flDamage -= 20;
 		if (flDamage <= 0)
-			flDamage = 0.1; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
+			flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 	}
 	else
 	{
