@@ -78,7 +78,7 @@ public:
 	void SpreadFlock();
 	void SpreadFlock2();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
-	void Poop();
+	void Poop(); // yummers
 	bool FPathBlocked();
 	//void KeyValue( KeyValueData *pkvd ) override;
 
