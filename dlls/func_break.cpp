@@ -525,12 +525,18 @@ void CBreakable::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 		break;
 
 		case matUnbreakableGlass:
-			UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(0.5, 1.5));
+			UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(0.5, 1.5)); // TO-DO: REPLACE WITH PHYSBULLET
 			break;
 		}
 	}
-
-	CBaseDelay::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CBaseDelay::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	}
+	else
+	{
+		CBaseDelay::TraceAttack(pevAttacker, flDamage/2, vecDir, ptr, bitsDamageType);
+	}
 }
 
 //=========================================================
