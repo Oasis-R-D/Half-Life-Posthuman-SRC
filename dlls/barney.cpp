@@ -814,7 +814,8 @@ public:
 	int Classify() override { return CLASS_ALIEN_MONSTER; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
-
+	int m_iArmor;
+	int m_iHelmet;
 	int m_iPose; // which sequence to display	-- temporary, don't need to save
 	static const char* m_szPoses[3];
 };
@@ -828,7 +829,16 @@ bool CDeadBarney::KeyValue(KeyValueData* pkvd)
 		m_iPose = atoi(pkvd->szValue);
 		return true;
 	}
-
+	else if (FStrEq(pkvd->szKeyName, "Armor"))
+	{
+		m_iArmor = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "Helmet"))
+	{
+		m_iHelmet = atoi(pkvd->szValue);
+		return true;
+	}
 	return CBaseMonster::KeyValue(pkvd);
 }
 
@@ -856,4 +866,30 @@ void CDeadBarney::Spawn()
 	pev->health = 8; //gSkillData.barneyHealth;
 
 	MonsterInitDead();
+	
+	if (m_iArmor == ARMOR_RANDOM)
+		{
+		SetBodygroup(0, RANDOM_LONG(0, 1));
+		}
+	else if (m_iArmor == ARMOR_VEST)
+		{
+		SetBodygroup(0, ARMOR_VEST);
+		}
+	else
+		{
+		SetBodygroup(0, ARMOR_NONE);
+		}
+
+		if (m_iHelmet == HEADWEAR_RANDOM)
+		{
+		SetBodygroup(3, RANDOM_LONG(0, 1));
+		}
+	else if (m_iHelmet == HEADWEAR_HELM)
+		{
+		SetBodygroup(3, HEADWEAR_HELM);
+		}
+	else
+		{
+		SetBodygroup(3, HEADWEAR_OFF);
+		}
 }
