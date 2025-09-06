@@ -2490,7 +2490,7 @@ class CDeadAdvSec : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return CLASS_HUMAN_PASSIVE; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 
