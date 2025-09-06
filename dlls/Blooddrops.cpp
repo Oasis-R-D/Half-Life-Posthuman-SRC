@@ -31,7 +31,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float BLLTGravity, int BloodType)
+void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
@@ -47,7 +47,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_BloodDropVel = BLDSpeed;
 			pBlood->m_SpawnPos = VecSpawnPos;
 			pBlood->m_direction = vecDir;
-			pBlood->m_Spread = vecSpread;
+			pBlood->m_Spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES);
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
 
@@ -81,7 +81,7 @@ void CPhysblood::Spawn()
 		pev->scale = RANDOM_FLOAT(0.4, 0.65);
 		if (m_BloodDropVel > 0)
 		{
-			m_BloodDropVel -= RANDOM_LONG(0, 350);
+			m_BloodDropVel -= RANDOM_LONG(0, 400);
 		}
 
 	}
@@ -89,7 +89,7 @@ void CPhysblood::Spawn()
 	{
 		if (m_BloodDropVel > 0)
 		{
-			m_BloodDropVel -= RANDOM_LONG(0, 275);
+			m_BloodDropVel -= RANDOM_LONG(0, 300);
 			pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
 		}
 		else
@@ -188,7 +188,7 @@ void CPhysblood::AirThink()
 	pev->nextthink = gpGlobals->time + 0.25;
 	if (pev->waterlevel == 0)
 	return;
-	
+
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }

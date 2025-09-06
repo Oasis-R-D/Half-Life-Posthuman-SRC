@@ -361,7 +361,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 		#ifndef CLIENT_DLL
-		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BloodColor());
+		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
 		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
@@ -1937,7 +1937,7 @@ void CBasePlayer::PreThink()
 					pev->health -= 1;
 				}
 #ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(2, 0, hitlocation, VECTOR_CONE_20DEGREES, CONE_20DEGREES, 1, BloodColor());
+				CPhysblood::BloodCreate(2, 0, hitlocation, VECTOR_CONE_20DEGREES, 1, BloodColor());
 #endif	
 			
 			}	

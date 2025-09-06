@@ -1280,7 +1280,7 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 			//Spawn blud dwops UwU
 			#ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, blood);
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
 			#endif
 
 		}
@@ -1361,7 +1361,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 			//Spawn blud dwops UwU
 			#ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, CONE_20DEGREES, 1, BloodColor());
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
 			#endif
 		}
 
