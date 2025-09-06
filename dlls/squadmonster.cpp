@@ -436,8 +436,7 @@ void CSquadMonster::StartMonster()
 
 		if (IsLeader() && FClassnameIs(pev, "monster_human_grunt"))
 		{
-			SetBodygroup(1, 1); // UNDONE: truly ugly hack
-			pev->skin = 0;
+			// removed code here, caused bugs
 		}
 		
 		if (IsLeader() && FClassnameIs(pev, "monster_advsec"))

@@ -1103,9 +1103,13 @@ void CAdvSec::Spawn()
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		m_cClipSize = 9;
 	}
-	else
+	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
-		m_cClipSize = GRUNT_CLIP_SIZE;
+		m_cClipSize = 30;
+	}
+	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
+	{
+		m_cClipSize = 1;
 	}
 	m_cAmmoLoaded = m_cClipSize;
 

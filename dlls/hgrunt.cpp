@@ -1053,7 +1053,9 @@ void CHGrunt::Spawn()
 	m_HackedGunPos = Vector(0, 0, 55);
 
 	if (pev->weapons == 0)
+	{
 		pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
+	}
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
@@ -1061,13 +1063,6 @@ void CHGrunt::Spawn()
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		m_cClipSize = 9;
-	}
-	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
-		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-		SetBodygroup(GUN_GROUP, GUN_MP5);
-		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
@@ -1079,26 +1074,26 @@ void CHGrunt::Spawn()
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
 	 {
 		switch (RANDOM_LONG(0, 1))
-	{
-		case 0:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
-		break;
-		case 1:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
-		break;
-	};
+		{
+			case 0:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+			break;
+			case 1:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+			break;
+		};
 		SetBodygroup(TORSO_GROUP, TORSO_M249);
 		SetBodygroup(GUN_GROUP, GUN_M727);
 		m_cClipSize = 30;
 	}
-	else
+	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
 		switch (RANDOM_LONG(0, 1))
 		{
-		case 0:
+			case 0:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
 			break;
-		case 1:
+			case 1:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
 			break;
 		};
@@ -1106,7 +1101,13 @@ void CHGrunt::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;
 	}
-
+	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+	{
+		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
+		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
+		SetBodygroup(GUN_GROUP, GUN_MP5);
+		m_cClipSize = 30;
+	}
 	pev->skin = RANDOM_LONG(0, 1);
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
