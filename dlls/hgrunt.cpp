@@ -1071,6 +1071,13 @@ void CHGrunt::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_M249);
 		m_cClipSize = 200;
 	}
+	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+	{
+		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
+		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
+		SetBodygroup(GUN_GROUP, GUN_MP5);
+		m_cClipSize = 30;
+	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
 	 {
 		switch (RANDOM_LONG(0, 1))
@@ -1097,13 +1104,6 @@ void CHGrunt::Spawn()
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
 			break;
 		};
-		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-		SetBodygroup(GUN_GROUP, GUN_MP5);
-		m_cClipSize = 30;
-	}
-	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_cClipSize = 30;

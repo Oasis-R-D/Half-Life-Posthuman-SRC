@@ -203,7 +203,7 @@ void CMP5::PrimaryAttack()
 		{
 			pev->armorvalue++;
 				if (g_iSkillLevel != SKILL_HARD)
-				{
+				{	
 					m_flNextPrimaryAttack = 0.066;
 				}
 				else
@@ -218,6 +218,7 @@ void CMP5::PrimaryAttack()
 		}
 	}
 	else
+	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
 
@@ -225,9 +226,9 @@ void CMP5::PrimaryAttack()
 		}
 		else
 		{
-			m_flNextPrimaryAttack = 0.075;	
+			m_flNextPrimaryAttack = 0.075;
 		}
-
+	}
 	m_flTimeWeaponIdle = 5;
 	#ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
