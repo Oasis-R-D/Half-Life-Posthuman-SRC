@@ -177,7 +177,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58)); // TO-DO: IMPLEMENT
 	}
 	char dripsnd[256];
-	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 3));
+	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
 	Stay();
 
