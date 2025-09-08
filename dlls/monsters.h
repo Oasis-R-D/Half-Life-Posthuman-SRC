@@ -147,7 +147,26 @@ enum
 		8 : "Hear Player"
 		9 : "Hear Combat"
 */
+struct GibLimit
+{
+	const int MaxGibs;
+};
+/**
+*	@brief Data used to spawn gibs
+*/
+struct GibData
+{
+	const char* const ModelName;
+	const int FirstSubModel;
+	const int SubModelCount;
 
+	/**
+	*	@brief Optional list of limits to apply to each submodel
+	*	Must be SubModelCount elements large
+	*	If used, instead of randomly selecting a submodel each submodel is used until the requested number of gibs have been spawned
+	*/
+	const GibLimit* const Limits = nullptr;
+};
 //
 // A gib is a chunk of a body, or a piece of wood/metal/rocks/etc.
 //
@@ -162,6 +181,7 @@ public:
 
 	int ObjectCaps() override { return (CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
 	static void SpawnHeadGib(entvars_t* pevVictim);
+	static void SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibData);
 	static void SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human);
 	static void SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int cGibs);
 

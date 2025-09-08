@@ -2317,6 +2317,7 @@ public:
 
 	CLightning* m_pBeams;
 	CSprite* m_pSprite;
+	int m_racex;
 	int m_iBeams;
 	float m_flLastTime;
 	float m_flMaxFrame;
@@ -2328,6 +2329,7 @@ public:
 	bool m_fPlaying;
 	bool m_fDamageApplied;
 	bool m_fBeamsCleared;
+
 };
 
 LINK_ENTITY_TO_CLASS(env_warpball, CWarpBall);
@@ -2335,6 +2337,7 @@ LINK_ENTITY_TO_CLASS(env_warpball, CWarpBall);
 TYPEDESCRIPTION CWarpBall::m_SaveData[] =
 	{
 		DEFINE_FIELD(CWarpBall, m_iBeams, FIELD_INTEGER),
+		DEFINE_FIELD(CWarpBall, m_racex, FIELD_INTEGER),
 		DEFINE_FIELD(CWarpBall, m_flLastTime, FIELD_FLOAT),
 		DEFINE_FIELD(CWarpBall, m_flMaxFrame, FIELD_FLOAT),
 		DEFINE_FIELD(CWarpBall, m_flBeamRadius, FIELD_FLOAT),
@@ -2368,7 +2371,11 @@ bool CWarpBall::KeyValue(KeyValueData* pkvd)
 		m_flDamageDelay = atof(pkvd->szValue);
 		return true;
 	}
-
+	else if (FStrEq("RaceX", pkvd->szKeyName))
+	{
+		m_racex = atoi(pkvd->szValue);
+		return true;
+	}
 	return false;
 }
 
@@ -2423,18 +2430,36 @@ void CWarpBall::WarpBallUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_T
 
 		m_flMaxFrame = MODEL_FRAMES(pev->modelindex) - 1;
 
-		pev->rendercolor.x = 77;
-		pev->rendercolor.y = 210;
-		pev->rendercolor.z = 130;
+		if (m_racex != 1)
+			{
+				m_pSprite->pev->rendercolor.x = 77;
+				m_pSprite->pev->rendercolor.y = 210;
+				m_pSprite->pev->rendercolor.z = 130;
+			}
+		else
+			{
+				m_pSprite->pev->rendercolor.x = 210;
+				m_pSprite->pev->rendercolor.y = 75;
+				m_pSprite->pev->rendercolor.z = 255;
+			}
 		pev->scale = 1.2;
 		pev->frame = 0;
 
 		if (m_pSprite)
 		{
 			m_pSprite->pev->rendermode = kRenderGlow;
-			m_pSprite->pev->rendercolor.x = 77;
-			m_pSprite->pev->rendercolor.y = 210;
-			m_pSprite->pev->rendercolor.z = 130;
+			if (m_racex != 1)
+			{
+				m_pSprite->pev->rendercolor.x = 77;
+				m_pSprite->pev->rendercolor.y = 210;
+				m_pSprite->pev->rendercolor.z = 130;
+			}
+			else
+			{
+				m_pSprite->pev->rendercolor.x = 180;
+				m_pSprite->pev->rendercolor.y = 16;
+				m_pSprite->pev->rendercolor.z = 255;
+			}
 			m_pSprite->pev->renderamt = 255;
 			m_pSprite->pev->renderfx = kRenderFxNoDissipation;
 			m_pSprite->pev->scale = 1;
@@ -2456,10 +2481,19 @@ void CWarpBall::WarpBallUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_T
 			m_pBeams->m_boltWidth = 18;
 			m_pBeams->m_life = 0.5;
 
-			m_pBeams->pev->rendercolor.x = 0;
-			m_pBeams->pev->rendercolor.y = 255;
-			m_pBeams->pev->rendercolor.z = 0;
 
+			if (m_racex != 1)
+			{
+				m_pBeams->pev->rendercolor.x = 0;
+				m_pBeams->pev->rendercolor.y = 255;
+				m_pBeams->pev->rendercolor.z = 0;
+			}
+			else
+			{
+				m_pBeams->pev->rendercolor.x = 225;
+				m_pBeams->pev->rendercolor.y = 16;
+				m_pBeams->pev->rendercolor.z = 255;
+			}
 			m_pBeams->pev->spawnflags |= 0x20u;
 			m_pBeams->pev->spawnflags |= 2u;
 

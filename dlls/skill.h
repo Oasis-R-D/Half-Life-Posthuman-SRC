@@ -96,6 +96,10 @@ struct skilldata_t
 	float miniturretHealth;
 	float sentryHealth;
 
+	float pitdroneDmgSpit;
+	float pitdroneDmgBite;
+	float pitdroneDmgWhip;
+	float pitdroneHealth;
 
 	// Player Weapons
 	float plrDmgCrowbar;

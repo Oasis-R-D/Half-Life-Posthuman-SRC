@@ -177,8 +177,18 @@ void CGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human)
+void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibData)
 {
+	//Track the number of uses of a particular submodel so we can avoid spawning too many of the same
+	auto pLimitTracking = gibData.Limits != nullptr ? reinterpret_cast<int*>(stackalloc(sizeof(int) * gibData.SubModelCount)) : nullptr;
+
+	if (pLimitTracking)
+	{
+		memset(pLimitTracking, 0, sizeof(int) * gibData.SubModelCount);
+	}
+
+	auto currentBody = 0;
+
 	int cSplat;
 
 	for (cSplat = 0; cSplat < cGibs; cSplat++)
@@ -192,17 +202,22 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human)
 		}
 		else
 		{
-			if (human)
+			pGib->Spawn(gibData.ModelName);
+
+			if (pLimitTracking)
 			{
-				// human pieces
-				pGib->Spawn("models/hgibs.mdl");
-				pGib->pev->body = RANDOM_LONG(1, HUMAN_GIB_COUNT - 1); // start at one to avoid throwing random amounts of skulls (0th gib)
+				if (pLimitTracking[currentBody] >= gibData.Limits[currentBody].MaxGibs)
+				{
+					++currentBody;
+				}
+
+				pGib->pev->body = currentBody;
+
+				++pLimitTracking[currentBody];
 			}
 			else
 			{
-				// aliens
-				pGib->Spawn("models/agibs.mdl");
-				pGib->pev->body = RANDOM_LONG(0, ALIEN_GIB_COUNT - 1);
+				pGib->pev->body = RANDOM_LONG(gibData.FirstSubModel, gibData.SubModelCount - 1);
 			}
 		}
 
@@ -247,8 +262,18 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human)
 		}
 		pGib->LimitVelocity();
 	}
+
+	stackfree(pLimitTracking);
 }
 
+// start at one to avoid throwing random amounts of skulls (0th gib)
+const GibData HumanGibs = {"models/hgibs.mdl", 1, HUMAN_GIB_COUNT};
+const GibData AlienGibs = {"models/agibs.mdl", 0, ALIEN_GIB_COUNT};
+
+void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human)
+{
+	SpawnRandomGibs(pevVictim, cGibs, human ? HumanGibs : AlienGibs);
+}
 
 bool CBaseMonster::HasHumanGibs()
 {
@@ -323,7 +348,6 @@ void CBaseMonster::GibMonster()
 		}
 	}
 }
-
 //=========================================================
 // GetDeathActivity - determines the best type of death
 // anim to play.

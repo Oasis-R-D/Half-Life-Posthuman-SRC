@@ -295,6 +295,22 @@ cvar_t sk_sentry_health1 = {"sk_sentry_health1", "0"};
 cvar_t sk_sentry_health2 = {"sk_sentry_health2", "0"};
 cvar_t sk_sentry_health3 = {"sk_sentry_health3", "0"};
 
+// PitDrone
+cvar_t sk_pitdrone_health1 = {"sk_pitdrone_health1", "0"};
+cvar_t sk_pitdrone_health2 = {"sk_pitdrone_health2", "0"};
+cvar_t sk_pitdrone_health3 = {"sk_pitdrone_health3", "0"};
+
+cvar_t sk_pitdrone_dmg_bite1 = {"sk_pitdrone_dmg_bite1", "0"};
+cvar_t sk_pitdrone_dmg_bite2 = {"sk_pitdrone_dmg_bite2", "0"};
+cvar_t sk_pitdrone_dmg_bite3 = {"sk_pitdrone_dmg_bite3", "0"};
+
+cvar_t sk_pitdrone_dmg_spit1 = {"sk_pitdrone_dmg_spit1", "0"};
+cvar_t sk_pitdrone_dmg_spit2 = {"sk_pitdrone_dmg_spit2", "0"};
+cvar_t sk_pitdrone_dmg_spit3 = {"sk_pitdrone_dmg_spit3", "0"};
+
+cvar_t sk_pitdrone_dmg_whip1 = {"sk_pitdrone_dmg_whip1", "0"};
+cvar_t sk_pitdrone_dmg_whip2 = {"sk_pitdrone_dmg_whip2", "0"};
+cvar_t sk_pitdrone_dmg_whip3 = {"sk_pitdrone_dmg_whip3", "0"};
 
 // PLAYER WEAPONS
 
@@ -796,6 +812,23 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_sentry_health2); // {"sk_sentry_health2","0"};
 	CVAR_REGISTER(&sk_sentry_health3); // {"sk_sentry_health3","0"};
 
+
+	// PitDrone
+	CVAR_REGISTER(&sk_pitdrone_health1);
+	CVAR_REGISTER(&sk_pitdrone_health2);
+	CVAR_REGISTER(&sk_pitdrone_health3);
+
+	CVAR_REGISTER(&sk_pitdrone_dmg_bite1);
+	CVAR_REGISTER(&sk_pitdrone_dmg_bite2);
+	CVAR_REGISTER(&sk_pitdrone_dmg_bite3);
+
+	CVAR_REGISTER(&sk_pitdrone_dmg_spit1);
+	CVAR_REGISTER(&sk_pitdrone_dmg_spit2);
+	CVAR_REGISTER(&sk_pitdrone_dmg_spit3);
+	
+	CVAR_REGISTER(&sk_pitdrone_dmg_whip1);
+	CVAR_REGISTER(&sk_pitdrone_dmg_whip2);
+	CVAR_REGISTER(&sk_pitdrone_dmg_whip3);
 
 	// PLAYER WEAPONS
 

@@ -284,6 +284,11 @@ void CGameRules::RefreshSkillData()
 	gSkillData.zombieDmgOneSlash = GetSkillCvar("sk_zombie_dmg_one_slash");
 	gSkillData.zombieDmgBothSlash = GetSkillCvar("sk_zombie_dmg_both_slash");
 
+	// Pitdrone
+	gSkillData.pitdroneHealth = GetSkillCvar("sk_pitdrone_health");
+	gSkillData.pitdroneDmgBite = GetSkillCvar("sk_pitdrone_dmg_bite");
+	gSkillData.pitdroneDmgSpit = GetSkillCvar("sk_pitdrone_dmg_spit");
+	gSkillData.pitdroneDmgWhip = GetSkillCvar("sk_pitdrone_dmg_whip");
 	//Turret
 	gSkillData.turretHealth = GetSkillCvar("sk_turret_health");
 
