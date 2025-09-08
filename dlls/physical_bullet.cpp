@@ -200,6 +200,27 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
+			Vector knockbackdir = Vector(pev->angles.x, pev->angles.y, 0);
+			if (m_Flare == 12) // makes the shotgun knock dead enemies back #swag
+			{
+				pOther->pev->velocity = pOther->pev->velocity + (knockbackdir * 10);
+				pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 15;
+			}
+			else if (m_Flare == 357)
+			{
+				pOther->pev->velocity = pOther->pev->velocity + (knockbackdir * 125);
+				pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 75;
+			}
+			else if (m_Flare == 556)
+			{
+				pOther->pev->velocity = pOther->pev->velocity + (knockbackdir * 30);
+				pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 10;
+			}
+			else // 9MM, also affects rubber bullets and the HC deagle though
+			{
+				pOther->pev->velocity = pOther->pev->velocity + (knockbackdir * 20);
+				pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 10;
+			}
 			UTIL_Remove(this);
 		}
 	}
