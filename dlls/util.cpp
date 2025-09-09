@@ -1244,8 +1244,12 @@ void UTIL_BloodDecalTrace(TraceResult* pTrace, int bloodColor)
 	{
 		if (bloodColor == BLOOD_COLOR_RED)
 			UTIL_DecalTrace(pTrace, DECAL_BLOOD1 + RANDOM_LONG(0, 5));
-		else if (bloodColor == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
-			UTIL_DecalTrace(pTrace, DECAL_YBLOOD1 + RANDOM_LONG(0, 5));
+		else if (bloodColor == BLOOD_COLOR_YELLOW)
+			UTIL_DecalTrace(pTrace, DECAL_YBLOOD1 + RANDOM_LONG(0, 4));
+		else if (bloodColor == BLOOD_COLOR_GREEN)
+			UTIL_DecalTrace(pTrace, DECAL_XBLOOD1 + RANDOM_LONG(0, 4));
+		else if (bloodColor == BLOOD_COLOR_CYAN)
+			UTIL_DecalTrace(pTrace, DECAL_BBLOOD1 + RANDOM_LONG(0, 2));
 	}
 }
 

@@ -712,7 +712,7 @@ void CBullsquid::Spawn()
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
-	m_bloodColor = BLOOD_COLOR_GREEN;
+	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
 	if (g_iSkillLevel != SKILL_HARD)
 	{

@@ -385,7 +385,7 @@ void CController::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_FLY;
 	pev->flags |= FL_FLY;
-	m_bloodColor = BLOOD_COLOR_GREEN;
+	m_bloodColor = BLOOD_COLOR_YELLOW;
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		pev->health = gSkillData.controllerHealth;

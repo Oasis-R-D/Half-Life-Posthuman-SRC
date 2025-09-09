@@ -628,7 +628,7 @@ void CAGrunt::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	pev->skin = RANDOM_LONG(0, 13);
-	m_bloodColor = BLOOD_COLOR_GREEN;
+	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
 	if (g_iSkillLevel != SKILL_HARD)
 	{

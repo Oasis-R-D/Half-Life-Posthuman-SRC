@@ -63,8 +63,9 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
 		pBullet->m_Flare = FlareType; // tracer type
-		pBullet->Spawn();
 		pBullet->pev->owner = shooter;
+		pBullet->Spawn();
+		
 	}
 }
 

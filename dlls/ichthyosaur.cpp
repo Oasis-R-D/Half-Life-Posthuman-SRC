@@ -498,7 +498,7 @@ void CIchthyosaur::Spawn()
 
 	pev->solid = SOLID_BBOX;
 	pev->movetype = MOVETYPE_FLY;
-	m_bloodColor = BLOOD_COLOR_GREEN;
+	m_bloodColor = BLOOD_COLOR_YELLOW;
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		pev->health = gSkillData.ichthyosaurHealth;

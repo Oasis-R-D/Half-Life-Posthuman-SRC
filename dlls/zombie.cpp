@@ -69,7 +69,7 @@ public:
 		if (ptr->iHitgroup == HITGROUP_HEAD)
 		{
 			pev->armortype = 1;
-			m_bloodColor = BLOOD_COLOR_GREEN;
+			m_bloodColor = BLOOD_COLOR_YELLOW;
 		}
 		else
 		{

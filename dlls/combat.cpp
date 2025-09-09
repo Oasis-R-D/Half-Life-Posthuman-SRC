@@ -1619,7 +1619,7 @@ Vector CBaseEntity::FireBulletsPlayer(unsigned int cShots, Vector vecSrc, Vector
 
 void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if (BloodColor() == DONT_BLEED || BloodColor() == BLOOD_COLOR_CYAN)
+	if (BloodColor() == DONT_BLEED)
 		return;
 
 	if (flDamage == 0)

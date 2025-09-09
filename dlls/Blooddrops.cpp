@@ -109,10 +109,14 @@ void CPhysblood::Spawn()
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(100, 120), 0, 0);
 	}
-	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(205, 255), RANDOM_LONG(185, 235), RANDOM_LONG(82, 160));
 	}
+	else if (m_BloodType == BLOOD_COLOR_GREEN)
+	{
+		pev->rendercolor = Vector(185, 235, 85);
+	}	
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
@@ -157,7 +161,10 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 		TraceResult tr = UTIL_GetGlobalTrace();
 		Stay();
-
+		if (!pOther->IsBSPModel() && m_BloodType == BLOOD_COLOR_CYAN)
+		{
+			pOther->TakeHealth(5, DMG_GENERIC);
+		}
 	}
 	else 
 	{
@@ -168,13 +175,17 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(45, 52));
 	}
-	else if (m_BloodType == BLOOD_COLOR_GREEN || BLOOD_COLOR_YELLOW)
+	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 59));
+	}
+	else if (m_BloodType == BLOOD_COLOR_GREEN)
+	{
+		UTIL_DecalTrace(&tr, RANDOM_LONG(60, 66));
 	}
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 58)); // TO-DO: IMPLEMENT
+		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 72)); // TO-DO: IMPLEMENT
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));

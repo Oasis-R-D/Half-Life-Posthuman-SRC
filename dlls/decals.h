@@ -16,7 +16,7 @@
 #pragma once
 
 //
-// Dynamic Decals
+// Dynamic Decals // Make sure to match it with world.cpp // haha the comments made a weener XD
 //
 enum decal_e
 {
@@ -73,12 +73,25 @@ enum decal_e
 	DECAL_BLOODSPRAY6,
 	DECAL_BLOOD7,
 	DECAL_BLOOD8,
-	DECAL_ABLOODSPRAY1, // 53-58: For the blood drop system, alien blood
+	DECAL_ABLOODSPRAY1, // 53-59: For the blood drop system, xenian blood
 	DECAL_ABLOODSPRAY2,
 	DECAL_ABLOODSPRAY3,
 	DECAL_ABLOODSPRAY4,
 	DECAL_ABLOODSPRAY5,
 	DECAL_ABLOODSPRAY6,
+	DECAL_YBLOOD6_2,    // easiest way to include it in the drop system
+	DECAL_XBLOODSPRAY1, // 60-66: For the blood drop system, race x blood
+	DECAL_XBLOODSPRAY2,
+	DECAL_XBLOODSPRAY3,
+	DECAL_XBLOODSPRAY4,
+	DECAL_XBLOODSPRAY5,
+	DECAL_XBLOODSPRAY6,
+	DECAL_XBLOODSPRAY7,
+	DECAL_XBLOOD1,
+	DECAL_XBLOOD2,
+	DECAL_XBLOOD3,
+	DECAL_XBLOOD4,
+	DECAL_XBLOOD5,
 };
 
 typedef struct

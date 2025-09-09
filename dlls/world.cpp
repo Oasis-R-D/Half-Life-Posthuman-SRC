@@ -44,7 +44,7 @@ char savefile[128];
 extern void W_Precache();
 
 //
-// This must match the list in util.h
+// This must match the list in decals.h
 //
 DLL_DECALLIST gDecals[] = {
 	{"{shot1", 0},	   // DECAL_GUNSHOT1
@@ -106,6 +106,19 @@ DLL_DECALLIST gDecals[] = {
 	{"{abloodspray4", 0},	// DECAL_ABLOODSPRAY4
 	{"{abloodspray5", 0},	// DECAL_ABLOODSPRAY5
 	{"{abloodspray6", 0},	// DECAL_ABLOODSPRAY6
+	{"{yblood6", 0},   // DECAL_YBLOOD6
+	{"{xbloodspray1", 0},	// DECAL_XBLOODSPRAY1
+	{"{xbloodspray2", 0},	// DECAL_XBLOODSPRAY2
+	{"{xbloodspray3", 0},	// DECAL_XBLOODSPRAY3
+	{"{xbloodspray4", 0},	// DECAL_XBLOODSPRAY4
+	{"{xbloodspray5", 0},	// DECAL_XBLOODSPRAY5
+	{"{xbloodspray6", 0},	// DECAL_XBLOODSPRAY6
+	{"{xbloodspray7", 0},	// DECAL_XBLOODSPRAY7
+	{"{xblood1", 0},   // DECAL_XBLOOD1
+	{"{xblood2", 0},   // DECAL_XBLOOD2
+	{"{xblood3", 0},   // DECAL_XBLOOD3
+	{"{xblood4", 0},   // DECAL_XBLOOD4
+	{"{xblood5", 0},   // DECAL_XBLOOD5
 }; 
 
 /*
