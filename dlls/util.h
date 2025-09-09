@@ -582,6 +582,12 @@ constexpr bool UTIL_IsServer()
 #endif
 }
 
+inline void WRITE_COORD_VECTOR(const Vector& vec)
+{
+	WRITE_COORD(vec.x);
+	WRITE_COORD(vec.y);
+	WRITE_COORD(vec.z);
+}
 /**
 *	@brief Helper type to run a function when the helper is destroyed.
 *	Useful for running cleanup on scope exit and function return.

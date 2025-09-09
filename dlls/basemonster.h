@@ -373,4 +373,17 @@ public:
 	*	Will return @c nullptr if item dropping is disabled for this NPC.
 	*/
 	CBaseEntity* DropItem(const char* pszItemName, const Vector& vecPos, const Vector& vecAng);
+
+	//Shock rifle shock effect
+	float m_flShockDuration;
+	float m_flShockTime;
+	int m_iOldRenderMode;
+	int m_iOldRenderFX;
+	Vector m_OldRenderColor;
+	float m_flOldRenderAmt;
+	bool m_fShockEffect;
+
+	void AddShockEffect(float r, float g, float b, float size, float flShockDuration);
+	void UpdateShockEffect();
+	void ClearShockEffect();
 };
