@@ -177,7 +177,7 @@ inline bool FStringNull(int iString)
 #define BLOOD_COLOR_RED (byte)247
 #define BLOOD_COLOR_YELLOW (byte)195
 #define BLOOD_COLOR_GREEN (byte)175
-#define BLOOD_COLOR_CYAN (byte)244
+#define BLOOD_COLOR_CYAN (byte)43
 
 typedef enum
 {
