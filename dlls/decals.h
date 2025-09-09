@@ -95,6 +95,9 @@ enum decal_e
 	DECAL_BBLOODSPRAY1, //72-74: For the blood drop system, healing water (SPECIAL FX: HEALS IF HIT BY DROP)
 	DECAL_BBLOODSPRAY2,
 	DECAL_BBLOODSPRAY3,
+	DECAL_OFSCORCH1,
+	DECAL_OFSCORCH2,
+	DECAL_OFSCORCH3,
 };
 
 typedef struct

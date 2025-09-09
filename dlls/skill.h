@@ -101,6 +101,18 @@ struct skilldata_t
 	float pitdroneDmgWhip;
 	float pitdroneHealth;
 
+	float shocktrooperMaxCharge;
+	float shocktrooperHealth;
+	float shocktrooperDmgKick;
+	float shocktrooperGrenadeSpeed;
+	float shocktrooperRechargeSpeed;
+
+	float plrDmgSpore;
+	float plrDmgShockRoachS;
+
+	float shockroachHealth;
+	float shockroachLifespan;
+	float shockroachDmgBite;
 	// Player Weapons
 	float plrDmgCrowbar;
 	float plrDmg9MM;

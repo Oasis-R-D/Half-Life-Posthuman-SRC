@@ -46,6 +46,16 @@ cvar_t allow_spectators = {"allow_spectators", "0.0", FCVAR_SERVER}; // 0 preven
 cvar_t mp_chattime = {"mp_chattime", "10", FCVAR_SERVER};
 
 cvar_t sv_allowbunnyhopping = {"sv_allowbunnyhopping", "0", FCVAR_SERVER};
+//Macros to make skill cvars easier to define
+#define DECLARE_SKILL_CVARS(name)                 \
+	cvar_t sk_##name##1 = {"sk_" #name "1", "0"}; \
+	cvar_t sk_##name##2 = {"sk_" #name "2", "0"}; \
+	cvar_t sk_##name##3 = {"sk_" #name "3", "0"}
+
+#define REGISTER_SKILL_CVARS(name) \
+	CVAR_REGISTER(&sk_##name##1);  \
+	CVAR_REGISTER(&sk_##name##2);  \
+	CVAR_REGISTER(&sk_##name##3)
 
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
@@ -311,6 +321,24 @@ cvar_t sk_pitdrone_dmg_spit3 = {"sk_pitdrone_dmg_spit3", "0"};
 cvar_t sk_pitdrone_dmg_whip1 = {"sk_pitdrone_dmg_whip1", "0"};
 cvar_t sk_pitdrone_dmg_whip2 = {"sk_pitdrone_dmg_whip2", "0"};
 cvar_t sk_pitdrone_dmg_whip3 = {"sk_pitdrone_dmg_whip3", "0"};
+
+// Shock Roach
+DECLARE_SKILL_CVARS(shockroach_health);
+DECLARE_SKILL_CVARS(shockroach_dmg_bite);
+DECLARE_SKILL_CVARS(shockroach_lifespan);
+
+// Shock Trooper
+DECLARE_SKILL_CVARS(shocktrooper_health);
+DECLARE_SKILL_CVARS(shocktrooper_kick);
+DECLARE_SKILL_CVARS(shocktrooper_gspeed);
+DECLARE_SKILL_CVARS(shocktrooper_maxcharge);
+DECLARE_SKILL_CVARS(shocktrooper_rchgspeed);
+
+// Shock Roach
+DECLARE_SKILL_CVARS(plr_shockroachs);
+// Spore Launcher
+DECLARE_SKILL_CVARS(plr_spore);
+
 
 // PLAYER WEAPONS
 
@@ -829,6 +857,23 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_pitdrone_dmg_whip1);
 	CVAR_REGISTER(&sk_pitdrone_dmg_whip2);
 	CVAR_REGISTER(&sk_pitdrone_dmg_whip3);
+
+	// Shock Roach
+	REGISTER_SKILL_CVARS(shockroach_health);
+	REGISTER_SKILL_CVARS(shockroach_dmg_bite);
+	REGISTER_SKILL_CVARS(shockroach_lifespan);
+
+	// Shock Trooper
+	REGISTER_SKILL_CVARS(shocktrooper_health);
+	REGISTER_SKILL_CVARS(shocktrooper_kick);
+	REGISTER_SKILL_CVARS(shocktrooper_gspeed);
+	REGISTER_SKILL_CVARS(shocktrooper_maxcharge);
+	REGISTER_SKILL_CVARS(shocktrooper_rchgspeed);
+
+	// Shock Roach
+	REGISTER_SKILL_CVARS(plr_shockroachs);
+	// Spore Launcher
+	REGISTER_SKILL_CVARS(plr_spore);
 
 	// PLAYER WEAPONS
 
