@@ -20,7 +20,7 @@
 #include "explode.h"
 
 #include "player.h"
-
+#include "physical_bullet.h"
 
 #define SF_TANK_ACTIVE 0x0001
 #define SF_TANK_PLAYER 0x0002
@@ -750,15 +750,18 @@ void CFuncTankGun::Fire(const Vector& barrelEnd, const Vector& forward, entvars_
 				switch (m_bulletType)
 				{
 				case TANK_BULLET_9MM:
-					FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_9MM, 1, m_iBulletDamage, pevAttacker);
+					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_9MM, 1, m_iBulletDamage, pevAttacker);
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 6000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 9, edict());
 					break;
 
 				case TANK_BULLET_MP5:
-					FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_MP5, 1, m_iBulletDamage, pevAttacker);
+					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_MP5, 1, m_iBulletDamage, pevAttacker);
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 7000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 556, edict());
 					break;
 
 				case TANK_BULLET_12MM:
-					FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_12MM, 1, m_iBulletDamage, pevAttacker);
+					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_12MM, 1, m_iBulletDamage, pevAttacker);
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 5750, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 12, edict());
 					break;
 
 				default:

@@ -545,7 +545,6 @@ void CM727::PrimaryAttack()
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
-		m_pPlayer->pev->punchangle.x -= 0.75;
 		CBasePlayerWeapon::Recoil(0.75, 1);
 	}
 	else
