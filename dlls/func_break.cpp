@@ -33,7 +33,7 @@
 // Just add more items to the bottom of this array and they will automagically be supported
 // This is done instead of just a classname in the FGD so we can control which entities can
 // be spawned, and still remain fairly flexible
-const char* CBreakable::pSpawnObjects[] = //TODO: Add M727, M249, DE
+const char* CBreakable::pSpawnObjects[] =
 	{
 		NULL,				  // 0
 		"item_battery",		  // 1
@@ -57,6 +57,14 @@ const char* CBreakable::pSpawnObjects[] = //TODO: Add M727, M249, DE
 		"weapon_satchel",	  // 19
 		"weapon_snark",		  // 20
 		"weapon_hornetgun",	  // 21
+		"weapon_m727",		  // 22
+		"ammo_556mag",		  // 23
+		"weapon_m249",		  // 24
+		"ammo_556",			  // 25
+		"weapon_eagle",		  // 26
+		"monster_headcrab",   // 27
+		"monster_headcrab_fast", // 28
+		"monster_headcrab_super",// 29
 };
 
 bool CBreakable::KeyValue(KeyValueData* pkvd)
