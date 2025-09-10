@@ -121,6 +121,10 @@ void CPhysblood::Spawn()
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
+	/*else if (m_BloodType == BLOOD_COLOR_NOISE)
+	{
+		pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255));
+	} */
 	pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
