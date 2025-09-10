@@ -188,9 +188,9 @@ class CEnvSpit : public CBaseEntity
 			{
 			case SKILL_EASY: damage = 6; break;
 			case SKILL_MEDIUM: damage = 5; break;
-			case SKILL_HARD: damage = 4; break;
+			case SKILL_HARD: damage = 10; break;
 			}
-			pOther->TakeDamage(VARS(pev->owner), VARS(pev->owner), damage, DMG_GENERIC);
+			pOther->TakeDamage(VARS(pev->owner), VARS(pev->owner), damage, DMG_ACID | DMG_NEVERGIB);
 		}
 
 		TraceResult tr;
