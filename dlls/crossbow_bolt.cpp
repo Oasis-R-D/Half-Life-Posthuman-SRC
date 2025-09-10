@@ -171,7 +171,7 @@ void CCrossbowBolt::ExplodeThink()
 	int iContents = UTIL_PointContents(pev->origin);
 	int iScale;
 
-	pev->dmg = 40;
+	pev->dmg = 60;
 	iScale = 10;
 
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);

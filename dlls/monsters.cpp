@@ -528,10 +528,12 @@ void CBaseMonster::Railed() //:troll:
 			for (int i = 0; i < 255; i++)
 			{
 				//UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BloodColor(), 255);
-				if (BloodColor() == BLOOD_COLOR_GREEN || BloodColor() == BLOOD_COLOR_YELLOW)
+				if (BloodColor() == BLOOD_COLOR_YELLOW)
 					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_YELLOW, 255);
 				else if (BloodColor() == BLOOD_COLOR_RED)
 					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), 70, 255); //fuck whoever thought a pallete for this was a good idea
+				else if (BloodColor() == BLOOD_COLOR_GREEN)
+					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_GREEN, 255);
 				else
 					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_CYAN, 255);
 			}

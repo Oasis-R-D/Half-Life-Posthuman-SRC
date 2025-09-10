@@ -36,12 +36,14 @@ int UTIL_BloodPuff(TraceResult tr, int bloodcolor)
 {
 	auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", tr.vecEndPos, true);
 	spr->AnimateAndDie(RANDOM_LONG(15, 30));
-	if (bloodcolor == BLOOD_COLOR_GREEN || bloodcolor == BLOOD_COLOR_YELLOW)
+	if (bloodcolor == BLOOD_COLOR_YELLOW)
 		spr->SetTransparency(kRenderGlow, 128, 128, 0, 128, kRenderFxNoDissipation);
 	else if (bloodcolor == BLOOD_COLOR_RED)
 		spr->SetTransparency(kRenderGlow, 128, 0, 0, 128, kRenderFxNoDissipation);
 	else if (bloodcolor == BLOOD_COLOR_CYAN)
 		spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
+	else if (bloodcolor == BLOOD_COLOR_GREEN)
+		spr->SetTransparency(kRenderGlow, 185, 235, 85, 128, kRenderFxNoDissipation);
 	else
 		spr->SetTransparency(kRenderGlow, 128, 128, 128, 128, kRenderFxNoDissipation);
 	return 0;
