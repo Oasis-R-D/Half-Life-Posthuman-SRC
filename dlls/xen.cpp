@@ -17,7 +17,7 @@
 #include "cbase.h"
 #include "animation.h"
 #include "effects.h"
-
+#include "Blooddrops.h"
 
 #define XEN_PLANT_GLOW_SPRITE "sprites/flare3.spr"
 #define XEN_PLANT_HIDE_TIME 5
@@ -265,7 +265,9 @@ public:
 	void Precache() override;
 	void Touch(CBaseEntity* pOther) override;
 	void Think() override;
+	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override
+
 	{
 		Attack();
 		return false;
@@ -419,7 +421,23 @@ void CXenTree::Think()
 		break;
 	}
 }
+//=========================================================
+// Xen tree bleeding
+//=========================================================
+void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+	int BLDAMNT;
 
+	BLDAMNT = round(flDamage / 2);
+	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+	#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BLOOD_COLOR_YELLOW);
+	#endif
+	flDamage = 0;
+	AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+}
 
 // UNDONE:	These need to smoke somehow when they take damage
 //			Touch behavior?
