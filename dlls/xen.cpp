@@ -165,7 +165,7 @@ void CXenPLight::Touch(CBaseEntity* pOther)
 //=========================================================
 // bleeding
 //=========================================================
-void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+void CXenPLight::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	pev->dmgtime = gpGlobals->time + XEN_PLANT_HIDE_TIME;
 	if (GetActivity() == ACT_IDLE || GetActivity() == ACT_STAND)
@@ -176,7 +176,7 @@ void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 	int BLDAMNT;
 
 	BLDAMNT = round(flDamage / 2);
-	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+	SpawnBlood(ptr->vecEndPos, BLOOD_COLOR_YELLOW, flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 	#ifndef CLIENT_DLL
 	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BLOOD_COLOR_YELLOW);
@@ -452,7 +452,7 @@ void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 	int BLDAMNT;
 
 	BLDAMNT = round(flDamage / 2);
-	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+	SpawnBlood(ptr->vecEndPos, BLOOD_COLOR_YELLOW, flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 	#ifndef CLIENT_DLL
 	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BLOOD_COLOR_YELLOW);
