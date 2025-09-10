@@ -68,7 +68,7 @@ public:
 	void Precache() override;
 	void Touch(CBaseEntity* pOther) override;
 	void Think() override;
-
+	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	void LightOn();
 	void LightOff();
 
@@ -162,6 +162,28 @@ void CXenPLight::Touch(CBaseEntity* pOther)
 	}
 }
 
+//=========================================================
+// bleeding
+//=========================================================
+void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	pev->dmgtime = gpGlobals->time + XEN_PLANT_HIDE_TIME;
+	if (GetActivity() == ACT_IDLE || GetActivity() == ACT_STAND)
+	{
+		SetActivity(ACT_CROUCH);
+	}
+	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+	int BLDAMNT;
+
+	BLDAMNT = round(flDamage / 2);
+	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+	#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BLOOD_COLOR_YELLOW);
+	#endif
+	flDamage = 0;
+	AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+}
 
 void CXenPLight::LightOn()
 {
