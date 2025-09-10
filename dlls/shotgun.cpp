@@ -140,7 +140,7 @@ void CShotgun::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, CONE_2DEGREES, CONE_2DEGREES, 1, 12, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); //1.5 degree spread
 	}
 	#endif
 	if (pev->armorvalue == 0)
