@@ -152,7 +152,7 @@ int CPhysbullet::Classify()
 {
 	return CLASS_NONE;
 }
-void CPhysbullet::Stay() //TO-DO: add imapct sounds
+void CPhysbullet::Stay()
 {
 	pev->velocity = Vector(0, 0, 0);
 	pev->avelocity.z = 0;

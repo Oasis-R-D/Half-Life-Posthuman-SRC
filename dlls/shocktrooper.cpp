@@ -935,7 +935,14 @@ void CShockTrooper::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	pev->health = 2.5f * gSkillData.shocktrooperHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = 2.5f * gSkillData.shocktrooperHealth;
+	}
+	else
+	{
+		pev->health = 125;
+	}
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;

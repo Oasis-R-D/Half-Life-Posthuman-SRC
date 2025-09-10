@@ -246,6 +246,7 @@ public:
 	void IdleSound() override;
 	void PainSound() override;
 	void AlertSound() override;
+	void DeathSound() override;
 	void StartTask(Task_t* pTask) override;
 	void RunTask(Task_t* pTask) override;
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
@@ -421,6 +422,23 @@ int CPitdrone::Classify()
 //=========================================================
 void CPitdrone::IdleSound()
 {
+	switch (RANDOM_LONG(0, 6))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_idle1.wav", 1, 1.25);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_idle2.wav", 1, 1.25);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_idle3.wav", 1, 1.25);
+		break;
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+		break;
+	}
 }
 
 //=========================================================
@@ -443,6 +461,26 @@ void CPitdrone::PainSound()
 		break;
 	case 3:
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_pain4.wav", 1, ATTN_NORM, 0, iPitch);
+		break;
+	}
+}
+
+//=========================================================
+// Death Sound
+//=========================================================
+void CPitdrone::DeathSound()
+{
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die1.wav", 1, 1.25);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die2.wav", 1, 1.25);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die3.wav", 1, 1.25);
+		break;
 		break;
 	}
 }
@@ -687,7 +725,7 @@ void CPitdrone::Spawn()
 	{
 		pev->health = 85;
 	}
-	m_flFieldOfView = VIEW_FIELD_FULL; // width of this monster's FOV ( dotproduct result ) // changed from wide to full for realism
+	m_flFieldOfView = VIEW_FIELD_WIDE; // width of this monster's FOV ( dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 
 	m_flNextSpikeTime = gpGlobals->time;
@@ -755,6 +793,7 @@ void CPitdrone::Precache()
 	PRECACHE_SOUND("pitdrone/pit_drone_pain2.wav");
 	PRECACHE_SOUND("pitdrone/pit_drone_pain3.wav");
 	PRECACHE_SOUND("pitdrone/pit_drone_pain4.wav");
+	PRECACHE_SOUND("pitdrone/pit_drone_eat.wav");
 	PRECACHE_SOUND("pitdrone/pit_drone_run_on_grate.wav");
 	PRECACHE_SOUND("bullchicken/bc_bite2.wav");
 	PRECACHE_SOUND("bullchicken/bc_bite3.wav");
@@ -1087,13 +1126,28 @@ Schedule_t* CPitdrone::GetSchedule()
 		{
 			return GetScheduleOfType(SCHED_MELEE_ATTACK2);
 		}
+		int iPitch = RANDOM_LONG(85, 120);
 
+		switch (RANDOM_LONG(0, 3))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_hunt1.wav", 1, ATTN_NORM, 0, iPitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_hunt2.wav", 1, ATTN_NORM, 0, iPitch);
+			break;
+		case 2:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_hunt3.wav", 1, ATTN_NORM, 0, iPitch);
+			break;
+		case 3:
+			break;
+		}
 		return GetScheduleOfType(SCHED_CHASE_ENEMY);
 
 		break;
 	}
 	}
-
+	
 	return CBaseMonster::GetSchedule();
 }
 

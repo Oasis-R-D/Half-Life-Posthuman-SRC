@@ -185,7 +185,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	}
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74)); // TO-DO: IMPLEMENT
+		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));

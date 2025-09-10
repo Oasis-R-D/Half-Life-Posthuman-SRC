@@ -110,7 +110,7 @@ int CPhyscryst::Classify()
 {
 	return CLASS_NONE;
 }
-void CPhyscryst::Stay() //TO-DO: add imapct sounds
+void CPhyscryst::Stay()
 {
 	SetTouch(NULL);
 	SetThink(NULL);
