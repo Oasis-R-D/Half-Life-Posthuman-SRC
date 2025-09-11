@@ -361,10 +361,10 @@ r_spritesmoke_template original_function = nullptr;
 void R_Sprite_Smoke(TEMPENTITY *pTemp, float scale)
 {
 	original_function(pTemp, scale);
-	int colorR = READ_BYTE();
-	int colorG = READ_BYTE();
-	int colorB = READ_BYTE();
-	pTemp->color = Vector(colorR, colorG, colorB);
+	//int colorR = READ_BYTE();
+	//int colorG = READ_BYTE();
+	//int colorB = READ_BYTE();
+	//pTemp->color = Vector(colorR, colorG, colorB);
 }
 // This is called every time the DLL is loaded
 void CHud::Init()

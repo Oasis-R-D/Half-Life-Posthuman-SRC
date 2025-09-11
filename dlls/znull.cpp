@@ -88,7 +88,7 @@ const char* CCorrupted::pAttackSounds[] =
 
 const char* CCorrupted::pIdleSounds[] =
 	{
-		"zombie/zo_idle1.wav",
+		"corruption/idle1.wav",
 		"zombie/zo_idle2.wav",
 		"zombie/zo_idle3.wav",
 		"zombie/zo_idle4.wav",
@@ -96,15 +96,16 @@ const char* CCorrupted::pIdleSounds[] =
 
 const char* CCorrupted::pAlertSounds[] =
 	{
-		"zombie/zo_alert10.wav",
-		"zombie/zo_alert20.wav",
-		"zombie/zo_alert30.wav",
+		"corruption/alert1.wav",
+		"corruption/alert2.wav",
+		"corruption/alert3.wav",
 };
 
 const char* CCorrupted::pPainSounds[] =
 	{
-		"zombie/zo_pain1.wav",
-		"zombie/zo_pain2.wav",
+		"corruption/pain1.wav",
+		"corruption/pain4.wav",
+		"corruption/pain6.wav",
 };
 
 //=========================================================
@@ -164,9 +165,9 @@ void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 		WRITE_SHORT(g_sModelIndexSmoke);
 		WRITE_BYTE(RANDOM_LONG(8, 11)); // scale * 10
 		WRITE_BYTE(RANDOM_LONG(10, 15));	// framerate
-		WRITE_BYTE(RANDOM_LONG(0, 255));
-		WRITE_BYTE(RANDOM_LONG(0, 255)); // colors
-		WRITE_BYTE(RANDOM_LONG(0, 255));
+		//WRITE_BYTE(RANDOM_LONG(0, 255));
+		//WRITE_BYTE(RANDOM_LONG(0, 255)); // colors
+		//WRITE_BYTE(RANDOM_LONG(0, 255));
 		MESSAGE_END();
 	}
 	UTIL_Remove(this);
@@ -177,7 +178,7 @@ void CCorrupted::PainSound()
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
-	if (RANDOM_LONG(0, 5) < 2)
+	if (RANDOM_LONG(0, 5) < 1)
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pPainSounds), 1.0, ATTN_NORM, 0, pitch);
 }
 
