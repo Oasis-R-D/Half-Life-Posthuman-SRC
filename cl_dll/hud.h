@@ -623,7 +623,7 @@ public:
 	void Think();
 	bool Redraw(float flTime, bool intermission);
 	bool UpdateClientData(client_data_t* cdata, float time);
-
+	
 	CHud() : m_iSpriteCount(0), m_pHudList(NULL) {}
 	~CHud(); // destructor, frees allocated memory
 

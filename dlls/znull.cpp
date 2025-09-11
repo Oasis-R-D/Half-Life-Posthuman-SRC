@@ -23,8 +23,8 @@
 #include "cbase.h"
 #include "monsters.h"
 #include "schedule.h"
-
-
+#include "weapons.h"
+#include "UserMessages.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -49,6 +49,7 @@ public:
 	void PainSound() override;
 	void AlertSound() override;
 	void IdleSound() override;
+	void Killed(entvars_t* pevAttacker, int iGib) override;
 	void AttackSound();
 
 	static const char* pAttackSounds[];
@@ -151,7 +152,26 @@ bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 		PainSound();
 	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
+void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
+{
+	for (int i = 0; i < 15; i++)
+	{
+		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+		WRITE_BYTE(TE_SMOKE);
+		WRITE_COORD(pev->origin.x + RANDOM_FLOAT(-32, 32));
+		WRITE_COORD(pev->origin.y + RANDOM_FLOAT(-32, 32));
+		WRITE_COORD(pev->origin.z + 36 + RANDOM_FLOAT(-32, 32));
+		WRITE_SHORT(g_sModelIndexSmoke);
+		WRITE_BYTE(RANDOM_LONG(8, 11)); // scale * 10
+		WRITE_BYTE(RANDOM_LONG(10, 15));	// framerate
+		WRITE_BYTE(RANDOM_LONG(0, 255));
+		WRITE_BYTE(RANDOM_LONG(0, 255)); // colors
+		WRITE_BYTE(RANDOM_LONG(0, 255));
+		MESSAGE_END();
+	}
+	UTIL_Remove(this);
 
+}
 void CCorrupted::PainSound()
 {
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);

@@ -356,10 +356,21 @@ int __MsgFunc_TempEnt(const char* pszName, int iSize, void* pbuf)
 // RENDERERS END
 
 #endif
-
+typedef void (*r_spritesmoke_template)(TEMPENTITY* ent, float scale);
+r_spritesmoke_template original_function = nullptr;
+void R_Sprite_Smoke(TEMPENTITY *pTemp, float scale)
+{
+	original_function(pTemp, scale);
+	int colorR = READ_BYTE();
+	int colorG = READ_BYTE();
+	int colorB = READ_BYTE();
+	pTemp->color = Vector(colorR, colorG, colorB);
+}
 // This is called every time the DLL is loaded
 void CHud::Init()
 {
+	original_function = gEngfuncs.pEfxAPI->R_Sprite_Smoke;
+	gEngfuncs.pEfxAPI->R_Sprite_Smoke = R_Sprite_Smoke;
 	HOOK_MESSAGE(Logo);
 	HOOK_MESSAGE(ResetHUD);
 	HOOK_MESSAGE(GameMode);
