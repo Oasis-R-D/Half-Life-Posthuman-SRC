@@ -121,10 +121,10 @@ void CPhysblood::Spawn()
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
-	/*else if (m_BloodType == BLOOD_COLOR_NOISE)
+	else
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255));
-	} */
+	}
 	pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
@@ -190,6 +190,19 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
+	}
+	else
+	{
+		switch(RANDOM_LONG(0, 2))
+		{
+		case 0:
+		case 1:
+			UTIL_DecalTrace(&tr, RANDOM_LONG(78, 83));
+			break;
+		case 2:
+			UTIL_DecalTrace(&tr, 78); // purple is very common in the noise textures
+			break;
+		}
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));

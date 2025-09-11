@@ -89,9 +89,9 @@ DLL_DECALLIST gDecals[] = {
 	{"{smscorch3", 0}, // DECAL_SMALLSCORCH3,	// Small scorch mark
 	{"{mommablob", 0}, // DECAL_MOMMABIRTH		// BM Birth spray
 	{"{mommablob", 0}, // DECAL_MOMMASPLAT		// BM Mortar spray?? need decal
-	{"{bblood1", 0},	// DECAL_BBLOOD1
-	{"{bblood2", 0},	// DECAL_BBLOOD2
-	{"{bblood3", 0},	// DECAL_BBLOOD3
+	{"{bblood1", 0},		// DECAL_BBLOOD1
+	{"{bblood2", 0},		// DECAL_BBLOOD2
+	{"{bblood3", 0},		// DECAL_BBLOOD3
 	{"{bloodspray1", 0},	// DECAL_BLOODSPRAY1
 	{"{bloodspray2", 0},	// DECAL_BLOODSPRAY2
 	{"{bloodspray3", 0},	// DECAL_BLOODSPRAY3
@@ -106,7 +106,7 @@ DLL_DECALLIST gDecals[] = {
 	{"{abloodspray4", 0},	// DECAL_ABLOODSPRAY4
 	{"{abloodspray5", 0},	// DECAL_ABLOODSPRAY5
 	{"{abloodspray6", 0},	// DECAL_ABLOODSPRAY6
-	{"{yblood6", 0},   // DECAL_YBLOOD6
+	{"{yblood6", 0},		// DECAL_YBLOOD6
 	{"{xbloodspray1", 0},	// DECAL_XBLOODSPRAY1
 	{"{xbloodspray2", 0},	// DECAL_XBLOODSPRAY2
 	{"{xbloodspray3", 0},	// DECAL_XBLOODSPRAY3
@@ -114,17 +114,23 @@ DLL_DECALLIST gDecals[] = {
 	{"{xbloodspray5", 0},	// DECAL_XBLOODSPRAY5
 	{"{xbloodspray6", 0},	// DECAL_XBLOODSPRAY6
 	{"{xbloodspray7", 0},	// DECAL_XBLOODSPRAY7
-	{"{xblood1", 0},   // DECAL_XBLOOD1
-	{"{xblood2", 0},   // DECAL_XBLOOD2
-	{"{xblood3", 0},   // DECAL_XBLOOD3
-	{"{xblood4", 0},   // DECAL_XBLOOD4
-	{"{xblood5", 0},   // DECAL_XBLOOD5
+	{"{xblood1", 0},		// DECAL_XBLOOD1
+	{"{xblood2", 0},		// DECAL_XBLOOD2
+	{"{xblood3", 0},		// DECAL_XBLOOD3
+	{"{xblood4", 0},		// DECAL_XBLOOD4
+	{"{xblood5", 0},		// DECAL_XBLOOD5
 	{"{bbloodspray1", 0},	// DECAL_BBLOODSPRAY1
 	{"{bbloodspray2", 0},	// DECAL_BBLOODSPRAY2
 	{"{bbloodspray3", 0},	// DECAL_BBLOODSPRAY3
-	{"{ofscorch1", 0},	 // DECAL_OFSCORCH1
-	{"{ofscorch2", 0},	 // DECAL_OFSCORCH2
-	{"{ofscorch3", 0},	 // DECAL_OFSCORCH3
+	{"{ofscorch1", 0},		// DECAL_OFSCORCH1
+	{"{ofscorch2", 0},		// DECAL_OFSCORCH2
+	{"{ofscorch3", 0},		// DECAL_OFSCORCH3
+	{"{nbloodspray1", 0},	// DECAL_NBLOODSPRAY1
+	{"{nbloodspray2", 0},	// DECAL_NBLOODSPRAY2
+	{"{nbloodspray3", 0},	// DECAL_NBLOODSPRAY3
+	{"{nbloodspray4", 0},	// DECAL_NBLOODSPRAY4
+	{"{nbloodspray5", 0},	// DECAL_NBLOODSPRAY5
+	{"{nbloodspray6", 0},	// DECAL_NBLOODSPRAY6
 }; 
 
 /*

@@ -37,5 +37,6 @@ private:
 	float m_SpreadVert;
 	float m_BulletDamage;
 	float m_Gravity;
+	bool m_haswizzed;
 };
 #endif

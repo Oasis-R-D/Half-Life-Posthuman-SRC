@@ -79,7 +79,8 @@ void CPhysbullet::Spawn()
 	pev->speed = m_muzzlevelocity; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction;
-	
+	m_haswizzed = false;
+
 	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
@@ -145,6 +146,12 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
 	PRECACHE_MODEL("sprites/tracer_357mm.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
+	PRECACHE_SOUND("weapons/nearmiss1.wav");
+	PRECACHE_SOUND("weapons/nearmiss2.wav");
+	PRECACHE_SOUND("weapons/nearmiss3.wav");
+	PRECACHE_SOUND("weapons/nearmiss4.wav");
+	PRECACHE_SOUND("weapons/nearmiss5.wav");
+	PRECACHE_SOUND("weapons/nearmiss6.wav");
 }
 
 
@@ -236,6 +243,29 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
+	CBaseEntity* m_ent = NULL;
+	while ((m_ent = UTIL_FindEntityInSphere(NULL, pev->origin, 128)) != NULL);
+	{
+		CBaseEntity* m_pPlyr = m_ent;
+		if (m_pPlyr->IsPlayer())
+		{
+			if (m_haswizzed != true && pev->owner != m_pPlyr->edict())
+			{
+				
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					char dripsnd[256];
+					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
+					EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
+				break;
+				case 1:
+				break;
+				}
+				m_haswizzed = true;
+			}
+		}
+	}
 	pev->nextthink = gpGlobals->time + 0.075; // was 0.05
 	if (pev->renderamt < 225)
 	{
