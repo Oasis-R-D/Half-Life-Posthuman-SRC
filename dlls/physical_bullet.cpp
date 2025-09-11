@@ -243,30 +243,23 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
+	pev->nextthink = gpGlobals->time + 0.075; // was 0.05
 	CBaseEntity* m_ent = NULL;
-	while ((m_ent = UTIL_FindEntityInSphere(NULL, pev->origin, 128)) != NULL);
+	while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 	{
 		CBaseEntity* m_pPlyr = m_ent;
 		if (m_pPlyr->IsPlayer())
 		{
 			if (m_haswizzed != true && pev->owner != m_pPlyr->edict())
 			{
-				
-				switch (RANDOM_LONG(0, 1))
-				{
-				case 0:
-					char dripsnd[256];
-					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
-					EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
-				break;
-				case 1:
-				break;
-				}
+				char dripsnd[256];
+				sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
+				EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
 				m_haswizzed = true;
 			}
 		}
 	}
-	pev->nextthink = gpGlobals->time + 0.075; // was 0.05
+	
 	if (pev->renderamt < 225)
 	{
 		pev->renderamt += 75;
