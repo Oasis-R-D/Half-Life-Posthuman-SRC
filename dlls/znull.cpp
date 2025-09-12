@@ -45,12 +45,13 @@ public:
 	int IgnoreConditions() override;
 
 	float m_flNextFlinch;
-
+	int m_nextchange;
 	void PainSound() override;
 	void AlertSound() override;
 	void IdleSound() override;
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 	void AttackSound();
+	void MonsterThink() override;
 
 	static const char* pAttackSounds[];
 	static const char* pIdleSounds[];
@@ -305,7 +306,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CCorrupted::Spawn()
 {
 	Precache();
-
+	m_nextchange = gpGlobals->time;
 	SET_MODEL(ENT(pev), "models/znull.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
@@ -321,6 +322,14 @@ void CCorrupted::Spawn()
 	MonsterInit();
 }
 
+void CCorrupted::MonsterThink()
+{
+	if (gpGlobals->time = m_nextchange)
+	{
+			m_nextchange = gpGlobals->time + RANDOM_FLOAT(1, 3;
+	}
+	CBaseMonster::MonsterThink();
+}
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
