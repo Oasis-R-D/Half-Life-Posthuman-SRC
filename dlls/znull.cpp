@@ -157,7 +157,10 @@ bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 
 void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 {
-	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
+	if (iGib != 2)
+	{
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
+	}
 	for (int i = 0; i < 15; i++)
 	{
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -238,7 +241,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
-		Killed(NULL, 0);
+		Killed(NULL, 2);
 	}
 	break;
 
@@ -262,7 +265,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
-		Killed(NULL, 0);
+		Killed(NULL, 2);
 	}
 	break;
 
@@ -284,7 +287,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
-		Killed(NULL, 0);
+		Killed(NULL, 2);
 	}
 	break;
 
