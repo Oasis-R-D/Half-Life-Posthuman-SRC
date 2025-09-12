@@ -326,7 +326,7 @@ void CCorrupted::MonsterThink()
 {
 	if (gpGlobals->time = m_nextchange)
 	{
-			m_nextchange = gpGlobals->time + RANDOM_FLOAT(1, 3;
+			m_nextchange = gpGlobals->time + RANDOM_FLOAT(0.10, 0.40);
 	}
 	CBaseMonster::MonsterThink();
 }
