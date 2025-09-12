@@ -158,6 +158,7 @@ bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 
 void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 {
+	int pitch = 95 + RANDOM_LONG(0, 9);
 	if (iGib != 2)
 	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
