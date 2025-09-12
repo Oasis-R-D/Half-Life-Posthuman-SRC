@@ -13,7 +13,7 @@
 *
 ****/
 //=========================================================
-// Zombie
+// Corruption zombie guy thing
 //=========================================================
 
 // UNDONE: Don't flinch every time you get hit
@@ -32,7 +32,7 @@
 #define ZOMBIE_AE_ATTACK_LEFT 0x02
 #define ZOMBIE_AE_ATTACK_BOTH 0x03
 
-#define ZOMBIE_FLINCH_DELAY 2 // at most one flinch every n secs
+#define ZOMBIE_FLINCH_DELAY 10 // at most one flinch every n secs
 
 class CCorrupted : public CBaseMonster
 {
@@ -89,9 +89,6 @@ const char* CCorrupted::pAttackSounds[] =
 const char* CCorrupted::pIdleSounds[] =
 	{
 		"corruption/idle1.wav",
-		"zombie/zo_idle2.wav",
-		"zombie/zo_idle3.wav",
-		"zombie/zo_idle4.wav",
 };
 
 const char* CCorrupted::pAlertSounds[] =
@@ -108,6 +105,10 @@ const char* CCorrupted::pPainSounds[] =
 		"corruption/pain6.wav",
 };
 
+const char* CCorrupted::pDeathSounds[] =
+	{
+		"corruption/death.wav",
+};
 //=========================================================
 // Classify - indicates this monster's place in the
 // relationship table.
@@ -153,8 +154,10 @@ bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 		PainSound();
 	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
+
 void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 {
+	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
 	for (int i = 0; i < 15; i++)
 	{
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -218,7 +221,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.zombieDmgOneSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -235,6 +238,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
+		Killed(NULL, 0);
 	}
 	break;
 
@@ -242,7 +246,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.zombieDmgOneSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -258,13 +262,14 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
+		Killed(NULL, 0);
 	}
 	break;
 
 	case ZOMBIE_AE_ATTACK_BOTH:
 	{
 		// do stuff for this event.
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.zombieDmgBothSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -279,6 +284,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		if (RANDOM_LONG(0, 1))
 			AttackSound();
+		Killed(NULL, 0);
 	}
 	break;
 
@@ -301,7 +307,7 @@ void CCorrupted::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);
-	pev->health = gSkillData.zombieHealth;
+	pev->health = 25;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.5;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
