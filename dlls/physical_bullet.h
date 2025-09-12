@@ -30,6 +30,8 @@ private:
 	int m_Flare;
 	int m_BulletAmount;
 	int m_muzzlevelocity;
+	int m_maxricochet;
+	int m_maxpenetrate;
 	Vector m_SpawnPos;
 	Vector m_direction;
 	Vector m_Endpos;
