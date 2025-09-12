@@ -56,6 +56,7 @@ public:
 	static const char* pIdleSounds[];
 	static const char* pAlertSounds[];
 	static const char* pPainSounds[];
+	static const char* pDeathSounds[];
 	static const char* pAttackHitSounds[];
 	static const char* pAttackMissSounds[];
 
