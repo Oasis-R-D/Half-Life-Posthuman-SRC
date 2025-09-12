@@ -181,6 +181,34 @@ void CPhysbullet::Stay()
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {
 	TraceResult tr = UTIL_GetGlobalTrace();
+	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
+	if (pEntity->ReflectGauss())
+	{
+		float n;
+		n = -DotProduct(tr.vecPlaneNormal, vecDir);
+
+		if (n < 0.5) // 60 degrees
+		{
+			// ALERT( at_console, "reflect %f\n", n );
+			// reflect
+			Vector r;
+
+			r = 2.0 * tr.vecPlaneNormal * n + vecDir;
+			flMaxFrac = flMaxFrac - tr.flFraction;
+			vecDir = r;
+			vecSrc = tr.vecEndPos + vecDir * 8;
+			vecDest = vecSrc + vecDir * 8192;
+			
+			// explode a bit
+			m_pPlayer->RadiusDamage(tr.vecEndPos, pev, m_pPlayer->pev, 10, CLASS_NONE, DMG_BLAST);
+
+			nTotal += 34;
+
+			// lose energy
+			if (n == 0)
+				n = 0.1;
+			flDamage = flDamage * (1 - n);
+			}
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
 	SetThink(NULL);
