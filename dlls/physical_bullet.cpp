@@ -86,38 +86,50 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 		//pev->scale = 0.25;
 		pev->scale = RANDOM_FLOAT(0.23, 0.27);
+		m_maxpenetrate = 2;
+		m_maxricochet = 2;
 	}
 	else if (m_Flare == 12) // 12 gauge
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
+		m_maxpenetrate = 0;
+		m_maxricochet = 0;
 	}
 	else if (m_Flare == 357)
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
 		//pev->scale = 0.3;
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
+		m_maxpenetrate = 1; // 357 has crap penetration
+		m_maxricochet = 3;
 	}
 	else if (m_Flare == 69) // Training weapons
 	{
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
+		m_maxpenetrate = 0;
+		m_maxricochet = 3;
 	}
 	else if (m_Flare == 420) // HC Deagle
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
 		pev->scale = 2;
+		m_maxpenetrate = 5;
+		m_maxricochet = 5;
 	}
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 		//pev->scale = 0.2;
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
+		m_maxpenetrate = 1;
+		m_maxricochet = 1;
 	}
 	
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
-	if (m_Flare == 420)
+	if (m_Flare == 420) // TO-DO: integrate this with above ifs instead
 	{
 
 		pev->rendercolor = Vector(255, 70, 170);
