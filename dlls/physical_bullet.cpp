@@ -22,6 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_bullet.h"
+#include "soundent.h"
 
 #ifndef CLIENT_DLL
 #define BOLT_AIR_VELOCITY 6000
@@ -63,6 +64,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
 		pBullet->m_Flare = FlareType; // tracer type
+		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->pev->owner = shooter;
 		pBullet->Spawn();
 		
@@ -75,18 +77,19 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
+	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
 	pev->speed = m_muzzlevelocity; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	pev->angles = m_direction;
+	pev->angles = m_direction + m_SpreadVect;
 	m_haswizzed = false;
-
+	pev->rendercolor = Vector(255, 255, 255);
+	pev->rendermode = kRenderTransAdd;	
 	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 		//pev->scale = 0.25;
 		pev->scale = RANDOM_FLOAT(0.23, 0.27);
-		m_maxpenetrate = 2;
+		m_distpenetrate = 24;
 		m_maxricochet = 2;
 	}
 	else if (m_Flare == 12) // 12 gauge
@@ -94,7 +97,7 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
-		m_maxpenetrate = 0;
+		m_distpenetrate = 8;
 		m_maxricochet = 0;
 	}
 	else if (m_Flare == 357)
@@ -102,48 +105,35 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
 		//pev->scale = 0.3;
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
-		m_maxpenetrate = 1; // 357 has crap penetration
+		m_distpenetrate = 16;
 		m_maxricochet = 3;
 	}
 	else if (m_Flare == 69) // Training weapons
 	{
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-		m_maxpenetrate = 0;
+		m_distpenetrate = 1;
 		m_maxricochet = 3;
+		pev->rendermode = kRenderNormal;
 	}
 	else if (m_Flare == 420) // HC Deagle
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
 		pev->scale = 2;
-		m_maxpenetrate = 5;
+		m_distpenetrate = 128;
 		m_maxricochet = 5;
+		pev->rendercolor = Vector(255, 70, 170);
+		pev->rendermode = kRenderTransAdd;
 	}
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 		//pev->scale = 0.2;
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
-		m_maxpenetrate = 1;
+		m_distpenetrate = 16;
 		m_maxricochet = 1;
 	}
 	
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-
-	if (m_Flare == 420) // TO-DO: integrate this with above ifs instead
-	{
-
-		pev->rendercolor = Vector(255, 70, 170);
-		pev->rendermode = kRenderTransAdd;
-	}
-	else if (m_Flare == 69)
-	{
-		pev->rendermode = kRenderNormal;
-	}
-	else
-	{
-		pev->rendercolor = Vector(255, 255, 255);
-		pev->rendermode = kRenderTransAdd;	
-	}
 	pev->renderamt = 0;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
@@ -179,45 +169,83 @@ void CPhysbullet::Stay()
 	pev->nextthink = gpGlobals->time;
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
-{
+{	
+	entvars_t* pevOwner;
+	pevOwner = VARS(pev->owner);
 	TraceResult tr = UTIL_GetGlobalTrace();
+	TraceResult beam_tr;
 	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-	if (pEntity->ReflectGauss())
-	{
-		float n;
-		n = -DotProduct(tr.vecPlaneNormal, vecDir);
 
-		if (n < 0.5) // 60 degrees
+	float n;
+	n = -DotProduct(tr.vecPlaneNormal, m_direction);
+
+	if (n < 0.25 && m_maxricochet > 0 && RANDOM_LONG(0, 2) == 2) // not 60 degrees
+	{
+		if (pEntity->IsBSPModel())
 		{
-			// ALERT( at_console, "reflect %f\n", n );
+			m_maxricochet--;
+			ALERT( at_console, "reflect %f\n", n );
 			// reflect
 			Vector r;
 
-			r = 2.0 * tr.vecPlaneNormal * n + vecDir;
-			flMaxFrac = flMaxFrac - tr.flFraction;
-			vecDir = r;
-			vecSrc = tr.vecEndPos + vecDir * 8;
-			vecDest = vecSrc + vecDir * 8192;
-			
-			// explode a bit
-			m_pPlayer->RadiusDamage(tr.vecEndPos, pev, m_pPlayer->pev, 10, CLASS_NONE, DMG_BLAST);
+			r = 2.0 * tr.vecPlaneNormal * n + m_direction;
+			m_direction = r;
+			pev->origin = tr.vecEndPos + m_direction * 8;
 
-			nTotal += 34;
+			// explode a bit
+			RadiusDamage(tr.vecEndPos, pev, pevOwner, 10, 16, CLASS_NONE, DMG_BLAST);
 
 			// lose energy
 			if (n == 0)
 				n = 0.1;
-			flDamage = flDamage * (1 - n);
+			m_BulletDamage *= (1 - n);
+			ClearMultiDamage();
+			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			ApplyMultiDamage(pev, pevOwner);
+			DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
+			TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+			pev->velocity = pev->velocity * RANDOM_FLOAT(0.65, 0.85);
+			return;
+		}
+	}
+	else if (m_distpenetrate > 0)// penetrate (ask your mother what that means)
+	{
+		Vector vecDest = pev->origin + m_direction * 8192;
+		UTIL_TraceLine(tr.vecEndPos + m_direction * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
+		if (0 == beam_tr.fAllSolid)
+		{
+			// trace backwards to find exit point
+			UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
+
+			float p = (beam_tr.vecEndPos - tr.vecEndPos).Length();
+
+			if (p < m_distpenetrate)
+			{
+				if (p == 0)
+					p = 1;
+				m_BulletDamage /= 1.5;
+				m_distpenetrate -= p;
+				ALERT( at_console, "punch %f\n", p );
+				CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+				pev->origin = beam_tr.vecEndPos;
+				ClearMultiDamage();
+				pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(pev, pevOwner);
+				DecalGunshot(&tr, BULLET_PLAYER_9MM);
+				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+				return;
 			}
+		}
+	}
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
 	SetThink(NULL);
 
 	if (0 != pOther->pev->takedamage)
 	{
-		entvars_t* pevOwner;
+		
 		m_Endpos = pev->origin;
-		pevOwner = VARS(pev->owner);
+		
 
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
