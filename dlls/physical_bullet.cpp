@@ -191,10 +191,16 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				if (p < m_distpenetrate)
 				{
-					if (p == 0)
-						p = 1;
-					m_BulletDamage /= 1.5;
+					
 					m_distpenetrate -= p;
+					if (g_iSkillLevel != SKILL_HARD)
+					{
+						m_BulletDamage -= round(0.25 * p);
+					}
+					else
+					{
+						m_BulletDamage -= round(0.75 * p);
+					}
 					ALERT(at_console, "punch %f\n", p);
 					pev->origin = beam_tr.vecEndPos;
 					ClearMultiDamage();
