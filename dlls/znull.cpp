@@ -25,6 +25,7 @@
 #include "schedule.h"
 #include "weapons.h"
 #include "UserMessages.h"
+#include "Blooddrops.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -46,6 +47,8 @@ public:
 
 	float m_flNextFlinch;
 	int m_nextchange;
+	int m_lastwasdiff;
+	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	void PainSound() override;
 	void AlertSound() override;
 	void IdleSound() override;
@@ -141,24 +144,40 @@ void CCorrupted::SetYawSpeed()
 
 bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
+	flDamage = 5;
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);
-	// Take 30% damage from bullets
-	if (bitsDamageType == DMG_BULLET)
-	{
-		Vector vecDir = pev->origin - (pevInflictor->absmin + pevInflictor->absmax) * 0.5;
-		vecDir = vecDir.Normalize();
-		float flForce = DamageForce(flDamage);
-		pev->velocity = pev->velocity + vecDir * flForce;
-	}
 
 	// HACK HACK -- until we fix this.
 	if (IsAlive())
 		PainSound();
-	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
+	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, 5, bitsDamageType);
+}
+//=========================================================
+// TraceAttack
+//=========================================================
+void CCorrupted::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	ptr->iHitgroup = HITGROUP_GENERIC;
+	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+	int BLDAMNT;
+
+	BLDAMNT = round(flDamage / 2);
+	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, m_bloodColor);
+#endif
+	flDamage = 5;
+	AddMultiDamage(pevAttacker, this, 5, bitsDamageType);
 }
 
 void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 {
+	CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
+	if (pOwner)
+	{
+		pOwner->DeathNotice(pev);
+	}
 	int pitch = 95 + RANDOM_LONG(0, 9);
 	if (iGib != 2)
 	{
@@ -172,15 +191,14 @@ void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 		WRITE_COORD(pev->origin.y + RANDOM_FLOAT(-32, 32));
 		WRITE_COORD(pev->origin.z + 36 + RANDOM_FLOAT(-32, 32));
 		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE(RANDOM_LONG(8, 11)); // scale * 10
-		WRITE_BYTE(RANDOM_LONG(10, 15));	// framerate
-		//WRITE_BYTE(RANDOM_LONG(0, 255));
-		//WRITE_BYTE(RANDOM_LONG(0, 255)); // colors
-		//WRITE_BYTE(RANDOM_LONG(0, 255));
+		WRITE_BYTE(RANDOM_LONG(8, 11));	 // scale * 10
+		WRITE_BYTE(RANDOM_LONG(10, 15)); // framerate
+		// WRITE_BYTE(RANDOM_LONG(0, 255));
+		// WRITE_BYTE(RANDOM_LONG(0, 255)); // colors
+		// WRITE_BYTE(RANDOM_LONG(0, 255));
 		MESSAGE_END();
 	}
 	UTIL_Remove(this);
-
 }
 void CCorrupted::PainSound()
 {
@@ -251,7 +269,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case ZOMBIE_AE_ATTACK_LEFT:
 	{
 		// do stuff for this event.
-		//		ALERT( at_console, "Slash left!\n" );
+		//ALERT( at_console, "Slash left!\n" );
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
 		if (pHurt)
 		{
@@ -324,11 +342,27 @@ void CCorrupted::Spawn()
 
 void CCorrupted::MonsterThink()
 {
+	CBaseMonster::MonsterThink();
 	if (gpGlobals->time = m_nextchange)
 	{
-			m_nextchange = gpGlobals->time + RANDOM_FLOAT(0.10, 0.40);
+		switch (RANDOM_LONG(0, 5-m_lastwasdiff))
+		{
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				m_lastwasdiff = 0;
+				++pev->skin;
+				if (pev->skin > 5)
+					pev->skin = 0;
+				break;
+			case 5:
+				m_lastwasdiff = 1;
+				pev->skin = RANDOM_LONG(6, 10);
+		}
+		m_nextchange = gpGlobals->time + RANDOM_FLOAT(0.10, 0.40);
 	}
-	CBaseMonster::MonsterThink();
+	
 }
 //=========================================================
 // Precache - precaches all resources this monster needs
@@ -343,6 +377,7 @@ void CCorrupted::Precache()
 	PRECACHE_SOUND_ARRAY(pIdleSounds);
 	PRECACHE_SOUND_ARRAY(pAlertSounds);
 	PRECACHE_SOUND_ARRAY(pPainSounds);
+	PRECACHE_SOUND_ARRAY(pDeathSounds);
 }
 
 //=========================================================

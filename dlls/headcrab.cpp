@@ -801,7 +801,11 @@ class CHeadcrabSuper : public CHeadCrab
 				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 			}
 		}
-		
+		CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
+		if (pOwner)
+		{
+		pOwner->DeathNotice(pev);
+		}
 		SetThink(&CBaseMonster::SUB_Remove);
 		pev->nextthink = gpGlobals->time;
 	}
