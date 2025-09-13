@@ -74,9 +74,7 @@ LINK_ENTITY_TO_CLASS(monster_znull, CCorrupted);
 
 const char* CCorrupted::pAttackHitSounds[] =
 	{
-		"zombie/claw_strike1.wav",
-		"zombie/claw_strike2.wav",
-		"zombie/claw_strike3.wav",
+		"debris/beamstart4.wav",
 };
 
 const char* CCorrupted::pAttackMissSounds[] =
@@ -254,7 +252,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 		AttackSound();
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 25, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -279,7 +277,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 		AttackSound();
 		// do stuff for this event.
 		//ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 25, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -302,7 +300,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		AttackSound();
 		// do stuff for this event.
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, 25, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -334,6 +332,9 @@ void CCorrupted::Spawn()
 	Precache();
 	m_nextchange = gpGlobals->time;
 	SET_MODEL(ENT(pev), "models/znull.mdl");
+	pev->rendermode = kRenderTransTexture;
+	pev->renderamt = 255;
+	pev->renderfx = kRenderFxDistort;
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
@@ -353,18 +354,23 @@ void CCorrupted::MonsterThink()
 	CBaseMonster::MonsterThink();
 	if (gpGlobals->time = m_nextchange)
 	{
-		switch (RANDOM_LONG(0, 5-m_lastwasdiff))
+		switch (RANDOM_LONG(0, 10-m_lastwasdiff))
 		{
 			case 1:
 			case 2:
 			case 3:
 			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
 				m_lastwasdiff = 0;
 				++pev->skin;
 				if (pev->skin > 5)
 					pev->skin = 0;
 				break;
-			case 5:
+			case 10:
 				m_lastwasdiff = 1;
 				pev->skin = RANDOM_LONG(6, 10);
 		}
