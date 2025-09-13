@@ -87,13 +87,16 @@ const char* CCorrupted::pAttackMissSounds[] =
 
 const char* CCorrupted::pAttackSounds[] =
 	{
-		"zombie/zo_attack1.wav",
-		"zombie/zo_attack2.wav",
+		"corruption/attack.wav",
 };
 
 const char* CCorrupted::pIdleSounds[] =
 	{
 		"corruption/idle1.wav",
+		"corruption/idle2.wav",
+		"corruption/idle3.wav",
+		"corruption/idle4.wav",
+		"corruption/idle5.wav",
 };
 
 const char* CCorrupted::pAlertSounds[] =
@@ -101,6 +104,10 @@ const char* CCorrupted::pAlertSounds[] =
 		"corruption/alert1.wav",
 		"corruption/alert2.wav",
 		"corruption/alert3.wav",
+		"corruption/alert4.wav",
+		"corruption/alert5.wav",
+		"corruption/alert6.wav",
+		"corruption/alert6.wav",
 };
 
 const char* CCorrupted::pPainSounds[] =
@@ -165,7 +172,7 @@ void CCorrupted::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 #ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, m_bloodColor);
+	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 0.5, m_bloodColor);
 #endif
 	flDamage = 5;
 	AddMultiDamage(pevAttacker, this, 5, bitsDamageType);
@@ -179,10 +186,7 @@ void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 		pOwner->DeathNotice(pev);
 	}
 	int pitch = 95 + RANDOM_LONG(0, 9);
-	if (iGib != 2)
-	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
-	}
+	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
 	for (int i = 0; i < 15; i++)
 	{
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -198,6 +202,10 @@ void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 		// WRITE_BYTE(RANDOM_LONG(0, 255));
 		MESSAGE_END();
 	}
+#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(16, 350, pev->origin + gpGlobals->v_up * 32, gpGlobals->v_up, 0.5, m_bloodColor);
+	CPhysblood::BloodCreate(16, 350, pev->origin + gpGlobals->v_up * 32, gpGlobals->v_up, 0.5, m_bloodColor);
+#endif
 	UTIL_Remove(this);
 }
 void CCorrupted::PainSound()
@@ -243,6 +251,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 	case ZOMBIE_AE_ATTACK_RIGHT:
 	{
+		AttackSound();
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
@@ -260,14 +269,14 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else // Play a random attack miss sound
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY(pAttackMissSounds), 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 
-		if (RANDOM_LONG(0, 1))
-			AttackSound();
+
 		Killed(NULL, 2);
 	}
 	break;
 
 	case ZOMBIE_AE_ATTACK_LEFT:
 	{
+		AttackSound();
 		// do stuff for this event.
 		//ALERT( at_console, "Slash left!\n" );
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
@@ -284,14 +293,14 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY(pAttackMissSounds), 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 
-		if (RANDOM_LONG(0, 1))
-			AttackSound();
+
 		Killed(NULL, 2);
 	}
 	break;
 
 	case ZOMBIE_AE_ATTACK_BOTH:
 	{
+		AttackSound();
 		// do stuff for this event.
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, 50, DMG_SLASH);
 		if (pHurt)
@@ -306,8 +315,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY(pAttackMissSounds), 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 
-		if (RANDOM_LONG(0, 1))
-			AttackSound();
+
 		Killed(NULL, 2);
 	}
 	break;
