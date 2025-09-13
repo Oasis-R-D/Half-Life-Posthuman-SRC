@@ -297,6 +297,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 			health_head = 100;
 			}
+			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
