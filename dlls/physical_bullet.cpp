@@ -176,64 +176,34 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	TraceResult beam_tr;
 	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 
-	float n;
-	n = -DotProduct(tr.vecPlaneNormal, m_direction);
-
-	if (n < 0.25 && m_maxricochet > 0 && RANDOM_LONG(0, 2) == 2) // not 60 degrees
+	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
-		if (pEntity->IsBSPModel())
+		if (pEntity->ReflectGauss())
 		{
-			m_maxricochet--;
-			ALERT( at_console, "reflect %f\n", n );
-			// reflect
-			Vector r;
-
-			r = 2.0 * tr.vecPlaneNormal * n + m_direction;
-			m_direction = r;
-			pev->origin = tr.vecEndPos + m_direction * 8;
-
-			// explode a bit
-			RadiusDamage(tr.vecEndPos, pev, pevOwner, 10, 16, CLASS_NONE, DMG_BLAST);
-
-			// lose energy
-			if (n == 0)
-				n = 0.1;
-			m_BulletDamage *= (1 - n);
-			ClearMultiDamage();
-			pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-			ApplyMultiDamage(pev, pevOwner);
-			DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
-			TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-			pev->velocity = pev->velocity * RANDOM_FLOAT(0.65, 0.85);
-			return;
-		}
-	}
-	else if (m_distpenetrate > 0)// penetrate (ask your mother what that means)
-	{
-		Vector vecDest = pev->origin + m_direction * 8192;
-		UTIL_TraceLine(tr.vecEndPos + m_direction * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
-		if (0 == beam_tr.fAllSolid)
-		{
-			// trace backwards to find exit point
-			UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
-
-			float p = (beam_tr.vecEndPos - tr.vecEndPos).Length();
-
-			if (p < m_distpenetrate)
+			Vector vecDest = pev->origin + m_direction * 8192;
+			UTIL_TraceLine(tr.vecEndPos + m_direction * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
+			if (0 == beam_tr.fAllSolid)
 			{
-				if (p == 0)
-					p = 1;
-				m_BulletDamage /= 1.5;
-				m_distpenetrate -= p;
-				ALERT( at_console, "punch %f\n", p );
-				CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
-				pev->origin = beam_tr.vecEndPos;
-				ClearMultiDamage();
-				pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				ApplyMultiDamage(pev, pevOwner);
-				DecalGunshot(&tr, BULLET_PLAYER_9MM);
-				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-				return;
+				// trace backwards to find exit point
+				UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
+
+				float p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
+
+				if (p < m_distpenetrate)
+				{
+					if (p == 0)
+						p = 1;
+					m_BulletDamage /= 1.5;
+					m_distpenetrate -= p;
+					ALERT(at_console, "punch %f\n", p);
+					pev->origin = beam_tr.vecEndPos;
+					ClearMultiDamage();
+					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+					ApplyMultiDamage(pev, pevOwner);
+					DecalGunshot(&tr, BULLET_PLAYER_9MM);
+					TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+					return;
+				}
 			}
 		}
 	}
@@ -311,7 +281,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.075; // was 0.05
+	pev->nextthink = gpGlobals->time + 0.1; // was 0.05
 	CBaseEntity* m_ent = NULL;
 	while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 	{
@@ -338,3 +308,97 @@ void CPhysbullet::AirThink()
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
 }
 #endif
+
+float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
+{
+	// hit an object, determine how well the bullet can penetrate your mo-
+
+	char chTextureType;
+	char szbuffer[64];
+	const char* pTextureName;
+	float rgfl1[3];
+	float rgfl2[3];
+	float penmodifier;
+
+	CBaseEntity* pEntity = CBaseEntity::Instance(ptr->pHit);
+
+	chTextureType = 0;
+
+	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+		// hit body
+		chTextureType = CHAR_TEX_FLESH;
+	else
+	{
+		// hit world
+
+		// find texture under strike, get material type
+
+		// copy trace vector into array for trace_texture
+
+		vecSrc.CopyToArray(rgfl1);
+		vecEnd.CopyToArray(rgfl2);
+
+		// get texture from entity or world (world is ent(0))
+		if (pEntity)
+			pTextureName = TRACE_TEXTURE(ENT(pEntity->pev), rgfl1, rgfl2);
+		else
+			pTextureName = TRACE_TEXTURE(CWorld::World->edict(), rgfl1, rgfl2);
+
+		if (pTextureName)
+		{
+			// strip leading '-0' or '+0~' or '{' or '!'
+			if (*pTextureName == '-' || *pTextureName == '+')
+				pTextureName += 2;
+
+			if (*pTextureName == '{' || *pTextureName == '!' || *pTextureName == '~' || *pTextureName == ' ')
+				pTextureName++;
+			// '}}'
+			strcpy(szbuffer, pTextureName);
+			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
+
+			//ALERT ( at_console, "texture hit: %s\n", szbuffer);
+
+			chTextureType = TEXTURETYPE_Find(szbuffer);
+		}
+	}
+
+	switch (chTextureType)
+	{
+	default:
+	case CHAR_TEX_CONCRETE:
+		penmodifier = 1.25;
+		break;
+	case CHAR_TEX_METAL:
+		penmodifier = 1.5;
+		break;
+	case CHAR_TEX_DIRT:
+		penmodifier = 2;
+		break;
+	case CHAR_TEX_VENT:
+		penmodifier = 1;
+		break;
+	case CHAR_TEX_GRATE:
+		penmodifier = 1;
+		break;
+	case CHAR_TEX_TILE:
+		penmodifier = 1;
+		break;
+	case CHAR_TEX_SLOSH:
+		penmodifier = 1.125;
+		break;
+	case CHAR_TEX_WOOD:
+		penmodifier = 1.125;
+		break;
+	case CHAR_TEX_GLASS:
+		penmodifier = 0.75;
+		break;
+	case CHAR_TEX_COMPUTER:
+		penmodifier = 1.125;
+		break;
+	case CHAR_TEX_FLESH: // less overpenetration
+		penmodifier = 1.5;
+		break;
+	}
+	ALERT(at_console, "penetration mult: %f\n", penmodifier);
+	return penmodifier;
+}

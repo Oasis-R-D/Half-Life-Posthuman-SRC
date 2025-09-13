@@ -31,7 +31,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType)
+void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
@@ -50,7 +50,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_Spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES);
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
-
+			pBlood->m_isgib = isgib;
 			pBlood->Spawn();
 		}
 	}
@@ -59,22 +59,25 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 void CPhysblood::Spawn()
 {
 	Precache();
-	switch (RANDOM_LONG(1, 3))
+	if (m_isgib != true)
+	{
+		switch (RANDOM_LONG(1, 3))
 		{
-			case 1:
-			{
-				m_opposite = 1;
-				break;
-			}
-			case 2:
-			{
-				m_opposite = -1;
-				break;
-			}
-			case 3:
-				m_opposite = 1;
-				break;
+		case 1:
+		{
+			m_opposite = 1;
+			break;
 		}
+		case 2:
+		{
+			m_opposite = -1;
+			break;
+		}
+		case 3:
+			m_opposite = 1;
+			break;
+		}
+	}
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
 	if (m_opposite == 1)
 	{
@@ -96,6 +99,10 @@ void CPhysblood::Spawn()
 		{
 			pev->scale = RANDOM_FLOAT(0.4, 0.65);
 		}
+	}
+	if (m_isgib == true)
+	{
+		pev->scale = RANDOM_FLOAT(0.25, 0.35);
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;

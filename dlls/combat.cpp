@@ -710,8 +710,16 @@ void CGib::WaitTillLand()
 	}
 	else
 	{
-		pev->nextthink = gpGlobals->time + 0.1;
-		UTIL_BloodDrips(Center(), pev->velocity, m_bloodColor, 128);
+		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED)
+		{
+			if (RANDOM_LONG(0, 1) == 1)
+			{
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(1, pev->speed, pev->origin + gpGlobals->v_up * 1.25, -gpGlobals->v_up, 1.25, m_bloodColor, true);
+				#endif
+			}
+		}
+		pev->nextthink = gpGlobals->time + 0.5; // WAS 0.1
 	}
 }
 
