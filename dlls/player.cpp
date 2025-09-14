@@ -925,7 +925,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetAnimation(PLAYER_DIE);
 
-	m_flRespawnTimer = 0.0f;
+	m_flRespawnTimer = 0.0f; 
 
 	pev->modelindex = g_ulModelIndexPlayer; // don't use eyes
 
