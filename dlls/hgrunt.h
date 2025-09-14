@@ -25,31 +25,48 @@
 #define HGRUNT_M249 (1 << 4)
 #define HGRUNT_M727 (1 << 5)
 
+#define ARMOR_GROUP 0
 #define HEAD_GROUP 1
 #define TORSO_GROUP 2
 #define GUN_GROUP 3
 
+#define ARMOR_DEF 0
+#define ARMOR_ENGI 1
+
 #define HEAD_GRUNT 0
 #define HEAD_GRUNT_BLACK 1
-#define HEAD_COMMANDER 2
-#define HEAD_SHOTGUN 3
-#define HEAD_M249_1 4
-#define HEAD_M249_2 5
-#define HEAD_M203_1 6
-#define HEAD_M203_2 7
-#define HEAD_MEDIC 8
-#define HEAD_MEDIC_BLACK 9
+#define HEAD_HELM_1 2
+#define HEAD_HELM_2 3
+#define HEAD_HELM_3 4
+#define HEAD_HELM_4 5
+#define HEAD_HELM_5 6
+#define HEAD_HELM_6 7
+#define HEAD_HELM_7 8
+#define HEAD_COMMANDER 9
+#define HEAD_SHOTGUN 10
+#define HEAD_M249_1 11
+#define HEAD_M249_2 12
+#define HEAD_M203_1 13
+#define HEAD_M203_2 14
+#define HEAD_MEDIC 15
+#define HEAD_MEDIC_BLACK 16
+#define HEAD_ENGI 17
+#define HEAD_CIGAR 18
+#define HEAD_CIGAR_H 19 // H are variants with their hands out (no gloves)
+#define HEAD_NOHELM 20
+#define HEAD_NOHELM_H 21
 
 #define TORSO_GRUNT 0
 #define TORSO_M249 1
-#define TORSO_NONE 2 // ugly as hell
-#define TORSO_SHOTGUN 3
+#define TORSO_SHOTGUN 2
+#define TORSO_ENGI 3
+#define TORSO_MED 4
 
 #define GUN_MP5 0
 #define GUN_SHOTGUN 1
 #define GUN_M249 2
-#define GUN_NONE 3
-#define GUN_M727 4 // implement at some point
+#define GUN_M727 3
+#define GUN_NONE 4
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -123,6 +140,7 @@ public:
 	bool m_fThrowGrenade;
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
+	bool M_HasHelm = false;
 	int m_cClipSize;
 
 	int m_voicePitch;

@@ -473,53 +473,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
 		{
-			if (GetBodygroup(1) == 1 || 0)
-			{
-				if (flDamage < 45 && m_helmDUR > 0)
-				{
-					m_helmDUR -= 1;
-					if (m_helmDUR == 0)
-					{
-					 // Figure out something to do here
-					}
-					flDamage = round(flDamage * 0.2);
-					UTIL_Sparks(ptr->vecEndPos);
-	
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-					#endif
-				}
-				else if (flDamage > 44 && m_helmDUR > 0)
-				{
-					m_helmDUR = 0;
-					// Figure out something to do here
-				}
-		
-			}
-			if (GetBodygroup(1) == 9)
-			{
-				if (flDamage < 45 && m_helmDUR > 0)
-				{
-					m_helmDUR -= 1;
-					if (m_helmDUR == 0)
-					{
-					 // Figure out something to do here
-					}
-					flDamage = round(flDamage * 0.2);
-					UTIL_Sparks(ptr->vecEndPos);
-	
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-					#endif
-				}
-				else if (flDamage > 44 && m_helmDUR > 0)
-				{
-					m_helmDUR = 0;
-					// Figure out something to do here
-				}
-		
-			}
-			if (GetBodygroup(1) == 8)
+			if (M_HasHelm == true)
 			{
 				if (flDamage < 45 && m_helmDUR > 0)
 				{
@@ -869,12 +823,14 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
 		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+		{
+			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
+		}
 		else
 			DropItem("weapon_m727", vecGunPos, vecGunAngles);
 
-		if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
+		
 	}
 	CSquadMonster::Killed(pevAttacker, iGib);
 }
@@ -965,6 +921,8 @@ void CHGrunt::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			Shoot();
+		else if (FBitSet(pev->weapons, HGRUNT_M727))
+			ShootM727();
 		else
 			M249();
 	}
@@ -1059,23 +1017,40 @@ void CHGrunt::Spawn()
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
-		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+		switch (RANDOM_LONG(0, 1))
+		{
+			case 0:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_HELM_5, HEAD_HELM_6)));
+			M_HasHelm = true;
+			break;
+			case 1:
+			SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+			break;
+		}
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
-		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
+		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
 		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
 		SetBodygroup(TORSO_GROUP, TORSO_M249);
-		SetBodygroup(GUN_GROUP, GUN_M249);
+		pev->weaponmodel = MAKE_STRING("models/h_m249.mdl");
 		m_cClipSize = 200;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
-		SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_M203_1, HEAD_M203_2)));
+			break;
+		case 1:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_CIGAR, HEAD_NOHELM_H)));
+			break;
+		}
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-		SetBodygroup(GUN_GROUP, GUN_MP5);
+		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
@@ -1083,14 +1058,15 @@ void CHGrunt::Spawn()
 		switch (RANDOM_LONG(0, 1))
 		{
 			case 0:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 			break;
 			case 1:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
-		};
+		}
 		SetBodygroup(TORSO_GROUP, TORSO_M249);
-		SetBodygroup(GUN_GROUP, GUN_M727);
+		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
+		M_HasHelm = true;
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
@@ -1098,20 +1074,31 @@ void CHGrunt::Spawn()
 		switch (RANDOM_LONG(0, 1))
 		{
 			case 0:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 			break;
 			case 1:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
-		};
+		}
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-		SetBodygroup(GUN_GROUP, GUN_MP5);
+		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
+		M_HasHelm = true;
 		m_cClipSize = 30;
 	}
-	pev->skin = RANDOM_LONG(0, 1);
+	if (GetBodygroup(HEAD_GROUP) != HEAD_CIGAR)
+	{
+		pev->skin = RANDOM_LONG(0, 1);
+	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
-
+	if (GetBodygroup(TORSO_GROUP) == TORSO_ENGI)
+	{
+		SetBodygroup(ARMOR_GROUP, ARMOR_ENGI);
+	}
+	if (GetBodygroup(ARMOR_GROUP) == ARMOR_ENGI)
+	{
+		SetBodygroup(TORSO_GROUP, TORSO_ENGI);
+	}
 	MonsterInit();
 }
 //=========================================================
@@ -1127,6 +1114,10 @@ void CHGrunt::ClipSize(int clipsize)
 void CHGrunt::Precache()
 {
 	PRECACHE_MODEL("models/hgrunt_opfor.mdl");
+	PRECACHE_MODEL("models/h_mp5.mdl");
+	PRECACHE_MODEL("models/h_spas.mdl");
+	PRECACHE_MODEL("models/h_m249.mdl");
+	PRECACHE_MODEL("models/h_m727.mdl");
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");
 	PRECACHE_SOUND("hgrunt/gr_mgun2.wav");
@@ -1256,7 +1247,7 @@ void CHGrunt::PainSound()
 void CHGrunt::DeathSound()
 {
 	if (m_bRailed == false)
-	EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
 }
 
 //=========================================================
@@ -1871,14 +1862,14 @@ void CHGrunt::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, HGRUNT_9MMAR || HGRUNT_M727))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_mp5");
 			else
 				iSequence = LookupSequence("crouching_mp5");
 		}
-		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_shotgun");
@@ -1927,7 +1918,7 @@ void CHGrunt::SetActivity(Activity NewActivity)
 	break;
 	case ACT_RELOAD:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, HGRUNT_9MMAR || HGRUNT_M727))
 			iSequence = LookupSequence("reload_mp5");
 		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 			iSequence = LookupSequence("reload_shotgun");

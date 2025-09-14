@@ -134,17 +134,7 @@ int CCorrupted::Classify()
 //=========================================================
 void CCorrupted::SetYawSpeed()
 {
-	int ys;
-
-	ys = 120;
-
-#if 0
-	switch ( m_Activity )
-	{
-	}
-#endif
-
-	pev->yaw_speed = ys;
+	pev->yaw_speed = 360;
 }
 
 bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
