@@ -805,7 +805,7 @@ void CHGrunt::M249()
 
 void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 {
-	if (GetBodygroup(GUN_GROUP) != GUN_NONE)
+	if (m_hasdroppedwpn == false)
 	{
 		Vector vecGunPos;
 		Vector vecGunAngles;
@@ -830,7 +830,7 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 		else
 			DropItem("weapon_m727", vecGunPos, vecGunAngles);
 
-		
+		m_hasdroppedwpn = true;
 	}
 	CSquadMonster::Killed(pevAttacker, iGib);
 }

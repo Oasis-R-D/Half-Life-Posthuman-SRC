@@ -141,6 +141,7 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool M_HasHelm = false;
+	bool m_hasdroppedwpn = false;
 	int m_cClipSize;
 
 	int m_voicePitch;
