@@ -648,22 +648,18 @@ bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 		if (pev->health <= m_ihealth0)
 		{
 			pev->skin = 0;
-			break;
 		}
 		else if (pev->health <= m_ihealth25)
 		{
 			pev->skin = 0;
-			break;
 		}
 		else if (pev->health <= m_ihealth50)
 		{
 			pev->skin = 0;
-			break;
 		}
 		else if (pev->health <= m_ihealth75)
 		{
 			pev->skin = 0;
-			break;
 		}
 		else
 		{
