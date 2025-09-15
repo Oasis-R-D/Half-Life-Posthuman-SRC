@@ -177,8 +177,13 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool m_bPrehuman;
+	bool m_hashealthmonitor
 	int m_cClipSize;
-
+	int m_ihealth100;
+	int m_ihealth75;
+	int m_ihealth50;
+	int m_ihealth25;	
+	int m_ihealth0 = 0;
 	int m_voicePitch;
 
 	int m_iBrassShell;
@@ -640,6 +645,29 @@ bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 	Forget(bits_MEMORY_INCOVER);
 
 	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
+	if (m_hashealthmonitor == true)
+	{
+		if (pev->health <= m_ihealth0)
+		{
+			pev->skin = 0;
+		}
+		else if (pev->health <= m_ihealth25)
+		{
+			pev->skin = 0;
+		}
+		else if (pev->health <= m_ihealth50)
+		{
+			pev->skin = 0;
+		}
+		else if (pev->health <= m_ihealth75)
+		{
+			pev->skin = 0;
+		}
+		else
+		{
+			pev->skin = 0;
+		}
+	}
 }
 
 //=========================================================
@@ -1071,11 +1099,15 @@ void CAdvSec::Spawn()
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		pev->health = gSkillData.hgruntHealth;
+
+
 	}
 	else
 	{
 		pev->health = 100;
 	}
+
+
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
@@ -1130,7 +1162,13 @@ void CAdvSec::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_RAILCANNON);
 	}
 	CTalkMonster::g_talkWaitTime = 0;
-
+	if (m_hashealthmonitor)
+	{
+		m_ihealth100 = pev->health;
+		m_ihealth75 = round(3/4 * pev->health);
+		m_ihealth50 = round(1/2 * pev->health);
+		m_ihealth25 = round(1/4 * pev->health);
+	}
 	MonsterInit();
 }
 
@@ -1303,15 +1341,30 @@ void CAdvSec::DeathSound()
 	{
 		switch (RANDOM_LONG(0, 2))
 		{
-		case 0:
+			case 0:
 			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE);
 			break;
-		case 1:
+			case 1:
 			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE);
 			break;
-		case 2:
+			case 2:
 			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
 			break;
+		}
+		if (m_hashealthmonitor)
+		{
+			switch (RANDOM_LONG(0, 2))
+			{
+			case 0:
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die1.wav", 0.6, ATTN_IDLE);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die2.wav", 0.6, ATTN_IDLE);
+				break;
+			case 2:
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die3.wav", 0.6, ATTN_IDLE);
+				break;
+			}
 		}
 	}
 }
