@@ -177,7 +177,7 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool m_bPrehuman;
-	bool m_hashealthmonitor
+	bool m_hashealthmonitor;
 	int m_cClipSize;
 	int m_ihealth100;
 	int m_ihealth75;
@@ -668,7 +668,6 @@ bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 		else
 		{
 			pev->skin = 0;
-			break;
 		}
 	}
 	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
@@ -1369,7 +1368,7 @@ void CAdvSec::DeathSound()
 				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 0.6, ATTN_IDLE);
 				break;
 			case 3:
-				break
+				break;
 			}
 		}
 	}
