@@ -643,31 +643,35 @@ void CAdvSec::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
 	Forget(bits_MEMORY_INCOVER);
-
-	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 	if (m_hashealthmonitor == true)
 	{
 		if (pev->health <= m_ihealth0)
 		{
 			pev->skin = 0;
+			break;
 		}
 		else if (pev->health <= m_ihealth25)
 		{
 			pev->skin = 0;
+			break;
 		}
 		else if (pev->health <= m_ihealth50)
 		{
 			pev->skin = 0;
+			break;
 		}
 		else if (pev->health <= m_ihealth75)
 		{
 			pev->skin = 0;
+			break;
 		}
 		else
 		{
 			pev->skin = 0;
+			break;
 		}
 	}
+	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
 
 //=========================================================
