@@ -469,7 +469,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		}
 	}
 	// check for helmet shot
-	if (ptr->iHitgroup == 0)
+	if (ptr->iHitgroup == 69)
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
 		{
@@ -500,7 +500,33 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
+	if (ptr->iHitgroup == 67 && m_fuel == true)
+	{
+		m_bloodColor = DONT_BLEED;
+		m_tankhealth -= round(1.25*flDamage);
+		if (m_tankhealth <= 0)
+		{
+			pev->health = 2;
+			SetBodygroup(TORSO_GROUP, TORSO_ENGI); // make exploded variant
+			pev->dmg = 0;
+			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+			WRITE_BYTE(TE_EXPLOSION);
+			WRITE_COORD(ptr->vecEndPos.x);
+			WRITE_COORD(ptr->vecEndPos.y);
+			WRITE_COORD(ptr->vecEndPos.z);
+			WRITE_SHORT(g_sModelIndexFireball);
+			WRITE_BYTE(5); // scale * 10
+			WRITE_BYTE(15);		// framerate
+			WRITE_BYTE(TE_EXPLFLAG_NONE);
+			MESSAGE_END();
+			m_fuel = false;
+		}
+		flDamage *= 0.25;
+	}
+	else
+		ptr->iHitgroup = HITGROUP_STOMACH;
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	m_bloodColor = BLOOD_COLOR_RED;
 }
 
 
@@ -1019,11 +1045,11 @@ void CHGrunt::Spawn()
 	{
 		switch (RANDOM_LONG(0, 1))
 		{
-			case 0:
+		case 0:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_HELM_5, HEAD_HELM_6)));
 			M_HasHelm = true;
 			break;
-			case 1:
+		case 1:
 			SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 			break;
 		}
@@ -1054,13 +1080,13 @@ void CHGrunt::Spawn()
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
-	 {
+	{
 		switch (RANDOM_LONG(0, 1))
 		{
-			case 0:
+		case 0:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 			break;
-			case 1:
+		case 1:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
 		}
@@ -1073,10 +1099,10 @@ void CHGrunt::Spawn()
 	{
 		switch (RANDOM_LONG(0, 1))
 		{
-			case 0:
+		case 0:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 			break;
-			case 1:
+		case 1:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
 		}
@@ -1091,13 +1117,20 @@ void CHGrunt::Spawn()
 	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
-	if (GetBodygroup(TORSO_GROUP) == TORSO_ENGI)
+	if (RANDOM_LONG(0, 4) == 4)
 	{
-		SetBodygroup(ARMOR_GROUP, ARMOR_ENGI);
-	}
-	if (GetBodygroup(ARMOR_GROUP) == ARMOR_ENGI)
-	{
-		SetBodygroup(TORSO_GROUP, TORSO_ENGI);
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			SetBodygroup(ARMOR_GROUP, ARMOR_ENGI);
+			SetBodygroup(TORSO_GROUP, TORSO_ENGI);
+			m_fuel = true;
+			break;
+		case 1:
+			SetBodygroup(TORSO_GROUP, TORSO_MED);
+			m_medic = true;
+			break;
+		}
 	}
 	MonsterInit();
 }

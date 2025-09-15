@@ -142,8 +142,11 @@ public:
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool M_HasHelm = false;
 	bool m_hasdroppedwpn = false;
+	bool m_medic = false;
+	bool m_fuel = false;
+	
 	int m_cClipSize;
-
+	int m_tankhealth = 30;
 	int m_voicePitch;
 
 	int m_iBrassShell;
