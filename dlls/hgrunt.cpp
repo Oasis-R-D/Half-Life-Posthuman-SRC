@@ -813,7 +813,7 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 		GetAttachment(0, vecGunPos, vecGunAngles);
 
 		// switch to body group with no gun.
-		SetBodygroup(GUN_GROUP, GUN_NONE);
+		pev->weaponmodel = 0;
 
 		// now spawn a gun.
 		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
@@ -1862,7 +1862,7 @@ void CHGrunt::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR || HGRUNT_M727))
+		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_mp5");
@@ -1875,6 +1875,13 @@ void CHGrunt::SetActivity(Activity NewActivity)
 				iSequence = LookupSequence("standing_shotgun");
 			else
 				iSequence = LookupSequence("crouching_shotgun");
+		}
+		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		{
+			if (m_fStanding)
+				iSequence = LookupSequence("standing_m727");
+			else
+				iSequence = LookupSequence("crouching_m727");
 		}
 		else
 		{
