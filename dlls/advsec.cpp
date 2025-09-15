@@ -947,6 +947,10 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 			{
 				DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
 			}
+			else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
+			{
+				DropItem("weapon_crossbow", vecGunPos, vecGunAngles);
+			}
 			else
 			{
 				DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
@@ -973,7 +977,7 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		m_fThrowGrenade = false;
 		m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
-													// !!!LATER - when in a group, only try to throw grenade if ordered.
+													// !!!LATER - when in a group, only try to throw grenade if ordered. // still waiting...
 	}
 	break;
 
@@ -1111,7 +1115,6 @@ void CAdvSec::Spawn()
 		pev->health = 100;
 	}
 
-
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
@@ -1129,8 +1132,6 @@ void CAdvSec::Spawn()
 	{
 		// initialize to original values
 		pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
-		// pev->weapons = HGRUNT_SHOTGUN;
-		// pev->weapons = HGRUNT_9MMAR | HGRUNT_GRENADELAUNCHER;
 	}
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
@@ -1146,32 +1147,27 @@ void CAdvSec::Spawn()
 	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
 	{
 		m_cClipSize = 1;
-	}
-	m_cAmmoLoaded = m_cClipSize;
-
-	if (RANDOM_LONG(0, 99) < 80)
-		pev->skin = 0; // light skin //does this make the darker skin advsec rarer? :skull: (even though that is technically more realistic)
-	else
-		pev->skin = 1; // dark skin
-
-	
-	if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
-	{
-		SetBodygroup(HEAD_GROUP, HEAD_M203);
-		pev->skin = 1; // alway dark skin
-	}
-	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
-	{
 		SetBodygroup(HEAD_GROUP, HEAD_M203);
 		SetBodygroup(GUN_GROUP, GUN_RAILCANNON);
 	}
-	CTalkMonster::g_talkWaitTime = 0;
-	if (m_hashealthmonitor)
+	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
+		SetBodygroup(HEAD_GROUP, HEAD_M203);
+	}
+	m_cAmmoLoaded = m_cClipSize;
+
+	
+
+
+	CTalkMonster::g_talkWaitTime = 0;
+	if (RANDOM_LONG(0,2) == 2)
+	{
+		m_hashealthmonitor = true;
 		m_ihealth100 = pev->health;
 		m_ihealth75 = round(3/4 * pev->health);
 		m_ihealth50 = round(1/2 * pev->health);
 		m_ihealth25 = round(1/4 * pev->health);
+
 	}
 	MonsterInit();
 }
@@ -1179,7 +1175,7 @@ void CAdvSec::Spawn()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CAdvSec::Precache()
+void CAdvSec::Precache() // TO-DO: Precache other the railcannon
 {
 	PRECACHE_MODEL("models/advsec.mdl");
 
@@ -1189,6 +1185,10 @@ void CAdvSec::Precache()
 	PRECACHE_SOUND("hgrunt/gr_die1.wav");
 	PRECACHE_SOUND("hgrunt/gr_die2.wav");
 	PRECACHE_SOUND("hgrunt/gr_die3.wav");
+
+	PRECACHE_SOUND("advsec/flatline1.wav");
+	PRECACHE_SOUND("advsec/flatline2.wav");
+	PRECACHE_SOUND("advsec/flatline3.wav");
 
 	PRECACHE_SOUND("hgrunt/gr_pain1.wav");
 	PRECACHE_SOUND("hgrunt/gr_pain2.wav");
