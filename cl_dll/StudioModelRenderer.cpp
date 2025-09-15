@@ -3169,7 +3169,7 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 
 	StudioSetUpTransform(0);
 	StudioSetupBones();
-
+	StudioSaveBones();
 	if (flags & STUDIO_EVENTS)
 	{
 		StudioCalcAttachments();
@@ -3190,7 +3190,25 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 	{
 		StudioRenderModel();
 	}
+	if (m_pCurrentEntity->curstate.weaponmodel)
+	{
+		cl_entity_t saveent = *m_pCurrentEntity;
+		model_t* savedmdl = m_pRenderModel;
 
+		model_t* pweaponmodel = IEngineStudio.GetModelByIndex(m_pCurrentEntity->curstate.weaponmodel);
+		m_pRenderModel = pweaponmodel;
+
+		m_pStudioHeader = (studiohdr_t*)IEngineStudio.Mod_Extradata(pweaponmodel);
+		IEngineStudio.StudioSetHeader(m_pStudioHeader);
+		StudioSetupTextureHeader();
+
+		StudioMergeBones(pweaponmodel);
+		StudioRenderModel();
+		StudioCalcAttachments();
+
+		*m_pCurrentEntity = saveent;
+		m_pRenderModel = savedmdl;
+	}
 	return 1;
 }
 

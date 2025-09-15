@@ -1443,14 +1443,15 @@ int AddToFullPack(struct entity_state_s* state, int e, edict_t* ent, edict_t* ho
 	{
 		state->playerclass = ent->v.playerclass;
 	}
-
+	state->weaponmodel = MODEL_INDEX(STRING(ent->v.weaponmodel));
+	state->gaitsequence = ent->v.gaitsequence;
 	// Special stuff for players only
 	if (0 != player)
 	{
 		memcpy(state->basevelocity, ent->v.basevelocity, 3 * sizeof(float));
 
-		state->weaponmodel = MODEL_INDEX(STRING(ent->v.weaponmodel));
-		state->gaitsequence = ent->v.gaitsequence;
+	
+		
 		state->spectator = ent->v.flags & FL_SPECTATOR;
 		state->friction = ent->v.friction;
 
