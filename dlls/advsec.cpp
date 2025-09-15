@@ -1357,17 +1357,19 @@ void CAdvSec::DeathSound()
 		}
 		if (m_hashealthmonitor)
 		{
-			switch (RANDOM_LONG(0, 2))
+			switch (RANDOM_LONG(0, 3))
 			{
 			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die1.wav", 0.6, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 0.6, ATTN_IDLE);
 				break;
 			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die2.wav", 0.6, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 0.6, ATTN_IDLE);
 				break;
 			case 2:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "hgrunt/gr_die3.wav", 0.6, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 0.6, ATTN_IDLE);
 				break;
+			case 3:
+				break
 			}
 		}
 	}
