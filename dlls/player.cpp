@@ -488,7 +488,6 @@ if (bitsDamageType == DMG_FALL)
 
 		flDamage = flNew;
 	}
-	Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 	// this cast to INT is critical!!! If a player ends up with 0.5 health, the engine will get that
 	// as an int (zero) and think the player is dead! (this will incite a clientside screentilt, etc)
 	fTookDamage = CBaseMonster::TakeDamage(pevInflictor, pevAttacker, (int)flDamage, bitsDamageType);
@@ -550,6 +549,7 @@ if (bitsDamageType == DMG_FALL)
 		{
 			if (fmajor)
 				SetSuitUpdate("!HEV_DMG5", false, SUIT_NEXT_IN_30SEC); // major fracture
+				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 			else
 				SetSuitUpdate("!HEV_DMG4", false, SUIT_NEXT_IN_30SEC); // minor fracture
 
@@ -561,19 +561,34 @@ if (bitsDamageType == DMG_FALL)
 		{
 			if (m_lastDamageAmount > 5)
 				SetSuitUpdate("!HEV_DMG6", false, SUIT_NEXT_IN_30SEC); // blood loss detected
+				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 			//else
 			//	SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC);	// minor laceration
 
 			bitsDamage &= ~DMG_BULLET;
 			ffound = true;
 		}
+		
+		if ((bitsDamage & DMG_BLAST) != 0)
+		{
+			if (m_lastDamageAmount > 5)
+				SetSuitUpdate("!HEV_DMG6", false, SUIT_NEXT_IN_30SEC); // blood loss detected
+				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
+			//else
+			//	SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC);	// minor laceration
 
+			bitsDamage &= ~DMG_BLAST;
+			ffound = true;
+		}
+		
 		if ((bitsDamage & DMG_SLASH) != 0)
 		{
 			if (fmajor)
 				SetSuitUpdate("!HEV_DMG1", false, SUIT_NEXT_IN_30SEC); // major laceration
+				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 			else
 				SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC); // minor laceration
+				Bleed(flDamage-2, bitsDamageType, m_LastHitGroup, hitlocation);
 
 			bitsDamage &= ~DMG_SLASH;
 			ffound = true;
@@ -597,6 +612,7 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_ACID) != 0)
 		{
 			SetSuitUpdate("!HEV_DET1", false, SUIT_NEXT_IN_1MIN); // hazardous chemicals detected
+			Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
 			bitsDamage &= ~DMG_ACID;
 			ffound = true;
 		}
@@ -637,6 +653,7 @@ if (bitsDamageType == DMG_FALL)
 
 		// give morphine shot if not given recently
 		SetSuitUpdate("!HEV_HEAL7", false, SUIT_NEXT_IN_30MIN); // morphine shot
+		m_bleedAMNT = 0;
 	}
 
 	if (fTookDamage && !ftrivial && fcritical && flHealthPrev < 75)
