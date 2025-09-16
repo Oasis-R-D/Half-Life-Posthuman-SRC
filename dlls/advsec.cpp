@@ -773,7 +773,7 @@ void CAdvSec::CheckAmmo()
 //=========================================================
 int CAdvSec::Classify()
 {
-	if (m_bPrehuman == 0)
+	if (m_bPrehuman == false)
 	{
 		return CLASS_HUMAN_PASSIVE;
 	}
@@ -1072,7 +1072,7 @@ void CAdvSec::Spawn()
 	Precache();
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
-		m_bPrehuman = 1;
+		m_bPrehuman = true;
 	}
 	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
