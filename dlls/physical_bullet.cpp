@@ -97,7 +97,7 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
-		m_distpenetrate = 8;
+		m_distpenetrate = 10;
 		m_maxricochet = 0;
 	}
 	else if (m_Flare == 357)
@@ -105,7 +105,7 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
 		//pev->scale = 0.3;
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
-		m_distpenetrate = 16;
+		m_distpenetrate = 18;
 		m_maxricochet = 3;
 	}
 	else if (m_Flare == 69) // Training weapons
