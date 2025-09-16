@@ -525,8 +525,6 @@ if (bitsDamageType == DMG_FALL)
 	// handle all bits set in this damage message,
 	// let the suit give player the diagnosis
 
-	// UNDONE: add sounds for types of damage sustained (ie: burn, shock, slash )
-
 	// UNDONE: still need to record damage and heal messages for the following types
 
 	// DMG_BURN
