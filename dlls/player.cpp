@@ -548,10 +548,14 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & (DMG_FALL | DMG_CRUSH)) != 0)
 		{
 			if (fmajor)
+			{
 				SetSuitUpdate("!HEV_DMG5", false, SUIT_NEXT_IN_30SEC); // major fracture
 				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
+			}
 			else
+			{
 				SetSuitUpdate("!HEV_DMG4", false, SUIT_NEXT_IN_30SEC); // minor fracture
+			}
 
 			bitsDamage &= ~(DMG_FALL | DMG_CRUSH);
 			ffound = true;
@@ -584,11 +588,15 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_SLASH) != 0)
 		{
 			if (fmajor)
+			{
 				SetSuitUpdate("!HEV_DMG1", false, SUIT_NEXT_IN_30SEC); // major laceration
 				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
+			}
 			else
+			{
 				SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC); // minor laceration
 				Bleed(flDamage-2, bitsDamageType, m_LastHitGroup, hitlocation);
+			}
 
 			bitsDamage &= ~DMG_SLASH;
 			ffound = true;
