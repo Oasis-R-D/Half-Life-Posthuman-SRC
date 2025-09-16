@@ -177,7 +177,7 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool m_bPrehuman;
-	bool m_hashealthmonitor;
+	bool m_hashealthmonitor = false;
 	int m_cClipSize;
 	int m_ihealth100;
 	int m_ihealth75;
@@ -1155,7 +1155,7 @@ void CAdvSec::Spawn()
 
 
 	CTalkMonster::g_talkWaitTime = 0;
-	if (RANDOM_LONG(0,2) == 2)
+	if (RANDOM_LONG(0, 2) == 2)
 	{
 		m_hashealthmonitor = true;
 		m_ihealth100 = pev->health;
@@ -1350,20 +1350,18 @@ void CAdvSec::DeathSound()
 			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
 			break;
 		}
-		if (m_hashealthmonitor)
+		if (m_hashealthmonitor == true)
 		{
-			switch (RANDOM_LONG(0, 3))
+			switch (RANDOM_LONG(0, 2))
 			{
 			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 0.6, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_IDLE);
 				break;
 			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 0.6, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_IDLE);
 				break;
 			case 2:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 0.6, ATTN_IDLE);
-				break;
-			case 3:
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_IDLE);
 				break;
 			}
 		}
