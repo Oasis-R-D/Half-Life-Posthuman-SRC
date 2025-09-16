@@ -278,7 +278,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 	Vector vecOrigin = ptr->vecEndPos;
 	Vector hitlocation = ptr->vecEndPos;
 	int BLDAMNT;
-
+	float punchangle;
 	BLDAMNT = round(flDamage * 0.5);
 
 	if (0 != pev->takedamage)
@@ -291,7 +291,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			
 			break;
 		case HITGROUP_HEAD:
-			float punchangle = round(health_head/20);
+			punchangle = round(health_head/20);
 			pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
 			pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
 			flDamage *= gSkillData.plrHead;
