@@ -25,8 +25,6 @@
 #include "soundent.h"
 
 #ifndef CLIENT_DLL
-#define BOLT_AIR_VELOCITY 6000
-#define BOLT_WATER_VELOCITY 5000 //replace with a speed change perhaps?
 
 /*
 * 9MM MV: 6000
@@ -310,7 +308,6 @@ void CPhysbullet::AirThink()
 	}
 	if (pev->waterlevel == 0)
 	return;
-
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
 }
 #endif
