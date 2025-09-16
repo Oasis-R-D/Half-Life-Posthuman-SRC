@@ -707,7 +707,8 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 
 	hitlocation = EXCTDMGlocation;
 	m_bleedtime = gpGlobals->time + 1;
-	while (int i <= m_bleedAMNT)
+	int i = 1;
+	while (i <= m_bleedAMNT)
 	{
 		if (m_bleedtime = gpGlobals->time)
 		{
