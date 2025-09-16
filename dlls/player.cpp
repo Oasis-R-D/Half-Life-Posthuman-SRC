@@ -706,11 +706,20 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 	/////////////////////////
 
 	hitlocation = EXCTDMGlocation;
-	if (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB) != 0)
+	m_bleedtime = gpGlobals->time + 1;
+	while (int i <= m_bleedtime)
 	{
-		if (m_bleedtime == 0)
+		if (m_bleedtime = gpGlobals->time)
 		{
-			m_bleedtime = (m_bleedAMNT + gpGlobals->time);
+			Hunger -= 1;
+			if (g_iSkillLevel == SKILL_HARD)
+			{
+				pev->health -= 1;
+			}
+#ifndef CLIENT_DLL
+			CPhysblood::BloodCreate(1, 0, hitlocation, VECTOR_CONE_20DEGREES, 1, BloodColor());
+#endif
+			i++;
 		}
 	}
 }
@@ -1935,29 +1944,6 @@ void CBasePlayer::PreThink()
 	m_afButtonReleased = buttonsChanged & (~pev->button); // The ones not down are "released"
 
 	g_pGameRules->PlayerThink(this);
-	if (m_bleedtime != 0)
-	{
-		if (m_bleedtime > gpGlobals->time)
-		{
-			if (pev->health > 0)
-			{
-				Hunger -= 1;
-				if (g_iSkillLevel == SKILL_HARD)
-				{
-					pev->health -= 1;
-				}
-#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(2, 0, hitlocation, VECTOR_CONE_20DEGREES, 1, BloodColor());
-#endif	
-			
-			}	
-			
-		}
-		if (m_bleedtime < gpGlobals->time)
-		{
-			m_bleedtime = 0;
-		}
-	}
 	if (g_fGameOver)
 		return; // intermission or finale
 	
