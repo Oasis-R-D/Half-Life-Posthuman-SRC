@@ -626,9 +626,8 @@ if (bitsDamageType == DMG_FALL)
 			ffound = true;
 		}
 	}
-	float punchangle = (health_head/10) + 1;
-	pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
-	pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
+	pev->punchangle.x = RANDOM_LONG(-1, 1);
+	pev->punchangle.y = RANDOM_LONG(-1, 1);
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75)
 	{
 		// first time we take major damage...
