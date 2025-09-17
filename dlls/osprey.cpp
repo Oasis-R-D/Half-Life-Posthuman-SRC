@@ -34,38 +34,6 @@ typedef struct
 
 #define SF_WAITFORTRIGGER 0x40
 
-#define HGRUNT_9MMAR (1 << 0)
-#define HGRUNT_HANDGRENADE (1 << 1)
-#define HGRUNT_GRENADELAUNCHER (1 << 2)
-#define HGRUNT_SHOTGUN (1 << 3)
-#define HGRUNT_M249 (1 << 4)
-#define HGRUNT_M727 (1 << 5)
-#define HEAD_GROUP 1
-#define TORSO_GROUP 2
-#define GUN_GROUP 3
-
-#define HEAD_GRUNT 0
-#define HEAD_GRUNT_BLACK 1
-#define HEAD_COMMANDER 2
-#define HEAD_SHOTGUN 3
-#define HEAD_M249_1 4
-#define HEAD_M249_2 5
-#define HEAD_M203_1 6
-#define HEAD_M203_2 7
-#define HEAD_MEDIC 8
-#define HEAD_MEDIC_BLACK 9
-
-#define TORSO_GRUNT 0
-#define TORSO_M249 1
-#define TORSO_NONE 2 // ugly as hell
-#define TORSO_SHOTGUN 3
-
-#define GUN_MP5 0
-#define GUN_SHOTGUN 1
-#define GUN_M249 2
-#define GUN_NONE 3
-#define GUN_M727 4 // implement at some point
-
 #define MAX_CARRY 24
 
 class COsprey : public CBaseMonster
@@ -351,56 +319,73 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 			pGrunt->SetActivity(ACT_GLIDE);
 			switch (RANDOM_LONG(0, 3))
 			{
-			case 0:
+			case 0: // mp5
 				pGrunt->pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
-				switch(RANDOM_LONG(0,1))
-					{
-					case 0:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 					break;
-					case 1:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+				case 1:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 					break;
-					};
+				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
-				//pGrunt->m_cClipSize = 30;
-				break;
-			case 1:
+				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
+				pGrunt->M_HasHelm = true;
+			break;
+			case 1: // shotgunner
 				pGrunt->pev->weapons = HGRUNT_SHOTGUN;
-				pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_HELM_5, HEAD_HELM_6)));
+					pGrunt->M_HasHelm = true;
+					break;
+				case 1:
+					pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
+					break;
+				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
-				pGrunt->SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
+				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 				pGrunt->ClipSize(9);
-				break;
-			case 2:
+			break;
+			case 2: // GL
 				pGrunt->pev->weapons = HGRUNT_GRENADELAUNCHER;
-				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M203_1, HEAD_M203_2));
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_M203_1, HEAD_M203_2)));
+					break;
+				case 1:
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_CIGAR, HEAD_NOHELM_H)));
+					break;
+				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-				pGrunt->SetBodygroup(GUN_GROUP, GUN_MP5);
-				//pGrunt->m_cClipSize = 30;
-				break;
-			case 3:
+				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
+			break;
+			case 3: // M249
 				pGrunt->pev->weapons = HGRUNT_M249;
 				pGrunt->SetBodygroup(HEAD_GROUP, RANDOM_LONG(HEAD_M249_1, HEAD_M249_2));
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
-				pGrunt->SetBodygroup(GUN_GROUP, GUN_M249);
+				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_m249.mdl");
 				pGrunt->ClipSize(200);
 				break;
-			case 4:
+			case 4: // M727
 				pGrunt->pev->weapons = HGRUNT_M727;
 				switch (RANDOM_LONG(0, 1))
 				{
 				case 0:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_GRUNT_BLACK)));
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
 					break;
 				case 1:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_MEDIC_BLACK)));
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 					break;
-				};
+				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
-				pGrunt->SetBodygroup(GUN_GROUP, GUN_M727);
-				break;
+				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
+				pGrunt->M_HasHelm = true;
+			break;
 			}
 
 			CBeam* pBeam = CBeam::BeamCreate("sprites/rope.spr", 10);
