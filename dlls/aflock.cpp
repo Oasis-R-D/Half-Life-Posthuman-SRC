@@ -587,7 +587,7 @@ void CFlockingFlyer::FlockLeaderThink()
 	{
 		if (RANDOM_LONG(0, 6) == 6)
 		{
-			CFlockingFlyer::Poop()
+			CFlockingFlyer::Poop();
 		}
 		m_thinkid = 1;
 	}
@@ -696,7 +696,7 @@ void CFlockingFlyer::FlockFollowerThink()
 	{
 		if (RANDOM_LONG(0, 6) == 6)
 		{
-			CFlockingFlyer::Poop()
+			CFlockingFlyer::Poop();
 		}
 		m_thinkid = 1;
 	}
@@ -953,6 +953,6 @@ void CFlockingFlyer::SquadDisband()
 void CFlockingFlyer::Poop()
 {
 #ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(1, 0, pev->origin - gpGlobals->v_up * 8, -v_up, 1, BLOOD_COLOR_GREEN);
+	CPhysblood::BloodCreate(1, 0, pev->origin - gpGlobals->v_up * 8, -gpGlobals->v_up, 1, BLOOD_COLOR_GREEN);
 #endif
 }
