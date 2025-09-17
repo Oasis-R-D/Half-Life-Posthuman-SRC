@@ -13,10 +13,8 @@
 *
 ****/
 //=========================================================
-// Corruption zombie guy thing
+// Entity that NPCs really like firing or throwing themselves at
 //=========================================================
-
-// UNDONE: Don't flinch every time you get hit
 
 #include "extdll.h"
 #include "util.h"
@@ -35,7 +33,7 @@ public:
 	void Precache() override;
 	int Classify() override;
     bool KeyValue(KeyValueData* pkvd);
-
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
     int m_hitamnt
     int m_maxhitamnt
 	void Killed(entvars_t* pevAttacker, int iGib) override;
@@ -58,14 +56,17 @@ LINK_ENTITY_TO_CLASS(info_monstarget, CTarget);
 //=========================================================
 int CTarget::Classify()
 {
-	return CLASS_OHTHEMISERY; // TO-DO: make a new class for targets (CLASS_TARGET)
+	return CLASS_OHTHEMISERY; // Everyone's nemesis
 }
 
 bool CTarget::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
-    m_hitamnt += 1;
-    if (m_maxhitamnt <= m_hitamnt)
-        CTarget::Killed(pevAttacker, 0);
+	if (m_maxhitamnt != -1)
+	{
+  		m_hitamnt += 1;
+   		if (m_maxhitamnt <= m_hitamnt)
+        	CTarget::Killed(pevAttacker, 0);
+	}
     pev->health = 9999;
 }
 
@@ -82,7 +83,7 @@ bool CTarget::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "Max_hits"))
 	{
-	m_maxhitamnt = atoi(pkvd->szValue);
+		m_maxhitamnt = atoi(pkvd->szValue);
 		return true;
 	}
 	else
@@ -91,6 +92,10 @@ bool CTarget::KeyValue(KeyValueData* pkvd)
 	}
 }
 
+void CTarget::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	UTIL_Remove(this); // removes if triggered, useful for making it have a time limit
+}
 //=========================================================
 // Spawn
 //=========================================================
@@ -116,4 +121,5 @@ void CTarget::Spawn()
 void CTarget::Precache()
 {
 	PRECACHE_MODEL("models/target.mdl");
+
 }
