@@ -358,7 +358,7 @@ void CFlockingFlyer::SpawnCommonCode()
 	m_flFieldOfView = 0.2;
 
 	
-	if (m_flockorboid = 0);
+	if (m_flockorboid = 0)
 	{
 		SET_MODEL(ENT(pev), "models/boid.mdl");
 	}
