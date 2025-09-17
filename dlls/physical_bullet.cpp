@@ -76,7 +76,6 @@ void CPhysbullet::Spawn()
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
-	pev->speed = m_muzzlevelocity; // I have no fucking clue what the difference between speed and velocity is :3
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction + m_SpreadVect;
 	m_haswizzed = false;

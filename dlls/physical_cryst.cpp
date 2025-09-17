@@ -86,7 +86,6 @@ void CPhyscryst::Spawn()
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 16); //spawn a little bit more forward
 	pev->velocity = (m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_SpreadVert, -m_SpreadVert))) * m_muzzlevelocity; // Applies spread and velocity
-	pev->speed = m_muzzlevelocity;	// I have no fucking clue what the difference between speed and velocity is :3
 	pev->angles = Vector(RANDOM_LONG(360, -360), RANDOM_LONG(360, -360), RANDOM_LONG(360, -360));
 	pev->avelocity = Vector(RANDOM_LONG(360, -360), RANDOM_LONG(360, -360), RANDOM_LONG(360, -360));
 	SET_MODEL(ENT(pev), "models/crystalshot.mdl");
