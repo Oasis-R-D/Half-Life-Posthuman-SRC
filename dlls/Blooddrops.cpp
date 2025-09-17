@@ -64,17 +64,11 @@ void CPhysblood::Spawn()
 		switch (RANDOM_LONG(1, 3))
 		{
 		case 1:
-		{
-			m_opposite = 1;
-			break;
-		}
 		case 2:
-		{
-			m_opposite = -1;
-			break;
-		}
-		case 3:
 			m_opposite = 1;
+			break;
+		case 3:
+			m_opposite = -1;
 			break;
 		}
 	}
@@ -220,7 +214,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.25;
+	pev->nextthink = gpGlobals->time + 0.5;
 	if (pev->waterlevel == 0)
 	return;
 
