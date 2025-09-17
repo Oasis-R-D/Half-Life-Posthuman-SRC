@@ -24,7 +24,6 @@
 #include "monsters.h"
 #include "schedule.h"
 #include "weapons.h"
-#include "UserMessages.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -34,21 +33,20 @@ class CTarget : public CBaseMonster
 public:
 	void Spawn() override;
 	void Precache() override;
-	void SetYawSpeed() override;
 	int Classify() override;
-	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
-	int IgnoreConditions() override;
     bool KeyValue(KeyValueData* pkvd);
 
-	float m_flNextFlinch;
     int m_hitamnt
     int m_maxhitamnt
 	void Killed(entvars_t* pevAttacker, int iGib) override;
-	void MonsterThink() override;
 
 	// No range attacks
 	bool CheckRangeAttack1(float flDot, float flDist) override { return false; }
 	bool CheckRangeAttack2(float flDot, float flDist) override { return false; }
+    virtual bool CheckMeleeAttack1(float flDot, float flDist) override { return false; };
+	virtual bool CheckMeleeAttack2(float flDot, float flDist) override { return false; };
+    void MonsterThink() override { return false; };
+
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 };
 
@@ -61,15 +59,6 @@ LINK_ENTITY_TO_CLASS(monster_target, CTarget);
 int CTarget::Classify()
 {
 	return CLASS_DISLIKE_ALL; // TO-DO: make a new class for targets (CLASS_TARGET)
-}
-
-//=========================================================
-// SetYawSpeed - allows each sequence to have a different
-// turn rate associated with it.
-//=========================================================
-void CTarget::SetYawSpeed()
-{
-	pev->yaw_speed = 0;
 }
 
 bool CTarget::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
@@ -101,15 +90,6 @@ bool CTarget::KeyValue(KeyValueData* pkvd)
 		return CBaseEntity::KeyValue(pkvd);
 	}
 }
-//=========================================================
-// HandleAnimEvent - catches the monster-specific messages
-// that occur when tagged animation frames are played.
-//=========================================================
-void CTarget::HandleAnimEvent(MonsterEvent_t* pEvent)
-{
-	CBaseMonster::HandleAnimEvent(pEvent);
-	break;
-}
 
 //=========================================================
 // Spawn
@@ -117,9 +97,9 @@ void CTarget::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CTarget::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/znull.mdl");
+	SET_MODEL(ENT(pev), "models/target.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
-
+    pev->yaw_speed = 0;
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_NONE;
 	m_bloodColor = DONT_BLEED;
@@ -130,23 +110,10 @@ void CTarget::Spawn()
 	MonsterInit();
 }
 
-void CTarget::MonsterThink()
-{
-	CBaseMonster::MonsterThink();
-}
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
 void CTarget::Precache()
 {
-	PRECACHE_MODEL("models/znull.mdl");
-}
-
-//=========================================================
-// AI Schedules Specific to this monster
-//=========================================================
-int CTarget::IgnoreConditions()
-{
-	int iIgnore = CBaseMonster::IgnoreConditions();
-	return iIgnore;
+	PRECACHE_MODEL("models/target.mdl");
 }
