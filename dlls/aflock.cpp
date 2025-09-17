@@ -335,7 +335,7 @@ void CFlockingFlyer::SpawnCommonCode()
 	pev->takedamage = DAMAGE_YES;
 	pev->health = 10;
 
-	m_bloodColor = BLOOD_COLOR_GREEN;
+	m_bloodColor = BLOOD_COLOR_YELLOW;
 
 	m_fPathBlocked = false; // obstacles will be detected
 	m_flFieldOfView = 0.2;
