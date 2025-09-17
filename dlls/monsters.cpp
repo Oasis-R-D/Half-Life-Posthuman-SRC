@@ -2260,7 +2260,7 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO,	R_NO, R_HT,	R_NM},  //bkacj ops (duh)
 			/*HUMANFRIEND*/		{R_NO,   R_NO,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_NO, R_DL,	R_NM}, //BMRF STAFF (FRIENDLY
 			/*Xmil*/			{R_NO,   R_DL,   R_HT,    R_DL,  R_HT,   R_HT,   R_DL,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_AL,	R_NM},
-			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NM,	R_NM,	R_NM, R_NM,	R_NM}  //info+monstarget
+			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NM,	R_NM,	R_NM, R_NM,	R_NM}  //info_monstarget
 
 
 
