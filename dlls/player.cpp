@@ -257,6 +257,7 @@ void CBasePlayer::DeathSound()
 bool CBasePlayer::TakeHealth(float flHealth, int bitsDamageType)
 {
 	return CBaseMonster::TakeHealth(flHealth, bitsDamageType);
+	m_bleedAMNT = 0;
 }
 
 Vector CBasePlayer::GetGunPosition()
@@ -714,7 +715,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 {
 
 /////////////////////////
-	switch (bitsDamageType)
+	switch (m_LastHitGroup)
 	{
 	case HITGROUP_HEAD:
 		m_bleedAMNT = 8;
@@ -738,26 +739,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 	}
 	/////////////////////////
 
-	hitlocation = EXCTDMGlocation;
 	m_bleedtime = gpGlobals->time;
-	int i = 1;
-	while (i <= m_bleedAMNT)
-	{
-		if (m_bleedtime = gpGlobals->time)
-		{
-			Hunger -= 1;
-			if (g_iSkillLevel == SKILL_HARD)
-			{
-				pev->health -= 1;
-			}
-#ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
-#endif
-			i++;
-			m_bleedtime = gpGlobals->time + 2;
-		}
-		
-	}
 }
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
@@ -1972,6 +1954,23 @@ void CBasePlayer::UpdateStatusBar()
 
 void CBasePlayer::PreThink()
 {
+	ALERT(at_console, "bleed amnt is: %d\n", m_bleedAMNT);
+	if (m_bleedAMNT > 0)
+	{
+		if (m_bleedtime <= gpGlobals->time)
+		{
+			--m_bleedAMNT;
+			m_bleedtime = gpGlobals->time + 1;
+			Hunger -= 1;
+			if (g_iSkillLevel == SKILL_HARD)
+			{
+				pev->health -= 1;
+			}
+#ifndef CLIENT_DLL
+			CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
+#endif
+		}
+	}
 	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
 
 	// Debounced button codes for pressed/released

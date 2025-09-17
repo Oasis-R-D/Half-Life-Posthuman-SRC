@@ -96,7 +96,7 @@ public:
 	int health_legL = 0;
 	int health_legR = 0;
 	float m_bleedtime = 0;
-	float m_bleedAMNT;
+	int m_bleedAMNT;
 	Vector hitlocation;
 	// Spectator camera
 	void Observer_FindNextPlayer(bool bReverse);
