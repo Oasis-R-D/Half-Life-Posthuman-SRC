@@ -50,7 +50,7 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 };
 
-LINK_ENTITY_TO_CLASS(monster_target, CTarget);
+LINK_ENTITY_TO_CLASS(info_monstarget, CTarget);
 
 //=========================================================
 // Classify - indicates this monster's place in the
@@ -58,7 +58,7 @@ LINK_ENTITY_TO_CLASS(monster_target, CTarget);
 //=========================================================
 int CTarget::Classify()
 {
-	return CLASS_DISLIKE_ALL; // TO-DO: make a new class for targets (CLASS_TARGET)
+	return CLASS_OHTHEMISERY; // TO-DO: make a new class for targets (CLASS_TARGET)
 }
 
 bool CTarget::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
