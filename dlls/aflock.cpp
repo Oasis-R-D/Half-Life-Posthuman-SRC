@@ -359,11 +359,13 @@ void CFlockingFlyer::SpawnCommonCode()
 
 	
 	if (m_flockorboid = 0);
+	{
 		SET_MODEL(ENT(pev), "models/boid.mdl");
+	}
 	else
+	{
 		SET_MODEL(ENT(pev), "models/aflock.mdl");
-
-	//	UTIL_SetSize(pev, Vector(0,0,0), Vector(0,0,0));
+	}
 	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2));
 }
 
