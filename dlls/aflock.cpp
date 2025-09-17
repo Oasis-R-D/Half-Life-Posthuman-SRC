@@ -225,7 +225,7 @@ void CFlockingFlyerFlock::SpawnFlock()
 		pBoid->pev->frame = 0;
 		pBoid->pev->nextthink = gpGlobals->time + 0.2;
 		pBoid->SetThink(&CFlockingFlyer::IdleThink);
-		if m_flockorboid == 1
+		if (m_flockorboid == 1)
 		{
 			pBoid->m_flockorboid = 1;
 		}
@@ -358,7 +358,7 @@ void CFlockingFlyer::SpawnCommonCode()
 	m_flFieldOfView = 0.2;
 
 	
-	if m_flockorboid = 0;
+	if (m_flockorboid = 0);
 		SET_MODEL(ENT(pev), "models/boid.mdl");
 	else
 		SET_MODEL(ENT(pev), "models/aflock.mdl");
