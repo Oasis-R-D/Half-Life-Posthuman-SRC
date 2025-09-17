@@ -48,6 +48,7 @@ public:
 	static void PrecacheFlockSounds();
 
 	int m_cFlockSize;
+	int m_flockorboid;
 	float m_flFlockRadius;
 };
 
@@ -100,6 +101,7 @@ public:
 	bool m_fTurning;			  // is this boid turning?
 	bool m_fCourseAdjust;		  // followers set this flag true to override flocking while they avoid something
 	bool m_fPathBlocked;		  // true if there is an obstacle ahead
+	int m_flockorboid;
 	Vector m_vecReferencePoint;	  // last place we saw leader
 	Vector m_vecAdjustedVelocity; // adjusted velocity (used when fCourseAdjust is true)
 	float m_flGoalSpeed;
@@ -109,6 +111,7 @@ public:
 	float m_flFlockNextSoundTime;
 	int m_randomoffset;
 	int m_thinkid;
+
 };
 LINK_ENTITY_TO_CLASS(monster_flyer, CFlockingFlyer);
 LINK_ENTITY_TO_CLASS(monster_flyer_flock, CFlockingFlyerFlock);
@@ -145,7 +148,11 @@ bool CFlockingFlyerFlock::KeyValue(KeyValueData* pkvd)
 		m_flFlockRadius = atof(pkvd->szValue);
 		return true;
 	}
-
+	else if (FStrEq(pkvd->szKeyName, "type"))
+	{
+		m_flockorboid = atoi(pkvd->szValue);
+		return true;
+	}
 	return false;
 }
 
@@ -163,7 +170,7 @@ void CFlockingFlyerFlock::Spawn()
 //=========================================================
 void CFlockingFlyerFlock::Precache()
 {
-	//PRECACHE_MODEL("models/aflock.mdl");
+	PRECACHE_MODEL("models/aflock.mdl");
 	PRECACHE_MODEL("models/boid.mdl");
 
 	PrecacheFlockSounds();
@@ -218,7 +225,14 @@ void CFlockingFlyerFlock::SpawnFlock()
 		pBoid->pev->frame = 0;
 		pBoid->pev->nextthink = gpGlobals->time + 0.2;
 		pBoid->SetThink(&CFlockingFlyer::IdleThink);
-
+		if m_flockorboid == 1
+		{
+			pBoid->m_flockorboid = 1;
+		}
+		else
+		{
+			pBoid->m_flockorboid = 0;
+		}
 		if (pBoid != pLeader)
 		{
 			pLeader->SquadAdd(pBoid);
@@ -242,7 +256,7 @@ void CFlockingFlyer::Spawn()
 //=========================================================
 void CFlockingFlyer::Precache()
 {
-	//PRECACHE_MODEL("models/aflock.mdl");
+	PRECACHE_MODEL("models/aflock.mdl");
 	PRECACHE_MODEL("models/boid.mdl");
 	CFlockingFlyerFlock::PrecacheFlockSounds();
 }
@@ -343,8 +357,11 @@ void CFlockingFlyer::SpawnCommonCode()
 	m_fPathBlocked = false; // obstacles will be detected
 	m_flFieldOfView = 0.2;
 
-	//SET_MODEL(ENT(pev), "models/aflock.mdl");
-	SET_MODEL(ENT(pev), "models/boid.mdl");
+	
+	if m_flockorboid = 0;
+		SET_MODEL(ENT(pev), "models/boid.mdl");
+	else
+		SET_MODEL(ENT(pev), "models/aflock.mdl");
 
 	//	UTIL_SetSize(pev, Vector(0,0,0), Vector(0,0,0));
 	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2));
