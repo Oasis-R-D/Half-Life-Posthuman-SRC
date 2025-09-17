@@ -94,7 +94,7 @@ bool CTarget::KeyValue(KeyValueData* pkvd)
 
 void CTarget::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	UTIL_Remove(this); // removes if triggered, useful for making it have a time limit
+	CTarget::Killed(pevAttacker, 0); // removes if triggered, useful for making it have a time limit
 }
 //=========================================================
 // Spawn
@@ -123,3 +123,4 @@ void CTarget::Precache()
 	PRECACHE_MODEL("models/target.mdl");
 
 }
+
