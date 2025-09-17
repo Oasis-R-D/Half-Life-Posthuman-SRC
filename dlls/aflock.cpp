@@ -20,6 +20,7 @@
 #include "cbase.h"
 #include "monsters.h"
 #include "squadmonster.h"
+#include "blooddrops.h"
 
 #define AFLOCK_MAX_RECRUIT_RADIUS 1024
 #define AFLOCK_FLY_SPEED 125
@@ -106,6 +107,8 @@ public:
 	float m_flFakeBlockedTime;
 	float m_flAlertTime;
 	float m_flFlockNextSoundTime;
+	int m_randomoffset;
+	int m_thinkid;
 };
 LINK_ENTITY_TO_CLASS(monster_flyer, CFlockingFlyer);
 LINK_ENTITY_TO_CLASS(monster_flyer_flock, CFlockingFlyerFlock);
@@ -578,7 +581,16 @@ void CFlockingFlyer::FlockLeaderThink()
 	float flLeftSide;
 	float flRightSide;
 
-
+	m_thinkid += 1;
+	m_randomoffset = RANDOM_LONG (70, 80);
+	if (m_thinkid >= m_randomoffset)
+	{
+		if (RANDOM_LONG(0, 6) == 6)
+		{
+			CFlockingFlyer::Poop()
+		}
+		m_thinkid = 1;
+	}
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	UTIL_MakeVectors(pev->angles);
@@ -678,6 +690,16 @@ void CFlockingFlyer::FlockLeaderThink()
 //=========================================================
 void CFlockingFlyer::FlockFollowerThink()
 {
+	m_thinkid += 1;
+	m_randomoffset = RANDOM_LONG (55, 75);
+	if (m_thinkid >= m_randomoffset)
+	{
+		if (RANDOM_LONG(0, 6) == 6)
+		{
+			CFlockingFlyer::Poop()
+		}
+		m_thinkid = 1;
+	}
 	TraceResult tr;
 	Vector vecDist;
 	Vector vecDir;
@@ -922,4 +944,15 @@ void CFlockingFlyer::SquadDisband()
 		pList->SquadUnlink();
 		pList = pNext;
 	}
+}
+//=========================================================
+//
+// YOU KNOW WHAT THIS IS.
+//
+//=========================================================
+void CFlockingFlyer::Poop()
+{
+#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(1, 0, pev->origin - gpGlobals->v_up * 8, -v_up, 1, BLOOD_COLOR_GREEN);
+#endif
 }
