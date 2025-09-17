@@ -564,8 +564,10 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_BULLET) != 0)
 		{
 			if (m_lastDamageAmount > 5)
+			{
 				SetSuitUpdate("!HEV_DMG6", false, SUIT_NEXT_IN_30SEC); // blood loss detected
 				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
+			}
 			//else
 			//	SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC);	// minor laceration
 
@@ -576,8 +578,10 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_BLAST) != 0)
 		{
 			if (m_lastDamageAmount > 5)
+			{
 				SetSuitUpdate("!HEV_DMG6", false, SUIT_NEXT_IN_30SEC); // blood loss detected
 				Bleed(flDamage, bitsDamageType, m_LastHitGroup, hitlocation);
+			}
 			//else
 			//	SetSuitUpdate("!HEV_DMG0", false, SUIT_NEXT_IN_30SEC);	// minor laceration
 
@@ -605,7 +609,10 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_SONIC) != 0)
 		{
 			if (fmajor)
+			{
 				SetSuitUpdate("!HEV_DMG2", false, SUIT_NEXT_IN_1MIN); // internal bleeding
+				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
+			}
 			bitsDamage &= ~DMG_SONIC;
 			ffound = true;
 		}
@@ -641,6 +648,7 @@ if (bitsDamageType == DMG_FALL)
 		if ((bitsDamage & DMG_SHOCK) != 0)
 		{
 			SetSuitUpdate("!HEV_SHOCK", false, SUIT_NEXT_IN_1MIN); // shock detected
+			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
 			bitsDamage &= ~DMG_SHOCK;
 			ffound = true;
 		}
@@ -731,7 +739,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 	/////////////////////////
 
 	hitlocation = EXCTDMGlocation;
-	m_bleedtime = gpGlobals->time + 1;
+	m_bleedtime = gpGlobals->time;
 	int i = 1;
 	while (i <= m_bleedAMNT)
 	{
@@ -743,10 +751,12 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 				pev->health -= 1;
 			}
 #ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(1, 0, hitlocation, VECTOR_CONE_20DEGREES, 1, BloodColor());
+			CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
 #endif
 			i++;
+			m_bleedtime = gpGlobals->time + 2;
 		}
+		
 	}
 }
 //=========================================================
@@ -4360,7 +4370,7 @@ void CBasePlayer::UpdateClientData()
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
 			{
 				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY)
+					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X)
 				{
 					pEntity->pev->renderfx = kRenderFxLightMultiplier;
 					pEntity->pev->rendercolor = Vector(128, 0, 0);
@@ -4378,10 +4388,8 @@ void CBasePlayer::UpdateClientData()
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
-				if ((pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY ||
-						pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_ALIEN_PREDATOR) &&
+				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X &&
 					pEntity->BloodColor() != DONT_BLEED)
-					;
 					{
 						pEntity->pev->renderfx = kRenderFxLightMultiplier;
 						pEntity->pev->rendercolor = Vector(128, 0, 0);
