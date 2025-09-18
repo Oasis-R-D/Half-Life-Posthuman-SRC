@@ -104,7 +104,7 @@ void CTarget::Spawn()
 {
 	Precache();
 	SET_MODEL(ENT(pev), "models/target.mdl");
-	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
+	UTIL_SetSize(pev, VEC_BOX_HULL_MIN, VEC_BOX_HULL_MAX);
     pev->yaw_speed = 0;
 	pev->solid = SOLID_BBOX;
 	pev->movetype = MOVETYPE_NONE;
