@@ -148,7 +148,7 @@ bool CFlockingFlyerFlock::KeyValue(KeyValueData* pkvd)
 		m_flFlockRadius = atof(pkvd->szValue);
 		return true;
 	}
-	else if (FStrEq(pkvd->szKeyName, "type"))
+	else if (FStrEq(pkvd->szKeyName, "boid_type"))
 	{
 		m_flockorboid = atoi(pkvd->szValue);
 		return true;
@@ -233,6 +233,7 @@ void CFlockingFlyerFlock::SpawnFlock()
 		{
 			pBoid->m_flockorboid = 0;
 		}
+
 		if (pBoid != pLeader)
 		{
 			pLeader->SquadAdd(pBoid);
@@ -358,13 +359,14 @@ void CFlockingFlyer::SpawnCommonCode()
 	m_flFieldOfView = 0.2;
 
 	
-	if (m_flockorboid = 0)
+	if (m_flockorboid == 1)
 	{
-		SET_MODEL(ENT(pev), "models/boid.mdl");
+		SET_MODEL(ENT(pev), "models/aflock.mdl");
 	}
 	else
 	{
-		SET_MODEL(ENT(pev), "models/aflock.mdl");
+		SET_MODEL(ENT(pev), "models/boid.mdl");
+
 	}
 	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2));
 }
