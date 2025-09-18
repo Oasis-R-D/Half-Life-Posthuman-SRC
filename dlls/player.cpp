@@ -740,6 +740,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 	/////////////////////////
 
 	m_bleedtime = gpGlobals->time;
+	ALERT(at_console, "bleed amnt is: %d\n", m_bleedAMNT);
 }
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
@@ -1954,7 +1955,6 @@ void CBasePlayer::UpdateStatusBar()
 
 void CBasePlayer::PreThink()
 {
-	ALERT(at_console, "bleed amnt is: %d\n", m_bleedAMNT);
 	if (m_bleedAMNT > 0)
 	{
 		if (m_bleedtime <= gpGlobals->time)
