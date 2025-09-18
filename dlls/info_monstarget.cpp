@@ -34,8 +34,8 @@ public:
 	int Classify() override;
     bool KeyValue(KeyValueData* pkvd);
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
-    int m_hitamnt
-    int m_maxhitamnt
+	int m_hitamnt;
+	int m_maxhitamnt;
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
 	// No range attacks
@@ -43,7 +43,7 @@ public:
 	bool CheckRangeAttack2(float flDot, float flDist) override { return false; }
     virtual bool CheckMeleeAttack1(float flDot, float flDist) override { return false; };
 	virtual bool CheckMeleeAttack2(float flDot, float flDist) override { return false; };
-    void MonsterThink() override { return false; };
+    void MonsterThink() override { return; };
 
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 };
@@ -68,6 +68,7 @@ bool CTarget::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
         	CTarget::Killed(pevAttacker, 0);
 	}
     pev->health = 9999;
+	return NULL;
 }
 
 void CTarget::Killed(entvars_t* pevAttacker, int iGib)
@@ -94,7 +95,7 @@ bool CTarget::KeyValue(KeyValueData* pkvd)
 
 void CTarget::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	CTarget::Killed(pevAttacker, 0); // removes if triggered, useful for making it have a time limit
+	CTarget::Killed(pev, 0); // removes if triggered, useful for making it have a time limit
 }
 //=========================================================
 // Spawn
