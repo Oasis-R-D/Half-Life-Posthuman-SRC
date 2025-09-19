@@ -617,7 +617,14 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+	}
 	#endif
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.6);
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
@@ -628,7 +635,14 @@ void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1);
 	#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+	}
 	#endif
 	switch (RANDOM_LONG(0, 2))
 	{
@@ -1195,7 +1209,14 @@ void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_MP5, 1);
 	#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+	}
 	#endif
 	switch (RANDOM_LONG(0, 2))
 	{

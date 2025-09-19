@@ -97,9 +97,14 @@ void CSpore::Spawn()
 		pev->gravity = 0.5;
 		pev->friction = 0.7;
 	}
-
+	if (g_iSkillLevel != SKILL_HARD)
+	{
 	pev->dmg = gSkillData.plrDmgSpore;
-
+	}
+	else
+	{
+		pev->dmg = 65;
+	}
 	m_flIgniteTime = gpGlobals->time;
 
 	pev->nextthink = gpGlobals->time + 0.01;
