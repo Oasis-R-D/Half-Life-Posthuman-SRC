@@ -155,7 +155,14 @@ void CShockBeam::BallTouch(CBaseEntity* pOther)
 		TraceResult tr = UTIL_GetGlobalTrace();
 
 		ClearMultiDamage();
-		const auto damage = gSkillData.plrDmgShockRoachS;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			int damage = gSkillData.plrDmgShockRoachS;	
+		}
+		else
+		{
+			int damage = RANDOM_LONG(30, 45);
+		}
 
 		auto bitsDamageTypes = DMG_ALWAYSGIB | DMG_SHOCK;
 
