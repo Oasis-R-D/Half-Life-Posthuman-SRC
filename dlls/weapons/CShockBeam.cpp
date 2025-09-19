@@ -147,7 +147,7 @@ void CShockBeam::WaterExplodeThink()
 
 void CShockBeam::BallTouch(CBaseEntity* pOther)
 {
-	int = gSkillData.plrDmgShockRoachS;
+	int damage = gSkillData.plrDmgShockRoachS;
 	SetTouch(nullptr);
 	SetThink(nullptr);
 
