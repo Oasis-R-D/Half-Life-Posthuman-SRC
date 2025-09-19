@@ -147,7 +147,6 @@ void CShockBeam::WaterExplodeThink()
 
 void CShockBeam::BallTouch(CBaseEntity* pOther)
 {
-	const auto damage;
 	SetTouch(nullptr);
 	SetThink(nullptr);
 
@@ -156,14 +155,8 @@ void CShockBeam::BallTouch(CBaseEntity* pOther)
 		TraceResult tr = UTIL_GetGlobalTrace();
 
 		ClearMultiDamage();
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			damage = gSkillData.plrDmgShockRoachS;
-		}
-		else
-		{
-			damage = RANDOM_LONG(25, 50);
-		}
+		const auto damage = gSkillData.plrDmgShockRoachS;
+
 		auto bitsDamageTypes = DMG_ALWAYSGIB | DMG_SHOCK;
 
 		auto pMonster = pOther->MyMonsterPointer();
