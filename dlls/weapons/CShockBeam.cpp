@@ -147,6 +147,7 @@ void CShockBeam::WaterExplodeThink()
 
 void CShockBeam::BallTouch(CBaseEntity* pOther)
 {
+	int = gSkillData.plrDmgShockRoachS;
 	SetTouch(nullptr);
 	SetThink(nullptr);
 
@@ -155,13 +156,9 @@ void CShockBeam::BallTouch(CBaseEntity* pOther)
 		TraceResult tr = UTIL_GetGlobalTrace();
 
 		ClearMultiDamage();
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel == SKILL_HARD)
 		{
-			int damage = gSkillData.plrDmgShockRoachS;	
-		}
-		else
-		{
-			int damage = RANDOM_LONG(30, 45);
+			damage = RANDOM_LONG(30, 45);
 		}
 
 		auto bitsDamageTypes = DMG_ALWAYSGIB | DMG_SHOCK;

@@ -12,6 +12,11 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
+// TO-DO: Discuss whether to uncut this
+// TO-DO: Make sound FX for bloater
+
+
 //=========================================================
 // Bloater
 //=========================================================
