@@ -506,7 +506,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	}
 	if (ptr->iHitgroup == 67)
 	{
-		ptr->iHitgroup == HITGROUP_STOMACH;
+		ptr->iHitgroup = HITGROUP_STOMACH;
 		if (m_fuel == true)
 		{
 			m_bloodColor = DONT_BLEED;

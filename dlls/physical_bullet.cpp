@@ -167,12 +167,13 @@ void CPhysbullet::Stay()
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
+	m_Endpos = pev->origin; // where bullet hit
 	entvars_t* pevOwner;
 	pevOwner = VARS(pev->owner);
 	TraceResult tr = UTIL_GetGlobalTrace();
 	TraceResult beam_tr;
 	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-
+	float p;
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
 		if (pEntity->ReflectGauss())
@@ -183,8 +184,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			{
 				// trace backwards to find exit point
 				UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
+				m_SpawnPos = beam_tr.vecEndPos; // where bullet comes out of wall
 
-				float p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
+				p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
 
 				if (p < m_distpenetrate)
 				{
@@ -198,13 +200,15 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					{
 						m_BulletDamage -= round(0.75 * p);
 					}
-					ALERT(at_console, "punch %f\n", p);
+					if (p != 0)
+						ALERT(at_console, "punch %f\n", p);
 					pev->origin = beam_tr.vecEndPos;
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(pev, pevOwner);
 					DecalGunshot(&tr, BULLET_PLAYER_9MM);
-					TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+					if (p != 0)
+						TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 					return;
 				}
 			}
@@ -216,10 +220,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 	if (0 != pOther->pev->takedamage)
 	{
-		
-		m_Endpos = pev->origin;
-		
-
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
 		if (m_Flare != 420)
@@ -368,31 +368,31 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	{
 	default:
 	case CHAR_TEX_CONCRETE:
-		penmodifier = 1.25;
+		penmodifier = 1.33;
 		break;
 	case CHAR_TEX_METAL:
-		penmodifier = 1.5;
+		penmodifier = 1.75;
 		break;
 	case CHAR_TEX_DIRT:
 		penmodifier = 2;
 		break;
 	case CHAR_TEX_VENT:
-		penmodifier = 1;
+		penmodifier = 1.5;
 		break;
 	case CHAR_TEX_GRATE:
 		penmodifier = 1;
 		break;
 	case CHAR_TEX_TILE:
-		penmodifier = 1;
+		penmodifier = 1.1;
 		break;
 	case CHAR_TEX_SLOSH:
 		penmodifier = 1.125;
 		break;
 	case CHAR_TEX_WOOD:
-		penmodifier = 1.125;
+		penmodifier = 1.25;
 		break;
 	case CHAR_TEX_GLASS:
-		penmodifier = 0.75;
+		penmodifier = 1;
 		break;
 	case CHAR_TEX_COMPUTER:
 		penmodifier = 1.125;
