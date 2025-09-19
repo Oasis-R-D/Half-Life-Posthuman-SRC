@@ -147,6 +147,7 @@ void CShockBeam::WaterExplodeThink()
 
 void CShockBeam::BallTouch(CBaseEntity* pOther)
 {
+	const auto damage;
 	SetTouch(nullptr);
 	SetThink(nullptr);
 
@@ -157,11 +158,11 @@ void CShockBeam::BallTouch(CBaseEntity* pOther)
 		ClearMultiDamage();
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			const auto damage = gSkillData.plrDmgShockRoachS;
+			damage = gSkillData.plrDmgShockRoachS;
 		}
 		else
 		{
-			const auto damage = RANDOM_LONG(25, 50);
+			damage = RANDOM_LONG(25, 50);
 		}
 		auto bitsDamageTypes = DMG_ALWAYSGIB | DMG_SHOCK;
 
