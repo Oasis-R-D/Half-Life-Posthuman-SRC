@@ -431,7 +431,7 @@ LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 void CM727::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_727.mdl"); //to-do: get a accurate m727 Wmodel
+	SET_MODEL(ENT(pev), "models/w_727.mdl");
 	m_iId = WEAPON_M727;
 	m_iDefaultAmmo = 30;
 	FallInit(); // get ready to fall down.

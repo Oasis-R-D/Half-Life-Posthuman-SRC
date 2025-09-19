@@ -27,13 +27,14 @@
 #include "func_break.h"
 #include "decals.h"
 #include "explode.h"
+#include "physical_bullet.h"
 
 // =================== FUNC_Breakable ==============================================
 
 // Just add more items to the bottom of this array and they will automagically be supported
 // This is done instead of just a classname in the FGD so we can control which entities can
 // be spawned, and still remain fairly flexible
-const char* CBreakable::pSpawnObjects[] =
+const char* CBreakable::pSpawnObjects[] = // TO-DO: add to fgd
 	{
 		NULL,				  // 0
 		"item_battery",		  // 1
@@ -531,9 +532,11 @@ void CBreakable::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 			}
 		}
 		break;
-
 		case matUnbreakableGlass:
-			UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(0.5, 1.5)); // TO-DO: REPLACE WITH PHYSBULLET
+			//UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(0.5, 1.5));
+#ifndef CLIENT_DLL
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+#endif
 			break;
 		}
 	}

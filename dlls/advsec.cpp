@@ -1170,8 +1170,9 @@ void CAdvSec::Spawn()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CAdvSec::Precache() // TO-DO: Precache other the railcannon
+void CAdvSec::Precache()
 {
+	UTIL_PrecacheOther("crossbow_bolt");
 	PRECACHE_MODEL("models/advsec.mdl");
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");

@@ -751,17 +751,17 @@ void CFuncTankGun::Fire(const Vector& barrelEnd, const Vector& forward, entvars_
 				{
 				case TANK_BULLET_9MM:
 					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_9MM, 1, m_iBulletDamage, pevAttacker);
-					CPhysbullet::BulletCreate(1, m_iBulletDamage, 6000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 9, edict());
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 6000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 9, ENT(pevAttacker));
 					break;
 
 				case TANK_BULLET_MP5:
 					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_MP5, 1, m_iBulletDamage, pevAttacker);
-					CPhysbullet::BulletCreate(1, m_iBulletDamage, 7000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 556, edict());
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 7000, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 556, ENT(pevAttacker));
 					break;
 
 				case TANK_BULLET_12MM:
 					//FireBullets(1, barrelEnd, forward, gTankSpread[m_spread], 4096, BULLET_MONSTER_12MM, 1, m_iBulletDamage, pevAttacker);
-					CPhysbullet::BulletCreate(1, m_iBulletDamage, 5750, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 12, edict());
+					CPhysbullet::BulletCreate(1, m_iBulletDamage, 5750, barrelEnd, forward, gTankSpread[m_spread].x, gTankSpread[m_spread].z, 0.66, 12, ENT(pevAttacker));
 					break;
 
 				default:

@@ -13,7 +13,6 @@
 *
 ****/
 
-// TO-DO: Discuss whether to uncut this
 // TO-DO: Make sound FX for bloater
 
 
