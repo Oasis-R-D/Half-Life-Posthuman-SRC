@@ -468,6 +468,10 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			}
 		}
 	}
+	if (ptr->iHitgroup == 0)
+	{
+		ptr->iHitgroup = HITGROUP_HEAD;
+	}
 	// check for helmet shot
 	if (ptr->iHitgroup == 69)
 	{
@@ -500,31 +504,34 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	if (ptr->iHitgroup == 67 && m_fuel == true)
+	if (ptr->iHitgroup == 67)
 	{
-		m_bloodColor = DONT_BLEED;
-		m_tankhealth -= round(1.25*flDamage);
-		if (m_tankhealth <= 0)
+		ptr->iHitgroup == HITGROUP_STOMACH;
+		if (m_fuel == true)
 		{
-			pev->health = 2;
-			SetBodygroup(TORSO_GROUP, TORSO_ENGI); // make exploded variant
-			pev->dmg = 0;
-			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-			WRITE_BYTE(TE_EXPLOSION);
-			WRITE_COORD(ptr->vecEndPos.x);
-			WRITE_COORD(ptr->vecEndPos.y);
-			WRITE_COORD(ptr->vecEndPos.z);
-			WRITE_SHORT(g_sModelIndexFireball);
-			WRITE_BYTE(5); // scale * 10
-			WRITE_BYTE(15);		// framerate
-			WRITE_BYTE(TE_EXPLFLAG_NONE);
-			MESSAGE_END();
-			m_fuel = false;
+			m_bloodColor = DONT_BLEED;
+			m_tankhealth -= round(1.25 * flDamage);
+			if (m_tankhealth <= 0)
+			{
+				pev->health = 2;
+				SetBodygroup(TORSO_GROUP, TORSO_ENGI); // make exploded variant
+				pev->dmg = 0;
+				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+				WRITE_BYTE(TE_EXPLOSION);
+				WRITE_COORD(ptr->vecEndPos.x);
+				WRITE_COORD(ptr->vecEndPos.y);
+				WRITE_COORD(ptr->vecEndPos.z);
+				WRITE_SHORT(g_sModelIndexFireball);
+				WRITE_BYTE(5);	// scale * 10
+				WRITE_BYTE(15); // framerate
+				WRITE_BYTE(TE_EXPLFLAG_NONE);
+				MESSAGE_END();
+				m_fuel = false;
+			}
+			flDamage *= 0.25;
 		}
-		flDamage *= 0.25;
+		
 	}
-	else
-		ptr->iHitgroup = HITGROUP_STOMACH;
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	m_bloodColor = BLOOD_COLOR_RED;
 }
