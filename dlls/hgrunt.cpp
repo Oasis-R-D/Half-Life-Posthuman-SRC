@@ -2054,6 +2054,11 @@ Schedule_t* CHGrunt::GetSchedule()
 				}
 				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
 			}
+			// TOP ELSE IS THE SOUND INVESTIGATION // TO-DO: figure out if this won't break shit
+			else if (pSound && (pSound->m_iType & bits_SOUND_COMBAT) != 0)
+			{
+				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			}
 			/*
 			if (!HasConditions( bits_COND_SEE_ENEMY ) && ( pSound->m_iType & (bits_SOUND_PLAYER | bits_SOUND_COMBAT) ))
 			{
