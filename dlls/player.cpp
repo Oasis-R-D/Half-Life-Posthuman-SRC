@@ -3629,13 +3629,16 @@ bool CBasePlayer::FlashlightIsOn()
 
 void CBasePlayer::FlashlightTurnOn()
 {
+	
+
 	if (!g_pGameRules->FAllowFlashlight())
 	{
 		return;
 	}
 
 	if (HasSuit())
-	{
+	{	
+		FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		//TODO: fix UTIL_ScreenFade nulling out green and blue color brightness //do we really need to? I think it's fine the way it is. Go for it and if it looks better we'll keep it
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
@@ -3666,6 +3669,7 @@ void CBasePlayer::FlashlightTurnOn()
 
 void CBasePlayer::FlashlightTurnOff()
 {
+	FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
 	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
 	ClearBits(pev->effects, EF_BRIGHTLIGHT);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
