@@ -1781,6 +1781,9 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		fattn = 1.0;
 		cnt = 2;
 		break;
+	case CHAR_TEX_IMPEN:
+		// no sfx
+		break;
 	}
 
 	// did we hit a breakable?

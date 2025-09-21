@@ -358,7 +358,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			strcpy(szbuffer, pTextureName);
 			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
 
-			//ALERT ( at_console, "texture hit: %s\n", szbuffer);
+			ALERT ( at_console, "texture hit: %s\n", szbuffer);
 
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
@@ -372,6 +372,9 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		break;
 	case CHAR_TEX_METAL:
 		penmodifier = 1.75;
+		break;
+	case CHAR_TEX_IMPEN:
+		penmodifier = 64.4;
 		break;
 	case CHAR_TEX_DIRT:
 		penmodifier = 2;

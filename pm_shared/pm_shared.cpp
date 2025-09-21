@@ -523,6 +523,8 @@ int PM_MapTextureTypeStepType(char chTextureType)
 		return STEP_TILE;
 	case CHAR_TEX_SLOSH:
 		return STEP_SLOSH;
+	case CHAR_TEX_IMPEN:
+		return STEP_CONCRETE;
 	}
 }
 
@@ -684,6 +686,10 @@ void PM_UpdateStepSound()
 				break;
 
 			case CHAR_TEX_SLOSH:
+				fvol = fWalking ? 0.2 : 0.5;
+				pmove->flTimeStepSound = fWalking ? 400 : 300;
+				break;
+			case CHAR_TEX_IMPEN:
 				fvol = fWalking ? 0.2 : 0.5;
 				pmove->flTimeStepSound = fWalking ? 400 : 300;
 				break;

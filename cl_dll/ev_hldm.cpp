@@ -213,6 +213,8 @@ float EV_HLDM_PlayTextureSound(int idx, pmtrace_t* ptr, float* vecSrc, float* ve
 		fattn = 1.0;
 		cnt = 2;
 		break;
+	case CHAR_TEX_IMPEN:
+		break;
 	}
 
 	// play material hit sound
