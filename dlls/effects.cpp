@@ -1860,6 +1860,8 @@ public:
 	Vector Direction();
 	Vector BloodPosition(CBaseEntity* pActivator);
 	int m_ibloodvel;
+	float m_fspread;
+
 private:
 };
 
@@ -1915,6 +1917,11 @@ bool CBloodSpray::KeyValue(KeyValueData* pkvd)
 		m_ibloodvel = atoi(pkvd->szValue);
 		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "spread"))
+	{
+		m_fspread = atof(pkvd->szValue);
+		return true;
+	}
 	return CPointEntity::KeyValue(pkvd);
 }
 
@@ -1951,7 +1958,7 @@ Vector CBloodSpray::BloodPosition(CBaseEntity* pActivator)
 void CBloodSpray::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color());
+	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread);
 	#endif
 
 	if ((pev->spawnflags & SF_BLOOD_DECAL) != 0)

@@ -31,11 +31,11 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib)
+void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
-		if (BLDamnt > 16)
+		if (isgib == false && BLDamnt > 16)
 		{
 			BLDamnt = 16;
 		}
@@ -47,7 +47,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_BloodDropVel = BLDSpeed;
 			pBlood->m_SpawnPos = VecSpawnPos;
 			pBlood->m_direction = vecDir;
-			pBlood->m_Spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES);
+			pBlood->m_Spread = spread;
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
 			pBlood->m_isgib = isgib;
@@ -59,18 +59,19 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 void CPhysblood::Spawn()
 {
 	Precache();
-	if (m_isgib != true)
+	
+	switch (RANDOM_LONG(1, 3))
 	{
-		switch (RANDOM_LONG(1, 3))
-		{
-		case 1:
-		case 2:
-			m_opposite = 1;
-			break;
-		case 3:
+	case 1:
+	case 2:
+		m_opposite = 1;
+		break;
+	case 3:
+		if (m_isgib != true)
 			m_opposite = -1;
-			break;
-		}
+		else
+			m_opposite = 1;
+		break;
 	}
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
 	if (m_opposite == 1)
