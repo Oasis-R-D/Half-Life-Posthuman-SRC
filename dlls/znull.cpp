@@ -322,9 +322,6 @@ void CCorrupted::Spawn()
 	Precache();
 	m_nextchange = gpGlobals->time;
 	SET_MODEL(ENT(pev), "models/znull.mdl");
-	pev->rendermode = kRenderTransTexture;
-	pev->renderamt = 255;
-	pev->renderfx = kRenderFxDistort;
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
