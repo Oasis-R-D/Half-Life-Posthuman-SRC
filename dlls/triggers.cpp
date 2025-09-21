@@ -2871,27 +2871,71 @@ void CEnvCustomize::SetBoneController(float fController, int cnum, CBaseEntity* 
 	}
 }
 
-class CTriggerHunger : public CBaseEntity
+class CTriggerHunger : public CPointEntity
 {
-	void Spawn()
-	{
+public:
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	int m_iPlus;
+	int m_iMinus;
+	int m_iMulti;
+	int m_iDiv;
+	int m_iSet = -1;
+
+private:
+};
+LINK_ENTITY_TO_CLASS(trigger_hunger, CTriggerHunger);
+
+void CTriggerHunger::Spawn()
+{
 		pev->solid = SOLID_TRIGGER;
 		SET_MODEL(ENT(pev), STRING(pev->model)); // set size and link into world
 		pev->movetype = MOVETYPE_NONE;
-	}
-	void Touch(CBaseEntity* pOther)
+}
+void CTriggerHunger::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	if (!pActivator->IsPlayer())
+		return;
+	auto player = (CBasePlayer*)pActivator;
+	if (m_iSet != -1)
+		player->Hunger = m_iSet;
+	if (m_iDiv != 0)
+		player->Hunger /= m_iDiv;
+	player->Hunger *= m_iMulti;
+	player->Hunger -= m_iMinus;
+	player->Hunger += m_iPlus;
+}
+bool CTriggerHunger::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "plus"))
 	{
-		if (!pOther->IsPlayer())
-			return;
-		auto player = (CBasePlayer*)pOther;
-		if (pev->armortype == 0)
-			player->Hunger = 100;
-		if (pev->armortype == 1)
-			player->Hunger = 1000;
+		m_iPlus = atoi(pkvd->szValue);
+		return true;
 	}
-};
+	else if (FStrEq(pkvd->szKeyName, "minus"))
+	{
+		m_iMinus = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "set"))
+	{
+		m_iSet = atoi(pkvd->szValue);
+		return true;
+	}
+	if (FStrEq(pkvd->szKeyName, "div"))
+	{
+		m_iDiv = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "mult"))
+	{
+		m_iMulti = atoi(pkvd->szValue);
+		return true;
+	}
+	return CPointEntity::KeyValue(pkvd);
+}
 
-LINK_ENTITY_TO_CLASS(trigger_hunger, CTriggerHunger);
 
 class CTriggerSprint : public CPointEntity
 {
