@@ -249,6 +249,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
+			/*
 			Vector knockbackdir = Vector(pev->angles.x, pev->angles.y, 0);
 			if (m_Flare == 12) // makes the shotgun knock dead enemies back #swag
 			{
@@ -270,6 +271,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				pOther->pev->velocity = pOther->pev->velocity + (knockbackdir * 20);
 				pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 10;
 			}
+			*/
 			UTIL_Remove(this);
 		}
 	}
