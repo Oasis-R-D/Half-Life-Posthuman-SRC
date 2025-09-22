@@ -627,26 +627,48 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(3) != 1)
 			{
-				if (flDamage < 45 && m_helmDUR > 0)
+				if (g_iSkillLevel != SKILL_HARD)
 				{
-					m_helmDUR -= 1;
-					if (m_helmDUR == 0)
+					if (flDamage < 45 && m_helmDUR > 0)
 					{
-						SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
+						m_helmDUR -= 1;
+						if (m_helmDUR == 0)
+						{
+							SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
+						}
+						flDamage = round(flDamage * 0.2);
+						UTIL_Sparks(ptr->vecEndPos);
+						Vector vecTracerDir = vecDir;
+					
+						vecTracerDir = vecTracerDir * -512;
+						#ifndef CLIENT_DLL
+						CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+						#endif
 					}
-					flDamage = round(flDamage * 0.2);
-					UTIL_Sparks(ptr->vecEndPos);
-					Vector vecTracerDir = vecDir;
-
-					vecTracerDir = vecTracerDir * -512;
-					#ifndef CLIENT_DLL
-					CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-					#endif
-				}
-				else if (flDamage > 44 && m_helmDUR > 0)
-				{
+					else if (flDamage > 44 && m_helmDUR > 0)
+					{
 					m_helmDUR = 0;
 					SetBodygroup(3, HEADWEAR_OFF);
+					}
+				}
+				else
+				{
+					if (m_helmDUR > 0)
+					{
+						m_helmDUR -= 1;
+						if (m_helmDUR == 0)
+						{
+							SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
+						}
+						flDamage = round(flDamage * 0.2);
+						UTIL_Sparks(ptr->vecEndPos);
+						Vector vecTracerDir = vecDir;
+					
+						vecTracerDir = vecTracerDir * -512;
+						#ifndef CLIENT_DLL
+						CPhysbullet::BulletCreate(1, 15, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
+						#endif
+					}					
 				}
 			}
 		}
