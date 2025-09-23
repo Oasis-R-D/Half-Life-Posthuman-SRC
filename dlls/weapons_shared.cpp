@@ -191,9 +191,21 @@ void CBasePlayerWeapon::ItemPostFrame()
 				return;
 			}
 		}
-		if (m_iClip <= round(0.2 * iMaxClip())  && m_hasbeeped == false && m_iClip != -1)
+		if (m_iClip <= round(0.2 * iMaxClip()) && m_hasbeeped == false && m_iClip != -1)
 		{
-			EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo.wav", 1, ATTN_NONE);
+			switch(RANDOM_LONG(1, 3))
+			{
+				case 1:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
+				break
+				case 2:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
+				break
+				case 3:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
+				break
+			}
+			
 			m_hasbeeped = true;
 		}
 		
