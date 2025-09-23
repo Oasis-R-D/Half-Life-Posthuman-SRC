@@ -26,10 +26,7 @@
 #ifndef CLIENT_DLL
 
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
-//
-// OVERLOADS SOME ENTVARS:
-//
-// speed - the ideal magnitude of my velocity
+
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread)
 {
