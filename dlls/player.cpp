@@ -394,40 +394,40 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 
 bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
-if (bitsDamageType == DMG_FALL)
+	if (bitsDamageType == DMG_FALL)
+	{
+		switch(RANDOM_LONG(0, 4))
 		{
-			switch(RANDOM_LONG(0, 4))
+		case 0:
+			health_legL += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+			if (health_legL > 100)
 			{
-			case 0:
-				health_legL += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
-				if (health_legL > 100)
-				{
-					health_legL = 100;
-				}
-			break;
-			case 1:
-				health_legR += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
-				if (health_legR > 100)
-				{
-					health_legR = 100;
-				}
-			break;
-			case 2:
-			case 3:
-			case 4:
-				health_legR += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
-				if (health_legR > 100)
-				{
-					health_legR = 100;
-				}
-				health_legL += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
-				if (health_legL > 100)
-				{
-					health_legL = 100;
-				}
-			break;
+				health_legL = 100;
 			}
+		break;
+		case 1:
+			health_legR += round(flDamage * RANDOM_FLOAT(0.5, 2.0));
+			if (health_legR > 100)
+			{
+				health_legR = 100;
+			}
+		break;
+		case 2:
+		case 3:
+		case 4:
+			health_legR += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
+			if (health_legR > 100)
+			{
+				health_legR = 100;
+			}
+			health_legL += round(flDamage * RANDOM_FLOAT(0.5, 0.9));
+			if (health_legL > 100)
+			{
+				health_legL = 100;
+			}
+		break;
 		}
+	}
 	// have suit diagnose the problem - ie: report damage type
 	int bitsDamage = bitsDamageType;
 	bool ffound = true;
@@ -468,7 +468,7 @@ if (bitsDamageType == DMG_FALL)
 	m_lastDamageAmount = flDamage;
 
 	// Armor.
-	if (0 != pev->armorvalue && (bitsDamageType & (DMG_FALL | DMG_DROWN)) == 0) // armor doesn't protect against fall or drown damage!
+	if (0 != pev->armorvalue && (bitsDamageType & (DMG_FALL | DMG_DROWN | DMG_IGNOREARMOR)) == 0) // armor doesn't protect against fall or drown damage!
 	{
 		float flNew = flDamage * flRatio;
 
@@ -1001,8 +1001,8 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-
-	UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 5, 128, FFADE_OUT);
+	if (!g_pGameRules->IsMultiplayer())
+		UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 5, 128, FFADE_OUT);
 }
 
 
@@ -1964,7 +1964,7 @@ void CBasePlayer::PreThink()
 			Hunger -= 1;
 			if (g_iSkillLevel == SKILL_HARD)
 			{
-				pev->health -= 1;
+				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
 			}
 #ifndef CLIENT_DLL
 			CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
@@ -4314,7 +4314,8 @@ void CBasePlayer::UpdateClientData()
 		{
 			if (HungerDamageTime < gpGlobals->time)
 			{
-				pev->health -= 2;
+				TakeDamage(pev, pev, 2, DMG_GENERIC | DMG_IGNOREARMOR);
+
 				HungerDamageTime = gpGlobals->time + 10;
 			}
 		}
@@ -4322,7 +4323,7 @@ void CBasePlayer::UpdateClientData()
 		{
 			if (HungerDamageTime < gpGlobals->time)
 			{
-				pev->health--;
+				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
 				HungerDamageTime = gpGlobals->time + 10;
 			}
 		}
