@@ -197,13 +197,13 @@ void CBasePlayerWeapon::ItemPostFrame()
 			{
 				case 1:
 					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
-				break
+				break;
 				case 2:
 					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
-				break
+				break;
 				case 3:
 					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
-				break
+				break;
 			}
 			
 			m_hasbeeped = true;
