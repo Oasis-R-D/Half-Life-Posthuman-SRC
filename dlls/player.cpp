@@ -1729,7 +1729,7 @@ void CBasePlayer::Jump()
 	// ClearBits(pev->flags, FL_ONGROUND);		// don't stairwalk
 
 	SetAnimation(PLAYER_JUMP);
-
+	pev->punchangle.x += 1;
 	if (m_fLongJump &&
 		(pev->button & IN_DUCK) != 0 &&
 		(pev->flDuckTime > 0) &&
