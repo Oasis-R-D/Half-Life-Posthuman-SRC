@@ -4382,7 +4382,8 @@ void CBasePlayer::UpdateClientData()
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
 			{
 				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X)
+					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_RACE_X			|| pEntity->Classify() == CLASS_PLAYER && pEntity->BloodColor() != DONT_BLEED)
 				{
 					pEntity->pev->renderfx = kRenderFxLightMultiplier;
 					pEntity->pev->rendercolor = Vector(128, 0, 0);
@@ -4400,7 +4401,7 @@ void CBasePlayer::UpdateClientData()
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
-				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X &&
+				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X || pEntity->Classify() == CLASS_PLAYER &&
 					pEntity->BloodColor() != DONT_BLEED)
 					{
 						pEntity->pev->renderfx = kRenderFxLightMultiplier;
