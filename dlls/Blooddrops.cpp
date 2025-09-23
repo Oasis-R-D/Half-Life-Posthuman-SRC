@@ -39,6 +39,8 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		{
 			BLDamnt = 16;
 		}
+		if (g_pGameRules->IsMultiplayer())
+			BLDamnt /= 2;
 		for (int i = 0; i < BLDamnt; i++) // Allows multishot
 		{
 			// Create a new entity with CPhysblood private data
@@ -97,7 +99,7 @@ void CPhysblood::Spawn()
 	}
 	if (m_isgib == true)
 	{
-		pev->scale = RANDOM_FLOAT(0.25, 0.35);
+		pev->scale = RANDOM_FLOAT(0.30, 0.40);
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
