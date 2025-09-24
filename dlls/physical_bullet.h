@@ -41,5 +41,6 @@ private:
 	float m_BulletDamage;
 	float m_Gravity;
 	bool m_haswizzed;
+	bool m_lastwas0;
 };
 #endif

@@ -200,8 +200,12 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					{
 						m_BulletDamage -= round(0.75 * p);
 					}
+					ALERT(at_console, "punch %f\n", p);
 					if (p != 0)
-						ALERT(at_console, "punch %f\n", p);
+					{
+						
+						m_lastwas0 = false;
+					}
 					pev->origin = beam_tr.vecEndPos;
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
@@ -209,6 +213,15 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					DecalGunshot(&tr, BULLET_PLAYER_9MM);
 					if (p != 0)
 						TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+					if (p == 0) // HACKHACK: bullets randomly start bouncing on the ground, this fixes it but still visible in game before it hits ground the 2nd time
+					{
+						if (m_lastwas0 == true)
+						{
+							Stay();
+							ALERT(at_console, "removed bouncing bullet\n");
+						}
+						m_lastwas0 = true;
+					}
 					return;
 				}
 			}
