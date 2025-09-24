@@ -715,27 +715,52 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 {
 
 /////////////////////////
-	switch (m_LastHitGroup)
+	if (g_iSkillLevel != SKILL_HARD)
 	{
-	case HITGROUP_HEAD:
-		m_bleedAMNT = 8;
-		break;
-	case HITGROUP_GENERIC:
-	case HITGROUP_CHEST:
-		m_bleedAMNT = 5;
-		break;
-	case HITGROUP_STOMACH:
-		m_bleedAMNT = 4;
-		break;
-	case HITGROUP_LEFTARM:
-	case HITGROUP_RIGHTARM:
-	case HITGROUP_RIGHTLEG:
-	case HITGROUP_LEFTLEG:
-		if (flDamage > 6)
+		switch (m_LastHitGroup)
 		{
-			m_bleedAMNT = 3;
+		case HITGROUP_HEAD:
+			m_bleedAMNT = 8;
+			break;
+		case HITGROUP_GENERIC:
+		case HITGROUP_CHEST:
+			m_bleedAMNT = 5;
+			break;
+		case HITGROUP_STOMACH:
+			m_bleedAMNT = 4;
+			break;
+		case HITGROUP_LEFTARM:
+		case HITGROUP_RIGHTARM:
+		case HITGROUP_RIGHTLEG:
+		case HITGROUP_LEFTLEG:
+			if (flDamage > 6)
+			{
+				m_bleedAMNT = 3;
+			}
+			break;
 		}
-		break;
+	}
+	else
+	{
+		switch (m_LastHitGroup)
+		{
+		case HITGROUP_HEAD:
+			m_bleedAMNT = 20;
+			break;
+		case HITGROUP_GENERIC:
+		case HITGROUP_CHEST:
+			m_bleedAMNT = 15;
+			break;
+		case HITGROUP_STOMACH:
+			m_bleedAMNT = 12;
+			break;
+		case HITGROUP_LEFTARM:
+		case HITGROUP_RIGHTARM:
+		case HITGROUP_RIGHTLEG:
+		case HITGROUP_LEFTLEG:
+			m_bleedAMNT = 10;
+			break;
+		}
 	}
 	/////////////////////////
 
@@ -1004,6 +1029,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	if (!g_pGameRules->IsMultiplayer())
 		UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 5, 128, FFADE_OUT);
 	pev->maxspeed = 350;
+	m_bleedAMNT = 0;
 }
 
 
