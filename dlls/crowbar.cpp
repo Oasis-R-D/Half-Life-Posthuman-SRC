@@ -381,7 +381,7 @@ void CCrowbar::Hit(bool type)
 		if (pHit->pev->deadflag != DEAD_NO)
 		{
 			if (pHit->Classify() == CLASS_ALIEN_MONSTER || pHit->Classify() == CLASS_ALIEN_MILITARY ||
-				pHit->Classify() == CLASS_HUMAN_MILITARY || pHit->Classify() == CLASS_HUMAN_PASSIVE)
+				pHit->Classify() == CLASS_HUMAN_MILITARY || pHit->Classify() == CLASS_HUMAN_PASSIVE || pHit->Classify() == CLASS_PLAYER )
 			{
 				pHit->Killed(pev, GIB_ALWAYS);
 
