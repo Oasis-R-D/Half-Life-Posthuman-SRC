@@ -227,7 +227,7 @@ int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
 		}
 		if (pentTouched->IsPlayer() && m_hasstained != true)
 		{
-			curweapon = CBasePlayerWeapon* GetWeaponPtr();
+			//curweapon = CBasePlayerWeapon* GetWeaponPtr();
 			m_hasstained = true;
 			if (m_BloodType == BLOOD_COLOR_RED)
 			{
