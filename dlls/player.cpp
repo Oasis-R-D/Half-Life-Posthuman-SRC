@@ -256,8 +256,8 @@ void CBasePlayer::DeathSound()
 
 bool CBasePlayer::TakeHealth(float flHealth, int bitsDamageType)
 {
-	return CBaseMonster::TakeHealth(flHealth, bitsDamageType);
 	m_bleedAMNT = 0;
+	return CBaseMonster::TakeHealth(flHealth, bitsDamageType);
 }
 
 Vector CBasePlayer::GetGunPosition()
@@ -1756,7 +1756,7 @@ void CBasePlayer::Jump()
 	// ClearBits(pev->flags, FL_ONGROUND);		// don't stairwalk
 
 	SetAnimation(PLAYER_JUMP);
-	pev->punchangle.x += 1;
+	pev->punchangle.x -= 2;
 	if (m_fLongJump &&
 		(pev->button & IN_DUCK) != 0 &&
 		(pev->flDuckTime > 0) &&
@@ -4771,7 +4771,7 @@ void CBasePlayer ::ClearEffects(void)
 	MESSAGE_END();
 }
 
-// Thanks BUzer
+// Thanks BUzer // yeah THANKS buddy *kisses you*.
 void CBasePlayer ::SendInitMessages(void)
 {
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);

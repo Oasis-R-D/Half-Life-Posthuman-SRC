@@ -21,6 +21,7 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int Classify() override;
+	int ShouldCollide(CBaseEntity* pentTouched) override;
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
@@ -35,5 +36,7 @@ private:
 	float m_Spread;
 	float m_Gravity;
 	bool m_isgib;
+	bool m_hashealed = false;
+	bool m_hasstained = false;
 };
 #endif

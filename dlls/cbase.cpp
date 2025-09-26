@@ -24,7 +24,7 @@
 #include "pm_shared.h"
 
 void EntvarsKeyvalue(entvars_t* pev, KeyValueData* pkvd);
-
+int ShouldCollide(edict_t* pentTouched, edict_t* pentOther);
 void OnFreeEntPrivateData(edict_s* pEdict);
 
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
@@ -97,6 +97,7 @@ NEW_DLL_FUNCTIONS gNewDLLFunctions =
 	{
 		OnFreeEntPrivateData, //pfnOnFreeEntPrivateData
 		GameDLLShutdown,
+		ShouldCollide,	//pfnShouldCollide
 };
 
 static void SetObjectCollisionBox(entvars_t* pev);
@@ -302,7 +303,16 @@ void OnFreeEntPrivateData(edict_s* pEdict)
 		pEdict->pvPrivateData = nullptr;
 	}
 }
+int ShouldCollide(edict_t* pentTouched, edict_t* pentOther)
+{
+	CBaseEntity* pTouch = CBaseEntity::Instance( pentTouched );
+	CBaseEntity* pOther = CBaseEntity::Instance( pentOther );
 
+	if (pTouch && pOther)
+		return pOther->ShouldCollide(pTouch);
+
+	return 1;
+}
 // Find the matching global entity.  Spit out an error if the designer made entities of
 // different classes with the same global name
 CBaseEntity* FindGlobalEntity(string_t classname, string_t globalname)

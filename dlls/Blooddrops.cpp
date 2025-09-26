@@ -103,7 +103,7 @@ void CPhysblood::Spawn()
 	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 48) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	
+	pev->owner = NULL;
 	pev->renderamt = 225;
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
@@ -161,19 +161,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	SetTouch(NULL);
 	SetThink(NULL);
 
-	if (0 != pOther->pev->takedamage)
-	{
-		TraceResult tr = UTIL_GetGlobalTrace();
-		Stay();
-		if (!pOther->IsBSPModel() && m_BloodType == BLOOD_COLOR_CYAN)
-		{
-			pOther->TakeHealth(5, DMG_GENERIC);
-		}
-	}
-	else 
-	{
-		Stay();
-	}
+	Stay();
 	TraceResult tr = UTIL_GetGlobalTrace();
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
@@ -221,3 +209,42 @@ void CPhysblood::AirThink()
 	pev->nextthink = gpGlobals->time;
 }
 #endif
+int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched->IsBSPModel())
+		return 1;
+	else
+	{
+		if (0 != pentTouched->pev->takedamage && m_hashealed != true)
+		{
+			m_hashealed = true;
+			if (m_BloodType == BLOOD_COLOR_CYAN)
+			{
+				pentTouched->TakeHealth(2, DMG_GENERIC);
+				
+			}
+			
+		}
+		if (pentTouched->IsPlayer() && m_hasstained != true)
+		{
+			m_hasstained = true;
+			if (m_BloodType == BLOOD_COLOR_RED)
+			{
+		
+			}
+			else if (m_BloodType == BLOOD_COLOR_YELLOW)
+			{
+		
+			}
+			else if (m_BloodType == BLOOD_COLOR_GREEN)
+			{
+		
+			}
+			else if (m_BloodType == BLOOD_COLOR_CYAN)
+			{
+
+			}
+		}
+		return 0;
+	}
+}
