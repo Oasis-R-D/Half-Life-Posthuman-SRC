@@ -294,12 +294,11 @@ void CMOFAssassin::SpeakSentence()
 }
 
 //=========================================================
-// IRelationship - overridden because Alien Grunts are
-// Human Grunt's nemesis.
+// IRelationship - overridden because Hassns prioritize soldiers
 //=========================================================
 int CMOFAssassin::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")) || (FClassnameIs(pTarget->pev, "monster_human_grunt")) || FClassnameIs(pTarget->pev, "monster_shocktrooper")))
 	{
 		return R_NM;
 	}
@@ -2331,7 +2330,7 @@ class CDeadMOFAssassin : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return CLASS_HASSN; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 

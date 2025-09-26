@@ -150,12 +150,11 @@ void CHGrunt::SpeakSentence()
 }
 
 //=========================================================
-// IRelationship - overridden because Alien Grunts are
-// Human Grunt's nemesis.
+// IRelationship - overridden because hgrunts prioritize targetting enemy combatants
 //=========================================================
 int CHGrunt::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua") || (FClassnameIs(pTarget->pev, "monster_advsec"))))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua") || (FClassnameIs(pTarget->pev, "monster_advsec")) || (FClassnameIs(pTarget->pev, "monster_male_assassin")) || FClassnameIs(pTarget->pev, "monster_shocktrooper")))
 	{
 		return R_NM;
 	}
