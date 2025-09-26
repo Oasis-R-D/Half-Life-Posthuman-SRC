@@ -1335,6 +1335,16 @@ void CSentry::SentryDeath()
 	if (m_fSequenceFinished && pev->dmgtime + 5 < gpGlobals->time)
 	{
 		pev->framerate = 0;
-		SetThink(NULL);
+		UTIL_Remove(this);
+		MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
+		WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
+		WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
+		WRITE_COORD(pev->origin.y);
+		WRITE_COORD(pev->origin.z);
+		WRITE_SHORT(g_sModelIndexFireball);
+		WRITE_BYTE(16); // scale * 10
+		WRITE_BYTE(15);					   // framerate
+		WRITE_BYTE(TE_EXPLFLAG_NONE);
+		MESSAGE_END();
 	}
 }
