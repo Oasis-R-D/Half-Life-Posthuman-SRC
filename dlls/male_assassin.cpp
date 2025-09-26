@@ -298,7 +298,7 @@ void CMOFAssassin::SpeakSentence()
 //=========================================================
 int CMOFAssassin::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")) || (FClassnameIs(pTarget->pev, "monster_human_grunt")) || FClassnameIs(pTarget->pev, "monster_shocktrooper")))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")) || (FClassnameIs(pTarget->pev, "monster_human_grunt")) || (FClassnameIs(pTarget->pev, "monster_shocktrooper")))
 	{
 		return R_NM;
 	}
