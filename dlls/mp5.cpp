@@ -755,7 +755,7 @@ class CM727AmmoClip : public CBasePlayerAmmo
 };
 LINK_ENTITY_TO_CLASS(ammo_556mag, CM727AmmoClip);
 
-/* void FindHullIntersection(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
+void FindHullIntersection(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
 {
 	int i, j, k;
 	float distance;
@@ -797,4 +797,4 @@ LINK_ENTITY_TO_CLASS(ammo_556mag, CM727AmmoClip);
 			}
 		}
 	}
-} */
+};
