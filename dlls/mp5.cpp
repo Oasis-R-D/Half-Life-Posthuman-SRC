@@ -707,7 +707,14 @@ void CM727::SecondaryAttack()
 
 void CM727::TertiaryAttack()
 {
-	
+	 if (firemode == true)
+		{
+			firemode = false;
+		}
+		else
+		{
+			firemode = true;
+		}
 }
 
 void CM727::Reload()
