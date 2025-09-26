@@ -123,7 +123,10 @@ SpawnBlood
 */
 void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage)
 {
-	UTIL_BloodDrips(vecSpot, g_vecAttackDir, bloodColor, (int)flDamage);
+	if (g_iSkillLevel != SKILL_HARD)
+		UTIL_BloodDrips(vecSpot, g_vecAttackDir, bloodColor, (int)flDamage);
+	else
+		UTIL_BloodDrips(vecSpot, g_vecAttackDir, bloodColor, ((int)flDamage)/3);
 }
 
 

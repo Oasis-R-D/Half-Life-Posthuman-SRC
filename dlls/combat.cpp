@@ -1658,23 +1658,42 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 		}
 	}
 */
-
-	if (flDamage < 10)
+	if (g_iSkillLevel != SKILL_HARD)
 	{
-		flNoise = 0.1;
-		cCount = 1;
-	}
-	else if (flDamage < 25)
-	{
-		flNoise = 0.2;
-		cCount = 2;
+		if (flDamage < 10)
+		{
+			flNoise = 0.1;
+			cCount = 1;
+		}
+		else if (flDamage < 25)
+		{
+			flNoise = 0.2;
+			cCount = 2;
+		}
+		else
+		{
+			flNoise = 0.3;
+			cCount = 4;
+		}
 	}
 	else
 	{
-		flNoise = 0.3;
-		cCount = 4;
+		if (flDamage < 30)
+		{
+			flNoise = 0.1;
+			cCount = 1;
+		}
+		else if (flDamage < 40)
+		{
+			flNoise = 0.2;
+			cCount = 2;
+		}
+		else
+		{
+			flNoise = 0.3;
+			cCount = 4;
+		}
 	}
-
 	for (i = 0; i < cCount; i++)
 	{
 		vecTraceDir = vecDir * -1; // trace in the opposite direction the shot came from (the direction the shot is going)
