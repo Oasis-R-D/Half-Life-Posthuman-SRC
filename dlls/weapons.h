@@ -1527,7 +1527,7 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void Holster() override;
-
+	TraceResult m_trHit;
 	int m_iShell;
 
 	bool UseDecrement() override

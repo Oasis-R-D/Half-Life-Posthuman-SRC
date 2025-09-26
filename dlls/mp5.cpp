@@ -458,6 +458,12 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
+	PRECACHE_SOUND("weapons/cbar_hit1.wav");
+	PRECACHE_SOUND("weapons/cbar_hit2.wav");
+	PRECACHE_SOUND("weapons/bay_hitbod1.wav");
+	PRECACHE_SOUND("weapons/bay_hitbod2.wav");
+	PRECACHE_SOUND("weapons/bay_hitbod3.wav");
+	PRECACHE_SOUND("weapons/cbar_miss1.wav");
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)
@@ -612,12 +618,12 @@ void CM727::SecondaryAttack()
 		if ((m_flNextSecondaryAttack + 1.0f <= UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 		{
 			// first swing does full damage
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		else
 		{
 			// subsequent swings do half
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 
@@ -638,13 +644,13 @@ void CM727::SecondaryAttack()
 				switch (RANDOM_LONG(0, 2))
 				{
 				case 0:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/cbar_hitbod1.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod1.wav", 1, ATTN_NORM);
 					break;
 				case 1:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/cbar_hitbod2.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod2.wav", 1, ATTN_NORM);
 					break;
 				case 2:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/cbar_hitbod3.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod3.wav", 1, ATTN_NORM);
 					break;
 				}
 				m_pPlayer->m_iWeaponVolume = CROWBAR_BODYHIT_VOLUME;
