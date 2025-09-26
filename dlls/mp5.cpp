@@ -501,6 +501,8 @@ void CM727::Holster()
 
 void CM727::PrimaryAttack()
 {
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0 && firemode == true)
+		return;
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater or if emptied
 	{
 		PlayEmptySound();
