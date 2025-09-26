@@ -26,7 +26,8 @@
 LINK_ENTITY_TO_CLASS(weapon_mp5, CMP5);
 LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 
-
+#define CROWBAR_BODYHIT_VOLUME 128
+#define CROWBAR_WALLHIT_VOLUME 512
 //=========================================================
 //=========================================================
 void CMP5::Spawn()
@@ -556,8 +557,6 @@ void CM727::PrimaryAttack()
 
 void CM727::SecondaryAttack()
 {
-	bool fDidHit = false;
-
 	TraceResult tr;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
@@ -581,11 +580,11 @@ void CM727::SecondaryAttack()
 		}
 	}
 #endif
-
+	/* restore when I fgure out what this does
 	PLAYBACK_EVENT_FULL(FEV_NOTHOST, m_pPlayer->edict(), m_usCrowbar,
 	0.0, g_vecZero, g_vecZero, 0, 0, 0,
 	0.0, 0, 0.0);
-
+	*/
 	if (tr.flFraction >= 1.0)
 	{
 			// miss
@@ -604,7 +603,6 @@ void CM727::SecondaryAttack()
 #ifndef CLIENT_DLL
 
 		// hit
-		fDidHit = true;
 		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 
 		ClearMultiDamage();
