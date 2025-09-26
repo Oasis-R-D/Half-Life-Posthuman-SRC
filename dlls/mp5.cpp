@@ -618,12 +618,18 @@ void CM727::SecondaryAttack()
 		if ((m_flNextSecondaryAttack + 1.0f <= UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 		{
 			// first swing does full damage
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_SLASH);
+			if (g_iSkillLevel != SKILL_HARD)
+				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_SLASH);
+			else
+				pEntity->TraceAttack(m_pPlayer->pev, 65, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		else
 		{
 			// subsequent swings do half
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_SLASH);
+			if (g_iSkillLevel != SKILL_HARD)
+				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_SLASH);
+			else
+				pEntity->TraceAttack(m_pPlayer->pev, 32.5, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 
@@ -797,4 +803,4 @@ void FindHullIntersection(const Vector& vecSrc, TraceResult& tr, const Vector& m
 			}
 		}
 	}
-};
+}
