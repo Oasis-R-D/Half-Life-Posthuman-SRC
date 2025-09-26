@@ -1529,7 +1529,7 @@ public:
 	void Holster() override;
 	TraceResult m_trHit;
 	int m_iShell;
-
+ bool firemode;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
