@@ -709,6 +709,7 @@ void CM727::SecondaryAttack()
 
 void CM727::TertiaryAttack()
 {
+	m_flNextTertiaryAttack = 0.1
 	 if (firemode == true)
 		{
 			firemode = false;
