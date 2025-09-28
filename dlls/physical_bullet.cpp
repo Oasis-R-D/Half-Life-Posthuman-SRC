@@ -192,14 +192,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				{
 					
 					m_distpenetrate -= p;
-					if (g_iSkillLevel != SKILL_HARD)
-					{
-						m_BulletDamage -= round(0.25 * p);
-					}
-					else
-					{
-						m_BulletDamage -= round(0.75 * p);
-					}
+					m_BulletDamage -= round(0.125 * p);
 					ALERT(at_console, "punch %f\n", p);
 					if (p != 0)
 					{
