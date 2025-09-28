@@ -188,7 +188,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
 
-				if (p < m_distpenetrate)
+				if (p <= m_distpenetrate)
 				{
 					
 					m_distpenetrate -= p;
