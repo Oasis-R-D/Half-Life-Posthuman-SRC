@@ -1579,6 +1579,17 @@ void EV_SnarkFire(event_args_t* args)
 //	   SQUEAK END
 //======================
 
+//======================
+//	   STAIN START
+//======================
+void EV_VMstain(event_args_t* args)
+{
+	gEngfuncs.GetViewModel()->curstate.skin = args->iparam1;
+}
+//======================
+//	   STAIN END
+//======================
+
 void EV_TrainPitchAdjust(event_args_t* args)
 {
 	int idx;

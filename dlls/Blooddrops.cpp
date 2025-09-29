@@ -202,40 +202,25 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.5;
-	if (pev->waterlevel == 0)
-	return;
-
-	SetThink(&CPhysblood::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
-}
-#endif
-int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
-{
-	if (pentTouched->IsBSPModel())
-		return 1;
-	else
+	CBaseEntity* pObject = NULL;
+	pev->nextthink = gpGlobals->time + 0.05;
+	pObject = UTIL_FindEntityInSphere(this, pev->origin, 8);
+	if (pObject)
 	{
-		if (0 != pentTouched->pev->takedamage && m_hashealed != true)
+		if (0 != pObject->pev->takedamage && m_hashealed != true)
 		{
 			m_hashealed = true;
 			if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
-				pentTouched->TakeHealth(2, DMG_GENERIC);
-				
+				pObject->TakeHealth(2, DMG_GENERIC);
 			}
-			
 		}
-		if (pentTouched->IsPlayer() && m_hasstained != true)
+		if (pObject->IsPlayer() && m_hasstained != true)
 		{
 			int flags;
-#if defined(CLIENT_WEAPONS)
-			flags = FEV_NOTHOST;
-#else
 			flags = 0;
-#endif
-			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pentTouched);
-			//CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
+
+			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pObject);
 			m_hasstained = true;
 			if (m_BloodType == BLOOD_COLOR_RED)
 			{
@@ -245,19 +230,40 @@ int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
 			else if (m_BloodType == BLOOD_COLOR_YELLOW)
 			{
 				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 2, 0, 0, 0);
-				ALERT(at_console, "yellow gun\n");		
+				ALERT(at_console, "yellow gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_GREEN)
 			{
 				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 3, 0, 0, 0);
-				ALERT(at_console, "green gun\n");		
+				ALERT(at_console, "green gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
 				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
 				ALERT(at_console, "cyan gun\n");
 			}
+			else
+			{
+			}
+			char dripsnd[256];
+			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
+			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
 		}
+	}
+	if (pev->waterlevel == 0)
+	return;
+
+	SetThink(&CPhysblood::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
+}
+
+int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched->IsBSPModel())
+		return 1;
+	else
+	{
 		return 0;
 	}
 }
+#endif
