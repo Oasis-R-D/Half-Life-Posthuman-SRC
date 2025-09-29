@@ -272,8 +272,9 @@ void CMP5::SecondaryAttack()
 
 void CMP5::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.5;
-	m_flNextTertiaryAttack = gpGlobals->time + 0.5;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
+	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
+		return;
 
 	if (pev->armortype == 1)
 	{
@@ -426,7 +427,49 @@ LINK_ENTITY_TO_CLASS(ammo_ARgrenades, CMP5AmmoGrenade);
 //=========================================================
 // M727
 //=========================================================
+void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
+{
+	int i, j, k;
+	float distance;
+	const Vector* minmaxs[2] = {&mins, &maxs};
+	TraceResult tmpTrace;
+	Vector vecHullEnd = tr.vecEndPos;
+	Vector vecEnd;
 
+	distance = 1e6f;
+
+	vecHullEnd = vecSrc + ((vecHullEnd - vecSrc) * 2);
+	UTIL_TraceLine(vecSrc, vecHullEnd, dont_ignore_monsters, pEntity, &tmpTrace);
+	if (tmpTrace.flFraction < 1.0)
+	{
+		tr = tmpTrace;
+		return;
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		for (j = 0; j < 2; j++)
+		{
+			for (k = 0; k < 2; k++)
+			{
+				vecEnd.x = vecHullEnd.x + minmaxs[i]->x;
+				vecEnd.y = vecHullEnd.y + minmaxs[j]->y;
+				vecEnd.z = vecHullEnd.z + minmaxs[k]->z;
+
+				UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, pEntity, &tmpTrace);
+				if (tmpTrace.flFraction < 1.0)
+				{
+					float thisDistance = (tmpTrace.vecEndPos - vecSrc).Length();
+					if (thisDistance < distance)
+					{
+						tr = tmpTrace;
+						distance = thisDistance;
+					}
+				}
+			}
+		}
+	}
+}
 LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 
 void CM727::Spawn()
@@ -583,7 +626,7 @@ void CM727::SecondaryAttack()
 			// This is and approximation of the "best" intersection
 			CBaseEntity* pHit = CBaseEntity::Instance(tr.pHit);
 			if (!pHit || pHit->IsBSPModel())
-				FindHullIntersection(vecSrc, tr, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX, m_pPlayer->edict());
+				FindHullIntersectionM727(vecSrc, tr, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX, m_pPlayer->edict());
 			vecEnd = tr.vecEndPos; // This is the point on the actual surface (the hull could have hit space)
 		}
 	}
@@ -709,15 +752,17 @@ void CM727::SecondaryAttack()
 
 void CM727::TertiaryAttack()
 {
-	m_flNextTertiaryAttack = 0.1
-	 if (firemode == true)
-		{
-			firemode = false;
-		}
-		else
-		{
-			firemode = true;
-		}
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
+	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
+		return;
+	if (firemode == true)
+	{
+		firemode = false;
+	}
+	else
+	{
+		firemode = true;
+	}
 }
 
 void CM727::Reload()
@@ -771,46 +816,3 @@ class CM727AmmoClip : public CBasePlayerAmmo
 };
 LINK_ENTITY_TO_CLASS(ammo_556mag, CM727AmmoClip);
 
-void FindHullIntersection(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
-{
-	int i, j, k;
-	float distance;
-	const Vector* minmaxs[2] = {&mins, &maxs};
-	TraceResult tmpTrace;
-	Vector vecHullEnd = tr.vecEndPos;
-	Vector vecEnd;
-
-	distance = 1e6f;
-
-	vecHullEnd = vecSrc + ((vecHullEnd - vecSrc) * 2);
-	UTIL_TraceLine(vecSrc, vecHullEnd, dont_ignore_monsters, pEntity, &tmpTrace);
-	if (tmpTrace.flFraction < 1.0)
-	{
-		tr = tmpTrace;
-		return;
-	}
-
-	for (i = 0; i < 2; i++)
-	{
-		for (j = 0; j < 2; j++)
-		{
-			for (k = 0; k < 2; k++)
-			{
-				vecEnd.x = vecHullEnd.x + minmaxs[i]->x;
-				vecEnd.y = vecHullEnd.y + minmaxs[j]->y;
-				vecEnd.z = vecHullEnd.z + minmaxs[k]->z;
-
-				UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, pEntity, &tmpTrace);
-				if (tmpTrace.flFraction < 1.0)
-				{
-					float thisDistance = (tmpTrace.vecEndPos - vecSrc).Length();
-					if (thisDistance < distance)
-					{
-						tr = tmpTrace;
-						distance = thisDistance;
-					}
-				}
-			}
-		}
-	}
-}
