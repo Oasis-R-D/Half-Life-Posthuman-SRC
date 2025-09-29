@@ -313,7 +313,6 @@ public:
 
 private:
 	void InternalSendSingleAmmoUpdate(int ammoIndex);
-	unsigned short m_stain;
 public:
 	void WaterMove();
 	void EXPORT PlayerDeathThink();

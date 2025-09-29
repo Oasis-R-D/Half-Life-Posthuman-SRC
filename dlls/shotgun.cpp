@@ -60,6 +60,7 @@ void CShotgun::Precache()
 
 	m_usSingleFire = PRECACHE_EVENT(1, "events/shotgun1.sc");
 	m_usDoubleFire = PRECACHE_EVENT(1, "events/shotgun2.sc");
+	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 
 bool CShotgun::GetItemInfo(ItemInfo* p)
@@ -83,6 +84,7 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 bool CShotgun::Deploy()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (m_Prehuman == true)
 	{
 		// set bodygroup
@@ -359,6 +361,7 @@ void CShotgun::WeaponIdle()
 
 void CShotgun::ItemPostFrame()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (m_flPumpTime < gpGlobals->time && m_flPumpTime != 0)
 	{
 		Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;

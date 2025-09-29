@@ -54,6 +54,7 @@ void CCrystal_launcher::Precache()
 	PRECACHE_SOUND("weapons/reload3.wav"); // shotgun reload
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
+	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 
 bool CCrystal_launcher::GetItemInfo(ItemInfo* p)
@@ -77,6 +78,7 @@ bool CCrystal_launcher::GetItemInfo(ItemInfo* p)
 
 bool CCrystal_launcher::Deploy()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
 }
 
@@ -171,3 +173,8 @@ void CCrystal_launcher::WeaponIdle()
 	}
 }
 
+void CCrystal_launcher::ItemPostFrame()
+{
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
+	CBasePlayerWeapon::ItemPostFrame();
+}

@@ -365,11 +365,11 @@ public:
 	int m_iClip;				   // number of shots left in the primary weapon clip, -1 it not used
 	int m_iClientClip;			   // the last version of m_iClip sent to hud dll
 	int m_iClientWeaponState;	   // the last version of the weapon state sent to hud dll (is current weapon, is on target)
+	int m_stain = 0;
 	bool m_fInReload;			   // Are we in the middle of a reload;
 	int m_iDefaultAmmo; // how much ammo you get when you pick up this weapon as placed by a level designer.
 	bool NotFirstDraw;
 	bool m_hasbeeped;
-
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
@@ -548,6 +548,7 @@ private:
 
 	unsigned short m_usFireGlock1;
 	unsigned short m_usFireGlock2;
+	unsigned short m_stainevent;
 };
 
 enum crowbar_e
@@ -620,7 +621,7 @@ public:
 	void Holster() override;
 	void Reload() override;
 	void WeaponIdle() override;
-
+	void ItemPostFrame() override;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -632,6 +633,7 @@ public:
 
 private:
 	unsigned short m_usFirePython;
+	unsigned short m_stainevent;
 };
 
 enum mp5_e
@@ -665,6 +667,7 @@ public:
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
+	void ItemPostFrame() override;
 
 	bool Deploy() override;
 	void Reload() override;
@@ -686,6 +689,7 @@ public:
 private:
 	unsigned short m_usMP5;
 	unsigned short m_usMP52;
+	unsigned short m_stainevent;
 };
 
 enum m727_e
@@ -726,7 +730,7 @@ public:
 	void Precache() override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
-
+	void ItemPostFrame() override;
 	void FireBolt();
 	void FireSniperBolt();
 	void PrimaryAttack() override;
@@ -748,6 +752,7 @@ public:
 private:
 	unsigned short m_usCrossbow;
 	unsigned short m_usCrossbow2;
+	unsigned short m_stainevent;
 };
 
 enum shotgun_e
@@ -821,6 +826,7 @@ public:
 private:
 	unsigned short m_usDoubleFire;
 	unsigned short m_usSingleFire;
+	unsigned short m_stainevent;
 };
 
 class CLaserSpot : public CBaseEntity
@@ -1332,6 +1338,7 @@ public:
 	void WeaponIdle() override;
 	void PrimaryAttack() override;
 	void Reload() override;
+	void ItemPostFrame() override;
 	int iItemSlot() override;
 	bool GetItemInfo(ItemInfo* p) override;
 	bool UseDecrement() override
@@ -1351,6 +1358,7 @@ private:
 
 private:
 	unsigned short m_usFireM249;
+	unsigned short m_stainevent;
 	float m_flNextAnimTime;
 	int m_iShell;
 
@@ -1522,7 +1530,7 @@ public:
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
-
+	void ItemPostFrame() override;
 	bool Deploy() override;
 	void Reload() override;
 	void WeaponIdle() override;
@@ -1538,6 +1546,9 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	unsigned short m_stainevent;
 };
 class CCrystal_launcher : public CBasePlayerWeapon
 {
@@ -1553,6 +1564,7 @@ public:
 	void TertiaryAttack() override;
 	bool Deploy() override;
 	void WeaponIdle() override;
+	void ItemPostFrame() override;
 	float m_flNextReload;
 	int m_crystaltype;
 	bool UseDecrement() override
@@ -1564,4 +1576,6 @@ public:
 #endif
 	}
 
+private:
+	unsigned short m_stainevent;
 };

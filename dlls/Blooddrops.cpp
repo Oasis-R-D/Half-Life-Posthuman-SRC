@@ -144,7 +144,6 @@ void CPhysblood::Precache()
 	PRECACHE_SOUND("common/drip_05.wav");
 	PRECACHE_SOUND("common/drip_06.wav");
 	PRECACHE_SOUND("common/drip_07.wav");
-	m_stain = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 
 
@@ -207,7 +206,6 @@ void CPhysblood::AirThink()
 	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 	if (pObject)
 	{
-		ALERT(at_console, "pObject acquired\n");
 		if (pObject->IsPlayer())
 			ALERT(at_console, "pObject is player\n");
 		if (pObject->IsPlayer() && 0 != pObject->pev->takedamage && m_hashealed != true)
@@ -226,25 +224,30 @@ void CPhysblood::AirThink()
 			flags = 0;
 
 			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pObject);
+			CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
 			m_hasstained = true;
 			if (m_BloodType == BLOOD_COLOR_RED)
 			{
-				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
+				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
+				weapon->m_stain = 1;
 				ALERT(at_console, "red gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_YELLOW)
 			{
-				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 2, 0, 0, 0);
+				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 2, 0, 0, 0);
+				weapon->m_stain = 2;
 				ALERT(at_console, "yellow gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_GREEN)
 			{
-				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 3, 0, 0, 0);
+				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 3, 0, 0, 0);
+				weapon->m_stain = 3;
 				ALERT(at_console, "green gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
-				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
+				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
+				weapon->m_stain = 4;
 				ALERT(at_console, "cyan gun\n");
 			}
 			else

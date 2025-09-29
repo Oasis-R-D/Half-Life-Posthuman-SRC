@@ -51,6 +51,7 @@ void CCrossbow::Precache()
 
 	m_usCrossbow = PRECACHE_EVENT(1, "events/crossbow1.sc");
 	m_usCrossbow2 = PRECACHE_EVENT(1, "events/crossbow2.sc");
+	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 
 
@@ -73,6 +74,7 @@ bool CCrossbow::GetItemInfo(ItemInfo* p)
 
 bool CCrossbow::Deploy()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (0 != m_iClip)
 		return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW1, "bow");
 	return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW2, "bow");
@@ -289,7 +291,11 @@ void CCrossbow::WeaponIdle()
 	}
 }
 
-
+void CCrossbow::ItemPostFrame()
+{
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
+	CBasePlayerWeapon::ItemPostFrame();
+}
 
 class CCrossbowAmmo : public CBasePlayerAmmo
 {

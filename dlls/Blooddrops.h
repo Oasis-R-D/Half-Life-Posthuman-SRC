@@ -38,6 +38,6 @@ private:
 	bool m_isgib;
 	bool m_hashealed = false;
 	bool m_hasstained = false;
-	unsigned short m_stain;
+
 };
 #endif
