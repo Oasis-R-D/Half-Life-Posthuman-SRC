@@ -105,11 +105,17 @@ void CCrystal_launcher::PrimaryAttack()
 	m_flTimeWeaponIdle = 1;
 	m_fInSpecialReload = 0;
 }
-
-
 void CCrystal_launcher::SecondaryAttack()
 {
-	m_crystaltype = m_crystaltype + 1;
+}
+
+void CCrystal_launcher::TertiaryAttack()
+{
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.125;
+	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
+		return;
+
+	m_crystaltype += 1;
 	if (m_crystaltype >= 3)
 	{
 		m_crystaltype = 0;

@@ -1550,7 +1550,7 @@ public:
 
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
-
+	void TertiaryAttack() override;
 	bool Deploy() override;
 	void WeaponIdle() override;
 	float m_flNextReload;

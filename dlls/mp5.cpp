@@ -272,7 +272,7 @@ void CMP5::SecondaryAttack()
 
 void CMP5::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.125;
 	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
 		return;
 
@@ -608,161 +608,61 @@ void CM727::PrimaryAttack()
 
 void CM727::SecondaryAttack()
 {
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
+	return;
+
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = 0.5;
+
 	TraceResult tr;
 
-	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecEnd = vecSrc + gpGlobals->v_forward * 32;
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 96, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
+	
+	const char* sound = 0;
 
-	UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
-
+	if (tr.flFraction == 1)
+	{
 #ifndef CLIENT_DLL
-	if (tr.flFraction >= 1.0)
-	{
-		UTIL_TraceHull(vecSrc, vecEnd, dont_ignore_monsters, head_hull, ENT(m_pPlayer->pev), &tr);
-		if (tr.flFraction < 1.0)
-		{
-			// Calculate the point of intersection of the line (or hull) and the object we hit
-			// This is and approximation of the "best" intersection
-			CBaseEntity* pHit = CBaseEntity::Instance(tr.pHit);
-			if (!pHit || pHit->IsBSPModel())
-				FindHullIntersectionM727(vecSrc, tr, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX, m_pPlayer->edict());
-			vecEnd = tr.vecEndPos; // This is the point on the actual surface (the hull could have hit space)
-		}
-	}
+		sound = UTIL_VarArgs("zombie/claw_miss%d.wav", RANDOM_LONG(1, 2));
 #endif
-	/* restore when I fgure out what this does
-	PLAYBACK_EVENT_FULL(FEV_NOTHOST, m_pPlayer->edict(), m_usCrowbar,
-	0.0, g_vecZero, g_vecZero, 0, 0, 0,
-	0.0, 0, 0.0);
-	*/
-	if (tr.flFraction >= 1.0)
-	{
-			// miss
-			m_flNextSecondaryAttack = GetNextAttackDelay(2);
-
-			// player "shoot" animation
-			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	}
 	else
 	{
-		//SendWeaponAnim(CROWBAR_ATTACK1HIT);
-
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
-#ifndef CLIENT_DLL
-
-		// hit
-		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-
+		auto pHit = CBaseEntity::Instance(tr.pHit);
 		ClearMultiDamage();
-
-		// JoshA: Changed from < -> <= to fix the full swing logic since client weapon prediction.
-		// -1.0f + 1.0f = 0.0f. UTIL_WeaponTimeBase is always 0 with client weapon prediction (0 time base vs curtime base)
-		if ((m_flNextSecondaryAttack + 1.0f <= UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
-		{
-			// first swing does full damage
-			if (g_iSkillLevel != SKILL_HARD)
-				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_SLASH);
-			else
-				pEntity->TraceAttack(m_pPlayer->pev, 65, gpGlobals->v_forward, &tr, DMG_SLASH);
-		}
+		if (g_iSkillLevel != SKILL_HARD)
+			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
 		else
-		{
-			// subsequent swings do half
-			if (g_iSkillLevel != SKILL_HARD)
-				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_SLASH);
-			else
-				pEntity->TraceAttack(m_pPlayer->pev, 32.5, gpGlobals->v_forward, &tr, DMG_SLASH);
-		}
+			pHit->TraceAttack(m_pPlayer->pev, 45, gpGlobals->v_forward, &tr, DMG_CLUB);
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
-
-#endif
-
-		m_flNextSecondaryAttack = GetNextAttackDelay(0.25);
-
+	
 #ifndef CLIENT_DLL
-		// play thwack, smack, or dong sound
-		float flVol = 1.0;
-		bool fHitWorld = true;
-
-		if (pEntity)
-		{
-			if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
-			{
-				// play thwack or smack sound
-				switch (RANDOM_LONG(0, 2))
-				{
-				case 0:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod1.wav", 1, ATTN_NORM);
-					break;
-				case 1:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod2.wav", 1, ATTN_NORM);
-					break;
-				case 2:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/bay_hitbod3.wav", 1, ATTN_NORM);
-					break;
-				}
-				m_pPlayer->m_iWeaponVolume = CROWBAR_BODYHIT_VOLUME;
-				if (pEntity->IsAlive())
-				{
-					flVol = 0.1;
-					fHitWorld = false;
-				}
-			}
-		}
-
-		// play texture hit sound
-		// UNDONE: Calculate the correct point of intersection when we hit with the hull instead of the line
-
-		if (fHitWorld)
-		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
-
-			if (g_pGameRules->IsMultiplayer())
-			{
-				// override the volume here, cause we don't play texture sounds in multiplayer,
-				// and fvolbar is going to be 0 from the above call.
-
-				fvolbar = 1;
-			}
-
-			// also play crowbar strike
-			switch (RANDOM_LONG(0, 1))
-			{
-			case 0:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/cbar_hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
-				break;
-			case 1:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/cbar_hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
-				break;
-			}
-
-			// delay the decal a bit
-			m_trHit = tr;
-		}
-
-		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
+	sound = UTIL_VarArgs("zombie/claw_strike%d.wav", RANDOM_LONG(1, 3));
 #endif
-		DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR);
-		pev->nextthink = gpGlobals->time + 0.2;
+	DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
 	}
+
+	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
 }
 
 void CM727::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.125;
 	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
 		return;
+
 	if (firemode == true)
 	{
 		firemode = false;
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Full-Auto Mode");
 	}
 	else
 	{
 		firemode = true;
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Semi-Auto Mode");
 	}
+	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
 }
 
 void CM727::Reload()
