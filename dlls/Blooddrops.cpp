@@ -227,23 +227,25 @@ int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
 		}
 		if (pentTouched->IsPlayer() && m_hasstained != true)
 		{
-			//curweapon = CBasePlayerWeapon* GetWeaponPtr();
+			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pentTouched);
+			CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
 			m_hasstained = true;
 			if (m_BloodType == BLOOD_COLOR_RED)
 			{
-		
+				weapon->pev->skin = 1;
+				ALERT(at_console, "red gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_YELLOW)
 			{
-		
+				ALERT(at_console, "yellow gun\n");		
 			}
 			else if (m_BloodType == BLOOD_COLOR_GREEN)
 			{
-		
+				ALERT(at_console, "green gun\n");		
 			}
 			else if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
-
+				ALERT(at_console, "cyan gun\n");
 			}
 		}
 		return 0;
