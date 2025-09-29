@@ -204,11 +204,15 @@ void CPhysblood::AirThink()
 {
 	CBaseEntity* pObject = NULL;
 	pev->nextthink = gpGlobals->time + 0.05;
-	pObject = UTIL_FindEntityInSphere(this, pev->origin, 8);
+	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 	if (pObject)
 	{
-		if (0 != pObject->pev->takedamage && m_hashealed != true)
+		ALERT(at_console, "pObject acquired\n");
+		if (pObject->IsPlayer())
+			ALERT(at_console, "pObject is player\n");
+		if (pObject->IsPlayer() && 0 != pObject->pev->takedamage && m_hashealed != true)
 		{
+			ALERT(at_console, "attempt heal\n");
 			m_hashealed = true;
 			if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
@@ -217,6 +221,7 @@ void CPhysblood::AirThink()
 		}
 		if (pObject->IsPlayer() && m_hasstained != true)
 		{
+			ALERT(at_console, "attempt stain\n");
 			int flags;
 			flags = 0;
 
