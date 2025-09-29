@@ -1323,6 +1323,7 @@ void CBasePlayer::WaterMove()
 
 	if (pev->waterlevel == 3)
 	{
+		PLAYBACK_EVENT_FULL(0, edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
 		air = (int)(pev->air_finished - gpGlobals->time);
 		if (!RANDOM_LONG(0, 0x1f) && RANDOM_LONG(0, AIRTIME - 1) >= air)
 		{
@@ -3237,6 +3238,7 @@ void CBasePlayer::Spawn()
 
 void CBasePlayer::Precache()
 {
+	m_stain = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	// SOUNDS / MODELS ARE PRECACHED in ClientPrecache() (game specific)
 	// because they need to precache before any clients have connected
 
@@ -4782,7 +4784,7 @@ void CBasePlayer ::SendInitMessages(void)
 
 	for (int i = 1; i < gpGlobals->maxEntities; i++, pEdict++)
 	{
-		if (pEdict->free == true) // Not in use
+		if (pEdict->free == 1) // Not in use
 			continue;
 
 		pEntity = CBaseEntity::Instance(pEdict);
