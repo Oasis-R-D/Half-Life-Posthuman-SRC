@@ -212,11 +212,11 @@ void CGrenade::Detonate()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(36, gSkillData.monDmg9MM, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+		CPhysbullet::BulletCreate(8, 15, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(36, 20, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+		CPhysbullet::BulletCreate(8, 20, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
 	}
 	#endif
 	Explode(&tr, DMG_BLAST);
@@ -238,11 +238,11 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(36, gSkillData.monDmg9MM, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+		CPhysbullet::BulletCreate(8, 15, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(36, 20, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
+		CPhysbullet::BulletCreate(8, 20, 5000, pev->origin, VECTOR_CONE_20DEGREES, 6.283, 6.283, 1, 12, edict());
 	}
 	#endif
 	Explode(&tr, DMG_BLAST);
