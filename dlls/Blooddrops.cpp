@@ -144,6 +144,7 @@ void CPhysblood::Precache()
 	PRECACHE_SOUND("common/drip_05.wav");
 	PRECACHE_SOUND("common/drip_06.wav");
 	PRECACHE_SOUND("common/drip_07.wav");
+	m_stain = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 
 
@@ -227,24 +228,33 @@ int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
 		}
 		if (pentTouched->IsPlayer() && m_hasstained != true)
 		{
+			int flags;
+#if defined(CLIENT_WEAPONS)
+			flags = FEV_NOTHOST;
+#else
+			flags = 0;
+#endif
 			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pentTouched);
-			CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
+			//CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
 			m_hasstained = true;
 			if (m_BloodType == BLOOD_COLOR_RED)
 			{
-				weapon->pev->skin = 1;
+				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
 				ALERT(at_console, "red gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_YELLOW)
 			{
+				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 2, 0, 0, 0);
 				ALERT(at_console, "yellow gun\n");		
 			}
 			else if (m_BloodType == BLOOD_COLOR_GREEN)
 			{
+				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 3, 0, 0, 0);
 				ALERT(at_console, "green gun\n");		
 			}
 			else if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
+				PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
 				ALERT(at_console, "cyan gun\n");
 			}
 		}
