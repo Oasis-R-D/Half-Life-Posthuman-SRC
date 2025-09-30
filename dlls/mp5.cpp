@@ -85,6 +85,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 
 bool CMP5::Deploy()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
