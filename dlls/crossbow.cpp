@@ -101,12 +101,6 @@ void CCrossbow::PrimaryAttack()
 	FireBolt();
 }
 
-// this function only gets called NEVER (TO-DO: Remove function)
-void CCrossbow::FireSniperBolt()
-{
-	return;
-}
-
 void CCrossbow::FireBolt()
 {
 	TraceResult tr;

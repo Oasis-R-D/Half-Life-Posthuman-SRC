@@ -732,7 +732,6 @@ public:
 	bool GetItemInfo(ItemInfo* p) override;
 	void ItemPostFrame() override;
 	void FireBolt();
-	void FireSniperBolt();
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	bool Deploy() override;
