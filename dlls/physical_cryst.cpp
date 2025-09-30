@@ -21,6 +21,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "player.h"
+#include "decals.h"
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_cryst.h"
@@ -211,7 +212,7 @@ void CPhyscryst::AirThink()
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
 }
 
-void CPhyscryst::BoltTouch(CBaseEntity* pOther)
+void CPhyscryst::ExplTouch(CBaseEntity* pOther)
 {
 	m_Endpos = pev->origin;
 	TraceResult tr = UTIL_GetGlobalTrace();
@@ -246,8 +247,8 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 		}
 	}
 	
-	RadiusDamage(pev->origin, pev, NULL, 10, CLASS_NONE, DMG_BLAST);
+	::RadiusDamage(pev->origin, pev, NULL, 10, CLASS_NONE, DMG_BLAST);
 	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
-	stay();
+	Stay();
 }
 #endif
