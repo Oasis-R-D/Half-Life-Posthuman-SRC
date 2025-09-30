@@ -247,7 +247,8 @@ void CPhyscryst::ExplTouch(CBaseEntity* pOther)
 		}
 	}
 	
-	::RadiusDamage(pev->origin, pev, NULL, 10, CLASS_NONE, DMG_BLAST);
+	::RadiusDamage(pev->origin, pev, NULL, 64, 10, CLASS_NONE, DMG_BLAST);
+
 	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
 	Stay();
 }
