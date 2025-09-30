@@ -127,6 +127,10 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 		SetTouch(NULL);
 		SetThink(NULL);
 	}
+	else if (m_bounceamnt >= 0 && m_original == 1 && m_Crysttype == Purple)
+	{
+		SetTouch(&CPhyscryst::ExplTouch);
+	}
 	if (0 != pOther->pev->takedamage)
 	{
 		entvars_t* pevOwner;
@@ -205,5 +209,45 @@ void CPhyscryst::AirThink()
 	return;
 
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
+}
+
+void CPhyscryst::BoltTouch(CBaseEntity* pOther)
+{
+	m_Endpos = pev->origin;
+	TraceResult tr = UTIL_GetGlobalTrace();
+
+	SetTouch(NULL);
+	SetThink(NULL);
+
+	if (!pOther->IsBSPModel())
+	{
+		// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
+			break;
+		}
+	}
+	else
+	{
+		// play WORLD hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
+			break;
+		}
+	}
+	
+	RadiusDamage(pev->origin, pev, NULL, 10, CLASS_NONE, DMG_BLAST);
+	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
+	stay();
 }
 #endif

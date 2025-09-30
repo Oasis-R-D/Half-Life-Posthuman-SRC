@@ -1559,7 +1559,6 @@ public:
 	bool GetItemInfo(ItemInfo* p) override;
 
 	void PrimaryAttack() override;
-	void SecondaryAttack() override;
 	void TertiaryAttack() override;
 	bool Deploy() override;
 	void WeaponIdle() override;

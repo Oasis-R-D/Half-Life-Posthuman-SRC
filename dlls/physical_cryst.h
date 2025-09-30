@@ -24,6 +24,7 @@ public:
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
+	void EXPORT ExplTouch(CBaseEntity* pOther);
 	static void CrystalCreate(int BLLTamnt, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, int CrystType, edict_t *shooter, int OG); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:

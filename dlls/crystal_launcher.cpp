@@ -107,9 +107,6 @@ void CCrystal_launcher::PrimaryAttack()
 	m_flTimeWeaponIdle = 1;
 	m_fInSpecialReload = 0;
 }
-void CCrystal_launcher::SecondaryAttack()
-{
-}
 
 void CCrystal_launcher::TertiaryAttack()
 {
