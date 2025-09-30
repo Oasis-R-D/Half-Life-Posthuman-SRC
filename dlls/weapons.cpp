@@ -338,6 +338,7 @@ void W_Precache()
 	// Crystal launcher
 	UTIL_PrecacheOtherWeapon("weapon_crystallauncher");
 
+	UTIL_PrecacheOther("item_healthkit");
 	if (g_pGameRules->IsDeathmatch())
 	{
 		UTIL_PrecacheOther("weaponbox"); // container for dropped deathmatch weapons

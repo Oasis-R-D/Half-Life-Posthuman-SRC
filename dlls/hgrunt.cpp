@@ -881,7 +881,8 @@ void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
 		}
 		else
 			DropItem("weapon_m727", vecGunPos, vecGunAngles);
-
+		if (GetBodygroup(TORSO_GROUP) == TORSO_MED)
+			DropItem("item_healthkit", vecGunPos, vecGunAngles);
 		m_hasdroppedwpn = true;
 	}
 	CSquadMonster::Killed(pevAttacker, iGib);

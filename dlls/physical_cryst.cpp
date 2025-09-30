@@ -112,8 +112,6 @@ int CPhyscryst::Classify()
 }
 void CPhyscryst::Stay()
 {
-	SetTouch(NULL);
-	SetThink(NULL);
 	pev->velocity = Vector(0, 0, 0);
 	pev->avelocity.z = 0;
 	SetThink(&CPhyscryst::SUB_Remove);
@@ -128,7 +126,7 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 		SetTouch(NULL);
 		SetThink(NULL);
 	}
-	else if (m_bounceamnt >= 0 && m_original == 1 && m_Crysttype == Purple)
+	else if (m_bounceamnt >= 1 && m_original == 1 && m_Crysttype == Purple)
 	{
 		SetTouch(&CPhyscryst::ExplTouch);
 	}
@@ -156,7 +154,7 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 
 		if (pOther->IsBSPModel())
 		{
-			if (m_bounceamnt >= 4)
+			if (m_bounceamnt >= 4 || m_original == 0)
 			{
 				Stay();
 			}
@@ -173,7 +171,7 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
-			if (m_bounceamnt >= 4)
+			if (m_bounceamnt >= 4 || m_original == 0)
 			{
 				Stay();
 			}
@@ -181,7 +179,7 @@ void CPhyscryst::BoltTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (m_bounceamnt >= 4)
+		if (m_bounceamnt >= 4 || m_original == 0)
 		{
 			Stay();
 		}
@@ -219,7 +217,10 @@ void CPhyscryst::ExplTouch(CBaseEntity* pOther)
 
 	SetTouch(NULL);
 	SetThink(NULL);
+	::RadiusDamage(pev->origin, pev, NULL, 64, 10, CLASS_NONE, DMG_BLAST);
 
+	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
+	Stay();
 	if (!pOther->IsBSPModel())
 	{
 		// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
@@ -247,9 +248,6 @@ void CPhyscryst::ExplTouch(CBaseEntity* pOther)
 		}
 	}
 	
-	::RadiusDamage(pev->origin, pev, NULL, 64, 10, CLASS_NONE, DMG_BLAST);
 
-	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
-	Stay();
 }
 #endif

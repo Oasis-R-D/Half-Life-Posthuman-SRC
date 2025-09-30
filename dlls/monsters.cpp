@@ -540,7 +540,7 @@ void CBaseMonster::Railed() //:troll:
 			}
 #ifndef CLIENT_DLL
 			for (int l = 0; l < 16; l++)
-				CPhysblood::BloodCreate(1, 200, Center(), gpGlobals->v_up, 1.25, BloodColor(), false, 1.5 * CONE_60DEGREES);
+				CPhysblood::BloodCreate(1, 350, Center(), -gpGlobals->v_up, 1.25, BloodColor(), true, 2.5 * CONE_60DEGREES);
 #endif
 
 			auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", Center(), true);
