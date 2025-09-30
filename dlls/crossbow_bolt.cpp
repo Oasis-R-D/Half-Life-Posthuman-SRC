@@ -149,11 +149,6 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 	}
 	if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
 		UTIL_Sparks(pev->origin);
-	if (g_pGameRules->IsMultiplayer())
-	{
-		SetThink(&CCrossbowBolt::ExplodeThink);
-		pev->nextthink = gpGlobals->time + 0.1;
-	}
 }
 
 void CCrossbowBolt::BubbleThink()

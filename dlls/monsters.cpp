@@ -34,6 +34,7 @@
 #include "soundent.h"
 #include "gamerules.h"
 #include "pm_materials.h"
+#include "Blooddrops.h"
 
 #define MONSTER_CUT_CORNER_DIST 8 // 8 means the monster's bounding box is contained without the box of the node in WC
 
@@ -517,8 +518,8 @@ void CBaseMonster::Railed() //:troll:
 		pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
 		{
-			//RadiusDamage(pev, pev, 100, CLASS_NONE, DMG_BLAST);
-			//CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+			RadiusDamage(pev, pev, 30, CLASS_NONE, DMG_BLAST);
+			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 			Killed(pev, GIB_ALWAYS);
 
 			m_flRailChargeTime = 0;
@@ -537,6 +538,10 @@ void CBaseMonster::Railed() //:troll:
 				else
 					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_CYAN, 255);
 			}
+#ifndef CLIENT_DLL
+			for (int l = 0; l < 16; l++)
+				CPhysblood::BloodCreate(1, 200, Center(), gpGlobals->v_up, 1.25, BloodColor(), false, 1.5 * CONE_60DEGREES);
+#endif
 
 			auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", Center(), true);
 			spr->AnimateAndDie(10);
