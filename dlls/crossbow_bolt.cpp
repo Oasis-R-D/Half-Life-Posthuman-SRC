@@ -88,7 +88,7 @@ int CCrossbowBolt::Classify()
 
 void CCrossbowBolt::Stay()
 {
-	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, "weapons/bolt_impact_con.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 98 + RANDOM_LONG(0, 7));
+	//EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, "weapons/bolt_impact_con.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 98 + RANDOM_LONG(0, 7));
 	Vector vecDir = pev->velocity.Normalize();
 	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
 

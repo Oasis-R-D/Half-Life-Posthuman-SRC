@@ -871,8 +871,25 @@ void CAdvSec::Railcannon()
 
 	UTIL_MakeVectors(pev->angles);
 
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
-	//^^^ this needs replaced with a crossbow bolt
+	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
+	#ifndef CLIENT_DLL
+	auto pBolt = Create("crossbow_bolt", vecShootOrigin, vecShootDir, edict());
+	pBolt->pev->origin = vecShootOrigin;
+	pBolt->pev->angles = vecShootDir;
+	pBolt->pev->owner = edict();
+
+	if (pev->waterlevel == 3)
+	{
+		pBolt->pev->velocity = vecShootDir * BOLT_WATER_VELOCITY;
+		pBolt->pev->speed = BOLT_WATER_VELOCITY;
+	}
+	else
+	{
+		pBolt->pev->velocity = vecShootDir * BOLT_AIR_VELOCITY;
+		pBolt->pev->speed = BOLT_AIR_VELOCITY;
+	}
+	pBolt->pev->avelocity.z = 10;
+#endif
 	pev->effects |= EF_MUZZLEFLASH; //this needs to be a different sprite
 
 	m_cAmmoLoaded--; // take away a bullet!
