@@ -18,6 +18,7 @@
 
 #include "effects.h"
 #include "weaponinfo.h"
+#include "effects.h"
 
 class CBasePlayer;
 class CBasePlayerWeapon;
@@ -61,6 +62,41 @@ public:
 	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
 };
 
+class CEGrenade : public CBaseMonster
+{
+public:
+	void Spawn() override;
+
+	typedef enum
+	{
+		SATCHEL_DETONATE = 0,
+		SATCHEL_RELEASE
+	} SATCHELCODE;
+
+	static CEGrenade* ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, float time);
+	static CEGrenade* ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
+	static CEGrenade* ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
+	static void UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code);
+
+	void Explode(Vector vecSrc, Vector vecAim);
+	void Explode(TraceResult* pTrace, int bitsDamageType);
+	void EXPORT Electricitythink();
+
+	void EXPORT BounceTouch(CBaseEntity* pOther);
+	void EXPORT SlideTouch(CBaseEntity* pOther);
+	void EXPORT ExplodeTouch(CBaseEntity* pOther);
+	void EXPORT DangerSoundThink();
+	void EXPORT PreDetonate();
+	void EXPORT Detonate();
+	void EXPORT DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+	void EXPORT TumbleThink();
+
+	virtual void BounceSound();
+	int BloodColor() override { return DONT_BLEED; }
+	void Killed(entvars_t* pevAttacker, int iGib) override;
+
+	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
+};
 
 // constant items
 #define ITEM_HEALTHKIT 1
@@ -429,7 +465,9 @@ inline MULTIDAMAGE gMultiDamage;
 
 #define BIG_EXPLOSION_VOLUME 2048
 #define NORMAL_EXPLOSION_VOLUME 1024
+#define AVERAGE_EXPLOSION_VOLUME 640
 #define SMALL_EXPLOSION_VOLUME 512
+#define THE_REAL_AVERAGE_EXPLOSION_VOLUME 320
 
 #define WEAPON_ACTIVITY_VOLUME 64
 
