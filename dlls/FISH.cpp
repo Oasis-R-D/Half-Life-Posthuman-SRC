@@ -397,7 +397,7 @@ void CFish::SetYawSpeed()
 
 //=========================================================
 // Killed - overrides CFlyingMonster.
-//
+//=========================================================
 void CFish::Killed(entvars_t* pevAttacker, int iGib)
 {
 	CBaseMonster::Killed(pevAttacker, iGib);
@@ -940,20 +940,6 @@ void CFish::MonsterThink()
 		if (m_MonsterState != MONSTERSTATE_SCRIPT)
 		{
 			Swim();
-
-			// blink the eye
-			if (m_flBlink < gpGlobals->time)
-			{
-				pev->skin = EYE_CLOSED;
-				if (m_flBlink + 0.2 < gpGlobals->time)
-				{
-					m_flBlink = gpGlobals->time + RANDOM_FLOAT(3, 4);
-					if (m_bOnAttack)
-						pev->skin = EYE_MAD;
-					else
-						pev->skin = EYE_BASE;
-				}
-			}
 		}
 	}
 }
