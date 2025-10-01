@@ -134,7 +134,7 @@ void CPhysbullet::Spawn()
 	pev->renderamt = 0;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-	pev->nextthink = gpGlobals->time;
+	pev->nextthink = gpGlobals->time + 0.05;
 }
 
 
@@ -255,7 +255,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
 				break;
 			}
-			/*
+			/* Commented out due to being very broken (for aerial NPCs and bigs NPCs like the osprey)
 			Vector knockbackdir = Vector(pev->angles.x, pev->angles.y, 0);
 			if (m_Flare == 12) // makes the shotgun knock dead enemies back #swag
 			{
@@ -292,6 +292,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
+	m_direction = UTIL_VecToAngles(pev->velocity);
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05
 	CBaseEntity* m_ent = NULL;
 	while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
@@ -382,7 +383,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		penmodifier = 1.75;
 		break;
 	case CHAR_TEX_IMPEN:
-		penmodifier = 64.4;
+		penmodifier = 64;
 		break;
 	case CHAR_TEX_DIRT:
 		penmodifier = 2;

@@ -103,7 +103,7 @@ void CHornet::Spawn()
 	if (g_iSkillLevel != SKILL_HARD)
 		pev->dmg = gSkillData.monDmgHornet;
 	else
-		pev->dmg = 10;
+		pev->dmg = 15;
 	
 
 	pev->nextthink = gpGlobals->time + 0.1;
@@ -275,7 +275,7 @@ void CHornet::TrackTarget()
 	else
 		vecFlightDir = pev->velocity.Normalize();
 
-	// measure how far the turn is, the wider the turn, the slow we'll go this time.
+	// measure how far the turn is, the wider the turn, the slower we'll go this time.
 	flDelta = DotProduct(vecFlightDir, vecDirToEnemy);
 
 	if (flDelta < 0.5)
