@@ -89,8 +89,7 @@ void CSpitThrower::PrimaryAttack()
 
 	for (int i = 0; i < 3; i++)
 	{
-		Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 16 + 
-			gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
+		Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 16 + gpGlobals->v_right * 4;
 		Create("env_spit", vecSrc, pev->angles, m_pPlayer->edict());
 	}
 }
@@ -152,7 +151,8 @@ class CSpitAmmo : public CBasePlayerAmmo
 LINK_ENTITY_TO_CLASS(ammo_spit, CSpitAmmo);
 
 class CEnvSpit : public CBaseEntity
-{
+{	
+	Vector m_SpreadVect;
 	int iSquidSpitSprite;
 	void Spawn()
 	{
@@ -160,7 +160,9 @@ class CEnvSpit : public CBaseEntity
 		SET_MODEL(edict(), "models/spit.mdl");
 		pev->solid = SOLID_BBOX;
 		pev->movetype = MOVETYPE_BOUNCE;
-		pev->velocity = gpGlobals->v_forward * 1000 + gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
+		//pev->velocity = gpGlobals->v_forward * 1000 + gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
+		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES), RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES), RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES));
+		pev->velocity = (gpGlobals->v_forward + m_SpreadVect) * 1750; // Applies spread and velocity
 		pev->framerate = 1;
 		pev->dmgtime = gpGlobals->time + 2;
 		pev->nextthink = gpGlobals->time + 0.1;

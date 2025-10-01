@@ -290,7 +290,7 @@ void CRoach::MonsterThink()
 }
 
 //=========================================================
-// Picks a new spot for roach to run to.(
+// Picks a new spot for roach to run to.
 //=========================================================
 void CRoach::PickNewDest(int iCondition)
 {
