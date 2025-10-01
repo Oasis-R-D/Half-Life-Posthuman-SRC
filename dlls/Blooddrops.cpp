@@ -123,11 +123,19 @@ void CPhysblood::Spawn()
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
+	else if (m_BloodType == NULL)
+	{
+		pev->rendercolor = Vector(RANDOM_LONG(0, 0), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
+	}
 	else
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255));
 	}
-	pev->rendermode = kRenderTransAlpha;
+	
+	if (m_BloodType == NULL)
+		pev->rendermode = kRenderTransAdd
+	else
+		pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	SetTouch(&CPhysblood::BoltTouch);
@@ -180,6 +188,10 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
+	}
+	else if (m_BloodType == NULL)
+	{
+		//UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
 	}
 	else
 	{
@@ -251,6 +263,12 @@ void CPhysblood::AirThink()
 				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
 				weapon->m_stain = 4;
 				ALERT(at_console, "cyan gun\n");
+			}
+			else if (m_BloodType == NULL)
+			{
+				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
+				weapon->m_stain = 0;
+				ALERT(at_console, "clean gun\n");
 			}
 			else
 			{

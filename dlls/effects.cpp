@@ -1888,6 +1888,9 @@ bool CBloodSpray::KeyValue(KeyValueData* pkvd)
 		int color = atoi(pkvd->szValue);
 		switch (color)
 		{
+		case 5: // water
+			SetColor(NULL);
+			break;
 		case 4: 
 			SetColor((byte)32); // corrupted blood color
 			break;
