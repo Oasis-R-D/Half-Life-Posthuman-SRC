@@ -293,6 +293,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 void CPhysbullet::AirThink()
 {
 	m_direction = UTIL_VecToAngles(pev->velocity);
+	pev->angles = m_direction;
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05
 	CBaseEntity* m_ent = NULL;
 	while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
