@@ -25,7 +25,7 @@ public:
 	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static void BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib = false, float spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES)); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib = false, float spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES), bool speedRNG = true); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
 	int m_BloodDropVel;
@@ -38,6 +38,7 @@ private:
 	bool m_isgib;
 	bool m_hashealed = false;
 	bool m_hasstained = false;
+	bool m_randomspeed = false;
 
 };
 #endif

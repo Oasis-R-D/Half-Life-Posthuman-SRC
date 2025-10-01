@@ -28,7 +28,7 @@
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
 
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread)
+void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
@@ -50,6 +50,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
 			pBlood->m_isgib = isgib;
+			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
 		}
 	}
@@ -76,9 +77,9 @@ void CPhysblood::Spawn()
 	if (m_opposite == 1)
 	{
 		pev->scale = RANDOM_FLOAT(0.4, 0.65);
-		if (m_BloodDropVel > 0)
+		if (m_BloodDropVel > 0 && m_randomspeed == true)
 		{
-			m_BloodDropVel -= RANDOM_LONG(0, 400);
+			m_BloodDropVel -= RANDOM_LONG(0, 375);
 		}
 
 	}
@@ -86,7 +87,8 @@ void CPhysblood::Spawn()
 	{
 		if (m_BloodDropVel > 0)
 		{
-			m_BloodDropVel -= RANDOM_LONG(0, 300);
+			if (m_randomspeed == true)
+				m_BloodDropVel -= RANDOM_LONG(0, 275);
 			pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
 		}
 		else
@@ -100,7 +102,7 @@ void CPhysblood::Spawn()
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 48) * m_opposite); //spawn a little bit more forward
+	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 24) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->owner = NULL;
@@ -111,7 +113,7 @@ void CPhysblood::Spawn()
 	}
 	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
-		pev->rendercolor = Vector(RANDOM_LONG(205, 255), RANDOM_LONG(185, 235), RANDOM_LONG(82, 160));
+		pev->rendercolor = Vector(199, 195, 55);
 	}
 	else if (m_BloodType == BLOOD_COLOR_GREEN)
 	{
