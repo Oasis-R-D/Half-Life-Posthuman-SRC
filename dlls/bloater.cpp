@@ -12,211 +12,904 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
-
-// TO-DO: Make sound FX for bloater
-
-
 //=========================================================
-// Bloater
 //=========================================================
 
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
 #include "monsters.h"
-#include "schedule.h"
+#include "squadmonster.h"
+#include "weapons.h"
+#include "player.h"
+#include "gamerules.h"
+#include "UserMessages.h"
+#include "blooddrops.h"
 
+#define AFLOCK_MAX_RECRUIT_RADIUS 1024
+#define AFLOCK_FLY_SPEED 125
+#define AFLOCK_TURN_RATE 75
+#define AFLOCK_ACCELERATE 10
+#define AFLOCK_CHECK_DIST 192
+#define AFLOCK_TOO_CLOSE 100
+#define AFLOCK_TOO_FAR 256
 
 //=========================================================
-// Monster's Anim Events Go Here
 //=========================================================
-#define BLOATER_AE_ATTACK_MELEE1 0x01
-
-
-class CBloater : public CBaseMonster
+class CFlockingBloaterFlock : public CBaseMonster
 {
 public:
 	void Spawn() override;
 	void Precache() override;
-	void SetYawSpeed() override;
-	int Classify() override;
-	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	void SpawnFlock();
 
-	void PainSound() override;
-	void AlertSound() override;
-	void IdleSound() override;
-	void AttackSnd();
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
 
-	// No range attacks
-	bool CheckRangeAttack1(float flDot, float flDist) override { return false; }
-	bool CheckRangeAttack2(float flDot, float flDist) override { return false; }
-	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+	// Sounds are shared by the flock
+	static void PrecacheFlockSounds();
+
+	int m_cFlockSize;
+	float m_flFlockRadius;
 };
 
-LINK_ENTITY_TO_CLASS(monster_bloater, CBloater);
-
-//=========================================================
-// Classify - indicates this monster's place in the
-// relationship table.
-//=========================================================
-int CBloater::Classify()
-{
-	return CLASS_ALIEN_MONSTER;
-}
-
-//=========================================================
-// SetYawSpeed - allows each sequence to have a different
-// turn rate associated with it.
-//=========================================================
-void CBloater::SetYawSpeed()
-{
-	int ys;
-
-	ys = 120;
-
-#if 0
-	switch ( m_Activity )
+TYPEDESCRIPTION CFlockingBloaterFlock::m_SaveData[] =
 	{
-	}
-#endif
+		DEFINE_FIELD(CFlockingBloaterFlock, m_cFlockSize, FIELD_INTEGER),
+		DEFINE_FIELD(CFlockingBloaterFlock, m_flFlockRadius, FIELD_FLOAT),
+};
 
-	pev->yaw_speed = ys;
-}
-
-bool CBloater::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
-{
-	PainSound();
-	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
-}
-
-void CBloater::PainSound()
-{
-#if 0	
-	int pitch = 95 + RANDOM_LONG(0,9);
-
-	switch (RANDOM_LONG(0,5))
-	{
-	case 0: 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_pain1.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 1:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_pain2.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	default:
-		break;
-	}
-#endif
-}
-
-void CBloater::AlertSound()
-{
-#if 0
-	int pitch = 95 + RANDOM_LONG(0,9);
-
-	switch (RANDOM_LONG(0,2))
-	{
-	case 0: 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_alert10.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 1:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_alert20.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 2:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_alert30.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	}
-#endif
-}
-
-void CBloater::IdleSound()
-{
-#if 0
-	int pitch = 95 + RANDOM_LONG(0,9);
-
-	switch (RANDOM_LONG(0,2))
-	{
-	case 0: 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_idle1.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 1:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_idle2.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 2:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_idle3.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	}
-#endif
-}
-
-void CBloater::AttackSnd()
-{
-#if 0
-	int pitch = 95 + RANDOM_LONG(0,9);
-
-	switch (RANDOM_LONG(0,1))
-	{
-	case 0: 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_attack1.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	case 1:
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "zombie/zo_attack2.wav", 1.0, ATTN_NORM, 0, pitch);
-		break;
-	}
-#endif
-}
-
+IMPLEMENT_SAVERESTORE(CFlockingBloaterFlock, CBaseMonster);
 
 //=========================================================
-// HandleAnimEvent - catches the monster-specific messages
-// that occur when tagged animation frames are played.
 //=========================================================
-void CBloater::HandleAnimEvent(MonsterEvent_t* pEvent)
+class CFlockingBloater : public CBaseMonster
 {
-	switch (pEvent->event)
-	{
-	case BLOATER_AE_ATTACK_MELEE1:
-	{
-		// do stuff for this event.
-		AttackSnd();
-	}
-	break;
+public:
+	void Spawn() override;
+	void Precache() override;
+	void SpawnCommonCode();
+	void EXPORT IdleThink();
+	void BoidAdvanceFrame();
+	void EXPORT FormFlock();
+	void EXPORT Start();
+	void EXPORT FlockLeaderThink();
+	void EXPORT FlockFollowerThink();
+	void MakeSound();
+	void AlertFlock();
+	void SpreadFlock();
+	void SpreadFlock2();
+	void Killed(entvars_t* pevAttacker, int iGib) override;
+	void Poop(); // yummers
+	bool FPathBlocked();
+	//void KeyValue( KeyValueData *pkvd ) override;
 
-	default:
-		CBaseMonster::HandleAnimEvent(pEvent);
-		break;
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+
+	bool IsLeader() { return m_pSquadLeader == this; }
+	bool InSquad() { return m_pSquadLeader != NULL; }
+	int SquadCount();
+	void SquadRemove(CFlockingBloater* pRemove);
+	void SquadUnlink();
+	void SquadAdd(CFlockingBloater* pAdd);
+	void SquadDisband();
+
+	CFlockingBloater* m_pSquadLeader;
+	CFlockingBloater* m_pSquadNext;
+	bool m_fTurning;			  // is this boid turning?
+	bool m_fCourseAdjust;		  // followers set this flag true to override flocking while they avoid something
+	bool m_fPathBlocked;		  // true if there is an obstacle ahead
+	Vector m_vecReferencePoint;	  // last place we saw leader
+	Vector m_vecAdjustedVelocity; // adjusted velocity (used when fCourseAdjust is true)
+	float m_flGoalSpeed;
+	float m_flLastBlockedTime;
+	float m_flFakeBlockedTime;
+	float m_flAlertTime;
+	float m_flFlockNextSoundTime;
+	int m_randomoffset;
+	int m_thinkid;
+
+};
+LINK_ENTITY_TO_CLASS(monster_bloater, CFlockingBloater);
+LINK_ENTITY_TO_CLASS(monster_bloater_flock, CFlockingBloaterFlock);
+
+TYPEDESCRIPTION CFlockingBloater::m_SaveData[] =
+	{
+		DEFINE_FIELD(CFlockingBloater, m_pSquadLeader, FIELD_CLASSPTR),
+		DEFINE_FIELD(CFlockingBloater, m_pSquadNext, FIELD_CLASSPTR),
+		DEFINE_FIELD(CFlockingBloater, m_fTurning, FIELD_BOOLEAN),
+		DEFINE_FIELD(CFlockingBloater, m_fCourseAdjust, FIELD_BOOLEAN),
+		DEFINE_FIELD(CFlockingBloater, m_fPathBlocked, FIELD_BOOLEAN),
+		DEFINE_FIELD(CFlockingBloater, m_vecReferencePoint, FIELD_POSITION_VECTOR),
+		DEFINE_FIELD(CFlockingBloater, m_vecAdjustedVelocity, FIELD_VECTOR),
+		DEFINE_FIELD(CFlockingBloater, m_flGoalSpeed, FIELD_FLOAT),
+		DEFINE_FIELD(CFlockingBloater, m_flLastBlockedTime, FIELD_TIME),
+		DEFINE_FIELD(CFlockingBloater, m_flFakeBlockedTime, FIELD_TIME),
+		DEFINE_FIELD(CFlockingBloater, m_flAlertTime, FIELD_TIME),
+		//	DEFINE_FIELD( CFlockingBloater, m_flFlockNextSoundTime, FIELD_TIME ),	// don't need to save
+};
+
+IMPLEMENT_SAVERESTORE(CFlockingBloater, CBaseMonster);
+
+//=========================================================
+//=========================================================
+bool CFlockingBloaterFlock::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "iFlockSize"))
+	{
+		m_cFlockSize = atoi(pkvd->szValue);
+		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "flFlockRadius"))
+	{
+		m_flFlockRadius = atof(pkvd->szValue);
+		return true;
+	}
+	return false;
 }
 
 //=========================================================
-// Spawn
 //=========================================================
-void CBloater::Spawn()
+void CFlockingBloaterFlock::Spawn()
 {
 	Precache();
+	SpawnFlock();
 
-	SET_MODEL(ENT(pev), "models/floater.mdl");
-	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
+	REMOVE_ENTITY(ENT(pev)); // dump the spawn ent
+}
 
+//=========================================================
+//=========================================================
+void CFlockingBloaterFlock::Precache()
+{
+	PRECACHE_MODEL("models/aflock.mdl");
+	PRECACHE_MODEL("models/boid.mdl");
+
+	PrecacheFlockSounds();
+}
+
+
+void CFlockingBloaterFlock::PrecacheFlockSounds()
+{
+	PRECACHE_SOUND("boid/boid_alert1.wav");
+	PRECACHE_SOUND("boid/boid_alert2.wav");
+
+	PRECACHE_SOUND("boid/boid_idle1.wav");
+	PRECACHE_SOUND("boid/boid_idle2.wav");
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloaterFlock::SpawnFlock()
+{
+	float R = m_flFlockRadius;
+	int iCount;
+	Vector vecSpot;
+	CFlockingBloater *pBoid, *pLeader;
+
+	pLeader = pBoid = NULL;
+
+	for (iCount = 0; iCount < m_cFlockSize; iCount++)
+	{
+		pBoid = GetClassPtr((CFlockingBloater*)NULL);
+
+		if (!pLeader)
+		{
+			// make this guy the leader.
+			pLeader = pBoid;
+
+			pLeader->m_pSquadLeader = pLeader;
+			pLeader->m_pSquadNext = NULL;
+		}
+
+		vecSpot.x = RANDOM_FLOAT(-R, R);
+		vecSpot.y = RANDOM_FLOAT(-R, R);
+		vecSpot.z = RANDOM_FLOAT(0, 16);
+		vecSpot = pev->origin + vecSpot;
+
+		UTIL_SetOrigin(pBoid->pev, vecSpot);
+		pBoid->pev->movetype = MOVETYPE_FLY;
+		pBoid->SpawnCommonCode();
+		pBoid->pev->flags &= ~FL_ONGROUND;
+		pBoid->pev->velocity = g_vecZero;
+		pBoid->pev->angles = pev->angles;
+
+		pBoid->pev->frame = 0;
+		pBoid->pev->nextthink = gpGlobals->time + 0.2;
+		pBoid->SetThink(&CFlockingBloater::IdleThink);
+
+		if (pBoid != pLeader)
+		{
+			pLeader->SquadAdd(pBoid);
+		}
+	}
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloater::Spawn()
+{
+	Precache();
+	SpawnCommonCode();
+
+	pev->frame = 0;
+	pev->nextthink = gpGlobals->time + 0.1;
+	SetThink(&CFlockingBloater::IdleThink);
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloater::Precache()
+{
+	PRECACHE_MODEL("models/aflock.mdl");
+	PRECACHE_MODEL("models/boid.mdl");
+	CFlockingBloaterFlock::PrecacheFlockSounds();
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloater::MakeSound()
+{
+	if (m_flAlertTime > gpGlobals->time)
+	{
+		// make agitated sounds
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "boid/boid_alert1.wav", 1, ATTN_NORM);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "boid/boid_alert2.wav", 1, ATTN_NORM);
+			break;
+		}
+
+		return;
+	}
+
+	// make normal sound
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "boid/boid_idle1.wav", 1, ATTN_NORM);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "boid/boid_idle2.wav", 1, ATTN_NORM);
+		break;
+	}
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
+{
+	CFlockingBloater* pSquad;
+
+	pSquad = (CFlockingBloater*)m_pSquadLeader;
+
+	while (pSquad)
+	{
+		pSquad->m_flAlertTime = gpGlobals->time + 15;
+		pSquad = (CFlockingBloater*)pSquad->m_pSquadNext;
+	}
+
+	if (m_pSquadLeader)
+	{
+		m_pSquadLeader->SquadRemove(this);
+	}
+
+	pev->deadflag = DEAD_DEAD;
+	//::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 128, CLASS_NONE, Dmg type);
+	//UTIL_BloodPuff(tr, none)
+	UTIL_Remove(this);
+}
+
+//=========================================================
+//=========================================================
+void CFlockingBloater::SpawnCommonCode()
+{
+	pev->deadflag = DEAD_NO;
+	pev->classname = MAKE_STRING("monster_bloater");
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_FLY;
-	pev->spawnflags |= FL_FLY;
-	m_bloodColor = BLOOD_COLOR_GREEN;
-	pev->health = 40;
-	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
-	m_flFieldOfView = 0.5;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
-	m_MonsterState = MONSTERSTATE_NONE;
+	pev->takedamage = DAMAGE_YES;
+	pev->health = 1; 
 
-	MonsterInit();
+	m_bloodColor = BLOOD_COLOR_YELLOW;
+
+	m_fPathBlocked = false; // obstacles will be detected
+	m_flFieldOfView = 0.2;
+
+	SET_MODEL(ENT(pev), "models/floater.mdl");
+
+	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2));
 }
 
 //=========================================================
-// Precache - precaches all resources this monster needs
 //=========================================================
-void CBloater::Precache()
+void CFlockingBloater::BoidAdvanceFrame()
 {
-	PRECACHE_MODEL("models/floater.mdl");
+	// pev->framerate		= flapspeed;
+	StudioFrameAdvance(0.1);
 }
 
 //=========================================================
-// AI Schedules Specific to this monster
 //=========================================================
+void CFlockingBloater::IdleThink()
+{
+	pev->nextthink = gpGlobals->time + 0.2;
+
+	// see if there's a client in the same pvs as the monster
+	if (!FNullEnt(FIND_CLIENT_IN_PVS(edict())))
+	{
+		SetThink(&CFlockingBloater::Start);
+		pev->nextthink = gpGlobals->time + 0.1;
+	}
+}
+
+//=========================================================
+// Start - player enters the pvs, so get things going.
+//=========================================================
+void CFlockingBloater::Start()
+{
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	if (IsLeader())
+	{
+		SetThink(&CFlockingBloater::FlockLeaderThink);
+	}
+	else
+	{
+		SetThink(&CFlockingBloater::FlockFollowerThink);
+	}
+
+	/*
+	Vector	vecTakeOff;
+	vecTakeOff = Vector ( 0 , 0 , 0 );
+
+	vecTakeOff.z = 50 + RANDOM_FLOAT ( 0, 100 );
+	vecTakeOff.x = 20 - RANDOM_FLOAT ( 0, 40);
+	vecTakeOff.y = 20 - RANDOM_FLOAT ( 0, 40);
+
+	pev->velocity = vecTakeOff;
+
+
+	pev->speed = pev->velocity.Length();
+	pev->sequence = 0;
+*/
+	SetActivity(ACT_FLY);
+	ResetSequenceInfo();
+	BoidAdvanceFrame();
+
+	pev->speed = AFLOCK_FLY_SPEED; // no delay!
+}
+
+//=========================================================
+// Leader boid calls this to form a flock from surrounding boids
+//=========================================================
+void CFlockingBloater::FormFlock()
+{
+	if (!InSquad())
+	{
+		// I am my own leader
+		m_pSquadLeader = this;
+		m_pSquadNext = NULL;
+		int squadCount = 1;
+
+		CBaseEntity* pEntity = NULL;
+
+		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, AFLOCK_MAX_RECRUIT_RADIUS)) != NULL)
+		{
+			CBaseMonster* pRecruit = pEntity->MyMonsterPointer();
+
+			if (pRecruit && pRecruit != this && pRecruit->IsAlive() && !pRecruit->m_pCine)
+			{
+				// Can we recruit this guy?
+				if (FClassnameIs(pRecruit->pev, "monster_bloater"))
+				{
+					squadCount++;
+					SquadAdd((CFlockingBloater*)pRecruit);
+				}
+			}
+		}
+	}
+
+	SetThink(&CFlockingBloater::IdleThink); // now that flock is formed, go to idle and wait for a player to come along.
+	pev->nextthink = gpGlobals->time;
+}
+
+//=========================================================
+// Searches for boids that are too close and pushes them away
+//=========================================================
+void CFlockingBloater::SpreadFlock()
+{
+	Vector vecDir;
+	float flSpeed; // holds vector magnitude while we fiddle with the direction
+
+	CFlockingBloater* pList = m_pSquadLeader;
+	while (pList)
+	{
+		if (pList != this && (pev->origin - pList->pev->origin).Length() <= AFLOCK_TOO_CLOSE)
+		{
+			// push the other away
+			vecDir = (pList->pev->origin - pev->origin);
+			vecDir = vecDir.Normalize();
+
+			// store the magnitude of the other boid's velocity, and normalize it so we
+			// can average in a course that points away from the leader.
+			flSpeed = pList->pev->velocity.Length();
+			pList->pev->velocity = pList->pev->velocity.Normalize();
+			pList->pev->velocity = (pList->pev->velocity + vecDir) * 0.5;
+			pList->pev->velocity = pList->pev->velocity * flSpeed;
+		}
+
+		pList = pList->m_pSquadNext;
+	}
+}
+
+//=========================================================
+// Alters the caller's course if he's too close to others
+//
+// This function should **ONLY** be called when Caller's velocity is normalized!!
+//=========================================================
+void CFlockingBloater::SpreadFlock2()
+{
+	Vector vecDir;
+
+	CFlockingBloater* pList = m_pSquadLeader;
+	while (pList)
+	{
+		if (pList != this && (pev->origin - pList->pev->origin).Length() <= AFLOCK_TOO_CLOSE)
+		{
+			vecDir = (pev->origin - pList->pev->origin);
+			vecDir = vecDir.Normalize();
+
+			pev->velocity = (pev->velocity + vecDir);
+		}
+
+		pList = pList->m_pSquadNext;
+	}
+}
+
+//=========================================================
+// FBoidPathBlocked - returns true if there is an obstacle ahead
+//=========================================================
+bool CFlockingBloater::FPathBlocked()
+{
+	TraceResult tr;
+	Vector vecDist; // used for general measurements
+	Vector vecDir;	// used for general measurements
+	bool fBlocked;
+
+	if (m_flFakeBlockedTime > gpGlobals->time)
+	{
+		m_flLastBlockedTime = gpGlobals->time;
+		return true;
+	}
+
+	// use VELOCITY, not angles, not all boids point the direction they are flying
+	//vecDir = UTIL_VecToAngles( pevBoid->velocity );
+	UTIL_MakeVectors(pev->angles);
+
+	fBlocked = false; // assume the way ahead is clear
+
+	// check for obstacle ahead
+	UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_forward * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+	if (tr.flFraction != 1.0)
+	{
+		m_flLastBlockedTime = gpGlobals->time;
+		fBlocked = true;
+	}
+
+	// extra wide checks
+	UTIL_TraceLine(pev->origin + gpGlobals->v_right * 12, pev->origin + gpGlobals->v_right * 12 + gpGlobals->v_forward * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+	if (tr.flFraction != 1.0)
+	{
+		m_flLastBlockedTime = gpGlobals->time;
+		fBlocked = true;
+	}
+
+	UTIL_TraceLine(pev->origin - gpGlobals->v_right * 12, pev->origin - gpGlobals->v_right * 12 + gpGlobals->v_forward * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+	if (tr.flFraction != 1.0)
+	{
+		m_flLastBlockedTime = gpGlobals->time;
+		fBlocked = true;
+	}
+
+	if (!fBlocked && gpGlobals->time - m_flLastBlockedTime > 6)
+	{
+		// not blocked, and it's been a few seconds since we've actually been blocked.
+		m_flFakeBlockedTime = gpGlobals->time + RANDOM_LONG(1, 3);
+	}
+
+	return fBlocked;
+}
+
+
+//=========================================================
+// Leader boids use this think every tenth
+//=========================================================
+void CFlockingBloater::FlockLeaderThink()
+{
+	TraceResult tr;
+	Vector vecDist;		// used for general measurements
+	Vector vecDir;		// used for general measurements
+	int cProcessed = 0; // keep track of how many other boids we've processed
+	float flLeftSide;
+	float flRightSide;
+
+	m_thinkid += 1;
+	m_randomoffset = RANDOM_LONG (70, 80);
+	if (m_thinkid >= m_randomoffset)
+	{
+		if (RANDOM_LONG(0, 6) == 6)
+		{
+			CFlockingBloater::Poop();
+		}
+		m_thinkid = 1;
+	}
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	UTIL_MakeVectors(pev->angles);
+
+	// is the way ahead clear?
+	if (!FPathBlocked())
+	{
+		// if the boid is turning, stop the trend.
+		if (m_fTurning)
+		{
+			m_fTurning = false;
+			pev->avelocity.y = 0;
+		}
+
+		m_fPathBlocked = false;
+
+		if (pev->speed <= AFLOCK_FLY_SPEED)
+			pev->speed += 5;
+
+		pev->velocity = gpGlobals->v_forward * pev->speed;
+
+		BoidAdvanceFrame();
+
+		return;
+	}
+
+	// IF we get this far in the function, the leader's path is blocked!
+	m_fPathBlocked = true;
+
+	if (!m_fTurning) // something in the way and boid is not already turning to avoid
+	{
+		// measure clearance on left and right to pick the best dir to turn
+		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_right * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+		vecDist = (tr.vecEndPos - pev->origin);
+		flRightSide = vecDist.Length();
+
+		UTIL_TraceLine(pev->origin, pev->origin - gpGlobals->v_right * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+		vecDist = (tr.vecEndPos - pev->origin);
+		flLeftSide = vecDist.Length();
+
+		// turn right if more clearance on right side
+		if (flRightSide > flLeftSide)
+		{
+			pev->avelocity.y = -AFLOCK_TURN_RATE;
+			m_fTurning = true;
+		}
+		// default to left turn :)
+		else if (flLeftSide > flRightSide)
+		{
+			pev->avelocity.y = AFLOCK_TURN_RATE;
+			m_fTurning = true;
+		}
+		else
+		{
+			// equidistant. Pick randomly between left and right.
+			m_fTurning = true;
+
+			if (RANDOM_LONG(0, 1) == 0)
+			{
+				pev->avelocity.y = AFLOCK_TURN_RATE;
+			}
+			else
+			{
+				pev->avelocity.y = -AFLOCK_TURN_RATE;
+			}
+		}
+	}
+	SpreadFlock();
+
+	pev->velocity = gpGlobals->v_forward * pev->speed;
+
+	// check and make sure we aren't about to plow into the ground, don't let it happen
+	UTIL_TraceLine(pev->origin, pev->origin - gpGlobals->v_up * 16, ignore_monsters, ENT(pev), &tr);
+	if (tr.flFraction != 1.0 && pev->velocity.z < 0)
+		pev->velocity.z = 0;
+
+	// maybe it did, though.
+	if (FBitSet(pev->flags, FL_ONGROUND))
+	{
+		UTIL_SetOrigin(pev, pev->origin + Vector(0, 0, 1));
+		pev->velocity.z = 0;
+	}
+
+	if (m_flFlockNextSoundTime < gpGlobals->time)
+	{
+		MakeSound();
+		m_flFlockNextSoundTime = gpGlobals->time + RANDOM_FLOAT(1, 3);
+	}
+
+	BoidAdvanceFrame();
+
+	return;
+}
+
+//=========================================================
+// follower boids execute this code when flocking
+//=========================================================
+void CFlockingBloater::FlockFollowerThink()
+{
+	m_thinkid += 1;
+	m_randomoffset = RANDOM_LONG (55, 75);
+	if (m_thinkid >= m_randomoffset)
+	{
+		if (RANDOM_LONG(0, 6) == 6)
+		{
+			CFlockingBloater::Poop();
+		}
+		m_thinkid = 1;
+	}
+	TraceResult tr;
+	Vector vecDist;
+	Vector vecDir;
+	Vector vecDirToLeader;
+	float flDistToLeader;
+
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	if (IsLeader() || !InSquad())
+	{
+		// the leader has been killed and this flyer suddenly finds himself the leader.
+		SetThink(&CFlockingBloater::FlockLeaderThink);
+		return;
+	}
+
+	vecDirToLeader = (m_pSquadLeader->pev->origin - pev->origin);
+	flDistToLeader = vecDirToLeader.Length();
+
+	// match heading with leader
+
+	//
+	// We can see the leader, so try to catch up to it
+	//
+	if (FInViewCone(m_pSquadLeader))
+	{
+		// if we're too far away, speed up
+		if (flDistToLeader > AFLOCK_TOO_FAR)
+		{
+			m_flGoalSpeed = m_pSquadLeader->pev->velocity.Length() * 1.5;
+		}
+
+		// if we're too close, slow down
+		else if (flDistToLeader < AFLOCK_TOO_CLOSE)
+		{
+			m_flGoalSpeed = m_pSquadLeader->pev->velocity.Length() * 0.5;
+		}
+	}
+	else
+	{
+		// wait up! the leader isn't out in front, so we slow down to let him pass
+		m_flGoalSpeed = m_pSquadLeader->pev->velocity.Length() * 0.5;
+	}
+
+	SpreadFlock2();
+
+	pev->speed = pev->velocity.Length();
+	pev->velocity = pev->velocity.Normalize();
+
+	// if we are too far from leader, average a vector towards it into our current velocity
+	if (flDistToLeader > AFLOCK_TOO_FAR)
+	{
+		vecDirToLeader = vecDirToLeader.Normalize();
+		pev->velocity = (pev->velocity + vecDirToLeader) * 0.5;
+	}
+
+	// clamp speeds and handle acceleration
+	if (m_flGoalSpeed > AFLOCK_FLY_SPEED * 2)
+	{
+		m_flGoalSpeed = AFLOCK_FLY_SPEED * 2;
+	}
+
+	if (pev->speed < m_flGoalSpeed)
+	{
+		pev->speed += AFLOCK_ACCELERATE;
+	}
+	else if (pev->speed > m_flGoalSpeed)
+	{
+		pev->speed -= AFLOCK_ACCELERATE;
+	}
+
+	pev->velocity = pev->velocity * pev->speed;
+
+	BoidAdvanceFrame();
+}
+
+/*	
+	// Is this boid's course blocked?
+	if ( FBoidPathBlocked (pev) )
+	{
+		// course is still blocked from last time. Just keep flying along adjusted 
+		// velocity
+		if ( m_fCourseAdjust )
+		{
+			pev->velocity = m_vecAdjustedVelocity * pev->speed;
+			return;
+		}
+		else // set course adjust flag and calculate adjusted velocity
+		{
+			m_fCourseAdjust = true;
+			
+			// use VELOCITY, not angles, not all boids point the direction they are flying
+			//vecDir = UTIL_VecToAngles( pev->velocity );
+			//UTIL_MakeVectors ( vecDir );
+
+			UTIL_MakeVectors ( pev->angles );
+
+			// measure clearance on left and right to pick the best dir to turn
+			UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_right * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+			vecDist = (tr.vecEndPos - pev->origin);
+			flRightSide = vecDist.Length();
+
+			UTIL_TraceLine(pev->origin, pev->origin - gpGlobals->v_right * AFLOCK_CHECK_DIST, ignore_monsters, ENT(pev), &tr);
+			vecDist = (tr.vecEndPos - pev->origin);
+			flLeftSide = vecDist.Length();
+
+			// slide right if more clearance on right side
+			if ( flRightSide > flLeftSide )
+			{
+				m_vecAdjustedVelocity = gpGlobals->v_right;
+			}
+			// else slide left
+			else
+			{
+				m_vecAdjustedVelocity = gpGlobals->v_right * -1;
+			}
+		}
+		return;
+	}
+
+	// if we make it this far, boids path is CLEAR!
+	m_fCourseAdjust = false;
+*/
+
+
+//=========================================================
+//
+// SquadUnlink(), Unlink the squad pointers.
+//
+//=========================================================
+void CFlockingBloater::SquadUnlink()
+{
+	m_pSquadLeader = NULL;
+	m_pSquadNext = NULL;
+}
+
+//=========================================================
+//
+// SquadAdd(), add pAdd to my squad
+//
+//=========================================================
+void CFlockingBloater::SquadAdd(CFlockingBloater* pAdd)
+{
+	ASSERT(pAdd != NULL);
+	ASSERT(!pAdd->InSquad());
+	ASSERT(this->IsLeader());
+
+	pAdd->m_pSquadNext = m_pSquadNext;
+	m_pSquadNext = pAdd;
+	pAdd->m_pSquadLeader = this;
+}
+//=========================================================
+//
+// SquadRemove(), remove pRemove from my squad.
+// If I am pRemove, promote m_pSquadNext to leader
+//
+//=========================================================
+void CFlockingBloater::SquadRemove(CFlockingBloater* pRemove)
+{
+	ASSERT(pRemove != NULL);
+	ASSERT(this->IsLeader());
+	ASSERT(pRemove->m_pSquadLeader == this);
+
+	if (SquadCount() > 2)
+	{
+		// Removing the leader, promote m_pSquadNext to leader
+		if (pRemove == this)
+		{
+			CFlockingBloater* pLeader = m_pSquadNext;
+
+			// copy the enemy LKP to the new leader
+			pLeader->m_vecEnemyLKP = m_vecEnemyLKP;
+
+			if (pLeader)
+			{
+				CFlockingBloater* pList = pLeader;
+
+				while (pList)
+				{
+					pList->m_pSquadLeader = pLeader;
+					pList = pList->m_pSquadNext;
+				}
+			}
+			SquadUnlink();
+		}
+		else // removing a node
+		{
+			CFlockingBloater* pList = this;
+
+			// Find the node before pRemove
+			while (pList->m_pSquadNext != pRemove)
+			{
+				// assert to test valid list construction
+				ASSERT(pList->m_pSquadNext != NULL);
+				pList = pList->m_pSquadNext;
+			}
+			// List validity
+			ASSERT(pList->m_pSquadNext == pRemove);
+
+			// Relink without pRemove
+			pList->m_pSquadNext = pRemove->m_pSquadNext;
+
+			// Unlink pRemove
+			pRemove->SquadUnlink();
+		}
+	}
+	else
+		SquadDisband();
+}
+//=========================================================
+//
+// SquadCount(), return the number of members of this squad
+// callable from leaders & followers
+//
+//=========================================================
+int CFlockingBloater::SquadCount()
+{
+	CFlockingBloater* pList = m_pSquadLeader;
+	int squadCount = 0;
+	while (pList)
+	{
+		squadCount++;
+		pList = pList->m_pSquadNext;
+	}
+
+	return squadCount;
+}
+
+//=========================================================
+//
+// SquadDisband(), Unlink all squad members
+//
+//=========================================================
+void CFlockingBloater::SquadDisband()
+{
+	CFlockingBloater* pList = m_pSquadLeader;
+	CFlockingBloater* pNext;
+
+	while (pList)
+	{
+		pNext = pList->m_pSquadNext;
+		pList->SquadUnlink();
+		pList = pNext;
+	}
+}
+//=========================================================
+//
+// YOU DON'T KNOW WHAT THIS IS.
+//
+//=========================================================
+void CFlockingBloater::Poop()
+{
+	// gas vfx here?
+}
