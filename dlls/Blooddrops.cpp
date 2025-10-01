@@ -123,16 +123,16 @@ void CPhysblood::Spawn()
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
-	else if (m_BloodType == NULL)
+	else if (m_BloodType == NULL) // water drop
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(0, 0), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
 	}
-	else
+	else // corruption
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255));
 	}
 	
-	if (m_BloodType == NULL)
+	if (m_BloodType == NULL) // water drop
 		pev->rendermode = kRenderTransAdd;
 	else
 		pev->rendermode = kRenderTransAlpha;
@@ -189,7 +189,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
 	}
-	else if (m_BloodType == NULL)
+	else if (m_BloodType == NULL) // water drop TO-DO: see if we should do a puddle decal for this
 	{
 		//UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
 	}
@@ -248,25 +248,21 @@ void CPhysblood::AirThink()
 			}
 			else if (m_BloodType == BLOOD_COLOR_YELLOW)
 			{
-				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 2, 0, 0, 0);
 				weapon->m_stain = 2;
 				ALERT(at_console, "yellow gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_GREEN)
 			{
-				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 3, 0, 0, 0);
 				weapon->m_stain = 3;
 				ALERT(at_console, "green gun\n");
 			}
 			else if (m_BloodType == BLOOD_COLOR_CYAN)
 			{
-				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
 				weapon->m_stain = 4;
 				ALERT(at_console, "cyan gun\n");
 			}
-			else if (m_BloodType == NULL)
+			else if (m_BloodType == NULL) // water
 			{
-				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 4, 0, 0, 0);
 				weapon->m_stain = 0;
 				ALERT(at_console, "clean gun\n");
 			}
