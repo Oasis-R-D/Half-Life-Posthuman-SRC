@@ -266,8 +266,9 @@ void CPhysblood::AirThink()
 				weapon->m_stain = 0;
 				ALERT(at_console, "clean gun\n");
 			}
-			else
+			else // corruption
 			{
+				// does nothing currently
 			}
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
