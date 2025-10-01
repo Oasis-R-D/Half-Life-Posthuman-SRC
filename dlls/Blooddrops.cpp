@@ -133,7 +133,7 @@ void CPhysblood::Spawn()
 	}
 	
 	if (m_BloodType == NULL)
-		pev->rendermode = kRenderTransAdd
+		pev->rendermode = kRenderTransAdd;
 	else
 		pev->rendermode = kRenderTransAlpha;
 	pev->frame = RANDOM_LONG(0, 8);
