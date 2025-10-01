@@ -73,6 +73,8 @@ int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when s
 #define GUN_SHOTGUN 1
 #define GUN_NONE 2
 #define GUN_RAILCANNON 3
+#define BOLT_AIR_VELOCITY 4500
+#define BOLT_WATER_VELOCITY 1000
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
