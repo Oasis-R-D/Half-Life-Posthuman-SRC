@@ -228,10 +228,12 @@ void CFlockingFlyerFlock::SpawnFlock()
 		if (m_flockorboid == 1)
 		{
 			pBoid->m_flockorboid = 1;
+			pLeader->m_flockorboid = 1;
 		}
 		else
 		{
 			pBoid->m_flockorboid = 0;
+			pLeader->m_flockorboid = 0;
 		}
 
 		if (pBoid != pLeader)
