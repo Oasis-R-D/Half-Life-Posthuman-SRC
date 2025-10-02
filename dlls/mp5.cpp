@@ -625,7 +625,7 @@ void CM727::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 48, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
+	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 80, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
 	
 	const char* sound = 0;
 

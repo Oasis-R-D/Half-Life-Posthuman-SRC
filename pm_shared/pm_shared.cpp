@@ -468,17 +468,17 @@ void PM_PlayStepSound(int step, float fvol)
 		{
 		// right foot
 		case 0:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade1.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade1.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		case 1:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade2.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade2.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		// left foot
 		case 2:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade3.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade3.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		case 3:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade4.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade4.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		}
 		break;
@@ -2618,16 +2618,16 @@ void PM_Jump()
 			switch (pmove->RandomLong(0, 3))
 			{
 			case 0:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				pmove->PM_PlaySound(CHAN_BODY, "player/wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 				break;
 			case 1:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				pmove->PM_PlaySound(CHAN_BODY, "player/wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 				break;
 			case 2:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				pmove->PM_PlaySound(CHAN_BODY, "player/wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 				break;
 			case 3:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				pmove->PM_PlaySound(CHAN_BODY, "player/wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 				break;
 			}
 		}
@@ -2859,16 +2859,16 @@ void PM_PlayWaterSounds()
 		switch (pmove->RandomLong(0, 3))
 		{
 		case 0:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		case 1:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		case 2:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		case 3:
-			pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+			pmove->PM_PlaySound(CHAN_BODY, "player/wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 			break;
 		}
 	}

@@ -2818,7 +2818,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 					spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
 					spr->AnimateAndDie(RANDOM_LONG(8, 16));
 
-					const char* sound = UTIL_VarArgs("player/pl_wade%d.wav", RANDOM_LONG(1, 4));
+					const char* sound = UTIL_VarArgs("player/wade%d.wav", RANDOM_LONG(1, 4));
 					UTIL_EmitAmbientSound(CWorld::World->edict(), tr.vecEndPos, sound, 1, ATTN_NORM, 0, 100);
 
 					break;
@@ -2831,7 +2831,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 				spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
 				spr->AnimateAndDie(RANDOM_LONG(8, 16));
 
-				const char* sound = UTIL_VarArgs("player/pl_wade%d.wav", RANDOM_LONG(1, 4));
+				const char* sound = UTIL_VarArgs("player/wade%d.wav", RANDOM_LONG(1, 4));
 				UTIL_EmitAmbientSound(CWorld::World->edict(), tr.vecEndPos, sound, 1, ATTN_NORM, 0, 100);
 
 				break;
@@ -2895,7 +2895,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 					spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
 					spr->AnimateAndDie(RANDOM_LONG(8, 16));
 
-					const char* sound = UTIL_VarArgs("player/pl_wade%d.wav", RANDOM_LONG(1, 4));
+					const char* sound = UTIL_VarArgs("player/wade%d.wav", RANDOM_LONG(1, 4));
 					UTIL_EmitAmbientSound(CWorld::World->edict(), tr.vecEndPos, sound, 1, ATTN_NORM, 0, 100);
 					
 					break;
@@ -2913,7 +2913,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 				spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
 				spr->AnimateAndDie(RANDOM_LONG(8, 16));
 
-				const char* sound = UTIL_VarArgs("player/pl_wade%d.wav", RANDOM_LONG(1, 4));
+				const char* sound = UTIL_VarArgs("player/wade%d.wav", RANDOM_LONG(1, 4));
 				UTIL_EmitAmbientSound(CWorld::World->edict(), tr.vecEndPos, sound, 1, ATTN_NORM, 0, 100);
 
 				break;

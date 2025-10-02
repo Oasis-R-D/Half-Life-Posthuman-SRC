@@ -1252,9 +1252,9 @@ void CBasePlayer::WaterMove()
 
 		// play 'up for air' sound
 		if (pev->air_finished < gpGlobals->time)
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_wade1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/wade1.wav", 1, ATTN_NORM);
 		else if (pev->air_finished < gpGlobals->time + 9)
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_wade2.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/wade2.wav", 1, ATTN_NORM);
 
 		pev->air_finished = gpGlobals->time + AIRTIME;
 		pev->dmg = 2;
@@ -2867,7 +2867,7 @@ void CBasePlayer::PostThink()
 			// BUG - this happens all the time in water, especially when
 			// BUG - water has current force
 			// if ( !pev->groundentity || VARS(pev->groundentity)->velocity.z == 0 )
-			// EMIT_SOUND(ENT(pev), CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM);
+			// EMIT_SOUND(ENT(pev), CHAN_BODY, "player/wade1.wav", 1, ATTN_NORM);
 		}
 		else if (m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED)
 		{ // after this point, we start doing damage

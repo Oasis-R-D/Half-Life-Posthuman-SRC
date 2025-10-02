@@ -988,6 +988,11 @@ void ClientPrecache()
 	PRECACHE_SOUND("player/pl_ladder3.wav");
 	PRECACHE_SOUND("player/pl_ladder4.wav");
 
+	PRECACHE_SOUND("player/wade1.wav"); // wade in water
+	PRECACHE_SOUND("player/wade2.wav");
+	PRECACHE_SOUND("player/wade3.wav");
+	PRECACHE_SOUND("player/wade4.wav");
+
 	PRECACHE_SOUND("player/pl_wade1.wav"); // wade in water
 	PRECACHE_SOUND("player/pl_wade2.wav");
 	PRECACHE_SOUND("player/pl_wade3.wav");

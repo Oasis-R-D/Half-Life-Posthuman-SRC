@@ -284,7 +284,9 @@ void CPhysblood::AirThink()
 	}
 	if (pev->waterlevel == 0)
 	return;
-
+	char dripsnd[256];
+	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
+	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
