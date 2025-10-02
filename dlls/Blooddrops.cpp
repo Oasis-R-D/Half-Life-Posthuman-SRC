@@ -22,6 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "Blooddrops.h"
+#include "decals.h"
 
 #ifndef CLIENT_DLL
 
@@ -106,7 +107,7 @@ void CPhysblood::Spawn()
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->owner = NULL;
-	pev->renderamt = 225;
+
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
 		pev->rendercolor = Vector(RANDOM_LONG(100, 120), 0, 0);
@@ -125,7 +126,7 @@ void CPhysblood::Spawn()
 	}
 	else if (m_BloodType == NULL) // water drop
 	{
-		pev->rendercolor = Vector(RANDOM_LONG(0, 0), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
+		pev->rendercolor = Vector(115, 205, 255);
 	}
 	else // corruption
 	{
@@ -133,9 +134,15 @@ void CPhysblood::Spawn()
 	}
 	
 	if (m_BloodType == NULL) // water drop
+	{
+		pev->renderamt = 125;
 		pev->rendermode = kRenderTransAdd;
+	}
 	else
+	{
 		pev->rendermode = kRenderTransAlpha;
+		pev->renderamt = 225;
+	}
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	SetTouch(&CPhysblood::BoltTouch);
@@ -175,23 +182,23 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	TraceResult tr = UTIL_GetGlobalTrace();
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(45, 52));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6));
 	}
 	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(53, 59));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_ABLOODSPRAY1, DECAL_YBLOOD6_2));
 	}
 	else if (m_BloodType == BLOOD_COLOR_GREEN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(60, 66));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_XBLOODSPRAY1, DECAL_XBLOODSPRAY7));
 	}
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3));
 	}
 	else if (m_BloodType == NULL) // water drop TO-DO: see if we should do a puddle decal for this
 	{
-		//UTIL_DecalTrace(&tr, RANDOM_LONG(72, 74));
+		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3));
 	}
 	else
 	{
@@ -199,10 +206,10 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 		{
 		case 0:
 		case 1:
-			UTIL_DecalTrace(&tr, RANDOM_LONG(78, 83));
+			UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6));
 			break;
 		case 2:
-			UTIL_DecalTrace(&tr, 78); // purple is very common in the noise textures
+			UTIL_DecalTrace(&tr, DECAL_NBLOODSPRAY1); // purple is very common in the noise textures
 			break;
 		}
 	}

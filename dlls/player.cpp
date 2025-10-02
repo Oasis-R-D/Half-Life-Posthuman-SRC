@@ -3863,7 +3863,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	case 67:
 	{
 #ifndef CLIENT_DLL
-		CPhysblood::BloodCreate(2, 300, GetGunPosition() - gpGlobals->v_up * 24, gpGlobals->v_forward, 1, BLOOD_COLOR_YELLOW, true, CONE_4DEGREES, false);
+		CPhysblood::BloodCreate(2, RANDOM_LONG(275, 325), GetGunPosition() - gpGlobals->v_up * 24, gpGlobals->v_forward, 1, BLOOD_COLOR_YELLOW, true, CONE_4DEGREES, false);
 #endif
 		break;
 	}

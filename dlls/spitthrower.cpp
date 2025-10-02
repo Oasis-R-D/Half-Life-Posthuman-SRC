@@ -42,11 +42,11 @@ void CSpitThrower::Spawn()
 	SET_MODEL(edict(), "models/w_spitthrower.mdl");
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-	m_iDefaultAmmo = 50;
+		m_iDefaultAmmo = 50;
 	}
 	else
 	{
-			m_iDefaultAmmo = 25;
+		m_iDefaultAmmo = 25;
 	}
 	FallInit(); // get ready to fall down.
 }
@@ -64,7 +64,7 @@ void CSpitThrower::WeaponIdle()
 		return;
 	SendWeaponAnim(EGON_IDLE1);
 	m_flTimeWeaponIdle = 2;
-	//STOP_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sptthrwr_loop.wav");
+	STOP_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sptthrwr_loop.wav");
 }
 
 void CSpitThrower::PrimaryAttack()
@@ -89,7 +89,7 @@ void CSpitThrower::PrimaryAttack()
 
 	for (int i = 0; i < 3; i++)
 	{
-		Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 16 + gpGlobals->v_right * 4;
+		Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 32 + gpGlobals->v_right * 4;
 		Create("env_spit", vecSrc, pev->angles, m_pPlayer->edict());
 	}
 }
@@ -120,7 +120,6 @@ bool CSpitThrower::GetItemInfo(ItemInfo* p)
 
 void CSpitThrower::Holster()
 {
-
 	CBasePlayerWeapon::Holster();
 }
 
@@ -161,7 +160,7 @@ class CEnvSpit : public CBaseEntity
 		pev->solid = SOLID_BBOX;
 		pev->movetype = MOVETYPE_BOUNCE;
 		//pev->velocity = gpGlobals->v_forward * 1000 + gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
-		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES), RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES), RANDOM_FLOAT(CONE_10DEGREES, -CONE_10DEGREES));
+		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES), RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES), RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES));
 		pev->velocity = (gpGlobals->v_forward + m_SpreadVect) * 1750; // Applies spread and velocity
 		pev->framerate = 1;
 		pev->dmgtime = gpGlobals->time + 2;
@@ -223,6 +222,14 @@ class CEnvSpit : public CBaseEntity
 		if (pev->dmgtime < gpGlobals->time)
 			UTIL_Remove(this);
 	}
+	int ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched->pev->classname == pev->classname)
+	{
+		return 0;
+	}
+	return 1;
+}
 };
 
 LINK_ENTITY_TO_CLASS(env_spit, CEnvSpit);
