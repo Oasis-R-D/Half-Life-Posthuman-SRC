@@ -799,7 +799,7 @@ public:
 	void Precache() override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
-
+	void Holster() override;
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack();

@@ -263,12 +263,14 @@ bool CHudBattery::Draw(float flTime)
 
 		m_hFireMode = gHUD.GetSprite(gHUD.GetSpriteIndex("firemode"));
 		SPR_Set(m_hFireMode, r, g, b);
-		if (m_iFireMode == 1)
+		if (m_iFireMode == 1)	   // full
 			SPR_DrawAdditive(0, x, y - iOffset, m_rFireMode);
-		else if (m_iFireMode == 2)
+		else if (m_iFireMode == 2) // burst
 			SPR_DrawAdditive(1, x, y - iOffset, m_rFireMode);
-		else if (m_iFireMode == 3)
+		else if (m_iFireMode == 3) // semi
 			SPR_DrawAdditive(2, x, y - iOffset, m_rFireMode);
+		else if (m_iFireMode == 4) // pump
+			SPR_DrawAdditive(3, x, y - iOffset, m_rFireMode);
 	}
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);

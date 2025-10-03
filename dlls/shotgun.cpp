@@ -39,6 +39,14 @@ void CShotgun::Spawn()
 	FallInit(); // get ready to fall
 }
 
+void CShotgun::Holster()
+{
+	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->pev->weaponmodel = 0;
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(0);
+	MESSAGE_END();
+}
 
 void CShotgun::Precache()
 {
@@ -85,6 +93,9 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 bool CShotgun::Deploy()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(pev->armorvalue ? 3 : 4);
+	MESSAGE_END();
 	if (m_Prehuman == true)
 	{
 		// set bodygroup
@@ -260,6 +271,9 @@ void CShotgun::TertiaryAttack()
 		pev->armorvalue = 1;
 	else
 		pev->armorvalue = 0;
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(pev->armorvalue ? 3 : 4);
+	MESSAGE_END();
 }
 
 void CShotgun::Reload()
