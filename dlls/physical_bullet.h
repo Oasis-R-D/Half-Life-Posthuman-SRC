@@ -31,7 +31,7 @@ private:
 	int m_BulletAmount;
 	int m_muzzlevelocity;
 	int m_maxricochet;
-	int m_distpenetrate;
+	float m_distpenetrate;
 	Vector m_SpawnPos;
 	Vector m_direction;
 	Vector m_Endpos;

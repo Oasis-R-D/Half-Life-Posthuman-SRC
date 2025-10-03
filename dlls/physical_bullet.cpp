@@ -86,7 +86,6 @@ void CPhysbullet::Spawn()
 	if (m_Flare == 556) // probably 556, idk
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
-		//pev->scale = 0.25;
 		pev->scale = RANDOM_FLOAT(0.23, 0.27);
 		m_distpenetrate = 24;
 		m_maxricochet = 2;
@@ -94,7 +93,6 @@ void CPhysbullet::Spawn()
 	else if (m_Flare == 12) // 12 gauge
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
-		//pev->scale = 0.15;
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
 		m_distpenetrate = 10;
 		m_maxricochet = 0;
@@ -102,7 +100,6 @@ void CPhysbullet::Spawn()
 	else if (m_Flare == 357)
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
-		//pev->scale = 0.3;
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
 		m_distpenetrate = 18;
 		m_maxricochet = 3;
@@ -126,7 +123,6 @@ void CPhysbullet::Spawn()
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
-		//pev->scale = 0.2;
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
 		m_distpenetrate = 16;
 		m_maxricochet = 1;
@@ -185,7 +181,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	float p;
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
-		if (pEntity->ReflectGauss())
+		if (pEntity->ReflectGauss()) // checks if it's a non damageable world object
 		{
 			Vector vecDest = pev->origin + m_direction * 8192;
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
@@ -194,13 +190,16 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// trace backwards to find exit point
 				UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
 				m_SpawnPos = beam_tr.vecEndPos; // where bullet comes out of wall
-
+				
 				p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
 
 				if (p <= m_distpenetrate)
-				{
-					
+				{					
+					ALERT(at_console, "old dist pen %f\n", m_distpenetrate);
+					ALERT(at_console, "walldepth %f\n", (beam_tr.vecEndPos - tr.vecEndPos).Length());
+
 					m_distpenetrate -= p;
+					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
 					m_BulletDamage -= round(0.125 * p);
 					ALERT(at_console, "punch %f\n", p);
 					if (p != 0)
@@ -376,9 +375,14 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			// '}}'
 			strcpy(szbuffer, pTextureName);
 			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
-
-			ALERT ( at_console, "texture hit: %s\n", szbuffer);
-
+			
+			//ALERT ( at_console, "texture hit: %s\n", szbuffer);
+			if (!strcmp(szbuffer, "mat_impen")) // HACKHACK: can't get the material type to work so just gonna do this instead
+			{
+				return penmodifier = 128;
+				ALERT(at_console, "penetration mult: %f\n", penmodifier);
+				
+			}
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
 	}
