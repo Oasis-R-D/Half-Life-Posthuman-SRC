@@ -90,10 +90,19 @@ void CGlock::Holster()
 }
 void CGlock::SecondaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 3.35;
 	pev->armortype = !pev->armortype; // bro wtf does this even do :sob:
-	SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body); //TO-DO: make body change during animation
-	m_flTimeWeaponIdle = 3.4;
+	if (pev->body == 0)
+	{
+		SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body); // TO-DO: make body change during animation
+		m_flTimeWeaponIdle = 3.4;
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 3.35;
+	}
+	else
+	{
+		SendWeaponAnim(GLOCK_HOLSTER, pev->body); // TO-DO: make body change during animation
+		m_flTimeWeaponIdle = 1.5;
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1.40;
+	}
 	pev->armorvalue = gpGlobals->time + 1;
 }
 
@@ -105,6 +114,8 @@ void CGlock::ItemPostFrame()
 		pev->armorvalue = 0;
 		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, pev->armortype, 0, 0, 0);
 		pev->body = pev->armortype;
+		if (pev->body == 0)
+			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body); //TO-DO: make body change during animation
 	}
 	CBasePlayerWeapon::ItemPostFrame();
 }

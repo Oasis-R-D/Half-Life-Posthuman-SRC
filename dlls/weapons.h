@@ -534,6 +534,7 @@ public:
 	void ItemPostFrame();
 	bool m_Training;
 	bool m_Prehuman;
+	int m_isilenced; // TO-DO: implement over armortype (so it can be saved)
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
