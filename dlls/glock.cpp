@@ -54,6 +54,7 @@ void CGlock::Precache()
 	m_usFireGlock1 = PRECACHE_EVENT(1, "events/glock1.sc");
 	m_usFireGlock2 = PRECACHE_EVENT(1, "events/glock2.sc");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc");
 }
 
 bool CGlock::GetItemInfo(ItemInfo* p)
@@ -81,24 +82,29 @@ bool CGlock::Deploy()
 	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW, "onehanded", pev->body);
 }
 
+void CGlock::Holster()
+{
+	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->pev->weaponmodel = 0;
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
+}
 void CGlock::SecondaryAttack()
 {
-	//GlockFire(0.1, 0.2, false);
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1;
-	pev->armortype = !pev->armortype;
-	SendWeaponAnim(GLOCK_HOLSTER, pev->body);
-	m_flTimeWeaponIdle = 2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 3.35;
+	pev->armortype = !pev->armortype; // bro wtf does this even do :sob:
+	SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body); //TO-DO: make body change during animation
+	m_flTimeWeaponIdle = 3.4;
 	pev->armorvalue = gpGlobals->time + 1;
 }
 
 void CGlock::ItemPostFrame()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
-	if (pev->armorvalue < gpGlobals->time && pev->armorvalue != 0)
+	if (pev->armorvalue <= gpGlobals->time && pev->armorvalue != 0)
 	{
 		pev->armorvalue = 0;
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, pev->armortype, 0, 0, 0);
 		pev->body = pev->armortype;
-		SendWeaponAnim(GLOCK_DRAW, pev->body);
 	}
 	CBasePlayerWeapon::ItemPostFrame();
 }

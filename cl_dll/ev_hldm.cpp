@@ -1590,6 +1590,17 @@ void EV_VMstain(event_args_t* args)
 //	   STAIN END
 //======================
 
+//======================
+//	   SILENCE START
+//======================
+void EV_VMsilence(event_args_t* args)
+{
+	gEngfuncs.GetViewModel()->curstate.body = args->iparam1;
+}
+//======================
+//	   SILENCE END
+//======================
+
 void EV_TrainPitchAdjust(event_args_t* args)
 {
 	int idx;

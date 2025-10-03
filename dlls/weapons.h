@@ -528,6 +528,7 @@ public:
 	void SecondaryAttack() override;
 	void GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim);
 	bool Deploy() override;
+	void Holster() override;
 	void Reload() override;
 	void WeaponIdle() override;
 	void ItemPostFrame();
@@ -549,6 +550,7 @@ private:
 	unsigned short m_usFireGlock1;
 	unsigned short m_usFireGlock2;
 	unsigned short m_stainevent;
+	unsigned short m_silenceevent;
 };
 
 enum crowbar_e
@@ -675,6 +677,7 @@ public:
 	void Holster() override;
 
 	int m_iShell;
+	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool m_Training;
 	bool m_Prehuman;
 	bool UseDecrement() override
@@ -813,6 +816,7 @@ public:
 	int m_iShell;
 	bool m_Training;
 	bool m_Prehuman;
+	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -1536,6 +1540,7 @@ public:
 	void Holster() override;
 	TraceResult m_trHit;
 	int m_iShell;
+	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool firemode;
 	bool UseDecrement() override
 	{

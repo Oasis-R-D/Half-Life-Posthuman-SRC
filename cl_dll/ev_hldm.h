@@ -32,7 +32,10 @@ void EV_HornetGunFire(event_args_t* args);
 void EV_TripmineFire(event_args_t* args);
 void EV_SnarkFire(event_args_t* args);
 
+// begin posthumanoid
 void EV_VMstain(event_args_t* args);
+void EV_VMsilence(event_args_t* args);
+// end posthumanoid
 
 void EV_TrainPitchAdjust(event_args_t* args);
 void EV_VehiclePitchAdjust(event_args_t* args);
