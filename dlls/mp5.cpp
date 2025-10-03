@@ -625,7 +625,7 @@ void CM727::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 80, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
+	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 112, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
 	
 	const char* sound = 0;
 
@@ -646,7 +646,7 @@ void CM727::SecondaryAttack()
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 	
 #ifndef CLIENT_DLL
-	sound = UTIL_VarArgs("zombie/claw_strike%d.wav", RANDOM_LONG(1, 3));
+	sound = UTIL_VarArgs("weapons/bay_hitbod%d.wav", RANDOM_LONG(1, 3));
 #endif
 	DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
 	}

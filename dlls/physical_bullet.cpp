@@ -40,7 +40,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic)
 {
 	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
@@ -62,8 +62,10 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
 		pBullet->m_Flare = FlareType; // tracer type
+		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->pev->owner = shooter;
+
 		pBullet->Spawn();
 		
 	}
@@ -129,9 +131,16 @@ void CPhysbullet::Spawn()
 		m_distpenetrate = 16;
 		m_maxricochet = 1;
 	}
-	
+	if (m_bsubsonic)
+		m_distpenetrate = round(m_distpenetrate * 0.75);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	pev->renderamt = 0;
+	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
+	if (owner->IsPlayer())
+		pev->renderamt = 0;
+	else if (m_bsubsonic)
+		pev->renderamt = 5;
+	else
+		pev->renderamt = 150;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
 	pev->nextthink = gpGlobals->time + 0.05;
@@ -301,7 +310,7 @@ void CPhysbullet::AirThink()
 		CBaseEntity* m_pPlyr = m_ent;
 		if (m_pPlyr->IsPlayer())
 		{
-			if (m_haswizzed != true && pev->owner != m_pPlyr->edict())
+			if (m_haswizzed != true && pev->owner != m_pPlyr->edict() && !m_bsubsonic)
 			{
 				char dripsnd[256];
 				sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
@@ -311,7 +320,7 @@ void CPhysbullet::AirThink()
 		}
 	}
 	
-	if (pev->renderamt < 225)
+	if (pev->renderamt < 225 && !m_bsubsonic)
 	{
 		pev->renderamt += 75;
 	}

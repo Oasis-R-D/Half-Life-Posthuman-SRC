@@ -213,22 +213,26 @@ void CHAssassin::Shoot()
 	EjectBrass(pev->origin + gpGlobals->v_up * 32 + gpGlobals->v_forward * 12, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, Vector(m_flDiviation, m_flDiviation, m_flDiviation), 2048, BULLET_MONSTER_9MM); // shoot +-8 degrees
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel == SKILL_EASY)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6333, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict());
 	}
+	else if (g_iSkillLevel == SKILL_MEDIUM)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM-1, 5250, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
+	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 25, 6100, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 22, 5250, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
 	}
 #endif
 	switch (RANDOM_LONG(0, 1))
 	{
 	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/pl_gun1.wav", RANDOM_FLOAT(0.6, 0.8), ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/pl_gun1.wav", RANDOM_FLOAT(0.6, 0.8), 0.5);
 		break;
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/pl_gun2.wav", RANDOM_FLOAT(0.6, 0.8), ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/pl_gun2.wav", RANDOM_FLOAT(0.6, 0.8), 0.5);
 		break;
 	}
 
