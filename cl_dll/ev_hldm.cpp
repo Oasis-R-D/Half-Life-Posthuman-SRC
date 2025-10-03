@@ -1584,7 +1584,9 @@ void EV_SnarkFire(event_args_t* args)
 //======================
 void EV_VMstain(event_args_t* args)
 {
-	gEngfuncs.GetViewModel()->curstate.skin = args->iparam1;
+	if (gEngfuncs.GetViewModel()->model != nullptr)
+		gEngfuncs.GetViewModel()->curstate.skin = args->iparam1;
+
 }
 //======================
 //	   STAIN END
@@ -1595,7 +1597,8 @@ void EV_VMstain(event_args_t* args)
 //======================
 void EV_VMsilence(event_args_t* args)
 {
-	gEngfuncs.GetViewModel()->curstate.body = args->iparam1;
+	if (gEngfuncs.GetViewModel()->model != nullptr)
+		gEngfuncs.GetViewModel()->curstate.body = args->iparam1;
 }
 //======================
 //	   SILENCE END

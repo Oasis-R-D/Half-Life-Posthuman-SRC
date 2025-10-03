@@ -243,39 +243,42 @@ void CPhysblood::AirThink()
 			ALERT(at_console, "attempt stain\n");
 			int flags;
 			flags = 0;
-
-			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pObject);
-			CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
 			m_hasstained = true;
-			if (m_BloodType == BLOOD_COLOR_RED)
+			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pObject);
+			if (player->m_pActiveItem != nullptr)
 			{
-				//PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
-				weapon->m_stain = 1;
-				ALERT(at_console, "red gun\n");
-			}
-			else if (m_BloodType == BLOOD_COLOR_YELLOW)
-			{
-				weapon->m_stain = 2;
-				ALERT(at_console, "yellow gun\n");
-			}
-			else if (m_BloodType == BLOOD_COLOR_GREEN)
-			{
-				weapon->m_stain = 3;
-				ALERT(at_console, "green gun\n");
-			}
-			else if (m_BloodType == BLOOD_COLOR_CYAN)
-			{
-				weapon->m_stain = 4;
-				ALERT(at_console, "cyan gun\n");
-			}
-			else if (m_BloodType == NULL) // water
-			{
-				weapon->m_stain = 0;
-				ALERT(at_console, "clean gun\n");
-			}
-			else // corruption
-			{
-				// does nothing currently
+				CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
+
+				if (m_BloodType == BLOOD_COLOR_RED)
+				{
+					// PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
+					weapon->m_stain = 1;
+					ALERT(at_console, "red gun\n");
+				}
+				else if (m_BloodType == BLOOD_COLOR_YELLOW)
+				{
+					weapon->m_stain = 2;
+					ALERT(at_console, "yellow gun\n");
+				}
+				else if (m_BloodType == BLOOD_COLOR_GREEN)
+				{
+					weapon->m_stain = 3;
+					ALERT(at_console, "green gun\n");
+				}
+				else if (m_BloodType == BLOOD_COLOR_CYAN)
+				{
+					weapon->m_stain = 4;
+					ALERT(at_console, "cyan gun\n");
+				}
+				else if (m_BloodType == NULL) // water
+				{
+					weapon->m_stain = 0;
+					ALERT(at_console, "clean gun\n");
+				}
+				else // corruption
+				{
+					// does nothing currently
+				}
 			}
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
