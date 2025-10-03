@@ -21,6 +21,7 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "parsemsg.h"
+#include "ammohistory.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -255,15 +256,19 @@ bool CHudBattery::Draw(float flTime)
 	// Fire Mode
 	if (m_iFireMode > 0)
 	{
-		x = 0;
-		y = 0;
+		int iIconWidth = 160;
+		int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+		y -= gHUD.m_iFontHeight; //+ gHUD.m_iFontHeight / 15;
+		x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
 
 		m_hFireMode = gHUD.GetSprite(gHUD.GetSpriteIndex("firemode"));
 		SPR_Set(m_hFireMode, r, g, b);
 		if (m_iFireMode == 1)
 			SPR_DrawAdditive(0, x, y - iOffset, m_rFireMode);
-		else
+		else if (m_iFireMode == 2)
 			SPR_DrawAdditive(1, x, y - iOffset, m_rFireMode);
+		else if (m_iFireMode == 3)
+			SPR_DrawAdditive(2, x, y - iOffset, m_rFireMode);
 	}
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);

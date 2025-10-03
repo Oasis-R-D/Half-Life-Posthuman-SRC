@@ -535,6 +535,9 @@ bool CM727::GetItemInfo(ItemInfo* p)
 
 bool CM727::Deploy()
 {
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(firemode ? 3 : 1);
+	MESSAGE_END();
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (NotFirstDraw)
 	{
@@ -548,6 +551,9 @@ void CM727::Holster()
 {
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(0);
+	MESSAGE_END();
 }
 
 void CM727::PrimaryAttack()
@@ -671,6 +677,9 @@ void CM727::TertiaryAttack()
 		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Semi-Auto Mode");
 	}
 	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
+	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
+	WRITE_SHORT(firemode ? 3 : 1);
+	MESSAGE_END();
 }
 
 void CM727::Reload()
