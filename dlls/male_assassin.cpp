@@ -441,7 +441,6 @@ bool CMOFAssassin::FCanCheckAttacks()
 	}
 }
 
-
 //=========================================================
 // CheckMeleeAttack1
 //=========================================================
@@ -1042,11 +1041,13 @@ void CMOFAssassin::Spawn()
 	{
 		weaponModel = MAssassinWeapon::MP5;
 		m_cClipSize = MASSASSIN_MP5_CLIP_SIZE;
+		m_flDistTooFar = 1024+256;
 	}
 	else if (FBitSet(pev->weapons, MAssassinWeaponFlag::SniperRifle))
 	{
 		weaponModel = MAssassinWeapon::SniperRifle;
 		m_cClipSize = MASSN_SNIPER_CLIP_SIZE;
+		m_flDistTooFar = 4096;
 	}
 	else
 	{

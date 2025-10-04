@@ -2084,7 +2084,6 @@ void CBaseMonster::MonsterInit()
 
 	m_hEnemy = NULL;
 
-	m_flDistTooFar = 1024.0;
 	m_flDistLook = 2048.0;
 
 	// set eye position

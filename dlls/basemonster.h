@@ -95,7 +95,7 @@ public:
 
 	float m_flHungryTime; // set this is a future time to stop the monster from eating for a while.
 
-	float m_flDistTooFar; // if enemy farther away than this, bits_COND_ENEMY_TOOFAR set in CheckEnemy
+	float m_flDistTooFar = 1024.0; // if enemy farther away than this, bits_COND_ENEMY_TOOFAR set in CheckEnemy
 	float m_flDistLook;	  // distance monster sees (Default 2048)
 
 	int m_iTriggerCondition;	 // for scripted AI, this is the condition that will cause the activation of the monster's TriggerTarget
