@@ -1047,7 +1047,8 @@ void CMOFAssassin::Spawn()
 	{
 		weaponModel = MAssassinWeapon::SniperRifle;
 		m_cClipSize = MASSN_SNIPER_CLIP_SIZE;
-		m_flDistTooFar = 4096;
+		m_flDistTooFar = 4096.0;
+		m_flDistLook = 4096.0; //idk if this is needed
 	}
 	else
 	{
