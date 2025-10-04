@@ -1083,6 +1083,7 @@ void CHGrunt::Spawn()
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
+		m_flDistTooFar = 1024;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
@@ -1104,6 +1105,8 @@ void CHGrunt::Spawn()
 		}
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
+		m_flDistTooFar = 2048+256;
+		m_flDistLook = 2048+256; //idk if this is needed
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
@@ -1117,9 +1120,19 @@ void CHGrunt::Spawn()
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
 		}
-		SetBodygroup(TORSO_GROUP, TORSO_M249);
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			SetBodygroup(TORSO_GROUP, TORSO_M249);
+			break;
+		case 1:
+			SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
+			break;
+		}
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
 		M_HasHelm = true;
+		m_flDistTooFar = 3072;
+		m_flDistLook = 3072; //idk if this is needed
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
@@ -1137,6 +1150,8 @@ void CHGrunt::Spawn()
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		M_HasHelm = true;
 		m_cClipSize = 30;
+		m_flDistTooFar = 2048+192;
+		m_flDistLook = 2048+192; //idk if this is needed
 	}
 	if (GetBodygroup(HEAD_GROUP) != HEAD_CIGAR)
 	{

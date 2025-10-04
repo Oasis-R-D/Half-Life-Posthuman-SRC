@@ -1121,8 +1121,6 @@ void CAdvSec::Spawn()
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		pev->health = gSkillData.hgruntHealth;
-
-
 	}
 	else
 	{
@@ -1153,25 +1151,29 @@ void CAdvSec::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		m_cClipSize = 9;
+		m_flDistTooFar = 1024;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
 		m_cClipSize = 30;
+		m_flDistTooFar = 2048+128;
+		m_flDistLook = 2048+128; //idk if this is needed
 	}
 	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
 	{
 		m_cClipSize = 1;
 		SetBodygroup(HEAD_GROUP, HEAD_M203);
 		SetBodygroup(GUN_GROUP, GUN_RAILCANNON);
+		m_flDistTooFar = 4096.0;
+		m_flDistLook = 4096.0; //idk if this is needed
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
 		SetBodygroup(HEAD_GROUP, HEAD_M203);
+		m_flDistTooFar = 2048+256;
+		m_flDistLook = 2048+256; //idk if this is needed
 	}
 	m_cAmmoLoaded = m_cClipSize;
-
-	
-
 
 	CTalkMonster::g_talkWaitTime = 0;
 	if (RANDOM_LONG(0, 2) == 2)

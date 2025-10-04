@@ -1041,7 +1041,8 @@ void CMOFAssassin::Spawn()
 	{
 		weaponModel = MAssassinWeapon::MP5;
 		m_cClipSize = MASSASSIN_MP5_CLIP_SIZE;
-		m_flDistTooFar = 1024+256;
+		m_flDistTooFar = 2048+256;
+		m_flDistLook = 2048+256; //idk if this is needed
 	}
 	else if (FBitSet(pev->weapons, MAssassinWeaponFlag::SniperRifle))
 	{

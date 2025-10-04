@@ -435,6 +435,7 @@ void CBarney::Spawn()
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
 		m_bPrehuman = 1;
+		//SetUse(&CBarney::FollowerUse); //TO-DO: restore this
 	}
 	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
 	{
@@ -481,6 +482,7 @@ void CBarney::Spawn()
 	pev->view_ofs = Vector(0, 0, 50);  // position of the eyes relative to monster's origin.
 	m_flFieldOfView = VIEW_FIELD_WIDE; // NOTE: we need a wide field of view so npc will notice player and say hello
 	m_MonsterState = MONSTERSTATE_NONE;
+	m_flDistTooFar = 1024+512;
 
 	SetBodygroup(2, 0);
 	m_fGunDrawn = false;
@@ -488,7 +490,7 @@ void CBarney::Spawn()
 	m_afCapability = bits_CAP_HEAR | bits_CAP_TURN_HEAD | bits_CAP_DOORS_GROUP;
 
 	MonsterInit();
-	//SetUse(&CBarney::FollowerUse);
+	
 	if (m_iArmor == ARMOR_RANDOM)
 		{
 		SetBodygroup(0, RANDOM_LONG(0, 1));
@@ -502,7 +504,7 @@ void CBarney::Spawn()
 		SetBodygroup(0, ARMOR_NONE);
 		}
 
-		if (m_iHelmet == HEADWEAR_RANDOM)
+	if (m_iHelmet == HEADWEAR_RANDOM)
 		{
 		SetBodygroup(3, RANDOM_LONG(0, 1));
 		}

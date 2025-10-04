@@ -802,11 +802,13 @@ void ChgruntRobo::Spawn()
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
+		m_flDistTooFar = 1024+512;
 		m_cClipSize = 9;
 	}
 	else
 	{
 		SetBodygroup(GUN_GROUP, GUN_MP5);
+		m_flDistTooFar = 1024+512;
 		m_cClipSize = 30;
 	}
 	m_cAmmoLoaded = m_cClipSize;
@@ -815,7 +817,7 @@ void ChgruntRobo::Spawn()
 	MonsterInit();
 }
 //=========================================================
-// Make the piece of shit osprey behave
+// Make the piece of shit osprey behave // also unused for the trainbot (unless O_O)
 //=========================================================
 void ChgruntRobo::ClipSize(int clipsize)
 {
