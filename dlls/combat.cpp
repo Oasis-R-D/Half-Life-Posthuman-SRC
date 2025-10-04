@@ -1231,7 +1231,7 @@ bool CBaseMonster::FInViewCone(Vector* pOrigin)
 // FVisible - returns true if a line can be traced from
 // the caller's eyes to the target
 //=========================================================
-bool CBaseEntity::FVisible(CBaseEntity* pEntity)
+bool CBaseEntity::FVisible(CBaseEntity* pEntity) // TO-DO: find some way for monsters to use bullet pen
 {
 	TraceResult tr;
 	Vector vecLookerOrigin;
