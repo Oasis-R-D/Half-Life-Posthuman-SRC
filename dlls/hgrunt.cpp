@@ -770,11 +770,11 @@ void CHGrunt::ShootM727()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 7000, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 0.66, 556, edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 1, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 1, 556, edict());
 	}
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
@@ -838,7 +838,7 @@ void CHGrunt::M249()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_20DEGREES, CONE_15DEGREES, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 0.66, 556, edict());
 	}
 	else
 	{
