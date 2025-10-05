@@ -867,9 +867,11 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_mutat1", "Mutation"}, // SHC final boss
 		{"ph_mutat2", "Mutation"}, 
 		{"ph_cliff1", "Cliffhanger"},
-		{"ph_cliff2", "Cliffhanger"}, // Miller final boss
-		{"ph_ext1", "Extinction"}, //ending
-		{"ph_ext2", "Extinct"}, //post-cred
+		{"ph_cliff2", "Cliffhanger"},
+		{"ph_cliff3", "Cliffhanger"}, // Miller final boss
+		{"ph_ext1", "Extinction"},
+		{"ph_ext2", "Extinction"}, //ending
+		{"ph_ext3" "Extinct"}, //post-cred
 		{"ph_erad1", "Eradication"}, // alt ending start
 		{"ph_erad2", "Eradication"},
 		{"test", "DEV!!!!!!!!!"},
