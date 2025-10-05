@@ -5513,7 +5513,7 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 			if (g_iNightVision)
 				glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da messages cuz we're FUCKED up broooooooooooooooo
 			else
-				glBlendFunc(GL_ZERO, GL_ZERO_EXT); // TO-DO: make it not render at all
+				return;
 		}
 		else 
 		{
@@ -5534,7 +5534,7 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		{
 			if (ppoly->entity)
 			{
-				if (!IsEntityTransparent(ppoly->entity))
+				if (!IsEntityTransparent(ppoly->entity)) // TO-DO: pretty sure removing this would fix decals not map spawning on transparent things
 					continue;
 			}
 			else 
