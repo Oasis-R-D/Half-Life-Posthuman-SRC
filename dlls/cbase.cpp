@@ -809,7 +809,7 @@ CBaseEntity* CBaseEntity::Create(const char* szName, const Vector& vecOrigin, co
 {
 	edict_t* pent;
 	CBaseEntity* pEntity;
-
+	// can a precache not be added here?
 	pent = CREATE_NAMED_ENTITY(MAKE_STRING(szName));
 	if (FNullEnt(pent))
 	{
@@ -823,7 +823,7 @@ CBaseEntity* CBaseEntity::Create(const char* szName, const Vector& vecOrigin, co
 	DispatchSpawn(pEntity->edict());
 	return pEntity;
 }
-struct TITLECOMMENT
+struct TITLECOMMENT // Chapter titles
 {
 	const char* pBSPName;
 	const char* pTitleName;
