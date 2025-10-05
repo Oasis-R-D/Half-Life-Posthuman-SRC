@@ -851,8 +851,9 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_surf1", "Resurfaced"},
 		{"ph_surf2", "Resurfaced"},
 		{"ph_surf3", "Resurfaced"},
-		{"PHhem1", "gibberish here"}, // ICH
-		{"PHhem2", "gibberish here"},
+		{"PH_ich1", "I.C.H"},
+		{"PH_ich2", "Q Ct Qp Wqgjmu"},
+		{"PH_ich3", "Ecejobbvu"},
 		{"ph_rec1", "RV"},
 		{"ph_rec2", "RV"}, // Probably RecX
 		{"ph_rec3", "RV"},

@@ -5482,6 +5482,10 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		int index5 = decal->texinfo->szName[12] - '0';
 		char nbloodspray[64];
 		sprintf(nbloodspray, "{nbloodspray%d", index5); 
+
+		int index6 = decal->texinfo->szName[8] - '0';
+		char message[64];
+		sprintf(message, "{message%d", index6); 
 		////////////////////////////////////
 
 		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
@@ -5503,6 +5507,13 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		else if (!strcmp(decal->texinfo->szName, nbloodspray))
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da noiseblood cuz I don't fucking know anymore
+		}
+		else if (!strcmp(decal->texinfo->szName, message))
+		{
+			if (g_iNightVision)
+				glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da messages cuz we're FUCKED up broooooooooooooooo
+			else
+				glBlendFunc(GL_ZERO, GL_ZERO_EXT); // TO-DO: make it not render at all
 		}
 		else 
 		{

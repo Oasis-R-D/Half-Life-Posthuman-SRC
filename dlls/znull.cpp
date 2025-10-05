@@ -125,7 +125,7 @@ const char* CCorrupted::pDeathSounds[] =
 //=========================================================
 int CCorrupted::Classify()
 {
-	return CLASS_DISLIKE_ALL;
+	return CLASS_HALLUCINATION;
 }
 
 //=========================================================
