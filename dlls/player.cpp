@@ -1026,8 +1026,16 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-	if (!g_pGameRules->IsMultiplayer())
-		UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 5, 128, FFADE_OUT);
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		if (!g_pGameRules->IsMultiplayer())
+			UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT);
+	}
+	else
+	{
+		if (!g_pGameRules->IsMultiplayer())
+			UTIL_ScreenFade(this, Vector(0, 0, 0), 0.1, 50, 255, FFADE_OUT);
+	}
 	pev->maxspeed = 350;
 	m_bleedAMNT = 0;
 }
