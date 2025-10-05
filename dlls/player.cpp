@@ -1034,7 +1034,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	else
 	{
 		if (!g_pGameRules->IsMultiplayer())
-			UTIL_ScreenFade(this, Vector(0, 0, 0), 0.1, 50, 255, FFADE_OUT);
+			UTIL_ScreenFade(this, Vector(0, 0, 0), 0.001, 50, 255, FFADE_OUT);
 	}
 	pev->maxspeed = 350;
 	m_bleedAMNT = 0;

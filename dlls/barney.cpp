@@ -346,8 +346,8 @@ void CBarney::BarneyFirePistol()
 	if (FClassnameIs(pev, "monster_barney_adv"))
 	{
 		FireBullets(gSkillData.hgruntShotgunPellets, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 1024, BULLET_PLAYER_BUCKSHOT, 1);
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
-		EMIT_SOUND_DYN(ENT(pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
 		pev->framerate = 0.5;
 	}
 	else
@@ -370,7 +370,7 @@ void CBarney::BarneyFirePistol()
 			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
 		}
 		#endif
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_NORM, 0, 100 + pitchShift);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
 	}
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);

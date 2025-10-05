@@ -827,11 +827,11 @@ void CMOFAssassin::Shoot()
 #ifndef CLIENT_DLL
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmg556, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 0.66, 357, edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg556, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 0.75, 762, edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 50, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 1, 357, edict());
+			CPhysbullet::BulletCreate(1, 45, 6500, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
 		}
 #endif
 	}
@@ -902,7 +902,7 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case MASSASSIN_AE_GREN_LAUNCH:
 	{
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/glauncher.wav", 0.8, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/glauncher.wav", 0.8, ATTN_GUN);
 		CGrenade::ShootContact(pev, GetGunPosition(), m_vecTossVelocity);
 		m_fThrowGrenade = false;
 		if (g_iSkillLevel == SKILL_HARD)
@@ -928,16 +928,16 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 			// the first round of the three round burst plays the sound and puts a sound in the world sound list.
 			if (RANDOM_LONG(0, 1))
 			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_NORM);
+				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_GUN);
 			}
 			else
 			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_NORM);
+				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
 			}
 		}
 		else
 		{
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sniper_fire.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sniper_fire.wav", 1, ATTN_GUN);
 		}
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);

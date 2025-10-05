@@ -626,7 +626,7 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
 	}
 	#endif
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.6);
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
 
@@ -647,13 +647,13 @@ void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_GUN);
 		break;
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_GUN);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_GUN);
 		break;
 	}
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
@@ -1221,13 +1221,13 @@ void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_GUN);
 		break;
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_GUN);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_GUN);
 		break;
 	}
 	pev->effects = pev->effects | EF_MUZZLEFLASH;

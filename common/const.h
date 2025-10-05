@@ -637,6 +637,7 @@
 
 // attenuation values
 #define ATTN_NONE 0
+#define ATTN_GUN (float)0.4
 #define ATTN_NORM (float)0.8
 #define ATTN_IDLE (float)2
 #define ATTN_STATIC (float)1.25
