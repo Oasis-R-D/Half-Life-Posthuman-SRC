@@ -3024,10 +3024,29 @@ void CtriggerRand::Spawn()
 void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	int iLasttarget;
-	switch(RANDOM_LONG(0, iLasttarget))
+
+	if (target2 == 0) // 0 is default
+		iLasttarget = 1;
+	else if (target3 == 0)
+		iLasttarget = 2;
+	else if (target4 == 0)
+		iLasttarget = 3;
+	else
+		iLasttarget = 4;
+
+	switch(RANDOM_LONG(1, iLasttarget))
 	{
-		case 0:
-			//pev->target // don't know what the right PEV command thing is
+		case 1:
+			pev->target = target1;
+			break;
+		case 2:
+			pev->target = target2;
+			break;
+		case 3:
+			pev->target = target3;
+			break;
+		case 4:
+			pev->target = target4;
 			break;
 	}
 	SUB_UseTargets(this, triggerType, 0);
