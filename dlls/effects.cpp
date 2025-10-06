@@ -1861,7 +1861,7 @@ public:
 	Vector BloodPosition(CBaseEntity* pActivator);
 	int m_ibloodvel;
 	float m_fspread;
-	bool m_bSpeedRNG
+	bool m_bSpeedRNG;
 
 private:
 };
