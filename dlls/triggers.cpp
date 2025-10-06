@@ -2946,10 +2946,10 @@ public:
 	bool Restore(CRestore& restore) override;
 
 	static TYPEDESCRIPTION m_SaveData[];
-	int target1;
-	int target2;
-	int target3;
-	int target4;
+	string_t target1;
+	string_t target2;
+	string_t target3;
+	string_t target4;
 
 private:
 	USE_TYPE triggerType;
