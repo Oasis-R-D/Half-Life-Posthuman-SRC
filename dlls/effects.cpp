@@ -1861,6 +1861,7 @@ public:
 	Vector BloodPosition(CBaseEntity* pActivator);
 	int m_ibloodvel;
 	float m_fspread;
+	bool m_bSpeedRNG
 
 private:
 };
@@ -1920,6 +1921,11 @@ bool CBloodSpray::KeyValue(KeyValueData* pkvd)
 		m_ibloodvel = atoi(pkvd->szValue);
 		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "speedrng"))
+	{
+		m_bSpeedRNG = atoi(pkvd->szValue);
+		return true;
+	}
 	else if (FStrEq(pkvd->szKeyName, "spread"))
 	{
 		m_fspread = atof(pkvd->szValue);
@@ -1961,7 +1967,7 @@ Vector CBloodSpray::BloodPosition(CBaseEntity* pActivator)
 void CBloodSpray::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread);
+	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
 	#endif
 
 	if ((pev->spawnflags & SF_BLOOD_DECAL) != 0)
