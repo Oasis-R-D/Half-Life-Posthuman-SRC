@@ -3096,13 +3096,13 @@ void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 			break;
 	}
 		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, player->pev);
-		WRITE_BYTE(health_head);
-		WRITE_BYTE(health_chest);
-		WRITE_BYTE(health_stomach);
-		WRITE_BYTE(health_armL);
-		WRITE_BYTE(health_armR);
-		WRITE_BYTE(health_legL);
-		WRITE_BYTE(health_legR);
+		WRITE_BYTE(player->health_head);
+		WRITE_BYTE(player->health_chest);
+		WRITE_BYTE(player->health_stomach);
+		WRITE_BYTE(player->health_armL);
+		WRITE_BYTE(player->health_armR);
+		WRITE_BYTE(player->health_legL);
+		WRITE_BYTE(player->health_legR);
 		MESSAGE_END();
 }
 bool CTriggerLimbDMG::KeyValue(KeyValueData* pkvd)
