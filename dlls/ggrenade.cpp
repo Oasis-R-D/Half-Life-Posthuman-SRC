@@ -410,8 +410,15 @@ void CGrenade::Spawn()
 
 	SET_MODEL(ENT(pev), "models/grenade.mdl");
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->dmg = 100;
+	}
+	else
+	{
+		pev->dmg = 160;
+	}
 
-	pev->dmg = 100;
 	m_fRegisteredSound = false;
 }
 
@@ -437,7 +444,10 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 	// Explode on contact
 	pGrenade->SetTouch(&CGrenade::ExplodeTouch);
 
-	pGrenade->pev->dmg = gSkillData.plrDmgM203Grenade;
+	if (g_iSkillLevel != SKILL_HARD)
+		pGrenade->pev->dmg = gSkillData.plrDmgM203Grenade;
+	else
+		pGrenade->pev->dmg = 160;
 
 	return pGrenade;
 }
@@ -478,8 +488,14 @@ CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecV
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
 
-	pGrenade->pev->dmg = 100;
-
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pGrenade->pev->dmg = 100;
+	}
+	else
+	{
+		pGrenade->pev->dmg = 160;
+	}
 	return pGrenade;
 }
 
@@ -496,7 +512,15 @@ CGrenade* CGrenade::ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vec
 
 	UTIL_SetSize(pGrenade->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
-	pGrenade->pev->dmg = 200;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pGrenade->pev->dmg = 200;
+	}
+	else
+	{
+		pGrenade->pev->dmg = 260;
+	}
+
 	UTIL_SetOrigin(pGrenade->pev, vecStart);
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = g_vecZero;
