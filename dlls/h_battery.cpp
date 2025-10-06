@@ -182,6 +182,7 @@ void CRecharge::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 void CRecharge::Recharge()
 {
+	SUB_UseTargets(this, USE_TOGGLE, 0);
 	m_iJuice = (gSkillData.suitchargerCapacity + (RANDOM_LONG(-5, 10)));
 	pev->frame = 0;
 	SetThink(&CRecharge::SUB_DoNothing);
@@ -189,6 +190,7 @@ void CRecharge::Recharge()
 
 void CRecharge::Off()
 {
+	SUB_UseTargets(this, USE_TOGGLE, 0);
 	// Stop looping sound.
 	if (m_iOn > 1)
 		STOP_SOUND(ENT(pev), CHAN_STATIC, "items/suitcharge1.wav");

@@ -301,11 +301,13 @@ void CWallHealth::Recharge()
 	EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", 1.0, ATTN_NORM);
 	m_iJuice = gSkillData.healthchargerCapacity;
 	pev->frame = 0;
+	SUB_UseTargets(this, USE_TOGGLE, 0);
 	SetThink(&CWallHealth::SUB_DoNothing);
 }
 
 void CWallHealth::Off()
 {
+	SUB_UseTargets(this, USE_TOGGLE, 0);
 	// Stop looping sound.
 	if (m_iOn > 1)
 		STOP_SOUND(ENT(pev), CHAN_STATIC, "items/medcharge4.wav");
