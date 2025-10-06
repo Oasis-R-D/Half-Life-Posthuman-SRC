@@ -2887,9 +2887,6 @@ LINK_ENTITY_TO_CLASS(trigger_hunger, CTriggerHunger);
 
 void CTriggerHunger::Spawn()
 {
-		pev->solid = SOLID_TRIGGER;
-		SET_MODEL(ENT(pev), STRING(pev->model)); // set size and link into world
-		pev->movetype = MOVETYPE_NONE;
 }
 void CTriggerHunger::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
@@ -3052,4 +3049,83 @@ void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE u
 	SUB_UseTargets(this, triggerType, 0);
 	if ((pev->spawnflags & SF_RELAY_FIREONCE) != 0)
 		UTIL_Remove(this);
+}
+
+class CTriggerLimbDMG : public CPointEntity
+{
+public:
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	int m_iPlus;
+	float m_iMulti;
+	int m_iSet = -1;
+	int m_iLimb;
+private:
+};
+LINK_ENTITY_TO_CLASS(trigger_dmglimb, CTriggerLimbDMG);
+
+void CTriggerLimbDMG::Spawn()
+{
+}
+void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	if (!pActivator->IsPlayer())
+		return;
+	auto player = (CBasePlayer*)pActivator;
+	switch (m_iLimb)
+	{
+		case 0: //head	
+			if (m_iSet != -1)
+				player->health_head = m_iSet;
+			player->health_head *= m_iMulti;
+			player->health_head += m_iPlus;
+			player->health_head = round(player->health_head);
+			break;
+		case 1: //chest
+			break;
+		case 2: //stomach
+			break;
+		case 3: //Larm
+			break;
+		case 4: //Rarm
+			break;
+		case 5: //Lleg
+			break;
+		case 6: //Rleg
+			break;
+	}
+		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, player->pev);
+		WRITE_BYTE(health_head);
+		WRITE_BYTE(health_chest);
+		WRITE_BYTE(health_stomach);
+		WRITE_BYTE(health_armL);
+		WRITE_BYTE(health_armR);
+		WRITE_BYTE(health_legL);
+		WRITE_BYTE(health_legR);
+		MESSAGE_END();
+}
+bool CTriggerLimbDMG::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "plus"))
+	{
+		m_iPlus = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "set"))
+	{
+		m_iSet = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "mult"))
+	{
+		m_iMulti = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "limb"))
+	{
+		m_iLimb = atoi(pkvd->szValue);
+		return true;
+	}
+	return CPointEntity::KeyValue(pkvd);
 }
