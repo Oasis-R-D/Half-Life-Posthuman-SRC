@@ -2871,7 +2871,7 @@ void CEnvCustomize::SetBoneController(float fController, int cnum, CBaseEntity* 
 	}
 }
 
-class CTriggerHunger : public CPointEntity // Ignore this being here, this WAS a trigger
+class CTriggerHunger : public CPointEntity // Ignore this being here, this WAS a trigger // TO-DO: make something like this but for limb damage
 {
 public:
 	void Spawn() override;
@@ -2923,7 +2923,7 @@ bool CTriggerHunger::KeyValue(KeyValueData* pkvd)
 }
 
 
-class CTriggerSprint : public CPointEntity
+class CTriggerSprint : public CPointEntity // this however, was never a trigger.
 {
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 	{
@@ -2935,3 +2935,102 @@ class CTriggerSprint : public CPointEntity
 };
 
 LINK_ENTITY_TO_CLASS(trigger_sprint, CTriggerSprint);
+
+
+class CtriggerRand : public CBaseDelay
+{
+public:
+	bool KeyValue(KeyValueData* pkvd) override;
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+
+	int ObjectCaps() override { return CBaseDelay::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+
+	static TYPEDESCRIPTION m_SaveData[];
+	int target1;
+	int target2;
+	int target3;
+	int target4;
+
+private:
+	USE_TYPE triggerType;
+};
+LINK_ENTITY_TO_CLASS(trigger_rand, CtriggerRand);
+
+TYPEDESCRIPTION CtriggerRand::m_SaveData[] =
+	{
+		DEFINE_FIELD(CtriggerRand, triggerType, FIELD_INTEGER),
+		DEFINE_FIELD(CtriggerRand, target1, FIELD_STRING),
+		DEFINE_FIELD(CtriggerRand, target2, FIELD_STRING),
+		DEFINE_FIELD(CtriggerRand, target3, FIELD_STRING),
+		DEFINE_FIELD(CtriggerRand, target4, FIELD_STRING),
+};
+
+IMPLEMENT_SAVERESTORE(CtriggerRand, CBaseDelay);
+
+bool CtriggerRand::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "triggerstate"))
+	{
+		int type = atoi(pkvd->szValue);
+		switch (type)
+		{
+		case 0:
+			triggerType = USE_OFF;
+			break;
+		case 2:
+			triggerType = USE_TOGGLE;
+			break;
+		default:
+			triggerType = USE_ON;
+			break;
+		}
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "targetone"))
+	{
+		target1 = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "targettwo"))
+	{
+		target2 = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "targetthree"))
+	{
+		target3 = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "targetfour"))
+	{
+		target4 = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+
+	return CBaseDelay::KeyValue(pkvd);
+}
+
+
+void CtriggerRand::Spawn()
+{
+}
+
+
+
+
+void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	int iLasttarget;
+	switch(RANDOM_LONG(0, iLasttarget))
+	{
+		case 0:
+			//pev->target // don't know what the right PEV command thing is
+			break;
+	}
+	SUB_UseTargets(this, triggerType, 0);
+	if ((pev->spawnflags & SF_RELAY_FIREONCE) != 0)
+		UTIL_Remove(this);
+}
