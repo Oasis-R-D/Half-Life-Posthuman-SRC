@@ -1596,10 +1596,13 @@ public:
 
 	void PrimaryAttack() override;
 	void TertiaryAttack() override;
+	void Reload() override;
 	bool Deploy() override;
 	void WeaponIdle() override;
 	void ItemPostFrame() override;
 	float m_flNextReload;
+	int m_corrskin;
+	int m_iCurrWPN;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -1608,4 +1611,7 @@ public:
 		return false;
 #endif
 	}
+private:
+	unsigned short m_stainevent;
+	unsigned short m_silenceevent;
 };

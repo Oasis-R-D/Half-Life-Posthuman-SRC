@@ -25,7 +25,7 @@
 #include "physical_bullet.h"
 
 
-LINK_ENTITY_TO_CLASS(weapon_crystallauncher, CCorruptedWPN);
+LINK_ENTITY_TO_CLASS(weapon_corrupted, CCorruptedWPN);
 
 void CCorruptedWPN::Spawn()
 {
@@ -41,9 +41,9 @@ void CCorruptedWPN::Spawn()
 
 void CCorruptedWPN::Precache()
 {
-	PRECACHE_MODEL("models/v_shotgun.mdl");
-	PRECACHE_MODEL("models/w_shotgun.mdl");
-	PRECACHE_MODEL("models/p_shotgun.mdl");
+	PRECACHE_MODEL("models/v_corruptWPN.mdl");
+	PRECACHE_MODEL("models/w_corruptWPN.mdl");
+	PRECACHE_MODEL("models/p_corruptWPN.mdl");
 
 	PRECACHE_SOUND("items/9mmclip1.wav");
 
@@ -55,20 +55,21 @@ void CCorruptedWPN::Precache()
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc"); // bodygroup change event (repurposed from glock)
 }
 
 bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 {
 	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "buckshot";
-	p->iMaxAmmo1 = BUCKSHOT_MAX_CARRY;
+	p->pszAmmo1 = "556";
+	p->iMaxAmmo1 = 200;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
-	p->iMaxClip = CRYST_MAX_CLIP;
-	p->iSlot = 3;
+	p->iMaxClip = 200;
+	p->iSlot = 0;
 	p->iPosition = 4;
 	p->iFlags = 0;
-	p->iId = m_iId = WEAPON_CRYST;
+	p->iId = m_iId = WEAPON_CORRUPT;
 	p->iWeight = CRYST_WEIGHT;
 
 	return true;
@@ -78,7 +79,8 @@ bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 
 bool CCorruptedWPN::Deploy()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0); // TO-DO: update random long with current skin amnts
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
 }
 
@@ -93,8 +95,29 @@ void CCorruptedWPN::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	float spread = 0.17432;
-	float spreadvert = 0.01746;
+	float spread;
+	float spreadvert;
+	switch (m_iCurrWPN)
+	{
+		case 0: // glock
+			
+			break;
+		case 1: // mp5
+		
+			break;
+		case 2: // python
+		
+			break;
+		case 3: // spas-12
+		
+			break;
+		case 4: // m727
+		
+			break;
+		case 5: // m249
+		
+			break;
+	}
 	#ifndef CLIENT_DLL
 	//fire bullet here
 	#endif
@@ -121,22 +144,11 @@ void CCorruptedWPN::WeaponIdle()
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{
-		if (m_iClip == 0 && m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		if (m_iClip == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 		{
+			
 			Reload();
-		}
-		else if (m_fInSpecialReload != 0)
-		{
-			if (m_iClip != 3 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
-			{
-				Reload();
-			}
-			else
-			{
-				SendWeaponAnim(SHOTGUN_RELOAD_END_SEMI);
-				m_fInSpecialReload = 0;
-				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
-			}
+
 		}
 		else
 		{
@@ -152,6 +164,47 @@ void CCorruptedWPN::WeaponIdle()
 
 void CCorruptedWPN::ItemPostFrame()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_corrskin, 0, 0, 0); // repurposed for skin changing
 	CBasePlayerWeapon::ItemPostFrame();
+}
+
+void CCorruptedWPN::Reload()
+{
+	m_iCurrWPN += RANDOM_LONG(1, 4);
+	if (m_iCurrWPN == 9)	  // 4 over
+		m_iCurrWPN = 3;
+	else if (m_iCurrWPN == 8) // 3 over
+		m_iCurrWPN = 2;
+	else if (m_iCurrWPN == 7) // 2 over
+		m_iCurrWPN = 1;
+	else if (m_iCurrWPN == 6) // 1 over
+		m_iCurrWPN = 0;
+	else
+		m_iCurrWPN = 0;
+
+	int iReloadAMNT;
+	switch (m_iCurrWPN)
+	{
+		case 0: // glock
+			iReloadAMNT = 17;
+			break;
+		case 1: // mp5
+			iReloadAMNT = 30;
+			break;
+		case 2: // python
+			iReloadAMNT = 6;
+			break;
+		case 3: // spas-12
+			iReloadAMNT = 9;
+			break;
+		case 4: // m727
+			iReloadAMNT = 30;
+			break;
+		case 5: // m249
+			iReloadAMNT = 100;
+			break;
+	}
+	DefaultReload(iReloadAMNT, M727_RELOAD_EMPTY, 1.8);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.5, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
+
 }
