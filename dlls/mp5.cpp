@@ -280,12 +280,10 @@ void CMP5::TertiaryAttack()
 
 	if (pev->armortype == 1)
 	{
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Burst-Fire Mode");
 		pev->armortype = 2;
 	}
 	else if (pev->armortype == 2)
 	{
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Full-Auto Mode");
 		pev->armortype = 1;
 	}
 	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
@@ -669,12 +667,10 @@ void CM727::TertiaryAttack()
 	if (firemode == true)
 	{
 		firemode = false;
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Full-Auto Mode");
 	}
 	else
 	{
 		firemode = true;
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Switched to Semi-Auto Mode");
 	}
 	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
