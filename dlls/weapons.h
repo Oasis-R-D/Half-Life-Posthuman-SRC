@@ -1584,3 +1584,28 @@ public:
 private:
 	unsigned short m_stainevent;
 };
+
+class CCorruptedWPN : public CBasePlayerWeapon
+{
+public:
+
+	void Spawn() override;
+	void Precache() override;
+	int iItemSlot() override { return 3; }
+	bool GetItemInfo(ItemInfo* p) override;
+
+	void PrimaryAttack() override;
+	void TertiaryAttack() override;
+	bool Deploy() override;
+	void WeaponIdle() override;
+	void ItemPostFrame() override;
+	float m_flNextReload;
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+};
