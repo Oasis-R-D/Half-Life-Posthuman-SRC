@@ -3023,11 +3023,11 @@ void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE u
 {
 	int iLasttarget;
 
-	if (target2 == 0) // 0 is default
+	if (FStringNull(target2))
 		iLasttarget = 1;
-	else if (target3 == 0)
+	else if (FStringNull(target3))
 		iLasttarget = 2;
-	else if (target4 == 0)
+	else if (FStringNull(target4))
 		iLasttarget = 3;
 	else
 		iLasttarget = 4;
@@ -3036,15 +3036,19 @@ void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE u
 	{
 		case 1:
 			pev->target = target1;
+			ALERT(at_console, "1\n");
 			break;
 		case 2:
 			pev->target = target2;
+			ALERT(at_console, "2\n");
 			break;
 		case 3:
 			pev->target = target3;
+			ALERT(at_console, "3\n");
 			break;
 		case 4:
 			pev->target = target4;
+			ALERT(at_console, "4\n");
 			break;
 	}
 	SUB_UseTargets(this, triggerType, 0);
