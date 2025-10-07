@@ -269,7 +269,6 @@ void CMP5::SecondaryAttack()
 		MESSAGE_END();
 	}
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 0.37;
-	m_flNextTertiaryAttack = gpGlobals->time + 0.37;
 }
 
 void CMP5::TertiaryAttack()
