@@ -76,6 +76,7 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW_FIRST, "onehanded", pev->body);
@@ -90,39 +91,39 @@ void CGlock::Holster()
 }
 void CGlock::SecondaryAttack()
 {
-	pev->armortype = !pev->armortype; // bro wtf does this even do :sob:
+	m_isilenced = !m_isilenced; // bro wtf does this even do :sob:
 	if (pev->body == 0)
 	{
-		SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body); // TO-DO: make body change during animation
+		SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body);
 		m_flTimeWeaponIdle = 3.4;
 		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 3.35;
 	}
 	else
 	{
-		SendWeaponAnim(GLOCK_HOLSTER, pev->body); // TO-DO: make body change during animation
+		SendWeaponAnim(GLOCK_HOLSTER, pev->body);
 		m_flTimeWeaponIdle = 1.5;
 		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1.40;
 	}
-	pev->armorvalue = gpGlobals->time + 1;
+	m_fTimer = gpGlobals->time + 1;
 }
 
 void CGlock::ItemPostFrame()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
-	if (pev->armorvalue <= gpGlobals->time && pev->armorvalue != 0)
+	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
 	{
-		pev->armorvalue = 0;
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, pev->armortype, 0, 0, 0);
-		pev->body = pev->armortype;
+		m_fTimer = 0;
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
+		pev->body = m_isilenced;
 		if (pev->body == 0)
-			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body); //TO-DO: make body change during animation
+			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body);
 	}
 	CBasePlayerWeapon::ItemPostFrame();
 }
 
 void CGlock::PrimaryAttack()
 {
-	if (pev->armortype == 0)
+	if (m_isilenced == 0)
 		GlockFire(pev->body ? 0.01 : 0.02, 0.1, true);
 	else
 		GlockFire(pev->body ? 0.008 : 0.02, 0.2, true);
@@ -171,7 +172,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	}
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		if (pev->armortype == 0)
+		if (m_isilenced == 0)
 		{
 		// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 		#ifndef CLIENT_DLL
@@ -189,7 +190,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	else // realism diff (hardcoded damages to prevent cheaters)
 	{
 	
-		if (pev->armortype == 0)
+		if (m_isilenced == 0)
 		{
 		// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 		#ifndef CLIENT_DLL
@@ -204,7 +205,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 			#endif
 		}
 	}
-	if (pev->armortype == 0)
+	if (m_isilenced == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
 	}
@@ -226,7 +227,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	m_flTimeWeaponIdle = 1;
 // recoil
 #ifndef CLIENT_DLL
-	if (pev->armortype == 0)
+	if (m_isilenced == 0)
 		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
 			CBasePlayerWeapon::Recoil(1, 2);
@@ -254,6 +255,7 @@ void CGlock::Reload()
 
 void CGlock::WeaponIdle()
 {
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	ResetEmptySound();
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
@@ -262,7 +264,7 @@ void CGlock::WeaponIdle()
 
 	NotFirstDraw = true;
 
-	// only idle if the slid isn't back
+	// only idle if the slide isn't back
 	if (m_iClip != 0)
 	{
 		if (m_pPlayer->pev->velocity.Length() > 384)

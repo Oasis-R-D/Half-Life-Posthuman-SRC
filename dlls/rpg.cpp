@@ -22,7 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 
-LINK_ENTITY_TO_CLASS(weapon_rpg, CRpg);
+//LINK_ENTITY_TO_CLASS(weapon_rpg, CRpg);
 
 #ifndef CLIENT_DLL
 
@@ -368,7 +368,7 @@ bool CRpg::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = RPG_MAX_CLIP;
 	p->iSlot = 3;
-	p->iPosition = 0;
+	p->iPosition = 6;
 	p->iId = m_iId = WEAPON_RPG;
 	p->iFlags = 0;
 	p->iWeight = RPG_WEIGHT;

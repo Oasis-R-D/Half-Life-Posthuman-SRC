@@ -325,7 +325,6 @@ void CMOFAssassin::GibMonster()
 		}
 		else
 		{
-			pGun = DropItem("weapon_sniperrifle", vecGunPos, vecGunAngles);
 		}
 		if (pGun)
 		{
@@ -873,7 +872,6 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 		}
 		else
 		{
-			DropItem("weapon_sniperrifle", vecGunPos, vecGunAngles);
 		}
 		if (FBitSet(pev->weapons, MAssassinWeaponFlag::GrenadeLauncher))
 		{

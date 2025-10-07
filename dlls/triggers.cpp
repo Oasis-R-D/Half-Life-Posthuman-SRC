@@ -3073,6 +3073,7 @@ LINK_ENTITY_TO_CLASS(trigger_dmglimb, CTriggerLimbDMG);
 void CTriggerLimbDMG::Spawn()
 {
 }
+
 void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!pActivator->IsPlayer())
@@ -3088,12 +3089,32 @@ void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 			player->health_head = round(player->health_head);
 			break;
 		case 1: //chest
+			if (m_iSet != -1)
+				player->health_chest = m_iSet;
+			player->health_chest *= m_iMulti;
+			player->health_chest += m_iPlus;
+			player->health_chest = round(player->health_chest);
 			break;
 		case 2: //stomach
+			if (m_iSet != -1)
+				player->health_stomach = m_iSet;
+			player->health_stomach *= m_iMulti;
+			player->health_stomach += m_iPlus;
+			player->health_stomach = round(player->health_stomach);
 			break;
 		case 3: //Larm
+			if (m_iSet != -1)
+				player->health_armL = m_iSet;
+			player->health_armL /= m_iMulti;
+			player->health_armL -= m_iPlus;
+			player->health_armL = round(player->health_armL);
 			break;
 		case 4: //Rarm
+			if (m_iSet != -1)
+				player->health_armR = m_iSet;
+			player->health_armR /= m_iMulti;
+			player->health_armR -= m_iPlus;
+			player->health_armR = round(player->health_armR);
 			break;
 		case 5: //Lleg
 			break;
