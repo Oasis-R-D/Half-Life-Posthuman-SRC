@@ -142,6 +142,7 @@ void CCorruptedWPN::PrimaryAttack()
 	}
 
 	int blltamnt = 1;
+	int glocksound = RANDOM_LONG(0, 1);
 	float spreadhorz;
 	float spreadvert;
 	char wpnsnd2[256];
@@ -153,7 +154,7 @@ void CCorruptedWPN::PrimaryAttack()
 			recoily = 2;
 			recoilx = 2;
 			spreadhorz = spreadvert = 0.01;
-			int sound = RANDOM_LONG(0, 1);
+			
 			sprintf(wpnsnd2, "weapons/pl_gun%d.wav", sound ? 1 : 3);
 			break;
 		case 1: // mp5
