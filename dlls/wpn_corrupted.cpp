@@ -248,7 +248,7 @@ void CCorruptedWPN::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = RANDOM_LONG(600, 1000);
 	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
 
-	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 1.00), ATTN_NORM, 0, RANDOM_LONG(50, 150));
+	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 1.00), ATTN_GUN, 0, RANDOM_LONG(50, 150));
 
 	m_iClip--;
 
@@ -263,9 +263,30 @@ void CCorruptedWPN::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 	Vector vecDir;
-
+	int ibllttype;
+	switch (RANDOM_LONG(0, 5))
+	{
+		case 0:
+			ibllttype = 9;
+			break;
+		case 1:
+			ibllttype = 556;
+			break;
+		case 2:
+			ibllttype = 762;
+			break;
+		case 3:
+			ibllttype = 12;
+			break;
+		case 4:
+			ibllttype = 357;
+			break;
+		case 5:
+			ibllttype = 69; //rbbr
+			break;
+	}
 	#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(blltamnt, 2, RANDOM_LONG(5750, 7500), vecSrc, vecAiming, spreadhorz, spreadvert, RANDOM_FLOAT(0.60, 0.80), 357, m_pPlayer->edict()); // dmg set to 1 since corruption enemies don't use normal health
+		CPhysbullet::BulletCreate(blltamnt, 2, RANDOM_LONG(5750, 7500), vecSrc, vecAiming, spreadhorz, spreadvert, RANDOM_FLOAT(0.60, 1), ibllttype, m_pPlayer->edict()); // dmg set to 2 since corruption enemies don't use normal health
 	#endif
 
 	int flags;
