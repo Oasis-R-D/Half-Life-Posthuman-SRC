@@ -62,13 +62,28 @@ void CCorruptedWPN::Precache()
 
 	PRECACHE_SOUND("items/9mmclip1.wav");
 
-	PRECACHE_SOUND("weapons/dbarrel1.wav"); //shotgun
+	PRECACHE_SOUND("weapons/357_shot1.wav"); // python
+	PRECACHE_SOUND("weapons/357_shot2.wav");
+
 	PRECACHE_SOUND("weapons/sbarrel1.wav"); //shotgun
 
-	PRECACHE_SOUND("weapons/reload1.wav"); // shotgun reload
-	PRECACHE_SOUND("weapons/reload3.wav"); // shotgun reload
+	PRECACHE_SOUND("weapons/saw_fire1.wav"); // M249
+	PRECACHE_SOUND("weapons/saw_fire2.wav");
+	PRECACHE_SOUND("weapons/saw_fire3.wav");
+
+	PRECACHE_SOUND("weapons/727_hks1.wav"); // H to the K 727 times
+	PRECACHE_SOUND("weapons/727_hks2.wav"); // H to the K 727 times
+	PRECACHE_SOUND("weapons/727_hks3.wav"); // H to the K 727 times
+
+	PRECACHE_SOUND("weapons/hks1.wav"); // H to the K
+	PRECACHE_SOUND("weapons/hks2.wav"); // H to the K
+	PRECACHE_SOUND("weapons/hks3.wav"); // H to the K
+
+	PRECACHE_SOUND("weapons/pl_gun1.wav"); //silenced handgun
+	PRECACHE_SOUND("weapons/pl_gun3.wav"); //handgun
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
+
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc"); // bodygroup change event (repurposed from glock)
 }
@@ -106,9 +121,7 @@ void CCorruptedWPN::PrimaryAttack()
 		m_bSemi = true;
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0 && m_bSemi == true)
 		return;
-	int blltamnt = 1;
-	float spreadhorz;
-	float spreadvert;
+
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -128,6 +141,11 @@ void CCorruptedWPN::PrimaryAttack()
 		return;
 	}
 
+	int blltamnt = 1;
+	float spreadhorz;
+	float spreadvert;
+	char wpnsnd2[256];
+
 	switch (m_iCurrWPN)
 	{
 		case 0: // glock
@@ -135,19 +153,22 @@ void CCorruptedWPN::PrimaryAttack()
 			recoily = 2;
 			recoilx = 2;
 			spreadhorz = spreadvert = 0.01;
+			int sound = RANDOM_LONG(0, 1);
+			sprintf(wpnsnd2, "weapons/pl_gun%d.wav", sound ? 1 : 3);
 			break;
 		case 1: // mp5
 			m_flNextPrimaryAttack = 0.066;
 			recoily = 1;
 			recoilx = 1;
 			spreadhorz = spreadvert = CONE_1DEGREES;
-			;
+			sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
 			break;
 		case 2: // python
 			m_flNextPrimaryAttack = 0.2;
 			recoily = 5;
 			recoilx = 2;
 			spreadhorz = spreadvert = CONE_1DEGREES;
+			sprintf(wpnsnd2, "weapons/357_shot%d.wav", RANDOM_LONG(1, 2));
 			break;
 		case 3: // spas-12
 			blltamnt = 9;
@@ -163,12 +184,14 @@ void CCorruptedWPN::PrimaryAttack()
 			{
 				spreadhorz = spreadvert = 0.013095;
 			}
+			sFiresound = "weapons/sbarrel1.wav";
 			break;
 		case 4: // m727
 			m_flNextPrimaryAttack = 0.0727;
 			recoily = 1;
 			recoilx = 1;
 			spreadhorz = spreadvert = CONE_1DEGREES;
+			sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
 			break;
 		case 5: // m249
 			m_flNextPrimaryAttack = 0.06;
@@ -217,11 +240,14 @@ void CCorruptedWPN::PrimaryAttack()
 				}
 				spreadhorz = spreadvert = vecSpread;
 			}
+			sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 3));
 			break;
 	}
 
 	m_pPlayer->m_iWeaponVolume = RANDOM_LONG(600, 1000);
 	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
+
+	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 1.00), ATTN_NORM, 0, RANDOM_LONG(50, 150));
 
 	m_iClip--;
 
