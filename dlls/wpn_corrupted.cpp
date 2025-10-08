@@ -155,7 +155,7 @@ void CCorruptedWPN::PrimaryAttack()
 			recoilx = 2;
 			spreadhorz = spreadvert = 0.01;
 			
-			sprintf(wpnsnd2, "weapons/pl_gun%d.wav", sound ? 1 : 3);
+			sprintf(wpnsnd2, "weapons/pl_gun%d.wav", glocksound ? 1 : 3);
 			break;
 		case 1: // mp5
 			m_flNextPrimaryAttack = 0.066;
@@ -186,6 +186,7 @@ void CCorruptedWPN::PrimaryAttack()
 				spreadhorz = spreadvert = 0.013095;
 			}
 			sFiresound = "weapons/sbarrel1.wav";
+			sprintf(wpnsnd2, "weapons/sbarrel%d.wav", 1);
 			break;
 		case 4: // m727
 			m_flNextPrimaryAttack = 0.0727;
