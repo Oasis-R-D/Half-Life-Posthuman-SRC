@@ -185,7 +185,6 @@ void CCorruptedWPN::PrimaryAttack()
 			{
 				spreadhorz = spreadvert = 0.013095;
 			}
-			sFiresound = "weapons/sbarrel1.wav";
 			sprintf(wpnsnd2, "weapons/sbarrel%d.wav", 1);
 			break;
 		case 4: // m727
