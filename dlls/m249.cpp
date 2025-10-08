@@ -252,15 +252,7 @@ void CM249::PrimaryAttack()
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 #ifndef CLIENT_DLL
-	switch (RANDOM_LONG(0, 1))
-	{
-	case 0:
-		CBasePlayerWeapon::Recoil(0.4, 1.125);
-		break;
-	case 1:
-		CBasePlayerWeapon::Recoil(0.4, -1.125);
-		break;
-	}
+	CBasePlayerWeapon::Recoil(0.4, 1.125);
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 

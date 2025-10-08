@@ -3921,6 +3921,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_eagle");
 		GiveNamedItem("weapon_m727");
 		GiveNamedItem("weapon_crystallauncher");
+		GiveNamedItem("weapon_corrupted");
 		gEvilImpulse101 = false;
 		break;
 

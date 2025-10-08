@@ -1,0 +1,404 @@
+/***
+*
+*	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
+*	
+*	This product contains software technology licensed from Id 
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*	All Rights Reserved.
+*
+*   Use, distribution, and modification of this source code and/or resulting
+*   object code is restricted to non-commercial enhancements to products from
+*   Valve LLC.  All other use, distribution, or modification is prohibited
+*   without written permission from Valve LLC.
+*
+****/
+
+#include "extdll.h"
+#include "util.h"
+#include "cbase.h"
+#include "monsters.h"
+#include "weapons.h"
+#include "player.h"
+#include "gamerules.h"
+#include "UserMessages.h"
+#include "physical_cryst.h"
+#include "physical_bullet.h"
+
+bool CCorruptedWPN::CanAttack(float attack_time, float curtime, bool isPredicted)
+{
+#if defined(CLIENT_WEAPONS)
+	if (!isPredicted)
+#else
+	if (1)
+#endif
+	{
+		return (attack_time <= curtime) ? true : false;
+	}
+	else
+	{
+		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
+	}
+}
+
+LINK_ENTITY_TO_CLASS(weapon_corrupted, CCorruptedWPN);
+
+void CCorruptedWPN::Spawn()
+{
+	Precache();
+	m_iId = WEAPON_CORRUPT;
+	SET_MODEL(ENT(pev), "models/w_corruptWPN.mdl");
+
+	m_iDefaultAmmo = CRYST_DEFAULT_GIVE;
+
+	FallInit(); // get ready to fall
+}
+
+
+void CCorruptedWPN::Precache()
+{
+	PRECACHE_MODEL("models/v_corruptWPN.mdl");
+	PRECACHE_MODEL("models/w_corruptWPN.mdl");
+	PRECACHE_MODEL("models/p_corruptWPN.mdl");
+
+	PRECACHE_SOUND("items/9mmclip1.wav");
+
+	PRECACHE_SOUND("weapons/dbarrel1.wav"); //shotgun
+	PRECACHE_SOUND("weapons/sbarrel1.wav"); //shotgun
+
+	PRECACHE_SOUND("weapons/reload1.wav"); // shotgun reload
+	PRECACHE_SOUND("weapons/reload3.wav"); // shotgun reload
+
+	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
+	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc"); // bodygroup change event (repurposed from glock)
+}
+
+bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
+{
+	p->pszName = STRING(pev->classname);
+	p->pszAmmo1 = "556";
+	p->iMaxAmmo1 = 200;
+	p->pszAmmo2 = NULL;
+	p->iMaxAmmo2 = -1;
+	p->iMaxClip = 200;
+	p->iSlot = 0;
+	p->iPosition = 4;
+	p->iFlags = 0;
+	p->iId = m_iId = WEAPON_CORRUPT;
+	p->iWeight = CRYST_WEIGHT;
+
+	return true;
+}
+
+
+
+bool CCorruptedWPN::Deploy()
+{
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0); // TO-DO: update random long with current skin amnts
+	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
+}
+
+void CCorruptedWPN::PrimaryAttack()
+{
+	//if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
+		//return;
+
+
+
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
+	if (m_iClip <= 0)
+	{
+		if (m_fFireOnEmpty)
+		{
+			PlayEmptySound();
+			m_flNextPrimaryAttack = 0.15;
+		}
+
+		return;
+	}
+
+	switch (m_iCurrWPN)
+	{
+		case 0: // glock
+			m_flNextPrimaryAttack = 0.01;
+			recoily = 2;
+			recoilx = 2;
+			break;
+		case 1: // mp5
+			m_flNextPrimaryAttack = 0.066;
+			recoily = 1;
+			recoilx = 1;
+			break;
+		case 2: // python
+			m_flNextPrimaryAttack = 0.2;
+			recoily = 5;
+			recoilx = 2;
+			break;
+		case 3: // spas-12
+			m_flNextPrimaryAttack = 0.2;
+			recoily = 4;
+			recoilx = 2;
+			break;
+		case 4: // m727
+			m_flNextPrimaryAttack = 0.0727;
+			recoily = 1;
+			recoilx = 1;
+			break;
+		case 5: // m249
+			m_flNextPrimaryAttack = 0.06;
+			//(0.4, 1.125)
+			recoily = 0.4;
+			recoilx = 1.125;
+				
+			break;
+	}
+
+	m_pPlayer->m_iWeaponVolume = RANDOM_LONG(600, 1000);
+	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
+
+	m_iClip--;
+
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
+
+
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	Vector vecDir;
+
+	#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+	#endif
+
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+
+	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		// HEV suit - indicate out of ammo condition
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
+
+
+	m_flTimeWeaponIdle = 1;
+#ifndef CLIENT_DLL
+		CBasePlayerWeapon::Recoil(recoily, recoilx);
+#endif
+
+
+}
+
+void CCorruptedWPN::TertiaryAttack()
+{
+
+}
+
+
+void CCorruptedWPN::WeaponIdle()
+{
+
+	m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+
+	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
+	{
+		if (m_iClip == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		{
+			
+			Reload();
+
+		}
+		else
+		{
+			switch (RANDOM_LONG(1, 3))
+			{
+			case 1: SendWeaponAnim(SHOTGUN_IDLE1_SEMI), m_flTimeWeaponIdle = 1.93; break;
+			case 2: SendWeaponAnim(SHOTGUN_IDLE2_SEMI), m_flTimeWeaponIdle = 3.43; break;
+			case 3: SendWeaponAnim(SHOTGUN_IDLE3_SEMI), m_flTimeWeaponIdle = 3.23; break;
+			}
+		}
+	}
+}
+
+void CCorruptedWPN::ItemPostFrame()
+{
+	int iReloadAMNT;
+
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_corrskin, 0, 0, 0); // repurposed for skin changing
+
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{	
+		m_iCurrWPN += RANDOM_LONG(1, 4);
+		if (m_iCurrWPN == 9)	  // 4 over
+			m_iCurrWPN = 3;
+		else if (m_iCurrWPN == 8) // 3 over
+			m_iCurrWPN = 2;
+		else if (m_iCurrWPN == 7) // 2 over
+			m_iCurrWPN = 1;
+		else if (m_iCurrWPN == 6) // 1 over
+			m_iCurrWPN = 0;
+		
+		switch (m_iCurrWPN)
+		{
+			case 0: // glock
+				iReloadAMNT = 17;
+				break;
+			case 1: // mp5
+				iReloadAMNT = 30;
+				break;
+			case 2: // python
+				iReloadAMNT = 6;
+				break;
+			case 3: // spas-12
+				iReloadAMNT = 9;
+				break;
+			case 4: // m727
+				iReloadAMNT = 30;
+				break;
+			case 5: // m249
+				iReloadAMNT = 100;
+				break;
+		}
+		// Add them to the clip
+		m_iClip = iReloadAMNT;
+		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= iReloadAMNT;
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
+
+	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
+	{
+		m_flLastFireTime = 0.0f;
+	}
+
+	if ((m_pPlayer->pev->button & IN_ATTACK2) != 0 && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
+	{
+		if (pszAmmo2() && 0 == m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		{
+			m_fFireOnEmpty = true;
+		}
+
+		m_pPlayer->TabulateAmmo();
+		SecondaryAttack();
+		m_pPlayer->pev->button &= ~IN_ATTACK2;
+	}
+	else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
+	{
+		TertiaryAttack();
+		//m_pPlayer->pev->button &= ~IN_ALT1;
+	}
+	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+	{
+		if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && 0 == m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		{
+			m_fFireOnEmpty = true;
+		}
+
+		m_pPlayer->TabulateAmmo();
+		PrimaryAttack();
+	}
+	else if ((m_pPlayer->pev->button & IN_RELOAD) != 0 && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+	{
+		// reload when reload is pressed, or if no buttons are down and weapon is empty.
+		Reload();
+	}
+	else if ((m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2)) == 0)
+	{
+		// no fire buttons down
+
+		m_fFireOnEmpty = false;
+
+		if (!IsUseable() && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+		{
+#ifndef CLIENT_DLL
+			// weapon isn't useable, switch.
+			if ((iFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) == 0 && g_pGameRules->GetNextBestWeapon(m_pPlayer, this))
+			{
+				m_flNextPrimaryAttack = (UseDecrement() ? 0.0 : gpGlobals->time) + 0.3;
+				return;
+			}
+#endif
+		}
+		else
+		{
+			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
+			if (m_iClip == 0 && (iFlags() & ITEM_FLAG_NOAUTORELOAD) == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+			{
+				Reload();
+
+				return;
+			}
+		}
+		if (m_iClip <= round(0.2 * iMaxClip()) && m_hasbeeped == false && m_iClip != -1)
+		{
+			switch(RANDOM_LONG(1, 3))
+			{
+				case 1:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
+				break;
+				case 2:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
+				break;
+				case 3:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
+				break;
+			}
+			
+			m_hasbeeped = true;
+		}
+		
+		WeaponIdle();
+		return;
+	}
+
+	// catch all
+	if (ShouldWeaponIdle())
+	{
+		WeaponIdle();
+	}
+
+}
+
+void CCorruptedWPN::Reload()
+{
+	int iReloadAMNT;
+	switch (m_iCurrWPN)
+	{
+		case 0: // glock
+			iReloadAMNT = 17;
+			break;
+		case 1: // mp5
+			iReloadAMNT = 30;
+			break;
+		case 2: // python
+			iReloadAMNT = 6;
+			break;
+		case 3: // spas-12
+			iReloadAMNT = 9;
+			break;
+		case 4: // m727
+			iReloadAMNT = 30;
+			break;
+		case 5: // m249
+			iReloadAMNT = 200;
+			break;
+	}
+	DefaultReload(iReloadAMNT, M727_RELOAD_EMPTY, 1.8);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.5, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
+}
+

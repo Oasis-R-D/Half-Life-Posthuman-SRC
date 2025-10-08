@@ -338,6 +338,8 @@ void W_Precache()
 	// Crystal launcher
 	UTIL_PrecacheOtherWeapon("weapon_crystallauncher");
 
+	// Corruption weapon
+	UTIL_PrecacheOtherWeapon("weapon_corrupted");
 	UTIL_PrecacheOther("item_healthkit");
 	if (g_pGameRules->IsDeathmatch())
 	{

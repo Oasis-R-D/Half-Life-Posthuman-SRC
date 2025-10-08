@@ -1593,7 +1593,7 @@ public:
 	void Precache() override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
-
+	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void TertiaryAttack() override;
 	void Reload() override;
@@ -1614,4 +1614,6 @@ public:
 private:
 	unsigned short m_stainevent;
 	unsigned short m_silenceevent;
+	float recoilx;
+	float recoily;
 };

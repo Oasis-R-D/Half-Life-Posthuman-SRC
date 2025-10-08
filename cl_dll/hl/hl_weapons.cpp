@@ -72,6 +72,7 @@ CSpitThrower g_SpitThrower;
 CEagle g_Eagle;
 CM727 g_M727;
 CCrystal_launcher g_CRYST;
+CCorruptedWPN g_Corrupt;
 
 /*
 ======================
@@ -480,6 +481,7 @@ void HUD_InitClientWeapons()
 	HUD_PrepEntity(&g_Eagle, &player);
 	HUD_PrepEntity(&g_M727, &player);
 	HUD_PrepEntity(&g_CRYST, &player);
+	HUD_PrepEntity(&g_Corrupt, &player);
 }
 
 /*
@@ -625,6 +627,9 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		break;
 	case WEAPON_CRYST:
 		pWeapon = &g_CRYST;
+		break;
+	case WEAPON_CORRUPT: 
+		pWeapon = &g_Corrupt;
 		break;
 	}
 
