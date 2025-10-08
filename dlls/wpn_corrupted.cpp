@@ -101,11 +101,14 @@ bool CCorruptedWPN::Deploy()
 
 void CCorruptedWPN::PrimaryAttack()
 {
-	//if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
-		//return;
-
-
-
+	bool m_bSemi = false;
+	if ((m_iCurrWPN == 0) || (m_iCurrWPN == 2) || (m_iCurrWPN == 3))
+		m_bSemi = true;
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0 && m_bSemi == true)
+		return;
+	int blltamnt = 1;
+	float spreadhorz;
+	float spreadvert;
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -128,36 +131,92 @@ void CCorruptedWPN::PrimaryAttack()
 	switch (m_iCurrWPN)
 	{
 		case 0: // glock
-			m_flNextPrimaryAttack = 0.01;
+			m_flNextPrimaryAttack = 0.1;
 			recoily = 2;
 			recoilx = 2;
+			spreadhorz = spreadvert = 0.01;
 			break;
 		case 1: // mp5
 			m_flNextPrimaryAttack = 0.066;
 			recoily = 1;
 			recoilx = 1;
+			spreadhorz = spreadvert = CONE_1DEGREES;
+			;
 			break;
 		case 2: // python
 			m_flNextPrimaryAttack = 0.2;
 			recoily = 5;
 			recoilx = 2;
+			spreadhorz = spreadvert = CONE_1DEGREES;
 			break;
 		case 3: // spas-12
+			blltamnt = 9;
 			m_flNextPrimaryAttack = 0.2;
 			recoily = 4;
 			recoilx = 2;
+			if (g_iSkillLevel != SKILL_HARD)
+			{
+				spreadhorz = 0.17432;
+				spreadvert = 0.01746;
+			}
+			else
+			{
+				spreadhorz = spreadvert = 0.013095;
+			}
 			break;
 		case 4: // m727
 			m_flNextPrimaryAttack = 0.0727;
 			recoily = 1;
 			recoilx = 1;
+			spreadhorz = spreadvert = CONE_1DEGREES;
 			break;
 		case 5: // m249
 			m_flNextPrimaryAttack = 0.06;
 			//(0.4, 1.125)
 			recoily = 0.4;
 			recoilx = 1.125;
-				
+			float vecSpread;
+#ifdef CLIENT_DLL
+			if (bIsMultiplayer())
+#else
+			if (g_pGameRules->IsMultiplayer())
+#endif
+			{
+				if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+				{
+					vecSpread = CONE_3DEGREES;
+				}
+				else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
+													   IN_MOVELEFT |
+													   IN_FORWARD |
+													   IN_BACK)) != 0)
+				{
+					vecSpread = CONE_15DEGREES;
+				}
+				else
+				{
+					vecSpread = CONE_6DEGREES;
+				}
+			}
+			else
+			{
+				if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+				{
+					vecSpread = CONE_2DEGREES;
+				}
+				else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
+													   IN_MOVELEFT |
+													   IN_FORWARD |
+													   IN_BACK)) != 0)
+				{
+					vecSpread = CONE_10DEGREES;
+				}
+				else
+				{
+					vecSpread = CONE_4DEGREES;
+				}
+				spreadhorz = spreadvert = vecSpread;
+			}
 			break;
 	}
 
@@ -179,7 +238,7 @@ void CCorruptedWPN::PrimaryAttack()
 	Vector vecDir;
 
 	#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(blltamnt, 2, RANDOM_LONG(5750, 7500), vecSrc, vecAiming, spreadhorz, spreadvert, RANDOM_FLOAT(0.60, 0.80), 357, m_pPlayer->edict()); // dmg set to 1 since corruption enemies don't use normal health
 	#endif
 
 	int flags;
