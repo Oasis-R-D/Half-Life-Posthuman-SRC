@@ -165,7 +165,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
 			break;
 		case 2: // python
-			m_flNextPrimaryAttack = 0.2;
+			m_flNextPrimaryAttack = 0.125;
 			recoily = 5;
 			recoilx = 2;
 			spreadhorz = spreadvert = CONE_1DEGREES;
@@ -248,7 +248,7 @@ void CCorruptedWPN::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = RANDOM_LONG(600, 1000);
 	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
 
-	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 1.00), ATTN_GUN, 0, RANDOM_LONG(50, 150));
+	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 0.95), ATTN_GUN, 0, RANDOM_LONG(50, 250));
 
 	m_iClip--;
 
@@ -376,7 +376,7 @@ void CCorruptedWPN::ItemPostFrame()
 				iReloadAMNT = 30;
 				break;
 			case 5: // m249
-				iReloadAMNT = 100;
+				iReloadAMNT = 50;
 				break;
 		}
 		// Add them to the clip
@@ -502,7 +502,7 @@ void CCorruptedWPN::Reload()
 			iReloadAMNT = 30;
 			break;
 		case 5: // m249
-			iReloadAMNT = 200;
+			iReloadAMNT = 50;
 			break;
 	}
 	DefaultReload(iReloadAMNT, M727_RELOAD_EMPTY, 1.8);
