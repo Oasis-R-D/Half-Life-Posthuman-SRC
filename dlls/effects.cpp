@@ -1847,6 +1847,10 @@ void CBlood::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType
 class CBloodSpray : public CPointEntity
 {
 public:
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+
 	void Spawn() override;
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
 	bool KeyValue(KeyValueData* pkvd) override;
@@ -1865,6 +1869,15 @@ public:
 
 private:
 };
+
+TYPEDESCRIPTION CBloodSpray::m_SaveData[] =
+	{
+		DEFINE_FIELD(CBloodSpray, m_bSpeedRNG, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBloodSpray, m_ibloodvel, FIELD_INTEGER),
+		DEFINE_FIELD(CBloodSpray, m_fspread, FIELD_FLOAT),
+};
+
+IMPLEMENT_SAVERESTORE(CBloodSpray, CBaseEntity);
 
 LINK_ENTITY_TO_CLASS(env_bloodspray, CBloodSpray);
 
