@@ -142,6 +142,7 @@ void CCorruptedWPN::PrimaryAttack()
 	}
 
 	int blltamnt = 1;
+	int iblltDMG = 2;
 	int glocksound = RANDOM_LONG(0, 1);
 	float spreadhorz;
 	float spreadvert;
@@ -150,6 +151,7 @@ void CCorruptedWPN::PrimaryAttack()
 	switch (m_iCurrWPN)
 	{
 		case 0: // glock
+			iblltDMG = gSkillData.plrDmg9MM;
 			m_flNextPrimaryAttack = 0.1;
 			recoily = 2;
 			recoilx = 2;
@@ -158,6 +160,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/pl_gun%d.wav", glocksound ? 1 : 3);
 			break;
 		case 1: // mp5
+			iblltDMG = gSkillData.plrDmgMP5;
 			m_flNextPrimaryAttack = 0.066;
 			recoily = 1;
 			recoilx = 1;
@@ -165,6 +168,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
 			break;
 		case 2: // python
+			iblltDMG = gSkillData.plrDmg357;
 			m_flNextPrimaryAttack = 0.125;
 			recoily = 5;
 			recoilx = 2;
@@ -172,6 +176,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/357_shot%d.wav", RANDOM_LONG(1, 2));
 			break;
 		case 3: // spas-12
+			iblltDMG = gSkillData.plrDmgBuckshot;
 			blltamnt = 9;
 			m_flNextPrimaryAttack = 0.2;
 			recoily = 4;
@@ -188,6 +193,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/sbarrel%d.wav", 1);
 			break;
 		case 4: // m727
+			iblltDMG = gSkillData.plrDmgM727;
 			m_flNextPrimaryAttack = 0.0727;
 			recoily = 1;
 			recoilx = 1;
@@ -195,6 +201,7 @@ void CCorruptedWPN::PrimaryAttack()
 			sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
 			break;
 		case 5: // m249
+			iblltDMG = gSkillData.plrDmgMP5;
 			m_flNextPrimaryAttack = 0.06;
 			//(0.4, 1.125)
 			recoily = 0.4;
@@ -286,7 +293,7 @@ void CCorruptedWPN::PrimaryAttack()
 			break;
 	}
 	#ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(blltamnt, 2, RANDOM_LONG(5750, 7500), vecSrc, vecAiming, spreadhorz, spreadvert, RANDOM_FLOAT(0.60, 1), ibllttype, m_pPlayer->edict()); // dmg set to 2 since corruption enemies don't use normal health
+		CPhysbullet::BulletCreate(blltamnt, iblltDMG, RANDOM_LONG(5750, 7500), vecSrc, vecAiming, spreadhorz, spreadvert, RANDOM_FLOAT(0.60, 1), ibllttype, m_pPlayer->edict()); // dmg set to 2 since corruption enemies don't use normal health
 	#endif
 
 	int flags;
