@@ -429,14 +429,24 @@ void CBasePlayerItem::SetObjectCollisionBox()
 //=========================================================
 void CBasePlayerItem::FallInit()
 {
-	pev->movetype = MOVETYPE_TOSS;
+// PS2HL - advanced weapon positioning from PS2 version
+	if (pev->spawnflags & 1)
+	{
+		pev->movetype = MOVETYPE_NONE;
+		pev->flags |= FL_ONGROUND;
+	}
+	else
+	{
+		pev->movetype = MOVETYPE_TOSS;
+	}
+
 	pev->solid = SOLID_BBOX;
 
-	UTIL_SetOrigin(pev, pev->origin);
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0)); //pointsize until it lands on the ground.
-
-	SetTouch(&CBasePlayerItem::DefaultTouch);
-	SetThink(&CBasePlayerItem::FallThink);
+	UTIL_SetOrigin( pev, pev->origin );
+	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0) );//pointsize until it lands on the ground.
+	
+	SetTouch( &CBasePlayerItem::DefaultTouch );
+	SetThink( &CBasePlayerItem::FallThink );
 
 	pev->nextthink = gpGlobals->time + 0.1;
 }
@@ -452,7 +462,7 @@ void CBasePlayerItem::FallThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1;
 
-	if ((pev->flags & FL_ONGROUND) != 0)
+	if ( pev->flags & FL_ONGROUND )
 	{
 		// clatter if we have an owner (i.e., dropped by someone)
 		// don't clatter if the gun is waiting to respawn (if it's waiting, it is invisible!)
@@ -462,9 +472,13 @@ void CBasePlayerItem::FallThink()
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "items/weapondrop1.wav", 1, ATTN_NORM, 0, pitch);
 		}
 
-		// lie flat
-		pev->angles.x = 0;
-		pev->angles.z = 0;
+		// PS2HL - advanced weapon positioning from PS2 version
+		if (!(pev->spawnflags & 1))
+		{
+			// lie flat
+			pev->angles.x = 0;
+			pev->angles.z = 0;
+		}
 
 		Materialize();
 	}
