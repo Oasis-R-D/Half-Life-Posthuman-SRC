@@ -321,7 +321,7 @@ void CCorrupted::Spawn()
 {
 	Precache();
 	m_nextchange = gpGlobals->time;
-	SET_MODEL(ENT(pev), "models/znull.mdl");
+	SET_MODEL(ENT(pev), "models/lucigast.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
@@ -370,7 +370,7 @@ void CCorrupted::MonsterThink()
 //=========================================================
 void CCorrupted::Precache()
 {
-	PRECACHE_MODEL("models/znull.mdl");
+	PRECACHE_MODEL("models/lucigast.mdl");
 
 	PRECACHE_SOUND_ARRAY(pAttackHitSounds);
 	PRECACHE_SOUND_ARRAY(pAttackMissSounds);

@@ -28,7 +28,7 @@ void CChargerGlass::Spawn(void)
 
 	// BBox
 	Vector Zero;
-	Zero.x = Zero.y = Zero.z = 0;
+	Zero.x = Zero.y = Zero.z = 0; //g_vecZero?
 	UTIL_SetSize(pev, Zero, Zero);
 
 	// Visuals

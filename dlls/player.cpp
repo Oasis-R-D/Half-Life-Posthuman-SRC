@@ -125,6 +125,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, health_armL, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_legL, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_legR, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -137,9 +138,6 @@ void CBasePlayer::Pain()
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_LONG(0, 1) ? "derek/pain1.wav" : "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch);
 }
 
-/* 
- *
- */
 Vector VecVelocityForDamage(float flDamage)
 {
 	Vector vec(RANDOM_FLOAT(-100, 100), RANDOM_FLOAT(-100, 100), RANDOM_FLOAT(200, 300));
@@ -247,7 +245,7 @@ void CBasePlayer::DeathSound()
 		break;
 	}
 
-	// play one of the suit death alarms
+	// play the suit death alarm
 	EMIT_GROUPNAME_SUIT(ENT(pev), "HEV_DEAD");
 }
 

@@ -259,6 +259,7 @@ void CItemHealthCharger::Think(void)
 			#endif
 			if (player->pev->health >= 100)
 			{
+				RotateCamArm(NULL);
 				return;
 			}
 			#ifdef HCHG_ACTIVATE_SOUND
