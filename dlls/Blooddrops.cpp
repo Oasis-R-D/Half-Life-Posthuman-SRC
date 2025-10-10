@@ -122,7 +122,7 @@ void CPhysblood::Spawn()
 	}	
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		pev->rendercolor = Vector(RANDOM_LONG(25, 50), RANDOM_LONG(150, 200), RANDOM_LONG(225, 255));
+		pev->rendercolor = Vector(RANDOM_LONG(16, 18), RANDOM_LONG(253, 255), RANDOM_LONG(190, 192));
 	}
 	else if (m_BloodType == NULL) // water drop
 	{
