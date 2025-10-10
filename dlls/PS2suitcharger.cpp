@@ -201,7 +201,12 @@ void CItemRecharge::Think(void)
 				return;
 			}
 			#endif
-
+			// Prevent deployment if player doesn't need power
+			if (player->pev->armorvalue >= 100)
+			{
+				RotateCamArm(NULL);
+				return;
+			}
 			#ifdef RCHG_ACTIVATE_SOUND
 			// Emit sound
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM);

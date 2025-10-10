@@ -236,7 +236,7 @@ void CItemHealthCharger::Think(void)
 
 	// Find player
 	CBaseEntity * pPlayer = FindPlayer(HCHG_ACTIVE_RADIUS);
-
+	CBasePlayer * player = dynamic_cast<CBasePlayer*>(pPlayer);
 	// Track player
 	if (CurrentState != HCHG_STATE_EMPTY && CurrentState != HCHG_STATE_DEACTIVATE)
 		RotateCamArm(pPlayer);
@@ -294,7 +294,12 @@ void CItemHealthCharger::Think(void)
 				return;
 			}
 			#endif
-
+			// Prevent deployment if player doesn't need power
+			if (player->pev->health >= 100)
+			{
+				RotateCamArm(NULL);
+				return;
+			}
 			// Check if used
 			if (IsUsed)
 			{
