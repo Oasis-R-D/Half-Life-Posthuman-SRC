@@ -1199,6 +1199,11 @@ void CSentry::Spawn()
 	m_iDeployHeight = 64;
 	m_iMinPitch = -60;
 	UTIL_SetSize(pev, Vector(-16, -16, -m_iRetractHeight), Vector(16, 16, m_iRetractHeight));
+	m_pEyeGlow = CSprite::SpriteCreate( TURRET_GLOW_SPRITE, pev->origin, false );
+	m_pEyeGlow->SetTransparency( kRenderGlow, 255, 0, 0, 0, kRenderFxNoDissipation );
+	m_pEyeGlow->SetAttachment( edict(), 2 );
+	m_pEyeGlow->SetScale(0.5);
+	m_eyeBrightness = 0;
 
 	SetTouch(&CSentry::SentryTouch);
 	SetThink(&CSentry::Initialize);
