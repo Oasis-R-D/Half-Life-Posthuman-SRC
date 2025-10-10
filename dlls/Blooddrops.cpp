@@ -110,7 +110,7 @@ void CPhysblood::Spawn()
 
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
-		pev->rendercolor = Vector(RANDOM_LONG(100, 120), 0, 0);
+		pev->rendercolor = Vector(RANDOM_LONG(102, 200), 0, 0);
 	}
 	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
