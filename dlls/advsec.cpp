@@ -1151,7 +1151,14 @@ void CAdvSec::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		m_cClipSize = 9;
-		m_flDistTooFar = 1024;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			m_flDistTooFar = 448;
+		}
+		else
+		{
+			m_flDistTooFar = 1024;
+		}
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
