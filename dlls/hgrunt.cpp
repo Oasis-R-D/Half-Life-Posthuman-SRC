@@ -1083,7 +1083,14 @@ void CHGrunt::Spawn()
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
-		m_flDistTooFar = 1024;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			m_flDistTooFar = 448;
+		}
+		else
+		{
+			m_flDistTooFar = 1024;
+		}
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
