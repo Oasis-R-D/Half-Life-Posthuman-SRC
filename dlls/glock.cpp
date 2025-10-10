@@ -255,7 +255,6 @@ void CGlock::Reload()
 
 void CGlock::WeaponIdle()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	ResetEmptySound();
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
