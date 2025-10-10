@@ -257,7 +257,10 @@ void CItemHealthCharger::Think(void)
 			if (!IsFrontAngle)
 				return;
 			#endif
-
+			if (player->pev->health >= 100)
+			{
+				return;
+			}
 			#ifdef HCHG_ACTIVATE_SOUND
 			// Emit sound
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", 0.85, ATTN_NORM);
@@ -295,11 +298,7 @@ void CItemHealthCharger::Think(void)
 			}
 			#endif
 			// Prevent deployment if player doesn't need power
-			if (player->pev->health >= 100)
-			{
-				RotateCamArm(NULL);
-				return;
-			}
+
 			// Check if used
 			if (IsUsed)
 			{
