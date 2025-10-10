@@ -4367,7 +4367,7 @@ void CBasePlayer::UpdateClientData()
 			{
 				TakeDamage(pev, pev, 2, DMG_GENERIC | DMG_IGNOREARMOR);
 
-				HungerDamageTime = gpGlobals->time + 10;
+				HungerDamageTime = gpGlobals->time + 9;
 			}
 		}
 		else if (Hunger <= 10)
@@ -4375,14 +4375,14 @@ void CBasePlayer::UpdateClientData()
 			if (HungerDamageTime < gpGlobals->time)
 			{
 				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
-				HungerDamageTime = gpGlobals->time + 10;
+				HungerDamageTime = gpGlobals->time + 9;
 			}
 		}
 
 		if (HungerTime < gpGlobals->time && Hunger > 0 && Hunger <= 100)
 		{
 			Hunger--;
-			HungerTime = gpGlobals->time + 7.5;
+			HungerTime = gpGlobals->time + 9;
 			health_armR += RANDOM_LONG(0, 1);
 			health_armL += RANDOM_LONG(0, 1);
 			health_legL -= RANDOM_LONG(0, 1);
@@ -4444,10 +4444,25 @@ void CBasePlayer::UpdateClientData()
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
-				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || pEntity->Classify() == CLASS_RACE_X &&
-					pEntity->BloodColor() != DONT_BLEED)
+				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
+					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_RACE_X	&& pEntity->BloodColor() != DONT_BLEED)
 					{
 						pEntity->pev->renderfx = kRenderFxLightMultiplier;
+						pEntity->pev->rendercolor = Vector(128, 0, 0);
+					}
+			};
+		}
+		else if (!FlashlightIsOn())
+		{
+			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
+			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
+			{
+				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
+					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_RACE_X	&& pEntity->BloodColor() != DONT_BLEED)
+					{
+						pEntity->pev->renderfx = kRenderFxNone;
 						pEntity->pev->rendercolor = Vector(128, 0, 0);
 					}
 			};

@@ -534,7 +534,7 @@ public:
 	void ItemPostFrame();
 	bool m_Training;
 	bool m_Prehuman;
-	float m_isilenced; // TO-DO: implement over armortype (so it can be saved)
+	float m_isilenced;
 	float m_fTimer;
 	bool UseDecrement() override
 	{
