@@ -558,11 +558,11 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			{
 				if (g_iSkillLevel != SKILL_HARD)
 				{
-					flDamage = round(flDamage * 0.3);
+					flDamage = round(flDamage * 0.25);
 				}
 				else
 				{
-					flDamage = round(flDamage * 0.3);
+					flDamage = round(flDamage * 0.25);
 				}
 			}
 		}
@@ -573,11 +573,11 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 				if (g_iSkillLevel != SKILL_HARD)
 				{
-					flDamage = round(flDamage * 0.5);
+					flDamage = round(flDamage * 0.15);
 				}
 				else
 				{
-					flDamage = round(flDamage * 0.6);
+					flDamage = round(flDamage * 0.15);
 				}
 		}
 	}
@@ -1090,11 +1090,11 @@ void CHGrunt::Spawn()
 		m_helmDUR = 10;
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			pev->health = round(gSkillData.hgruntHealth * 1.5);
+			pev->health = round(gSkillData.hgruntHealth * 1.66);
 		}
 		else
 		{
-			pev->health = 120;
+			pev->health = 200;
 		}
 	}
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
@@ -1132,7 +1132,7 @@ void CHGrunt::Spawn()
 		m_cClipSize = 9;
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			m_flDistTooFar = 320;
+			m_flDistTooFar = 384;
 		}
 		else
 		{
@@ -1213,7 +1213,7 @@ void CHGrunt::Spawn()
 	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
-	if (RANDOM_LONG(0, 4) == 4 && (!m_bHeavyGrunt))
+	if (RANDOM_LONG(0, 4) == 4 && !m_bHeavyGrunt)
 	{
 		switch (RANDOM_LONG(0, 1))
 		{
