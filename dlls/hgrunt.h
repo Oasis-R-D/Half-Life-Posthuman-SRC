@@ -144,7 +144,7 @@ public:
 	bool m_hasdroppedwpn = false;
 	bool m_medic = false;
 	bool m_fuel = false;
-	
+	bool m_bHeavyGrunt = false;
 	int m_cClipSize;
 	int m_tankhealth = 30;
 	int m_voicePitch;
@@ -156,7 +156,7 @@ public:
 	int m_iShell;
 	int m_iLink;
 
-	int m_helmDUR = 3;
+	int m_helmDUR;
 
 	static const char* pGruntSentences[];
 };

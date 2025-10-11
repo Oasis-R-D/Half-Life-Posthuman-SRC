@@ -80,6 +80,7 @@ enum
 #define bits_COND_GRUNT_NOFIRE (bits_COND_SPECIAL1)
 
 LINK_ENTITY_TO_CLASS(monster_human_grunt, CHGrunt);
+LINK_ENTITY_TO_CLASS(monster_human_grunt_heavy, CHGrunt);
 
 TYPEDESCRIPTION CHGrunt::m_SaveData[] =
 	{
@@ -453,20 +454,7 @@ bool CHGrunt::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if (ptr->iHitgroup == 2)
-	{
-		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
-		{
-			if (g_iSkillLevel != SKILL_HARD)
-			{
-				flDamage = round(flDamage * 0.8);
-			}
-			else
-			{
-				flDamage = round(flDamage * 0.7);
-			}
-		}
-	}
+	
 	if (ptr->iHitgroup == 0)
 	{
 		ptr->iHitgroup = HITGROUP_HEAD;
@@ -487,7 +475,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						{
 						 // Figure out something to do here
 						}
-						flDamage = round(flDamage * 0.2);
+						flDamage = round(flDamage * 0.1);
 						UTIL_Sparks(ptr->vecEndPos);
 	
 						#ifndef CLIENT_DLL
@@ -550,6 +538,48 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			flDamage *= 0.25;
 		}
 		
+	}
+	if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
+	{
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+		{
+			if (!m_bHeavyGrunt)
+			{
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					flDamage = round(flDamage * 0.8);
+				}
+				else
+				{
+					flDamage = round(flDamage * 0.7);
+				}
+			}
+			else
+			{
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					flDamage = round(flDamage * 0.3);
+				}
+				else
+				{
+					flDamage = round(flDamage * 0.3);
+				}
+			}
+		}
+	}
+	if (ptr->iHitgroup == HITGROUP_LEFTARM || ptr->iHitgroup == HITGROUP_RIGHTARM || ptr->iHitgroup == HITGROUP_LEFTLEG || ptr->iHitgroup == HITGROUP_RIGHTLEG)
+	{
+		if (m_bHeavyGrunt)
+		{
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					flDamage = round(flDamage * 0.5);
+				}
+				else
+				{
+					flDamage = round(flDamage * 0.6);
+				}
+		}
 	}
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	m_bloodColor = BLOOD_COLOR_RED;
@@ -1042,13 +1072,30 @@ void CHGrunt::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (FClassnameIs(pev, "monster_human_grunt"))
 	{
-		pev->health = gSkillData.hgruntHealth;
+		m_helmDUR = 3;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pev->health = gSkillData.hgruntHealth;
+		}
+		else
+		{
+			pev->health = 100;
+		}
 	}
-	else
+	else if (FClassnameIs(pev, "monster_human_grunt_heavy"))
 	{
-		pev->health = 100;
+		m_bHeavyGrunt = true;
+		m_helmDUR = 10;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pev->health = round(gSkillData.hgruntHealth * 1.5);
+		}
+		else
+		{
+			pev->health = 120;
+		}
 	}
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -1166,7 +1213,7 @@ void CHGrunt::Spawn()
 	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
-	if (RANDOM_LONG(0, 4) == 4)
+	if (RANDOM_LONG(0, 4) == 4 && (!m_bHeavyGrunt))
 	{
 		switch (RANDOM_LONG(0, 1))
 		{
@@ -1180,6 +1227,20 @@ void CHGrunt::Spawn()
 			m_medic = true;
 			break;
 		}
+	}
+	if (m_bHeavyGrunt)
+	{
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
+			break;
+		case 1:
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
+			break;
+		}
+		M_HasHelm = true;
+		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 	}
 	MonsterInit();
 }
