@@ -773,6 +773,15 @@ public:
 	bool KeyValue(KeyValueData* pkvd) override;
 
 	static inline CWorld* World = nullptr;
+
+	// jay - discord rpc
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static    TYPEDESCRIPTION m_SaveData[];
+
+	string_t m_iszChapter;
+	string_t m_iszArea;
+	string_t m_iszImage;
 };
 
 inline DLL_GLOBAL edict_t* g_pBodyQueueHead = nullptr;

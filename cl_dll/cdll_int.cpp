@@ -17,6 +17,9 @@
 //
 // this implementation handles the linking of the engine to the DLL
 //
+// 
+// jay - discord rpc
+#include "discord_manager.h"
 
 #include <SDL2/SDL_messagebox.h>
 
@@ -314,6 +317,7 @@ void DLLEXPORT HUD_Frame(double time)
 	//	RecClHudFrame(time);
 
 	GetClientVoiceMgr()->Frame(time);
+	DiscordMan_Update();
 }
 
 

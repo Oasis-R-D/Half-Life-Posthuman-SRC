@@ -369,6 +369,12 @@
     <ClCompile Include="..\..\dlls\wpn_corrupted.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\discord_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\discord\DelayLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -675,6 +681,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\weapons\CSpore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\discord_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -894,7 +894,7 @@ extern "C" void SV_SaveGameComment(char* pszBuffer, int iSizeBuffer)
 		if (!strnicmp(mapName, gTitleComments[i].pBSPName, length))
 		{
 			titleName = gTitleComments[i].pTitleName;
-
+			
 			if (titleName)
 			{
 				break;

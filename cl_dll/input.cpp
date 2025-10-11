@@ -21,6 +21,11 @@
 #include "vgui_TeamFortressViewport.h"
 #include "filesystem_utils.h"
 
+// jay - discord rpc
+#include "discord_manager.h"
+cvar_t* rpc_chapter;
+cvar_t* rpc_area;
+cvar_t* rpc_image;
 
 extern bool g_iAlive;
 
@@ -999,6 +1004,11 @@ void InitInput()
 	m_yaw = gEngfuncs.pfnRegisterVariable("m_yaw", "0.022", FCVAR_ARCHIVE);
 	m_forward = gEngfuncs.pfnRegisterVariable("m_forward", "1", FCVAR_ARCHIVE);
 	m_side = gEngfuncs.pfnRegisterVariable("m_side", "0.8", FCVAR_ARCHIVE);
+	// jay - discord rpc
+	gEngfuncs.Con_Printf("Initializing Discord RPC CVars\n");
+	rpc_chapter = gEngfuncs.pfnRegisterVariable("rpc_chapter", "", FCVAR_CLIENTDLL);
+	rpc_area = gEngfuncs.pfnRegisterVariable("rpc_area", "", FCVAR_CLIENTDLL);
+	rpc_image = gEngfuncs.pfnRegisterVariable("rpc_image", "", FCVAR_CLIENTDLL);
 
 	// Initialize third person camera controls.
 	CAM_Init();
@@ -1008,6 +1018,10 @@ void InitInput()
 	KB_Init();
 	// Initialize view system
 	V_Init();
+
+	// jay - discord rpc
+	gEngfuncs.Con_Printf("Starting up Discord RPC\n");
+	DiscordMan_Startup();
 }
 
 /*
@@ -1026,7 +1040,10 @@ void CL_UnloadParticleMan();
 
 
 void DLLEXPORT HUD_Shutdown()
-{
+{	
+	// jay - discord rpc
+	gEngfuncs.Con_Printf("Shutting down Discord RPC");
+	DiscordMan_Kill();
 	//	RecClShutdown();
 
 	ShutdownInput();
@@ -1034,4 +1051,5 @@ void DLLEXPORT HUD_Shutdown()
 
 	FileSystem_FreeFileSystem();
 	CL_UnloadParticleMan();
+
 }
