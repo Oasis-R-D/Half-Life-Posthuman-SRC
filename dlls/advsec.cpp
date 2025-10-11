@@ -1153,7 +1153,7 @@ void CAdvSec::Spawn()
 		m_cClipSize = 9;
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			m_flDistTooFar = 448;
+			m_flDistTooFar = 320;
 		}
 		else
 		{
