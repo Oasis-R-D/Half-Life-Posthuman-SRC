@@ -875,7 +875,8 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_ext3" "Extinct"}, //post-cred
 		{"ph_erad1", "Eradication"}, // alt ending start
 		{"ph_erad2", "Eradication"},
-		{"test", "DEV!!!!!!!!!"},
+		{"test", "DEV!!!!!!!!!"}, // RPC FINISHED
+		{"systemstest", "SYSTEM DEV!!!!!!!!!"},
 		{"test_range", "WPN DEV!!!!!!!!!"},
 };
 
