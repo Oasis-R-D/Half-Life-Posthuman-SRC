@@ -828,7 +828,7 @@ struct TITLECOMMENT // Chapter titles
 	const char* pBSPName;
 	const char* pTitleName;
 };
-
+// DO BY RELEASE: add RPC to all maps
 TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in the game weren't cut or anything, they were just added just in case there needed to be more maps
 	{
 		{"ph_train1", "FIELD DAY"},
@@ -846,7 +846,7 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_over2", "OverGrowth"},
 		{"ph_tech1", "Technical Difficulties"},
 		{"ph_tech2", "Technical Difficulties"},
-		{"ph_insur1", "Insurrection"},
+		{"ph_insur1", "Insurrection"}, // RPC FINISHED
 		{"ph_insur2", "Insurrection"},
 		{"ph_surf1", "Resurfaced"},
 		{"ph_surf2", "Resurfaced"},
