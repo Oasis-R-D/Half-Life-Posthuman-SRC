@@ -517,6 +517,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		if (m_fuel == true)
 		{
 			m_bloodColor = DONT_BLEED;
+			UTIL_Sparks(ptr->vecEndPos);
 			m_tankhealth -= round(1.25 * flDamage);
 			if (m_tankhealth <= 0)
 			{
@@ -556,6 +557,8 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			}
 			else
 			{
+				if (RANDOM_LONG(0,1) == 1)
+					UTIL_Sparks(ptr->vecEndPos);
 				if (g_iSkillLevel != SKILL_HARD)
 				{
 					flDamage = round(flDamage * 0.25);
@@ -571,6 +574,8 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if (m_bHeavyGrunt)
 		{
+				if (RANDOM_LONG(0,1) == 1)
+					UTIL_Sparks(ptr->vecEndPos);
 				if (g_iSkillLevel != SKILL_HARD)
 				{
 					flDamage = round(flDamage * 0.15);
