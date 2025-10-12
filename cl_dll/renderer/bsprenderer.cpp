@@ -5500,10 +5500,6 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
 		}	
-		else if (!strcmp(decal->texinfo->szName, "{Bloodsmear")  && g_iNightVision) // if texture = bloodspray#
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
-		}
 		else if (!strcmp(decal->texinfo->szName, bigblood)  && g_iNightVision) // if texture = bloodspray#
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
