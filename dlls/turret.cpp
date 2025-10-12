@@ -1169,6 +1169,7 @@ class CSentry : public CBaseTurret
 public:
 	void Spawn() override;
 	void Precache() override;
+	int Classify() override;
 	// other functions
 	void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
@@ -1177,13 +1178,27 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(monster_sentry, CSentry);
-
+LINK_ENTITY_TO_CLASS(monster_sentry_blackops, CSentry);
 void CSentry::Precache()
 {
 	CBaseTurret::Precache();
 	PRECACHE_MODEL("models/sentry.mdl");
 }
 
+int CSentry::Classify()
+{
+	if (!FClassnameIs(pev, "monster_sentry_blackops"))
+	{
+		if (m_iOn || m_iAutoStart)
+			return CLASS_HUMAN_MILITARY;
+	}
+	else
+	{
+		if (m_iOn || m_iAutoStart)
+			return CLASS_HASSN;
+	}
+	return CLASS_NONE;
+}
 void CSentry::Spawn()
 {
 	Precache();
@@ -1208,6 +1223,10 @@ void CSentry::Spawn()
 	SetTouch(&CSentry::SentryTouch);
 	SetThink(&CSentry::Initialize);
 	pev->nextthink = gpGlobals->time + 0.3;
+	if (!FClassnameIs(pev, "monster_sentry_blackops"))
+		pev->skin = 0;
+	else
+		pev->skin = 1;
 }
 
 void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)

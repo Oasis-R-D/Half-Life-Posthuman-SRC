@@ -110,7 +110,7 @@ typedef void (CBaseEntity::*USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCalle
 #define CLASS_ALIEN_BIOWEAPON 13  // hornets and snarks.launched by the alien menace
 #define CLASS_DISLIKE_ALL 14
 #define CLASS_VEHICLE 15
-#define CLASS_HASSN 16 //pretty sure fassn hasn't been put here yet, should probably do that
+#define CLASS_HASSN 16 // Black Operations
 #define CLASS_HUMAN_ALLY 17 //FRIENDLY BMRF STAFF
 #define CLASS_RACE_X 18 // Race X military
 #define CLASS_OHTHEMISERY 19 // Everybody wants to be my nemesis!
