@@ -3612,6 +3612,40 @@ void CBloodSplat::Spray()
 
 //==============================================
 
+static edict_t* Ent_create_Common(entvars_t* pev, const char* pszName, TraceResult tr)
+{
+	int istr = MAKE_STRING(pszName);
+	
+	edict_t* pent = CREATE_NAMED_ENTITY(istr);
+	if (FNullEnt(pent))
+	{
+		ALERT(at_console, "NULL Ent in GiveNamedItem!\n");
+		return nullptr;
+	}
+	VARS(pent)->origin = tr.vecEndPos;
+	pent->v.spawnflags |= SF_NORESPAWN;
+
+	DispatchSpawn(pent);
+
+	return pent;
+}
+
+void CBasePlayer::Ent_create(const char* szName)
+{
+	TraceResult tr;
+	
+	UTIL_TraceLine(GetGunPosition() + gpGlobals->v_forward * 8, GetGunPosition() + gpGlobals->v_forward * 2048, dont_ignore_monsters, NULL, &tr);
+	//UTIL_PrecacheOther(szName);
+	auto pent = Ent_create_Common(pev, szName, tr);
+
+	if (!pent)
+	{
+		return;
+	}
+}
+
+
+
 static edict_t* GiveNamedItem_Common(entvars_t* pev, const char* pszName)
 {
 	int istr = MAKE_STRING(pszName);

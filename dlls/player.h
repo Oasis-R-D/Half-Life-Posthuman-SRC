@@ -304,6 +304,7 @@ public:
 	void ItemPreFrame();
 	void ItemPostFrame();
 	void GiveNamedItem(const char* szName);
+	void Ent_create(const char* szName);
 	void GiveNamedItem(const char* szName, int defaultAmmo);
 	void EnableControl(bool fControl);
 
