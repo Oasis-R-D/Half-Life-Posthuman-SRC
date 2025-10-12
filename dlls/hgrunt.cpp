@@ -559,14 +559,17 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			{
 				if (RANDOM_LONG(0,1) == 1)
 					UTIL_Sparks(ptr->vecEndPos);
-				if (g_iSkillLevel != SKILL_HARD)
-				{
-					flDamage = round(flDamage * 0.25);
-				}
-				else
-				{
-					flDamage = round(flDamage * 0.25);
-				}
+			}
+		}
+		if (m_bHeavyGrunt)
+		{
+			if (g_iSkillLevel != SKILL_HARD)
+			{
+				flDamage = round(flDamage * 0.25);
+			}
+			else
+			{
+				flDamage = round(flDamage * 0.25);
 			}
 		}
 	}

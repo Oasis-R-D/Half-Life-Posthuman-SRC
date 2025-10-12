@@ -1276,7 +1276,7 @@ bool CSentry::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 		pev->takedamage = DAMAGE_NO;
 		pev->dmgtime = gpGlobals->time;
 
-		ClearBits(pev->flags, FL_MONSTER); // why are they set in the first place???
+		ClearBits(pev->flags, FL_MONSTER);
 
 		SetUse(NULL);
 		SetThink(&CSentry::SentryDeath);

@@ -5486,6 +5486,10 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		int index6 = decal->texinfo->szName[8] - '0';
 		char message[64];
 		sprintf(message, "{message%d", index6); 
+
+		int index7 = decal->texinfo->szName[9] - '0';
+		char bigblood[64];
+		sprintf(bigblood, "{bigblood%d", index7);
 		////////////////////////////////////
 
 		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
@@ -5495,7 +5499,15 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
 		else if (!strcmp(decal->texinfo->szName, bloodspray)  && g_iNightVision) // if texture = bloodspray#
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
-		}		
+		}	
+		else if (!strcmp(decal->texinfo->szName, "{Bloodsmear")  && g_iNightVision) // if texture = bloodspray#
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
+		}
+		else if (!strcmp(decal->texinfo->szName, bigblood)  && g_iNightVision) // if texture = bloodspray#
+		{
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
+		}	
 		else if (!strcmp(decal->texinfo->szName, bblood))
 		{
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
