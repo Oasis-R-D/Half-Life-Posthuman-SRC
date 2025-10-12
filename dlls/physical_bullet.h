@@ -17,6 +17,7 @@
 #ifndef CLIENT_DLL
 class CPhysbullet : public CBaseEntity
 {
+	int m_iTrail;
 public:
 	void Spawn() override;
 	void Precache() override;
