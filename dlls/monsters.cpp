@@ -2134,7 +2134,8 @@ void CBaseMonster::StartMonster()
 		if (!WALK_MOVE(ENT(pev), 0, 0, WALKMOVE_NORMAL))
 		{
 			ALERT(at_error, "Monster %s stuck in wall--level design error", STRING(pev->classname));
-			pev->effects = EF_BRIGHTFIELD;
+			if (CVAR_GET_FLOAT("developer") == 1)
+				pev->effects = EF_BRIGHTFIELD;
 		}
 	}
 	else
