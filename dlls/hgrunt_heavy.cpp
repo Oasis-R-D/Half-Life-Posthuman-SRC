@@ -64,6 +64,7 @@ public:
 	void DeathSound() override;
 	void PainSound() override;
 	void IdleSound() override;
+	void M249();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
 	bool Save(CSave& save) override;
@@ -257,7 +258,7 @@ void CHGruntHeavy::Spawn()
 
 	if (pev->weapons == 0)
 	{
-		pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
+		pev->weapons = HGRUNT_M249 | HGRUNT_HANDGRENADE;
 	}
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
@@ -712,6 +713,43 @@ void CHGruntHeavy::IdleSound()
 		}
 		JustSpoke();
 	}
+}
+
+void CHGruntHeavy::M249()
+{
+	if (m_cAmmoLoaded <= 0)
+	{
+		EMIT_SOUND(edict(), CHAN_AUTO, "weapons/357_cock1.wav", 1, ATTN_NORM);
+		return;
+	}
+
+	Vector vecShootOrigin = GetGunPosition();
+	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+
+	UTIL_MakeVectors(pev->angles);
+
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
+	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
+	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
+	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
+	#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_1DEGREES, 1, 556, edict());
+	}
+	#endif
+	pev->effects |= EF_MUZZLEFLASH;
+
+	m_cAmmoLoaded--; // take away a bullet!
+
+	Vector angDir = UTIL_VecToAngles(vecShootDir);
+	SetBlending(0, angDir.x);
+
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_fire1.wav", 1, ATTN_GUN);
 }
 
 void CHGruntHeavy::Killed(entvars_t* pevAttacker, int iGib)
