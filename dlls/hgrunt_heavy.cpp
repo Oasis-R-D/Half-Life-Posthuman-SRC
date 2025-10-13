@@ -61,6 +61,8 @@ public:
 	void SetYawSpeed() override; //overidden to lower YS
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	void SetActivity(Activity NewActivity) override; //overriden to change anims
+
+	bool CheckRangeAttack2(float flDot, float flDist) override;
 	void DeathSound() override;
 	void PainSound() override;
 	void IdleSound() override;
@@ -358,6 +360,8 @@ void CHGruntHeavy::Precache()
 	PRECACHE_SOUND("debris/metal2.wav");
 	PRECACHE_SOUND("debris/metal3.wav");
 
+	UTIL_PrecacheOther("rpg_rocket");
+
 	m_voicePitch = RANDOM_LONG(85, 80);
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
@@ -444,13 +448,16 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 	case HGRUNT_AE_GREN_TOSS:
 	{
+		Vector vecSrc = GetGunPosition() + gpGlobals->v_forward * 16 + gpGlobals->v_right * 8 + gpGlobals->v_up * -8;
 		UTIL_MakeVectors(pev->angles);
-		// CGrenade::ShootTimed( pev, pev->origin + gpGlobals->v_forward * 34 + Vector (0, 0, 32), m_vecTossVelocity, 3.5 );
-		CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
-
+		//CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
+		
+		CBaseEntity* pRocket = CBaseEntity::Create("rpg_rocket", vecSrc, pev->angles, edict());
 		m_fThrowGrenade = false;
-		m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
+		m_flNextGrenadeCheck = gpGlobals->time + 15; // wait 15 before even looking again to see if a rpg can be fired.
 													// !!!LATER - when in a group, only try to throw grenade if ordered.
+		Vector angDir = UTIL_VecToAngles(pev->angles);
+		SetBlending(0, angDir.x);
 	}
 	break;
 
@@ -653,6 +660,123 @@ void CHGruntHeavy::SetActivity(Activity NewActivity)
 		ALERT(at_console, "%s has no sequence for act:%d\n", STRING(pev->classname), NewActivity);
 		pev->sequence = 0; // Set to the reset anim (if it's there)
 	}
+}
+
+//=========================================================
+// CheckRangeAttack2 - this checks the Grunt's grenade
+// attack.
+//=========================================================
+bool CHGruntHeavy::CheckRangeAttack2(float flDot, float flDist)
+{
+	if (!FBitSet(pev->weapons, (HGRUNT_HANDGRENADE | HGRUNT_GRENADELAUNCHER)))
+	{
+		return false;
+	}
+
+	// if the grunt isn't moving, it's ok to check.
+	if (m_flGroundSpeed != 0)
+	{
+		m_fThrowGrenade = false;
+		return m_fThrowGrenade;
+	}
+
+	// assume things haven't changed too much since last time
+	if (gpGlobals->time < m_flNextGrenadeCheck)
+	{
+		return m_fThrowGrenade;
+	}
+
+	if (m_vecEnemyLKP.z > pev->absmax.z)
+	{
+		//!!!BUGBUG - we should make this check movetype and make sure it isn't FLY? Players who jump a lot are unlikely to
+		// be grenaded.
+		// don't throw grenades at anything that isn't on the ground!
+		m_fThrowGrenade = false;
+		return m_fThrowGrenade;
+	}
+
+	Vector vecTarget;
+
+	if (FBitSet(pev->weapons, HGRUNT_HANDGRENADE))
+	{
+		// find feet
+		if (RANDOM_LONG(0, 1))
+		{
+			// magically know where they are
+			vecTarget = Vector(m_hEnemy->pev->origin.x, m_hEnemy->pev->origin.y, m_hEnemy->pev->absmin.z);
+		}
+		else
+		{
+			// toss it to where you last saw them
+			vecTarget = m_vecEnemyLKP;
+		}
+		// vecTarget = m_vecEnemyLKP + (m_hEnemy->BodyTarget( pev->origin ) - m_hEnemy->pev->origin);
+		// estimate position
+		// vecTarget = vecTarget + m_hEnemy->pev->velocity * 2;
+	}
+	else
+	{
+		// find target
+		// vecTarget = m_hEnemy->BodyTarget( pev->origin );
+		vecTarget = m_vecEnemyLKP + (m_hEnemy->BodyTarget(pev->origin) - m_hEnemy->pev->origin);
+		// estimate position
+		if (HasConditions(bits_COND_SEE_ENEMY))
+			vecTarget = vecTarget + ((vecTarget - pev->origin).Length() / gSkillData.hgruntGrenadeSpeed) * m_hEnemy->pev->velocity;
+	}
+
+	// are any of my squad members near the intended grenade impact area?
+	if (InSquad())
+	{
+		if (SquadMemberInRange(vecTarget, 256))
+		{
+			// crap, I might blow my own guy up. Don't throw a grenade and don't check again for a while.
+			m_flNextGrenadeCheck = gpGlobals->time + 2; // one full second.
+			m_fThrowGrenade = false;
+		}
+	}
+
+	if ((vecTarget - pev->origin).Length2D() <= 160)
+	{
+		// crap, I don't want to blow myself up
+		m_flNextGrenadeCheck = gpGlobals->time + 1; // one full second.
+		m_fThrowGrenade = false;
+		return m_fThrowGrenade;
+	}
+
+
+	if (FBitSet(pev->weapons, HGRUNT_HANDGRENADE))
+	{
+		m_vecTossVelocity = ShootAtEnemy(vecTarget);
+		// throw a hand grenade
+		m_fThrowGrenade = true;
+		// don't check again for a while.
+		m_flNextGrenadeCheck = gpGlobals->time; // 1/3 second.
+	}
+	else
+	{
+		Vector vecToss = VecCheckThrow(pev, GetGunPosition(), vecTarget, gSkillData.hgruntGrenadeSpeed, 0.5);
+
+		if (vecToss != g_vecZero)
+		{
+			m_vecTossVelocity = vecToss;
+
+			// throw a hand grenade
+			m_fThrowGrenade = true;
+			// don't check again for a while.
+			m_flNextGrenadeCheck = gpGlobals->time + 0.3; // 1/3 second.
+		}
+		else
+		{
+			// don't throw
+			m_fThrowGrenade = false;
+			// don't check again for a while.
+			m_flNextGrenadeCheck = gpGlobals->time + 1; // one full second.
+		}
+	}
+
+
+
+	return m_fThrowGrenade;
 }
 
 //=========================================================
@@ -1287,8 +1411,9 @@ Schedule_t slGruntHeavyRangeAttack1B[] =
 //=========================================================
 Task_t tlGruntHeavyRangeAttack2[] =
 	{
-		{TASK_STOP_MOVING, (float)0},
-		{TASK_GRUNT_FACE_TOSS_DIR, (float)0},
+		{TASK_STOP_MOVING, 0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_RANGE_ATTACK2},
 		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY}, // don't run immediately after throwing grenade.
 };
@@ -1468,144 +1593,142 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 	}
 	switch (m_MonsterState)
 	{
-	case MONSTERSTATE_COMBAT:
-	{
-		// dead enemy
-		if (HasConditions(bits_COND_ENEMY_DEAD))
+		case MONSTERSTATE_COMBAT:
 		{
-			// call base class, all code to handle dead enemies is centralized there.
-			return CBaseMonster::GetSchedule();
-		}
-
-		// new enemy
-		if (HasConditions(bits_COND_NEW_ENEMY))
-		{
-			if (InSquad())
+			// dead enemy
+			if (HasConditions(bits_COND_ENEMY_DEAD))
 			{
-				MySquadLeader()->m_fEnemyEluded = false;
+				// call base class, all code to handle dead enemies is centralized there.
+				return CBaseMonster::GetSchedule();
+			}
 
-				if (!IsLeader())
+			// new enemy
+			if (HasConditions(bits_COND_NEW_ENEMY))
+			{
+				if (InSquad())
 				{
+					MySquadLeader()->m_fEnemyEluded = false;
+
+					if (!IsLeader())
+					{
+						return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
+					}
+					else
+					{
+						//!!!KELLY - the leader of a squad of grunts has just seen the player or a
+						// monster and has made it the squad's enemy. You
+						// can check pev->flags for FL_CLIENT to determine whether this is the player
+						// or a monster. He's going to immediately start
+						// firing, though. If you'd like, we can make an alternate "first sight"
+						// schedule where the leader plays a handsign anim
+						// that gives us enough time to hear a short sentence or spoken command
+						// before he starts pluggin away.
+						if (FOkToSpeak()) // && RANDOM_LONG(0,1))
+						{
+							if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
+								// player
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+							else if ((m_hEnemy != NULL) &&
+									 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
+									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
+									 (m_hEnemy->Classify() != CLASS_MACHINE))
+								// monster
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+
+							JustSpoke();
+						}
+
+						if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
+						{
+							return GetScheduleOfType(SCHED_GRUNT_HEAVY_SUPPRESS);
+						}
+						else
+						{
+							return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+						}
+					}
+				}
+			}
+			// no ammo
+			else if (HasConditions(bits_COND_NO_AMMO_LOADED))
+			{
+				//!!!KELLY - this individual just realized he's out of bullet ammo.
+				// He's going to try to find cover to run to and reload, but rarely, if
+				// none is available, he'll drop and reload in the open here.
+				return GetScheduleOfType(SCHED_GRUNT_HEAVY_COVER_AND_RELOAD);
+			}
+
+			// damaged just a little
+			else if (HasConditions(bits_COND_LIGHT_DAMAGE))
+			{
+				// if hurt:
+				// 90% chance of taking cover
+				// 10% chance of flinch.
+				int iPercent = RANDOM_LONG(0, 99);
+
+				if (iPercent <= 90 && m_hEnemy != NULL)
+				{
+					// only try to take cover if we actually have an enemy!
+
+					//!!!KELLY - this grunt was hit and is going to run to cover.
+					if (FOkToSpeak()) // && RANDOM_LONG(0,1))
+					{
+						//SENTENCEG_PlayRndSz( ENT(pev), "HG_COVER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+						m_iSentence = HGRUNT_SENT_COVER;
+						//JustSpoke();
+					}
 					return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
 				}
 				else
 				{
-					//!!!KELLY - the leader of a squad of grunts has just seen the player or a
-					// monster and has made it the squad's enemy. You
-					// can check pev->flags for FL_CLIENT to determine whether this is the player
-					// or a monster. He's going to immediately start
-					// firing, though. If you'd like, we can make an alternate "first sight"
-					// schedule where the leader plays a handsign anim
-					// that gives us enough time to hear a short sentence or spoken command
-					// before he starts pluggin away.
-					if (FOkToSpeak()) // && RANDOM_LONG(0,1))
-					{
-						if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
-							// player
-							SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-						else if ((m_hEnemy != NULL) &&
-								 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-								 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
-								 (m_hEnemy->Classify() != CLASS_MACHINE))
-							// monster
-							SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-
-						JustSpoke();
-					}
-
-					if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
-					{
-						return GetScheduleOfType(SCHED_GRUNT_HEAVY_SUPPRESS);
-					}
-					else
-					{
-						return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
-					}
+					return GetScheduleOfType(SCHED_SMALL_FLINCH);
 				}
 			}
-		}
-		// no ammo
-		else if (HasConditions(bits_COND_NO_AMMO_LOADED))
-		{
-			//!!!KELLY - this individual just realized he's out of bullet ammo.
-			// He's going to try to find cover to run to and reload, but rarely, if
-			// none is available, he'll drop and reload in the open here.
-			return GetScheduleOfType(SCHED_GRUNT_HEAVY_COVER_AND_RELOAD);
-		}
-
-		// damaged just a little
-		else if (HasConditions(bits_COND_LIGHT_DAMAGE))
-		{
-			// if hurt:
-			// 90% chance of taking cover
-			// 10% chance of flinch.
-			int iPercent = RANDOM_LONG(0, 99);
-
-			if (iPercent <= 90 && m_hEnemy != NULL)
+			// can kick
+			else if (HasConditions(bits_COND_CAN_MELEE_ATTACK1))
 			{
-				// only try to take cover if we actually have an enemy!
-
-				//!!!KELLY - this grunt was hit and is going to run to cover.
-				if (FOkToSpeak()) // && RANDOM_LONG(0,1))
-				{
-					//SENTENCEG_PlayRndSz( ENT(pev), "HG_COVER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-					m_iSentence = HGRUNT_SENT_COVER;
-					//JustSpoke();
-				}
-				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
+				return GetScheduleOfType(SCHED_MELEE_ATTACK1);
 			}
-			else
-			{
-				return GetScheduleOfType(SCHED_SMALL_FLINCH);
-			}
-		}
-		// can kick
-		else if (HasConditions(bits_COND_CAN_MELEE_ATTACK1))
-		{
-			return GetScheduleOfType(SCHED_MELEE_ATTACK1);
-		}
-		// can grenade launch
+			// can grenade launch
 
-		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER) && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
-		{
-			// shoot a grenade if you can
-			return GetScheduleOfType(SCHED_RANGE_ATTACK2);
-		}
-		// can shoot
-		else if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
-		{
-			if (InSquad())
+			else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER) && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
-				// if the enemy has eluded the squad and a squad member has just located the enemy
-				// and the enemy does not see the squad member, issue a call to the squad to waste a
-				// little time and give the player a chance to turn.
-				if (MySquadLeader()->m_fEnemyEluded && !HasConditions(bits_COND_ENEMY_FACING_ME))
-				{
-					MySquadLeader()->m_fEnemyEluded = false;
-					return GetScheduleOfType(SCHED_GRUNT_HEAVY_FOUND_ENEMY);
-				}
-			}
-
-			if (OccupySlot(bits_SLOTS_HGRUNT_ENGAGE))
-			{
-				// try to take an available ENGAGE slot
-				return GetScheduleOfType(SCHED_RANGE_ATTACK1);
-			}
-			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
-			{
-				// throw a grenade if can and no engage slots are available
+				// shoot a grenade if you can
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
 			}
-			else
+			// can shoot
+			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
 			{
-				// hide!
-				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
+				if (InSquad())
+				{
+					// if the enemy has eluded the squad and a squad member has just located the enemy
+					// and the enemy does not see the squad member, issue a call to the squad to waste a
+					// little time and give the player a chance to turn.
+					if (MySquadLeader()->m_fEnemyEluded && !HasConditions(bits_COND_ENEMY_FACING_ME))
+					{
+						MySquadLeader()->m_fEnemyEluded = false;
+						return GetScheduleOfType(SCHED_GRUNT_HEAVY_FOUND_ENEMY);
+					}
+				}
+
+				if (OccupySlot(bits_SLOTS_HGRUNT_ENGAGE))
+				{
+					// try to take an available ENGAGE slot
+					return GetScheduleOfType(SCHED_RANGE_ATTACK1);
+				}
+				else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+				{
+					// throw a grenade if can and no engage slots are available
+					return GetScheduleOfType(SCHED_RANGE_ATTACK2);
+				}
+				else
+				{
+					// hide!
+					return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
+				}
 			}
-		}
-		// can't see enemy
-		else if (HasConditions(bits_COND_ENEMY_OCCLUDED))
-		{
-			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+
+			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE) && RANDOM_LONG(0,1) == 1)
 			{
 				//!!!KELLY - this grunt is about to throw or fire a grenade at the player. Great place for "fire in the hole"  "frag out" etc
 				if (FOkToSpeak())
@@ -1615,7 +1738,7 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 				}
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
 			}
-			else if (OccupySlot(bits_SLOTS_HGRUNT_ENGAGE))
+			else if (OccupySlot(bits_SLOTS_HGRUNT_ENGAGE) && HasConditions(bits_COND_ENEMY_OCCLUDED))
 			{
 				//!!!KELLY - grunt cannot see the enemy and has just decided to
 				// charge the enemy's position.
@@ -1628,7 +1751,7 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 
 				return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
 			}
-			else
+			else if (HasConditions(bits_COND_ENEMY_OCCLUDED))
 			{
 				//!!!KELLY - grunt is going to stay put for a couple seconds to see if
 				// the enemy wanders back out into the open, or approaches the
@@ -1640,13 +1763,12 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 				}
 				return GetScheduleOfType(SCHED_STANDOFF);
 			}
-		}
 
-		if (HasConditions(bits_COND_SEE_ENEMY) && !HasConditions(bits_COND_CAN_RANGE_ATTACK1))
-		{
-			return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+			if (HasConditions(bits_COND_SEE_ENEMY) && !HasConditions(bits_COND_CAN_RANGE_ATTACK1))
+			{
+				return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+			}
 		}
-	}
 	}
 
 	// no special cases here, call the base class
@@ -2004,9 +2126,9 @@ void CHGruntHeavy::ArmorGibs(TraceResult* ptr, Vector Vel)
 	WRITE_COORD(ptr->vecEndPos.y);
 	WRITE_COORD(ptr->vecEndPos.z);
 	// size
-	WRITE_COORD(pev->size.x/5);
-	WRITE_COORD(pev->size.y/5);
-	WRITE_COORD(pev->size.z/5);
+	WRITE_COORD(pev->size.x/6);
+	WRITE_COORD(pev->size.x/6);
+	WRITE_COORD(pev->size.x/6);
 	// velocity
 	WRITE_COORD(Vel.x);
 	WRITE_COORD(Vel.y);
