@@ -150,7 +150,7 @@ void CM29::SecondaryAttack()
 		if (m_fFireOnEmpty)
 		{
 			PlayEmptySound();
-			m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.15;
+			m_flNextSecondaryAttack = 0.15;
 		}
 		return;
 	}
@@ -203,7 +203,7 @@ void CM29::PrimaryAttack()
 		if (m_fFireOnEmpty)
 		{
 			PlayEmptySound();
-			m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.15;
+			m_flNextPrimaryAttack = 0.15;
 		}
 		return;
 	}
@@ -333,7 +333,7 @@ void CM29::ItemPostFrame() // completely overriden to make some changes
 
 	if ((m_pPlayer->pev->button & IN_ATTACK2) != 0 && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
 	{
-		if (pszAmmo2() && 0 == m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		if (m_iCylR_ammo == 0)
 		{
 			m_fFireOnEmpty = true;
 		}
@@ -343,7 +343,7 @@ void CM29::ItemPostFrame() // completely overriden to make some changes
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{
-		if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && 0 == m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		if (m_iCylL_ammo == 0)
 		{
 			m_fFireOnEmpty = true;
 		}
