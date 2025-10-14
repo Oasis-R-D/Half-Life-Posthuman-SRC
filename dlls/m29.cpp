@@ -73,7 +73,8 @@ void CM29::Spawn()
 
 void CM29::Precache()
 {
-	PRECACHE_MODEL("models/v_357.mdl");
+	PRECACHE_MODEL("models/v_m29R.mdl");
+	PRECACHE_MODEL("models/v_m29L.mdl");
 	PRECACHE_MODEL("models/w_357.mdl");
 	PRECACHE_MODEL("models/p_357.mdl");
 
@@ -106,21 +107,8 @@ bool CM29::Deploy()
 {
 	CalculateAmmo();
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
-#ifdef CLIENT_DLL
-	if (bIsMultiplayer())
-#else
-	if (g_pGameRules->IsMultiplayer())
-#endif
-	{
-		// enable laser sight geometry.
-		pev->body = 1;
-	}
-	else
-	{
-		pev->body = 0;
-	}
 
-	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
+	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
 
 
@@ -243,11 +231,11 @@ void CM29::Shoot(int gunnumb)
 	Vector vecSrc;
 	if (gunnumb == 0)
 	{
-		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * 4;
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * 7.5;
 	}
 	else
 	{
-		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * -4;
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * -7.5;
 	}
 	
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
@@ -255,11 +243,11 @@ void CM29::Shoot(int gunnumb)
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, 0, 0, 1, 357, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, 0, 0, 1, 357, m_pPlayer->edict());
 	}
 	CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
 #endif
