@@ -22,7 +22,7 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_bullet.h"
-
+#define firerate 0.25
 bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
 {
 #if defined(CLIENT_WEAPONS)
@@ -153,7 +153,7 @@ void CM29::SecondaryAttack()
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-	m_flNextSecondaryAttack = 0.125;
+	m_flNextSecondaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 	Vector vecDir;
@@ -206,7 +206,7 @@ void CM29::PrimaryAttack()
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-	m_flNextPrimaryAttack = 0.125;
+	m_flNextPrimaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 	Vector vecDir;
@@ -249,7 +249,7 @@ void CM29::Shoot(int gunnumb)
 	{
 		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, 0, 0, 1, 44, m_pPlayer->edict());
 	}
-	CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
+	CBasePlayerWeapon::Recoil(4, RANDOM_LONG(-1, 1));
 #endif
 }
 void CM29::Reload()
