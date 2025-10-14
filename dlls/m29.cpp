@@ -276,7 +276,8 @@ void CM29::Reload()
 void CM29::WeaponIdle()
 {
 	ResetEmptySound();
-	CalculateAmmo();
+	if (m_iClip > 0 && m_iCylL_ammo == 0 && m_iCylR_ammo == 0)
+		CalculateAmmo();
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
