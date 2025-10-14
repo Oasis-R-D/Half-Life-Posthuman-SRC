@@ -22,7 +22,9 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_bullet.h"
+
 #define firerate 0.25
+
 bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
 {
 #if defined(CLIENT_WEAPONS)
@@ -165,7 +167,7 @@ void CM29::SecondaryAttack()
 	flags = 0;
 #endif
 
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 1, 0, 0, 0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
@@ -252,6 +254,7 @@ void CM29::Shoot(int gunnumb)
 	CBasePlayerWeapon::Recoil(4, RANDOM_LONG(-1, 1));
 #endif
 }
+
 void CM29::Reload()
 {
 	if (m_pPlayer->ammo_357 <= 0)

@@ -479,7 +479,7 @@ void EV_FireGlock1(event_args_t* args)
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, sound, gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
 	EV_GetGunPosition(args, vecSrc, origin);
 	VectorCopy(forward, vecAiming);
-	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, &tracerCount[idx - 1], args->fparam1, args->fparam2);
+	//EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, &tracerCount[idx - 1], args->fparam1, args->fparam2);
 }
 
 void EV_FireGlock2(event_args_t* args)
@@ -525,7 +525,7 @@ void EV_FireGlock2(event_args_t* args)
 
 	VectorCopy(forward, vecAiming);
 
-	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, &tracerCount[idx - 1], args->fparam1, args->fparam2);
+	//EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, &tracerCount[idx - 1], args->fparam1, args->fparam2);
 }
 //======================
 //	   GLOCK END
@@ -784,7 +784,7 @@ void EV_FireM29(event_args_t* args)
 	Vector origin;
 	Vector angles;
 	Vector velocity;
-
+	int M29numb = args->iparam1;
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
@@ -802,7 +802,8 @@ void EV_FireM29(event_args_t* args)
 		gEngfuncs.pEventAPI->EV_WeaponAnimation(PYTHON_FIRE1, 0);
 	}
 
-	switch (gEngfuncs.pfnRandomLong(0, 1))
+	//switch (gEngfuncs.pfnRandomLong(0, 1)) // should this be per weapon?
+	switch (M29numb)
 	{
 	case 0:
 		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/m29_fire1.wav", gEngfuncs.pfnRandomFloat(0.8, 0.9), ATTN_NORM, 0, PITCH_NORM);
@@ -1291,8 +1292,6 @@ void EV_FireCrossbow(event_args_t* args)
 			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROSSBOW_FIRE1, 0);
 		else
 			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROSSBOW_FIRE3, 0);
-
-		V_PunchAxis(0, -2.0);
 	}
 }
 //======================
