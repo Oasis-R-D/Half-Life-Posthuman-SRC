@@ -243,11 +243,11 @@ void CM29::Shoot(int gunnumb)
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, 0, 0, 1, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, 0, 0, 1, 44, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, 0, 0, 1, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, 0, 0, 1, 44, m_pPlayer->edict());
 	}
 	CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
 #endif
