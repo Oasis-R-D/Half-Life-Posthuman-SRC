@@ -277,8 +277,9 @@ void W_Precache()
 	UTIL_PrecacheOther("item_antidote");
 	UTIL_PrecacheOther("item_security");
 	UTIL_PrecacheOther("item_longjump");
-	UTIL_PrecacheOther("shock_beam");
+	UTIL_PrecacheOther("shock_beam"); // required for shock trooper
 	UTIL_PrecacheOther("spore");
+	UTIL_PrecacheOther("item_healthkit"); // required for hgrunt medic
 	// shotgun
 	UTIL_PrecacheOtherWeapon("weapon_shotgun");
 	UTIL_PrecacheOther("ammo_buckshot");
@@ -340,7 +341,11 @@ void W_Precache()
 
 	// Corruption weapon
 	UTIL_PrecacheOtherWeapon("weapon_corrupted");
-	UTIL_PrecacheOther("item_healthkit");
+
+	// M29 (shhhhhh it's a secret)
+	UTIL_PrecacheOtherWeapon("weapon_m29");
+
+	
 	if (g_pGameRules->IsDeathmatch())
 	{
 		UTIL_PrecacheOther("weaponbox"); // container for dropped deathmatch weapons

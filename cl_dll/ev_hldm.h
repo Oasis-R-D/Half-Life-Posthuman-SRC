@@ -35,6 +35,7 @@ void EV_SnarkFire(event_args_t* args);
 // begin posthumanoid
 void EV_VMstain(event_args_t* args);
 void EV_VMsilence(event_args_t* args);
+void EV_FireM29(event_args_t* args);
 // end posthumanoid
 
 void EV_TrainPitchAdjust(event_args_t* args);
