@@ -832,7 +832,7 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
-	TraceResult tr = Util_GetGlobalTrace();
+	TraceResult tr = UTIL_GetGlobalTrace();
 	TraceResult beam_tr;
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
