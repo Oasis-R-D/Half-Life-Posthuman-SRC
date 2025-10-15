@@ -66,6 +66,7 @@ public:
 	void DeathSound() override;
 	void PainSound() override;
 	void IdleSound() override;
+	void Shotgun();
 	void M249();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
@@ -822,6 +823,52 @@ void CHGruntHeavy::IdleSound()
 	}
 }
 
+//=========================================================
+// Shoot
+//=========================================================
+void CHGruntHeavy::Shotgun()
+{
+	if (m_hEnemy == NULL)
+	{
+		return;
+	}
+
+	Vector vecShootOrigin = GetGunPosition();
+	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+
+	UTIL_MakeVectors(pev->angles);
+
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
+	if (flDistToEnemy <= 192 && m_cAmmoLoaded >= 2 && g_iSkillLevel != SKILL_HARD && RANDOM_LONG(0, 1) == 1)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
+		}
+#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_15DEGREES, 0.75, 12, edict());
+		m_cAmmoLoaded -= 2;
+	}
+	else
+	{
+		EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
+#ifndef CLIENT_DLL
+		if (g_iSkillLevel != SKILL_HARD)
+			CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_7DEGREES, 0.75, 12, edict());
+		else
+		{
+			CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
+		}
+		m_cAmmoLoaded--; // take away a bullet!
+#endif
+	}
+	pev->effects |= EF_MUZZLEFLASH;
+	Vector angDir = UTIL_VecToAngles(vecShootDir);
+	SetBlending(0, angDir.x);
+}
+//=========================================================
+// Shoot
+//=========================================================
 void CHGruntHeavy::M249()
 {
 	if (m_cAmmoLoaded <= 0)
