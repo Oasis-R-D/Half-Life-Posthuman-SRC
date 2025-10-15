@@ -475,24 +475,7 @@ void CIchthyosaur::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CIchthyosaur::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CIchthyosaur::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CIchthyosaur::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
+	
 	SET_MODEL(ENT(pev), "models/icky.mdl");
 	UTIL_SetSize(pev, Vector(-32, -32, -32), Vector(32, 32, 32));
 

@@ -435,27 +435,10 @@ void CBarney::Spawn()
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
 		m_bPrehuman = 1;
-		//SetUse(&CBarney::FollowerUse); //TO-DO: restore this
+		//SetUse(&CBarney::FollowerUse); // TO-DO: restore this
 	}
-	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CBarney::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CBarney::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	if (FClassnameIs(pev, "monster_barney_adv"))
+	
+	if (FClassnameIs(pev, "monster_barney_adv")) // Unused (this was the early implementation of advsec)
 	{
 		SET_MODEL(ENT(pev), "models/barney_adv.mdl");
 		pev->health = 55;

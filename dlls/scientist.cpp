@@ -644,24 +644,7 @@ void CScientist::Spawn()
 	{
 		m_bPrehuman = 1;
 	}
-	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CScientist::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CScientist::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
+
 	if (pev->armorvalue == -1)
 		pev->armorvalue = RANDOM_LONG(0, 16); // pick a head, any head
 

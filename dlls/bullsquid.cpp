@@ -697,24 +697,6 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CBullsquid::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CBullsquid::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CBullsquid::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
 	SET_MODEL(ENT(pev), "models/bullsquid.mdl");
 	UTIL_SetSize(pev, Vector(-32, -32, 0), Vector(32, 32, 64));
 

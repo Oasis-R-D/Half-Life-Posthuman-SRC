@@ -165,6 +165,20 @@ int DispatchSpawn(edict_t* pent)
 				return -1; // return that this entity should be deleted
 			if ((pEntity->pev->flags & FL_KILLME) != 0)
 				return -1;
+			if (FBitSet(pEntity->pev->spawnflags, SF_NOTINHARD))
+			{
+				if (g_iSkillLevel == SKILL_HARD)
+				{
+					return -1;
+				}
+			}
+			 if (FBitSet(pEntity->pev->spawnflags, SF_ONLYINHARD))
+			{
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					return -1;
+				}
+			}
 		}
 
 

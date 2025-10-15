@@ -361,24 +361,6 @@ void CController::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CController::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CController::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CController::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
 	SET_MODEL(ENT(pev), "models/controller.mdl");
 	UTIL_SetSize(pev, Vector(-32, -32, 0), Vector(32, 32, 64));
 

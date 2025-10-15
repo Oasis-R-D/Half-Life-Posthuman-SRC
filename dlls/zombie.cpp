@@ -643,24 +643,7 @@ void CZombie::Spawn()
 	{
 		m_bPrehuman = 1;
 	}
-	else if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CZombie::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CZombie::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
+	
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");

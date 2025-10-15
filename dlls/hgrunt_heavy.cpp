@@ -210,24 +210,7 @@ enum HGRUNT_SENTENCE_TYPES
 void CHGruntHeavy::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_NOTINHARD))
-	{
-		if (g_iSkillLevel == SKILL_HARD)
-		{
-			SetThink(&CHGrunt::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-	else if (FBitSet(pev->spawnflags, SF_ONLYINHARD))
-	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			SetThink(&CHGrunt::SUB_Remove);
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
+	
 	SET_MODEL(ENT(pev), "models/hgrunt_opfor.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
