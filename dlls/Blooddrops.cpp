@@ -296,7 +296,7 @@ void CPhysblood::AirThink()
 			Hgrunt->pev->armortype = 0;
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+			EMIT_SOUND(Hgrunt->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
 		}
 	}
 	if (pev->waterlevel == 0)
