@@ -92,7 +92,7 @@ void CPhysbullet::Spawn()
 	}
 	if (m_Flare == 762) // probably 762
 	{
-		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
+		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.31, 0.35);
 		m_distpenetrate = 32;
 		m_maxricochet = 2;
@@ -106,14 +106,14 @@ void CPhysbullet::Spawn()
 	}
 	else if (m_Flare == 357)
 	{
-		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
+		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
 		m_distpenetrate = 18;
 		m_maxricochet = 3;
 	}
 	else if (m_Flare == 44)
 	{
-		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
+		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.32, 0.33);
 		m_distpenetrate = 16;
 		m_maxricochet = 4;
@@ -127,7 +127,7 @@ void CPhysbullet::Spawn()
 	}
 	else if (m_Flare == 420) // HC Deagle
 	{
-		SET_MODEL(ENT(pev), "sprites/tracer_357mm.spr");
+		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 		pev->scale = 2;
 		m_distpenetrate = 128;
 		m_maxricochet = 5;
@@ -173,7 +173,8 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("models/rubber_bullet.mdl");
 	PRECACHE_MODEL("sprites/tracer_9mm.spr");
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
-	PRECACHE_MODEL("sprites/tracer_357mm.spr");
+	PRECACHE_MODEL("sprites/tracer_357magnum.spr");
+	PRECACHE_MODEL("sprites/tracer_44magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_SOUND("weapons/nearmiss1.wav");
 	PRECACHE_SOUND("weapons/nearmiss2.wav");
