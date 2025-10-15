@@ -832,12 +832,13 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
+	TraceResult tr = Util_GetGlobalTrace();
 	TraceResult beam_tr;
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
 	Vector vecDest = vecShootOrigin + vecShootDir * 8192;
 	UTIL_TraceLine(vecShootOrigin + vecShootDir * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
-	int ENEMYDIST = beam_tr.Length();
+	int ENEMYDIST = (beam_tr.vecEndPos - tr.vecEndPos).Length();
 	
 	UTIL_MakeVectors(pev->angles);
 
