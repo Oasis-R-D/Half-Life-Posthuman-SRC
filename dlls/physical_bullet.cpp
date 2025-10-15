@@ -96,6 +96,7 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.31, 0.35);
 		m_distpenetrate = 32;
 		m_maxricochet = 2;
+		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 12) // 12 gauge
 	{
@@ -110,6 +111,7 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
 		m_distpenetrate = 18;
 		m_maxricochet = 3;
+		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 44)
 	{
@@ -117,6 +119,7 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.32, 0.33);
 		m_distpenetrate = 16;
 		m_maxricochet = 4;
+		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 69) // Training weapons
 	{
@@ -133,6 +136,7 @@ void CPhysbullet::Spawn()
 		m_maxricochet = 5;
 		pev->rendercolor = Vector(255, 70, 170);
 		pev->rendermode = kRenderTransAdd;
+		m_bHeavyDecal = true;
 	}
 	else //	9MM
 	{
@@ -320,7 +324,10 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	{
 		Stay();
 	}
-	DecalGunshot(&tr, BULLET_PLAYER_9MM);
+	if (!m_bHeavyDecal)
+		DecalGunshot(&tr, BULLET_PLAYER_9MM);
+	else
+		DecalGunshot(&tr, BULLET_MONSTER_12MM); // 12 mm is the heavy decal
 	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 
 }

@@ -1371,14 +1371,16 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	if (pTrace->flFraction == 1.0)
 		return;
 
-	//MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos);
-	//WRITE_BYTE(TE_GUNSHOTDECAL);
-	//WRITE_COORD(pTrace->vecEndPos.x);
-	//WRITE_COORD(pTrace->vecEndPos.y);
-	//WRITE_COORD(pTrace->vecEndPos.z);
-	//WRITE_SHORT((short)ENTINDEX(pTrace->pHit));
-	//WRITE_BYTE(index);
-	//MESSAGE_END();
+/*
+	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos);
+	WRITE_BYTE(TE_GUNSHOTDECAL);
+	WRITE_COORD(pTrace->vecEndPos.x);
+	WRITE_COORD(pTrace->vecEndPos.y);
+	WRITE_COORD(pTrace->vecEndPos.z);
+	WRITE_SHORT((short)ENTINDEX(pTrace->pHit));
+	WRITE_BYTE(index);
+	MESSAGE_END();
+*/
 
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos);
 	WRITE_BYTE(TE_GUNSHOTDECAL);
@@ -1389,7 +1391,7 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_BYTE(-1); //no decals, just the effect
 	MESSAGE_END();
 	
-	int DCrot = RANDOM_LONG(0,180);
+	int DCrot = RANDOM_LONG(0, 360);
 
 	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
 	// TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit

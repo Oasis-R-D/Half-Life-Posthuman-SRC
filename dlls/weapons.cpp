@@ -138,6 +138,14 @@ int DamageDecal(CBaseEntity* pEntity, int bitsDamageType)
 	return pEntity->DamageDecal(bitsDamageType);
 }
 
+int DamageDecalHeavy(CBaseEntity* pEntity, int bitsDamageType)
+{
+	if (!pEntity)
+		return (DECAL_BIGSHOT1 + RANDOM_LONG(0, 4));
+
+	return pEntity->DamageDecal(bitsDamageType);
+}
+
 void DecalGunshot(TraceResult* pTrace, int iBulletType)
 {
 	// Is the entity valid
@@ -165,7 +173,7 @@ void DecalGunshot(TraceResult* pTrace, int iBulletType)
 			break;
 		case BULLET_MONSTER_12MM:
 			// smoke and decal
-			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET));
+			UTIL_GunshotDecalTrace(pTrace, DamageDecalHeavy(pEntity, DMG_BULLET));
 			break;
 		case BULLET_PLAYER_CROWBAR:
 			// wall decal

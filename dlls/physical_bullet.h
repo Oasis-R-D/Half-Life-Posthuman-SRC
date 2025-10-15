@@ -44,5 +44,6 @@ private:
 	bool m_haswizzed;
 	bool m_lastwas0;
 	bool m_bsubsonic;
+	bool m_bHeavyDecal = false;
 };
 #endif
