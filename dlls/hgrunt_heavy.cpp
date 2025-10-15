@@ -832,10 +832,13 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
-	int ENEMYDIST = round(((((m_hEnemy->BodyTarget(vecShootOrigin) - (m_hEnemy->pev->origin) + m_vecEnemyLKP - vecShootOrigin).Normalize()).Length());
+	TraceResult beam_tr;
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
-
+	Vector vecDest = vecShootOrigin + vecShootDir * 8192;
+	UTIL_TraceLine(vecShootOrigin + vecShootDir * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
+	int ENEMYDIST = beam_tr.Length());
+	
 	UTIL_MakeVectors(pev->angles);
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
