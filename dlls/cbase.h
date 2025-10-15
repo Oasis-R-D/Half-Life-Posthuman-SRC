@@ -386,6 +386,8 @@ public:
 	int m_fInAttack;
 
 	int m_fireState;
+
+	bool m_bPrehuman; // Required for some NPCs (here because headcrab unlatching uses base entity and not base monster [too lazy to change, plus this could probably be used by the player at some point])
 };
 
 inline bool FNullEnt(CBaseEntity* ent) { return (ent == NULL) || FNullEnt(ent->edict()); }

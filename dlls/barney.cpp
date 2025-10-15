@@ -434,8 +434,7 @@ void CBarney::Spawn()
 	Precache();
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
-		m_bPrehuman = 1;
-		//SetUse(&CBarney::FollowerUse); // TO-DO: restore this
+		//SetUse(&CBarney::FollowerUse); // TO-DO: add following
 	}
 	
 	if (FClassnameIs(pev, "monster_barney_adv")) // Unused (this was the early implementation of advsec)

@@ -1091,7 +1091,7 @@ void CAdvSec::Spawn()
 	Precache();
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
-		m_bPrehuman = true;
+		// TO-DO: add following
 	}
 	SET_MODEL(ENT(pev), "models/advsec.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);

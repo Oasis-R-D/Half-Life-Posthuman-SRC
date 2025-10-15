@@ -45,7 +45,6 @@ public:
 	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	int IgnoreConditions() override;
-	bool m_bPrehuman;
 	float m_flNextFlinch;
 
 	void PainSound() override;
@@ -637,11 +636,7 @@ void CZombie::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CZombie::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
-	{
-		m_bPrehuman = 1;
-	}
-
+	
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");

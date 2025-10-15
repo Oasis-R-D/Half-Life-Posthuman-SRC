@@ -89,7 +89,6 @@ public:
 	bool CheckRangeAttack1(float flDot, float flDist) override;
 	bool CheckRangeAttack2(float flDot, float flDist) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
-	bool m_bPrehuman;
 	void Touch(CBaseEntity* pOther)
 	{
 		if (m_bPrehuman == 0)
@@ -358,11 +357,6 @@ void CHeadCrab::Spawn()
 	Precache();
 	if (m_bPrehuman == 1)
 		ALERT(at_console, "Headcrab hates you\n");
-	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
-	{
-		m_bPrehuman = 1;
-		ALERT(at_console, "Headcrab hates you\n");
-	}
 	else if (pev->armorvalue == 1)
 	{
 		m_bPrehuman = 1;

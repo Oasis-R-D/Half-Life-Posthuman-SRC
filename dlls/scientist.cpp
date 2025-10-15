@@ -642,7 +642,7 @@ void CScientist::Spawn()
 {
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
-		m_bPrehuman = 1;
+		// TO-DO: restore following
 	}
 
 	if (pev->armorvalue == -1)

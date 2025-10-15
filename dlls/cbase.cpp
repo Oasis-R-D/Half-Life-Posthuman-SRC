@@ -151,6 +151,10 @@ int DispatchSpawn(edict_t* pent)
 		// Initialize these or entities who don't link to the world won't have anything in here
 		pEntity->pev->absmin = pEntity->pev->origin - Vector(1, 1, 1);
 		pEntity->pev->absmax = pEntity->pev->origin + Vector(1, 1, 1);
+		if (FBitSet(pEntity->pev->spawnflags, SF_PREHUMAN))
+		{
+			pEntity->m_bPrehuman = 1; // used for monsters to change relations. Can be used by entities to do different things if the player isn't a zombie
+		}
 
 		pEntity->Spawn();
 
