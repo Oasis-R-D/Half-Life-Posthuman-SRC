@@ -2789,7 +2789,6 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case MONSTER_EVENT_RUN_DIRT:
 	{
-
 		TraceResult tr;
 		Vector vecSrc = Center();
 		Vector vecEnd = Center() - Vector(0, 0, 128);
@@ -2855,7 +2854,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 			{
 				auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", tr.vecEndPos, true);
 				spr->SetTransparency(kRenderGlow, 255, 128, 0, 128, kRenderFxNoDissipation);
-				spr->AnimateAndDie(RANDOM_LONG(8, 16));
+				spr->AnimateAndDie(48); // 48 = 0.25 seconds
 			}
 		}
 	}
@@ -2935,14 +2934,16 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 			if (chTextureType == CHAR_TEX_DIRT)
 			{
-				if (pev->skin == 0)
-					pev->skin = 2;
-				if (pev->skin == 1)
-					pev->skin = 3;
-
-				if (pev->armortype < 10)
+				if (pev->armortype < 20)
 					pev->armortype++;
-				else
+				if (pev->armortype >= 10 && pev->armortype < 20)
+				{
+					if (pev->skin == 0)
+						pev->skin = 2;
+					if (pev->skin == 1)
+						pev->skin = 3;
+				}
+				else if (pev->armortype >= 20)
 				{
 					if (pev->skin == 2)
 						pev->skin = 4;
@@ -2952,7 +2953,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 				auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", tr.vecEndPos, true);
 				spr->SetTransparency(kRenderGlow, 255, 128, 0, 128, kRenderFxNoDissipation);
-				spr->AnimateAndDie(RANDOM_LONG(8, 16));
+				spr->AnimateAndDie(48); // 48 = 0.25 seconds
 			}
 		}
 	}
