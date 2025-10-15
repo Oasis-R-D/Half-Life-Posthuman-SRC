@@ -114,8 +114,10 @@ public:
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
-					headcrab->pev->armorvalue = 1;
-					headcrab->m_bPrehuman = 1;
+					/*CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab); // cannot use this unless there's a headcrab.h file
+					ActualHeadcrab->pev->armorvalue = 1;
+					ActualHeadcrab->m_bPrehuman = 1;*/ // TO-DO: make prehuman into a cbaseentiy var so this code works
+					headcrab->pev->armorvalue
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
