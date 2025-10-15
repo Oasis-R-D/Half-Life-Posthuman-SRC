@@ -337,6 +337,7 @@ void CHGruntHeavy::Precache()
 	PRECACHE_SOUND("hgrunt/gr_reload1.wav");
 	PRECACHE_SOUND("weapons/glauncher.wav");
 	PRECACHE_SOUND("weapons/sbarrel1.wav");
+	PRECACHE_SOUND("weapons/dbarrel1.wav");
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 	PRECACHE_SOUND("weapons/reload3.wav");
 
@@ -477,7 +478,6 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 		{
 			Shotgun();
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
 		}
 		else if (FBitSet(pev->weapons, HGRUNT_M727))
 		{
@@ -841,6 +841,7 @@ void CHGruntHeavy::Shotgun()
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	if (ENEMYDIST <= 192 && m_cAmmoLoaded >= 2 && g_iSkillLevel != SKILL_HARD && RANDOM_LONG(0, 1) == 1)
 	{
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/dbarrel1.wav", 1, ATTN_GUN-0.1);
 		for (int i = 0; i < 2; i++)
 		{
 			EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
@@ -852,6 +853,7 @@ void CHGruntHeavy::Shotgun()
 	}
 	else
 	{
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
 		EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
 		if (g_iSkillLevel != SKILL_HARD)
