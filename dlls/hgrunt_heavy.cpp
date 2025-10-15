@@ -832,7 +832,7 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
-	int ENEMYDIST = round((((pEnemy->BodyTarget(shootOrigin) - pEnemy->pev->origin) + m_vecEnemyLKP - shootOrigin).Normalize()).Length());
+	int ENEMYDIST = round(((((m_hEnemy->BodyTarget(vecShootOrigin) - (m_hEnemy->pev->origin) + m_vecEnemyLKP - vecShootOrigin).Normalize()).Length());
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
 
