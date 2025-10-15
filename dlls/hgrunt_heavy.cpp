@@ -832,14 +832,14 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
-
+	int ENEMYDIST = round((((pEnemy->BodyTarget(shootOrigin) - pEnemy->pev->origin) + m_vecEnemyLKP - shootOrigin).Normalize()).Length());
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
 
 	UTIL_MakeVectors(pev->angles);
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
-	if (flDistToEnemy <= 192 && m_cAmmoLoaded >= 2 && g_iSkillLevel != SKILL_HARD && RANDOM_LONG(0, 1) == 1)
+	if (ENEMYDIST <= 192 && m_cAmmoLoaded >= 2 && g_iSkillLevel != SKILL_HARD && RANDOM_LONG(0, 1) == 1)
 	{
 		for (int i = 0; i < 2; i++)
 		{
@@ -848,6 +848,7 @@ void CHGruntHeavy::Shotgun()
 #ifndef CLIENT_DLL
 		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_15DEGREES, 0.75, 12, edict());
 		m_cAmmoLoaded -= 2;
+#endif
 	}
 	else
 	{
