@@ -94,60 +94,60 @@ public:
 	{
 		if (m_bPrehuman == 0)
 		{
-		if (pOther->IsPlayer() && pev->deadflag == DEAD_NO)
-		{
-			if (FClassnameIs(pev, "monster_headcrab"))
+			if (pOther->IsPlayer() && pev->deadflag == DEAD_NO)
 			{
-				auto player = (CBasePlayer*)pOther;
-				if (player->HasNamedPlayerItem("weapon_headcrab"))
+				if (FClassnameIs(pev, "monster_headcrab"))
 				{
-					if (player->GiveAmmo(1, "headcrab", 5) != -1)
+					auto player = (CBasePlayer*)pOther;
+					if (player->HasNamedPlayerItem("weapon_headcrab"))
 					{
-						EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+						if (player->GiveAmmo(1, "headcrab", 5) != -1)
+						{
+							EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+							UTIL_Remove(this);
+						}
+					}
+					else
+					{
+						player->GiveNamedItem("weapon_headcrab");
 						UTIL_Remove(this);
 					}
 				}
-				else
+				if (FClassnameIs(pev, "monster_headcrab_fast"))
 				{
-					player->GiveNamedItem("weapon_headcrab");
-					UTIL_Remove(this);
-				}
-			}
-			if (FClassnameIs(pev, "monster_headcrab_fast"))
-			{
-				auto player = (CBasePlayer*)pOther;
-				if (player->HasNamedPlayerItem("weapon_headcrab_fast"))
-				{
-					if (player->GiveAmmo(1, "headcrab_fast", 5) != -1)
+					auto player = (CBasePlayer*)pOther;
+					if (player->HasNamedPlayerItem("weapon_headcrab_fast"))
 					{
-						EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+						if (player->GiveAmmo(1, "headcrab_fast", 5) != -1)
+						{
+							EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+							UTIL_Remove(this);
+						}
+					}
+					else
+					{
+						player->GiveNamedItem("weapon_headcrab_fast");
 						UTIL_Remove(this);
 					}
 				}
-				else
+				if (FClassnameIs(pev, "monster_headcrab_poison"))
 				{
-					player->GiveNamedItem("weapon_headcrab_fast");
-					UTIL_Remove(this);
-				}
-			}
-			if (FClassnameIs(pev, "monster_headcrab_poison"))
-			{
-				auto player = (CBasePlayer*)pOther;
-				if (player->HasNamedPlayerItem("weapon_headcrab_poison"))
-				{
-					if (player->GiveAmmo(1, "headcrab_poison", 5) != -1)
+					auto player = (CBasePlayer*)pOther;
+					if (player->HasNamedPlayerItem("weapon_headcrab_poison"))
 					{
-						EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+						if (player->GiveAmmo(1, "headcrab_poison", 5) != -1)
+						{
+							EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+							UTIL_Remove(this);
+						}
+					}
+					else
+					{
+						player->GiveNamedItem("weapon_headcrab_poison");
 						UTIL_Remove(this);
 					}
 				}
-				else
-				{
-					player->GiveNamedItem("weapon_headcrab_poison");
-					UTIL_Remove(this);
-				}
 			}
-		}
 		}
 		if (pev->owner)
 			pev->owner = NULL;
@@ -356,13 +356,17 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CHeadCrab::Spawn()
 {
 	Precache();
+	if (m_bPrehuman == 1)
+		ALERT(at_console, "Headcrab hates you\n");
 	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
 	{
 		m_bPrehuman = 1;
+		ALERT(at_console, "Headcrab hates you\n");
 	}
 	else if (pev->armorvalue == 1)
 	{
 		m_bPrehuman = 1;
+		ALERT(at_console, "Headcrab hates you\n");
 	}
 	
 	if (FClassnameIs(pev, "monster_headcrab_fast"))

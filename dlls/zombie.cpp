@@ -115,7 +115,7 @@ public:
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
 					headcrab->pev->armorvalue = 1;
-					
+					headcrab->m_bPrehuman = 1;
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
@@ -484,8 +484,6 @@ bool CZombie::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 			// If the player was facing directly at me, or I'm already suspicious, get mad
 			if ((m_afMemory & bits_MEMORY_SUSPICIOUS) != 0 || IsFacing(pevAttacker, pev->origin))
 			{
-				// Alright, now I'm pissed!
-				//PlaySentence("BA_MAD", 4, VOL_NORM, ATTN_NORM);
 				m_bPrehuman = 1;
 				ALERT(at_console, "Zombie hates you\n");
 				Remember(bits_MEMORY_PROVOKED);
@@ -493,8 +491,6 @@ bool CZombie::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 			}
 			else
 			{
-				// Hey, be careful with that
-				//PlaySentence("BA_SHOT", 4, VOL_NORM, ATTN_NORM);
 				Remember(bits_MEMORY_SUSPICIOUS);
 			}
 		}
@@ -643,7 +639,7 @@ void CZombie::Spawn()
 	{
 		m_bPrehuman = 1;
 	}
-	
+
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");
