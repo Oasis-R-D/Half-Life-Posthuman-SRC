@@ -23,7 +23,7 @@
 #include "UserMessages.h"
 #include "Blooddrops.h"
 #include "decals.h"
-
+#include "hgrunt.h" //.h...grunt file :D
 #ifndef CLIENT_DLL
 
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
@@ -280,6 +280,20 @@ void CPhysblood::AirThink()
 					// does nothing currently
 				}
 			}
+			char dripsnd[256];
+			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
+			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+		}
+		if (FClassnameIs(pObject->pev, "monster_human_grunt") && m_hasstained != true && m_BloodType == NULL)
+		{
+			m_hasstained = true;
+			ALERT(at_console, "pObject is now cleaned HECU\n");
+			CHGrunt* Hgrunt = dynamic_cast<CHGrunt*>(pObject);
+			if (Hgrunt->pev->skin % 2 == 0)
+				Hgrunt->pev->skin = 0;
+			else
+				Hgrunt->pev->skin = 1;
+			Hgrunt->pev->armortype = 0;
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
