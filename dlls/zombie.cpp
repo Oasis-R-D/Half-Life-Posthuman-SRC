@@ -117,7 +117,7 @@ public:
 					/*CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab); // cannot use this unless there's a headcrab.h file
 					ActualHeadcrab->pev->armorvalue = 1;
 					ActualHeadcrab->m_bPrehuman = 1;*/ // TO-DO: make prehuman into a cbaseentiy var so this code works
-					headcrab->pev->armorvalue
+					headcrab->pev->armorvalue = 1;
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
