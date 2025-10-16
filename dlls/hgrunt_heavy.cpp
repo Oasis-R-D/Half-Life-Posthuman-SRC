@@ -830,43 +830,24 @@ void CHGruntHeavy::Shotgun()
 	{
 		return;
 	}
-	TraceResult tr = UTIL_GetGlobalTrace();
-	TraceResult beam_tr;
+
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
-	Vector vecDest = vecShootOrigin + vecShootDir * 8192;
-	UTIL_TraceLine(vecShootOrigin + vecShootDir * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
-	int ENEMYDIST = round((beam_tr.vecEndPos - vecShootOrigin).Length());
-	UTIL_MakeVectors(pev->angles);
 
+	UTIL_MakeVectors(pev->angles);
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
-	if (ENEMYDIST <= 192 && m_cAmmoLoaded >= 2 && g_iSkillLevel != SKILL_HARD && RANDOM_LONG(0, 1) == 1)
-	{
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/dbarrel1.wav", 1, ATTN_GUN-0.1);
-		for (int i = 0; i < 2; i++)
-		{
-			EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-			ALERT(at_console, "doublefire\n");
-		}
+
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
+	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_15DEGREES, 0.75, 12, edict());
-		m_cAmmoLoaded -= 2;
-#endif
-	}
+	if (g_iSkillLevel != SKILL_HARD)
+		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_7DEGREES, 0.75, 12, edict());
 	else
 	{
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
-		EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-#ifndef CLIENT_DLL
-		if (g_iSkillLevel != SKILL_HARD)
-			CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_7DEGREES, 0.75, 12, edict());
-		else
-		{
-			CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
-		}
-		m_cAmmoLoaded--; // take away a bullet!
-#endif
+		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 	}
+	m_cAmmoLoaded--; // take away a bullet!
+#endif
 	pev->effects |= EF_MUZZLEFLASH;
 	Vector angDir = UTIL_VecToAngles(vecShootDir);
 	SetBlending(0, angDir.x);
@@ -1991,7 +1972,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_helmDUR <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2012,7 +1992,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_chest <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2035,7 +2014,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_stomach <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2058,7 +2036,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_leftarm <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2081,7 +2058,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_rightarm <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2104,7 +2080,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_leftleg <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2127,7 +2102,6 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (m_iarmor_health_rightleg <= 0)
 			{
 				// remove armor
-				EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
@@ -2154,6 +2128,7 @@ bool CHGruntHeavy::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, f
 
 void CHGruntHeavy::ArmorGibs(TraceResult* ptr, Vector Vel)
 {
+	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
 	WRITE_BYTE(TE_BREAKMODEL);
 	// position
