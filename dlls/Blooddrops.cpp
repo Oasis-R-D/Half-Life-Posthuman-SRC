@@ -227,16 +227,11 @@ void CPhysblood::AirThink()
 	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 	if (pObject)
 	{
-		if (pObject->IsPlayer())
-			ALERT(at_console, "pObject is player\n");
-		if (pObject->IsPlayer() && 0 != pObject->pev->takedamage && m_hashealed != true)
+		if (m_BloodType == BLOOD_COLOR_CYAN && pObject->IsPlayer() && 0 != pObject->pev->takedamage && m_hashealed != true)
 		{
 			ALERT(at_console, "attempt heal\n");
 			m_hashealed = true;
-			if (m_BloodType == BLOOD_COLOR_CYAN)
-			{
-				pObject->TakeHealth(2, DMG_GENERIC);
-			}
+			pObject->TakeHealth(2, DMG_GENERIC);
 		}
 		if (pObject->IsPlayer() && m_hasstained != true)
 		{
@@ -253,27 +248,22 @@ void CPhysblood::AirThink()
 				{
 					// PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
 					weapon->m_stain = 1;
-					ALERT(at_console, "red gun\n");
 				}
 				else if (m_BloodType == BLOOD_COLOR_YELLOW)
 				{
 					weapon->m_stain = 2;
-					ALERT(at_console, "yellow gun\n");
 				}
 				else if (m_BloodType == BLOOD_COLOR_GREEN)
 				{
 					weapon->m_stain = 3;
-					ALERT(at_console, "green gun\n");
 				}
 				else if (m_BloodType == BLOOD_COLOR_CYAN)
 				{
 					weapon->m_stain = 4;
-					ALERT(at_console, "cyan gun\n");
 				}
 				else if (m_BloodType == NULL) // water
 				{
 					weapon->m_stain = 0;
-					ALERT(at_console, "clean gun\n");
 				}
 				else // corruption
 				{

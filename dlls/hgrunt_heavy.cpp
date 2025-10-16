@@ -838,8 +838,8 @@ void CHGruntHeavy::Shotgun()
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
 	Vector vecDest = vecShootOrigin + vecShootDir * 8192;
 	UTIL_TraceLine(vecShootOrigin + vecShootDir * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
-	int ENEMYDIST = (beam_tr.vecEndPos - tr.vecEndPos).Length();
-	
+	int ENEMYDIST = round((beam_tr.vecEndPos - vecShootOrigin).Length());
+	lastaltfire = gpGlobals->time + 10;
 	UTIL_MakeVectors(pev->angles);
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
@@ -849,6 +849,7 @@ void CHGruntHeavy::Shotgun()
 		for (int i = 0; i < 2; i++)
 		{
 			EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
+			ALERT(at_console, "doublefire\n");
 		}
 #ifndef CLIENT_DLL
 		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_15DEGREES, 0.75, 12, edict());
