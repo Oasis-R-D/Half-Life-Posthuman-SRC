@@ -1953,7 +1953,7 @@ void CHGrunt::SetActivity(Activity NewActivity)
 			else
 				iSequence = LookupSequence("crouching_shotgun");
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, HGRUNT_M727))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_m727");

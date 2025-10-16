@@ -96,9 +96,7 @@ public:
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool M_HasHelm = false;
 	bool m_hasdroppedwpn = false;
-	bool m_medic = false;
-	bool m_fuel = false;
-	bool m_bHeavyGrunt = false;
+
 	int m_cClipSize;
 	int m_tankhealth = 30;
 	int m_voicePitch;
@@ -562,7 +560,7 @@ void CHGruntHeavy::SetActivity(Activity NewActivity)
 			else
 				iSequence = LookupSequence("crouching_shotgun");
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, HGRUNT_M727))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_m727");
@@ -839,7 +837,6 @@ void CHGruntHeavy::Shotgun()
 	Vector vecDest = vecShootOrigin + vecShootDir * 8192;
 	UTIL_TraceLine(vecShootOrigin + vecShootDir * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
 	int ENEMYDIST = round((beam_tr.vecEndPos - vecShootOrigin).Length());
-	lastaltfire = gpGlobals->time + 10;
 	UTIL_MakeVectors(pev->angles);
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
