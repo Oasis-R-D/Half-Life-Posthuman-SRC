@@ -302,6 +302,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\dlls\flyingmonster.h" />
     <ClInclude Include="..\..\dlls\func_break.h" />
     <ClInclude Include="..\..\dlls\gamerules.h" />
+    <ClInclude Include="..\..\dlls\headercrab.h" />
     <ClInclude Include="..\..\dlls\hornet.h" />
     <ClInclude Include="..\..\dlls\items.h" />
     <ClInclude Include="..\..\dlls\monsterevent.h" />

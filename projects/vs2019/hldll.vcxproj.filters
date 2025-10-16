@@ -731,5 +731,8 @@
     <ClInclude Include="..\..\dlls\PS2suitcharger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\dlls\headercrab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

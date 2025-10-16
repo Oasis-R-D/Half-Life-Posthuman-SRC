@@ -26,7 +26,7 @@
 #include "schedule.h"
 #include "soundent.h"
 #include "game.h"
-
+#include "headercrab.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -113,10 +113,9 @@ public:
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
-					/*CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab); // cannot use this unless there's a headcrab.h file
+					CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab);
 					ActualHeadcrab->pev->armorvalue = 1;
-					ActualHeadcrab->m_bPrehuman = 1;*/ // TO-DO: make prehuman into a cbaseentiy var so this code works
-					headcrab->pev->armorvalue = 1;
+					ActualHeadcrab->m_bPrehuman = 1;
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
