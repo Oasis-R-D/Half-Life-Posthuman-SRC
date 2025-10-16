@@ -117,7 +117,8 @@ bool CM29::Deploy()
 void CM29::Holster()
 {
 	m_fInReload = false; // cancel any reload in progress.
-
+	slowmo = false;
+	CVAR_SET_STRING("host_framerate", "0");
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	SendWeaponAnim(PYTHON_HOLSTER);
@@ -228,6 +229,26 @@ void CM29::PrimaryAttack()
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
+void CM29::TertiaryAttack()
+{
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
+	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
+		return;
+
+	slowmo = !slowmo;
+
+	if (slowmo)
+	{
+		CVAR_SET_STRING("host_framerate", "0.001");
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Slowmo");
+	}
+	else
+	{
+		CVAR_SET_STRING("host_framerate", "0");
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Fastmo");
+	}
+}
+
 void CM29::Shoot(int gunnumb)
 {
 	Vector vecSrc;
@@ -331,6 +352,10 @@ void CM29::ItemPostFrame() // completely overriden to make some changes
 
 		m_pPlayer->TabulateAmmo();
 		SecondaryAttack();
+	}
+	else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
+	{
+		TertiaryAttack();
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{

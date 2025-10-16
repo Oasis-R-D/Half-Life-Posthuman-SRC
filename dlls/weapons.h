@@ -1641,6 +1641,7 @@ public:
 	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
+	void TertiaryAttack() override;
 	void Shoot(int gunnumb);
 	bool Deploy() override;
 	void Holster() override;
@@ -1656,6 +1657,7 @@ public:
 		return false;
 #endif
 	}
+	bool slowmo = false;
 
 private:
 	unsigned short m_usFireM29;
