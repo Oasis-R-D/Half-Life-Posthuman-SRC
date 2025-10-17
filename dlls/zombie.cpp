@@ -123,10 +123,7 @@ public:
 			}
 			break;
 			case 1:
-
-			break;
 			case 2:
-
 			break;
 			}
 		}
@@ -145,82 +142,31 @@ public:
 			m_voicePitch = 120;
 		else
 			m_voicePitch = 80;
-		if (FClassnameIs(pev, "monster_zombie_soldier"))
-		{
-			m_szGrp[TLK_ANSWER] = "HG_ANSWER";
-			m_szGrp[TLK_QUESTION] = "HG_QUEST";
-			m_szGrp[TLK_IDLE] = "HG_IDLE";
-			m_szGrp[TLK_STARE] = "HG_CHECK";
-			m_szGrp[TLK_USE] = "HG_TAUNT";
-			m_szGrp[TLK_UNUSE] = "HG_TAUNT";
-			m_szGrp[TLK_STOP] = "HG_TAUNT";
 
-			m_szGrp[TLK_NOSHOOT] = "HG_TAUNT";
-			m_szGrp[TLK_HELLO] = "HG_TAUNT";
+		// replace with zombie sfx
+		m_szGrp[TLK_ANSWER] = "HG_ANSWER";
+		m_szGrp[TLK_QUESTION] = "HG_QUEST";
+		m_szGrp[TLK_IDLE] = "HG_IDLE";
+		m_szGrp[TLK_STARE] = "HG_CHECK";
+		m_szGrp[TLK_USE] = "HG_TAUNT";
+		m_szGrp[TLK_UNUSE] = "HG_TAUNT";
+		m_szGrp[TLK_STOP] = "HG_TAUNT";
 
-			m_szGrp[TLK_PLHURT1] = "HG_TAUNT";
-			m_szGrp[TLK_PLHURT2] = "HG_TAUNT";
-			m_szGrp[TLK_PLHURT3] = "HG_TAUNT";
+		m_szGrp[TLK_NOSHOOT] = "HG_TAUNT";
+		m_szGrp[TLK_HELLO] = "HG_TAUNT";
 
-			m_szGrp[TLK_PHELLO] = "HG_TAUNT";
-			m_szGrp[TLK_PIDLE] = "HG_TAUNT";
-			m_szGrp[TLK_PQUESTION] = "HG_TAUNT";
+		m_szGrp[TLK_PLHURT1] = "HG_TAUNT";
+		m_szGrp[TLK_PLHURT2] = "HG_TAUNT";
+		m_szGrp[TLK_PLHURT3] = "HG_TAUNT";
 
-			m_szGrp[TLK_SMELL] = "HG_TAUNT";
+		m_szGrp[TLK_PHELLO] = "HG_TAUNT";
+		m_szGrp[TLK_PIDLE] = "HG_TAUNT";
+		m_szGrp[TLK_PQUESTION] = "HG_TAUNT";
 
-			m_szGrp[TLK_WOUND] = "HG_TAUNT";
-			m_szGrp[TLK_MORTAL] = "HG_TAUNT";
-		}
-		else if (FClassnameIs(pev, "monster_zombie_barney"))
-		{
-			m_szGrp[TLK_ANSWER] = "BA_ANSWER";
-			m_szGrp[TLK_QUESTION] = "BA_QUESTION";
-			m_szGrp[TLK_IDLE] = "BA_IDLE";
-			m_szGrp[TLK_STARE] = "BA_STARE";
-			m_szGrp[TLK_USE] = "BA_OK";
-			m_szGrp[TLK_UNUSE] = "BA_WAIT";
-			m_szGrp[TLK_STOP] = "BA_STOP";
+		m_szGrp[TLK_SMELL] = "HG_TAUNT";
 
-			m_szGrp[TLK_NOSHOOT] = "BA_SCARED";
-			m_szGrp[TLK_HELLO] = "BA_HELLO";
-
-			m_szGrp[TLK_PLHURT1] = "!BA_CUREA";
-			m_szGrp[TLK_PLHURT2] = "!BA_CUREB";
-			m_szGrp[TLK_PLHURT3] = "!BA_CUREC";
-
-			m_szGrp[TLK_PHELLO] = "BA_PHELLO";
-			m_szGrp[TLK_PIDLE] = "BA_PIDLE";
-			m_szGrp[TLK_PQUESTION] = "BA_PQUEST";
-
-			m_szGrp[TLK_SMELL] = "BA_SMELL";
-
-			m_szGrp[TLK_WOUND] = "BA_WOUND";
-			m_szGrp[TLK_MORTAL] = "BA_MORTAL";
-		}
-		else
-		{
-			m_szGrp[TLK_ANSWER] = "SC_ANSWER";
-			m_szGrp[TLK_QUESTION] = "SC_QUESTION";
-			m_szGrp[TLK_IDLE] = "SC_IDLE";
-			m_szGrp[TLK_STARE] = "SC_STARE";
-			m_szGrp[TLK_USE] = "SC_OK";
-			m_szGrp[TLK_UNUSE] = "SC_WAIT";
-			m_szGrp[TLK_STOP] = "SC_STOP";
-			m_szGrp[TLK_NOSHOOT] = "SC_SCARED";
-			m_szGrp[TLK_HELLO] = "SC_HELLO";
-
-			m_szGrp[TLK_PLHURT1] = "!SC_CUREA";
-			m_szGrp[TLK_PLHURT2] = "!SC_CUREB";
-			m_szGrp[TLK_PLHURT3] = "!SC_CUREC";
-
-			m_szGrp[TLK_PHELLO] = "SC_PHELLO";
-			m_szGrp[TLK_PIDLE] = "SC_PIDLE";
-			m_szGrp[TLK_PQUESTION] = "SC_PQUEST";
-			m_szGrp[TLK_SMELL] = "SC_SMELL";
-
-			m_szGrp[TLK_WOUND] = "SC_WOUND";
-			m_szGrp[TLK_MORTAL] = "SC_MORTAL";
-		}
+		m_szGrp[TLK_WOUND] = "HG_TAUNT";
+		m_szGrp[TLK_MORTAL] = "HG_TAUNT";
 	}
 	void RunTask(Task_t* pTask)
 	{
