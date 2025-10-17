@@ -237,7 +237,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					{
 						m_lastwas0 = false;
 					}
-					pev->origin = beam_tr.vecEndPos; // add a m_direction * x to fix the 0 case happening (would need to code something else for the decal though [not hard at all])
+					pev->origin = beam_tr.vecEndPos + m_direction * 1.5; // add a m_direction * x to fix the 0 case happening (would need to code something else for the decal though [not hard at all])
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(pev, pevOwner);
