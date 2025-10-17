@@ -1041,7 +1041,7 @@ void ClientPrecache()
 	PRECACHE_SOUND("common/wpn_hudon.wav");
 	PRECACHE_SOUND("common/wpn_moveselect.wav");
 	PRECACHE_SOUND("common/wpn_select.wav");
-	PRECACHE_SOUND("common/wpn_denyselect.wav"); // kept since it might be used in engine or some shit
+	PRECACHE_SOUND("common/wpn_denyselect.wav"); // kept since it's when used suit is no
 	PRECACHE_SOUND("common/selectdeny_1.wav");
 	PRECACHE_SOUND("common/selectdeny_2.wav");
 	PRECACHE_SOUND("common/selectdeny_3.wav");

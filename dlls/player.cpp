@@ -1730,18 +1730,23 @@ void CBasePlayer::PlayerUse()
 	{
 		if ((m_afButtonPressed & IN_USE) != 0)
 		{
-			switch(RANDOM_LONG(0, 2))
+			if (HasSuit())
 			{
-			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_3.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
-				break;
-			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_2.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
-				break;
-			case 2:
-				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_1.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
-				break;
+				switch (RANDOM_LONG(0, 2))
+				{
+				case 0:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_3.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				case 1:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_2.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				case 2:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_1.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				}
 			}
+			else
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_denyselect.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
 		}
 	}
 }
