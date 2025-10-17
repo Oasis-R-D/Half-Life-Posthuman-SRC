@@ -231,6 +231,9 @@ void CM29::PrimaryAttack()
 
 void CM29::TertiaryAttack()
 {
+	if (g_pGameRules->IsMultiplayer())
+		return;
+
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
 	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
 		return;
