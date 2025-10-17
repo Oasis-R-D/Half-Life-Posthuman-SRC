@@ -1710,7 +1710,25 @@ void CBasePlayer::PlayerUse()
 		int caps = pObject->ObjectCaps();
 
 		if ((m_afButtonPressed & IN_USE) != 0)
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 0.4, ATTN_NORM);
+		{
+			if (HasSuit())
+			{
+				switch (RANDOM_LONG(0, 2))
+				{
+				case 0:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select1.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				case 1:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select2.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				case 2:
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select3.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+					break;
+				}
+			}
+			else
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+		}
 
 		if (((pev->button & IN_USE) != 0 && (caps & FCAP_CONTINUOUS_USE) != 0) ||
 			((m_afButtonPressed & IN_USE) != 0 && (caps & (FCAP_IMPULSE_USE | FCAP_ONOFF_USE)) != 0))

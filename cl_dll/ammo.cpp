@@ -387,7 +387,18 @@ void CHudAmmo::Think()
 		gpActiveSel = NULL;
 		gHUD.m_iKeyBits &= ~IN_ATTACK;
 
-		PlaySound("common/wpn_select.wav", 1);
+		switch (gEngfuncs.pfnRandomLong(0, 2))
+		{
+		case 0:
+			PlaySound("common/wpn_select1", 1);
+			break;
+		case 1:
+			PlaySound("common/wpn_select2", 1);
+			break;
+		case 2:
+			PlaySound("common/wpn_select3", 1);
+			break;
+		}
 	}
 }
 

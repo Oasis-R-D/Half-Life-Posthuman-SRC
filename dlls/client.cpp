@@ -1045,7 +1045,9 @@ void ClientPrecache()
 	PRECACHE_SOUND("common/selectdeny_1.wav");
 	PRECACHE_SOUND("common/selectdeny_2.wav");
 	PRECACHE_SOUND("common/selectdeny_3.wav");
-
+	PRECACHE_SOUND("common/wpn_select1.wav");
+	PRECACHE_SOUND("common/wpn_select2.wav");
+	PRECACHE_SOUND("common/wpn_select3.wav");
 	// geiger sounds
 
 	PRECACHE_SOUND("player/geiger6.wav");
