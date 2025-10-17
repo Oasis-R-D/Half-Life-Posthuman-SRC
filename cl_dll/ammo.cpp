@@ -390,13 +390,13 @@ void CHudAmmo::Think()
 		switch (gEngfuncs.pfnRandomLong(0, 2))
 		{
 		case 0:
-			PlaySound("common/wpn_select1", 1);
+			PlaySound("common/wpn_select1.wav", 1);
 			break;
 		case 1:
-			PlaySound("common/wpn_select2", 1);
+			PlaySound("common/wpn_select2.wav", 1);
 			break;
 		case 2:
-			PlaySound("common/wpn_select3", 1);
+			PlaySound("common/wpn_select3.wav", 1);
 			break;
 		}
 	}
