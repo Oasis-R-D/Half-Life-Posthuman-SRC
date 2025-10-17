@@ -51,6 +51,8 @@ int g_fGruntHeavyQuestion; // true if an idle grunt asked a question. Cleared wh
 #define HGRUNT_SHOTGUN (1 << 3)
 #define HGRUNT_M249 (1 << 4)
 #define HGRUNT_M727 (1 << 5)
+#define HITGROUP_HEAVY_HELMET 69
+#define HITGROUP_HEAVY_VISOR 67
 
 class CHGruntHeavy : public CHGrunt
 {
@@ -109,6 +111,7 @@ public:
 	int m_iLink;
 
 	int m_helmDUR = 20;
+	int m_helmvisorDUR = 20;
 	int m_iarmor_health_chest = 20;
 	int m_iarmor_health_stomach = 18;
 	int m_iarmor_health_rightarm = 16;
@@ -170,6 +173,7 @@ TYPEDESCRIPTION CHGruntHeavy::m_SaveData[] =
 		//  DEFINE_FIELD( CShotgun, m_iShotgunShell, FIELD_INTEGER ),
 		DEFINE_FIELD(CHGruntHeavy, m_iSentence, FIELD_INTEGER),
 		DEFINE_FIELD(CHGruntHeavy, m_helmDUR, FIELD_INTEGER),
+		DEFINE_FIELD(CHGruntHeavy, m_helmvisorDUR, FIELD_INTEGER),
 		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_chest, FIELD_INTEGER),
 		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_stomach, FIELD_INTEGER),
 		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_leftarm, FIELD_INTEGER),
@@ -1958,7 +1962,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
 	// check for helmet shot
-	if (ptr->iHitgroup == 69)
+	if (ptr->iHitgroup == HITGROUP_HEAVY_HELMET)
 	{
 		if (m_helmDUR > 0)
 		{
@@ -1970,6 +1974,26 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			CPhysbullet::BulletCreate(1, 15, 5750, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
 #endif
 			if (m_helmDUR <= 0)
+			{
+				// remove armor
+				ArmorGibs(ptr, vecVelocity);
+			}
+		}
+		// it's head shot anyways
+		ptr->iHitgroup = HITGROUP_HEAD;
+	}
+	if (ptr->iHitgroup == HITGROUP_HEAVY_VISOR)
+	{
+		if (m_helmvisorDUR > 0)
+		{
+			m_helmvisorDUR -= 1;
+			if (RANDOM_LONG(0,1) == 1)
+				UTIL_Sparks(ptr->vecEndPos);
+			flDamage = round(flDamage * 0.15);
+#ifndef CLIENT_DLL
+			CPhysbullet::BulletCreate(1, 15, 5750, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)), 5.0, 5.0, 0.8, 12, edict());
+#endif
+			if (m_helmvisorDUR <= 0)
 			{
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
@@ -2128,6 +2152,12 @@ bool CHGruntHeavy::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, f
 
 void CHGruntHeavy::ArmorGibs(TraceResult* ptr, Vector Vel)
 {
+	int iConditions = IScheduleFlags();
+	if ((iConditions & bits_COND_HEAVY_DAMAGE) == 0)
+	{
+		SetConditions(bits_COND_LIGHT_DAMAGE);
+	}
+	
 	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pSoundsMetal), 1.0, ATTN_NORM, 0, RANDOM_LONG(80, 90));
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
 	WRITE_BYTE(TE_BREAKMODEL);

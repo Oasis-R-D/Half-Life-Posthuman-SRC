@@ -1729,7 +1729,20 @@ void CBasePlayer::PlayerUse()
 	else
 	{
 		if ((m_afButtonPressed & IN_USE) != 0)
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_denyselect.wav", 0.4, ATTN_NORM);
+		{
+			switch(RANDOM_LONG(0, 2))
+			{
+			case 0:
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_3.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_2.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+				break;
+			case 2:
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/selectdeny_1.wav", RANDOM_FLOAT(0.4, 0.5), ATTN_NORM);
+				break;
+			}
+		}
 	}
 }
 
