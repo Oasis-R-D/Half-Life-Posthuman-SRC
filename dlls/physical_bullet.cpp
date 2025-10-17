@@ -390,6 +390,9 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
 		// hit body
 		chTextureType = CHAR_TEX_FLESH;
+	else if ((pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() == CLASS_MACHINE) || 0 == 1) // repace 0 == 1 with opsrey and apache detection
+		// hit body
+		chTextureType = CHAR_TEX_METAL;	
 	else
 	{
 		// hit world
