@@ -212,9 +212,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	float p;
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
-		if (pEntity->ReflectGauss()) // checks if it's a non damageable world object
+		if (pEntity->IsBSPModel()) // checks if it's a world object
 		{
-			Vector vecDest = pev->origin + m_direction * 8192;
+			Vector vecDest = m_Endpos + m_direction * 8192;
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 8, vecDest, dont_ignore_monsters, NULL, &beam_tr);
 			if (0 == beam_tr.fAllSolid)
 			{
@@ -222,27 +222,27 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				UTIL_TraceLine(beam_tr.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr);
 				m_SpawnPos = beam_tr.vecEndPos; // where bullet comes out of wall
 				
-				p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos);
+				p = (beam_tr.vecEndPos - tr.vecEndPos).Length() * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos); // how long the wall is and apply material penetration multiplier
 
 				if (p <= m_distpenetrate)
 				{					
 					ALERT(at_console, "old dist pen %f\n", m_distpenetrate);
 					ALERT(at_console, "walldepth %f\n", (beam_tr.vecEndPos - tr.vecEndPos).Length());
 
-					m_distpenetrate -= p;
+					m_distpenetrate -= p; // should this be rounded?
 					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-					m_BulletDamage -= round(0.125 * p);
+					m_BulletDamage -= round(0.125 * p); // not very reliable, could hit 0 or even negatives
 					ALERT(at_console, "punch %f\n", p);
 					if (p != 0)
 					{
-						
 						m_lastwas0 = false;
 					}
-					pev->origin = beam_tr.vecEndPos;
+					pev->origin = beam_tr.vecEndPos; // add a m_direction * x to fix the 0 case happening (would need to code something else for the decal though [not hard at all])
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(pev, pevOwner);
-					DecalGunshot(&tr, BULLET_PLAYER_9MM);
+					DecalGunshot(&tr, BULLET_MONSTER_12MM); // Entry decal 12 - mm is the heavy decal
+					DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
 					if (p != 0)
 						TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 					if (p == 0) // HACKHACK: bullets randomly start bouncing on the ground, this fixes it but still visible in game before it hits ground the 2nd time
@@ -256,8 +256,17 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					}
 					return;
 				}
+
+			}
+			else
+			{
+				ALERT(at_console, "found all solid, penetration failure\n");
 			}
 		}
+	}
+	else
+	{
+		ALERT(at_console, " pen below 0!\n");
 	}
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
