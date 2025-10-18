@@ -1658,9 +1658,13 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 
 	chTextureType = 0;
 
-	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+	if ((pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE))
 		// hit body
 		chTextureType = CHAR_TEX_FLESH;
+	else if (pEntity->IsMachine(pEntity))
+	{
+		chTextureType = CHAR_TEX_METAL;
+	}
 	else
 	{
 		// hit world

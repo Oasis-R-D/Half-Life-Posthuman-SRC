@@ -254,7 +254,7 @@ bool CCrowbar::Swing(bool fFirst)
 
 		if (pEntity)
 		{
-			if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+			if (pEntity->Classify() != CLASS_NONE && !pEntity->IsMachine(pEntity))
 			{
 				// play thwack or smack sound
 				switch (RANDOM_LONG(0, 2))

@@ -148,8 +148,10 @@ void CPhysbullet::Spawn()
 	}
 	if (m_bsubsonic)
 		m_distpenetrate = round(m_distpenetrate * 0.75);
+
 	if (m_fPenoverride != NULL)
 		m_distpenetrate = m_fPenoverride;
+
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
 	if (owner->IsPlayer())
@@ -407,9 +409,10 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
 		// hit body
 		chTextureType = CHAR_TEX_FLESH;
-	else if ((pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() == CLASS_MACHINE) || 0 == 1) // repace 0 == 1 with opsrey and apache detection
-		// hit body
-		chTextureType = CHAR_TEX_METAL;	
+	else if (pEntity->IsMachine(pEntity))
+	{
+		chTextureType = CHAR_TEX_METAL;
+	}
 	else
 	{
 		// hit world

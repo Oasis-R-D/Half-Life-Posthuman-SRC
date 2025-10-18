@@ -628,8 +628,27 @@ void CBaseEntity::Killed(entvars_t* pevAttacker, int iGib)
 	pev->deadflag = DEAD_DEAD;
 	UTIL_Remove(this);
 }
-
-
+bool CBaseEntity::IsMachine(CBaseEntity* enttotest)
+{
+	if (FClassnameIs(enttotest->pev, "monster_turret"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_miniturret"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_sentry"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_sentry_blackops"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_apache"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_osprey"))
+		return true;
+	else if (FClassnameIs(enttotest->pev, "monster_training_bot"))
+		return true;
+	else if (enttotest->Classify() == CLASS_MACHINE)
+		return true;
+	else
+		return false;
+}
 CBaseEntity* CBaseEntity::GetNextTarget()
 {
 	if (FStringNull(pev->target))

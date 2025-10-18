@@ -198,6 +198,7 @@ public:
 	virtual int ShouldCollide(CBaseEntity* pentTouched) { return 1; }
 	virtual void TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType);
 	virtual bool IsTriggered(CBaseEntity* pActivator) { return true; }
+	bool IsMachine(CBaseEntity* enttotest); // sorry gang, thought this was supposed to be virtual
 	virtual CBaseToggle* MyTogglePointer() { return NULL; }
 	virtual CBaseMonster* MyMonsterPointer() { return NULL; }
 	virtual CSquadMonster* MySquadMonsterPointer() { return NULL; }

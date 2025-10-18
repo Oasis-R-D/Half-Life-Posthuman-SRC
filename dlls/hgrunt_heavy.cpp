@@ -1651,7 +1651,7 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 							else if ((m_hEnemy != NULL) &&
 									 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
 									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
-									 (m_hEnemy->Classify() != CLASS_MACHINE))
+									 (!m_hEnemy->IsMachine(m_hEnemy)))
 								// monster
 								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 
