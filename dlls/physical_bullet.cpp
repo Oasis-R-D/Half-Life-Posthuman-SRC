@@ -40,7 +40,7 @@
 //
 // speed - the ideal magnitude of my velocity
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride)
 {
 	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
@@ -64,6 +64,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
+		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->pev->owner = shooter;
 
 		pBullet->Spawn();
@@ -147,6 +148,8 @@ void CPhysbullet::Spawn()
 	}
 	if (m_bsubsonic)
 		m_distpenetrate = round(m_distpenetrate * 0.75);
+	if (m_fPenoverride != NULL)
+		m_distpenetrate = m_fPenoverride;
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
 	if (owner->IsPlayer())
