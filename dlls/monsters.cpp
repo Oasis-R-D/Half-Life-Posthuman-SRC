@@ -2259,11 +2259,11 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO}, //Unused
 			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO}, //HORNETS
 			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL,	R_NO, R_DL,	R_NM, R_NO}, //SUPERCRABS
-  /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
+  /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_NO,	R_NO,	R_NO,	R_NO, R_NO,	R_NO, R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
 			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO,	R_NO, R_HT,	R_NM, R_NO}, //bkacj ops (duh) + Black ops Sentry + Apache + Osprey
 			/*HUMANFRIEND*/		{R_NO,   R_DL,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_NO, R_DL,	R_NM, R_NO}, //BMRF STAFF (FRIENDLY
 			/*Xmil*/			{R_NO,   R_DL,   R_HT,    R_DL,  R_HT,   R_HT,   R_DL,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_AL,	R_NM, R_NO}, //Race X (Shock trooper and pitdrone)
-			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NM,	R_NM,	R_NM, R_NM,	R_NM, R_NM}, //info_monstarget
+			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NO,	R_NM,	R_NM, R_NM,	R_NM, R_NM}, //info_monstarget
 	/*HALLUCINATION*/			{R_NO,   R_NO,   R_NM,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO}	  //Lucigast and friends
 
 
