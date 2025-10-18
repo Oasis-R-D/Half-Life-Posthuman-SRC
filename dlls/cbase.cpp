@@ -888,6 +888,7 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_surf1", "Resurfaced"},
 		{"ph_surf2", "Resurfaced"},
 		{"ph_surf3", "Resurfaced"},
+		{"ph_surf4", "Resurfaced"},
 		{"PH_ich1", "I.C.H"},
 		{"PH_ich2", "Q Ct Qp Wqgjmu"},
 		{"PH_ich3", "Ecejobbvu"},
@@ -899,7 +900,6 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_drive1", "Driven"},
 		{"ph_drive2", "Driven"},
 		{"ph_drive3", "Driven"},
-		{"ph_drive4", "Driven"}, // driveX
 		{"ph_confine1", "Confinement"},
 		{"ph_confine2", "Confinement"},
 		{"ph_mutat1", "Mutation"}, // SHC final boss
