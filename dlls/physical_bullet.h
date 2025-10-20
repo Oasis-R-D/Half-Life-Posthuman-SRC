@@ -19,30 +19,34 @@ class CPhysbullet : public CBaseEntity
 {
 	int m_iTrail;
 public:
+	static void BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL); // add damage, spread and owner so entities calling this can give it the proper stuff
 	void Spawn() override;
 	void Precache() override;
-	int Classify() override;
-	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	static void BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL); // add damage, spread and owner so entities calling this can give it the proper stuff
+	void Stay();
+	bool IsBullet() override { return true; }
+	int Classify() override;
+	
 
 
 	int m_Flare;
 	int m_BulletAmount;
 	int m_muzzlevelocity;
 	int m_maxricochet;
-	float m_distpenetrate;
+
 	Vector m_SpawnPos;
 	Vector m_direction;
 	Vector m_SpreadVect;
+
 	float m_Spread;
 	float m_SpreadVert;
 	float m_BulletDamage;
 	float m_Gravity;
-	
-	bool m_lastwas0;
+	float m_distpenetrate;
+
 	bool m_bsubsonic;
+
 private:
 	bool m_bHeavyDecal = false;
 	bool m_haswizzed;

@@ -220,6 +220,7 @@ public:
 	virtual bool IsSneaking() { return false; }
 	virtual bool IsAlive() { return (pev->deadflag == DEAD_NO) && pev->health > 0; }
 	virtual bool IsBSPModel() { return pev->solid == SOLID_BSP || pev->movetype == MOVETYPE_PUSHSTEP; }
+	virtual bool IsBullet() { return false; }
 	virtual bool ReflectGauss() { return (IsBSPModel() && !pev->takedamage); }
 	virtual bool HasTarget(string_t targetname) { return FStrEq(STRING(targetname), STRING(pev->target)); }
 	virtual bool IsInWorld();

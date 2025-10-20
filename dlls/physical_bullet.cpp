@@ -208,68 +208,71 @@ void CPhysbullet::Stay()
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
-	m_Endpos = pev->origin; // where bullet hit
-	entvars_t* pevOwner;
-	pevOwner = VARS(pev->owner);
-	TraceResult tr = UTIL_GetGlobalTrace();
-	TraceResult beam_tr;
-	TraceResult beam_tr2;
-	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-	float p;
-	int i = 1;
-	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
+	if (!pOther->IsBullet())
 	{
-		if (pEntity->IsBSPModel()) // checks if it's a world object
+		m_Endpos = pev->origin; // where bullet hit
+		entvars_t* pevOwner;
+		pevOwner = VARS(pev->owner);
+		TraceResult tr = UTIL_GetGlobalTrace();
+		TraceResult beam_tr;
+		TraceResult beam_tr2;
+		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
+		
+		if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 		{
+			float p;
+			int i = 1;
 			Vector vecDest = m_Endpos + m_direction * 8192;
+
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-			while (1 == beam_tr2.fAllSolid)
+			while (1 == beam_tr2.fAllSolid) // Raymarching (works better than the tau cannons method)
 			{
 				i += 1;
 				UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
 				if (i > m_distpenetrate)
 				{
-					ALERT(at_console, "i is greater than penetration dist!\n");
+					ALERT(at_console, "Wall is too thick! Size: %i\n", i);
 					break;
 				}
 			}
-			
-			ALERT(at_console, "estimated wall theeckness %i\n", i);
-			if (0 == beam_tr2.fAllSolid)
+			if (0 == beam_tr2.fAllSolid) // Raymarch got too long
 			{
-				
-				UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to find exit point, returns garbage sometimes
-				m_SpawnPos = beam_tr.vecEndPos; // where bullet comes out of wall
+				ALERT(at_console, "est wall depth %i\n", i);
 
-				p = i * TEXTURETYPE_Penetration(&tr, m_SpawnPos, m_Endpos); // how thick the wall is and apply material penetration multiplier
+				UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
+				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
+
+				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i); // how thick the wall is and apply material penetration multiplier
 
 				if (p <= m_distpenetrate)
 				{
+					// Prevent inf penetration
 					m_distpenetrate -= p; // should this be rounded?
+
 					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-					m_BulletDamage -= round(0.125 * p); // not very reliable, could hit 0 or even negatives
 					ALERT(at_console, "penetrated wall with dist: %f\n", p);
-					if (p != 0)
-					{
-						m_lastwas0 = false;
-					}
-					pev->origin = beam_tr2.vecEndPos + m_direction * 1.5; // add a m_direction * x to fix the 0 case happening (would need to code something else for the decal though [not hard at all])
+
+					// Damage reduction
+					m_BulletDamage -= round(0.125 * p); // not very reliable, could hit 0 or even negatives
+					if (m_BulletAmount <= 0)
+						m_BulletDamage = 2;
+
+					// Fire penetrated bullet
+					Vector spawnpos = tr.vecEndPos + m_direction * i;
+					CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, pev->owner, m_bsubsonic, m_distpenetrate);
+
+					// Damage
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(pev, pevOwner);
+
+					// VFX
 					DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
 					DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
-					if (p != 0)
-						TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-					if (p == 0) // HACKHACK: bullets randomly start bouncing on the ground, this fixes it but still visible in game before it hits ground the 2nd time
-					{
-						if (m_lastwas0 == true)
-						{
-							Stay();
-							ALERT(at_console, "removed bouncing bullet\n");
-						}
-						m_lastwas0 = true;
-					}
+					TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+
+					// Remove original bullet
+					UTIL_Remove(this);
 					return;
 				}
 				else
@@ -280,61 +283,56 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		}
 		else
 		{
-			ALERT(at_console, "Surface not a beeesspee model!\n");
+			ALERT(at_console, "pen below 0!\n");
 		}
-	}
-	else
-	{
-		ALERT(at_console, "pen below 0!\n");
-	}
-	pev->movetype = MOVETYPE_NONE;
-	SetTouch(NULL);
-	SetThink(NULL);
+		pev->movetype = MOVETYPE_NONE;
+		SetTouch(NULL);
+		SetThink(NULL);
 
-	if (0 != pOther->pev->takedamage)
-	{
-		// UNDONE: this needs to call TraceAttack instead
-		ClearMultiDamage();
-		if (m_Flare != 420)
+		if (0 != pOther->pev->takedamage)
 		{
-			pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			// UNDONE: this needs to call TraceAttack instead
+			ClearMultiDamage();
+			if (m_Flare != 420)
+			{
+				pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+			}
+			else
+			{
+				pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+			}
+
+			ApplyMultiDamage(pev, pevOwner);
+
+			if (pOther->IsBSPModel())
+			{
+				Stay();
+			}
+			else
+			{
+				// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
+				switch (RANDOM_LONG(0, 1))
+				{
+				case 0:
+					EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
+					break;
+				case 1:
+					EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
+					break;
+				}
+				UTIL_Remove(this);
+			}
 		}
 		else
-		{
-			pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
-		}
-
-		ApplyMultiDamage(pev, pevOwner);
-
-		if (pOther->IsBSPModel())
 		{
 			Stay();
 		}
+		if (!m_bHeavyDecal)
+			DecalGunshot(&tr, BULLET_PLAYER_9MM);
 		else
-		{
-			// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
-			switch (RANDOM_LONG(0, 1))
-			{
-			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
-				break;
-			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
-				break;
-			}
-			UTIL_Remove(this);
-		}
+			DecalGunshot(&tr, BULLET_MONSTER_12MM); // 12 mm is the heavy decal
+		TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 	}
-	else
-	{
-		Stay();
-	}
-	if (!m_bHeavyDecal)
-		DecalGunshot(&tr, BULLET_PLAYER_9MM);
-	else
-		DecalGunshot(&tr, BULLET_MONSTER_12MM); // 12 mm is the heavy decal
-	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-
 }
 
 void CPhysbullet::AirThink()
