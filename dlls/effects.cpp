@@ -24,7 +24,7 @@
 #include "shake.h"
 #include "player.h"
 #include "Blooddrops.h"
-
+#include "Physical_bullet.h"
 #define SF_GIBSHOOTER_REPEATABLE 1 // allows a gibshooter to be refired
 #define SF_FUNNEL_REVERSE 1 // funnel effect repels particles instead of attracting them.
 
@@ -2010,16 +2010,21 @@ public:
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
 	bool KeyValue(KeyValueData* pkvd) override;
 
-	inline int Color() { return pev->impulse; }
-	inline float BloodAmount() { return pev->dmg; }
+	inline int Tracer() { return pev->impulse; }
+	inline float BulletAmount() { return pev->dmg; }
 
-	inline void SetColor(int color) { pev->impulse = color; }
-	inline void SetBloodAmount(float amount) { pev->dmg = amount; }
+	inline void SetTracer(int color) { pev->impulse = color; }
+	inline void SetBulletAmount(float amount) { pev->dmg = amount; }
 
 	Vector Direction();
 	Vector BloodPosition(CBaseEntity* pActivator);
 	int m_ibulletvel;
+	int m_iTracerType;
+	int m_iPenetration;
+	int m_iDamage;
 	float m_fspread;
+	float m_fGravity;
+	bool m_bSubsonic;
 
 private:
 };
@@ -2027,6 +2032,7 @@ private:
 TYPEDESCRIPTION CPhysShooter::m_SaveData[] =
 	{
 		DEFINE_FIELD(CPhysShooter, m_ibulletvel, FIELD_INTEGER),
+		DEFINE_FIELD(CPhysShooter, m_iTracerType, FIELD_INTEGER),
 		DEFINE_FIELD(CPhysShooter, m_fspread, FIELD_FLOAT),
 };
 
@@ -2036,7 +2042,6 @@ LINK_ENTITY_TO_CLASS(env_bulletshooter, CPhysShooter);
 
 #define SF_BLOOD_RANDOM 0x0001
 #define SF_BLOOD_PLAYER 0x0004
-#define SF_BLOOD_DECAL 0x0008
 
 void CPhysShooter::Spawn()
 {
@@ -2050,28 +2055,34 @@ void CPhysShooter::Spawn()
 
 bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 {
-	if (FStrEq(pkvd->szKeyName, "color")) // TO-DO: replace with tracer type
+	if (FStrEq(pkvd->szKeyName, "bullettype"))
 	{
-		int color = atoi(pkvd->szValue);
-		switch (color)
+		m_iTracerType = atoi(pkvd->szValue);
+		switch (m_iTracerType)
 		{
-		case 5: // water
-			SetColor(NULL);
+		case 7: // secret
+			SetTracer(420);
+			break;
+		case 6: // rubber bullet
+			SetTracer(69);
+			break;
+		case 5:
+			SetTracer(12);
 			break;
 		case 4: 
-			SetColor((byte)32); // corrupted blood color
+			SetTracer(44);
 			break;
 		case 3:
-			SetColor(BLOOD_COLOR_CYAN);
+			SetTracer(357);
 			break;
 		case 2:
-			SetColor(BLOOD_COLOR_GREEN);
+			SetTracer(762);
 			break;
 		case 1:
-			SetColor(BLOOD_COLOR_YELLOW);
+			SetTracer(556);
 			break;
 		default:
-			SetColor(BLOOD_COLOR_RED);
+			SetTracer(9);
 			break;
 		}
 
@@ -2079,7 +2090,7 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "amount"))
 	{
-		SetBloodAmount(atof(pkvd->szValue));
+		SetBulletAmount(atof(pkvd->szValue));
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "bulletvel"))
@@ -2090,6 +2101,16 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 	else if (FStrEq(pkvd->szKeyName, "spread"))
 	{
 		m_fspread = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "penetration"))
+	{
+		m_iPenetration = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "Damage"))
+	{
+		m_iDamage = atof(pkvd->szValue);
 		return true;
 	}
 	return CPointEntity::KeyValue(pkvd);
@@ -2127,9 +2148,19 @@ Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 
 void CPhysShooter::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	#ifndef CLIENT_DLL
+	if (m_iPenetration != -1)
+	{
+#ifndef CLIENT_DLL
 	//CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
-	#endif
+	CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic, m_iPenetration);
+#endif
+	}
+	else
+	{
+#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic);	
+#endif	
+	}
 }
 
 // Screen shake
