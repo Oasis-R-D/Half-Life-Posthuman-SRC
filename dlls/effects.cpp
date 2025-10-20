@@ -2018,23 +2018,21 @@ public:
 
 	Vector Direction();
 	Vector BloodPosition(CBaseEntity* pActivator);
-	int m_ibloodvel;
+	int m_ibulletvel;
 	float m_fspread;
-	bool m_bSpeedRNG;
 
 private:
 };
 
 TYPEDESCRIPTION CPhysShooter::m_SaveData[] =
 	{
-		DEFINE_FIELD(CPhysShooter, m_bSpeedRNG, FIELD_BOOLEAN),
-		DEFINE_FIELD(CPhysShooter, m_ibloodvel, FIELD_INTEGER),
+		DEFINE_FIELD(CPhysShooter, m_ibulletvel, FIELD_INTEGER),
 		DEFINE_FIELD(CPhysShooter, m_fspread, FIELD_FLOAT),
 };
 
 IMPLEMENT_SAVERESTORE(CPhysShooter, CBaseEntity);
 
-LINK_ENTITY_TO_CLASS(env_bloodspray, CPhysShooter);
+LINK_ENTITY_TO_CLASS(env_bulletshooter, CPhysShooter);
 
 #define SF_BLOOD_RANDOM 0x0001
 #define SF_BLOOD_PLAYER 0x0004
@@ -2052,7 +2050,7 @@ void CPhysShooter::Spawn()
 
 bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 {
-	if (FStrEq(pkvd->szKeyName, "color"))
+	if (FStrEq(pkvd->szKeyName, "color")) // TO-DO: replace with tracer type
 	{
 		int color = atoi(pkvd->szValue);
 		switch (color)
@@ -2084,14 +2082,9 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 		SetBloodAmount(atof(pkvd->szValue));
 		return true;
 	}
-	else if (FStrEq(pkvd->szKeyName, "bloodvel"))
+	else if (FStrEq(pkvd->szKeyName, "bulletvel"))
 	{
-		m_ibloodvel = atoi(pkvd->szValue);
-		return true;
-	}
-	else if (FStrEq(pkvd->szKeyName, "speedrng"))
-	{
-		m_bSpeedRNG = atoi(pkvd->szValue);
+		m_ibulletvel = atoi(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "spread"))
@@ -2114,7 +2107,7 @@ Vector CPhysShooter::Direction()
 
 Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 {
-	if ((pev->spawnflags & SF_BLOOD_PLAYER) != 0)
+	if ((pev->spawnflags & SF_BLOOD_PLAYER) != 0) // Useless
 	{
 		CBaseEntity* pPlayer;
 
@@ -2135,19 +2128,8 @@ Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 void CPhysShooter::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
+	//CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
 	#endif
-
-	if ((pev->spawnflags & SF_BLOOD_DECAL) != 0)
-	{
-		Vector forward = Direction();
-		Vector start = BloodPosition(pActivator);
-		TraceResult tr;
-
-		UTIL_TraceLine(start, start + forward * BloodAmount() * 2, ignore_monsters, NULL, &tr);
-		if (tr.flFraction != 1.0)
-			UTIL_BloodDecalTrace(&tr, Color());
-	}
 }
 
 // Screen shake
