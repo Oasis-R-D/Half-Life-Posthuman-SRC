@@ -1842,8 +1842,9 @@ void CBlood::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType
 			UTIL_BloodDecalTrace(&tr, Color());
 	}
 }
-
-// Blood effects
+//==================================
+// PhysBlood effects
+//==================================
 class CBloodSpray : public CPointEntity
 {
 public:
@@ -1978,6 +1979,160 @@ Vector CBloodSpray::BloodPosition(CBaseEntity* pActivator)
 
 
 void CBloodSpray::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
+	#endif
+
+	if ((pev->spawnflags & SF_BLOOD_DECAL) != 0)
+	{
+		Vector forward = Direction();
+		Vector start = BloodPosition(pActivator);
+		TraceResult tr;
+
+		UTIL_TraceLine(start, start + forward * BloodAmount() * 2, ignore_monsters, NULL, &tr);
+		if (tr.flFraction != 1.0)
+			UTIL_BloodDecalTrace(&tr, Color());
+	}
+}
+
+//==================================
+// PhysBullet shooter
+//==================================
+class CPhysShooter : public CPointEntity
+{
+public:
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+
+	inline int Color() { return pev->impulse; }
+	inline float BloodAmount() { return pev->dmg; }
+
+	inline void SetColor(int color) { pev->impulse = color; }
+	inline void SetBloodAmount(float amount) { pev->dmg = amount; }
+
+	Vector Direction();
+	Vector BloodPosition(CBaseEntity* pActivator);
+	int m_ibloodvel;
+	float m_fspread;
+	bool m_bSpeedRNG;
+
+private:
+};
+
+TYPEDESCRIPTION CPhysShooter::m_SaveData[] =
+	{
+		DEFINE_FIELD(CPhysShooter, m_bSpeedRNG, FIELD_BOOLEAN),
+		DEFINE_FIELD(CPhysShooter, m_ibloodvel, FIELD_INTEGER),
+		DEFINE_FIELD(CPhysShooter, m_fspread, FIELD_FLOAT),
+};
+
+IMPLEMENT_SAVERESTORE(CPhysShooter, CBaseEntity);
+
+LINK_ENTITY_TO_CLASS(env_bloodspray, CPhysShooter);
+
+#define SF_BLOOD_RANDOM 0x0001
+#define SF_BLOOD_PLAYER 0x0004
+#define SF_BLOOD_DECAL 0x0008
+
+void CPhysShooter::Spawn()
+{
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_NONE;
+	pev->effects = 0;
+	pev->frame = 0;
+	SetMovedir(pev);
+}
+
+
+bool CPhysShooter::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "color"))
+	{
+		int color = atoi(pkvd->szValue);
+		switch (color)
+		{
+		case 5: // water
+			SetColor(NULL);
+			break;
+		case 4: 
+			SetColor((byte)32); // corrupted blood color
+			break;
+		case 3:
+			SetColor(BLOOD_COLOR_CYAN);
+			break;
+		case 2:
+			SetColor(BLOOD_COLOR_GREEN);
+			break;
+		case 1:
+			SetColor(BLOOD_COLOR_YELLOW);
+			break;
+		default:
+			SetColor(BLOOD_COLOR_RED);
+			break;
+		}
+
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "amount"))
+	{
+		SetBloodAmount(atof(pkvd->szValue));
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "bloodvel"))
+	{
+		m_ibloodvel = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "speedrng"))
+	{
+		m_bSpeedRNG = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "spread"))
+	{
+		m_fspread = atof(pkvd->szValue);
+		return true;
+	}
+	return CPointEntity::KeyValue(pkvd);
+}
+
+
+Vector CPhysShooter::Direction()
+{
+	if ((pev->spawnflags & SF_BLOOD_RANDOM) != 0)
+		return UTIL_RandomBloodVector();
+
+	return pev->movedir;
+}
+
+
+Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
+{
+	if ((pev->spawnflags & SF_BLOOD_PLAYER) != 0)
+	{
+		CBaseEntity* pPlayer;
+
+		if (pActivator && pActivator->IsPlayer())
+		{
+			pPlayer = pActivator;
+		}
+		else
+			pPlayer = UTIL_GetLocalPlayer();
+		if (pPlayer)
+			return (pPlayer->pev->origin + pPlayer->pev->view_ofs) + Vector(RANDOM_FLOAT(-10, 10), RANDOM_FLOAT(-10, 10), RANDOM_FLOAT(-10, 10));
+	}
+
+	return pev->origin;
+}
+
+
+void CPhysShooter::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	#ifndef CLIENT_DLL
 	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);

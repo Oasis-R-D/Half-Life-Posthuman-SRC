@@ -243,7 +243,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 				// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i)
+				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i);
 				p *= 1000;
 				p = round(p);
 				p /= 1000;
