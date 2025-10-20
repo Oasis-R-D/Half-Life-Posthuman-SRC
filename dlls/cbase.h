@@ -280,7 +280,7 @@ public:
 	void EXPORT SUB_FadeOut();
 	void EXPORT SUB_CallUseToggle() { this->Use(this, this, USE_TOGGLE, 0); }
 	bool ShouldToggle(USE_TYPE useType, bool currentState);
-	void BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType); // easier way to handle ricochet
+	void BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType, CBaseEntity* Attacked); // easier way to handle ricochet
 	void FireBullets(unsigned int cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq = 4, int iDamage = 0, entvars_t* pevAttacker = NULL);
 	Vector FireBulletsPlayer(unsigned int cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq = 4, int iDamage = 0, entvars_t* pevAttacker = NULL, int shared_rand = 0);
 

@@ -1971,7 +1971,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.15);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_helmDUR <= 0)
 			{
@@ -1991,7 +1991,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.15);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_helmvisorDUR <= 0)
 			{
@@ -2011,7 +2011,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_chest <= 0)
 			{
@@ -2033,7 +2033,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_stomach <= 0)
 			{
@@ -2055,7 +2055,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.05);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_leftarm <= 0)
 			{
@@ -2077,7 +2077,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.05);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_rightarm <= 0)
 			{
@@ -2099,7 +2099,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_leftleg <= 0)
 			{
@@ -2121,7 +2121,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_rightleg <= 0)
 			{

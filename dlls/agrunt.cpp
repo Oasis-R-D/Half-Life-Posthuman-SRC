@@ -228,7 +228,8 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// hit armor
 		if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
 		{
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			UTIL_Sparks(ptr->vecEndPos);
 			pev->dmgtime = gpGlobals->time;
 		}
 		flDamage -= 20;

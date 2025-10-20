@@ -1286,15 +1286,19 @@ bool CBaseEntity::FVisible(const Vector& vecOrigin)
 Bullet Armor Hit
 ================
 */
-void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType) // easier way to handle ricochet
+void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType, CBaseEntity* Attacked) // easier way to handle ricochet
 {
-	if (bitsDamageType == DMG_BULLET)
+	if ((bitsDamageType & (DMG_BULLET | DMG_BLAST)) != 0)
 	{
 		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
-		Vector spawnpos = ptr->vecEndPos + -(BULLET->m_direction) * 4;
+		Vector spawnpos = ptr->vecEndPos + vecDir * -8;
 #ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -(BULLET->m_direction), CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), true, BULLET->m_distpenetrate);
-#endif
+		CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -vecDir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, Attacked->edict(), false, BULLET->m_distpenetrate);
+		ALERT(at_console, "ricochet!\n");
+#endif		
+		ALERT(at_console, "ric damage: %i\n", BULLET->m_BulletDamage);
+		ALERT(at_console, "ric speed: %i\n", BULLET->m_muzzlevelocity);
+		ALERT(at_console, "ric skin: %i\n", BULLET->m_Flare);
 	}
 }
 /*

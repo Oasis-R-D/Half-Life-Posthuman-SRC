@@ -626,7 +626,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					
 						vecTracerDir = vecTracerDir * -512;
 
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}
 					else if (flDamage > 44 && m_helmDUR > 0)
 					{
@@ -649,7 +649,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 					
 						vecTracerDir = vecTracerDir * -512;
 
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
+						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}					
 				}
 			}
