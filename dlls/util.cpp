@@ -1713,7 +1713,7 @@ void UTIL_StripToken(const char* pKey, char* pDest, int nLen)
 //=========================================================
 int UTIL_Round(float roundee, int roundto)
 {
-	roundto2 = roundto;
+	int roundto2 = roundto;
 	int power = 1;
 	while (roundto2 > 0)
 	{
