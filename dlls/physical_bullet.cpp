@@ -243,18 +243,18 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i); // how thick the wall is and apply material penetration multiplier
-
+				p = round(p);
 				if (p <= m_distpenetrate)
 				{
 					// Prevent inf penetration
-					m_distpenetrate -= p; // should this be rounded?
+					m_distpenetrate -= p;
 
 					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-					ALERT(at_console, "penetrated wall with dist: %f\n", p);
+					ALERT(at_console, "penetrated: %f units + mult\n", p);
 
 					// Damage reduction
-					m_BulletDamage -= round(0.125 * p); // not very reliable, could hit 0 or even negatives
-					if (m_BulletAmount <= 0)
+					m_BulletDamage -= round(0.125 * p);
+					if (m_BulletDamage <= 0)
 						m_BulletDamage = 2;
 
 					// Fire penetrated bullet
