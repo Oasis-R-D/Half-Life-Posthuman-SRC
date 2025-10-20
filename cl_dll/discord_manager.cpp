@@ -45,7 +45,9 @@ void DiscordMan_Startup(void)
 
 	discordPresence.startTimestamp = startTime;
 	discordPresence.largeImageKey = defaultLogo;
+#ifndef CLIENT_DLL
 	Discord_UpdatePresence(&discordPresence);
+#endif
 }
 
 void DiscordMan_Update(void)
