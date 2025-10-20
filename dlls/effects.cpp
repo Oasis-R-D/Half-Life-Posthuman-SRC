@@ -2108,9 +2108,14 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 		m_iPenetration = atof(pkvd->szValue);
 		return true;
 	}
-	else if (FStrEq(pkvd->szKeyName, "Damage"))
+	else if (FStrEq(pkvd->szKeyName, "damage"))
 	{
 		m_iDamage = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "gravity"))
+	{
+		m_fGravity = atof(pkvd->szValue);
 		return true;
 	}
 	return CPointEntity::KeyValue(pkvd);
