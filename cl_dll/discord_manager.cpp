@@ -38,9 +38,9 @@ void DiscordMan_Startup(void)
 	handlers.joinGame = HandleDiscordJoin;
 	handlers.spectateGame = HandleDiscordSpectate;
 	handlers.joinRequest = HandleDiscordJoinRequest;
-
+#ifndef CLIENT_DLL
 	Discord_Initialize("1306778334579134534", &handlers, 1, 0);
-
+#endif
 	memset(&discordPresence, 0, sizeof(discordPresence));
 
 	discordPresence.startTimestamp = startTime;
@@ -58,11 +58,14 @@ void DiscordMan_Update(void)
 	discordPresence.details = gEngfuncs.pfnGetCvarString("rpc_chapter");	// Chapter name doesn't matter; if it's blank, Discord shows nothing
 	discordPresence.state = curArea;
 	discordPresence.largeImageKey = curImage;
-
+#ifndef CLIENT_DLL
 	Discord_UpdatePresence(&discordPresence);
+#endif
 }
 
 void DiscordMan_Kill(void)
 {
+#ifndef CLIENT_DLL
 	Discord_Shutdown();
+#endif
 }
