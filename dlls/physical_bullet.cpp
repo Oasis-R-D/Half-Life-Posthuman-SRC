@@ -424,9 +424,13 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			//ALERT ( at_console, "texture hit: %s\n", szbuffer);
 			if (!strcmp(szbuffer, "mat_impen")) // HACKHACK: can't get the material type to work so just gonna do this instead
 			{
-				return penmodifier = 128;
+				return penmodifier = 512;
 				ALERT(at_console, "penetration mult: %f\n", penmodifier);
-				
+			}
+			else if (!strcmp(szbuffer, "mat_flesh"))
+			{
+				return penmodifier = 1.66;
+				ALERT(at_console, "penetration mult: %f\n", penmodifier);
 			}
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
@@ -439,7 +443,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		penmodifier = 1.33;
 		break;
 	case CHAR_TEX_METAL:
-		penmodifier = 1.75;
+		penmodifier = 2;
 		break;
 	case CHAR_TEX_IMPEN:
 		penmodifier = 64;
