@@ -1708,7 +1708,23 @@ void UTIL_StripToken(const char* pKey, char* pDest, int nLen)
 	pDest[i] = 0;
 }
 
-
+//=========================================================
+// UTIL_Round - rounds to specified decimal
+//=========================================================
+int UTIL_Round((float roundee, int roundto))
+{
+	roundto2 = roundto;
+	int power = 1;
+	while (roundto2 > 0)
+	{
+		roundto2 -= 1;
+		power * 10;
+	}
+	roundee *= power;
+	roundee = round(roundee);
+	roundee /= power;
+	return roundee;
+}
 // --------------------------------------------------------------
 //
 // CSave

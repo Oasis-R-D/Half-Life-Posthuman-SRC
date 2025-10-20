@@ -34,11 +34,12 @@
 * 
 */
 
-// UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
+// UNDONE: Save/restore this?
 //
 // OVERLOADS SOME ENTVARS:
 //
 // speed - the ideal magnitude of my velocity
+
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride)
 {
@@ -46,7 +47,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
-		pBullet->pev->classname = MAKE_STRING("bullet");
+		pBullet->pev->classname = MAKE_STRING("phys_bullet");
 		if (g_iSkillLevel != SKILL_HARD)
 		{
 			pBullet->m_muzzlevelocity = BLLTSpeed;
@@ -125,7 +126,7 @@ void CPhysbullet::Spawn()
 	else if (m_Flare == 69) // Training weapons
 	{
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-		m_distpenetrate = 1;
+		m_distpenetrate = 2;
 		m_maxricochet = 3;
 		pev->rendermode = kRenderNormal;
 	}
@@ -291,6 +292,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			ALERT(at_console, "pen below 0!\n");
 			m_distpenetrate = 0;
 		}
+
+		// Did not penetrate, normal collision
+
 		pev->movetype = MOVETYPE_NONE;
 		SetTouch(NULL);
 		SetThink(NULL);
@@ -478,7 +482,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		penmodifier = 1.125;
 		break;
 	case CHAR_TEX_FLESH: // less overpenetration
-		penmodifier = 1.66;
+		penmodifier = 1.75;
 		break;
 	}
 	ALERT(at_console, "penetration mult: %f\n", penmodifier);
