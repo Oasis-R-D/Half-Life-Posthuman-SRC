@@ -228,34 +228,9 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// hit armor
 		if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
 		{
-			#ifndef CLIENT_DLL
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-			#endif
+			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
 			pev->dmgtime = gpGlobals->time;
 		}
-
-		if (RANDOM_LONG(0, 1) == 0)
-		{
-			Vector vecTracerDir = vecDir;
-
-			vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-			vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-			vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-			vecTracerDir = vecTracerDir * -512;
-
-			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-			WRITE_BYTE(TE_TRACER);
-			WRITE_COORD(ptr->vecEndPos.x);
-			WRITE_COORD(ptr->vecEndPos.y);
-			WRITE_COORD(ptr->vecEndPos.z);
-
-			WRITE_COORD(vecTracerDir.x);
-			WRITE_COORD(vecTracerDir.y);
-			WRITE_COORD(vecTracerDir.z);
-			MESSAGE_END();
-		}
-
 		flDamage -= 20;
 		if (flDamage <= 0)
 			flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
@@ -268,9 +243,9 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		BLDAMNT = round(flDamage / 2);
 		SpawnBlood(ptr->vecEndPos, m_bloodColor, flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-		#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, m_bloodColor);
-		#endif
+#ifndef CLIENT_DLL
+		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, m_bloodColor);
+#endif
 	}
 
 	AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);

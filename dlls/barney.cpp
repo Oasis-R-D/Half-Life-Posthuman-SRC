@@ -625,9 +625,8 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						Vector vecTracerDir = vecDir;
 					
 						vecTracerDir = vecTracerDir * -512;
-						#ifndef CLIENT_DLL
-						CPhysbullet::BulletCreate(1, gSkillData.plrDmgBuckshot, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-						#endif
+
+						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
 					}
 					else if (flDamage > 44 && m_helmDUR > 0)
 					{
@@ -649,9 +648,8 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						Vector vecTracerDir = vecDir;
 					
 						vecTracerDir = vecTracerDir * -512;
-						#ifndef CLIENT_DLL
-						CPhysbullet::BulletCreate(1, 15, 3500, ptr->vecEndPos, Vector(RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14), RANDOM_FLOAT(3.14, -3.14)) , 5.0, 5.0, 0.8, 12, edict());
-						#endif
+
+						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType); // easier way to handle ricochet
 					}					
 				}
 			}

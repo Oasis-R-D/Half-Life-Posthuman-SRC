@@ -30,7 +30,7 @@
 #include "weapons.h"
 #include "func_break.h"
 #include "Blooddrops.h"
-
+#include "physical_bullet.h"
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
 #define GERMAN_GIB_COUNT 4
@@ -1281,7 +1281,22 @@ bool CBaseEntity::FVisible(const Vector& vecOrigin)
 		return true; // line of sight is valid.
 	}
 }
-
+/*
+================
+Bullet Armor Hit
+================
+*/
+void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType) // easier way to handle ricochet
+{
+	if (bitsDamageType == DMG_BULLET)
+	{
+		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
+		Vector spawnpos = ptr->vecEndPos + -(BULLET->m_direction) * 4;
+#ifndef CLIENT_DLL
+		CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -(BULLET->m_direction), CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), true, BULLET->m_distpenetrate);
+#endif
+	}
+}
 /*
 ================
 TraceAttack
