@@ -222,32 +222,32 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		{
 			float p;
 			int i = 1;
-			Vector vecDest = m_Endpos + m_direction * 8192;
 
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-			while (1 == beam_tr2.fAllSolid) // Raymarching (works better than the tau cannons method)
+			while (1 == beam_tr2.fAllSolid) // Raymarching (works better than the tau cannons trace back method)
 			{
 				i += 1;
 				UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
 				if (i > m_distpenetrate)
 				{
-					ALERT(at_console, "Wall is too thick! Size: %i\n", i);
+					ALERT(at_console, "Wall is too thick! Max Size: %i\n", i);
 					break;
 				}
 			}
-			if (0 == beam_tr2.fAllSolid) // Raymarch got too long
+			if (0 == beam_tr2.fAllSolid) // Raymarch found da way
 			{
 				ALERT(at_console, "est wall depth %i\n", i);
 
 				UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
 				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
-				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i); // how thick the wall is and apply material penetration multiplier
-				p = round(p);
-				if (p <= m_distpenetrate)
+				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i);
+				if (p < m_distpenetrate && m_distpenetrate > 0)
 				{
 					// Prevent inf penetration
-					m_distpenetrate -= p;
+					m_distpenetrate = m_distpenetrate - p;
+					if (m_distpenetrate < 0)
+						m_distpenetrate = 0;
 
 					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
 					ALERT(at_console, "penetrated: %f units + mult\n", p);
@@ -277,13 +277,14 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				}
 				else
 				{
-					ALERT(at_console, "Wall is too thick! Size: %f\n", p);
+					ALERT(at_console, "too thick! Size: %f units + mult\n", p);
 				}
 			}
 		}
 		else
 		{
 			ALERT(at_console, "pen below 0!\n");
+			m_distpenetrate = 0;
 		}
 		pev->movetype = MOVETYPE_NONE;
 		SetTouch(NULL);
@@ -341,27 +342,30 @@ void CPhysbullet::AirThink()
 	pev->angles = m_direction;
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05
 	CBaseEntity* m_ent = NULL;
-	while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
+	if (!m_haswizzed && !m_bsubsonic)
 	{
-		CBaseEntity* m_pPlyr = m_ent;
-		if (m_pPlyr->IsPlayer())
+		while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 		{
-			if (m_haswizzed != true && pev->owner != m_pPlyr->edict() && !m_bsubsonic)
+			CBaseEntity* m_pPlyr = m_ent;
+			if (m_pPlyr->IsPlayer())
 			{
-				char dripsnd[256];
-				sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
-				EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
-				m_haswizzed = true;
+				if (!m_haswizzed && pev->owner != m_pPlyr->edict() && !m_bsubsonic)
+				{
+					char dripsnd[256];
+					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
+					EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
+					m_haswizzed = true;
+				}
 			}
 		}
 	}
-	
-	if (pev->renderamt < 225 && !m_bsubsonic)
+	if (pev->renderamt < 225 && !m_bsubsonic) // fade in
 	{
 		pev->renderamt += 75;
 	}
+
 	if (pev->waterlevel == 0)
-	return;
+		return;
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
 }
 #endif
@@ -465,7 +469,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		penmodifier = 1.125;
 		break;
 	case CHAR_TEX_FLESH: // less overpenetration
-		penmodifier = 1.5;
+		penmodifier = 1.66;
 		break;
 	}
 	ALERT(at_console, "penetration mult: %f\n", penmodifier);
