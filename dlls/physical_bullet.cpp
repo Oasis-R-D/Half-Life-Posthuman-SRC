@@ -241,7 +241,12 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
 				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
-				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i);
+				// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
+				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i)
+				p *= 1000;
+				p = round(p);
+				p /= 1000;
+				
 				if (p < m_distpenetrate && m_distpenetrate > 0)
 				{
 					// Prevent inf penetration
