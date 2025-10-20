@@ -592,12 +592,14 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 			{
 				if (g_iSkillLevel != SKILL_HARD)
 				{
-					flDamage = flDamage / 2;
+					flDamage = round(flDamage * 0.8);
 				}
 				else
 				{
-					flDamage = round(flDamage * 0.66);
+					flDamage = round(flDamage * 0.7);
 				}
+				if (RANDOM_LONG(0,1) == 1)
+					UTIL_Sparks(ptr->vecEndPos);
 			}
 			else
 			{

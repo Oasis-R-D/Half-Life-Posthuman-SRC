@@ -74,22 +74,38 @@ public:
 		{
 			m_bloodColor = BLOOD_COLOR_RED;
 		}
-		if (FClassnameIs(pev, "monster_zombie_barney"))
+		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 		{
-			if (ptr->iHitgroup == HITGROUP_CHEST)
+			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
-					if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+				if (FClassnameIs(pev, "monster_zombie_barney"))
+				{
+					if (g_iSkillLevel != SKILL_HARD)
 					{
-						if (g_iSkillLevel != SKILL_HARD)
-						{
-							flDamage = flDamage / 2;
-						}
-						else
-						{
-							flDamage = round(flDamage * 0.8);
-						}
+						flDamage = round(flDamage * 0.8);
 					}
+					else
+					{
+						flDamage = round(flDamage * 0.7);
+					}
+					if (RANDOM_LONG(0, 1) == 1)
+						UTIL_Sparks(ptr->vecEndPos);
+				}
+				if (FClassnameIs(pev, "monster_zombie_soldier"))
+				{
+					if (g_iSkillLevel != SKILL_HARD)
+					{
+						flDamage = round(flDamage * 0.8);
+					}
+					else
+					{
+						flDamage = round(flDamage * 0.7);
+					}
+					if (RANDOM_LONG(0, 1) == 1)
+						UTIL_Sparks(ptr->vecEndPos);
+				}
 			}
+		
 		}
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	}
