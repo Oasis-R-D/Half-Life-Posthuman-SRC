@@ -2090,7 +2090,7 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "amount"))
 	{
-		SetBulletAmount(atof(pkvd->szValue));
+		SetBulletAmount(atoi(pkvd->szValue));
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "bulletvel"))
@@ -2105,17 +2105,32 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "penetration"))
 	{
-		m_iPenetration = atof(pkvd->szValue);
+		m_iPenetration = atoi(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "damage"))
 	{
-		m_iDamage = atof(pkvd->szValue);
+		m_iDamage = atoi(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "gravity"))
 	{
 		m_fGravity = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "subsonic"))
+	{
+		switch (atoi(pkvd->szValue)) // probably overclampicating it
+		{
+			default:
+			case 0:
+				m_bSubsonic = false;
+				break;
+			case 1:
+				m_bSubsonic = true;
+				break;
+		}
+		
 		return true;
 	}
 	return CPointEntity::KeyValue(pkvd);
@@ -2133,7 +2148,7 @@ Vector CPhysShooter::Direction()
 
 Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 {
-	if ((pev->spawnflags & SF_BLOOD_PLAYER) != 0) // Useless
+	if ((pev->spawnflags & SF_BLOOD_PLAYER) != 0) // Simulates the player firing it
 	{
 		CBaseEntity* pPlayer;
 
@@ -2144,7 +2159,7 @@ Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 		else
 			pPlayer = UTIL_GetLocalPlayer();
 		if (pPlayer)
-			return (pPlayer->pev->origin + pPlayer->pev->view_ofs) + Vector(RANDOM_FLOAT(-10, 10), RANDOM_FLOAT(-10, 10), RANDOM_FLOAT(-10, 10));
+			return (pPlayer->pev->origin + pPlayer->pev->view_ofs);
 	}
 
 	return pev->origin;
