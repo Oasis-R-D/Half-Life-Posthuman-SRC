@@ -360,6 +360,16 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 	{
 		TertiaryAttack();
 	}
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_igrenadeAMNT > 0)
+	{
+		m_igrenadeAMNT--;
+		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
+		GrenadeAttack();
+		if (m_igrenadeAMNT == 0)
+			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
+
+		m_pPlayer->pev->button &= ~IN_SCORE;
+	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{
 		if (m_iCylL_ammo == 0)

@@ -5358,18 +5358,7 @@ bool CBasePlayer::HasNamedPlayerItem(const char* pszItemName)
 
 	return false;
 }
-void CBasePlayer::ThrowGrenade()
-{
-	if (m_iGrenadeAmnt > 0 && m_fNextGrenadeThrow < gpGlobals->time)
-	{
-		m_fNextGrenadeThrow = gpGlobals->time + 2;
-		m_iGrenadeAmnt--;
-		if (m_pActiveItem)
-		{
-			m_pActiveItem->Holster();
-		}
-	}
-}
+
 //=========================================================
 //
 //=========================================================

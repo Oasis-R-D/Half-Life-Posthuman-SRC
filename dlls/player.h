@@ -252,7 +252,7 @@ public:
 	void PackDeadPlayerItems();
 	void RemoveAllItems(bool removeSuit);
 	bool SwitchWeapon(CBasePlayerItem* pWeapon);
-	void ThrowGrenade();
+
 	/**
 	*	@brief Equips an appropriate weapon for the player if they don't have one equipped already.
 	*/

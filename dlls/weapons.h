@@ -329,7 +329,8 @@ public:
 	// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"
-	virtual void TertiaryAttack() {}
+	virtual void TertiaryAttack() {}					  // do "+ALT1"
+	virtual void GrenadeAttack() {}						  // do "+SCORE_UP //smth like that idk the real name
 	virtual void Reload() {}							  // do "+RELOAD"
 	virtual void WeaponIdle() {}						  // called when no buttons pressed
 	bool UpdateClientData(CBasePlayer* pPlayer) override; // sends hud info to client dll, if things have changed
@@ -359,6 +360,7 @@ public:
 	float m_flNextPrimaryAttack;   // soonest time ItemPostFrame will call PrimaryAttack
 	float m_flNextSecondaryAttack; // soonest time ItemPostFrame will call SecondaryAttack
 	float m_flNextTertiaryAttack;
+	float m_flNextGrenadeAttack;
 	float m_flTimeWeaponIdle;	   // soonest time ItemPostFrame will call WeaponIdle
 	int m_iPrimaryAmmoType;		   // "primary" ammo index into players m_rgAmmo[]
 	int m_iSecondaryAmmoType;	   // "secondary" ammo index into players m_rgAmmo[]
@@ -373,6 +375,8 @@ public:
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
+	int m_iGrenadeType;
+	int m_igrenadeAMNT;
 };
 
 
