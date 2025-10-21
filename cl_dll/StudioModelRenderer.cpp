@@ -64,8 +64,8 @@ char glsl_basic_depth[] = R"(
 	uniform vec3 u_Ambient;      // program.local[1]
 	uniform vec3 u_LightColor;   // program.local[2]
 
-	uniform mat4 u_ModelMatrix;      // program.local[3–6]
-	uniform mat4 u_ViewProjMatrix;   // program.local[7–10]
+	uniform mat4 u_ModelMatrix;      // program.local[3â€“6]
+	uniform mat4 u_ViewProjMatrix;   // program.local[7â€“10]
 
 	uniform vec2 u_TexScale;     // program.local[11]
 
@@ -3845,7 +3845,7 @@ void CStudioModelRenderer::StudioSwapEngineCache(void)
 {
 	char szFile[256];
 	char szModelName[128];
-	char szPath[128];
+	//char szPath[128];
 	char szTexture[64];
 
 	m_iNumEngineCacheModels = NULL;
