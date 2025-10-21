@@ -587,7 +587,7 @@ class CGrenadePickup : public CBasePlayerItem
 	{
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_grenade.mdl");
-		CBasePlayerAmmo::Spawn();
+		CBasePlayerItem::Spawn();
 	}
 	void Precache() override
 	{
@@ -646,11 +646,10 @@ class CGrenadePickup : public CBasePlayerItem
 			player->m_iGrenadeType = m_iTracerType;
 
 			m_iTracerType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
-			m_Amnt = iPlayerGrenAmnt;
+			m_iAmnt = iPlayerGrenAmnt;
 
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
 		}
 	}
-}
 };
 LINK_ENTITY_TO_CLASS(ammo_grenade, CGrenadePickup);
