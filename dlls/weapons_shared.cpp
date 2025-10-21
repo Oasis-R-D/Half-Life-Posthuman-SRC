@@ -153,12 +153,13 @@ void CBasePlayerWeapon::ItemPostFrame()
 		TertiaryAttack();
 		//m_pPlayer->pev->button &= ~IN_ALT1;
 	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_igrenadeAMNT > 0)
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
 	{
-		m_igrenadeAMNT--;
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown"); // green
+		m_pPlayer->m_iGrenadeAmnt--;
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
 		GrenadeAttack();
-		if (m_igrenadeAMNT == 0)
+		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 
 		m_pPlayer->pev->button &= ~IN_SCORE;

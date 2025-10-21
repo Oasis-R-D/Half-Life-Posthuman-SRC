@@ -330,7 +330,7 @@ public:
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"
 	virtual void TertiaryAttack() {}					  // do "+ALT1"
-	virtual void GrenadeAttack() {}						  // do "+SCORE_UP //smth like that idk the real name
+	virtual void GrenadeAttack() {ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade not supported!")}	// do "+SCORE_UP //smth like that idk the real name
 	virtual void Reload() {}							  // do "+RELOAD"
 	virtual void WeaponIdle() {}						  // called when no buttons pressed
 	bool UpdateClientData(CBasePlayer* pPlayer) override; // sends hud info to client dll, if things have changed
@@ -375,8 +375,6 @@ public:
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
-	int m_iGrenadeType;
-	int m_igrenadeAMNT;
 };
 
 
