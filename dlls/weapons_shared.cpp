@@ -243,7 +243,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		WeaponIdle();
 	}
 }
-void CBasePlayerWeapon::ShootGrenade(int type);
+void CBasePlayerWeapon::ShootGrenade(int type)
 {
 	static float flMultiplier = 6.5f;
 	float time

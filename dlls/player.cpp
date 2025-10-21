@@ -5365,7 +5365,7 @@ bool CBasePlayer::HasNamedPlayerItem(const char* pszItemName)
 //=========================================================
 bool CBasePlayer::SwitchWeapon(CBasePlayerItem* pWeapon)
 {
-	if (pWeapon && (!pWeapon->CanDeploy() || m_bInGrenade)
+	if (pWeapon && (!pWeapon->CanDeploy() || m_bInGrenade))
 	{
 		return false;
 	}
