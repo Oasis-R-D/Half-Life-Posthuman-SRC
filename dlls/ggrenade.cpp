@@ -608,7 +608,7 @@ class CGrenadePickup : public CBasePlayerItem
 		}
 		return CBasePlayerItem::KeyValue(pkvd);
 	}
-	void Materialize() override
+	void Materialize()
 	{
 		if ((pev->effects & EF_NODRAW) != 0)
 		{
