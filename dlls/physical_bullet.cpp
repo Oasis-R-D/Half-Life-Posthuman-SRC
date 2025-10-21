@@ -66,7 +66,10 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
-		pBullet->pev->owner = shooter;
+		if (shooter != nullptr)
+			pBullet->pev->owner = shooter;
+		else
+			pBullet->pev->owner = pBullet->edict();
 
 		pBullet->Spawn();
 		
@@ -155,11 +158,14 @@ void CPhysbullet::Spawn()
 
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
-	if (owner->IsPlayer())
-		pev->renderamt = 0;
-	else if (m_bsubsonic)
+	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
+	{
+		if (owner->IsPlayer())
+			pev->renderamt = 0;
+	}
+	if (m_bsubsonic)
 		pev->renderamt = 5;
-	else
+	else if (pev->renderamt != 0)
 		pev->renderamt = 150;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
@@ -225,7 +231,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			int i = 1;
 
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-			while (1 == beam_tr2.fAllSolid) // Raymarching (works better than the tau cannons trace back method)
+			while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method)
 			{
 				i += 1;
 				UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
