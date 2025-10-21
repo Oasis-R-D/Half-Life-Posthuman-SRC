@@ -51,14 +51,31 @@ void DiscordMan_Startup(void)
 void DiscordMan_Update(void)
 {
 	char curArea[64];	// If the CVar is empty, use the map file name
-	snprintf(curArea, sizeof(curArea) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_area"), "", sizeof(curArea)) ? gEngfuncs.pfnGetCvarString("rpc_area") : gEngfuncs.pfnGetLevelName());
+	snprintf(curArea, sizeof(curArea) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_chapter"), "", sizeof(curArea)) ? gEngfuncs.pfnGetCvarString("rpc_chapter") : gEngfuncs.pfnGetLevelName());
 	char curImage[16];	// If the CVar is empty, use the default logo
 	snprintf(curImage, sizeof(curImage) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_image"), "", sizeof(curImage)) ? gEngfuncs.pfnGetCvarString("rpc_image") : defaultLogo);
 
-	discordPresence.details = gEngfuncs.pfnGetCvarString("rpc_chapter");	// Chapter name doesn't matter; if it's blank, Discord shows nothing
-	discordPresence.state = curArea;
+	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
+	const char* skilllevel;
+	switch (skill)
+	{
+		default:
+		case 1:
+			skilllevel = "Easy Mode";
+			break;
+		case 2:
+			skilllevel = "Hard Mode";
+			break;
+		case 3:
+			skilllevel = "Realism Mode";
+			break;
+	}
+	discordPresence.details = curArea;	// Chapter name doesn't matter; if it's blank, Discord shows nothing
+	discordPresence.state = skilllevel;
 	discordPresence.largeImageKey = curImage;
-
+    discordPresence.largeImageText = "Post-Human";
+    discordPresence.smallImageKey = "ord_logo";
+    discordPresence.smallImageText = "Oasis R&D";
 	Discord_UpdatePresence(&discordPresence);
 }
 

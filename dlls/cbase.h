@@ -785,7 +785,6 @@ public:
 	static    TYPEDESCRIPTION m_SaveData[];
 
 	string_t m_iszChapter;
-	string_t m_iszArea;
 	string_t m_iszImage;
 };
 

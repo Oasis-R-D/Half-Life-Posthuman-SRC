@@ -1007,7 +1007,6 @@ void InitInput()
 	// jay - discord rpc
 	gEngfuncs.Con_Printf("Initializing Discord RPC CVars\n");
 	rpc_chapter = gEngfuncs.pfnRegisterVariable("rpc_chapter", "", FCVAR_CLIENTDLL);
-	rpc_area = gEngfuncs.pfnRegisterVariable("rpc_area", "", FCVAR_CLIENTDLL);
 	rpc_image = gEngfuncs.pfnRegisterVariable("rpc_image", "", FCVAR_CLIENTDLL);
 
 	// Initialize third person camera controls.

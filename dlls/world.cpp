@@ -598,7 +598,6 @@ LINK_ENTITY_TO_CLASS(worldspawn, CWorld);
 TYPEDESCRIPTION    CWorld::m_SaveData[] =
 {
     DEFINE_FIELD(CWorld, m_iszChapter, FIELD_STRING),
-    DEFINE_FIELD(CWorld, m_iszArea, FIELD_STRING),
     DEFINE_FIELD(CWorld, m_iszImage, FIELD_STRING),
 };
 IMPLEMENT_SAVERESTORE(CWorld, CBaseEntity);
@@ -827,7 +826,6 @@ void CWorld::Precache()
 	// jay - discord rpc
 
 	CVAR_SET_STRING("rpc_chapter", m_iszChapter ? STRING(m_iszChapter) : "");
-	CVAR_SET_STRING("rpc_area", m_iszArea ? STRING(m_iszArea) : "");
 	CVAR_SET_STRING("rpc_image", m_iszImage ? STRING(m_iszImage) : "");
 }
 
@@ -905,11 +903,6 @@ bool CWorld::KeyValue(KeyValueData* pkvd)
 	else if (FStrEq(pkvd->szKeyName, "rpc_chapter"))
 	{
 		m_iszChapter = ALLOC_STRING(pkvd->szValue);
-		pkvd->fHandled = true;
-	}
-	else if (FStrEq(pkvd->szKeyName, "rpc_area"))
-	{
-		m_iszArea = ALLOC_STRING(pkvd->szValue);
 		pkvd->fHandled = true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "rpc_image"))
