@@ -134,7 +134,8 @@ void CBasePlayerWeapon::ItemPostFrame()
 	if (m_pPlayer->m_bInGrenadeDelay && m_fGrenadeFireDelay < gpGlobals->time)
 	{
 		ShootGrenade(m_pPlayer->m_iGrenadeType);
-		m_pPlayer->m_bInGrenadeDelay = false
+		m_pPlayer->m_bInGrenadeDelay = false;
+		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon  grenade anims since this is for the animations
 	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{
@@ -159,8 +160,9 @@ void CBasePlayerWeapon::ItemPostFrame()
 	}
 	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
 	{
+		m_pPlayer->m_bInGrenade = true;
 		m_pPlayer->m_bInGrenadeDelay = true;
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown"); // green
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown");
 		m_pPlayer->m_iGrenadeAmnt--;
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
 		m_fGrenadeFireDelay = gpGlobals->time + 1;

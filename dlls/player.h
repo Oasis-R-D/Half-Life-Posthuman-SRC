@@ -206,7 +206,8 @@ public:
 	int m_iGrenadeAmnt;
 	int m_iGrenadeType;
 	bool m_bInGrenadeDelay = false;
-
+	bool m_bInGrenade = false;
+	
 	Vector m_vecAutoAim;
 	bool m_fOnTarget;
 	int m_iDeaths;
