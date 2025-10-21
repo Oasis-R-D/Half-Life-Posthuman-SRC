@@ -205,7 +205,7 @@ public:
 	int m_rgAmmoLast[MAX_AMMO_SLOTS];
 	int m_iGrenadeAmnt;
 	int m_iGrenadeType;
-	float m_fNextGrenadeThrow;
+	bool m_bInGrenadeDelay = false;
 
 	Vector m_vecAutoAim;
 	bool m_fOnTarget;

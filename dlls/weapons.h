@@ -37,7 +37,7 @@ public:
 	} SATCHELCODE;
 
 	static CGrenade* ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, float time);
-	static CGrenade* ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
+	static CGrenade* ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, bool m203 = true);
 	static CGrenade* ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
 	static void UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code);
 
@@ -326,7 +326,7 @@ public:
 	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0);
 	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink
-	// called by CBasePlayerWeapons ItemPostFrame()
+	void ShootGrenade(int type);// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"
 	virtual void TertiaryAttack() {}					  // do "+ALT1"
@@ -375,6 +375,7 @@ public:
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
+	float m_fGrenadeFireDelay;
 };
 
 

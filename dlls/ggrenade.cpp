@@ -423,7 +423,7 @@ void CGrenade::Spawn()
 }
 
 
-CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
+CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, bool m203)
 {
 	CGrenade* pGrenade = GetClassPtr((CGrenade*)NULL);
 	pGrenade->Spawn();
@@ -438,9 +438,6 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 	pGrenade->SetThink(&CGrenade::DangerSoundThink);
 	pGrenade->pev->nextthink = gpGlobals->time;
 
-	// Tumble in air
-	//->pev->avelocity.x = RANDOM_FLOAT(-100, -500);
-
 	// Explode on contact
 	pGrenade->SetTouch(&CGrenade::ExplodeTouch);
 
@@ -449,6 +446,13 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 	else
 		pGrenade->pev->dmg = 160;
 
+	if (m203 == false)
+	{
+		SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
+		pGrenade->pev->sequence = RANDOM_LONG(3, 6);
+		pGrenade->pev->framerate = 1.0;
+		pGrenade->ResetSequenceInfo();
+	}
 	return pGrenade;
 }
 

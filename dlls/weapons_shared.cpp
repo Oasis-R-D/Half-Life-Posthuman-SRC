@@ -131,7 +131,11 @@ void CBasePlayerWeapon::ReloadSetAmmos()
 void CBasePlayerWeapon::ItemPostFrame()
 {
 	ReloadSetAmmos();
-
+	if (m_pPlayer->m_bInGrenadeDelay && m_fGrenadeFireDelay < gpGlobals->time)
+	{
+		ShootGrenade(m_pPlayer->m_iGrenadeType);
+		m_pPlayer->m_bInGrenadeDelay = false
+	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{
 		m_flLastFireTime = 0.0f;
@@ -155,10 +159,13 @@ void CBasePlayerWeapon::ItemPostFrame()
 	}
 	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
 	{
+		m_pPlayer->m_bInGrenadeDelay = true;
 		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown"); // green
 		m_pPlayer->m_iGrenadeAmnt--;
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
+		m_fGrenadeFireDelay = gpGlobals->time + 1;
 		GrenadeAttack();
+		
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 
@@ -234,7 +241,39 @@ void CBasePlayerWeapon::ItemPostFrame()
 		WeaponIdle();
 	}
 }
+void CBasePlayerWeapon::ShootGrenade(int type);
+{
+	static float flMultiplier = 6.5f;
+	float time
 
+	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16;
+	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
+
+	if (angThrow.x < 0)
+		angThrow.x = -10 + angThrow.x * ((90 - 10) / 90.0);
+	else
+		angThrow.x = -10 + angThrow.x * ((90 + 10) / 90.0);
+
+	
+	float flVel = (90 - angThrow.x) * flMultiplier;
+	if (flVel > 1000)
+		flVel = 1000;
+
+	UTIL_MakeVectors(angThrow);
+
+	Vector vecThrow = gpGlobals->v_forward * flVel + m_pPlayer->pev->velocity;
+	switch (type)
+	{
+		default:
+		case 0:
+			time = gpGlobals->time + 2.75;
+			CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time);
+			break;
+		case 1:
+			CGrenade::ShootContact(m_pPlayer->pev, vecSrc, vecThrow, false);
+			break;
+	}
+}
 void CBasePlayer::SelectLastItem()
 {
 	if (!m_pLastItem)
