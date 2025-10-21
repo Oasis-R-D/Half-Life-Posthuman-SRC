@@ -26,7 +26,7 @@
 #include "soundent.h"
 #include "decals.h"
 #include "physical_bullet.h"
-
+#include "player.h"
 //===================grenade
 
 
@@ -579,3 +579,78 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 
 
 // WE'RE DONE WHEN I SAY WE'RE DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+class CGrenadePickup : public CBasePlayerItem
+{
+	int m_iTracerType;
+	int m_iAmnt;
+	void Spawn() override
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_grenade.mdl");
+		CBasePlayerAmmo::Spawn();
+	}
+	void Precache() override
+	{
+		PRECACHE_MODEL("models/w_grenade.mdl");
+		PRECACHE_SOUND("items/9mmclip1.wav");
+	}
+	bool KeyValue(KeyValueData* pkvd) override
+	{
+		if (FStrEq(pkvd->szKeyName, "grentype"))
+		{
+			m_iTracerType = atoi(pkvd->szValue); // choices (0 and 1 rn)
+			return true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "amount")) // value between max grenades and 1
+		{
+			m_iAmnt = (atoi(pkvd->szValue));
+			return true;
+		}
+		return CBasePlayerItem::KeyValue(pkvd);
+	}
+	void Materialize() override
+	{
+		if ((pev->effects & EF_NODRAW) != 0)
+		{
+			// changing from invisible state to visible.
+			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "items/suitchargeok1.wav", 1, ATTN_NORM, 0, 150);
+			pev->effects &= ~EF_NODRAW;
+			pev->effects |= EF_MUZZLEFLASH;
+		}
+
+		pev->solid = SOLID_BBOX;
+
+		UTIL_SetOrigin(pev, pev->origin); // link into world.
+		SetTouch(NULL); //&CBasePlayerItem::DefaultTouch
+		SetThink(NULL);
+	}
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override
+	{
+		if (pActivator->IsPlayer())
+		{
+			int iPlayerGrenType;
+			int iPlayerGrenAmnt;
+			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pActivator);
+			if (player->m_iGrenadeAmnt == 0) // if player has no grenades to exchange, remove this
+			{
+				player->m_iGrenadeAmnt = m_iAmnt;
+				player->m_iGrenadeType = m_iTracerType;
+				DestroyItem();
+				return; 
+			}
+				
+			iPlayerGrenType = player->m_iGrenadeType;
+			iPlayerGrenAmnt = player->m_iGrenadeAmnt;
+
+			player->m_iGrenadeAmnt = m_iAmnt; // exchanges player grenades with pickups amnt and type
+			player->m_iGrenadeType = m_iTracerType;
+
+			m_iTracerType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
+			m_Amnt = iPlayerGrenAmnt;
+
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+		}
+	}
+}
+};
+LINK_ENTITY_TO_CLASS(ammo_grenade, CGrenadePickup);
