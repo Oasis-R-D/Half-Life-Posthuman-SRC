@@ -290,7 +290,7 @@ public:
 };
 
 
-// inventory items that
+// inventory items that go bang/boom/alien noises/metal noises
 class CBasePlayerWeapon : public CBasePlayerItem
 {
 public:
