@@ -162,15 +162,23 @@ void CBasePlayerWeapon::ItemPostFrame()
 	{
 		m_pPlayer->m_bInGrenade = true;
 		m_pPlayer->m_bInGrenadeDelay = true;
+
 		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown");
+		
 		m_pPlayer->m_iGrenadeAmnt--;
+
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = gpGlobals->time + 1.5;
 		m_fGrenadeFireDelay = gpGlobals->time + 1;
+
 		GrenadeAttack();
 		
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
+		{
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
-
+			m_iGrenadeAmnt = 0;
+		}
+			
 		m_pPlayer->pev->button &= ~IN_SCORE;
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
