@@ -512,19 +512,11 @@ void IN_Impulse()
 void IN_ScoreDown()
 {
 	KeyDown(&in_score);
-	if (gViewPort)
-	{
-		gViewPort->ShowScoreBoard();
-	}
 }
 
 void IN_ScoreUp()
 {
 	KeyUp(&in_score);
-	if (gViewPort)
-	{
-		gViewPort->HideScoreBoard();
-	}
 }
 
 void IN_MLookUp()
@@ -854,7 +846,10 @@ int CL_ButtonBits(bool bResetState)
 	{
 		bits |= IN_ALT1;
 	}
-
+	if ((in_score.state & 3) != 0)
+	{
+		bits |= IN_SCORE;
+	}
 	if (bResetState)
 	{
 		in_attack.state &= ~2;
