@@ -126,6 +126,8 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, health_legL, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_legR, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -5356,7 +5358,18 @@ bool CBasePlayer::HasNamedPlayerItem(const char* pszItemName)
 
 	return false;
 }
-
+void CBasePlayer::ThrowGrenade()
+{
+	if (m_iGrenadeAmnt > 0 && m_fNextGrenadeThrow < gpGlobals->time)
+	{
+		m_fNextGrenadeThrow = gpGlobals->time + 2;
+		m_iGrenadeAmnt--;
+		if (m_pActiveItem)
+		{
+			m_pActiveItem->Holster();
+		}
+	}
+}
 //=========================================================
 //
 //=========================================================

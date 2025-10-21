@@ -203,6 +203,9 @@ public:
 	// shared ammo slots
 	int m_rgAmmo[MAX_AMMO_SLOTS];
 	int m_rgAmmoLast[MAX_AMMO_SLOTS];
+	int m_iGrenadeAmnt;
+	int m_iGrenadeType;
+	float m_fNextGrenadeThrow;
 
 	Vector m_vecAutoAim;
 	bool m_fOnTarget;
@@ -249,7 +252,7 @@ public:
 	void PackDeadPlayerItems();
 	void RemoveAllItems(bool removeSuit);
 	bool SwitchWeapon(CBasePlayerItem* pWeapon);
-
+	void ThrowGrenade();
 	/**
 	*	@brief Equips an appropriate weapon for the player if they don't have one equipped already.
 	*/
