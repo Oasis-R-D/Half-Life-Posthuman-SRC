@@ -246,7 +246,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 void CBasePlayerWeapon::ShootGrenade(int type)
 {
 	static float flMultiplier = 6.5f;
-	float time
+	float time;
 
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
