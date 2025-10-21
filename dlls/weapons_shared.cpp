@@ -168,8 +168,8 @@ void CBasePlayerWeapon::ItemPostFrame()
 		m_pPlayer->m_iGrenadeAmnt--;
 
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = gpGlobals->time + 1.5;
-		m_fGrenadeFireDelay = gpGlobals->time + 1;
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
+		m_fGrenadeFireDelay = gpGlobals->time + 0.5;
 
 		GrenadeAttack();
 		
@@ -256,7 +256,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	static float flMultiplier = 6.5f;
 	float time;
 
-	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -8;
+	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -8 + gpGlobals->v_up * -2;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
 
 	if (angThrow.x < 0)
@@ -276,7 +276,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	{
 		default:
 		case 0:
-			time = gpGlobals->time + 2.75;
+			time = 3;
 			CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time);
 			break;
 		case 1:
