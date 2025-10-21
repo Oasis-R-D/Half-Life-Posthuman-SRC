@@ -125,7 +125,7 @@ public:
 					monster = "monster_headcrab_fast";
 				else
 					monster = "monster_headcrab";
-				CBaseEntity* headcrab = Create(monster, pev->origin + Vector(0, 0, 70), pev->angles, edict());
+				CBaseEntity* headcrab = Create(monster, pev->origin + Vector(0, 0, 68), pev->angles, edict());
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
