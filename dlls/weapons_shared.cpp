@@ -111,8 +111,7 @@ bool CanAttack(float attack_time, float curtime, bool isPredicted)
 		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
 	}
 }
-
-void CBasePlayerWeapon::ItemPostFrame()
+void CBasePlayerWeapon::ReloadSetAmmos()
 {
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{
@@ -127,6 +126,11 @@ void CBasePlayerWeapon::ItemPostFrame()
 
 		m_fInReload = false;
 	}
+}
+
+void CBasePlayerWeapon::ItemPostFrame()
+{
+	ReloadSetAmmos();
 
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{

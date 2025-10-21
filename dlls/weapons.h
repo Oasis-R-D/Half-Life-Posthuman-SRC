@@ -106,7 +106,7 @@ public:
 #define WEAPON_NOCLIP -1
 
 //#define CROWBAR_MAX_CLIP		WEAPON_NOCLIP
-#define GLOCK_MAX_CLIP 17
+#define GLOCK_MAX_CLIP 18
 #define PYTHON_MAX_CLIP 6
 #define MP5_MAX_CLIP 30 //is this just unused?
 #define MP5_DEFAULT_AMMO 15
@@ -324,7 +324,7 @@ public:
 	virtual bool IsUseable();
 	bool DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body = 0);
 	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0);
-
+	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink
 	// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
@@ -524,7 +524,7 @@ public:
 	void Precache() override;
 	int iItemSlot() override { return 2; }
 	bool GetItemInfo(ItemInfo* p) override;
-
+	
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim);
@@ -532,6 +532,7 @@ public:
 	void Holster() override;
 	void Reload() override;
 	void WeaponIdle() override;
+	void ReloadSetAmmos() override;
 	void ItemPostFrame();
 	bool m_Training;
 	bool m_Prehuman;

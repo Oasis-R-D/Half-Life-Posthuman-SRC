@@ -323,7 +323,7 @@ void CM29::WeaponIdle()
 	SendWeaponAnim(iAnim, 0);
 }
 
-void CM29::ItemPostFrame() // completely overriden to make some changes
+void CM29::ItemPostFrame() // completely overriden to make multiple changes
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))

@@ -2168,7 +2168,7 @@ Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 
 void CPhysShooter::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	if (m_iPenetration != -1)
+	if (m_iPenetration >= 0)
 	{
 #ifndef CLIENT_DLL
 	//CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);

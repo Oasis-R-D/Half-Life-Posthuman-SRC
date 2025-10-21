@@ -107,7 +107,32 @@ void CGlock::SecondaryAttack()
 	m_fTimer = gpGlobals->time + 1;
 }
 
-void CGlock::ItemPostFrame()
+void CGlock::ReloadSetAmmos()
+{
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{
+		// complete the reload.
+		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+
+		// Add them to the clip
+		if (m_iClip == 0)
+		{
+			m_iClip += j-1;
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j-1;
+		}
+		else
+		{
+			m_iClip += j;
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
+}
+
+void CGlock::ItemPostFrame() //TO-DO: make the reload a separate function to reduce bloat due to the overriding of this function
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
@@ -250,7 +275,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 
 void CGlock::Reload()
 {
-	DefaultReload(17, m_iClip == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY, 1.5, pev->body);
+	DefaultReload(18, m_iClip == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY, 1.5, pev->body);
 }
 
 void CGlock::WeaponIdle()
