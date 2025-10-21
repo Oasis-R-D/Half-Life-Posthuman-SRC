@@ -73,7 +73,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = _9MM_MAX_CARRY;
 	p->pszAmmo2 = "ARgrenades";
 	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
-	p->iMaxClip = 30;
+	p->iMaxClip = 31;
 	p->iSlot = 2;
 	p->iPosition = 0;
 	p->iFlags = 0;
@@ -297,11 +297,7 @@ void CMP5::Reload()
 	if (pev->weapons == 1)
 		return;
 
-	if (m_iClip == 0)
-		DefaultReload(30, MP5_RELOAD_EMPTY, 3);
-	else
-		DefaultReload(30, MP5_RELOAD_TACTICAL, 2);
-
+	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 3 : 2);
 	pev->armorvalue = 0;
 }
 
@@ -345,6 +341,38 @@ void CMP5::ItemPostFrame()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	CBasePlayerWeapon::ItemPostFrame();
+}
+void CMP5::ReloadSetAmmos()
+{
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{
+		// complete the reload.
+		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+
+		// Add them to the clip
+		if (m_iClip == 0)
+		{
+			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
+			{
+				m_iClip += 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+			}
+			else
+			{
+				m_iClip += j - 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
+			}
+		}
+		else
+		{
+			m_iClip += j;
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
 }
 class CMP5AmmoClip : public CBasePlayerAmmo
 {
@@ -520,7 +548,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = 200;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
-	p->iMaxClip = 30;
+	p->iMaxClip = 31;
 	p->iSlot = 2;
 	p->iPosition = 3;
 	p->iFlags = 0;
@@ -679,11 +707,7 @@ void CM727::TertiaryAttack()
 
 void CM727::Reload()
 {
-	if (m_iClip == 0)
-		DefaultReload(30, M727_RELOAD_EMPTY, 1.8);
-	else
-		DefaultReload(30, M727_RELOAD_TACTICAL, 1.2);
-
+	DefaultReload(31, m_iClip == 0 ? M727_RELOAD_EMPTY : M727_RELOAD_TACTICAL, m_iClip == 0 ? 1.8 : 1.2);
 }
 
 void CM727::WeaponIdle()
@@ -708,6 +732,39 @@ void CM727::ItemPostFrame()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	CBasePlayerWeapon::ItemPostFrame();
+}
+
+void CM727::ReloadSetAmmos()
+{
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{
+		// complete the reload.
+		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+
+		// Add them to the clip
+		if (m_iClip == 0)
+		{
+			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
+			{
+				m_iClip += 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+			}
+			else
+			{
+				m_iClip += j - 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
+			}
+		}
+		else
+		{
+			m_iClip += j;
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
 }
 class CM727AmmoClip : public CBasePlayerAmmo
 {

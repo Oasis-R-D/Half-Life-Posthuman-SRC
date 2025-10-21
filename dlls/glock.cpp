@@ -117,8 +117,16 @@ void CGlock::ReloadSetAmmos()
 		// Add them to the clip
 		if (m_iClip == 0)
 		{
-			m_iClip += j-1;
-			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j-1;
+			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
+			{
+				m_iClip += 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+			}
+			else
+			{
+				m_iClip += j - 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
+			}
 		}
 		else
 		{

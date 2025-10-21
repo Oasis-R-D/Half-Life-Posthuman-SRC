@@ -673,6 +673,7 @@ public:
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
+	void ReloadSetAmmos() override;
 	void ItemPostFrame() override;
 
 	bool Deploy() override;
@@ -1502,6 +1503,7 @@ public:
 
 	void GetWeaponData(weapon_data_t& data) override;
 	void SetWeaponData(const weapon_data_t& data) override;
+	void ReloadSetAmmos() override;
 
 private:
 	void UpdateLaser();
@@ -1528,6 +1530,7 @@ public:
 
 class CM727 : public CBasePlayerWeapon
 {
+	void ReloadSetAmmos() override;
 public:
 	void Spawn() override;
 	void Precache() override;
@@ -1537,6 +1540,7 @@ public:
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
+	
 	void ItemPostFrame() override;
 	bool Deploy() override;
 	void Reload() override;

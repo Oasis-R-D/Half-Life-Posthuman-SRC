@@ -387,6 +387,8 @@ void CEagle::WeaponIdle()
 
 void CEagle::PrimaryAttack()
 {
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
+		return;
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound();
@@ -488,7 +490,7 @@ void CEagle::Reload()
 {
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
 	{
-		const bool bResult = DefaultReload(7, 0 != m_iClip ? EAGLE_RELOAD : EAGLE_RELOAD_NOSHOT, 1.5);
+		const bool bResult = DefaultReload(8, 0 != m_iClip ? EAGLE_RELOAD : EAGLE_RELOAD_NOSHOT, 1.5);
 
 #ifndef CLIENT_DLL
 		// Only turn it off if we're actually reloading
@@ -554,7 +556,7 @@ bool CEagle::GetItemInfo(ItemInfo* p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = 0;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
-	p->iMaxClip = 7;
+	p->iMaxClip = 8;
 	p->iSlot = 1;
 	p->iPosition = 2;
 	p->iFlags = 0;
@@ -577,6 +579,38 @@ void CEagle::SetWeaponData(const weapon_data_t& data)
 	m_bLaserActive = data.iuser1 != 0;
 }
 
+void CEagle::ReloadSetAmmos()
+{
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{
+		// complete the reload.
+		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+
+		// Add them to the clip
+		if (m_iClip == 0)
+		{
+			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
+			{
+				m_iClip += 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+			}
+			else
+			{
+				m_iClip += j - 1;
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
+			}
+		}
+		else
+		{
+			m_iClip += j;
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
+}
 class CEagleAmmo : public CBasePlayerAmmo
 {
 	void Spawn() override
