@@ -176,7 +176,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 		{
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
-			m_iGrenadeAmnt = 0;
+			m_pPlayer->m_iGrenadeAmnt = 0;
 		}
 			
 		m_pPlayer->pev->button &= ~IN_SCORE;
