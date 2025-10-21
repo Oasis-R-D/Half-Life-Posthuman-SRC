@@ -541,7 +541,6 @@ void EV_FireShotGunDouble(event_args_t* args)
 	Vector angles;
 	Vector velocity;
 
-	int j;
 	Vector ShellVelocity;
 	Vector ShellOrigin;
 	int shell;
