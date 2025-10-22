@@ -267,9 +267,24 @@ void CBasePlayerWeapon::ItemPostFrame()
 }
 void CBasePlayerWeapon::ShootGrenade(int type)
 {
-	static float flMultiplier = 6.5f;
+	static float flMultiplier;
 	float time;
-
+	int maxvel;
+	switch (type)
+	{
+		default:
+			flMultiplier = 6.5f;
+			maxvel = 1000;
+			break;
+		case 0:
+			flMultiplier = 6.5f;
+			maxvel = 1000;
+			break;
+		case 1:
+			flMultiplier = 10;
+			maxvel = 1500;
+			break;
+	}
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -2;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
 
@@ -280,8 +295,8 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 
 	
 	float flVel = (90 - angThrow.x) * flMultiplier;
-	if (flVel > 1000)
-		flVel = 1000;
+	if (flVel > maxvel)
+		flVel = maxvel;
 
 	UTIL_MakeVectors(angThrow);
 
