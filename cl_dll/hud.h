@@ -348,10 +348,13 @@ public:
 	bool DrawDMGRARM(float flTime);
 	bool DrawDMGLLEG(float flTime);
 	bool DrawDMGRLEG(float flTime);
+	bool DrawGrenType(float flTime);
+	bool DrawGrenAmnt(float flTime);
 	bool MsgFunc_Battery(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf);
 
 private:
 	HSPRITE_GLDSRC m_hSprite1;
@@ -363,6 +366,8 @@ private:
 	HSPRITE_GLDSRC m_hRarmDMG;
 	HSPRITE_GLDSRC m_hLlegDMG;
 	HSPRITE_GLDSRC m_hRlegDMG;
+	HSPRITE_GLDSRC m_hGrenType;
+	HSPRITE_GLDSRC m_hGrenAmnt;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prc3;
@@ -372,6 +377,8 @@ private:
 	int m_iHeight; // width of the battery innards
 	int m_iHunger;
 	int m_iFireMode;
+	int m_iGrenType;
+	int m_iGrenAmnt;
 	int m_iHealth_head;
 	int m_iHealth_chest;
 	int m_iHealth_stmch;
@@ -383,6 +390,8 @@ private:
 	Rect* m_rFireMode;
 	HSPRITE_GLDSRC m_hHunger;
 	Rect* m_rHunger;
+	Rect* m_rGrenType;
+	Rect* m_rGrenAmnt;
 };
 
 

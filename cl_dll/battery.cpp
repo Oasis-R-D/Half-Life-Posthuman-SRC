@@ -16,6 +16,7 @@
 // battery.cpp
 //
 // implementation of CHudBattery class
+// also a catch all for the new hud stuff (why? WHY THE HELL NOT!!!!)
 //
 
 #include "hud.h"
@@ -30,6 +31,7 @@ DECLARE_MESSAGE(m_Battery, Battery)
 DECLARE_MESSAGE(m_Battery, Hunger)
 DECLARE_MESSAGE(m_Battery, FireMode)
 DECLARE_MESSAGE(m_Battery, LimbDMG)
+DECLARE_MESSAGE(m_Battery, GrenadeHUD)
 
 bool CHudBattery::Init()
 {
@@ -48,6 +50,7 @@ bool CHudBattery::Init()
 	HOOK_MESSAGE(Hunger);
 	HOOK_MESSAGE(FireMode);
 	HOOK_MESSAGE(LimbDMG);
+	HOOK_MESSAGE(GrenadeHUD);
 
 	gHUD.AddHudElem(this);
 
@@ -60,6 +63,11 @@ bool CHudBattery::VidInit()
 	int HUD_suit_empty = gHUD.GetSpriteIndex("suit_empty");
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
 	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
+	int HUD_GrenAmnt = gHUD.GetSpriteIndex("gren_amnt"); // Probably not gonna be used, it's a Numerical value
+	int HUD_GrenType = gHUD.GetSpriteIndex("gren_type");
+	int HUD_Hunger = gHUD.GetSpriteIndex("hud_hunger");
+	int HUD_FireMode = gHUD.GetSpriteIndex("firemode");
+
 	m_hSprite1 = m_hSprite2 = 0; // delaying get sprite handles until we know the sprites are loaded
 	m_hHeadDMG = m_hChstDMG = m_hStmchDMG = m_hLarmDMG = m_hRarmDMG = m_hLlegDMG = m_hRlegDMG = 0;
 	m_prc1 = &gHUD.GetSpriteRect(HUD_suit_empty);
@@ -68,14 +76,18 @@ bool CHudBattery::VidInit()
 
 	m_iHeight = m_prc2->bottom - m_prc1->top;
 	m_fFade = 0;
+	
+	// Post-Human begin
 	m_iHunger = 0;
 	m_iFireMode = 0;
-
-	int HUD_FireMode = gHUD.GetSpriteIndex("firemode");;
+	m_iGrenType = 0;
+	m_iGrenType = 0;
+	
 	m_rFireMode = &gHUD.GetSpriteRect(HUD_FireMode);
-
-	int HUD_Hunger = gHUD.GetSpriteIndex("hud_hunger");
 	m_rHunger = &gHUD.GetSpriteRect(HUD_Hunger);
+	m_rGrenType = &gHUD.GetSpriteRect(HUD_GrenType);
+	m_rGrenAmnt = &gHUD.GetSpriteRect(HUD_GrenAmnt);
+	// Post-Human end
 
 	return true;
 }
@@ -128,6 +140,16 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	m_iHealth_Rarm = (100 - READ_BYTE());
 	m_iHealth_Lleg = READ_BYTE();
 	m_iHealth_Rleg = READ_BYTE();
+	return true;
+}
+
+bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf)
+{
+	m_iFlags |= HUD_ACTIVE;
+
+	BEGIN_READ(pbuf, iSize);
+	m_iGrenType = READ_BYTE();
+	m_iGrenAmnt = READ_BYTE();
 	return true;
 }
 
@@ -272,6 +294,7 @@ bool CHudBattery::Draw(float flTime)
 		else if (m_iFireMode == 4) // pump
 			SPR_DrawAdditive(3, x, y - iOffset, m_rFireMode);
 	}
+
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);
 	DrawDMGSTMCH(flTime);
@@ -279,6 +302,48 @@ bool CHudBattery::Draw(float flTime)
 	DrawDMGRARM(flTime);
 	DrawDMGLLEG(flTime);
 	DrawDMGRLEG(flTime);
+	if (m_iGrenAmnt > 0)
+	{
+		DrawGrenAmnt(flTime);
+		DrawGrenType(flTime);
+	}
+	return true;
+}
+bool CHudBattery::DrawGrenType(float flTime)
+{
+	int iIconWidth = 160;
+	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = 128;
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+	y = ScreenHeight - 2.5 * (gHUD.m_iFontHeight); // note: will clip into firemode, fix later
+	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
+	
+
+	// Body dmg sprite
+	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("gren_type"));
+	SPR_Set(m_hGrenType, r, g, b);
+	SPR_DrawAdditive(1, x, y - iOffset, m_rGrenType);
+	return true;
+}
+bool CHudBattery::DrawGrenAmnt(float flTime)
+{
+	int iIconWidth = 160;
+	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+	int r, g, b, x, y, a;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = 128;
+	ScaleColors(r, g, b, a);
+
+	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
+	y = ScreenHeight - 2.5 * (gHUD.m_iFontHeight); // note: will clip into firemode, fix later
+	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
+	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iGrenAmnt, r, g, b);
 	return true;
 }
 bool CHudBattery::DrawDMGHEAD(float flTime)

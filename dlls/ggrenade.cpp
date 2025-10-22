@@ -654,7 +654,10 @@ class CGrenadePickup : public CBaseButton
 				ALERT(at_console, "Player grenades: %i\n", player->m_iGrenadeAmnt);
 				ALERT(at_console, "Pickup grenades: %i\n", m_iAmnt);
 			}
-			
+			MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, player->pev);
+			WRITE_BYTE(player->m_iGrenadeType);
+			WRITE_BYTE(player->m_iGrenadeAmnt);
+			MESSAGE_END();
 		}
 	}
 };
