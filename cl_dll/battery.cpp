@@ -143,7 +143,7 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	return true;
 }
 
-bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf)
+bool CHudBattery::MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf)
 {
 	m_iFlags |= HUD_ACTIVE;
 
