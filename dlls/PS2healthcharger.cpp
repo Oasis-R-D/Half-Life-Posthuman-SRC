@@ -634,7 +634,7 @@ void CItemHealthCharger::SetSequenceBox(void)
 	{
 		#ifdef HCHG_HACKED_BBOX
 			// PS2HL - hack for GoldSource:
-			// it makes no sence, but BBox should have max size of 4 in horisontal
+			// it makes no sence, but BBox should have max size of 4 in horizontal
 			// axes, otherwise nearby doors and elevators can freak out
 			mins.x = -4;
 			maxs.x = 2;

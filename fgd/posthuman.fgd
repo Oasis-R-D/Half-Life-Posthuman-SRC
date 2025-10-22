@@ -39,8 +39,7 @@
 	WaveHeight(string) : "Default Wave Height"
 	MaxRange(string) : "Max viewable distance" : "4096"
 	chaptertitle(string) : "Chapter Title Message"
-	rpc_chapter(string) : "RPC Chapter" : : "Chapter name to display in Discord"
-	rpc_area(string) : "RPC Area" : : "Area name to display in Discord. Map file name if empty"
+	rpc_chapter(string) : "RPC Chapter" : : "Area name to display in Discord. Map file name if empty (make sure to include map name! "[MAP 1]" for example.)
 	rpc_image(string) : "RPC Image" : : "Image to display in Discord. Options are: ph_boxart, ph_logo (default), ph_menu_fx, ord_logo"
 	startdark(choices) : "Level Fade In" : 0 =
 	[	
@@ -101,10 +100,7 @@
 
 @BaseClass = Appearflags
 [
-	spawnflags(Flags) =
-	[
-		2048 : "Not in Deathmatch" : 0
-	]
+
 ]
 
 @BaseClass = Angles
@@ -122,7 +118,16 @@
 [ 
 	target(target_destination) : "Target" 
 ]
-@BaseClass size(-16 -16 0, 16 16 32) color(0 0 200) base(Targetname, Appearflags, Angles) = Weapon []
+@BaseClass size(-16 -16 0, 16 16 32) color(0 0 200) base(Targetname, Appearflags, Angles) = Weapon
+[
+	spawnflags(flags) =
+	[
+		1: "Positionable" : 1
+		1024 : "Pre-Human"	: 0
+		2048 : "Only Hard" : 0
+		4096 : "Not in Hard" : 0
+	]
+]
 @BaseClass = Global 
 [ 
 	globalname(string) : "Global Entity Name" 
@@ -201,6 +206,7 @@
 		128: "WaitForScript" 	: 0
 		256: "Pre-Disaster" 	: 0
 		512: "Fade Corpse"	: 0
+		1024 : "Pre-Human"	: 0
 		2048 : "Only Hard" : 0
 		4096 : "Not in Hard" : 0
 	]
@@ -232,6 +238,8 @@
 	spawnflags(Flags) = 
 	[
 		1 : "Repeatable" 	: 0
+		2048 : "Only Hard" : 0
+		4096 : "Not in Hard" : 0
 	]
 ]
 
@@ -354,6 +362,8 @@
 	    	32: "Toggle" : 0
 		256:"Use Only" : 0
 		512: "Monsters Can't" : 0
+		2048 : "Only Hard" : 0
+		4096 : "Not in Hard" : 0
 	]
 	// NOTE: must be duplicated in BUTTON
 	locked_sound(choices) : "Locked Sound" : 0 = 
@@ -669,7 +679,7 @@
 // cyclers
 //
 
-@PointClass base(Targetname, Angles, Sequence) flags(Angle) size(-16 -16 0, 16 16 72) studio() studio("halflife/models/cycler.mdl") = cycler : "Monster Cycler" 
+@PointClass base(Targetname, Angles, Sequence) flags(Angle) size(-16 -16 0, 16 16 72) studio() = cycler : "Monster Cycler" 
 [
 	model(studio) : "Model"
 	scale(string) : "Scale"
@@ -1864,10 +1874,6 @@
 		0 : "Helmet"
 		1 : "None"
     ]
-	spawnflags(Flags) = 
-	[
-		1024 : "Pre-Human"	: 0
-	]
 ]
 @PointClass base(RenderFields,Appearflags, Angles, Sequence) size(-16 -16 0, 16 16 72) studio("models/barney.mdl") = monster_barney_dead : "Dead Barney" 
 [
@@ -1925,13 +1931,7 @@
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/gman.mdl") = monster_gman : "G-Man" []
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_grunt_repel : "Human Grunt (Repel)" []
 @PointClass base(Weapon, Targetx, RenderFields, Sequence) studio("models/w_grenade.mdl") = monster_handgrenade : "Live Handgrenade" []
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab.mdl") = monster_headcrab : "Head Crab"
-[
-	spawnflags(Flags) = 
-	[
-		1024 : "Pre-Human"	: 0
-	]
-]
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab.mdl") = monster_headcrab : "Head Crab" []
 @PointClass base(Appearflags,RenderFields, Angles, Sequence) size(-16 -16 0, 16 16 72) studio("models/player.mdl") sequence(73) body(1) = monster_hevsuit_dead : "Dead HEV Suit"
 [
       pose(Choices) : "Pose" : 0 =
@@ -2294,10 +2294,6 @@
 		125 : "gluonshow"
 		126 : "crouch"
 		127 : "kneel"
-	]
-	spawnflags(Flags) = 
-	[
-		1024 : "Pre-Human"	: 0
 	]
 ]
 @PointClass base(Appearflags,RenderFields, Angles) size(-16 -16 0, 16 16 72) studio("models/scientist.mdl") = monster_scientist_dead : "Dead Scientist" 
@@ -2916,7 +2912,6 @@
 	spawnflags(Flags) =
 	[
 		32 : "SquadLeader" : 0
-		1024 : "Pre-Human" : 0
 	]
 	netname(string) : "Squad Name"
 	weapons(Choices) : "Weapons" : 1 =
@@ -3071,7 +3066,7 @@
 	mult(integer) : Multiply : "1.0"
 ]
 
-@PointClass iconsprite("sprites/env_warpball.spr") base(Targetname, Target) size(-32 -32 -32, 32 32 32) color(0 255 0) = env_warpball : "Warp In Ball"
+@PointClass iconsprite("halflife/sprites/env_warpball.spr") base(Targetname, Target) size(-32 -32 -32, 32 32 32) color(0 255 0) = env_warpball : "Warp In Ball"
 [
 	spawnflags(flags) =
 	[
@@ -3109,7 +3104,7 @@
         10 : "Shotgun + HG"
     ]
 ]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/znull.mdl") = monster_znull : "Corrupted" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/lucigast.mdl") = monster_znull : "Corrupted" []
 @PointClass base(Monster) iconsprite("halflife/sprites/info_monstarget.spr") size(-16 -16 0, 16 16 36) = info_monstarget : "monsters attack me"
 [
 	Max_hits(integer) : "Max hits" : -1
@@ -3270,20 +3265,8 @@ initammo(string) : "Initial Ammo" : 6
 	]
 ]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_super.mdl") = monster_headcrab_super : "Super Head Crab" []
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_fast.mdl") = monster_headcrab_fast : "Fast Head Crab" 
-[
-	spawnflags(Flags) = 
-	[
-		1024 : "Pre-Human"	: 0
-	]
-]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_poison.mdl") = monster_headcrab_poison : "Poison Head Crab"
-[
-	spawnflags(Flags) = 
-	[
-		1024 : "Pre-Human"	: 0
-	]
-]
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_fast.mdl") = monster_headcrab_fast : "Fast Head Crab" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/headcrab_poison.mdl") = monster_headcrab_poison : "Poison Head Crab" []
 @PointClass base(Targetname, Angles) studio("halflife/models/env_blood.mdl") size(-16 -16 -16, 16 16 16) color(255 0 0) = env_bloodspray : "Blood Effects" 
 [
 	color(choices) : "Blood Color" : 0 =
@@ -3318,14 +3301,14 @@ initammo(string) : "Initial Ammo" : 6
 	weapons(Choices) : "Weapons" : 1 =
 	[
 		1 : "9mmAR"
-		3 : "9mmAR + HG"
+		3 : "9mmAR + RPG"
 		5 : "9mmAR + GL"
 		8 : "Shotgun"
-		10 : "Shotgun + HG"
+		10 : "Shotgun + RPG"
 		16 : M249
-		18 : "M249 + HG"
+		18 : "M249 + RPG"
 		32 : "M727"
-		34 : "M727 + HG"
+		34 : "M727 + RPG"
 	]
 	sequence(Choices) : "Animation Sequence (editor)" : 11 =
 	[
@@ -3411,5 +3394,50 @@ initammo(string) : "Initial Ammo" : 6
 		79 : "jumptracks"
 		80 : "pipetoss"
 		81 : "plunger"
+	]
+]
+@PointClass iconsprite("halflife/sprites/info_info.spr") base() = info_info : "comment, does nothing in game" : "http://twhl.info/wiki.php?id=148" []
+@PointClass base(Targetname, Angles) studio("halflife/models/env_bulletshooter.mdl") size(-16 -16 -16, 16 16 16) color(255 265 0) = env_bulletshooter : "Bullet shooter" 
+[
+	amount(integer) : "Amount to Fire" : 1
+	bullettype(choices) : "Bullet type" : 0 =
+	[
+		0 : "9MM"
+		1 : "5.56MM"
+		2 : "7.62MM"
+		3 : ".357 Magnum"
+		4 : ".44 Magnum"
+		5 : "12 gauge buckshot"
+		6 : "rubber"
+		7 : "the funny"
+	]
+	damage(integer) : "Bullet Damage" : 5
+	penetration(integer) : "Penetration (-1 for cal def)" : -1
+	bulletvel(integer) : "Bullet Velocity" : 6000
+	spread(string) : "Spread (Rad)" : "0.3473"
+	gravity(string) : "Gravity (0.0-1.0)" : "0.6"
+	subsonic(choices) : "Subsonic (0.75 pen, low vis)" : 0 =
+	[
+		0 : "false"
+		1 : "true"
+	]
+	spawnflags(flags) =
+	[
+		1: "Random Direction" : 0
+		4: "From Player camera" : 0
+	]
+]
+@PointClass base(Targetname, Angles, Weapon) studio("models/w_grenade.mdl") size(-16 -16 -16, 16 16 16) color(255 265 0) = ammo_grenade : "Grenades" 
+[
+	amount(integer) : "Amount of grenades" : 1
+	grentype(choices) : "Grenade type" : 0 =
+	[
+		0 : "F1 frag"
+		1 : "Impact"
+	]
+	spawnflags(flags) =
+	[
+		1: "Random Direction" : 0
+		4: "From Player camera" : 0
 	]
 ]

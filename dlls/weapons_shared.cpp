@@ -168,7 +168,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		m_pPlayer->m_iGrenadeAmnt--;
 
 		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.5;
 		m_fGrenadeFireDelay = gpGlobals->time + 0.5;
 
 		GrenadeAttack();
@@ -178,7 +178,21 @@ void CBasePlayerWeapon::ItemPostFrame()
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 			m_pPlayer->m_iGrenadeAmnt = 0;
 		}
-			
+		else if (m_pPlayer->m_iGrenadeAmnt == 1)
+		{
+			switch(RANDOM_LONG(1, 3))
+			{
+				case 1:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
+				break;
+				case 2:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
+				break;
+				case 3:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
+				break;
+			}
+		}
 		m_pPlayer->pev->button &= ~IN_SCORE;
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
@@ -256,7 +270,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	static float flMultiplier = 6.5f;
 	float time;
 
-	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -8 + gpGlobals->v_up * -2;
+	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -2;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
 
 	if (angThrow.x < 0)

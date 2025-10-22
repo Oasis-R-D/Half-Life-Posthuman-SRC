@@ -579,7 +579,7 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 
 
 // WE'RE DONE WHEN I SAY WE'RE DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-class CGrenadePickup : public CBasePlayerItem
+class CGrenadePickup : public CBaseButton
 {
 	int m_iTracerType;
 	int m_iAmnt;
@@ -587,7 +587,11 @@ class CGrenadePickup : public CBasePlayerItem
 	{
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_grenade.mdl");
-		CBasePlayerItem::Spawn();
+		// Set up BBox and origin
+		pev->solid = SOLID_BBOX;
+		SetSequenceBox();
+		UTIL_SetOrigin(pev, pev->origin);
+		pev->movetype = MOVETYPE_NONE;
 	}
 	void Precache() override
 	{
@@ -606,23 +610,7 @@ class CGrenadePickup : public CBasePlayerItem
 			m_iAmnt = (atoi(pkvd->szValue));
 			return true;
 		}
-		return CBasePlayerItem::KeyValue(pkvd);
-	}
-	void Materialize()
-	{
-		if ((pev->effects & EF_NODRAW) != 0)
-		{
-			// changing from invisible state to visible.
-			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "items/suitchargeok1.wav", 1, ATTN_NORM, 0, 150);
-			pev->effects &= ~EF_NODRAW;
-			pev->effects |= EF_MUZZLEFLASH;
-		}
-
-		pev->solid = SOLID_BBOX;
-
-		UTIL_SetOrigin(pev, pev->origin); // link into world.
-		SetTouch(NULL); //&CBasePlayerItem::DefaultTouch
-		SetThink(NULL);
+		return CBaseButton::KeyValue(pkvd);
 	}
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override
 	{
@@ -630,25 +618,43 @@ class CGrenadePickup : public CBasePlayerItem
 		{
 			int iPlayerGrenType;
 			int iPlayerGrenAmnt;
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
 			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pActivator);
 			if (player->m_iGrenadeAmnt == 0) // if player has no grenades to exchange, remove this
 			{
 				player->m_iGrenadeAmnt = m_iAmnt;
 				player->m_iGrenadeType = m_iTracerType;
-				DestroyItem();
+				UTIL_Remove(this);
 				return; 
 			}
 				
 			iPlayerGrenType = player->m_iGrenadeType;
 			iPlayerGrenAmnt = player->m_iGrenadeAmnt;
+			if (m_iTracerType != player->m_iGrenadeType)
+			{
+				player->m_iGrenadeAmnt = m_iAmnt; // exchanges player grenades with pickups amnt and type
+				player->m_iGrenadeType = m_iTracerType;
 
-			player->m_iGrenadeAmnt = m_iAmnt; // exchanges player grenades with pickups amnt and type
-			player->m_iGrenadeType = m_iTracerType;
-
-			m_iTracerType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
-			m_iAmnt = iPlayerGrenAmnt;
-
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+				m_iTracerType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
+				m_iAmnt = iPlayerGrenAmnt;
+				ALERT(at_console, "Player grenades: %i\n", player->m_iGrenadeAmnt);
+				ALERT(at_console, "Pickup grenades: %i\n", m_iAmnt);
+				ALERT(at_console, "Player type: %i\n", player->m_iGrenadeType);
+				ALERT(at_console, "Pickup type: %i\n", m_iTracerType);
+			}
+			else
+			{
+				while (m_iAmnt > 0)
+				{
+					if (player->m_iGrenadeAmnt >= 3)
+						break;
+					player->m_iGrenadeAmnt += 1;
+					m_iAmnt -= 1;
+				}
+				ALERT(at_console, "Player grenades: %i\n", player->m_iGrenadeAmnt);
+				ALERT(at_console, "Pickup grenades: %i\n", m_iAmnt);
+			}
+			
 		}
 	}
 };
