@@ -342,6 +342,10 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 	}
 	if (m_pPlayer->m_bInGrenadeDelay && m_fGrenadeFireDelay < gpGlobals->time)
 	{
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, m_pPlayer->pev);
+		WRITE_BYTE(m_pPlayer->m_iGrenadeType);
+		WRITE_BYTE(m_pPlayer->m_iGrenadeAmnt);
+		MESSAGE_END();
 		ShootGrenade(m_pPlayer->m_iGrenadeType);
 		m_pPlayer->m_bInGrenadeDelay = false;
 		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon  grenade anims since this is for the animations
