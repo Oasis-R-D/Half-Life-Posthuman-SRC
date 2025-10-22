@@ -581,8 +581,8 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 // WE'RE DONE WHEN I SAY WE'RE DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class CGrenadePickup : public CBaseButton
 {
-	int m_iTracerType;
-	int m_iAmnt;
+	int m_iTracerType = 0;
+	int m_iAmnt = 3;
 	void Spawn() override
 	{
 		Precache();

@@ -1292,15 +1292,17 @@ void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* 
 	{
 		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
 		Vector spawnpos = ptr->vecEndPos + vecDir * -8;
-		
+		if (BULLET != nullptr)
+		{
 #ifndef CLIENT_DLL
-		CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -vecDir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, Attacked->edict(), false, BULLET->m_distpenetrate);
-		BULLET->m_distpenetrate = 0;
-		ALERT(at_console, "ricochet!\n");
+			CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -vecDir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, Attacked->edict(), false, BULLET->m_distpenetrate);
+			BULLET->m_distpenetrate = 0;
+			ALERT(at_console, "ricochet!\n");
 #endif		
-		ALERT(at_console, "ric damage: %i\n", BULLET->m_BulletDamage);
-		ALERT(at_console, "ric speed: %i\n", BULLET->m_muzzlevelocity);
-		ALERT(at_console, "ric skin: %i\n", BULLET->m_Flare);
+			ALERT(at_console, "ric damage: %i\n", BULLET->m_BulletDamage);
+			ALERT(at_console, "ric speed: %i\n", BULLET->m_muzzlevelocity);
+			ALERT(at_console, "ric skin: %i\n", BULLET->m_Flare);
+		}
 	}
 }
 /*
