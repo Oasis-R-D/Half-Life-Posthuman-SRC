@@ -343,8 +343,9 @@ bool CHudBattery::DrawGrenAmnt(float flTime)
 	ScaleColors(r, g, b, a);
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	y = ScreenHeight - 2.5 * (gHUD.m_iFontHeight); // note: will clip into firemode, fix later
 	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
+	y = ScreenHeight - (gHUD.m_iFontHeight * 5); // this is one font height higher than the weapon 2nd ammo values
+	
 	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iGrenAmnt, r, g, b);
 	return true;
 }
