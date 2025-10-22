@@ -3997,6 +3997,10 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_m29");
 		m_iGrenadeAmnt = 3;
 		m_iGrenadeType = 1;
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
 		gEvilImpulse101 = false;
 		break;
 
