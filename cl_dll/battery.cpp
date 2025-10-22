@@ -72,7 +72,7 @@ bool CHudBattery::VidInit()
 	m_hHeadDMG = m_hChstDMG = m_hStmchDMG = m_hLarmDMG = m_hRarmDMG = m_hLlegDMG = m_hRlegDMG = 0;
 	m_prc1 = &gHUD.GetSpriteRect(HUD_suit_empty);
 	m_prc2 = &gHUD.GetSpriteRect(HUD_suit_full);
-	m_prc3 = &gHUD.GetSpriteRect(HUD_suit_dmg);
+	m_prc3 = &gHUD.GetSpriteRect(HUD_suit_dmg); // Used for suit dmg
 
 	m_iHeight = m_prc2->bottom - m_prc1->top;
 	m_fFade = 0;
@@ -261,6 +261,8 @@ bool CHudBattery::Draw(float flTime)
 		m_hRlegDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
 	if (0 == m_hStmchDMG)
 		m_hStmchDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
+	if (0 == m_hGrenType)
+		m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("gren_type"));
 	SPR_Set(m_hSprite1, r, g, b);
 	SPR_DrawAdditive(0, x, y - iOffset, m_prc1);
 
@@ -324,10 +326,10 @@ bool CHudBattery::DrawGrenType(float flTime)
 	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
 	
 
-	// Body dmg sprite
-	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("gren_type"));
+	// Draw
+
 	SPR_Set(m_hGrenType, r, g, b);
-	SPR_DrawAdditive(1, x, y - iOffset, m_rGrenType);
+	SPR_DrawAdditive(m_iGrenType, x, y - iOffset, m_rGrenType);
 	return true;
 }
 bool CHudBattery::DrawGrenAmnt(float flTime)
