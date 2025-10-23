@@ -214,130 +214,130 @@ void CPhysbullet::Stay()
 }
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
-	if (!pOther->IsBullet())
+	if (pOther->IsBullet())
+		return;
+	
+	m_Endpos = pev->origin; // where bullet hit
+	entvars_t* pevOwner;
+	pevOwner = VARS(pev->owner);
+	TraceResult tr = UTIL_GetGlobalTrace();
+	TraceResult beam_tr;
+	TraceResult beam_tr2;
+	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
+	
+	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
-		m_Endpos = pev->origin; // where bullet hit
-		entvars_t* pevOwner;
-		pevOwner = VARS(pev->owner);
-		TraceResult tr = UTIL_GetGlobalTrace();
-		TraceResult beam_tr;
-		TraceResult beam_tr2;
-		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-		
-		if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
-		{
-			float p;
-			int i = 1;
+		float p;
+		int i = 1;
 
+		UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
+		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method)
+		{
+			i += 1;
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-			while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method)
+			if (i > m_distpenetrate)
 			{
-				i += 1;
-				UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-				if (i > m_distpenetrate)
-				{
-					ALERT(at_console, "Wall is too thick! Max Size: %i\n", i);
-					break;
-				}
-			}
-			if (0 == beam_tr2.fAllSolid) // Raymarch found da way
-			{
-				ALERT(at_console, "est wall depth %i\n", i);
-
-				UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
-				m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
-
-				// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-				p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i);
-				p *= 1000;
-				p = round(p);
-				p /= 1000;
-				
-				if (p < m_distpenetrate && m_distpenetrate > 0)
-				{
-					// Prevent inf penetration
-					m_distpenetrate = m_distpenetrate - p;
-					if (m_distpenetrate < 0)
-						m_distpenetrate = 0;
-
-					ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-					ALERT(at_console, "penetrated: %f units + mult\n", p);
-
-					// Damage reduction
-					m_BulletDamage -= round(0.125 * p);
-					if (m_BulletDamage <= 0)
-						m_BulletDamage = 2;
-
-					// Fire penetrated bullet
-					Vector spawnpos = tr.vecEndPos + m_direction * i;
-					CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, pev->owner, m_bsubsonic, m_distpenetrate);
-
-					// Damage
-					ClearMultiDamage();
-					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-					pOther->TraceAttack(pevOwner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
-					ApplyMultiDamage(pev, pevOwner);
-
-					// VFX
-					DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
-					DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
-					TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-
-					// Remove original bullet
-					UTIL_Remove(this);
-					return;
-				}
-				else
-				{
-					ALERT(at_console, "too thick! Size: %f units + mult\n", p);
-				}
+				ALERT(at_console, "Wall is too thick! Max Size: %i\n", i);
+				break;
 			}
 		}
-		else
+		if (0 == beam_tr2.fAllSolid) // Raymarch found da way
 		{
-			ALERT(at_console, "pen below 0!\n");
-			m_distpenetrate = 0;
-		}
+			ALERT(at_console, "est wall depth %i\n", i);
 
-		// Did not penetrate, normal collision
+			UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
+			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
-		pev->movetype = MOVETYPE_NONE;
-		SetTouch(NULL);
-		SetThink(NULL);
-
-		if (0 != pOther->pev->takedamage)
-		{
-			// UNDONE: this needs to call TraceAttack instead
-			ClearMultiDamage();
-			pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
-			ApplyMultiDamage(pev, pevOwner);
-
-			if (pOther->IsBSPModel())
+			// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
+			p = i * TEXTURETYPE_Penetration(&tr, m_Endpos, m_Endpos + m_direction * i);
+			p *= 1000;
+			p = round(p);
+			p /= 1000;
+			
+			if (p < m_distpenetrate && m_distpenetrate > 0)
 			{
-				Stay();
+				// Prevent inf penetration
+				m_distpenetrate = m_distpenetrate - p;
+				if (m_distpenetrate < 0)
+					m_distpenetrate = 0;
+
+				ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
+				ALERT(at_console, "penetrated: %f units + mult\n", p);
+
+				// Damage reduction
+				m_BulletDamage -= round(0.125 * p);
+				if (m_BulletDamage <= 0)
+					m_BulletDamage = 2;
+
+				// Fire penetrated bullet
+				Vector spawnpos = tr.vecEndPos + m_direction * i;
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, pev->owner, m_bsubsonic, m_distpenetrate);
+
+				// Damage
+				ClearMultiDamage();
+				pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(pevOwner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(pev, pevOwner);
+
+				// VFX
+				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
+				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
+				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+
+				// Remove original bullet
+				UTIL_Remove(this);
+				return;
 			}
 			else
 			{
-				// play NPC hit sound (this is here because stay() isn't called when hitting an npc so the sounds there don't apply to npcs)
-				switch (RANDOM_LONG(0, 1))
-				{
-				case 0:
-					EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
-					break;
-				case 1:
-					EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
-					break;
-				}
-				UTIL_Remove(this);
+				ALERT(at_console, "too thick! Size: %f units + mult\n", p);
 			}
 		}
-		else
+	}
+	else
+	{
+		ALERT(at_console, "pen below 0!\n");
+		m_distpenetrate = 0;
+	}
+
+	// Did not penetrate, normal collision
+
+	pev->movetype = MOVETYPE_NONE;
+	SetTouch(NULL);
+	SetThink(NULL);
+
+	if (0 != pOther->pev->takedamage)
+	{
+		// UNDONE: this needs to call TraceAttack instead
+		ClearMultiDamage();
+		pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+		ApplyMultiDamage(pev, pevOwner);
+
+		if (pOther->IsBSPModel())
 		{
 			Stay();
 		}
-		DecalGunshot(&tr, (m_bHeavyDecal) ? BULLET_MONSTER_12MM : BULLET_MONSTER_9MM);
-		TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+		else
+		{
+			// play NPC hit sound
+			switch (RANDOM_LONG(0, 1))
+			{
+			case 0:
+				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
+				break;
+			}
+			UTIL_Remove(this);
+		}
 	}
+	else
+	{
+		Stay();
+	}
+	DecalGunshot(&tr, (m_bHeavyDecal) ? BULLET_MONSTER_12MM : BULLET_MONSTER_9MM);
+	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 }
 
 void CPhysbullet::AirThink()
