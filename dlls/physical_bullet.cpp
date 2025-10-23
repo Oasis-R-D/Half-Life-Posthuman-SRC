@@ -161,9 +161,14 @@ void CPhysbullet::Spawn()
 	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
 	{
 		if (owner->IsPlayer())
+		{
 			pev->renderamt = 0;
-		if (g_iSkillLevel == SKILL_HARD)
-			pev->velocity = pev->velocity + owner->pev->velocity;
+			if (g_iSkillLevel == SKILL_HARD)
+			{
+				pev->velocity = pev->velocity + owner->pev->velocity;
+				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
+			}
+		}
 	}
 	if (m_bsubsonic)
 		pev->renderamt = 5;
