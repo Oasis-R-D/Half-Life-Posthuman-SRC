@@ -342,7 +342,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		{
 			Stay();
 		}
-		DecalGunshot(&tr, m_bHeavyDecal ? BULLET_PLAYER_12MM : BULLET_MONSTER_9MM);
+		DecalGunshot(&tr, (m_bHeavyDecal) ? BULLET_PLAYER_12MM : BULLET_MONSTER_9MM);
 		TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 	}
 }
