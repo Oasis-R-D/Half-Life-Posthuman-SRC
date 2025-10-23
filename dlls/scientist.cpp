@@ -80,7 +80,6 @@ public:
 	float CoverRadius() override { return 1200; } // Need more room for cover because scientists want to get far away!
 	bool DisregardEnemy(CBaseEntity* pEnemy) { return !pEnemy->IsAlive() || (gpGlobals->time - m_fearTime) > 15; }
 
-	bool m_bPrehuman;
 	bool CanHeal();
 	void Heal();
 	void Scream();
@@ -640,7 +639,7 @@ void CScientist::HandleAnimEvent(MonsterEvent_t* pEvent)
 //=========================================================
 void CScientist::Spawn()
 {
-	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	if (m_bPrehuman)
 	{
 		// TO-DO: restore following
 	}

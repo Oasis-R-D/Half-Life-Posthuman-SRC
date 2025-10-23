@@ -88,7 +88,6 @@ public:
 	int m_iArmor;
 	int m_iHelmet;
 	int m_helmDUR = 3;
-	bool m_bPrehuman;
 	CUSTOM_SCHEDULES;
 };
 
@@ -432,7 +431,7 @@ void CBarney::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CBarney::Spawn()
 {
 	Precache();
-	if (FBitSet(pev->spawnflags, SF_PREHUMAN))
+	if (m_bPrehuman)
 	{
 		//SetUse(&CBarney::FollowerUse); // TO-DO: add following
 	}
