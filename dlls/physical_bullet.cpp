@@ -275,6 +275,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					// Damage
 					ClearMultiDamage();
 					pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+					pOther->TraceAttack(pevOwner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(pev, pevOwner);
 
 					// VFX
@@ -308,15 +309,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		{
 			// UNDONE: this needs to call TraceAttack instead
 			ClearMultiDamage();
-			if (m_Flare != 420)
-			{
-				pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-			}
-			else
-			{
-				pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
-			}
-
+			pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 			ApplyMultiDamage(pev, pevOwner);
 
 			if (pOther->IsBSPModel())
