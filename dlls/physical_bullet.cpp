@@ -93,14 +93,12 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 		pev->scale = RANDOM_FLOAT(0.23, 0.27);
 		m_distpenetrate = 24;
-		m_maxricochet = 2;
 	}
 	if (m_Flare == 762) // probably 762
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.31, 0.35);
 		m_distpenetrate = 32;
-		m_maxricochet = 2;
 		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 12) // 12 gauge
@@ -108,14 +106,12 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 		pev->scale = RANDOM_FLOAT(0.13, 0.17);
 		m_distpenetrate = 10;
-		m_maxricochet = 0;
 	}
 	else if (m_Flare == 357)
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.28, 0.32);
 		m_distpenetrate = 18;
-		m_maxricochet = 3;
 		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 44)
@@ -123,14 +119,12 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.32, 0.33);
 		m_distpenetrate = 16;
-		m_maxricochet = 4;
 		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 69) // Training weapons
 	{
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
 		m_distpenetrate = 2;
-		m_maxricochet = 3;
 		pev->rendermode = kRenderNormal;
 	}
 	else if (m_Flare == 420) // HC Deagle
@@ -138,7 +132,6 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 		pev->scale = 2;
 		m_distpenetrate = 128;
-		m_maxricochet = 5;
 		pev->rendercolor = Vector(255, 70, 170);
 		pev->rendermode = kRenderTransAdd;
 		m_bHeavyDecal = true;
@@ -148,7 +141,6 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 		pev->scale = RANDOM_FLOAT(0.18, 0.22);
 		m_distpenetrate = 16;
-		m_maxricochet = 1;
 	}
 	if (m_bsubsonic)
 		m_distpenetrate = round(m_distpenetrate * 0.75);
@@ -350,10 +342,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		{
 			Stay();
 		}
-		if (!m_bHeavyDecal)
-			DecalGunshot(&tr, BULLET_PLAYER_9MM);
-		else
-			DecalGunshot(&tr, BULLET_MONSTER_12MM); // 12 mm is the heavy decal
+		DecalGunshot(&tr, m_bHeavyDecal ? BULLET_PLAYER_12MM : BULLET_MONSTER_9MM);
 		TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 	}
 }
