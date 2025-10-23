@@ -63,8 +63,7 @@ bool CHudBattery::VidInit()
 	int HUD_suit_empty = gHUD.GetSpriteIndex("suit_empty");
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
 	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
-	int HUD_GrenAmnt = gHUD.GetSpriteIndex("gren_amnt"); // Probably not gonna be used, it's a Numerical value
-	int HUD_GrenType = gHUD.GetSpriteIndex("gren_type");
+	int HUD_GrenType = gHUD.GetSpriteIndex("grentype");
 	int HUD_Hunger = gHUD.GetSpriteIndex("hud_hunger");
 	int HUD_FireMode = gHUD.GetSpriteIndex("firemode");
 
@@ -81,12 +80,11 @@ bool CHudBattery::VidInit()
 	m_iHunger = 0;
 	m_iFireMode = 0;
 	m_iGrenType = 0;
-	m_iGrenType = 0;
+	m_iGrenAmnt = 0;
 	
 	m_rFireMode = &gHUD.GetSpriteRect(HUD_FireMode);
 	m_rHunger = &gHUD.GetSpriteRect(HUD_Hunger);
 	m_rGrenType = &gHUD.GetSpriteRect(HUD_GrenType);
-	m_rGrenAmnt = &gHUD.GetSpriteRect(HUD_GrenAmnt);
 	// Post-Human end
 
 	return true;
@@ -261,8 +259,7 @@ bool CHudBattery::Draw(float flTime)
 		m_hRlegDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
 	if (0 == m_hStmchDMG)
 		m_hStmchDMG = gHUD.GetSprite(gHUD.GetSpriteIndex("limb_dmgs"));
-	if (0 == m_hGrenType)
-		m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("gren_type"));
+
 	SPR_Set(m_hSprite1, r, g, b);
 	SPR_DrawAdditive(0, x, y - iOffset, m_prc1);
 
@@ -313,6 +310,7 @@ bool CHudBattery::Draw(float flTime)
 }
 bool CHudBattery::DrawGrenType(float flTime)
 {
+	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
 	int iIconWidth = 160;
 	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
 	int r, g, b, x, y, a;
@@ -322,14 +320,14 @@ bool CHudBattery::DrawGrenType(float flTime)
 	ScaleColors(r, g, b, a);
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	y = ScreenHeight - 2.5 * (gHUD.m_iFontHeight); // note: will clip into firemode, fix later
 	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
+	y = ScreenHeight - (gHUD.m_iFontHeight * 4); // this is one font height higher than the weapon 2nd ammo values
 	
 
 	// Draw
-
+	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
 	SPR_Set(m_hGrenType, r, g, b);
-	SPR_DrawAdditive(m_iGrenType, x, y - iOffset, m_rGrenType);
+	SPR_DrawAdditive(m_iGrenType, x, y, m_rGrenType);
 	return true;
 }
 bool CHudBattery::DrawGrenAmnt(float flTime)
@@ -343,10 +341,10 @@ bool CHudBattery::DrawGrenAmnt(float flTime)
 	ScaleColors(r, g, b, a);
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
-	y = ScreenHeight - (gHUD.m_iFontHeight * 5); // this is one font height higher than the weapon 2nd ammo values
+	x = ScreenWidth - (4 * AmmoWidth);
+	y = ScreenHeight - (gHUD.m_iFontHeight * 4); // this is one font height higher than the weapon 2nd ammo values
 	
-	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iGrenAmnt, r, g, b);
+	x = gHUD.DrawHudNumber(x, y, DHN_2DIGITS | DHN_DRAWZERO, m_iGrenAmnt, r, g, b);
 	return true;
 }
 bool CHudBattery::DrawDMGHEAD(float flTime)

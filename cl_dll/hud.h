@@ -367,7 +367,6 @@ private:
 	HSPRITE_GLDSRC m_hLlegDMG;
 	HSPRITE_GLDSRC m_hRlegDMG;
 	HSPRITE_GLDSRC m_hGrenType;
-	HSPRITE_GLDSRC m_hGrenAmnt;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prc3;
@@ -391,7 +390,6 @@ private:
 	HSPRITE_GLDSRC m_hHunger;
 	Rect* m_rHunger;
 	Rect* m_rGrenType;
-	Rect* m_rGrenAmnt;
 };
 
 
