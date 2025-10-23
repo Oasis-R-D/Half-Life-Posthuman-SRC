@@ -162,7 +162,8 @@ void CPhysbullet::Spawn()
 	{
 		if (owner->IsPlayer())
 			pev->renderamt = 0;
-		pev->velocity = pev->velocity + owner->pev->velocity;
+		if (g_iSkillLevel == SKILL_HARD)
+			pev->velocity = pev->velocity + owner->pev->velocity;
 	}
 	if (m_bsubsonic)
 		pev->renderamt = 5;
