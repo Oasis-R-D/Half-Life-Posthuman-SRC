@@ -105,7 +105,7 @@ void CPhysblood::Spawn()
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + (m_direction * 24) * m_opposite); //spawn a little bit more forward
 	pev->velocity = ((m_direction + Vector(RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread), RANDOM_FLOAT(m_Spread, -m_Spread))) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the outwards droplets
-	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
+	pev->gravity = m_Gravity;
 	pev->owner = NULL;
 
 	if (m_BloodType == BLOOD_COLOR_RED)
@@ -177,8 +177,6 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 {
 	SetTouch(NULL);
 	SetThink(NULL);
-
-	Stay();
 	TraceResult tr = UTIL_GetGlobalTrace();
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
@@ -202,16 +200,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		switch(RANDOM_LONG(0, 2))
-		{
-		case 0:
-		case 1:
-			UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6));
-			break;
-		case 2:
-			UTIL_DecalTrace(&tr, DECAL_NBLOODSPRAY1); // purple is very common in the noise textures
-			break;
-		}
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6));
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
@@ -222,12 +211,13 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	CBaseEntity* pObject = NULL;
+	
 	pev->nextthink = gpGlobals->time + 0.05;
+	CBaseEntity* pObject = NULL;
 	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 	if (pObject)
 	{
-		if (m_BloodType == BLOOD_COLOR_CYAN && pObject->IsPlayer() && 0 != pObject->pev->takedamage && m_hashealed != true)
+		if (m_BloodType == BLOOD_COLOR_CYAN && !pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true)
 		{
 			ALERT(at_console, "attempt heal\n");
 			m_hashealed = true;
@@ -278,7 +268,7 @@ void CPhysblood::AirThink()
 		{
 			m_hasstained = true;
 			ALERT(at_console, "pObject is now cleaned HECU\n");
-			CHGrunt* Hgrunt = dynamic_cast<CHGrunt*>(pObject);
+			CHGrunt* Hgrunt = dynamic_cast<CHGrunt*>(pObject); //Kinda pointless, should remove?
 			if (Hgrunt->pev->skin % 2 == 0)
 				Hgrunt->pev->skin = 0;
 			else
@@ -290,7 +280,7 @@ void CPhysblood::AirThink()
 		}
 	}
 	if (pev->waterlevel == 0)
-	return;
+		return;
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
