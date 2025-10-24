@@ -528,12 +528,17 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		case 1:
 			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			// Tumble through the air
+			pGrenade->pev->avelocity.x = -400;
 			break;
 		case 2:
 			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
+			// Tumble through the air
+			pGrenade->pev->avelocity.x = -400;
 			break;
+
 	}
 	if (time == -1)
 	{
@@ -552,8 +557,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 	pGrenade->pev->framerate = 1.0;
 	pGrenade->ResetSequenceInfo();
 
-	// Tumble through the air
-	// pGrenade->pev->avelocity.x = -400;
+
 
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
