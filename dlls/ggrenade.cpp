@@ -157,6 +157,111 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(BREAK_SMOKE); // flags
 	MESSAGE_END();
 }
+void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
+{
+	float flRndSound; // sound randomizer
+
+	pev->model = iStringNull; //invisible
+	pev->solid = SOLID_NOT;	  // intangible
+
+	pev->takedamage = DAMAGE_NO;
+
+	// Pull out of the wall a bit
+	if (pTrace->flFraction != 1.0)
+	{
+		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
+	}
+
+	
+
+	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+	entvars_t* pevOwner;
+	if (pev->owner)
+		pevOwner = VARS(pev->owner);
+	else
+		pevOwner = NULL;
+
+	pev->owner = NULL; // can't traceline attack owner if this is set
+
+	// Counteract the + 1 in RadiusDamage.
+	Vector origin = pev->origin;
+	origin.z -= 1;
+
+	RadiusDamage(origin, pev, pevOwner, 3, CLASS_MACHINE, bitsDamageType);
+
+	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
+
+	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
+	
+	CBaseEntity* pEntity = NULL;
+	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 400)) != NULL)
+	{
+		if (pEntity->IsAlive())
+		{
+			CBaseMonster* pMonster = pEntity->GetMonsterPointer(pEntity->edict()); // stuns the enemy
+			if (pMonster != nullptr)
+			{
+				pMonster->Forget(bits_MEMORY_INCOVER);
+				pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_PROVOKED | bits_COND_CAN_ATTACK);
+				pMonster->ClearConditions(bits_COND_HEAR_SOUND | bits_COND_SMELL);
+				pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
+				pMonster->m_hEnemy = NULL;
+				pMonster->pev->nextthink = 0.5;
+			}
+		}
+		
+	}
+	flRndSound = RANDOM_FLOAT(0, 1);
+
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55, ATTN_NORM);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55, ATTN_NORM);
+		break;
+	}
+
+	pev->effects |= EF_BRIGHTLIGHT;
+	pev->velocity = g_vecZero;
+	int iContents = UTIL_PointContents(pev->origin);
+	if (iContents != CONTENTS_WATER)
+	{
+		int sparkCount = RANDOM_LONG(0, 3);
+		for (int i = 0; i < sparkCount; i++)
+			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
+	}
+
+	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+	WRITE_BYTE(TE_BREAKMODEL);
+	// position
+	WRITE_COORD(pev->origin.x);
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z);
+	// size
+	WRITE_COORD(8);
+	WRITE_COORD(8);
+	WRITE_COORD(8);
+	// velocity
+	WRITE_COORD(pev->velocity.x);
+	WRITE_COORD(pev->velocity.y);
+	WRITE_COORD(pev->velocity.z);
+	WRITE_BYTE(50); // randomization
+	// Model
+	WRITE_SHORT(g_sModelIndexShrapnel); // model id#
+	// # of shards
+	WRITE_BYTE(2); // let client decide
+	// duration
+	WRITE_BYTE(30); // 3.0 seconds
+	WRITE_BYTE(BREAK_SMOKE); // flags
+	MESSAGE_END();
+	SetThink(&CGrenade::SUB_Remove);
+	pev->nextthink = 0.125;
+}
 
 
 void CGrenade::Smoke()
@@ -220,6 +325,16 @@ void CGrenade::Detonate()
 	}
 	#endif
 	Explode(&tr, DMG_BLAST);
+}
+
+void CGrenade::DetonateFlash()
+{
+	TraceResult tr;
+	Vector vecSpot; // trace starts here!
+
+	vecSpot = pev->origin + Vector(0, 0, 8);
+	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
+	ExplodeFlash(&tr, DMG_BLAST);
 }
 
 
@@ -372,7 +487,21 @@ void CGrenade::BounceSound()
 		break;
 	}
 }
-
+void CGrenade::CallDetonate()
+{
+	switch (m_iGrenType)
+	{
+		case 0:
+			SetThink(&CGrenade::Detonate);
+			break;
+		case 1:
+			break;
+		case 2:
+			SetThink(&CGrenade::DetonateFlash);
+			break;
+	}
+	pev->nextthink = gpGlobals->time;
+}
 void CGrenade::TumbleThink()
 {
 	if (!IsInWorld())
@@ -391,7 +520,7 @@ void CGrenade::TumbleThink()
 
 	if (pev->dmgtime <= gpGlobals->time)
 	{
-		SetThink(&CGrenade::Detonate);
+		CallDetonate();
 	}
 	if (pev->waterlevel != 0)
 	{
@@ -518,6 +647,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		pGrenade->pev->nextthink = gpGlobals->time;
 		pGrenade->pev->velocity = Vector(0, 0, 0);
 	}
+
 	switch (type)
 	{
 		case 0:
@@ -532,14 +662,22 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->avelocity.x = -400;
 			break;
 		case 2:
-			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+			SET_MODEL(ENT(pGrenade->pev), "models/w_fgrenade.mdl");
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
+			break;
+		case 3:
+			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
 			// Tumble through the air
-			pGrenade->pev->avelocity.x = -400;
+			pGrenade->pev->avelocity.x = RANDOM_LONG(-100, -400);
+			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
+			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			break;
-
 	}
+	pGrenade->m_iGrenType = type;
+
 	if (time == -1)
 	{
 			// make monsters afaid of it while in the air
@@ -570,6 +708,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 	{
 		pGrenade->pev->dmg = 160;
 	}
+	
 	return pGrenade;
 }
 

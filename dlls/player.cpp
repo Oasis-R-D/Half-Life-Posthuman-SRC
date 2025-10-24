@@ -3947,6 +3947,12 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 #endif
 		break;
 	}
+	case 30:
+	{
+		m_iGrenadeType += 1;
+		if (m_iGrenadeType = 3)
+			m_iGrenadeType = 0;
+	}
 	case 76:
 	{
 		if (!giPrecacheGrunt)

@@ -277,16 +277,20 @@ void W_Precache()
 	// custom items...
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
-	UTIL_PrecacheOther("phys_cryst");
 
+	PRECACHE_MODEL("models/w_grenade.mdl");
+	PRECACHE_MODEL("models/grenade.mdl");
+	PRECACHE_MODEL("models/w_hopwire.mdl");
+	PRECACHE_MODEL("models/w_fgrenade.mdl");
+	PRECACHE_MODEL("models/w_sgrenade.mdl");
 	// common world objects
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_battery");
 	UTIL_PrecacheOther("item_antidote");
 	UTIL_PrecacheOther("item_security");
 	UTIL_PrecacheOther("item_longjump");
-	UTIL_PrecacheOther("shock_beam"); // required for shock trooper
-	UTIL_PrecacheOther("spore");
+	UTIL_PrecacheOther("shock_beam"); // required for shock trooper // TO-DO: see if this can be moved to ST precache
+	UTIL_PrecacheOther("spore"); // TO-DO: see if this can be moved to ST precache
 	UTIL_PrecacheOther("item_healthkit"); // required for hgrunt medic
 	// shotgun
 	UTIL_PrecacheOtherWeapon("weapon_shotgun");
@@ -344,9 +348,6 @@ void W_Precache()
 	// M727
 	UTIL_PrecacheOtherWeapon("weapon_m727");
 
-	// Crystal launcher
-	UTIL_PrecacheOtherWeapon("weapon_crystallauncher");
-
 	// Corruption weapon
 	UTIL_PrecacheOtherWeapon("weapon_corrupted");
 
@@ -371,7 +372,6 @@ void W_Precache()
 	g_sModelIndexShrapnel = PRECACHE_MODEL("models/shrapnel.mdl");
 
 	// used by explosions
-	PRECACHE_MODEL("models/grenade.mdl");
 	PRECACHE_MODEL("sprites/explode1.spr");
 
 	PRECACHE_SOUND("weapons/debris1.wav"); // explosion aftermaths

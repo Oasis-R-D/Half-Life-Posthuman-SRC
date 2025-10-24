@@ -24,7 +24,7 @@ class CBasePlayerWeapon;
 
 void DeactivateSatchels(CBasePlayer* pOwner);
 
-// Contact Grenade / Timed grenade / Satchel Charge
+// Contact Grenade / Timed grenade / Satchel Charge / flashbang / hopwire(maybe)
 class CGrenade : public CBaseMonster
 {
 public:
@@ -44,6 +44,7 @@ public:
 
 	void Explode(Vector vecSrc, Vector vecAim);
 	void Explode(TraceResult* pTrace, int bitsDamageType);
+	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void EXPORT Smoke();
 
 	void EXPORT BounceTouch(CBaseEntity* pOther);
@@ -52,6 +53,8 @@ public:
 	void EXPORT DangerSoundThink();
 	void EXPORT PreDetonate();
 	void EXPORT Detonate();
+	void EXPORT DetonateFlash();
+	void EXPORT CallDetonate();
 	void EXPORT DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void EXPORT TumbleThink();
 
@@ -60,6 +63,7 @@ public:
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
 	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
+	int m_iGrenType; // type of grenade thrown
 };
 
 
