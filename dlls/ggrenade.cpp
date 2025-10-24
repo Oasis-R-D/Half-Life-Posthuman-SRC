@@ -27,6 +27,7 @@
 #include "decals.h"
 #include "physical_bullet.h"
 #include "player.h"
+#include "shake.h"
 //===================grenade
 
 
@@ -216,7 +217,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
 			if (pPlayer != nullptr)
 			{
-				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2.5, 1, 255, FFADE_OUT); // TO-DO: make it instant white then slowly fade out 
+				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2.5, 1, 255, FFADE_IN); // TO-DO: make it instant white then slowly fade out 
 			}
 		}
 	}
