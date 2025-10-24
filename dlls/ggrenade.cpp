@@ -188,7 +188,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
-	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_MACHINE, bitsDamageType);
+	RadiusDamage(origin, pev, pevOwner, 5, CLASS_MACHINE, bitsDamageType);
 
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 
@@ -205,11 +205,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			{
 				ALERT(at_console, "attempt stun\n");
 				pMonster->Forget(bits_MEMORY_INCOVER);
-				pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_PROVOKED | bits_COND_CAN_ATTACK);
+				pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND | bits_COND_SMELL);
 				pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
 				pMonster->m_hEnemy = NULL;
-				pMonster->pev->nextthink = 0.5;
+				pMonster->pev->nextthink = gpGlobals->time + 1.5;
 			}
 		}
 		if (pEntity->IsPlayer())
@@ -241,7 +241,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	int iContents = UTIL_PointContents(pev->origin);
 	if (iContents != CONTENTS_WATER)
 	{
-		int sparkCount = RANDOM_LONG(0, 3);
+		int sparkCount = 3;
 		for (int i = 0; i < sparkCount; i++)
 			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
 	}
@@ -270,7 +270,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(BREAK_SMOKE); // flags
 	MESSAGE_END();
 	SetThink(&CGrenade::SUB_Remove);
-	pev->nextthink = 0.125;
+	pev->nextthink = gpGlobals->time + 0.125;
 }
 
 
@@ -344,7 +344,7 @@ void CGrenade::DetonateFlash()
 
 	vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
-	ExplodeFlash(&tr, DMG_BLAST);
+	ExplodeFlash(&tr, DMG_SONIC);
 }
 
 
