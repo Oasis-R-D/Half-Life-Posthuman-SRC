@@ -89,7 +89,8 @@ void CGrenade::Explode(TraceResult*, int) {}
 void CGrenade::Killed(entvars_t*, int) {}
 void CGrenade::Spawn() {}
 CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, float time) { return 0; }
-CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, bool m203) { return 0; }
+CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, int type, float time) { return 0; }
+CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity) { return 0; }
 void CGrenade::DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) {}
 
 void UTIL_Remove(CBaseEntity* pEntity) {}

@@ -37,7 +37,8 @@ public:
 	} SATCHELCODE;
 
 	static CGrenade* ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, float time);
-	static CGrenade* ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, bool m203 = true);
+	static CGrenade* ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, int type, float time);
+	static CGrenade* ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
 	static CGrenade* ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
 	static void UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code);
 
@@ -1553,34 +1554,6 @@ public:
 	int m_iShell;
 	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool firemode;
-	bool UseDecrement() override
-	{
-#if defined(CLIENT_WEAPONS)
-		return true;
-#else
-		return false;
-#endif
-	}
-
-private:
-	unsigned short m_stainevent;
-};
-class CCrystal_launcher : public CBasePlayerWeapon
-{
-public:
-
-	void Spawn() override;
-	void Precache() override;
-	int iItemSlot() override { return 3; }
-	bool GetItemInfo(ItemInfo* p) override;
-
-	void PrimaryAttack() override;
-	void TertiaryAttack() override;
-	bool Deploy() override;
-	void WeaponIdle() override;
-	void ItemPostFrame() override;
-	float m_flNextReload;
-	int m_crystaltype;
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)

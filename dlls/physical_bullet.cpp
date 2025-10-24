@@ -313,11 +313,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		pOther->TraceAttack(pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 		ApplyMultiDamage(pev, pevOwner);
 
-		if (pOther->IsBSPModel())
-		{
-			Stay();
-		}
-		else
+		if (!pOther->IsBSPModel())
 		{
 			// play NPC hit sound
 			switch (RANDOM_LONG(0, 1))
@@ -332,12 +328,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			UTIL_Remove(this);
 		}
 	}
-	else
-	{
-		Stay();
-	}
 	DecalGunshot(&tr, (m_bHeavyDecal) ? BULLET_MONSTER_12MM : BULLET_MONSTER_9MM);
 	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+	Stay();
 }
 
 void CPhysbullet::AirThink()

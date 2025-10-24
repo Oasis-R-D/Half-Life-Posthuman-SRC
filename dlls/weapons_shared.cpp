@@ -277,9 +277,6 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	switch (type)
 	{
 		default:
-			flMultiplier = 6.5f;
-			maxvel = 1000;
-			break;
 		case 0:
 			flMultiplier = 6.5f;
 			maxvel = 1000;
@@ -287,6 +284,9 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 		case 1:
 			flMultiplier = 10;
 			maxvel = 1500;
+		case 2:
+			flMultiplier = 9;
+			maxvel = 1400;
 			break;
 	}
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -2;
@@ -310,12 +310,15 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 		default:
 		case 0:
 			time = 3;
-			CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time);
 			break;
 		case 1:
-			CGrenade::ShootContact(m_pPlayer->pev, vecSrc, vecThrow, false);
+			time = -1;
+			break;
+		case 2:
+			time = 2;
 			break;
 	}
+	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);
 }
 void CBasePlayer::SelectLastItem()
 {

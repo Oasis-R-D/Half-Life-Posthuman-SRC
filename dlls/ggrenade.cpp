@@ -423,7 +423,7 @@ void CGrenade::Spawn()
 }
 
 
-CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, bool m203)
+CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 {
 	CGrenade* pGrenade = GetClassPtr((CGrenade*)NULL);
 	pGrenade->Spawn();
@@ -446,13 +446,6 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 	else
 		pGrenade->pev->dmg = 160;
 
-	if (m203 == false)
-	{
-		SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
-		pGrenade->pev->sequence = RANDOM_LONG(3, 6);
-		pGrenade->pev->framerate = 1.0;
-		pGrenade->ResetSequenceInfo();
-	}
 	return pGrenade;
 }
 
@@ -503,6 +496,78 @@ CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecV
 	return pGrenade;
 }
 
+CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, int type, float time)
+{
+	CGrenade* pGrenade = GetClassPtr((CGrenade*)NULL);
+	pGrenade->Spawn();
+	UTIL_SetOrigin(pGrenade->pev, vecStart);
+	pGrenade->pev->velocity = vecVelocity;
+	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
+	pGrenade->pev->owner = ENT(pevOwner);
+
+	pGrenade->SetTouch(&CGrenade::BounceTouch); // Bounce if touched
+
+	// Take one second off of the desired detonation time and set the think to PreDetonate. PreDetonate
+	// will insert a DANGER sound into the world sound list and delay detonation for one second so that
+	// the grenade explodes after the exact amount of time specified in the call to ShootTimed().
+
+	pGrenade->pev->dmgtime = gpGlobals->time + time;
+	
+	if (time < 0.1 && time != -1)
+	{
+		pGrenade->pev->nextthink = gpGlobals->time;
+		pGrenade->pev->velocity = Vector(0, 0, 0);
+	}
+	switch (type)
+	{
+		case 0:
+			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
+			pGrenade->SetThink(&CGrenade::TumbleThink);
+			break;
+		case 1:
+			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			break;
+		case 2:
+			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
+			break;
+	}
+	if (time == -1)
+	{
+			// make monsters afaid of it while in the air
+			pGrenade->SetThink(&CGrenade::DangerSoundThink);
+			pGrenade->pev->nextthink = gpGlobals->time;
+
+			// Explode on contact
+			pGrenade->SetTouch(&CGrenade::ExplodeTouch);
+	}
+	else
+	{
+		pGrenade->pev->nextthink = gpGlobals->time + 0.1;
+	}
+	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
+	pGrenade->pev->framerate = 1.0;
+	pGrenade->ResetSequenceInfo();
+
+	// Tumble through the air
+	// pGrenade->pev->avelocity.x = -400;
+
+	pGrenade->pev->gravity = 0.5;
+	pGrenade->pev->friction = 0.8;
+
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pGrenade->pev->dmg = 100;
+	}
+	else
+	{
+		pGrenade->pev->dmg = 160;
+	}
+	return pGrenade;
+}
 
 CGrenade* CGrenade::ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 {
@@ -624,6 +689,10 @@ class CGrenadePickup : public CBaseButton
 			{
 				player->m_iGrenadeAmnt = m_iAmnt;
 				player->m_iGrenadeType = m_iTracerType;
+				MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, player->pev);
+				WRITE_BYTE(player->m_iGrenadeType);
+				WRITE_BYTE(player->m_iGrenadeAmnt);
+				MESSAGE_END();
 				UTIL_Remove(this);
 				return; 
 			}

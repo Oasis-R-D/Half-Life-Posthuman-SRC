@@ -396,12 +396,6 @@
     <ClCompile Include="..\..\dlls\Blooddrops.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\crystal_launcher.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\physical_cryst.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\pitdrone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -712,9 +706,6 @@
     </ClInclude>
     <ClInclude Include="..\..\dlls\Blooddrops.h">
       <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\physical_cryst.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\weapons\CShockBeam.h">
       <Filter>Header Files</Filter>

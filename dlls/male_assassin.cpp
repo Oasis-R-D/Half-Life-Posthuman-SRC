@@ -644,18 +644,20 @@ bool CMOFAssassin::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CMOFAssassin::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if (ptr->iHitgroup == 2)
+	if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
 			if (g_iSkillLevel != SKILL_HARD)
 			{
-				flDamage = flDamage / 2;
+				flDamage = round(flDamage * 0.85);
 			}
 			else
 			{
-				flDamage = round(flDamage * 0.66);
+				flDamage = round(flDamage * 0.75);
 			}
+			if (RANDOM_LONG(0,1) == 1)
+				UTIL_Sparks(ptr->vecEndPos);
 		}
 	}
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);

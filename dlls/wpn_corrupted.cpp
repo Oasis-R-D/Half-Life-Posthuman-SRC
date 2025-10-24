@@ -21,7 +21,6 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-#include "physical_cryst.h"
 #include "physical_bullet.h"
 
 bool CCorruptedWPN::CanAttack(float attack_time, float curtime, bool isPredicted)
