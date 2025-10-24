@@ -390,6 +390,31 @@ void CGrenade::DangerSoundThink()
 		pev->velocity = pev->velocity * 0.5;
 	}
 }
+void CGrenade::ArmHopwire()
+{
+	float flRndSound; // sound randomizer
+
+	pev->takedamage = DAMAGE_YES;
+
+	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+	entvars_t* pevOwner;
+
+	if (pev->owner)
+		pevOwner = VARS(pev->owner);
+	else
+		pevOwner = NULL;
+
+	pev->owner = NULL; // can't traceline attack owner if this is set
+
+	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
+	
+	CBaseEntity* pEntity = NULL;
+
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
+
+	pev->velocity = gpGlobals->v_up * 300
+	pev->nextthink = 0.125;
+}
 
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
@@ -508,6 +533,8 @@ void CGrenade::CallDetonate()
 			break;
 		case 2:
 			SetThink(&CGrenade::DetonateFlash);
+			break;
+		case 3:
 			break;
 	}
 	pev->nextthink = gpGlobals->time;
