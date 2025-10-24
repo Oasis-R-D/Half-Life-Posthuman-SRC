@@ -3950,21 +3950,37 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	case 30:
 	{
 		m_iGrenadeType = 0;
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
 		break;
 	}
-	case 31
+	case 31:
 	{
 		m_iGrenadeType = 1;
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
 		break;
 	}
 	case 32:
 	{
 		m_iGrenadeType = 2;
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
 		break;
 	}	
 	case 33:
 	{
 		m_iGrenadeType = 3;
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
 		break;
 	}	
 	case 76:
