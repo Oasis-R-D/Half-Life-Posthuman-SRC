@@ -211,7 +211,14 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				pMonster->pev->nextthink = 0.5;
 			}
 		}
-		
+		if (pEntity->IsPlayer())
+		{
+			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
+			if (pPlayer != nullptr)
+			{
+				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2.5, 1, 255, FFADE_IN);
+			}
+		}
 	}
 	flRndSound = RANDOM_FLOAT(0, 1);
 
