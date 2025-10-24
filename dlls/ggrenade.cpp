@@ -196,11 +196,13 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	CBaseEntity* pEntity = NULL;
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 400)) != NULL)
 	{
-		if (pEntity->IsAlive())
+		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER)
 		{
-			CBaseMonster* pMonster = pEntity->GetMonsterPointer(pEntity->edict()); // stuns the enemy
+			// stuns the enemy
+			CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(pEntity);
 			if (pMonster != nullptr)
 			{
+				ALERT(at_console, "attempt stun\n");
 				pMonster->Forget(bits_MEMORY_INCOVER);
 				pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_PROVOKED | bits_COND_CAN_ATTACK);
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND | bits_COND_SMELL);
