@@ -412,7 +412,7 @@ void CGrenade::ArmHopwire()
 
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
 
-	pev->velocity = gpGlobals->v_up * 300
+	pev->velocity = gpGlobals->v_up * 300;
 	pev->nextthink = 0.125;
 }
 
