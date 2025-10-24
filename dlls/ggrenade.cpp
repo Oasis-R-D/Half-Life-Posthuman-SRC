@@ -188,7 +188,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
-	RadiusDamage(origin, pev, pevOwner, 3, CLASS_MACHINE, bitsDamageType);
+	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_MACHINE, bitsDamageType);
 
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 
@@ -673,13 +673,13 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			break;
 		case 2:
 			SET_MODEL(ENT(pGrenade->pev), "models/w_fgrenade.mdl");
-			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
-			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
+			pGrenade->pev->dmg = 10;
+			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 3:
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
-			pGrenade->SetThink(&CGrenade::TumbleThink); // to-do: replace
+			pGrenade->SetThink(&CGrenade::TumbleThink);
 			// Tumble through the air
 			pGrenade->pev->avelocity.x = RANDOM_LONG(-100, -400);
 			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);

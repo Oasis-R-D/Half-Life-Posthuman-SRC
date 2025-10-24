@@ -111,6 +111,7 @@ bool CanAttack(float attack_time, float curtime, bool isPredicted)
 		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
 	}
 }
+
 void CBasePlayerWeapon::ReloadSetAmmos()
 {
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
@@ -167,7 +168,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		m_pPlayer->m_bInGrenade = true;
 		m_pPlayer->m_bInGrenadeDelay = true;
 
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade thrown");
+		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
 		
 		m_pPlayer->m_iGrenadeAmnt--;
 
@@ -319,6 +320,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);
+	ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Thrown type %i", type);
 }
 void CBasePlayer::SelectLastItem()
 {
