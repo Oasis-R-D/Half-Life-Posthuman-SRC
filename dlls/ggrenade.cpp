@@ -232,7 +232,13 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				UTIL_TraceLine(origin, pPlayer->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
 				if (sightline.flFraction == 1.0)
 				{
-					UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN);
+					Vector Grennormal = (pev->origin - pPlayer->EyePosition()).Normalize();
+					UTIL_MakeVectors(pPlayer->pev->v_angle);
+					float dp = DotProduct(Grennormal, -gpGlobals->v_forward);
+					if (dp < 0)	
+						UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN);
+					else
+						UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 1, 0, 255, FFADE_IN);
 				}
 			}
 		}
