@@ -197,7 +197,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	CBaseEntity* pEntity = NULL;
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 400)) != NULL)
 	{
-		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER)
+		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER && !IsMachine(pEntity))
 		{
 			// stuns the enemy
 			CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(pEntity);
@@ -209,7 +209,8 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND | bits_COND_SMELL);
 				pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
 				pMonster->m_hEnemy = NULL;
-				pMonster->pev->nextthink = gpGlobals->time + 1.5;
+				if (pMonster->pev->health > 0)
+					pMonster->pev->nextthink = gpGlobals->time + 1.5;
 			}
 		}
 		if (pEntity->IsPlayer())
@@ -217,26 +218,26 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
 			if (pPlayer != nullptr)
 			{
-				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2.5, 1, 255, FFADE_IN); // TO-DO: make it instant white then slowly fade out 
+				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN); // TO-DO: make it instant white then slowly fade out 
 			}
 		}
 	}
 	flRndSound = RANDOM_FLOAT(0, 1);
 
-	switch (RANDOM_LONG(0, 2))
-	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55, ATTN_NORM);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55, ATTN_NORM);
-		break;
-	}
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/flashbang-1.wav", 1, ATTN_GUN);
 
-	pev->effects |= EF_BRIGHTLIGHT;
+	MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
+	WRITE_COORD(pev->origin.x);
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z + 8);
+	WRITE_BYTE(40); // Radius/10
+	WRITE_BYTE(255); // R
+	WRITE_BYTE(255); // G
+	WRITE_BYTE(255); // B
+	WRITE_LONG(0.25); // TIME
+	WRITE_BYTE(0); // Decay
+	MESSAGE_END();
+
 	pev->velocity = g_vecZero;
 	int iContents = UTIL_PointContents(pev->origin);
 	if (iContents != CONTENTS_WATER)
@@ -392,8 +393,6 @@ void CGrenade::DangerSoundThink()
 }
 void CGrenade::ArmHopwire()
 {
-	float flRndSound; // sound randomizer
-
 	pev->takedamage = DAMAGE_YES;
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);

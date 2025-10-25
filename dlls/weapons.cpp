@@ -283,6 +283,8 @@ void W_Precache()
 	PRECACHE_MODEL("models/w_hopwire.mdl");
 	PRECACHE_MODEL("models/w_fgrenade.mdl");
 	PRECACHE_MODEL("models/w_sgrenade.mdl");
+
+	PRECACHE_SOUND("weapons/flashbang-1.wav"); // explosion aftermaths
 	// common world objects
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_battery");
