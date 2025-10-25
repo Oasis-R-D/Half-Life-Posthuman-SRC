@@ -320,8 +320,8 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);
-	ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Thrown type" + type);
 }
+
 void CBasePlayer::SelectLastItem()
 {
 	if (!m_pLastItem)

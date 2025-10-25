@@ -163,6 +163,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	float flRndSound; // sound randomizer
 
 	pev->model = iStringNull; //invisible
+	SET_MODEL(ENT(pev), "sprites/flashbangflash.spr");
+	pev->rendermode = kRenderGlow;
+	pev->renderamt = 255;
+	pev->renderfx = kRenderFxNoDissipation;
+	pev->scale = 2.5;
 	pev->solid = SOLID_NOT;	  // intangible
 
 	pev->takedamage = DAMAGE_NO;
@@ -188,8 +193,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
-	RadiusDamage(origin, pev, pevOwner, 5, CLASS_MACHINE, bitsDamageType);
-
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 
 	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
@@ -197,20 +200,28 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	CBaseEntity* pEntity = NULL;
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 400)) != NULL)
 	{
+		TraceResult sightline;
 		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER && !IsMachine(pEntity))
 		{
+			
 			// stuns the enemy
 			CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(pEntity);
 			if (pMonster != nullptr)
 			{
-				ALERT(at_console, "attempt stun\n");
+				UTIL_TraceLine(origin, pMonster->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
+				if (sightline.flFraction == 1.0)
+				{
+					ALERT(at_console, "attempt stun\n");
+					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
+					pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
+					pMonster->m_hEnemy = NULL;
+
+					pMonster->TakeDamage(pev, pev, 5, DMG_SONIC);
+					if (pMonster->pev->health > 0)
+						pMonster->pev->nextthink = gpGlobals->time + 2;
+				}
+				pMonster->ClearConditions(bits_COND_HEAR_SOUND);
 				pMonster->Forget(bits_MEMORY_INCOVER);
-				pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
-				pMonster->ClearConditions(bits_COND_HEAR_SOUND | bits_COND_SMELL);
-				pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
-				pMonster->m_hEnemy = NULL;
-				if (pMonster->pev->health > 0)
-					pMonster->pev->nextthink = gpGlobals->time + 1.5;
 			}
 		}
 		if (pEntity->IsPlayer())
@@ -218,7 +229,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
 			if (pPlayer != nullptr)
 			{
-				UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN); // TO-DO: make it instant white then slowly fade out 
+				UTIL_TraceLine(origin, pPlayer->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
+				if (sightline.flFraction == 1.0)
+				{
+					UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN);
+				}
 			}
 		}
 	}
