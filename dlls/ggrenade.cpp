@@ -201,9 +201,8 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 400)) != NULL)
 	{
 		TraceResult sightline;
-		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER && !IsMachine(pEntity))
+		if (pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_PLAYER && !IsMachine(pEntity) && pEntity->IsAlive())
 		{
-			
 			// stuns the enemy
 			CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(pEntity);
 			if (pMonster != nullptr)
@@ -212,13 +211,20 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				if (sightline.flFraction == 1.0)
 				{
 					ALERT(at_console, "attempt stun\n");
+					pMonster->TaskComplete();
+					pMonster->ClearSchedule();
+					pMonster->m_hEnemy = NULL;
+					pMonster->m_movementGoal = MOVEGOAL_NONE;
+					pMonster->m_Activity = ACT_COWER;
+					pMonster->m_IdealMonsterState = MONSTERSTATE_IDLE;
+					pMonster->SetActivity(ACT_COWER);
 					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
 					pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
-					pMonster->m_hEnemy = NULL;
-
+					
 					pMonster->TakeDamage(pev, pev, 5, DMG_SONIC);
+					pMonster->pev->nextthink = gpGlobals->time;
 					if (pMonster->pev->health > 0)
-						pMonster->pev->nextthink = gpGlobals->time + 2;
+						pMonster->pev->nextthink = gpGlobals->time + 4.5;
 				}
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND);
 				pMonster->Forget(bits_MEMORY_INCOVER);
@@ -235,10 +241,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					Vector Grennormal = (pev->origin - pPlayer->EyePosition()).Normalize();
 					UTIL_MakeVectors(pPlayer->pev->v_angle);
 					float dp = DotProduct(Grennormal, -gpGlobals->v_forward);
+					Vector Color = (g_iSkillLevel == SKILL_HARD) ? Vector(255, 255, 255) : Vector(128, 128, 128);
 					if (dp < 0)	
-						UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 2, 1, 255, FFADE_IN);
+						UTIL_ScreenFade(pPlayer, Color, 2, 1, 255, FFADE_IN);
 					else
-						UTIL_ScreenFade(pPlayer, Vector(128, 128, 128), 1, 0, 255, FFADE_IN);
+						UTIL_ScreenFade(pPlayer, Color, 1, 0, 255, FFADE_IN);
 				}
 			}
 		}
