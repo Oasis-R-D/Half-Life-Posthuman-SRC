@@ -451,6 +451,7 @@ void CGrenade::HopwireThink()
 	pev->nextthink = 0.125;
 	if (pev->health <= 0)
 		SetThink(&CGrenade::Detonate); // replace with higher radius?
+	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
 
 }
 
