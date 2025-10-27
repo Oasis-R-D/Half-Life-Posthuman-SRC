@@ -45,6 +45,7 @@ public:
 	void Explode(Vector vecSrc, Vector vecAim);
 	void Explode(TraceResult* pTrace, int bitsDamageType);
 	void ArmHopwire();
+	void HopwireThink();
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void EXPORT Smoke();
 

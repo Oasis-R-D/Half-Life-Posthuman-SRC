@@ -440,9 +440,15 @@ void CGrenade::ArmHopwire()
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
 
 	pev->velocity = gpGlobals->v_up * 300;
+	
 	pev->nextthink = 0.125;
+	SetThink(&CGrenade::HopwireThink);
 }
 
+void CGrenade::HopwireThink()
+{
+	pev->nextthink = 0.125;
+}
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
 {
@@ -562,6 +568,7 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::DetonateFlash);
 			break;
 		case 3:
+			SetThink(&CGrenade::ArmHopwire);
 			break;
 	}
 	pev->nextthink = gpGlobals->time;
@@ -763,15 +770,6 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
-
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		pGrenade->pev->dmg = 100;
-	}
-	else
-	{
-		pGrenade->pev->dmg = 160;
-	}
 	
 	return pGrenade;
 }
