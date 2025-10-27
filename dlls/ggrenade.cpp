@@ -421,6 +421,7 @@ void CGrenade::DangerSoundThink()
 }
 void CGrenade::ArmHopwire()
 {
+	pev->health = 5;
 	pev->takedamage = DAMAGE_YES;
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
@@ -448,6 +449,9 @@ void CGrenade::ArmHopwire()
 void CGrenade::HopwireThink()
 {
 	pev->nextthink = 0.125;
+	if (pev->health <= 0)
+		SetThink(&CGrenade::Detonate);
+
 }
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
