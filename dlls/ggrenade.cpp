@@ -328,9 +328,8 @@ void CGrenade::Killed(entvars_t* pevAttacker, int iGib)
 {
 	switch (m_iGrenType)
 	{
+		default:
 		case 0:
-			SetThink(&CGrenade::Detonate);
-			break;
 		case 1:
 			SetThink(&CGrenade::Detonate);
 			break;
