@@ -326,7 +326,22 @@ void CGrenade::Smoke()
 
 void CGrenade::Killed(entvars_t* pevAttacker, int iGib)
 {
-	Detonate();
+	switch (m_iGrenType)
+	{
+		case 0:
+			SetThink(&CGrenade::Detonate);
+			break;
+		case 1:
+			SetThink(&CGrenade::Detonate);
+			break;
+		case 2:
+			SetThink(&CGrenade::DetonateFlash);
+			break;
+		case 3:
+			SetThink(&CGrenade::Detonate);
+			break;
+	}
+	pev->nextthink = gpGlobals->time;
 }
 
 
