@@ -158,6 +158,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(BREAK_SMOKE); // flags
 	MESSAGE_END();
 }
+
 void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 {
 	float flRndSound; // sound randomizer
@@ -302,7 +303,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	pev->nextthink = gpGlobals->time + 0.125;
 }
 
-
 void CGrenade::Smoke()
 {
 	if (UTIL_PointContents(pev->origin) == CONTENTS_WATER)
@@ -343,7 +343,6 @@ void CGrenade::Killed(entvars_t* pevAttacker, int iGib)
 	pev->nextthink = gpGlobals->time;
 }
 
-
 // Timed grenade, this think is called when time runs out.
 void CGrenade::DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
@@ -358,7 +357,6 @@ void CGrenade::PreDetonate()
 	SetThink(&CGrenade::Detonate);
 	pev->nextthink = gpGlobals->time + 1;
 }
-
 
 void CGrenade::Detonate()
 {
@@ -390,7 +388,6 @@ void CGrenade::DetonateFlash()
 	ExplodeFlash(&tr, DMG_SONIC);
 }
 
-
 //
 // Contact grenade, explode when it touches something
 //
@@ -416,7 +413,6 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	Explode(&tr, DMG_BLAST);
 }
 
-
 void CGrenade::DangerSoundThink()
 {
 	if (!IsInWorld())
@@ -433,6 +429,7 @@ void CGrenade::DangerSoundThink()
 		pev->velocity = pev->velocity * 0.5;
 	}
 }
+
 void CGrenade::ArmHopwire()
 {
 	pev->health = 5;
@@ -533,8 +530,6 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 	}
 }
 
-
-
 void CGrenade::SlideTouch(CBaseEntity* pOther)
 {
 	// don't hit the guy that launched this grenade
@@ -619,7 +614,6 @@ void CGrenade::TumbleThink()
 	}
 }
 
-
 void CGrenade::Spawn()
 {
 	pev->movetype = MOVETYPE_BOUNCE;
@@ -640,7 +634,6 @@ void CGrenade::Spawn()
 
 	m_fRegisteredSound = false;
 }
-
 
 CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity)
 {
@@ -667,7 +660,6 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 
 	return pGrenade;
 }
-
 
 CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, float time)
 {
@@ -830,8 +822,6 @@ CGrenade* CGrenade::ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vec
 	return pGrenade;
 }
 
-
-
 void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 {
 	edict_t* pentFind;
@@ -863,6 +853,11 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 }
 
 //======================end grenade
+
+
+
+
+
 
 
 
