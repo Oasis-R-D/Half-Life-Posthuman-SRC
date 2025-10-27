@@ -450,7 +450,7 @@ void CGrenade::HopwireThink()
 {
 	pev->nextthink = 0.125;
 	if (pev->health <= 0)
-		SetThink(&CGrenade::Detonate);
+		SetThink(&CGrenade::Detonate); // replace with higher radius?
 
 }
 
