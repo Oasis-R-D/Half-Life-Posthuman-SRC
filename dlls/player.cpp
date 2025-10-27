@@ -3997,8 +3997,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		}
 		break;
 	}
-
-
 	case 101:
 		gEvilImpulse101 = true;
 		GiveNamedItem("item_suit");
@@ -4028,7 +4026,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("ammo_spit");
 		GiveNamedItem("weapon_eagle");
 		GiveNamedItem("weapon_m727");
-		GiveNamedItem("weapon_crystallauncher");
 		GiveNamedItem("weapon_corrupted");
 		GiveNamedItem("weapon_m29");
 		m_iGrenadeAmnt = 3;
