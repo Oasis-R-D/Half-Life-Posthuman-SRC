@@ -45,9 +45,7 @@ void CItemGeneric::Spawn()
 	ResetSequenceInfo();
 
 	// BBox
-	Vector Zero;
-	Zero.x = Zero.y = Zero.z = 0; // REPLACE WITH VECZERO 
-	UTIL_SetSize(pev, Zero, Zero);
+	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 	pev->solid = SOLID_NOT;
 
 	// Set think delay
