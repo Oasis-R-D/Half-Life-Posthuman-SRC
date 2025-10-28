@@ -119,6 +119,7 @@ void COFChargedBolt::Precache()
 {
 	PRECACHE_MODEL("sprites/blueflare2.spr");
 	PRECACHE_MODEL("sprites/lgtning.spr");
+	PRECACHE_SOUND("debris/beamstart15.wav");
 	m_iShowerSparks = PRECACHE_MODEL("sprites/spark1.spr");
 }
 
@@ -139,7 +140,7 @@ void COFChargedBolt::Spawn()
 
 	pev->rendermode = kRenderTransAdd;
 	pev->renderamt = 255;
-	pev->scale = 0.75;
+	pev->scale = 2;
 
 	InitBeams();
 }
@@ -314,7 +315,7 @@ void COFChargedBolt::ChargedBoltTouch(CBaseEntity* pOther)
 		ClearMultiDamage();
 		pOther->TakeDamage(pev, pev, gSkillData.voltigoreDmgBeam, DMG_ALWAYSGIB | DMG_SHOCK);
 	}
-
+	EMIT_SOUND(ENT(pev), CHAN_AUTO, "debris/beamstart15.wav", 1.0, ATTN_NORM);
 	pev->velocity = g_vecZero;
 
 	auto pevOwner = VARS(pev->owner);
@@ -329,7 +330,7 @@ void COFChargedBolt::ChargedBoltTouch(CBaseEntity* pOther)
 		RadiusDamage(pev->origin, pev, pevOwner, RANDOM_LONG(25, 75), 128.0, CLASS_NONE, DMG_ALWAYSGIB | DMG_SHOCK);
 
 	SetThink(&COFChargedBolt::ShutdownChargedBolt);
-	pev->nextthink = gpGlobals->time + 0.5;
+	pev->nextthink = gpGlobals->time + 1;
 }
 
 class COFVoltigore : public CSquadMonster
@@ -728,7 +729,7 @@ void COFVoltigore::Precache()
 
 	PRECACHE_MODEL("models/voltigore.mdl");
 
-	for (i = 0; i < ARRAYSIZE(pAttackHitSounds); i++)
+	for (i = 0; i < ARRAYSIZE(pAttackHitSounds); i++) //PRECACHE_SOUNDARRAY?
 		PRECACHE_SOUND((char*)pAttackHitSounds[i]);
 
 	for (i = 0; i < ARRAYSIZE(pAttackMissSounds); i++)
