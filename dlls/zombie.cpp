@@ -813,3 +813,58 @@ Schedule_t* CZombie::GetSchedule()
 
 	return CTalkMonster::GetSchedule();
 }
+
+//=========================================================
+// DEAD GONOME PROP
+//=========================================================
+class CDeadGonome : public CBaseMonster
+{
+public:
+	void Spawn() override;
+	int Classify() override { return CLASS_ALIEN_PASSIVE; }
+
+	bool KeyValue(KeyValueData* pkvd) override;
+
+	int m_iPose; // which sequence to display	-- temporary, don't need to save
+	static char* m_szPoses[3];
+};
+
+char* CDeadGonome::m_szPoses[] = {"dead_on_stomach1", "dead_on_back", "dead_on_side"};
+
+bool CDeadGonome::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "pose"))
+	{
+		m_iPose = atoi(pkvd->szValue);
+		return true;
+	}
+
+	return CBaseMonster::KeyValue(pkvd);
+}
+
+LINK_ENTITY_TO_CLASS(monster_gonome_dead, CDeadGonome);
+
+//=========================================================
+// ********** DeadGonome SPAWN **********
+//=========================================================
+void CDeadGonome::Spawn()
+{
+	PRECACHE_MODEL("models/gonome.mdl");
+	SET_MODEL(ENT(pev), "models/gonome.mdl");
+
+	pev->effects = 0;
+	pev->sequence = 0;
+	m_bloodColor = BLOOD_COLOR_GREEN;
+
+	pev->sequence = LookupSequence(m_szPoses[m_iPose]);
+
+	if (pev->sequence == -1)
+	{
+		ALERT(at_console, "Dead gonome with bad pose\n");
+	}
+
+	// Corpses have less health
+	pev->health = 8;
+
+	MonsterInitDead();
+}
