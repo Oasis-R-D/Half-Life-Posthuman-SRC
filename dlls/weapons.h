@@ -74,6 +74,7 @@ public:
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
 	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
+	bool m_bHasExploded = false;
 	int m_iGrenType; // type of grenade thrown
 	int wireamnt;
 	float nextwire;
@@ -87,12 +88,13 @@ public:
 	void Spawn() override;
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	void EXPORT BoltTouch(CBaseEntity* pOther);
-	void MakeBeam();
+	void EXPORT MakeBeam();
 	void KillBeam();
 	static void ShootBeams(CGrenade* ownerOgrenade, Vector direction);
 	Vector m_SpreadVect;
 	Vector m_direction;
 	CGrenade* spawner;
+	CBeam* m_pBeam;
 	float m_Spread;
 };
 
@@ -426,7 +428,10 @@ public:
 
 
 inline DLL_GLOBAL short g_sModelIndexLaser; // holds the index for the laser beam
+inline DLL_GLOBAL short g_sModelIndexLgtng; // holds the index for the laser beam
+
 constexpr DLL_GLOBAL const char* g_pModelNameLaser = "sprites/laserbeam.spr";
+constexpr DLL_GLOBAL const char* g_pModelNameLgtng = "sprites/lgtning.spr";
 
 inline DLL_GLOBAL short g_sModelIndexLaserDot;	 // holds the index for the laser beam dot
 inline DLL_GLOBAL short g_sModelIndexFireball;	 // holds the index for the fireball

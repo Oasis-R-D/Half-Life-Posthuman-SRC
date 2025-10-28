@@ -57,17 +57,54 @@ void CHopWireBeam::Spawn()
 	pev->angles = m_direction + m_SpreadVect;
 
 	SetTouch(&CHopWireBeam::BoltTouch);
-	//SetThink(&CPhysbullet::AirThink);
-	pev->nextthink = gpGlobals->time + 0.05;
+	
+	
 }
 void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 {
 	if (pOther->IsBSPModel() && (!FClassnameIs(pOther->pev, "hw_beam") && !FClassnameIs(pOther->pev, "grenade")))
 	{
+		if (pev->movetype != MOVETYPE_NONE)
+		{
+			SetThink(&CHopWireBeam::MakeBeam);
+			pev->nextthink = gpGlobals->time;
+		}
 		pev->movetype = MOVETYPE_NONE;
 		pev->velocity = Vector(0, 0, 0);
-		pev->avelocity.z = 0;
+		pev->avelocity.z = 0;	
 	}
+}
+void CHopWireBeam::MakeBeam()
+{
+	if (spawner->m_bHasExploded == true)
+	{
+		UTIL_Remove(this);
+		UTIL_Remove(m_pBeam);
+		return;
+	}
+
+	UTIL_Remove(m_pBeam);
+	TraceResult tr;
+	pev->nextthink = gpGlobals->time + 0.01;
+	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
+
+	UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
+	CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
+	if (Hit == nullptr || FClassnameIs(Hit->pev, "grenade") || Hit->IsBSPModel())
+	{
+	}
+	else
+	{
+		spawner->CallDetonate();
+	}
+	m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 10);
+	// Mark as temporary so the beam will be recreated on save game load and level transitions.
+	m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
+	m_pBeam->PointsInit(pev->origin, spawner->pev->origin);
+	m_pBeam->SetColor(0, 214, 198);
+	m_pBeam->SetScrollRate(255);
+	m_pBeam->SetBrightness(64);
+	m_pBeam->SetNoise(5);
 }
 int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
 {
@@ -502,16 +539,19 @@ void CGrenade::HopwireThink()
 	pev->nextthink = 0.25;
 	
 	if (pev->health <= 0)
+	{
 		SetThink(&CGrenade::CallDetonate); // replace with higher radius?
+		m_bHasExploded = true;
+		pev->nextthink = gpGlobals->time;
+	}
 	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
-
 
 	if (pev->velocity.z <= 0)
 	{
 		pev->gravity = 0.75;
 		if (wireamnt > 0 && nextwire <= gpGlobals->time)
 		{
-			Vector RNDDIR = Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
+			Vector RNDDIR = 2 * Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
 			CHopWireBeam::ShootBeams(this, gpGlobals->v_up + RNDDIR);
 			pev->velocity.x += -RNDDIR.x * 10;
 			pev->velocity.y += -RNDDIR.y * 10;
@@ -638,7 +678,13 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::DetonateFlash);
 			break;
 		case 3:
-			SetThink(&CGrenade::ArmHopwire);
+			if (wireamnt == 8)
+				SetThink(&CGrenade::ArmHopwire);
+			else
+			{
+				SetThink(&CGrenade::Detonate);
+				m_bHasExploded = true;
+			}
 			break;
 	}
 	pev->nextthink = gpGlobals->time;
