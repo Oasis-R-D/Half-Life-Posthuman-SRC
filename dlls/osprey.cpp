@@ -46,7 +46,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return (m_bBlackOps ? CLASS_HASSN : CLASS_HUMAN_MILITARY); }
 	int BloodColor() override { return DONT_BLEED; }
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
@@ -67,6 +67,8 @@ public:
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	void ShowDamage();
 	void Update();
+
+	bool m_bBlackOps;
 
 	CBaseEntity* m_pGoalEnt;
 	Vector m_vel1;
@@ -108,6 +110,7 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(monster_osprey, COsprey);
+LINK_ENTITY_TO_CLASS(monster_blkop_osprey, COsprey);
 
 TYPEDESCRIPTION COsprey::m_SaveData[] =
 	{
@@ -151,7 +154,15 @@ void COsprey::Spawn()
 	pev->movetype = MOVETYPE_FLY;
 	pev->solid = SOLID_BBOX;
 
-	SET_MODEL(ENT(pev), "models/osprey.mdl");
+	if ((FClassnameIs(pev, "monster_blkops_osprey")))
+	{
+		SET_MODEL(ENT(pev), "models/blkop_osprey.mdl");
+		m_bBlackOps = true;
+	}
+	else
+	{
+		SET_MODEL(ENT(pev), "models/osprey.mdl");
+	}
 	UTIL_SetSize(pev, Vector(-400, -400, -100), Vector(400, 400, 32));
 	UTIL_SetOrigin(pev, pev->origin);
 

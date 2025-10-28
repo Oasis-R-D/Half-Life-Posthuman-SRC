@@ -31,7 +31,7 @@ class CApache : public CBaseMonster
 
 	void Spawn() override;
 	void Precache() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return (m_bBlackOps ? CLASS_HASSN : CLASS_HUMAN_MILITARY); }
 	int BloodColor() override { return DONT_BLEED; }
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 	void GibMonster() override;
@@ -56,6 +56,8 @@ class CApache : public CBaseMonster
 
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
+
+	bool m_bBlackOps;
 
 	int m_iRockets;
 	float m_flForce;
@@ -85,6 +87,7 @@ class CApache : public CBaseMonster
 	CBeam* m_pBeam;
 };
 LINK_ENTITY_TO_CLASS(monster_apache, CApache);
+LINK_ENTITY_TO_CLASS(monster_blkops_apache, CApache);
 
 TYPEDESCRIPTION CApache::m_SaveData[] =
 	{
@@ -117,7 +120,15 @@ void CApache::Spawn()
 	pev->movetype = MOVETYPE_FLY;
 	pev->solid = SOLID_BBOX;
 
-	SET_MODEL(ENT(pev), "models/apache.mdl");
+	if ((FClassnameIs(pev, "monster_blkops_apache")))
+	{
+		SET_MODEL(ENT(pev), "models/blkop_apache.mdl");
+		m_bBlackOps = true;
+	}
+	else
+	{
+		SET_MODEL(ENT(pev), "models/apache.mdl");
+	}
 	UTIL_SetSize(pev, Vector(-32, -32, -64), Vector(32, 32, 0));
 	UTIL_SetOrigin(pev, pev->origin);
 
