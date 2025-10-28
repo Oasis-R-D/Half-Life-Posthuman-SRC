@@ -323,8 +323,10 @@ void COFChargedBolt::ChargedBoltTouch(CBaseEntity* pOther)
 	pev->owner = nullptr;
 
 	ClearMultiDamage();
-
-	RadiusDamage(pev->origin, pev, pevOwner, gSkillData.voltigoreDmgBeam, 128.0, CLASS_NONE, DMG_ALWAYSGIB | DMG_SHOCK);
+	if (g_iSkillLevel != SKILL_HARD)
+		RadiusDamage(pev->origin, pev, pevOwner, gSkillData.voltigoreDmgBeam, 128.0, CLASS_NONE, DMG_ALWAYSGIB | DMG_SHOCK);
+	else
+		RadiusDamage(pev->origin, pev, pevOwner, RANDOM_LONG(25, 75), 128.0, CLASS_NONE, DMG_ALWAYSGIB | DMG_SHOCK);
 
 	SetThink(&COFChargedBolt::ShutdownChargedBolt);
 	pev->nextthink = gpGlobals->time + 0.5;
@@ -693,7 +695,14 @@ void COFVoltigore::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	pev->health = gSkillData.voltigoreHealth;
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		pev->health = gSkillData.voltigoreHealth;
+	}
+	else
+	{
+		pev->health = 250;
+	}
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_afCapability = 0;
