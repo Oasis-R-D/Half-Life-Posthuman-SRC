@@ -148,7 +148,7 @@ void CPhysbullet::Spawn()
 	if (m_fPenoverride != NULL)
 		m_distpenetrate = m_fPenoverride;
 
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0)); // replace with veczero
 	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
 	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
 	{

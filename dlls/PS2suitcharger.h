@@ -38,9 +38,9 @@ Based on "func_recharge"
 class CChargerGlass : public CBaseAnimating
 {
 public:
-	void Precache(void);
-	void Spawn(void);
-	virtual int	ObjectCaps(void) { return CBaseAnimating::ObjectCaps() &~FCAP_ACROSS_TRANSITION; }
+	void Precache();
+	void Spawn();
+	virtual int	ObjectCaps() { return CBaseAnimating::ObjectCaps() &~FCAP_ACROSS_TRANSITION; }
 };
 
 //================================
@@ -94,11 +94,11 @@ public:
 	float   m_flSoundTime;
 private:
 	// From "func_recharge"
-	void Off(void);
-	void Recharge(void);
+	void Off();
+	void Recharge();
 	bool KeyValue(KeyValueData *pkvd);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
-	virtual int	ObjectCaps(void) { return (CBaseToggle::ObjectCaps() | FCAP_CONTINUOUS_USE) &~FCAP_ACROSS_TRANSITION; }	// Needed for continous use
+	virtual int	ObjectCaps() { return (CBaseToggle::ObjectCaps() | FCAP_CONTINUOUS_USE) &~FCAP_ACROSS_TRANSITION; }	// Needed for continous use
 
 	// New
 	bool IsUsed;								// Needed to track if charger is used
@@ -107,16 +107,16 @@ private:
 	float CoilsAngle;							// Current coils angle
 	CChargerGlass * pGlass;						// Ptr. for glass
 
-	void Spawn(void);							// Spawn handler
-	void Precache(void);						// Precache handler
+	void Spawn();							// Spawn handler
+	void Precache();						// Precache handler
 	CBaseEntity * FindPlayer(float Radius);		// Same as UTIL_FindEntityInSphere, but returns NULL if entity is not a player
 	void RotateCamArm(CBaseEntity * pPlayer);	// Rotate camera and arm to player (or to initial position if pointer is NULL)
 	void RotateCoils();							// Upadate coil position
-	void SetSequenceBox(void);					// Extracts BBox
-	void Think(void);							// Think handler
+	void SetSequenceBox();					// Extracts BBox
+	void Think();							// Think handler
 	void ChangeSequence(int Sequence);			// Set new animation
 	void ChangeState(RechargeState NewState, int NewSequence);	// Set new state
-	void MakeBeam(void);						// Create beam for one think period
+	void MakeBeam();						// Create beam for one think period
 
 	// Save/restore
 	virtual bool	Save(CSave &save);

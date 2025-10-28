@@ -9,8 +9,6 @@ Based on "func_healthcharger"
 
 */
 
-// Includes
-
 #include "PS2healthcharger.h"
 
 //================================
@@ -22,12 +20,12 @@ LINK_ENTITY_TO_CLASS(item_healthcharger_bottle, CHealthBottle);
 
 // Methods //
 
-void CHealthBottle::Precache(void)
+void CHealthBottle::Precache()
 {
 	PRECACHE_MODEL("models/health_charger_both.mdl");
 }
 
-void CHealthBottle::Spawn(void)
+void CHealthBottle::Spawn()
 {
 	// Precache
 	Precache();
@@ -57,7 +55,7 @@ void CHealthBottle::Spawn(void)
 	pev->nextthink = gpGlobals->time + HCHG_DELAY_THINK;
 }
 
-void CHealthBottle::Think(void)
+void CHealthBottle::Think()
 {
 	// Set delay for next think
 	pev->nextthink = gpGlobals->time + HCHG_DELAY_THINK;
@@ -137,7 +135,7 @@ IMPLEMENT_SAVERESTORE(CItemHealthCharger, CBaseButton);
 
 // Methods //
 
-void CItemHealthCharger::Precache(void)
+void CItemHealthCharger::Precache()
 {
 	// Precache model
 	PRECACHE_MODEL("models/health_charger_body.mdl");
@@ -149,7 +147,7 @@ void CItemHealthCharger::Precache(void)
 }
 
 
-void CItemHealthCharger::Spawn(void)
+void CItemHealthCharger::Spawn()
 {
 	// Precache models & sounds
 	Precache();
@@ -198,7 +196,7 @@ bool CItemHealthCharger::KeyValue(KeyValueData *pkvd)
 		FStrEq(pkvd->szKeyName, "height") ||
 		FStrEq(pkvd->szKeyName, "value1") ||
 		FStrEq(pkvd->szKeyName, "value2") ||
-		FStrEq(pkvd->szKeyName, "value3"))
+		FStrEq(pkvd->szKeyName, "value3")) // what the helly?
 	{
 		return true;
 	}
@@ -210,7 +208,7 @@ bool CItemHealthCharger::KeyValue(KeyValueData *pkvd)
 	return CBaseButton::KeyValue(pkvd);
 }
 
-void CItemHealthCharger::Think(void)
+void CItemHealthCharger::Think()
 {
 	// Debug: show bounding box
 	//PS2HL_DEBUG(DBG_RenderBBox(pev->origin, pev->mins, pev->maxs, ceil(HCHG_DELAY_THINK / 0.1), 0xFF, 0x00, 0x00));
@@ -601,7 +599,7 @@ void CItemHealthCharger::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 }
 
 // Based on "func_healthcharger"
-void CItemHealthCharger::Recharge(void)
+void CItemHealthCharger::Recharge()
 {
 	EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", 1.0, ATTN_NORM);
 	m_iJuice = gSkillData.healthchargerCapacity;
@@ -611,7 +609,7 @@ void CItemHealthCharger::Recharge(void)
 }
 
 // Based on "func_healthcharger"
-void CItemHealthCharger::Off(void)
+void CItemHealthCharger::Off()
 {
 	// Stop looping sound.
 	if (m_iOn > 1)
@@ -625,7 +623,7 @@ void CItemHealthCharger::Off(void)
 }
 
 // Extract BBox from sequence (ripped from CBaseAnimating with one little change)
-void CItemHealthCharger::SetSequenceBox(void)
+void CItemHealthCharger::SetSequenceBox()
 {
 	Vector mins, maxs;
 

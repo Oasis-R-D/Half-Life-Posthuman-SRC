@@ -8,12 +8,12 @@
 // Link entity to class
 LINK_ENTITY_TO_CLASS(item_recharge_glass, CChargerGlass);
 
-void CChargerGlass::Precache(void)
+void CChargerGlass::Precache()
 {
 	PRECACHE_MODEL("models/field.mdl");
 }
 
-void CChargerGlass::Spawn(void)
+void CChargerGlass::Spawn()
 {
 	// Precache
 	Precache();
@@ -66,7 +66,7 @@ IMPLEMENT_SAVERESTORE(CItemRecharge, CBaseButton);
 
 // Methods //
 
-void CItemRecharge::Precache(void)
+void CItemRecharge::Precache()
 {
 	// Precache model
 	PRECACHE_MODEL("models/hev.mdl");
@@ -80,7 +80,7 @@ void CItemRecharge::Precache(void)
 	PRECACHE_MODEL("sprites/plasma.spr");
 }
 
-void CItemRecharge::Spawn(void)
+void CItemRecharge::Spawn()
 {
 	// Precache models & sounds
 	Precache();
@@ -142,7 +142,7 @@ bool CItemRecharge::KeyValue(KeyValueData *pkvd)
 	return CBaseButton::KeyValue(pkvd);
 }
 
-void CItemRecharge::Think(void)
+void CItemRecharge::Think()
 {
 	// Debug: show bounding box
 	//PS2HL_DEBUG(DBG_RenderBBox(pev->origin, pev->mins, pev->maxs, ceil(RCHG_DELAY_THINK / 0.1), 0xFF, 0x00, 0x00));
@@ -400,7 +400,7 @@ void CItemRecharge::RotateCoils()
 }
 
 // Show beam for one Think() cycle
-void CItemRecharge::MakeBeam(void)
+void CItemRecharge::MakeBeam()
 {
 	// Spawn beam
 	CBeam *pBeam;
@@ -560,7 +560,7 @@ void CItemRecharge::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 }
 
 // Based on "func_recharge"
-void CItemRecharge::Recharge(void)
+void CItemRecharge::Recharge()
 {
 	m_iJuice = gSkillData.suitchargerCapacity;
 	pev->skin = 0;
@@ -568,7 +568,7 @@ void CItemRecharge::Recharge(void)
 }
 
 // Based on "func_recharge"
-void CItemRecharge::Off(void)
+void CItemRecharge::Off()
 {
 	// Stop looping sound.
 	if (m_iOn > 1)
@@ -582,7 +582,7 @@ void CItemRecharge::Off(void)
 }
 
 // Extract BBox from sequence (ripped from CBaseAnimating with one little change)
-void CItemRecharge::SetSequenceBox(void)
+void CItemRecharge::SetSequenceBox()
 {
 	Vector mins, maxs;
 
