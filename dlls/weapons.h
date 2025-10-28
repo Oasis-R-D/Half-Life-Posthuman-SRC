@@ -24,11 +24,18 @@ class CBasePlayerWeapon;
 
 void DeactivateSatchels(CBasePlayer* pOwner);
 
+
+
 // Contact Grenade / Timed grenade / Satchel Charge / flashbang / hopwire(maybe)
 class CGrenade : public CBaseMonster
 {
+#ifndef CLIENT_DLL
+	int ShouldCollide(CBaseEntity* pentTouched) override;	
+#endif
+	
 public:
 	void Spawn() override;
+	
 
 	typedef enum
 	{
@@ -44,9 +51,10 @@ public:
 
 	void Explode(Vector vecSrc, Vector vecAim);
 	void Explode(TraceResult* pTrace, int bitsDamageType);
-	void ArmHopwire();
-	void HopwireThink();
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
+	
+
+	void EXPORT HopwireThink();
 	void EXPORT Smoke();
 
 	void EXPORT BounceTouch(CBaseEntity* pOther);
@@ -56,6 +64,7 @@ public:
 	void EXPORT PreDetonate();
 	void EXPORT Detonate();
 	void EXPORT DetonateFlash();
+	void EXPORT ArmHopwire();
 	void EXPORT CallDetonate();
 	void EXPORT DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void EXPORT TumbleThink();
@@ -66,8 +75,26 @@ public:
 
 	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
 	int m_iGrenType; // type of grenade thrown
+	int wireamnt;
+	float nextwire;
+
+
 };
 
+class CHopWireBeam : public CBaseEntity
+{
+public:
+	void Spawn() override;
+	int ShouldCollide(CBaseEntity* pentTouched) override;
+	void EXPORT BoltTouch(CBaseEntity* pOther);
+	void MakeBeam();
+	void KillBeam();
+	static void ShootBeams(CGrenade* ownerOgrenade, Vector direction);
+	Vector m_SpreadVect;
+	Vector m_direction;
+	CGrenade* spawner;
+	float m_Spread;
+};
 
 // constant items
 #define ITEM_HEALTHKIT 1

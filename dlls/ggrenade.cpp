@@ -28,13 +28,64 @@
 #include "physical_bullet.h"
 #include "player.h"
 #include "shake.h"
-//===================grenade
 
+
+#ifndef CLIENT_DLL
+LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
+void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
+{
+	// Create a new entity with CHopWireBeam private data
+	CHopWireBeam* pBullet = GetClassPtr((CHopWireBeam*)NULL);
+	pBullet->pev->classname = MAKE_STRING("hw_beam");
+	pBullet->m_Spread = CONE_20DEGREES;
+	pBullet->m_direction = direction;
+	pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread));
+	pBullet->spawner = ownerOgrenade;
+	pBullet->Spawn();	
+}
+void CHopWireBeam::Spawn()
+{
+	pev->movetype = MOVETYPE_TOSS;
+	pev->solid = SOLID_BBOX;
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	SET_MODEL(ENT(pev), "models/w_hopwire.mdl");
+	UTIL_SetOrigin(pev, spawner->pev->origin); //spawn a little bit more forward
+
+	pev->velocity = (m_direction + m_SpreadVect) * 900; // Applies spread and velocity
+	pev->velocity = pev->velocity + spawner->pev->velocity;
+	pev->gravity = 1; // sets the gravity (bullet drop)
+	pev->angles = m_direction + m_SpreadVect;
+
+	SetTouch(&CHopWireBeam::BoltTouch);
+	//SetThink(&CPhysbullet::AirThink);
+	pev->nextthink = gpGlobals->time + 0.05;
+}
+void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
+{
+	if (pOther->IsBSPModel() && (!FClassnameIs(pOther->pev, "hw_beam") && !FClassnameIs(pOther->pev, "grenade")))
+	{
+		pev->movetype = MOVETYPE_NONE;
+		pev->velocity = Vector(0, 0, 0);
+		pev->avelocity.z = 0;
+	}
+}
+int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (FClassnameIs(pentTouched->pev, "hw_beam") || FClassnameIs(pentTouched->pev, "grenade"))
+		return 0;
+	else
+		return 1;
+}
+#endif
+
+//===================grenade
 
 LINK_ENTITY_TO_CLASS(grenade, CGrenade);
 
 // Grenades flagged with this will be triggered when the owner calls detonateSatchelCharges
 #define SF_DETONATE 0x0001
+
+
 
 //
 // Grenade Explode
@@ -326,20 +377,7 @@ void CGrenade::Smoke()
 
 void CGrenade::Killed(entvars_t* pevAttacker, int iGib)
 {
-	switch (m_iGrenType)
-	{
-		default:
-		case 0:
-		case 1:
-			SetThink(&CGrenade::Detonate);
-			break;
-		case 2:
-			SetThink(&CGrenade::DetonateFlash);
-			break;
-		case 3:
-			SetThink(&CGrenade::Detonate);
-			break;
-	}
+	SetThink(&CGrenade::CallDetonate);
 	pev->nextthink = gpGlobals->time;
 }
 
@@ -354,7 +392,7 @@ void CGrenade::PreDetonate()
 {
 	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.3);
 
-	SetThink(&CGrenade::Detonate);
+	SetThink(&CGrenade::CallDetonate);
 	pev->nextthink = gpGlobals->time + 1;
 }
 
@@ -446,24 +484,42 @@ void CGrenade::ArmHopwire()
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
 	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
-	
-	CBaseEntity* pEntity = NULL;
 
-	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
+	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8, ATTN_NORM);
 
-	pev->velocity = gpGlobals->v_up * 300;
-	
+	pev->gravity = 0.25;
+	pev->velocity = gpGlobals->v_up * 200;
+	pev->avelocity.x = RANDOM_LONG(-100, -400);
+	pev->avelocity.z = RANDOM_LONG(-100, -400);
+	pev->avelocity.y = RANDOM_LONG(-100, -400);
+
 	pev->nextthink = 0.125;
 	SetThink(&CGrenade::HopwireThink);
 }
 
 void CGrenade::HopwireThink()
 {
-	pev->nextthink = 0.125;
+	pev->nextthink = 0.25;
+	
 	if (pev->health <= 0)
-		SetThink(&CGrenade::Detonate); // replace with higher radius?
+		SetThink(&CGrenade::CallDetonate); // replace with higher radius?
 	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
 
+
+	if (pev->velocity.z <= 0)
+	{
+		pev->gravity = 0.75;
+		if (wireamnt > 0 && nextwire <= gpGlobals->time)
+		{
+			Vector RNDDIR = Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
+			CHopWireBeam::ShootBeams(this, gpGlobals->v_up + RNDDIR);
+			pev->velocity.x += -RNDDIR.x * 10;
+			pev->velocity.y += -RNDDIR.y * 10;
+			pev->velocity.z += -RNDDIR.z * 10;
+			wireamnt -= 1;
+			nextwire = gpGlobals->time + RANDOM_FLOAT(0.10, 0.20);
+		}
+	}
 }
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
@@ -756,6 +812,8 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->avelocity.x = RANDOM_LONG(-100, -400);
 			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
 			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
+			pGrenade->wireamnt = 8;
+			pGrenade->nextwire = gpGlobals->time;
 			break;
 	}
 	pGrenade->m_iGrenType = type;
@@ -852,9 +910,16 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 	}
 }
 
+#ifndef CLIENT_DLL
+int CGrenade::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (FClassnameIs(pentTouched->pev, "hw_beam") || FClassnameIs(pentTouched->pev, "grenade"))
+		return 0;
+	else
+		return 1;
+}
+#endif
 //======================end grenade
-
-
 
 
 
