@@ -107,16 +107,16 @@ private:
 	float CoilsAngle;							// Current coils angle
 	CChargerGlass * pGlass;						// Ptr. for glass
 
-	void Spawn();							// Spawn handler
-	void Precache();						// Precache handler
+	void Spawn();
+	void Precache();
 	CBaseEntity * FindPlayer(float Radius);		// Same as UTIL_FindEntityInSphere, but returns NULL if entity is not a player
 	void RotateCamArm(CBaseEntity * pPlayer);	// Rotate camera and arm to player (or to initial position if pointer is NULL)
 	void RotateCoils();							// Upadate coil position
-	void SetSequenceBox();					// Extracts BBox
-	void Think();							// Think handler
+	void SetSequenceBox();						// Extracts BBox
+	void Think();
 	void ChangeSequence(int Sequence);			// Set new animation
 	void ChangeState(RechargeState NewState, int NewSequence);	// Set new state
-	void MakeBeam();						// Create beam for one think period
+	void MakeBeam();							// Create beam for one think period
 
 	// Save/restore
 	virtual bool	Save(CSave &save);

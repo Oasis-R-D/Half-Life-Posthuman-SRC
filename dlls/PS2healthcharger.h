@@ -12,14 +12,13 @@ Based on "func_healthcharger"
 
 #pragma once
 
-// Header files
 #include "extdll.h"		// Required for KeyValueData
 #include "util.h"		// Required Consts & Macros
 #include "cbase.h"		// Required for CPointEntity
 #include "skill.h"		// Required for getting "skill" values
 #include "gamerules.h"	// Required for getting "game rules" values
 #include "effects.h"	// CBeam
-#include "PS2DBG.h"	// BBox render func
+#include "PS2DBG.h"		// BBox render func
 #include "player.h"
 #include "UserMessages.h"
 
@@ -30,7 +29,7 @@ Based on "func_healthcharger"
 #define HCHG_USE_RADIUS			50.0f		// Defines distance at which player can use charger
 #define HCHG_GLASS_TRANSPARENCY	128			// Glass bottle transparency (0 - max, 255 - min)
 #define HCHG_ACTIVATE_SOUND					// Play sound on activate (like in PS2 version)
-//#define HCHG_SUIT_CHECK						// If defined then charger would not deploy for HEVless players (not present in PS2 version)
+//#define HCHG_SUIT_CHECK					// If defined then charger would not deploy for HEVless players (not present in PS2 version)
 #define HCHG_NO_BACK_USE					// Prevent usage from the back side (like in PS2 version)
 #define	HCHG_HACKED_BBOX					// BBox hack for GoldSource
 
@@ -59,10 +58,6 @@ Based on "func_healthcharger"
 class CHealthBottle : public CBaseAnimating
 {
 public:
-	// Properties
-	
-
-	// Methods
 	void Precache();						// Precache handler
 	void Spawn();							// Spawn handler
 	void Think();							// Think handler
@@ -111,7 +106,7 @@ class CItemHealthCharger : public CBaseButton
 {
 public:
 	// From "func_healthcharger"
-	float m_flNextCharge;
+	float 	m_flNextCharge;
 	int		m_iReactivate;				// DeathMatch Delay until reactvated
 	int		m_iJuice;					// How many charge left
 	int		m_iOn;						// 0 = off, 1 = startup, 2 = going
@@ -130,16 +125,16 @@ private:
 	RechargeState CurrentState;					// Current state of the charger
 	CHealthBottle * pBottle;					// Ptr. for bottle
 
-	void Spawn();							// Spawn handler
-	void Precache();						// Precache handler
-	CBaseEntity * FindPlayer(float Radius);		// Same as UTIL_FindEntityInSphere, but returns NULL if entity is not a player
-	void RotateCamArm(CBaseEntity * pPlayer);	// Rotate camera and arm to player (or to initial position if pointer is NULL)
+	void Spawn();
+	void Precache();
+	CBaseEntity * FindPlayer(float Radius);			// Same as UTIL_FindEntityInSphere, but returns NULL if entity is not a player
+	void RotateCamArm(CBaseEntity * pPlayer);		// Rotate camera and arm to player (or to initial position if pointer is NULL)
 	//void RotateCoils();							// Upadate coil position
-	void SetSequenceBox();					// Extracts BBox
-	void Think();							// Think handler
-	void ChangeSequence(int Sequence);			// Set new animation
+	void SetSequenceBox();							// Extracts BBox
+	void Think();
+	void ChangeSequence(int Sequence);				// Set new animation
 	void ChangeState(RechargeState NewState, int NewSequence);	// Set new state
-	//void MakeBeam();						// Create beam for one think period
+	//void MakeBeam();								// Create beam for one think period
 	
 	// Save/restore
 	virtual bool	Save(CSave &save) override;
