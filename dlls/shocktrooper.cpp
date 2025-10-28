@@ -211,8 +211,6 @@ TYPEDESCRIPTION CShockTrooper::m_SaveData[] =
 		DEFINE_FIELD(CShockTrooper, m_fFirstEncounter, FIELD_BOOLEAN),
 		DEFINE_FIELD(CShockTrooper, m_cClipSize, FIELD_INTEGER),
 		DEFINE_FIELD(CShockTrooper, m_voicePitch, FIELD_INTEGER),
-		//  DEFINE_FIELD( CShotgun, m_iBrassShell, FIELD_INTEGER ),
-		//  DEFINE_FIELD( CShotgun, m_iShotgunShell, FIELD_INTEGER ),
 		DEFINE_FIELD(CShockTrooper, m_iSentence, FIELD_INTEGER),
 		DEFINE_FIELD(CShockTrooper, m_flLastChargeTime, FIELD_FLOAT),
 		DEFINE_FIELD(CShockTrooper, m_flLastShot, FIELD_TIME),
@@ -276,7 +274,7 @@ void CShockTrooper::SpeakSentence()
 //=========================================================
 int CShockTrooper::IRelationship(CBaseEntity* pTarget)
 {
-	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")))
+	if (FClassnameIs(pTarget->pev, "monster_alien_grunt") || (FClassnameIs(pTarget->pev, "monster_gargantua")) || (FClassnameIs(pTarget->pev, "monster_human_grunt")))
 	{
 		return R_NM;
 	}
