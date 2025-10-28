@@ -200,6 +200,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\player.cpp" />
     <ClCompile Include="..\..\dlls\PS2DBG.cpp" />
     <ClCompile Include="..\..\dlls\PS2healthcharger.cpp" />
+    <ClCompile Include="..\..\dlls\PS2itemgeneric.cpp" />
     <ClCompile Include="..\..\dlls\PS2suitcharger.cpp" />
     <ClCompile Include="..\..\dlls\python.cpp" />
     <ClCompile Include="..\..\dlls\rat.cpp" />
@@ -232,6 +233,8 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\UserMessages.cpp" />
     <ClCompile Include="..\..\dlls\util.cpp" />
     <ClCompile Include="..\..\dlls\vehicle.cpp" />
+    <ClCompile Include="..\..\dlls\voltigore.cpp" />
+    <ClCompile Include="..\..\dlls\voltigore_baby.cpp" />
     <ClCompile Include="..\..\dlls\weapons.cpp" />
     <ClCompile Include="..\..\dlls\weapons\CShockBeam.cpp" />
     <ClCompile Include="..\..\dlls\weapons\CSpore.cpp" />
@@ -311,6 +314,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\dlls\player.h" />
     <ClInclude Include="..\..\dlls\PS2DBG.h" />
     <ClInclude Include="..\..\dlls\PS2healthcharger.h" />
+    <ClInclude Include="..\..\dlls\PS2itemgeneric.h" />
     <ClInclude Include="..\..\dlls\PS2suitcharger.h" />
     <ClInclude Include="..\..\dlls\saverestore.h" />
     <ClInclude Include="..\..\dlls\schedule.h" />

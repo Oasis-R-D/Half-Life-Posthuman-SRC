@@ -113,6 +113,14 @@ struct skilldata_t
 	float shockroachHealth;
 	float shockroachLifespan;
 	float shockroachDmgBite;
+
+	float babyvoltigoreHealth;
+	float babyvoltigoreDmgPunch;
+
+	float voltigoreHealth;
+	float voltigoreDmgPunch;
+	float voltigoreDmgBeam;
+
 	// Player Weapons
 	float plrDmgCrowbar;
 	float plrDmg9MM;

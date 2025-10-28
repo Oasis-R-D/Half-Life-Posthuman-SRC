@@ -304,6 +304,16 @@ void CGameRules::RefreshSkillData()
 	gSkillData.shocktrooperGrenadeSpeed = GetSkillCvar("sk_shocktrooper_gspeed");
 	gSkillData.shocktrooperMaxCharge = GetSkillCvar("sk_shocktrooper_maxcharge");
 	gSkillData.shocktrooperRechargeSpeed = GetSkillCvar("sk_shocktrooper_rchgspeed");
+	
+	// Voltigore
+	gSkillData.voltigoreHealth = GetSkillCvar("sk_voltigore_health");
+	gSkillData.voltigoreDmgPunch = GetSkillCvar("sk_voltigore_dmg_punch");
+	gSkillData.voltigoreDmgBeam = GetSkillCvar("sk_voltigore_dmg_beam");
+
+	// Baby Voltigore
+	gSkillData.babyvoltigoreHealth = GetSkillCvar("sk_babyvoltigore_health");
+	gSkillData.babyvoltigoreDmgPunch = GetSkillCvar("sk_babyvoltigore_dmg_punch");
+
 	//Turret
 	gSkillData.turretHealth = GetSkillCvar("sk_turret_health");
 

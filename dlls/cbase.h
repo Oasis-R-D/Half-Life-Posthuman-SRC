@@ -142,6 +142,11 @@ public:
 
 	CBaseEntity* operator=(CBaseEntity* pEntity);
 	CBaseEntity* operator->();
+	template <typename T>
+	T* Entity()
+	{
+		return static_cast<T*>(operator CBaseEntity*());
+	}
 };
 
 

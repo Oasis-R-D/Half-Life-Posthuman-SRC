@@ -339,6 +339,14 @@ DECLARE_SKILL_CVARS(plr_shockroachs);
 // Spore Launcher
 DECLARE_SKILL_CVARS(plr_spore);
 
+// Voltigore
+DECLARE_SKILL_CVARS(voltigore_health);
+DECLARE_SKILL_CVARS(voltigore_dmg_punch);
+DECLARE_SKILL_CVARS(voltigore_dmg_beam);
+
+// Baby Voltigore
+DECLARE_SKILL_CVARS(babyvoltigore_health);
+DECLARE_SKILL_CVARS(babyvoltigore_dmg_punch);
 
 // PLAYER WEAPONS
 
@@ -876,6 +884,15 @@ void GameDLLInit()
 	REGISTER_SKILL_CVARS(plr_shockroachs);
 	// Spore Launcher
 	REGISTER_SKILL_CVARS(plr_spore);
+
+	// Voltigore
+	REGISTER_SKILL_CVARS(voltigore_health);
+	REGISTER_SKILL_CVARS(voltigore_dmg_punch);
+	REGISTER_SKILL_CVARS(voltigore_dmg_beam);
+
+	// Baby Voltigore
+	REGISTER_SKILL_CVARS(babyvoltigore_health);
+	REGISTER_SKILL_CVARS(babyvoltigore_dmg_punch);
 
 	// PLAYER WEAPONS
 
