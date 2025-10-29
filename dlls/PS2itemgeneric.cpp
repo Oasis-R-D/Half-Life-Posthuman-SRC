@@ -74,7 +74,7 @@ bool CItemGeneric::KeyValue(KeyValueData *pkvd)
 		return true;
 	}
 	else
-		CBaseEntity::KeyValue(pkvd);
+		return CBaseEntity::KeyValue(pkvd);
 }
 
 // Think handler
@@ -86,3 +86,4 @@ void CItemGeneric::Think()
 	// Call animation handler
 	StudioFrameAdvance(0);
 }
+
