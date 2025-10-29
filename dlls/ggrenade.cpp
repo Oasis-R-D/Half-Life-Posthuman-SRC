@@ -51,7 +51,7 @@ void CHopWireBeam::Spawn()
 	SET_MODEL(ENT(pev), "models/w_hopwire.mdl");
 	UTIL_SetOrigin(pev, spawner->pev->origin); //spawn a little bit more forward
 
-	pev->velocity = (m_direction + m_SpreadVect) * 200; // Applies spread and velocity
+	pev->velocity = (m_direction + m_SpreadVect) * 600; // Applies spread and velocity
 	pev->velocity = pev->velocity + spawner->pev->velocity;
 	pev->gravity = 1; // sets the gravity (bullet drop)
 	pev->angles = m_direction + m_SpreadVect;
@@ -106,7 +106,7 @@ void CHopWireBeam::MakeBeam()
 		m_pBeam->EntsInit(that->entindex(), spawner->entindex());
 		m_pBeam->SetColor(255, 225, 0);
 		m_pBeam->SetScrollRate(127);
-		m_pBeam->SetBrightness(255);
+		m_pBeam->SetBrightness(200);
 		m_pBeam->SetNoise(5);
 	}
 }
@@ -539,7 +539,7 @@ void CGrenade::ArmHopwire()
 
 	m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 255, kRenderFxNone);
 
-	m_pSprite->SetScale(0.35);
+	m_pSprite->SetScale(0.5);
 
 	m_pSprite->SetAttachment(edict(), 0);
 	pev->nextthink = 0.125;
@@ -563,7 +563,7 @@ void CGrenade::HopwireThink()
 		pev->gravity = 0.75;
 		if (wireamnt > 0 && nextwire <= gpGlobals->time)
 		{
-			Vector RNDDIR = 2 * Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
+			Vector RNDDIR = Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
 			CHopWireBeam::ShootBeams(this, gpGlobals->v_up + RNDDIR);
 			pev->velocity.x += -RNDDIR.x * 10;
 			pev->velocity.y += -RNDDIR.y * 10;
