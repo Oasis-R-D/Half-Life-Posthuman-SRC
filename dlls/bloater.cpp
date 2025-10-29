@@ -301,9 +301,9 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 		m_pSquadLeader->SquadRemove(this);
 	}
 
-	pev->deadflag = DEAD_DEAD;
+	pev->deadflag = DEAD_DEAD; //TO-DO: add poison gas
 	//::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 128, CLASS_NONE, Dmg type);
-	//UTIL_BloodPuff(tr, none)
+	//UTIL_BloodPuff(tr, none);
 	UTIL_Remove(this);
 }
 
