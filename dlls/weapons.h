@@ -95,6 +95,7 @@ public:
 	Vector m_direction;
 	CGrenade* spawner;
 	CBeam* m_pBeam;
+	CSprite* m_pSprite;
 	float m_Spread;
 };
 
