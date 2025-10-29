@@ -78,7 +78,7 @@ public:
 	int m_iGrenType; // type of grenade thrown
 	int wireamnt;
 	float nextwire;
-
+	CSprite* m_pSprite;
 
 };
 

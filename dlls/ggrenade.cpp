@@ -51,7 +51,7 @@ void CHopWireBeam::Spawn()
 	SET_MODEL(ENT(pev), "models/w_hopwire.mdl");
 	UTIL_SetOrigin(pev, spawner->pev->origin); //spawn a little bit more forward
 
-	pev->velocity = (m_direction + m_SpreadVect) * 900; // Applies spread and velocity
+	pev->velocity = (m_direction + m_SpreadVect) * 200; // Applies spread and velocity
 	pev->velocity = pev->velocity + spawner->pev->velocity;
 	pev->gravity = 1; // sets the gravity (bullet drop)
 	pev->angles = m_direction + m_SpreadVect;
@@ -76,6 +76,7 @@ void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 }
 void CHopWireBeam::MakeBeam()
 {
+	CBaseEntity* that = this;
 	if (spawner->m_bHasExploded == true)
 	{
 		UTIL_Remove(this);
@@ -83,7 +84,7 @@ void CHopWireBeam::MakeBeam()
 		return;
 	}
 
-	UTIL_Remove(m_pBeam);
+	//UTIL_Remove(m_pBeam);
 	TraceResult tr;
 	pev->nextthink = gpGlobals->time + 0.01;
 	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
@@ -97,15 +98,19 @@ void CHopWireBeam::MakeBeam()
 	{
 		spawner->CallDetonate();
 	}
-	m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 10);
-	// Mark as temporary so the beam will be recreated on save game load and level transitions.
-	m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
-	m_pBeam->PointsInit(pev->origin, spawner->pev->origin);
-	m_pBeam->SetColor(0, 214, 198);
-	m_pBeam->SetScrollRate(255);
-	m_pBeam->SetBrightness(64);
-	m_pBeam->SetNoise(5);
+	if (!m_pBeam)
+	{
+		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 15);
+		// Mark as temporary so the beam will be recreated on save game load and level transitions.
+		m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
+		m_pBeam->EntsInit(that->entindex(), spawner->entindex());
+		m_pBeam->SetColor(255, 225, 0);
+		m_pBeam->SetScrollRate(127);
+		m_pBeam->SetBrightness(255);
+		m_pBeam->SetNoise(5);
+	}
 }
+
 int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
 {
 	if (FClassnameIs(pentTouched->pev, "hw_beam") || FClassnameIs(pentTouched->pev, "grenade"))
@@ -530,6 +535,13 @@ void CGrenade::ArmHopwire()
 	pev->avelocity.z = RANDOM_LONG(-100, -400);
 	pev->avelocity.y = RANDOM_LONG(-100, -400);
 
+	m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
+
+	m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 255, kRenderFxNone);
+
+	m_pSprite->SetScale(0.35);
+
+	m_pSprite->SetAttachment(edict(), 0);
 	pev->nextthink = 0.125;
 	SetThink(&CGrenade::HopwireThink);
 }
@@ -682,6 +694,7 @@ void CGrenade::CallDetonate()
 				SetThink(&CGrenade::ArmHopwire);
 			else
 			{
+				UTIL_Remove(m_pSprite);
 				SetThink(&CGrenade::Detonate);
 				m_bHasExploded = true;
 			}
