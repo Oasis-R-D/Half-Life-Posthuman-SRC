@@ -79,8 +79,10 @@ void CHopWireBeam::MakeBeam()
 	CBaseEntity* that = this;
 	if (spawner->m_bHasExploded == true)
 	{
-		UTIL_Remove(this);
+		UTIL_Remove(m_pSprite)
 		UTIL_Remove(m_pBeam);
+		UTIL_Remove(this);
+		
 		return;
 	}
 
@@ -93,11 +95,14 @@ void CHopWireBeam::MakeBeam()
 	CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
 	if (Hit == nullptr || FClassnameIs(Hit->pev, "grenade") || Hit->IsBSPModel())
 	{
+		// TO-DO: remove this and use ! instead
 	}
 	else
 	{
 		spawner->CallDetonate();
 	}
+	
+	//VFX START
 	if (!m_pBeam)
 	{
 		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 15);
@@ -108,6 +113,16 @@ void CHopWireBeam::MakeBeam()
 		m_pBeam->SetScrollRate(127);
 		m_pBeam->SetBrightness(200);
 		m_pBeam->SetNoise(5);
+	}
+	if (!m_pSprite) // TO-DO: define m_pSprite
+	{
+		m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
+	
+		m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 255, kRenderFxNone);
+	
+		m_pSprite->SetScale(0.5);
+	
+		m_pSprite->SetAttachment(edict(), 0);
 	}
 }
 
@@ -569,7 +584,7 @@ void CGrenade::HopwireThink()
 			pev->velocity.y += -RNDDIR.y * 10;
 			pev->velocity.z += -RNDDIR.z * 10;
 			wireamnt -= 1;
-			nextwire = gpGlobals->time + RANDOM_FLOAT(0.10, 0.20);
+			nextwire = gpGlobals->time + RANDOM_FLOAT(0.10, 0.15);
 		}
 	}
 }
