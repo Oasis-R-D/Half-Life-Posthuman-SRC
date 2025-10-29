@@ -79,7 +79,7 @@ void CHopWireBeam::MakeBeam()
 	CBaseEntity* that = this;
 	if (spawner->m_bHasExploded == true)
 	{
-		UTIL_Remove(m_pSprite)
+		UTIL_Remove(m_pSprite);
 		UTIL_Remove(m_pBeam);
 		UTIL_Remove(this);
 		
