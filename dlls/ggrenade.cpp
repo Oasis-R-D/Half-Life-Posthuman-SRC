@@ -88,7 +88,7 @@ void CHopWireBeam::MakeBeam()
 
 	//UTIL_Remove(m_pBeam);
 	TraceResult tr;
-	pev->nextthink = gpGlobals->time + 0.01;
+	pev->nextthink = gpGlobals->time + 0.01f;
 	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
 
 	UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
@@ -102,27 +102,32 @@ void CHopWireBeam::MakeBeam()
 		spawner->CallDetonate();
 	}
 	
-	//VFX START
+	// VFX START
+
+	// HL2 FILES NEEDED:
+	// "sprites/blueflare1.vmt"		  // GLOW FX
+	// "sprites/rollermine_shock.vmt" // ELECTRICITY BEAM FX
+
 	if (!m_pBeam)
 	{
-		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 15);
+		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 4);
 		// Mark as temporary so the beam will be recreated on save game load and level transitions.
 		m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
 		m_pBeam->EntsInit(that->entindex(), spawner->entindex());
 		m_pBeam->SetColor(255, 225, 0);
-		m_pBeam->SetScrollRate(127);
-		m_pBeam->SetBrightness(200);
-		m_pBeam->SetNoise(5);
+		m_pBeam->SetScrollRate(25);
+		m_pBeam->SetBrightness(128);
+		m_pBeam->SetNoise(0.5f);
 	}
-	if (!m_pSprite) // TO-DO: define m_pSprite
+	if (!m_pSprite)
 	{
 		m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
 	
-		m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 255, kRenderFxNone);
+		m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 128, kRenderFxNone);
 	
-		m_pSprite->SetScale(0.5);
+		m_pSprite->SetScale(0.5f);
 	
-		m_pSprite->SetAttachment(edict(), 0);
+		m_pSprite->SetParent(this);
 	}
 }
 
@@ -542,9 +547,9 @@ void CGrenade::ArmHopwire()
 
 	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
 
-	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8, ATTN_NORM);
+	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
 
-	pev->gravity = 0.25;
+	pev->gravity = 0.25f;
 	pev->velocity = gpGlobals->v_up * 200;
 	pev->avelocity.x = RANDOM_LONG(-100, -400);
 	pev->avelocity.z = RANDOM_LONG(-100, -400);
@@ -552,18 +557,19 @@ void CGrenade::ArmHopwire()
 
 	m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
 
-	m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 255, kRenderFxNone);
+	m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 128, kRenderFxNone);
 
-	m_pSprite->SetScale(0.5);
+	m_pSprite->SetScale(0.5f);
 
-	m_pSprite->SetAttachment(edict(), 0);
-	pev->nextthink = 0.125;
+	m_pSprite->SetParent(this);
+
+	pev->nextthink = 0.125f;
 	SetThink(&CGrenade::HopwireThink);
 }
 
 void CGrenade::HopwireThink()
 {
-	pev->nextthink = 0.25;
+	pev->nextthink = 0.25f;
 	
 	if (pev->health <= 0)
 	{
@@ -571,11 +577,12 @@ void CGrenade::HopwireThink()
 		m_bHasExploded = true;
 		pev->nextthink = gpGlobals->time;
 	}
+
 	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
 
-	if (pev->velocity.z <= 0)
+	if (pev->velocity.z <= 0) // At apex, set gravity back to normal
 	{
-		pev->gravity = 0.75;
+		pev->gravity = 0.5f;
 		if (wireamnt > 0 && nextwire <= gpGlobals->time)
 		{
 			Vector RNDDIR = Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
@@ -584,7 +591,7 @@ void CGrenade::HopwireThink()
 			pev->velocity.y += -RNDDIR.y * 10;
 			pev->velocity.z += -RNDDIR.z * 10;
 			wireamnt -= 1;
-			nextwire = gpGlobals->time + RANDOM_FLOAT(0.10, 0.15);
+			nextwire = gpGlobals->time + RANDOM_FLOAT(0.1f, 0.3f);
 		}
 	}
 }
