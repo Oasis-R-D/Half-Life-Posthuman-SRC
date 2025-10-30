@@ -1062,10 +1062,12 @@ class CGrenadePickup : public CBaseButton
 				return; 
 			}
 				
-			iPlayerGrenType = player->m_iGrenadeType;
-			iPlayerGrenAmnt = player->m_iGrenadeAmnt;
+
 			if (m_iTracerType != player->m_iGrenadeType)
 			{
+				iPlayerGrenType = player->m_iGrenadeType;
+				iPlayerGrenAmnt = player->m_iGrenadeAmnt;
+
 				player->m_iGrenadeAmnt = m_iAmnt; // exchanges player grenades with pickups amnt and type
 				player->m_iGrenadeType = m_iTracerType;
 
@@ -1092,6 +1094,10 @@ class CGrenadePickup : public CBaseButton
 			WRITE_BYTE(player->m_iGrenadeType);
 			WRITE_BYTE(player->m_iGrenadeAmnt);
 			MESSAGE_END();
+
+			ASSERT((3 - m_iAmnt) >= 0);
+			SetBodygroup(1, 3 - m_iAmnt);
+			SetBodygroup(0, m_iTracerType);		
 		}
 	}
 };
