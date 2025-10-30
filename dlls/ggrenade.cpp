@@ -1016,14 +1016,18 @@ class CGrenadePickup : public CBaseButton
 	void Spawn() override
 	{
 		Precache();
+
 		SET_MODEL(ENT(pev), "models/w_grenade.mdl");
 		ASSERT((3 - m_iAmnt) >= 0);
 		SetBodygroup(1, 3 - m_iAmnt);
 		SetBodygroup(0, m_iTracerType);
+
 		// Set up BBox and origin
 		pev->solid = SOLID_BBOX;
 		SetSequenceBox();
+
 		UTIL_SetOrigin(pev, pev->origin);
+		
 		pev->movetype = MOVETYPE_NONE;
 	}
 	void Precache() override
