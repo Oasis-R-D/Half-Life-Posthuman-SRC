@@ -62,12 +62,16 @@ void CHopWireBeam::Spawn()
 }
 void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 {
+	TraceResult tr;
+	tr = UTIL_GetGlobalTrace();
 	if (pOther->IsBSPModel() && (!FClassnameIs(pOther->pev, "hw_beam") && !FClassnameIs(pOther->pev, "grenade")))
 	{
 		if (pev->movetype != MOVETYPE_NONE)
 		{
 			SetThink(&CHopWireBeam::MakeBeam);
 			pev->nextthink = gpGlobals->time;
+			TEXTURETYPE_PlaySound(&tr, pev->origin, pev->origin, BULLET_PLAYER_9MM);
+			DecalGunshot(&tr, BULLET_MONSTER_9MM); // TO-DO: replace with just the dust VFX
 		}
 		pev->movetype = MOVETYPE_NONE;
 		pev->velocity = Vector(0, 0, 0);
@@ -113,6 +117,7 @@ void CHopWireBeam::MakeBeam()
 		m_pBeam->SetBrightness(128);
 		m_pBeam->SetNoise(0.5f);
 	}
+
 	if (!m_pSprite)
 	{
 		m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
@@ -123,6 +128,7 @@ void CHopWireBeam::MakeBeam()
 	
 		m_pSprite->SetAttachment(edict(), 0);
 	}
+
 }
 
 int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
