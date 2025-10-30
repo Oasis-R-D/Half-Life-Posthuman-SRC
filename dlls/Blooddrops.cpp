@@ -77,7 +77,7 @@ void CPhysblood::Spawn()
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
 	if (m_opposite == 1)
 	{
-		pev->scale = RANDOM_FLOAT(0.4, 0.65);
+		pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
 		if (m_BloodDropVel > 0 && m_randomspeed == true)
 		{
 			m_BloodDropVel -= RANDOM_LONG(0, 375);
@@ -90,16 +90,16 @@ void CPhysblood::Spawn()
 		{
 			if (m_randomspeed == true)
 				m_BloodDropVel -= RANDOM_LONG(0, 275);
-			pev->scale = RANDOM_FLOAT(0.35, 0.6); // makes the ones going towards the player smaller
+			pev->scale = RANDOM_FLOAT(0.35f, 0.6f); // makes the ones going towards the player smaller
 		}
 		else
 		{
-			pev->scale = RANDOM_FLOAT(0.4, 0.65);
+			pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
 		}
 	}
 	if (m_isgib == true)
 	{
-		pev->scale = RANDOM_FLOAT(0.30, 0.40);
+		pev->scale = RANDOM_FLOAT(0.30f, 0.40f);
 	}
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
@@ -204,7 +204,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
 	Stay();
 
 }
@@ -212,7 +212,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 void CPhysblood::AirThink()
 {
 	
-	pev->nextthink = gpGlobals->time + 0.05;
+	pev->nextthink = gpGlobals->time + 0.05f;
 	CBaseEntity* pObject = NULL;
 	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 	if (pObject)
@@ -262,7 +262,7 @@ void CPhysblood::AirThink()
 			}
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
 		}
 		if (FClassnameIs(pObject->pev, "monster_human_grunt") && m_hasstained != true && m_BloodType == NULL)
 		{
@@ -276,14 +276,14 @@ void CPhysblood::AirThink()
 			Hgrunt->pev->armortype = 0;
 			char dripsnd[256];
 			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-			EMIT_SOUND(Hgrunt->edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+			EMIT_SOUND(Hgrunt->edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
 		}
 	}
 	if (pev->waterlevel == 0)
 		return;
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6);
+	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
 	SetThink(&CPhysblood::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }

@@ -27,9 +27,7 @@ void CChargerGlass::Spawn()
 	pev->solid = SOLID_NOT;
 
 	// BBox
-	Vector Zero;
-	Zero.x = Zero.y = Zero.z = 0; //g_vecZero?
-	UTIL_SetSize(pev, Zero, Zero);
+	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 
 	// Visuals
 	pev->rendermode = kRenderTransTexture;		// Mode with transparency

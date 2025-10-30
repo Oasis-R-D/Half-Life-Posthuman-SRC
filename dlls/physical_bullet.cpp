@@ -54,7 +54,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		}
 		else
 		{
-			pBullet->m_muzzlevelocity = BLLTSpeed * 1.25;
+			pBullet->m_muzzlevelocity = BLLTSpeed * 1.25f;
 		}
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
@@ -91,33 +91,33 @@ void CPhysbullet::Spawn()
 	if (m_Flare == 556) // probably 556
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
-		pev->scale = RANDOM_FLOAT(0.23, 0.27);
+		pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
 		m_distpenetrate = 24;
 	}
 	if (m_Flare == 762) // probably 762
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.31, 0.35);
+		pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
 		m_distpenetrate = 32;
 		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 12) // 12 gauge
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
-		pev->scale = RANDOM_FLOAT(0.13, 0.17);
+		pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
 		m_distpenetrate = 10;
 	}
 	else if (m_Flare == 357)
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.28, 0.32);
+		pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
 		m_distpenetrate = 18;
 		m_bHeavyDecal = true;
 	}
 	else if (m_Flare == 44)
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.32, 0.33);
+		pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
 		m_distpenetrate = 16;
 		m_bHeavyDecal = true;
 	}
@@ -139,11 +139,11 @@ void CPhysbullet::Spawn()
 	else //	9MM
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
-		pev->scale = RANDOM_FLOAT(0.18, 0.22);
+		pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
 		m_distpenetrate = 16;
 	}
 	if (m_bsubsonic)
-		m_distpenetrate = round(m_distpenetrate * 0.75);
+		m_distpenetrate = round(m_distpenetrate * 0.75f);
 
 	if (m_fPenoverride != NULL)
 		m_distpenetrate = m_fPenoverride;
@@ -168,7 +168,7 @@ void CPhysbullet::Spawn()
 		pev->renderamt = 150;
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-	pev->nextthink = gpGlobals->time + 0.05;
+	pev->nextthink = gpGlobals->time + 0.05f;
 	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 	WRITE_BYTE(TE_BEAMFOLLOW);
 	WRITE_SHORT(entindex()); // entity
@@ -265,7 +265,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				ALERT(at_console, "penetrated: %f units + mult\n", p);
 
 				// Damage reduction
-				m_BulletDamage -= round(0.125 * p);
+				m_BulletDamage -= round(0.125f * p);
 				if (m_BulletDamage <= 0)
 					m_BulletDamage = 2;
 
@@ -337,7 +337,7 @@ void CPhysbullet::AirThink()
 {
 	m_direction = UTIL_VecToAngles(pev->velocity);
 	pev->angles = m_direction;
-	pev->nextthink = gpGlobals->time + 0.1; // was 0.05
+	pev->nextthink = gpGlobals->time + 0.1f; // was 0.05f
 	CBaseEntity* m_ent = NULL;
 	if (!m_haswizzed && !m_bsubsonic)
 	{
@@ -363,7 +363,7 @@ void CPhysbullet::AirThink()
 
 	if (pev->waterlevel == 0)
 		return;
-	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 1);
+	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 }
 #endif
 
@@ -426,7 +426,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			}
 			else if (!strcmp(szbuffer, "mat_flesh"))
 			{
-				return penmodifier = 1.66;
+				return penmodifier = 1.66f;
 				ALERT(at_console, "penetration mult: %f\n", penmodifier);
 			}
 			chTextureType = TEXTURETYPE_Find(szbuffer);
@@ -437,7 +437,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	{
 	default:
 	case CHAR_TEX_CONCRETE:
-		penmodifier = 1.33;
+		penmodifier = 1.33f;
 		break;
 	case CHAR_TEX_METAL:
 		penmodifier = 2;
@@ -449,28 +449,28 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 		penmodifier = 2;
 		break;
 	case CHAR_TEX_VENT:
-		penmodifier = 1.5;
+		penmodifier = 1.5f;
 		break;
 	case CHAR_TEX_GRATE:
 		penmodifier = 1;
 		break;
 	case CHAR_TEX_TILE:
-		penmodifier = 1.1;
+		penmodifier = 1.1f;
 		break;
 	case CHAR_TEX_SLOSH:
-		penmodifier = 1.125;
+		penmodifier = 1.125f;
 		break;
 	case CHAR_TEX_WOOD:
-		penmodifier = 1.25;
+		penmodifier = 1.25f;
 		break;
 	case CHAR_TEX_GLASS:
 		penmodifier = 1;
 		break;
 	case CHAR_TEX_COMPUTER:
-		penmodifier = 1.125;
+		penmodifier = 1.125f;
 		break;
 	case CHAR_TEX_FLESH: // less overpenetration
-		penmodifier = 1.75;
+		penmodifier = 1.75f;
 		break;
 	}
 	ALERT(at_console, "penetration mult: %f\n", penmodifier);
