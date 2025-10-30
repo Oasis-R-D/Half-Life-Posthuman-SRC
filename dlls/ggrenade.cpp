@@ -86,18 +86,12 @@ void CHopWireBeam::MakeBeam()
 		return;
 	}
 
-	//UTIL_Remove(m_pBeam);
 	TraceResult tr;
 	pev->nextthink = gpGlobals->time + 0.01f;
-	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
 
 	UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
 	CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
-	if (Hit == nullptr || FClassnameIs(Hit->pev, "grenade") || Hit->IsBSPModel())
-	{
-		// TO-DO: remove this and use ! instead
-	}
-	else
+	if (Hit != nullptr && !FClassnameIs(Hit->pev, "grenade") && !Hit->IsBSPModel())
 	{
 		spawner->CallDetonate();
 	}
