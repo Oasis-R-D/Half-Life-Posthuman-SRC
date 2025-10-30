@@ -127,7 +127,7 @@ void CHopWireBeam::MakeBeam()
 	
 		m_pSprite->SetScale(0.5f);
 	
-		m_pSprite->SetParent(this);
+		m_pSprite->SetAttachment(edict(), 0)
 	}
 }
 
@@ -561,8 +561,8 @@ void CGrenade::ArmHopwire()
 
 	m_pSprite->SetScale(0.5f);
 
-	m_pSprite->SetParent(this);
-
+	m_pSprite->SetAttachment(edict(), 0)
+	
 	pev->nextthink = 0.125f;
 	SetThink(&CGrenade::HopwireThink);
 }
