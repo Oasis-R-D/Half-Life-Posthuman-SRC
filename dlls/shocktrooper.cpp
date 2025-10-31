@@ -976,7 +976,9 @@ void CShockTrooper::Spawn()
 // Precache - precaches all resources this monster needs
 //=========================================================
 void CShockTrooper::Precache()
-{
+{	
+	
+
 	PRECACHE_MODEL("models/strooper.mdl");
 	PRECACHE_MODEL("models/strooper_gibs.mdl");
 
@@ -1001,6 +1003,8 @@ void CShockTrooper::Precache()
 		m_voicePitch = 100;
 
 	UTIL_PrecacheOther("monster_shockroach");
+	UTIL_PrecacheOther("shock_beam");
+	UTIL_PrecacheOther("spore");
 
 	iShockTrooperMuzzleFlash = PRECACHE_MODEL("sprites/muzzle_shock.spr");
 }

@@ -1222,6 +1222,8 @@ void CHGrunt::Precache()
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl");
 	m_iLink = PRECACHE_MODEL("models/saw_link.mdl");
+
+	UTIL_PrecacheOther("item_healthkit"); // required for hgrunt medic
 }
 
 //=========================================================

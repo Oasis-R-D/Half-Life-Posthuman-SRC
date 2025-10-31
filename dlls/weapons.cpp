@@ -295,9 +295,7 @@ void W_Precache()
 	UTIL_PrecacheOther("item_antidote");
 	UTIL_PrecacheOther("item_security");
 	UTIL_PrecacheOther("item_longjump");
-	UTIL_PrecacheOther("shock_beam"); // required for shock trooper // TO-DO: see if this can be moved to ST precache
-	UTIL_PrecacheOther("spore"); // TO-DO: see if this can be moved to ST precache
-	UTIL_PrecacheOther("item_healthkit"); // required for hgrunt medic
+
 	// shotgun
 	UTIL_PrecacheOtherWeapon("weapon_shotgun");
 	UTIL_PrecacheOther("ammo_buckshot");
@@ -318,22 +316,9 @@ void W_Precache()
 	UTIL_PrecacheOtherWeapon("weapon_357");
 	UTIL_PrecacheOther("ammo_357");
 
-	// rpg
-	UTIL_PrecacheOtherWeapon("weapon_rpg");
-	UTIL_PrecacheOther("ammo_rpgclip");
-
 	// crossbow
 	UTIL_PrecacheOtherWeapon("weapon_crossbow");
 	UTIL_PrecacheOther("ammo_crossbow");
-
-	// tripmine
-	UTIL_PrecacheOtherWeapon("weapon_tripmine");
-
-	// satchel charge
-	UTIL_PrecacheOtherWeapon("weapon_satchel");
-
-	// hand grenade
-	UTIL_PrecacheOtherWeapon("weapon_handgrenade");
 
 	// squeak grenade
 	UTIL_PrecacheOtherWeapon("weapon_snark");

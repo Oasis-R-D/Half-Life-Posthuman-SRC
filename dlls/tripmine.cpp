@@ -351,7 +351,7 @@ void CTripmineGrenade::DelayDeathThink()
 }
 #endif
 
-LINK_ENTITY_TO_CLASS(weapon_tripmine, CTripmine);
+//LINK_ENTITY_TO_CLASS(weapon_tripmine, CTripmine);
 
 void CTripmine::Spawn()
 {
