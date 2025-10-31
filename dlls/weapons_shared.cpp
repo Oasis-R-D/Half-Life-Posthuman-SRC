@@ -140,7 +140,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		MESSAGE_END();
 		ShootGrenade(m_pPlayer->m_iGrenadeType);
 		m_pPlayer->m_bInGrenadeDelay = false;
-		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon  grenade anims since this is for the animations
+		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon grenade anims since this is for the animations
 	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{

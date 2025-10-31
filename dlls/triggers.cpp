@@ -2872,7 +2872,7 @@ void CEnvCustomize::SetBoneController(float fController, int cnum, CBaseEntity* 
 	}
 }
 
-class CTriggerHunger : public CPointEntity // Ignore this being here, this WAS a trigger // TO-DO: make something like this but for limb damage
+class CTriggerHunger : public CPointEntity // Ignore this being here, this WAS a trigger
 {
 public:
 	void Spawn() override;

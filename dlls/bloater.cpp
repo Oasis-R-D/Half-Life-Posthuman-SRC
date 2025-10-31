@@ -287,6 +287,7 @@ void CFlockingBloater::MakeSound()
 void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 {
 	CFlockingBloater* pSquad;
+	TraceResult tr;
 
 	pSquad = (CFlockingBloater*)m_pSquadLeader;
 
@@ -301,9 +302,9 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 		m_pSquadLeader->SquadRemove(this);
 	}
 
-	pev->deadflag = DEAD_DEAD; //TO-DO: add poison gas
-	//::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 128, CLASS_NONE, Dmg type);
-	//UTIL_BloodPuff(tr, none);
+	pev->deadflag = DEAD_DEAD;
+	::RadiusDamage(pev->origin, pev, pev, pev->dmg, 128, CLASS_NONE, DMG_NERVEGAS); // TO-DO: make bloater immune to nervegas
+	UTIL_BloodPuff(tr, DONT_BLEED); // TO-DO: make purple
 	UTIL_Remove(this);
 }
 

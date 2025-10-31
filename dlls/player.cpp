@@ -4534,7 +4534,7 @@ void CBasePlayer::UpdateClientData()
 		WRITE_SHORT(Hunger);
 		MESSAGE_END();
 
-		if (FlashlightIsOn()) //TO-DO: update classes
+		if (FlashlightIsOn())
 		{
 			CBaseEntity* pEntity = NULL;
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
@@ -4554,7 +4554,7 @@ void CBasePlayer::UpdateClientData()
 			}
 		}
 
-		if (Hunger <= 10) //TO-DO: fix NPCS not unhighlighting
+		if (Hunger <= 10)
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
@@ -4730,7 +4730,7 @@ void CBasePlayer::UpdateClientData()
 		}
 
 		// only send down damage type that have hud art
-		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD; // TO-DO: add poison (and maybe blast?) (https://en.wikipedia.org/wiki/GHS_hazard_pictograms)
+		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD; // TO-DO: maybe add blast? (https://en.wikipedia.org/wiki/GHS_hazard_pictograms)
 
 		MESSAGE_BEGIN(MSG_ONE, gmsgDamage, NULL, pev);
 		WRITE_BYTE(pev->dmg_save);

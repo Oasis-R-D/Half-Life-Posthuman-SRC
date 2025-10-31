@@ -70,8 +70,17 @@ void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 		{
 			SetThink(&CHopWireBeam::MakeBeam);
 			pev->nextthink = gpGlobals->time;
+
 			TEXTURETYPE_PlaySound(&tr, pev->origin, pev->origin, BULLET_PLAYER_9MM);
-			DecalGunshot(&tr, BULLET_MONSTER_9MM); // TO-DO: replace with just the dust VFX
+			MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, tr.vecEndPos);
+			WRITE_BYTE(TE_GUNSHOTDECAL);
+			WRITE_COORD(tr.vecEndPos.x);
+			WRITE_COORD(tr.vecEndPos.y);
+			WRITE_COORD(tr.vecEndPos.z);
+			WRITE_SHORT((short)ENTINDEX(tr.pHit));
+			WRITE_BYTE(-1); // no decals, just the effect
+			MESSAGE_END();
+
 			pev->renderamt = 255;
 			pev->rendermode = kRenderTransAlpha;
 		}

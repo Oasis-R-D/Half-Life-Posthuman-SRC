@@ -2868,7 +2868,7 @@ void CWarpBall::WarpBallUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_T
 
 		if (m_flDamageDelay == 0)
 		{
-			//::RadiusDamage(pev->origin, pev, pev, 300, 48, CLASS_NONE, DMG_SHOCK); TO-DO: FIX THIS KILLING THE NPC
+			//::RadiusDamage(pev->origin, pev, pev, 300, 48, monster->Classify(), DMG_SHOCK); // TO-DO: FIX THIS KILLING THE NPC
 			m_fDamageApplied = true;
 		}
 		else
