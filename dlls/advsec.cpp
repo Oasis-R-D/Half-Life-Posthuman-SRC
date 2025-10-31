@@ -1991,7 +1991,7 @@ void CAdvSec::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 		// grunt is either shooting standing or shooting crouched
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, HGRUNT_9MMAR) || FBitSet(pev->weapons, ADVSEC_RAILCANNON))
 		{
 			if (m_fStanding)
 			{
