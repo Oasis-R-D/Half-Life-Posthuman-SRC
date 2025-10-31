@@ -11,7 +11,7 @@
 *   Valve LLC.  All other use, distribution, or modification is prohibited
 *   without written permission from Valve LLC.
 *
-****/
+***/
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -36,7 +36,6 @@ class CAirtank : public CGrenade
 	bool m_state;
 };
 
-
 LINK_ENTITY_TO_CLASS(item_airtank, CAirtank);
 TYPEDESCRIPTION CAirtank::m_SaveData[] =
 	{
@@ -44,7 +43,6 @@ TYPEDESCRIPTION CAirtank::m_SaveData[] =
 };
 
 IMPLEMENT_SAVERESTORE(CAirtank, CGrenade);
-
 
 void CAirtank::Spawn()
 {
@@ -73,7 +71,6 @@ void CAirtank::Precache()
 	PRECACHE_SOUND("doors/aliendoor3.wav");
 }
 
-
 void CAirtank::Killed(entvars_t* pevAttacker, int iGib)
 {
 	Vector min = Vector(pev->origin.x -16, pev->origin.y -16, pev->origin.z);
@@ -91,14 +88,12 @@ void CAirtank::Killed(entvars_t* pevAttacker, int iGib)
 		UTIL_BloodPuff(tr, 69);
 }
 
-
 void CAirtank::TankThink()
 {
 	// Fire trigger
 	m_state = true;
 	SUB_UseTargets(this, USE_TOGGLE, 0);
 }
-
 
 void CAirtank::TankTouch(CBaseEntity* pOther)
 {
