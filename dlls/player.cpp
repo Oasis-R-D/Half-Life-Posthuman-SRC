@@ -4729,7 +4729,7 @@ void CBasePlayer::UpdateClientData()
 		}
 
 		// only send down damage type that have hud art
-		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD;
+		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD; // TO-DO: add poison (and maybe blast?) (https://unece.org/DAM/trans/danger/publi/ghs/ghs_rev00/English/GHS-ANNEX-2.pdf)
 
 		MESSAGE_BEGIN(MSG_ONE, gmsgDamage, NULL, pev);
 		WRITE_BYTE(pev->dmg_save);
