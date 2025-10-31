@@ -89,6 +89,7 @@ public:
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 	void EXPORT MakeBeam();
+	void EXPORT FadeThink();
 	void KillBeam();
 	static void ShootBeams(CGrenade* ownerOgrenade, Vector direction);
 	Vector m_SpreadVect;

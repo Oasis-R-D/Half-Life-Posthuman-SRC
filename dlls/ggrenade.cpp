@@ -63,6 +63,7 @@ void CHopWireBeam::Spawn()
 void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 {
 	TraceResult tr;
+	UTIL_MakeVectors(pev->velocity);
 	tr = UTIL_GetGlobalTrace();
 	if (pOther->IsBSPModel() && (!FClassnameIs(pOther->pev, "hw_beam") && !FClassnameIs(pOther->pev, "grenade")))
 	{
@@ -72,11 +73,21 @@ void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 			pev->nextthink = gpGlobals->time;
 			TEXTURETYPE_PlaySound(&tr, pev->origin, pev->origin, BULLET_PLAYER_9MM);
 			DecalGunshot(&tr, BULLET_MONSTER_9MM); // TO-DO: replace with just the dust VFX
+			pev->renderamt = 255;
+			pev->rendermode = kRenderTransAlpha;
 		}
 		pev->movetype = MOVETYPE_NONE;
 		pev->velocity = Vector(0, 0, 0);
 		pev->avelocity.z = 0;	
+		
 	}
+}
+void CHopWireBeam::FadeThink()
+{
+	pev->renderamt -= 15;
+	pev->nextthink = gpGlobals->time + 0.125f;
+	if (pev->renderamt <= 0)
+		UTIL_Remove(this);
 }
 void CHopWireBeam::MakeBeam()
 {
@@ -85,7 +96,8 @@ void CHopWireBeam::MakeBeam()
 	{
 		UTIL_Remove(m_pSprite);
 		UTIL_Remove(m_pBeam);
-		UTIL_Remove(this);
+		SetThink(&CHopWireBeam::FadeThink);
+		pev->nextthink = gpGlobals->time + 2.5f;
 		
 		return;
 	}
@@ -102,13 +114,9 @@ void CHopWireBeam::MakeBeam()
 	
 	// VFX START
 
-	// HL2 FILES NEEDED:
-	// "sprites/blueflare1.vmt"		  // GLOW FX
-	// "sprites/rollermine_shock.vmt" // ELECTRICITY BEAM FX
-
 	if (!m_pBeam)
 	{
-		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 4);
+		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 6);
 		// Mark as temporary so the beam will be recreated on save game load and level transitions.
 		m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
 		m_pBeam->EntsInit(that->entindex(), spawner->entindex());
@@ -120,12 +128,9 @@ void CHopWireBeam::MakeBeam()
 
 	if (!m_pSprite)
 	{
-		m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
-	
-		m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 128, kRenderFxNone);
-	
+		m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
+		m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
 		m_pSprite->SetScale(0.5f);
-	
 		m_pSprite->SetAttachment(edict(), 0);
 	}
 
@@ -146,8 +151,6 @@ LINK_ENTITY_TO_CLASS(grenade, CGrenade);
 
 // Grenades flagged with this will be triggered when the owner calls detonateSatchelCharges
 #define SF_DETONATE 0x0001
-
-
 
 //
 // Grenade Explode
@@ -555,12 +558,9 @@ void CGrenade::ArmHopwire()
 	pev->avelocity.z = RANDOM_LONG(-100, -400);
 	pev->avelocity.y = RANDOM_LONG(-100, -400);
 
-	m_pSprite = CSprite::SpriteCreate("sprites/flare3.spr", pev->origin, false);
-
-	m_pSprite->SetTransparency(kRenderTransAdd, 255, 255, 0, 128, kRenderFxNone);
-
-	m_pSprite->SetScale(0.5f);
-
+	m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
+	m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
+	m_pSprite->SetScale(0.6f);
 	m_pSprite->SetAttachment(edict(), 0);
 
 	pev->nextthink = 0.125f;
