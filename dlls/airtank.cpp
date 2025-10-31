@@ -76,13 +76,17 @@ void CAirtank::Precache()
 
 void CAirtank::Killed(entvars_t* pevAttacker, int iGib)
 {
+	Vector min = Vector(pev->origin.x -16, pev->origin.y -16, pev->origin.z);
+	Vector max = Vector(pev->origin.x + 16, pev->origin.y + 16, pev->origin.z + 36);
+	TraceResult tr;
+	UTIL_TraceLine(pev->origin, pev->origin, ignore_monsters, NULL, &tr);
 	pev->owner = ENT(pevAttacker);
 
-	// UNDONE: this should make a big bubble cloud, not an explosion
 	if (pev->waterlevel == 3)
 		Explode(pev->origin, Vector(0, 0, -1));
+		UTIL_Bubbles(min, max, 10);
 	else
-		//UTIL_BloodPuff();
+		UTIL_BloodPuff(&tr, 69);
 }
 
 
