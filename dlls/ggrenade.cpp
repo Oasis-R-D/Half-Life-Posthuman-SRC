@@ -87,7 +87,10 @@ void CHopWireBeam::FadeThink()
 	pev->renderamt -= 15;
 	pev->nextthink = gpGlobals->time + 0.125f;
 	if (pev->renderamt <= 0)
+	{
+		SetThink(NULL);
 		UTIL_Remove(this);
+	}
 }
 void CHopWireBeam::MakeBeam()
 {
@@ -95,46 +98,50 @@ void CHopWireBeam::MakeBeam()
 	if (spawner->m_bHasExploded == true)
 	{
 		pev->movetype = MOVETYPE_TOSS;
-		UTIL_Remove(m_pSprite);
-		UTIL_Remove(m_pBeam);
+		if (m_pSprite->pev != nullptr)
+			UTIL_Remove(m_pSprite);
+		if (m_pBeam->pev != nullptr)
+			UTIL_Remove(m_pBeam);
 		SetThink(&CHopWireBeam::FadeThink);
 		pev->nextthink = gpGlobals->time + 2.5f;
 		
 		return;
 	}
-
-	TraceResult tr;
-	pev->nextthink = gpGlobals->time + 0.01f;
-
-	UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
-	CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
-	if (Hit != nullptr && !FClassnameIs(Hit->pev, "grenade") && !Hit->IsBSPModel())
+	else
 	{
-		spawner->CallDetonate();
-	}
-	
-	// VFX START
+		TraceResult tr;
+		pev->nextthink = gpGlobals->time + 0.01f;
+		if (pev != nullptr && !spawner->m_bHasExploded && spawner->pev != nullptr)
+		{
+			UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
+			CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
+			if (Hit != nullptr && !FClassnameIs(Hit->pev, "grenade") && !Hit->IsBSPModel())
+			{
+				spawner->CallDetonate();
+			}
+		}
 
-	if (!m_pBeam)
-	{
-		m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 6);
-		// Mark as temporary so the beam will be recreated on save game load and level transitions.
-		m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
-		m_pBeam->EntsInit(that->entindex(), spawner->entindex());
-		m_pBeam->SetColor(255, 225, 0);
-		m_pBeam->SetScrollRate(25);
-		m_pBeam->SetBrightness(128);
-		m_pBeam->SetNoise(0.5f);
-	}
+		// VFX START
+		if (!m_pBeam)
+		{
+			m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 6);
+			// Mark as temporary so the beam will be recreated on save game load and level transitions.
+			m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
+			m_pBeam->EntsInit(that->entindex(), spawner->entindex());
+			m_pBeam->SetColor(255, 225, 0);
+			m_pBeam->SetScrollRate(25);
+			m_pBeam->SetBrightness(128);
+			m_pBeam->SetNoise(0.5f);
+		}
 
-	if (!m_pSprite)
-	{
-		m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
-		m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
-		m_pSprite->SetScale(0.5f);
-		m_pSprite->SetAttachment(edict(), 0);
+		if (!m_pSprite)
+		{
+			m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
+			m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
+			m_pSprite->SetScale(0.5f);
+			m_pSprite->SetAttachment(edict(), 0);
+		}
 	}
-
 }
 
 int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
@@ -574,8 +581,8 @@ void CGrenade::HopwireThink()
 	
 	if (pev->health <= 0)
 	{
-		SetThink(&CGrenade::CallDetonate); // replace with higher radius?
 		m_bHasExploded = true;
+		SetThink(&CGrenade::CallDetonate);
 		pev->nextthink = gpGlobals->time;
 	}
 
@@ -717,9 +724,11 @@ void CGrenade::CallDetonate()
 				SetThink(&CGrenade::ArmHopwire);
 			else
 			{
-				UTIL_Remove(m_pSprite);
-				SetThink(&CGrenade::Detonate);
 				m_bHasExploded = true;
+				if (m_pSprite->pev != nullptr)
+					UTIL_Remove(m_pSprite);
+				SetThink(&CGrenade::Detonate);
+				
 			}
 			break;
 	}
