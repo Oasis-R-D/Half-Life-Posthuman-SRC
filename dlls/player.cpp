@@ -637,7 +637,8 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 		if ((bitsDamage & DMG_NERVEGAS) != 0)
 		{
-			SetSuitUpdate("!HEV_DET0", false, SUIT_NEXT_IN_1MIN); // biohazard detected
+			SetSuitUpdate("!HEV_NEURO", false, SUIT_NEXT_IN_1MIN); // atmos hazard detected
+
 			bitsDamage &= ~DMG_NERVEGAS;
 			ffound = true;
 		}
