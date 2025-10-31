@@ -60,7 +60,7 @@ const char* CBreakable::pSpawnObjects[] = // TO-DO: add to fgd
 		"monster_headcrab_fast", // 21
 		"monster_headcrab_super",// 22
 		"monster_shockroach", // 23
-		"amoo_grenade", // 24
+		"ammo_grenade", // 24
 };
 
 bool CBreakable::KeyValue(KeyValueData* pkvd)
