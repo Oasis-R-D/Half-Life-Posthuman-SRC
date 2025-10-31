@@ -53,8 +53,7 @@ void CHopWireBeam::Spawn()
 
 	pev->velocity = (m_direction + m_SpreadVect) * 600; // Applies spread and velocity
 	pev->velocity = pev->velocity + spawner->pev->velocity;
-	pev->gravity = 1; // sets the gravity (bullet drop)
-	pev->angles = m_direction + m_SpreadVect;
+	pev->angles = pev->velocity;
 
 	SetTouch(&CHopWireBeam::BoltTouch);
 	
@@ -84,6 +83,7 @@ void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 }
 void CHopWireBeam::FadeThink()
 {
+	pev->angles = pev->velocity;
 	pev->renderamt -= 15;
 	pev->nextthink = gpGlobals->time + 0.125f;
 	if (pev->renderamt <= 0)
@@ -94,6 +94,7 @@ void CHopWireBeam::MakeBeam()
 	CBaseEntity* that = this;
 	if (spawner->m_bHasExploded == true)
 	{
+		pev->movetype = MOVETYPE_TOSS;
 		UTIL_Remove(m_pSprite);
 		UTIL_Remove(m_pBeam);
 		SetThink(&CHopWireBeam::FadeThink);
