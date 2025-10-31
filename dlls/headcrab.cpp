@@ -534,8 +534,6 @@ void CBabyCrab::Spawn()
 {
 	CHeadCrab::Spawn();
 	SET_MODEL(ENT(pev), "models/baby_headcrab.mdl");
-	pev->rendermode = kRenderTransTexture;
-	pev->renderamt = 192;
 	UTIL_SetSize(pev, Vector(-12, -12, 0), Vector(12, 12, 24));
 	pev->dmgtime = gpGlobals->time + 10;
 	pev->health = gSkillData.headcrabHealth * 0.25; // less health than full grown
