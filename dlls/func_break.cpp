@@ -50,22 +50,17 @@ const char* CBreakable::pSpawnObjects[] = // TO-DO: add to fgd
 		"ammo_crossbow",	  // 11
 		"weapon_357",		  // 12
 		"ammo_357",			  // 13
-		"weapon_rpg",		  // 14
-		"ammo_rpgclip",		  // 15
-		"ammo_gaussclip",	  // 16
-		"weapon_handgrenade", // 17
-		"weapon_tripmine",	  // 18
-		"weapon_satchel",	  // 19
-		"weapon_snark",		  // 20
-		"weapon_hornetgun",	  // 21
-		"weapon_m727",		  // 22
-		"ammo_556mag",		  // 23
-		"weapon_m249",		  // 24
-		"ammo_556",			  // 25
-		"weapon_eagle",		  // 26
-		"monster_headcrab",   // 27
-		"monster_headcrab_fast", // 28
-		"monster_headcrab_super",// 29
+		"weapon_snark",		  // 14
+		"weapon_m727",		  // 15
+		"ammo_556mag",		  // 16
+		"weapon_m249",		  // 17
+		"ammo_556",			  // 18
+		"weapon_eagle",		  // 19
+		"monster_headcrab",   // 20
+		"monster_headcrab_fast", // 21
+		"monster_headcrab_super",// 22
+		"monster_shockroach", // 23
+		"amoo_grenade", // 24
 };
 
 bool CBreakable::KeyValue(KeyValueData* pkvd)
