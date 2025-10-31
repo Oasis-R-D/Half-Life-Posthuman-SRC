@@ -1347,7 +1347,7 @@ void CAdvSec::PainSound()
 //=========================================================
 void CAdvSec::DeathSound()
 {
-	if (m_bRailed == false)
+	if (!m_bRailed)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{
@@ -1361,18 +1361,18 @@ void CAdvSec::DeathSound()
 			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
 			break;
 		}
-		if (m_hashealthmonitor == true)
+		if (m_hashealthmonitor)
 		{
 			switch (RANDOM_LONG(0, 2))
 			{
 			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_NORM);
 				break;
 			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_NORM);
 				break;
 			case 2:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_IDLE);
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_NORM);
 				break;
 			}
 		}
