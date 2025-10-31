@@ -83,10 +83,12 @@ void CAirtank::Killed(entvars_t* pevAttacker, int iGib)
 	pev->owner = ENT(pevAttacker);
 
 	if (pev->waterlevel == 3)
+	{
 		Explode(pev->origin, Vector(0, 0, -1));
-		UTIL_Bubbles(min, max, 10);
+		UTIL_Bubbles(min, max, 10);		
+	}
 	else
-		UTIL_BloodPuff(&tr, 69);
+		UTIL_BloodPuff(tr, 69);
 }
 
 
