@@ -169,6 +169,10 @@ LINK_ENTITY_TO_CLASS(grenade, CGrenade);
 // Grenades flagged with this will be triggered when the owner calls detonateSatchelCharges
 #define SF_DETONATE 0x0001
 
+void CGrenade::Precache()
+{
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+}
 //
 // Grenade Explode
 //
@@ -198,6 +202,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	int iContents = UTIL_PointContents(pev->origin);
 
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 0, 0, 0);
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
@@ -772,6 +777,7 @@ void CGrenade::TumbleThink()
 
 void CGrenade::Spawn()
 {
+	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->classname = MAKE_STRING("grenade");
 

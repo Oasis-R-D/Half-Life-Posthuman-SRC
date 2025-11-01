@@ -31,7 +31,8 @@ CBaseEntity
 
 #define PE_MUZZLESMK 0
 #define PE_MUZZLESMKSG 1
-#define PE_NEXT 2 // unused fn
+#define PE_EXPLOSIONCLUST 2
+#define PE_NPCIMPACTCLUST 3
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 

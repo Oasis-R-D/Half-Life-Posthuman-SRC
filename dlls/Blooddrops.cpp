@@ -33,13 +33,14 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
+		int i;
 		if (isgib == false && BLDamnt > 16)
 		{
 			BLDamnt = 16;
 		}
 		if (g_pGameRules->IsMultiplayer())
 			BLDamnt /= 2;
-		for (int i = 0; i < BLDamnt; i++) // Allows multishot
+		for (i = 0; i < BLDamnt; i++) // Allows multishot
 		{
 			// Create a new entity with CPhysblood private data
 			CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
@@ -53,7 +54,10 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_isgib = isgib;
 			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
+			if (i == 1)
+				PLAYBACK_EVENT_FULL(0, pBlood->edict(), pBlood->m_ParticleEvent, 0.0, VecSpawnPos, vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodType, 0, 0);
 		}
+		
 	}
 }
 
@@ -61,6 +65,7 @@ void CPhysblood::Spawn()
 {
 	Precache();
 	
+
 	switch (RANDOM_LONG(1, 3))
 	{
 	case 1:
@@ -161,6 +166,7 @@ void CPhysblood::Precache()
 	PRECACHE_SOUND("common/drip_05.wav");
 	PRECACHE_SOUND("common/drip_06.wav");
 	PRECACHE_SOUND("common/drip_07.wav");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 

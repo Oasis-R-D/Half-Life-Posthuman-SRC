@@ -1779,16 +1779,30 @@ void EV_Particles(event_args_t* args)
 	Vector Origin;
 	switch (args->iparam1)
 	{
-		case 0: 
+		case 0: // muzzle smoke
 			Origin = gEngfuncs.GetViewModel()->attachment[0];
 			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 			break;
-		case 1:
+		case 1: //SG sparks
 			Origin = gEngfuncs.GetViewModel()->attachment[0];
 			if (args->bparam1 != true)
 				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
 			else
 				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
+			break;
+		case 2: //explosions
+			gParticleEngine.CreateCluster("explosion_cluster.txt", args->origin, args->origin, 0);
+			break;
+		case 3: //NPC impact
+			switch (args->iparam2)
+			{
+				case BLOOD_COLOR_RED:
+					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles, 0);
+					break;
+				case BLOOD_COLOR_YELLOW:
+					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
+					break;
+			}
 			break;
 	}
 }
