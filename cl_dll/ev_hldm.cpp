@@ -43,6 +43,7 @@
 #include "com_model.h"
 
 #include "../renderer/bsprenderer.h"
+#include "../renderer/particle_engine.h"
 
 extern engine_studio_api_t IEngineStudio;
 
@@ -1629,8 +1630,9 @@ void EV_SnarkFire(event_args_t* args)
 void EV_VMstain(event_args_t* args)
 {
 	if (gEngfuncs.GetViewModel()->model != nullptr)
+	{
 		gEngfuncs.GetViewModel()->curstate.skin = args->iparam1;
-
+	}
 }
 //======================
 //	   STAIN END
@@ -1770,4 +1772,20 @@ void EV_VehiclePitchAdjust(event_args_t* args)
 bool EV_TFC_IsAllyTeam(int iTeam1, int iTeam2)
 {
 	return false;
+}
+
+void EV_Particles(event_args_t* args)
+{
+	Vector Origin;
+	switch (args->iparam1)
+	{
+		case 0: 
+			Origin = gEngfuncs.GetViewModel()->attachment[0];
+			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+			break;
+		case 1:
+			Origin = gEngfuncs.GetViewModel()->attachment[0];
+			gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+			break;
+	}
 }

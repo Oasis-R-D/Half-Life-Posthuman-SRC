@@ -29,6 +29,10 @@ CBaseEntity
 				CBaseGroup
 */
 
+#define PE_MUZZLESMK 0
+#define PE_MUZZLESMKSG 1
+#define PE_NEXT 2 // unused fn
+
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 
 // These are caps bits to indicate what an object's capabilities (currently used for save/restore and level transitions)
@@ -396,6 +400,8 @@ public:
 	int m_fireState;
 
 	bool m_bPrehuman; // Required for some NPCs (here because headcrab unlatching uses base entity and not base monster [too lazy to change, plus this could probably be used by the player at some point])
+	
+	unsigned short m_ParticleEvent;
 };
 
 inline bool FNullEnt(CBaseEntity* ent) { return (ent == NULL) || FNullEnt(ent->edict()); }

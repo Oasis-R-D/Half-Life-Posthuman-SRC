@@ -71,6 +71,7 @@ void CPython::Precache()
 	PRECACHE_SOUND("weapons/357_shot2.wav");
 	m_usFirePython = PRECACHE_EVENT(1, "events/python.sc");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 bool CPython::Deploy()
@@ -155,6 +156,7 @@ void CPython::PrimaryAttack()
 		return;
 	}
 
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, g_vecZero, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 

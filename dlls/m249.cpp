@@ -54,6 +54,7 @@ void CM249::Precache()
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
 	PRECACHE_SOUND("weapons/saw_fire3.wav");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 void CM249::Spawn()
@@ -156,6 +157,7 @@ void CM249::PrimaryAttack()
 
 	m_bAlternatingEject = !m_bAlternatingEject;
 
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 

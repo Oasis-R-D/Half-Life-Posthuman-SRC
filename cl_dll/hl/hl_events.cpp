@@ -55,4 +55,5 @@ void Game_HookEvents()
 	gEngfuncs.pfnHookEvent("events/bloodspray.sc", EV_VMstain);
 	gEngfuncs.pfnHookEvent("events/glocksilence.sc", EV_VMsilence);
 	gEngfuncs.pfnHookEvent("events/m29.sc", EV_FireM29);
+	gEngfuncs.pfnHookEvent("events/particles.sc", EV_Particles);
 }

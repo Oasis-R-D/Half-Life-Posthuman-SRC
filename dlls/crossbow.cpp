@@ -52,6 +52,7 @@ void CCrossbow::Precache()
 	m_usCrossbow = PRECACHE_EVENT(1, "events/crossbow1.sc");
 	m_usCrossbow2 = PRECACHE_EVENT(1, "events/crossbow2.sc");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 
@@ -123,6 +124,7 @@ void CCrossbow::FireBolt()
 #endif
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usCrossbow, 0.0, g_vecZero, g_vecZero, 0, 0, m_iClip, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);

@@ -69,6 +69,7 @@ void CShotgun::Precache()
 	m_usSingleFire = PRECACHE_EVENT(1, "events/shotgun1.sc");
 	m_usDoubleFire = PRECACHE_EVENT(1, "events/shotgun2.sc");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 bool CShotgun::GetItemInfo(ItemInfo* p)
@@ -134,6 +135,7 @@ void CShotgun::PrimaryAttack()
 		return;
 	}
 
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -216,6 +218,7 @@ void CShotgun::SecondaryAttack()
 		return;
 	}
 
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
