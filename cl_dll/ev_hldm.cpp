@@ -1785,7 +1785,10 @@ void EV_Particles(event_args_t* args)
 			break;
 		case 1:
 			Origin = gEngfuncs.GetViewModel()->attachment[0];
-			gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+			if (args->bparam1 != true)
+				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+			else
+				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
 			break;
 	}
 }
