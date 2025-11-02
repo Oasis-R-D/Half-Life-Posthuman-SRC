@@ -86,6 +86,7 @@ class CEnvExplosion : public CBaseMonster
 {
 public:
 	void Spawn() override;
+	void Precache() override;
 	void EXPORT Smoke();
 	bool KeyValue(KeyValueData* pkvd) override;
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
@@ -106,7 +107,10 @@ TYPEDESCRIPTION CEnvExplosion::m_SaveData[] =
 
 IMPLEMENT_SAVERESTORE(CEnvExplosion, CBaseMonster);
 LINK_ENTITY_TO_CLASS(env_explosion, CEnvExplosion);
-
+void CEnvExplosion::Precache()
+{
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+}
 bool CEnvExplosion::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "iMagnitude"))
@@ -197,6 +201,7 @@ void CEnvExplosion::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE 
 		WRITE_BYTE(15);					 // framerate
 		WRITE_BYTE(TE_EXPLFLAG_NONE);
 		MESSAGE_END();
+		PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 0, 0, 0);
 	}
 	else
 	{

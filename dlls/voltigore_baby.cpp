@@ -26,7 +26,7 @@
 #include "soundent.h"
 #include "hornet.h"
 #include "decals.h"
-
+#include "blooddrops.h"
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -205,48 +205,28 @@ void COFBabyVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vecto
 	//TODO: use a filter based on attacker to identify self harm
 	if ((bitsDamageType & DMG_SHOCK) == 0)
 	{
-		if (ptr->iHitgroup == 10 && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
+		Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+		int BLDAMNT;
+
+		BLDAMNT = round(flDamage / 2);
+
+		if (0 != pev->takedamage)
 		{
-			// hit armor
-			if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
+			AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+
+			int blood = BloodColor();
+
+			if (blood != DONT_BLEED)
 			{
-				UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(1, 2));
-				pev->dmgtime = gpGlobals->time;
+				SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
+				TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
+				#endif
+
 			}
-
-			if (RANDOM_LONG(0, 1) == 0)
-			{
-				Vector vecTracerDir = vecDir;
-
-				vecTracerDir.x += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.y += RANDOM_FLOAT(-0.3, 0.3);
-				vecTracerDir.z += RANDOM_FLOAT(-0.3, 0.3);
-
-				vecTracerDir = vecTracerDir * -512;
-
-				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, ptr->vecEndPos);
-				WRITE_BYTE(TE_TRACER);
-				WRITE_COORD(ptr->vecEndPos.x);
-				WRITE_COORD(ptr->vecEndPos.y);
-				WRITE_COORD(ptr->vecEndPos.z);
-
-				WRITE_COORD(vecTracerDir.x);
-				WRITE_COORD(vecTracerDir.y);
-				WRITE_COORD(vecTracerDir.z);
-				MESSAGE_END();
-			}
-
-			flDamage -= 20;
-			if (flDamage <= 0)
-				flDamage = 0.1; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 		}
-		else
-		{
-			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
-			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-		}
-
-		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 	}
 }
 

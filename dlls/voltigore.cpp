@@ -26,7 +26,7 @@
 #include "soundent.h"
 #include "hornet.h"
 #include "decals.h"
-
+#include "Blooddrops.h"
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -479,9 +479,28 @@ void COFVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	//TODO: use a filter based on attacker to identify self harm
 	if ((bitsDamageType & DMG_SHOCK) == 0)
 	{
-		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
-		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+		Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
+		int BLDAMNT;
+
+		BLDAMNT = round(flDamage / 2);
+
+		if (0 != pev->takedamage)
+		{
+			AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+
+			int blood = BloodColor();
+
+			if (blood != DONT_BLEED)
+			{
+				SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
+				TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+				//Spawn blud dwops UwU
+				#ifndef CLIENT_DLL
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
+				#endif
+
+			}
+		}
 	}
 }
 

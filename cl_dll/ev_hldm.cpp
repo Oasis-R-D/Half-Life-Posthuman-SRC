@@ -1802,6 +1802,12 @@ void EV_Particles(event_args_t* args)
 				case BLOOD_COLOR_YELLOW:
 					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
 					break;
+				case BLOOD_COLOR_GREEN:
+					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles, 0);
+					break;
+				case BLOOD_COLOR_CYAN:
+					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles, 0);
+					break;
 			}
 			break;
 	}
