@@ -114,7 +114,12 @@ void CGib::SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int cGibs)
 			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 			pGib->SetTouch(&CGib::StickyGibTouch);
 			pGib->SetThink(NULL);
+
 		}
+		UTIL_VecToAngles(pGib->pev->velocity);
+		#ifndef CLIENT_DLL
+		CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+		#endif
 		pGib->LimitVelocity();
 	}
 }
@@ -173,7 +178,12 @@ void CGib::SpawnHeadGib(entvars_t* pevVictim)
 		{
 			pGib->pev->velocity = pGib->pev->velocity * 4;
 		}
+
 	}
+	UTIL_VecToAngles(pGib->pev->velocity);
+	#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+	#endif
 	pGib->LimitVelocity();
 }
 
@@ -260,6 +270,10 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibDa
 			pGib->pev->solid = SOLID_BBOX;
 			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 		}
+		UTIL_VecToAngles(pGib->pev->velocity);
+		#ifndef CLIENT_DLL
+		CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+		#endif
 		pGib->LimitVelocity();
 	}
 

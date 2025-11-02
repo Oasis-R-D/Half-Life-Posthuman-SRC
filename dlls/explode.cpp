@@ -124,6 +124,7 @@ bool CEnvExplosion::KeyValue(KeyValueData* pkvd)
 
 void CEnvExplosion::Spawn()
 {
+	Precache();
 	pev->solid = SOLID_NOT;
 	pev->effects = EF_NODRAW;
 
