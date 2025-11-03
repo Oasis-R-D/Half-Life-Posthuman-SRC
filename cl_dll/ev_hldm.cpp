@@ -1788,7 +1788,11 @@ void EV_Particles(event_args_t* args)
 			if (args->bparam1 != true)
 				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
 			else
+			{
 				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
+				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
+			}
+			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 			break;
 		case 2: //explosions
 			gParticleEngine.CreateCluster("explosion_cluster.txt", args->origin, args->origin, 0);
