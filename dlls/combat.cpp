@@ -1667,6 +1667,20 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 	if ((bitsDamageType & (DMG_CRUSH | DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB | DMG_MORTAR)) == 0)
 		return;
 
+	if (!IsAlive())
+	{
+		// dealing with a dead monster. 
+		if (m_iMaxDeathBleed <= 0)
+		{
+			// no blood decal for a monster that has already decalled its limit.
+			return; 
+		}
+		else
+		{
+			m_iMaxDeathBleed--;
+		}
+	}
+	
 	// make blood decal on the wall!
 	TraceResult Bloodtr;
 	Vector vecTraceDir;
@@ -1674,21 +1688,8 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 	int cCount;
 	int i;
 
-	/*
-	if ( !IsAlive() )
-	{
-		// dealing with a dead monster. 
-		if ( pev->max_health <= 0 )
-		{
-			// no blood decal for a monster that has already decalled its limit.
-			return; 
-		}
-		else
-		{
-			pev->max_health--;
-		}
-	}
-*/
+
+
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		if (flDamage < 10)
