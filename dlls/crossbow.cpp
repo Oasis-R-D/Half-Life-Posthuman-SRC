@@ -26,6 +26,7 @@
 #define BOLT_WATER_VELOCITY 1000
 
 LINK_ENTITY_TO_CLASS(weapon_crossbow, CCrossbow);
+LINK_ENTITY_TO_CLASS(weapon_railcannon, CCrossbow);
 
 void CCrossbow::Spawn()
 {
@@ -133,7 +134,7 @@ void CCrossbow::FireBolt()
 	UTIL_MakeVectors(anglesAim);
 
 	anglesAim.x = -anglesAim.x;
-	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
+	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 6 + gpGlobals->v_up * -5;
 	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 #ifndef CLIENT_DLL
@@ -152,7 +153,7 @@ void CCrossbow::FireBolt()
 		pBolt->pev->velocity = vecDir * BOLT_AIR_VELOCITY;
 		pBolt->pev->speed = BOLT_AIR_VELOCITY;
 	}
-	pBolt->pev->avelocity.z = 10;
+	pBolt->pev->avelocity.z = 100; //was 10, assuming this is rotation
 #endif
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
@@ -163,10 +164,7 @@ void CCrossbow::FireBolt()
 
 	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.75;
 
-	if (m_iClip != 0)
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.0;
-	else
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
 }
 
 
@@ -267,3 +265,4 @@ class CCrossbowAmmo : public CBasePlayerAmmo
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_crossbow, CCrossbowAmmo);
+LINK_ENTITY_TO_CLASS(ammo_railcannon, CCrossbowAmmo);
