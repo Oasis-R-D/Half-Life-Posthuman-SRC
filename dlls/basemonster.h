@@ -76,8 +76,6 @@ public:
 
 	int m_iMaxHealth; // keeps track of monster's maximum health value (for re-healing, etc)
 
-	int m_iMaxDeathBleed = 6; // How much can the monster bleed after dead (helps avoid mass decal spam on the ground)
-
 	Vector m_vecEnemyLKP; // last known position of enemy. (enemy's origin)
 
 	int m_cAmmoLoaded; // how much ammo is in the weapon (used to trigger reload anim sequences)
