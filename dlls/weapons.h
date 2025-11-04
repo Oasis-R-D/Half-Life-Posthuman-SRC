@@ -1686,5 +1686,7 @@ private:
 	unsigned short m_stainevent;
 	int m_iCylR_ammo;
 	int m_iCylL_ammo;
+	float m_fTimeSincePrimary;
+	bool m_bFirstShot;
 
 };

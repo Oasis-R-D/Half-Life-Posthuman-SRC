@@ -107,6 +107,7 @@ void CM29::CalculateAmmo()
 }
 bool CM29::Deploy()
 {
+	m_bFirstShot = true;
 	CalculateAmmo();
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 
@@ -254,6 +255,25 @@ void CM29::TertiaryAttack()
 
 void CM29::Shoot(int gunnumb)
 {
+	float spread = CONE_1DEGREES;
+	if (m_bFirstShot)
+	{
+		m_bFirstShot = false;
+	}
+	else
+	{
+		float diff = gpGlobals->time - m_fTimeSincePrimary;
+
+		if (diff >= 0.5f)
+			diff = 0.5f;
+		if (diff < 0.125f)
+			diff = 0.125f;
+
+		spread = 0.5f * ( spread / (2 * ( diff/2 ) ) );
+
+	}
+	m_fTimeSincePrimary = gpGlobals->time;
+
 	Vector vecSrc;
 	if (gunnumb == 0)
 	{
@@ -283,7 +303,7 @@ void CM29::Reload()
 {
 	if (m_pPlayer->ammo_357 <= 0)
 		return;
-
+	m_bFirstShot = true;
 	DefaultReload(12, PYTHON_RELOAD, 2.0, 0);
 }
 
