@@ -77,6 +77,7 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
+	m_bFirstShot = true;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (!NotFirstDraw)
@@ -86,6 +87,7 @@ bool CGlock::Deploy()
 
 void CGlock::Holster()
 {
+	m_bFirstShot = true;
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
@@ -138,10 +140,11 @@ void CGlock::ReloadSetAmmos()
 		m_pPlayer->TabulateAmmo();
 
 		m_fInReload = false;
+		m_bFirstShot = true;
 	}
 }
 
-void CGlock::ItemPostFrame() //TO-DO: make the reload a separate function to reduce bloat due to the overriding of this function
+void CGlock::ItemPostFrame()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
@@ -157,10 +160,25 @@ void CGlock::ItemPostFrame() //TO-DO: make the reload a separate function to red
 
 void CGlock::PrimaryAttack()
 {
-	if (m_isilenced == 0)
-		GlockFire(pev->body ? 0.01 : 0.02, 0.1, true);
+	float spread = CONE_1DEGREES;
+	if (m_bFirstShot)
+	{
+		m_bFirstShot = false;
+	}
 	else
-		GlockFire(pev->body ? 0.008 : 0.02, 0.2, true);
+	{
+		float diff = gpGlobals->time - m_fTimeSincePrimary;
+
+		if (diff >= 0.5f)
+			diff = 0.5f;
+		if (diff < 0.125f)
+			diff = 0.125f;
+
+		spread = 0.5f * ( spread / (2 * ( diff/2 ) ) );
+
+	}
+	GlockFire(m_isilenced ? 0.01f : spread, 0.125f, true);
+	m_fTimeSincePrimary = gpGlobals->time;
 }
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
@@ -263,22 +281,15 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 // recoil
 #ifndef CLIENT_DLL
 	if (m_isilenced == 0)
-		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
-			CBasePlayerWeapon::Recoil(1, 2);
-		}
-		else
-		{
-			CBasePlayerWeapon::Recoil(2, 2);
-		}
+		CBasePlayerWeapon::Recoil(1, 1);
 	else
 		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 		{
-			CBasePlayerWeapon::Recoil(3, 2);
+			CBasePlayerWeapon::Recoil(2, 1);
 		}
 		else
 		{
-			CBasePlayerWeapon::Recoil(4, 2);
+			CBasePlayerWeapon::Recoil(3, 1);
 		}
 #endif
 }

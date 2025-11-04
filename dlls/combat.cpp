@@ -1305,11 +1305,13 @@ void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* 
 	if ((bitsDamageType & (DMG_BULLET | DMG_BLAST)) != 0)
 	{
 		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
-		Vector spawnpos = ptr->vecEndPos + vecDir * -8;
+		
 		if (BULLET != nullptr)
 		{
 #ifndef CLIENT_DLL
-			CPhysbullet::BulletCreate(1, BULLET->m_BulletDamage, BULLET->m_muzzlevelocity, spawnpos, -vecDir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, Attacked->edict(), false, BULLET->m_distpenetrate);
+			Vector Dir = -BULLET->m_direction;
+			Vector spawnpos = ptr->vecEndPos + Dir * -8;
+			CPhysbullet::BulletCreate(1, round(BULLET->m_BulletDamage/3), BULLET->m_muzzlevelocity, spawnpos, Dir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), false, BULLET->m_distpenetrate-2);
 			BULLET->m_distpenetrate = 0;
 			ALERT(at_console, "ricochet!\n");
 #endif		

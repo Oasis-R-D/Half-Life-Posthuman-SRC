@@ -580,7 +580,7 @@ public:
 	void ItemPostFrame();
 	bool m_Training;
 	bool m_Prehuman;
-	float m_isilenced;
+	bool m_isilenced;
 	float m_fTimer;
 	bool UseDecrement() override
 	{
@@ -593,7 +593,8 @@ public:
 
 private:
 	int m_iShell;
-
+	float m_fTimeSincePrimary;
+	bool m_bFirstShot;
 
 	unsigned short m_usFireGlock1;
 	unsigned short m_usFireGlock2;
