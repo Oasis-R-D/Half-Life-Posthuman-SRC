@@ -203,8 +203,6 @@ void CPython::PrimaryAttack()
 #ifndef CLIENT_DLL
 		CBasePlayerWeapon::Recoil(5, RANDOM_LONG(-2, 2));
 #endif
-
-
 }
 
 

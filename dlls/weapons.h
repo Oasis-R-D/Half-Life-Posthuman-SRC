@@ -492,19 +492,19 @@ inline MULTIDAMAGE gMultiDamage;
 #define VECTOR_CONE_20DEGREES Vector(0.17365, 0.17365, 0.17365)
 
 // TO-DO: a function to just convert degrees to radians/2 would be nice
-#define CONE_1DEGREES 0.00873
-#define CONE_2DEGREES 0.01745
-#define CONE_3DEGREES 0.02618
-#define CONE_4DEGREES 0.03490
-#define CONE_5DEGREES 0.04362
-#define CONE_6DEGREES 0.05234
-#define CONE_7DEGREES 0.06105
-#define CONE_8DEGREES 0.06976
-#define CONE_9DEGREES 0.07846
-#define CONE_10DEGREES 0.08716
-#define CONE_15DEGREES 0.13053
-#define CONE_20DEGREES 0.17365
-#define CONE_60DEGREES 0.52095
+#define CONE_1DEGREES UTIL_DegreesToRadCone(1)
+#define CONE_2DEGREES UTIL_DegreesToRadCone(2)
+#define CONE_3DEGREES UTIL_DegreesToRadCone(3)
+#define CONE_4DEGREES UTIL_DegreesToRadCone(4)
+#define CONE_5DEGREES UTIL_DegreesToRadCone(5)
+#define CONE_6DEGREES UTIL_DegreesToRadCone(6)
+#define CONE_7DEGREES UTIL_DegreesToRadCone(7)
+#define CONE_8DEGREES UTIL_DegreesToRadCone(8)
+#define CONE_9DEGREES UTIL_DegreesToRadCone(9)
+#define CONE_10DEGREES UTIL_DegreesToRadCone(10)
+#define CONE_15DEGREES UTIL_DegreesToRadCone(15)
+#define CONE_20DEGREES UTIL_DegreesToRadCone(20)
+#define CONE_60DEGREES UTIL_DegreesToRadCone(60)
 //=========================================================
 // CWeaponBox - a single entity that can store weapons
 // and ammo.
