@@ -169,7 +169,7 @@ void CPython::PrimaryAttack()
 		if (timesince < 0.125f)
 			timesince = 0.125f;
 
-		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
+		spread = 0.188f * (pow(0.0022, timesince)); // 0.0022 is rounded up a little so it's not exactly going from 10 deg to 1
 		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
 
 	}
@@ -201,7 +201,7 @@ void CPython::PrimaryAttack()
 	m_flNextPrimaryAttack = 0.125;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 #ifndef CLIENT_DLL
-		CBasePlayerWeapon::Recoil(5, RANDOM_LONG(-2, 2));
+		CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
 #endif
 }
 
