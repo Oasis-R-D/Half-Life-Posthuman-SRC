@@ -171,7 +171,6 @@ void CPython::PrimaryAttack()
 
 		spread = 0.18f * (pow(0.003f, timesince)); // both are rounded up a little so it's not exactly going from 10 deg to 0.001
 		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
-
 	}
 
 	#ifndef CLIENT_DLL
