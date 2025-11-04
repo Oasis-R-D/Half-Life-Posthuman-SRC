@@ -77,19 +77,6 @@ void CPython::Precache()
 bool CPython::Deploy()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
-#ifdef CLIENT_DLL
-	if (bIsMultiplayer())
-#else
-	if (g_pGameRules->IsMultiplayer())
-#endif
-	{
-		// enable laser sight geometry.
-		pev->body = 1;
-	}
-	else
-	{
-		pev->body = 0;
-	}
 
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
@@ -111,15 +98,6 @@ void CPython::Holster()
 
 void CPython::SecondaryAttack()
 {
-#ifdef CLIENT_DLL
-	if (!bIsMultiplayer())
-#else
-	if (!g_pGameRules->IsMultiplayer())
-#endif
-	{
-		return;
-	}
-
 	if (m_pPlayer->m_iFOV != 0)
 	{
 		m_pPlayer->m_iFOV = 0; // 0 means reset to default fov
@@ -176,14 +154,34 @@ void CPython::PrimaryAttack()
 	Vector vecDir;
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
-	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+
+	float spread = CONE_1DEGREES;
+	if (m_bFirstShot)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+		m_bFirstShot = false;
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.8, 357, m_pPlayer->edict());
+		float diff = gpGlobals->time - m_fTimeSincePrimary;
+
+		if (diff >= 0.5f)
+			diff = 0.5f;
+		if (diff < 0.125f)
+			diff = 0.125f;
+
+		spread = 0.5f * ( spread / (2 * ( diff/2 ) ) );
+		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
+
+	}
+
+	#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	}
 	#endif
 

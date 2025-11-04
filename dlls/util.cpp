@@ -415,6 +415,14 @@ float UTIL_AngleDiff(float destAngle, float srcAngle)
 	return delta;
 }
 
+float UTIL_DegreesToRadCone(float degrees) // converts Degrees to radians to use in weapon spread (hence the cone)
+{
+	float value = degrees;
+	value *= (M_PI/180);
+	value /= 2; // center the cone (make it actually a cone)
+	return value;
+}
+
 Vector UTIL_VecToAngles(const Vector& vec)
 {
 	float rgflVecOut[3];

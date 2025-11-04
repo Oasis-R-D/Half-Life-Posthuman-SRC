@@ -491,6 +491,7 @@ inline MULTIDAMAGE gMultiDamage;
 #define VECTOR_CONE_15DEGREES Vector(0.13053, 0.13053, 0.13053)
 #define VECTOR_CONE_20DEGREES Vector(0.17365, 0.17365, 0.17365)
 
+// TO-DO: a function to just convert degrees to radians/2 would be nice
 #define CONE_1DEGREES 0.00873
 #define CONE_2DEGREES 0.01745
 #define CONE_3DEGREES 0.02618
@@ -683,6 +684,8 @@ public:
 	}
 
 private:
+	float m_fTimeSincePrimary;
+	bool m_bFirstShot;
 	unsigned short m_usFirePython;
 	unsigned short m_stainevent;
 };
