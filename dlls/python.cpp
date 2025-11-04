@@ -155,7 +155,7 @@ void CPython::PrimaryAttack()
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 
-	float spread = CONE_1DEGREES;
+	float spread = 0;
 	if (m_bFirstShot)
 	{
 		m_bFirstShot = false;
@@ -169,7 +169,7 @@ void CPython::PrimaryAttack()
 		if (timesince < 0.125f)
 			timesince = 0.125f;
 
-		spread = 0.188f * (pow(0.0022, timesince)); // 0.0022 is rounded up a little so it's not exactly going from 10 deg to 1
+		spread = 0.18f * (pow(0.003f, timesince)); // both are rounded up a little so it's not exactly going from 10 deg to 0.001
 		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
 
 	}
