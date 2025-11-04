@@ -76,6 +76,7 @@ void CPython::Precache()
 
 bool CPython::Deploy()
 {
+	m_bFirstShot = true;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
@@ -155,7 +156,7 @@ void CPython::PrimaryAttack()
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 
-	float spread = 0;
+	double spread = 0;
 	if (m_bFirstShot)
 	{
 		m_bFirstShot = false;
@@ -164,13 +165,15 @@ void CPython::PrimaryAttack()
 	{
 		float timesince = gpGlobals->time - m_fTimeSincePrimary;
 
-		if (timesince >= 0.5f)
-			timesince = 0.5f;
+		if (timesince > 0.75f)
+			timesince = 0.75f;
 		if (timesince < 0.125f)
 			timesince = 0.125f;
 
-		spread = 0.18f * (pow(0.003f, timesince)); // both are rounded up a little so it's not exactly going from 10 deg to 0.001
-		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
+		spread = 0.18 * (pow(0.003, timesince)); // both are rounded up a little so it's not exactly going from 10 deg to 0.001
+		m_fTimeSincePrimary = gpGlobals->time;
+		ALERT(at_console, "Time since fire = %f\n", timesince);
+		ALERT(at_console, "spread = %f\n", spread);
 	}
 
 	#ifndef CLIENT_DLL
@@ -200,7 +203,7 @@ void CPython::PrimaryAttack()
 	m_flNextPrimaryAttack = 0.125;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 #ifndef CLIENT_DLL
-		CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
+		CBasePlayerWeapon::Recoil(2, RANDOM_LONG(-1, 1));
 #endif
 }
 
@@ -221,7 +224,7 @@ void CPython::Reload()
 #else
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
-
+	m_bFirstShot = true;
 	DefaultReload(6, PYTHON_RELOAD, 2.0, bUseScope ? 1 : 0);
 }
 
