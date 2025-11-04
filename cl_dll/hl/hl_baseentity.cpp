@@ -67,7 +67,7 @@ void UTIL_BloodDrips(const Vector& origin, const Vector& direction, int color, i
 void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber) {}
 void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber) {}
 void UTIL_MakeVectors(const Vector& vecAngles) {}
-void UTIL_DegreesToRadCone(float degrees) {}
+float UTIL_DegreesToRadCone(float degrees) {return 0.0;}
 bool UTIL_IsValidEntity(edict_t* pent) { return true; }
 void UTIL_SetOrigin(entvars_t*, const Vector& org) {}
 void UTIL_LogPrintf(char*, ...) {}
