@@ -162,14 +162,14 @@ void CPython::PrimaryAttack()
 	}
 	else
 	{
-		float diff = gpGlobals->time - m_fTimeSincePrimary;
+		float timesince = gpGlobals->time - m_fTimeSincePrimary;
 
-		if (diff >= 0.5f)
-			diff = 0.5f;
-		if (diff < 0.125f)
-			diff = 0.125f;
+		if (timesince >= 0.5f)
+			timesince = 0.5f;
+		if (timesince < 0.125f)
+			timesince = 0.125f;
 
-		spread = 0.5f * ( spread / (2 * ( diff/2 ) ) );
+		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
 		// to-do: find way to make it have more spread when firing faster (currently doesn't have enough spread)
 
 	}

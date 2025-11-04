@@ -167,14 +167,14 @@ void CGlock::PrimaryAttack()
 	}
 	else
 	{
-		float diff = gpGlobals->time - m_fTimeSincePrimary;
+		float timesince = gpGlobals->time - m_fTimeSincePrimary;
 
-		if (diff >= 0.5f)
-			diff = 0.5f;
-		if (diff < 0.125f)
-			diff = 0.125f;
+		if (timesince >= 0.5f)
+			timesince = 0.5f;
+		if (timesince < 0.125f)
+			timesince = 0.125f;
 
-		spread = 0.5f * ( spread / (2 * ( diff/2 ) ) );
+		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
 
 	}
 	GlockFire(m_isilenced ? 0.01f : spread, 0.125f, true);
