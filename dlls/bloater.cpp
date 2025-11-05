@@ -27,6 +27,7 @@
 #include "blooddrops.h"
 
 #define AFLOCK_MAX_RECRUIT_RADIUS 1024
+#define BLOATER_MAX_ATTACK_RADIUS 1536
 #define AFLOCK_FLY_SPEED 125
 #define AFLOCK_TURN_RATE 75
 #define AFLOCK_ACCELERATE 10
@@ -84,6 +85,7 @@ public:
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 	void Poop(); // yummers
 	bool FPathBlocked();
+	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	//void KeyValue( KeyValueData *pkvd ) override;
 
 	bool Save(CSave& save) override;
@@ -282,6 +284,24 @@ void CFlockingBloater::MakeSound()
 		break;
 	}
 }
+//=========================================================
+// TraceAttack - Become Aggro and make immune to gas
+//=========================================================
+void CFlockingBloater::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	if ((bitsDamageType & DMG_NERVEGAS) == 0)
+	{
+		pSquad = (CFlockingBloater*)m_pSquadLeader;
+
+		m_bAggro = true;
+		m_fAggroTime = gpGlobals->time + 60;
+
+		pSquad->m_bAggro = true;
+		pSquad->m_fAggroTime = gpGlobals->time + 60;
+		// To-Do: make immune to nervegas
+		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	}
+}
 
 //=========================================================
 //=========================================================
@@ -329,7 +349,7 @@ void CFlockingBloater::SpawnCommonCode()
 
 	SET_MODEL(ENT(pev), "models/floater.mdl");
 
-	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2));
+	UTIL_SetSize(pev, Vector(-5, -5, 0), Vector(5, 5, 2)); // TO-DO: make around same size of BB
 }
 
 //=========================================================
@@ -558,7 +578,7 @@ void CFlockingBloater::FlockLeaderThink()
 
 	UTIL_MakeVectors(pev->angles);
 
-	// is the way ahead clear?
+	// is the way ahead clear? // A weight here to make them stay near enemies would be nice (could use the follower code?)
 	if (!FPathBlocked())
 	{
 		// if the boid is turning, stop the trend.
