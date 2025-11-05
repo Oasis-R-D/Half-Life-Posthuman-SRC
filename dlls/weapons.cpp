@@ -814,31 +814,18 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount, char* szName, int iMax)
 	}
 	return iIdAmmo > 0 ? true : false;
 }
-void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz)
+
+void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz) 
 {
 	m_pPlayer->pev->punchangle.x -= RecoilUp;
 	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-RecoilHorz, RecoilHorz);
 
-	if (m_pPlayer->health_armR != 0)
+	if (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25)
 	{
-		if (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25)
-		{
-			m_pPlayer->pev->punchangle.x -= 1;
-		}
-	}
-	else
-	{
-		m_pPlayer->pev->punchangle.x -= 10;
+		m_pPlayer->pev->punchangle.x -= 0.8;
 	}
 
-	if (m_pPlayer->health_armL != 0)
-	{
-		if (m_pPlayer->health_armL < 100 && RANDOM_LONG(0, m_pPlayer->health_armL) / m_pPlayer->health_armL > 0.1)
-		{
-			m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
-		}
-	}
-	else
+	if (m_pPlayer->health_armL < 100 && RANDOM_LONG(0, m_pPlayer->health_armL) / m_pPlayer->health_armL > 0.1)
 	{
 		m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
 	}

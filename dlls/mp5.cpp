@@ -240,9 +240,9 @@ void CMP5::PrimaryAttack()
 	m_flTimeWeaponIdle = 5;
 	#ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
-		CBasePlayerWeapon::Recoil(0.75, 1);
-		}
+	{
+		CBasePlayerWeapon::Recoil(0.8, 1);
+	}
 	else
 	{
 		CBasePlayerWeapon::Recoil(1, 1);
@@ -463,7 +463,7 @@ LINK_ENTITY_TO_CLASS(ammo_ARgrenades, CMP5AmmoGrenade);
 //=========================================================
 // M727
 //=========================================================
-void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
+static void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
 {
 	int i, j, k;
 	float distance;
@@ -641,14 +641,15 @@ void CM727::PrimaryAttack()
 		m_flNextPrimaryAttack = 0.0727; // this is the actual fire rate, you adult I notn't
 	}
 	m_flTimeWeaponIdle = 5;
+
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
-		CBasePlayerWeapon::Recoil(0.75, 1);
+		CBasePlayerWeapon::Recoil(0.8, 1);
 	}
 	else
 	{
-		CBasePlayerWeapon::Recoil(1, 1);
+		CBasePlayerWeapon::Recoil(0.9, 1);
 	}
 #endif
 }
