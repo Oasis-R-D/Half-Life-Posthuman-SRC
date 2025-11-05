@@ -100,6 +100,7 @@ public:
 
 	CFlockingBloater* m_pSquadLeader;
 	CFlockingBloater* m_pSquadNext;
+	bool m_bAggro = false;
 	bool m_fTurning;			  // is this boid turning?
 	bool m_fCourseAdjust;		  // followers set this flag true to override flocking while they avoid something
 	bool m_fPathBlocked;		  // true if there is an obstacle ahead
@@ -110,6 +111,7 @@ public:
 	float m_flFakeBlockedTime;
 	float m_flAlertTime;
 	float m_flFlockNextSoundTime;
+	float m_fAggroTime;
 	int m_randomoffset;
 	int m_thinkid;
 
@@ -166,7 +168,6 @@ void CFlockingBloaterFlock::Spawn()
 //=========================================================
 void CFlockingBloaterFlock::Precache()
 {
-	PRECACHE_MODEL("models/aflock.mdl");
 	PRECACHE_MODEL("models/boid.mdl");
 
 	PrecacheFlockSounds();
@@ -293,6 +294,8 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 
 	while (pSquad)
 	{
+		pSquad->m_bAggro = true;
+		pSquad->m_fAggroTime = gpGlobals->time + 60;
 		pSquad->m_flAlertTime = gpGlobals->time + 15;
 		pSquad = (CFlockingBloater*)pSquad->m_pSquadNext;
 	}
@@ -333,7 +336,6 @@ void CFlockingBloater::SpawnCommonCode()
 //=========================================================
 void CFlockingBloater::BoidAdvanceFrame()
 {
-	// pev->framerate		= flapspeed;
 	StudioFrameAdvance(0.1);
 }
 
@@ -672,6 +674,8 @@ void CFlockingBloater::FlockFollowerThink()
 	if (IsLeader() || !InSquad())
 	{
 		// the leader has been killed and this flyer suddenly finds himself the leader.
+		m_bAggro = true;
+		m_fAggroTime = gpGlobals->time + 60;
 		SetThink(&CFlockingBloater::FlockLeaderThink);
 		return;
 	}
@@ -810,6 +814,11 @@ void CFlockingBloater::SquadAdd(CFlockingBloater* pAdd)
 	pAdd->m_pSquadNext = m_pSquadNext;
 	m_pSquadNext = pAdd;
 	pAdd->m_pSquadLeader = this;
+	if (m_bAggro == true)
+	{
+		pAdd->m_bAggro = true;
+		pAdd->m_fAggroTime = m_fAggroTime;
+	}
 }
 //=========================================================
 //
