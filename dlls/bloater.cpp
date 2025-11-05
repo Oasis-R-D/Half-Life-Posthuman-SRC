@@ -291,6 +291,7 @@ void CFlockingBloater::TraceAttack(entvars_t* pevAttacker, float flDamage, Vecto
 {
 	if ((bitsDamageType & DMG_NERVEGAS) == 0)
 	{
+		CFlockingBloater* pSquad;
 		pSquad = (CFlockingBloater*)m_pSquadLeader;
 
 		m_bAggro = true;
