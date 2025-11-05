@@ -815,10 +815,13 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount, char* szName, int iMax)
 	return iIdAmmo > 0 ? true : false;
 }
 
-void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz) 
+void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz, bool patterned) 
 {
 	m_pPlayer->pev->punchangle.x -= RecoilUp;
-	m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-RecoilHorz, RecoilHorz);
+	if (!patterned)
+		m_pPlayer->pev->punchangle.y += RANDOM_FLOAT(-RecoilHorz, RecoilHorz);
+	else
+		m_pPlayer->pev->punchangle.y += RecoilHorz;
 
 	if (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25)
 	{

@@ -349,7 +349,7 @@ public:
 	bool AddSecondaryAmmo(int iCount, char* szName, int iMaxCarry);
 
 	void UpdateItemInfo() override {} // updates HUD state
-	void Recoil(float RecoilUp, float RecoilHorz); // NOTICE: recoil stops being noticeable below 0.7 and is usually too much above 1.
+	void Recoil(float RecoilUp, float RecoilHorz, bool patterned = false); // NOTICE: recoil stops being noticeable below 0.7 and is usually too much above 1.
 	bool m_iPlayEmptySound;
 	bool m_fFireOnEmpty; // True when the gun is empty and the player is still holding down the
 						 // attack key(s)
@@ -1594,6 +1594,9 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void Holster() override;
+
+	void TestSprayPat(int bulletnum);
+
 	TraceResult m_trHit;
 	int m_iShell;
 	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
