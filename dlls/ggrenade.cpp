@@ -188,7 +188,10 @@ void CGrenade::Explode(Vector vecSrc, Vector vecAim)
 { 
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -32), ignore_monsters, ENT(pev), &tr);
-	Explode(&tr, DMG_BLAST);
+	if (m_iGrenType == 0)
+		Explode(&tr, DMG_BLAST);
+	else if (m_iGrenType == 4)
+		ExplodeHE(&tr, DMG_SONIC)
 }
 
 void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
@@ -831,15 +834,15 @@ void CGrenade::CallDetonate()
 {
 	switch (m_iGrenType)
 	{
-		case 0:
+		case 0: // Frag
 			SetThink(&CGrenade::Detonate);
 			break;
-		case 1:
+		case 1: // Impact (shouldn't be called)
 			break;
-		case 2:
+		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
 			break;
-		case 3:
+		case 3: // HopWire
 			if (wireamnt == 8)
 				SetThink(&CGrenade::ArmHopwire);
 			else
@@ -851,7 +854,11 @@ void CGrenade::CallDetonate()
 				
 			}
 			break;
+		case 4: // H.E
+			SetThink(&CGrenade::Detonate);
+			break;
 	}
+
 	pev->nextthink = gpGlobals->time;
 }
 void CGrenade::TumbleThink()
@@ -1000,23 +1007,23 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 
 	switch (type)
 	{
-		case 0:
+		case 0: // Frag
 			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
-		case 1:
+		case 1: // Impact
 			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			// Tumble through the air
 			pGrenade->pev->avelocity.x = -400;
 			break;
-		case 2:
+		case 2: // Flashbang
 			SET_MODEL(ENT(pGrenade->pev), "models/w_fgrenade.mdl");
 			pGrenade->pev->dmg = 10;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
-		case 3:
+		case 3: // HopWire
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
@@ -1028,6 +1035,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->nextwire = gpGlobals->time;
 			break;
 	}
+
 	pGrenade->m_iGrenType = type;
 
 	if (time == -1)
