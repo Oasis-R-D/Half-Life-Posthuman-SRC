@@ -35,6 +35,7 @@
 
 //===================HopWire grenade tripwires
 LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
+
 void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
 {
 	// Create a new entity with CHopWireBeam private data
@@ -46,6 +47,7 @@ void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
 	pBullet->spawner = ownerOgrenade;
 	pBullet->Spawn();	
 }
+
 void CHopWireBeam::Spawn()
 {
 	pev->movetype = MOVETYPE_TOSS;
@@ -59,9 +61,8 @@ void CHopWireBeam::Spawn()
 	pev->angles = pev->velocity;
 
 	SetTouch(&CHopWireBeam::BoltTouch);
-	
-	
 }
+
 void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 {
 	TraceResult tr;
@@ -89,10 +90,10 @@ void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
 		}
 		pev->movetype = MOVETYPE_NONE;
 		pev->velocity = Vector(0, 0, 0);
-		pev->avelocity.z = 0;	
-		
+		pev->avelocity.z = 0;		
 	}
 }
+
 void CHopWireBeam::FadeThink()
 {
 	pev->angles = pev->velocity;
@@ -104,6 +105,7 @@ void CHopWireBeam::FadeThink()
 		UTIL_Remove(this);
 	}
 }
+
 void CHopWireBeam::MakeBeam()
 {
 	CBaseEntity* that = this;
