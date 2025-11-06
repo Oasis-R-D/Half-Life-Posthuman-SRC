@@ -1814,5 +1814,9 @@ void EV_Particles(event_args_t* args)
 					break;
 			}
 			break;
+		case 4: // neurotoxin expl
+			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
+			gEngfuncs.pfnCenterPrint("neurotoxin created");
+			break;
 	}
 }

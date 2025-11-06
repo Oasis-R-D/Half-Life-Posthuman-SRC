@@ -331,7 +331,7 @@ void CFlockingBloaterFlock::Spawn()
 void CFlockingBloaterFlock::Precache()
 {
 	PRECACHE_MODEL("models/floater.mdl");
-
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 	PrecacheFlockSounds();
 }
 
@@ -411,6 +411,7 @@ void CFlockingBloater::Spawn()
 void CFlockingBloater::Precache()
 {
 	PRECACHE_MODEL("models/floater.mdl");
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 	CFlockingBloaterFlock::PrecacheFlockSounds();
 }
 
@@ -476,8 +477,6 @@ void CFlockingBloater::TraceAttack(entvars_t* pevAttacker, float flDamage, Vecto
 			pSquad->m_flAlertTime = gpGlobals->time + 15;
 			pSquad = (CFlockingBloater*)pSquad->m_pSquadNext;
 		}
-
-		// To-Do: make immune to nervegas
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	}
 }
@@ -490,7 +489,7 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 	TraceResult tr;
 
 	pSquad = (CFlockingBloater*)m_pSquadLeader;
-
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BLOATERGASEXPL, 0, 0, 0);
 	while (pSquad)
 	{
 		pSquad->m_bAggro = true;
@@ -505,8 +504,9 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 	}
 
 	pev->deadflag = DEAD_DEAD;
-	::RadiusDamage(pev->origin, pev, pev, pev->dmg, 128, CLASS_NONE, DMG_NERVEGAS); // TO-DO: make bloater immune to nervegas
-	UTIL_BloodPuff(tr, DONT_BLEED); // TO-DO: make purple
+	::RadiusDamage(pev->origin, pev, pev, pev->dmg, 160, CLASS_NONE, DMG_NERVEGAS); // TO-DO: make bloater immune to nervegas
+
+
 	UTIL_Remove(this);
 }
 
@@ -618,7 +618,6 @@ void CFlockingBloater::HandleAnimEvent(MonsterEvent_t* pEvent)
 //=========================================================
 void CFlockingBloater::BoidAdvanceFrame()
 {
-	//StudioFrameAdvance(0.1);
 	CBaseMonster::MonsterThink();
 }
 
