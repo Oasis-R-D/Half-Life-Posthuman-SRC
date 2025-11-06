@@ -278,16 +278,24 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	switch (type)
 	{
 		default:
-		case 0:
+		case 0: // FRAG
 			flMultiplier = 6.5f;
 			maxvel = 1000;
 			break;
-		case 1:
+		case 1: // IMPACT
 			flMultiplier = 10;
 			maxvel = 1500;
-		case 2:
+		case 2: // FLASH
 			flMultiplier = 9;
 			maxvel = 1400;
+			break;
+		case 3: // HOPWIRE
+			flMultiplier = 6.5f;
+			maxvel = 1000;
+			break;
+		case 4: // HE
+			flMultiplier = 6.5f;
+			maxvel = 1000;
 			break;
 	}
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -2;
@@ -306,17 +314,23 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	UTIL_MakeVectors(angThrow);
 
 	Vector vecThrow = gpGlobals->v_forward * flVel + m_pPlayer->pev->velocity;
-	switch (type)
+	switch (type) // -1 time is impact
 	{
 		default:
-		case 0:
+		case 0: // FRAG
 			time = 3;
 			break;
-		case 1:
+		case 1: // IMPACT
 			time = -1;
 			break;
-		case 2:
+		case 2: // FLASH
 			time = 2;
+			break;
+		case 3: // HOPWIRE
+			time = 2;
+			break;
+		case 4: // HE
+			time = 3;
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);

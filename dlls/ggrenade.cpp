@@ -247,11 +247,11 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	if (RANDOM_FLOAT(0, 1) < 0.5)
 	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH1); // TO-DO: make smaller
 	}
 	else
 	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH2);
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH2); // TO-DO: make smaller
 	}
 
 	flRndSound = RANDOM_FLOAT(0, 1);
@@ -1033,6 +1033,11 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			pGrenade->wireamnt = 8;
 			pGrenade->nextwire = gpGlobals->time;
+			break;
+		case 4: // High Explosive
+			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
+			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 	}
 
