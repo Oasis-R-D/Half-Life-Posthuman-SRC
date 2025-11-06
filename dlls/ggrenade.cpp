@@ -104,7 +104,7 @@ void CHopWireBeam::FadeThink()
 void CHopWireBeam::MakeBeam()
 {
 	CBaseEntity* that = this;
-	if (spawner->m_bHasExploded == true)
+	if (spawner->m_bHasExploded == true || spawner == nullptr)
 	{
 		pev->movetype = MOVETYPE_TOSS;
 		if (m_pSprite->pev != nullptr)
@@ -120,7 +120,9 @@ void CHopWireBeam::MakeBeam()
 	{
 		TraceResult tr;
 		pev->nextthink = gpGlobals->time + 0.01f;
-		if (pev != nullptr && !spawner->m_bHasExploded && spawner->pev != nullptr)
+		if (spawner == nullptr)
+			return;
+		if (pev != nullptr && !spawner->m_bHasExploded)
 		{
 			UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
 			CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
