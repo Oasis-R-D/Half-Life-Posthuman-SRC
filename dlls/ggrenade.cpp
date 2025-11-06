@@ -16,7 +16,7 @@
 
 ===== generic grenade.cpp ========================================================
 
-*/=
+*/
 
 #include "extdll.h"
 #include "util.h"
@@ -191,7 +191,7 @@ void CGrenade::Explode(Vector vecSrc, Vector vecAim)
 	if (m_iGrenType == 0)
 		Explode(&tr, DMG_BLAST);
 	else if (m_iGrenType == 4)
-		ExplodeHE(&tr, DMG_SONIC)
+		ExplodeHE(&tr, DMG_SONIC);
 }
 
 void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
