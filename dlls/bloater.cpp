@@ -35,6 +35,164 @@
 #define AFLOCK_TOO_CLOSE 100
 #define AFLOCK_TOO_FAR 256
 
+int iBloaterSpikeTrail;
+int iBloaterSpitSprite;
+
+//=========================================================
+// Bullsquid's spit projectile
+//=========================================================
+class CBloaterSpike : public CBaseEntity
+{
+public:
+	void Precache() override;
+	void Spawn() override;
+
+	int Classify() override { return CLASS_NONE; }
+
+	static void Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, Vector vecAngles);
+	void EXPORT SpikeTouch(CBaseEntity* pOther);
+
+	void EXPORT StartTrail();
+
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+
+	int m_maxFrame;
+};
+
+LINK_ENTITY_TO_CLASS(bloaterspike, CBloaterSpike);
+
+TYPEDESCRIPTION CBloaterSpike::m_SaveData[] =
+	{
+		DEFINE_FIELD(CBloaterSpike, m_maxFrame, FIELD_INTEGER),
+};
+
+IMPLEMENT_SAVERESTORE(CBloaterSpike, CBaseEntity);
+
+void CBloaterSpike::Precache()
+{
+	PRECACHE_MODEL("models/pit_drone_spike.mdl");
+	PRECACHE_SOUND("weapons/xbow_hitbod1.wav");
+	PRECACHE_SOUND("weapons/xbow_hit1.wav");
+
+	iBloaterSpikeTrail = PRECACHE_MODEL("sprites/spike_trail.spr");
+}
+
+void CBloaterSpike::Spawn()
+{
+	pev->movetype = MOVETYPE_FLY;
+	pev->classname = MAKE_STRING("bloaterspike");
+
+	pev->solid = SOLID_BBOX;
+	pev->takedamage = DAMAGE_YES;
+	pev->flags |= FL_MONSTER;
+	pev->health = 1;
+
+	SET_MODEL(ENT(pev), "models/pit_drone_spike.mdl");
+	pev->frame = 0;
+	pev->scale = 0.25;
+
+	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
+
+	m_maxFrame = (float)MODEL_FRAMES(pev->modelindex) - 1;
+}
+
+void CBloaterSpike::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, Vector vecAngles)
+{
+	CBloaterSpike* pSpit = GetClassPtr((CBloaterSpike*)NULL);
+
+	pSpit->pev->angles = vecAngles;
+	UTIL_SetOrigin(pSpit->pev, vecStart);
+
+	pSpit->Spawn();
+
+	pSpit->pev->velocity = vecVelocity;
+	pSpit->pev->owner = ENT(pevOwner);
+
+	pSpit->SetThink(&CBloaterSpike::StartTrail);
+	pSpit->pev->nextthink = gpGlobals->time + 0.1;
+}
+
+void CBloaterSpike::SpikeTouch(CBaseEntity* pOther)
+{
+	// splat sound
+	int iPitch = RANDOM_FLOAT(120, 140);
+
+	if (0 == pOther->pev->takedamage)
+	{
+		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hit1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
+	}
+	else
+	{
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			pOther->TakeDamage(pev, pev, gSkillData.pitdroneDmgSpit-1, DMG_SLASH);
+		}
+		else
+		{
+			pOther->TakeDamage(pev, pev, 40, DMG_SLASH);
+		}
+		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hitbod1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
+	}
+
+	SetTouch(nullptr);
+
+	//Stick it in the world for a bit
+	//TODO: maybe stick it on any entity that reports FL_WORLDBRUSH too?
+	if (0 == strcmp("worldspawn", STRING(pOther->pev->classname)))
+	{
+		const auto vecDir = pev->velocity.Normalize();
+
+		const auto vecOrigin = pev->origin - vecDir * 6;
+
+		UTIL_SetOrigin(pev, vecOrigin);
+
+		auto v41 = UTIL_VecToAngles(vecDir);
+
+		pev->angles = UTIL_VecToAngles(vecDir);
+		pev->solid = SOLID_NOT;
+		pev->movetype = MOVETYPE_FLY;
+
+		pev->angles.z = RANDOM_LONG(0, 360);
+
+		pev->velocity = g_vecZero;
+		pev->avelocity = g_vecZero;
+
+		SetThink(&CBaseEntity::SUB_FadeOut);
+		pev->nextthink = gpGlobals->time + 90.0;
+	}
+	else
+	{
+		//Hit something else, remove
+		SetThink(&CBaseEntity::SUB_Remove);
+		pev->nextthink = gpGlobals->time + 0.1;
+	}
+}
+
+void CBloaterSpike::StartTrail()
+{
+	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+	WRITE_BYTE(TE_BEAMFOLLOW);
+	WRITE_SHORT(entindex());
+	WRITE_SHORT(iBloaterSpikeTrail);
+	WRITE_BYTE(2);
+	WRITE_BYTE(1);
+	WRITE_BYTE(197);
+	WRITE_BYTE(194);
+	WRITE_BYTE(11);
+	WRITE_BYTE(192);
+	MESSAGE_END();
+
+	SetTouch(&CBloaterSpike::SpikeTouch);
+	SetThink(nullptr);
+}
+
+//=========================================================
+// Monster's Anim Events Go Here
+//=========================================================
+#define BLOATER_SPIKE (1)
+
 //=========================================================
 //=========================================================
 class CFlockingBloaterFlock : public CBaseMonster
@@ -71,6 +229,9 @@ class CFlockingBloater : public CBaseMonster
 public:
 	void Spawn() override;
 	void Precache() override;
+	int Classify() override;
+	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
+	bool CheckRangeAttack1(float flDot, float flDist) override;
 	void SpawnCommonCode();
 	void EXPORT IdleThink();
 	void BoidAdvanceFrame();
@@ -79,7 +240,6 @@ public:
 	void EXPORT FlockLeaderThink();
 	void EXPORT FlockFollowerThink();
 	void MakeSound();
-	void AlertFlock();
 	void SpreadFlock();
 	void SpreadFlock2();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
@@ -170,7 +330,7 @@ void CFlockingBloaterFlock::Spawn()
 //=========================================================
 void CFlockingBloaterFlock::Precache()
 {
-	PRECACHE_MODEL("models/boid.mdl");
+	PRECACHE_MODEL("models/floater.mdl");
 
 	PrecacheFlockSounds();
 }
@@ -239,6 +399,8 @@ void CFlockingBloater::Spawn()
 	Precache();
 	SpawnCommonCode();
 
+	m_flDistTooFar = 2048;
+	m_flDistLook = 2048; // idk if this is needed
 	pev->frame = 0;
 	pev->nextthink = gpGlobals->time + 0.1;
 	SetThink(&CFlockingBloater::IdleThink);
@@ -248,11 +410,21 @@ void CFlockingBloater::Spawn()
 //=========================================================
 void CFlockingBloater::Precache()
 {
-	PRECACHE_MODEL("models/aflock.mdl");
-	PRECACHE_MODEL("models/boid.mdl");
+	PRECACHE_MODEL("models/floater.mdl");
 	CFlockingBloaterFlock::PrecacheFlockSounds();
 }
 
+//=========================================================
+// Classify - indicates this monster's place in the
+// relationship table.
+//=========================================================
+int CFlockingBloater::Classify()
+{
+	if (m_bAggro)
+		return CLASS_ALIEN_PREDATOR;
+	else
+		return CLASS_ALIEN_PASSIVE;
+}
 //=========================================================
 //=========================================================
 void CFlockingBloater::MakeSound()
@@ -292,13 +464,19 @@ void CFlockingBloater::TraceAttack(entvars_t* pevAttacker, float flDamage, Vecto
 	if ((bitsDamageType & DMG_NERVEGAS) == 0)
 	{
 		CFlockingBloater* pSquad;
-		pSquad = (CFlockingBloater*)m_pSquadLeader;
 
 		m_bAggro = true;
 		m_fAggroTime = gpGlobals->time + 60;
 
-		pSquad->m_bAggro = true;
-		pSquad->m_fAggroTime = gpGlobals->time + 60;
+		pSquad = (CFlockingBloater*)m_pSquadLeader;
+		while (pSquad)
+		{
+			pSquad->m_bAggro = true;
+			pSquad->m_fAggroTime = gpGlobals->time + 60;
+			pSquad->m_flAlertTime = gpGlobals->time + 15;
+			pSquad = (CFlockingBloater*)pSquad->m_pSquadNext;
+		}
+
 		// To-Do: make immune to nervegas
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	}
@@ -354,10 +532,94 @@ void CFlockingBloater::SpawnCommonCode()
 }
 
 //=========================================================
+// CheckRangeAttack1 - overridden for HGrunt, cause
+// FCanCheckAttacks() doesn't disqualify all attacks based
+// on whether or not the enemy is occluded because unlike
+// the base class, the HGrunt can attack when the enemy is
+// occluded (throw grenade over wall, etc). We must
+// disqualify the machine gun attack if the enemy is occluded.
+//=========================================================
+bool CFlockingBloater::CheckRangeAttack1(float flDot, float flDist)
+{
+	if (!HasConditions(bits_COND_ENEMY_OCCLUDED) && flDist <= 2048 && flDot >= 0.5)
+	{
+		TraceResult tr;
+
+		if (!m_hEnemy->IsPlayer() && flDist <= 64)
+		{
+			// kick nonclients, but don't shoot at them.
+			return false;
+		}
+
+		Vector vecSrc = GetGunPosition();
+
+		// verify that a bullet fired from the gun will hit the enemy before the world.
+		UTIL_TraceLine(vecSrc, m_hEnemy->BodyTarget(vecSrc), ignore_monsters, ignore_glass, ENT(pev), &tr);
+		if (tr.flFraction == 1.0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//=========================================================
+// HandleAnimEvent - catches the monster-specific messages
+// that occur when tagged animation frames are played.
+//=========================================================
+void CFlockingBloater::HandleAnimEvent(MonsterEvent_t* pEvent)
+{
+	switch (pEvent->event)
+	{
+		case BLOATER_SPIKE:
+		{
+
+				Vector vecSpitOffset;
+				Vector vecSpitDir;
+
+				UTIL_MakeVectors(pev->angles);
+
+				// !!!HACKHACK - the spot at which the spit originates (in front of the mouth) was measured in 3ds and hardcoded here.
+				// we should be able to read the position of bones at runtime for this info.
+				vecSpitOffset = (gpGlobals->v_forward * 15 + gpGlobals->v_up * 36);
+				vecSpitOffset = (pev->origin + vecSpitOffset);
+				vecSpitDir = ((m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs) - vecSpitOffset).Normalize();
+
+				vecSpitDir.x += RANDOM_FLOAT(-0.05, 0.05);
+				vecSpitDir.y += RANDOM_FLOAT(-0.05, 0.05);
+				vecSpitDir.z += RANDOM_FLOAT(-0.05, 0);
+
+				// spew the spittle temporary ents.
+				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSpitOffset);
+				WRITE_BYTE(TE_SPRITE_SPRAY);
+				WRITE_COORD(vecSpitOffset.x); // pos
+				WRITE_COORD(vecSpitOffset.y);
+				WRITE_COORD(vecSpitOffset.z);
+				WRITE_COORD(vecSpitDir.x); // dir
+				WRITE_COORD(vecSpitDir.y);
+				WRITE_COORD(vecSpitDir.z);
+				WRITE_SHORT(iBloaterSpitSprite); // model
+				WRITE_BYTE(10);					  // count
+				WRITE_BYTE(110);				  // speed
+				WRITE_BYTE(25);					  // noise ( client will divide by 100 )
+				MESSAGE_END();
+
+				CBloaterSpike::Shoot(pev, vecSpitOffset, vecSpitDir * 900, UTIL_VecToAngles(vecSpitDir));
+		}
+		break;
+
+		default:
+			CBaseMonster::HandleAnimEvent(pEvent);
+	}
+}
+
+//=========================================================
 //=========================================================
 void CFlockingBloater::BoidAdvanceFrame()
 {
-	StudioFrameAdvance(0.1);
+	//StudioFrameAdvance(0.1);
+	CBaseMonster::MonsterThink();
 }
 
 //=========================================================
@@ -575,6 +837,17 @@ void CFlockingBloater::FlockLeaderThink()
 		}
 		m_thinkid = 1;
 	}
+	if (m_bAggro && m_fAggroTime <= gpGlobals->time)
+	{
+		CFlockingBloater* pSquad;
+		pSquad = (CFlockingBloater*)m_pSquadLeader;
+		while (pSquad)
+		{
+			pSquad->m_bAggro = false;
+			pSquad->m_fAggroTime = NULL;
+			pSquad = (CFlockingBloater*)pSquad->m_pSquadNext;
+		}
+	}
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	UTIL_MakeVectors(pev->angles);
@@ -618,13 +891,15 @@ void CFlockingBloater::FlockLeaderThink()
 		// turn right if more clearance on right side
 		if (flRightSide > flLeftSide)
 		{
-			pev->avelocity.y = -AFLOCK_TURN_RATE;
+			if (!m_hEnemy)
+				pev->avelocity.y = -AFLOCK_TURN_RATE;
 			m_fTurning = true;
 		}
 		// default to left turn :)
 		else if (flLeftSide > flRightSide)
 		{
-			pev->avelocity.y = AFLOCK_TURN_RATE;
+			if (!m_hEnemy)
+				pev->avelocity.y = AFLOCK_TURN_RATE;
 			m_fTurning = true;
 		}
 		else
@@ -632,7 +907,7 @@ void CFlockingBloater::FlockLeaderThink()
 			// equidistant. Pick randomly between left and right.
 			m_fTurning = true;
 
-			if (RANDOM_LONG(0, 1) == 0)
+			if (RANDOM_LONG(0, 1) == 0 && m_hEnemy == NULL)
 			{
 				pev->avelocity.y = AFLOCK_TURN_RATE;
 			}
@@ -705,7 +980,10 @@ void CFlockingBloater::FlockFollowerThink()
 	flDistToLeader = vecDirToLeader.Length();
 
 	// match heading with leader
-
+	if (!m_hEnemy)
+	{
+		pev->angles = m_pSquadLeader->pev->angles;
+	}
 	//
 	// We can see the leader, so try to catch up to it
 	//
