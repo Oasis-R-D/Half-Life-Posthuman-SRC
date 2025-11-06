@@ -211,7 +211,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	int iContents = UTIL_PointContents(pev->origin);
 
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
@@ -323,7 +323,7 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 
 	int iContents = UTIL_PointContents(pev->origin);
 
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
@@ -633,16 +633,6 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
-	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		CPhysbullet::BulletCreate(8, 15, 5750, pev->origin, VECTOR_CONE_20DEGREES, M_PI, M_PI, 1, 12, edict());
-	}
-	else
-	{
-		CPhysbullet::BulletCreate(8, 20, 5750, pev->origin, VECTOR_CONE_20DEGREES, M_PI, M_PI, 1, 12, edict());
-	}
-	#endif
 	Explode(&tr, DMG_BLAST);
 }
 
