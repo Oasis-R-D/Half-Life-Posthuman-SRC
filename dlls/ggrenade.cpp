@@ -16,7 +16,7 @@
 
 ===== generic grenade.cpp ========================================================
 
-*/
+*/=
 
 #include "extdll.h"
 #include "util.h"
@@ -31,6 +31,9 @@
 
 
 #ifndef CLIENT_DLL
+
+
+//===================HopWire grenade tripwires
 LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
 void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
 {
