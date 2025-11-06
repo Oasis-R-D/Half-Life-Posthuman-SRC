@@ -120,7 +120,7 @@ void CHopWireBeam::MakeBeam()
 	{
 		TraceResult tr;
 		pev->nextthink = gpGlobals->time + 0.01f;
-		if (spawner == nullptr)
+		if (spawner == nullptr || spawner->pev == nullptr)
 			return;
 		if (pev != nullptr && !spawner->m_bHasExploded)
 		{
