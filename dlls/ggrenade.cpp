@@ -39,13 +39,13 @@ LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
 void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
 {
 	// Create a new entity with CHopWireBeam private data
-	CHopWireBeam* pBullet = GetClassPtr((CHopWireBeam*)NULL);
-	pBullet->pev->classname = MAKE_STRING("hw_beam");
-	pBullet->m_Spread = CONE_20DEGREES;
-	pBullet->m_direction = direction;
-	pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread));
-	pBullet->spawner = ownerOgrenade;
-	pBullet->Spawn();	
+	CHopWireBeam* pTrip = GetClassPtr((CHopWireBeam*)NULL);
+	pTrip->pev->classname = MAKE_STRING("hw_beam");
+	pTrip->m_Spread = CONE_20DEGREES;
+	pTrip->m_direction = direction;
+	pTrip->m_SpreadVect = Vector(RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread), RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread), RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread));
+	pTrip->spawner = ownerOgrenade;
+	pTrip->Spawn();	
 }
 
 void CHopWireBeam::Spawn()
@@ -180,19 +180,130 @@ void CGrenade::Precache()
 {
 	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
+
 //
 // Grenade Explode
 //
 void CGrenade::Explode(Vector vecSrc, Vector vecAim)
 { 
-
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -32), ignore_monsters, ENT(pev), &tr);
 	Explode(&tr, DMG_BLAST);
 }
 
-// UNDONE: temporary scorching for PreAlpha - find a less sleazy permenant solution.
 void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
+{
+	float flRndSound; // sound randomizer
+
+	pev->model = iStringNull; //invisible
+	pev->solid = SOLID_NOT;	  // intangible
+
+	pev->takedamage = DAMAGE_NO;
+
+	// Pull out of the wall a bit
+	if (pTrace->flFraction != 1.0)
+	{
+		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
+	}
+
+	int iContents = UTIL_PointContents(pev->origin);
+
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 0, 0, 0);
+	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
+	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
+	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z);
+	if (iContents != CONTENTS_WATER)
+	{
+		WRITE_SHORT(g_sModelIndexFireball);
+	}
+	else
+	{
+		WRITE_SHORT(g_sModelIndexWExplosion);
+	}
+	WRITE_BYTE((pev->dmg - 50) * .60); // scale * 10
+	WRITE_BYTE(15);					   // framerate
+	WRITE_BYTE(TE_EXPLFLAG_NONE);
+	MESSAGE_END();
+
+	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+	entvars_t* pevOwner;
+	if (pev->owner)
+		pevOwner = VARS(pev->owner);
+	else
+		pevOwner = NULL;
+
+	pev->owner = NULL; // can't traceline attack owner if this is set
+
+	// Counteract the + 1 in RadiusDamage.
+	Vector origin = pev->origin;
+	origin.z -= 1;
+
+	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType);
+
+	if (RANDOM_FLOAT(0, 1) < 0.5)
+	{
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
+	}
+	else
+	{
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH2);
+	}
+
+	flRndSound = RANDOM_FLOAT(0, 1);
+
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55, ATTN_NORM);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55, ATTN_NORM);
+		break;
+	}
+
+	pev->effects |= EF_NODRAW;
+	SetThink(&CGrenade::Smoke);
+	pev->velocity = g_vecZero;
+	pev->nextthink = gpGlobals->time + 0.3;
+
+	if (iContents != CONTENTS_WATER)
+	{
+		int sparkCount = RANDOM_LONG(0, 3);
+		for (int i = 0; i < sparkCount; i++)
+			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
+	}
+
+	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+	WRITE_BYTE(TE_BREAKMODEL);
+	// position
+	WRITE_COORD(pev->origin.x);
+	WRITE_COORD(pev->origin.y);
+	WRITE_COORD(pev->origin.z);
+	// size
+	WRITE_COORD(8);
+	WRITE_COORD(8);
+	WRITE_COORD(8);
+	// velocity
+	WRITE_COORD(pev->velocity.x);
+	WRITE_COORD(pev->velocity.y);
+	WRITE_COORD(pev->velocity.z);
+	WRITE_BYTE(50); // randomization
+	// Model
+	WRITE_SHORT(g_sModelIndexShrapnel); // model id#
+	// # of shards
+	WRITE_BYTE(pev->dmg / 10); // let client decide
+	// duration
+	WRITE_BYTE(30); // 3.0 seconds
+	WRITE_BYTE(BREAK_SMOKE); // flags
+	MESSAGE_END();
+}
+
+void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 {
 	float flRndSound; // sound randomizer
 
@@ -333,7 +444,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	else
 		pevOwner = NULL;
 
-	pev->owner = NULL; // can't traceline attack owner if this is set
+	pev->owner = NULL; // can't traceline attack owner if this isn't null
 
 	// Counteract the + 1 in RadiusDamage.
 	Vector origin = pev->origin;
@@ -453,18 +564,6 @@ void CGrenade::Smoke()
 	if (UTIL_PointContents(pev->origin) == CONTENTS_WATER)
 	{
 		UTIL_Bubbles(pev->origin - Vector(64, 64, 64), pev->origin + Vector(64, 64, 64), 100);
-	}
-	else
-	{
-		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-		WRITE_BYTE(TE_SMOKE);
-		WRITE_COORD(pev->origin.x);
-		WRITE_COORD(pev->origin.y);
-		WRITE_COORD(pev->origin.z);
-		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE((pev->dmg - 50) * 0.80); // scale * 10
-		WRITE_BYTE(12);						// framerate
-		MESSAGE_END();
 	}
 	UTIL_Remove(this);
 }
