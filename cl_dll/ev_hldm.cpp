@@ -1795,7 +1795,16 @@ void EV_Particles(event_args_t* args)
 			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 			break;
 		case 2: //explosions
-			gParticleEngine.CreateCluster("explosion_cluster.txt", args->origin, args->origin, 0);
+			switch (args->iparam2)
+			{
+				default:
+				case 0:
+					gParticleEngine.CreateCluster("expl_he_cluster.txt", args->origin, args->origin, 0);
+					break;
+				case 1:
+					gParticleEngine.CreateCluster("expl_frag_cluster.txt", args->origin, args->origin, 0);
+					break;
+			}
 			break;
 		case 3: //NPC impact
 			switch (args->iparam2)

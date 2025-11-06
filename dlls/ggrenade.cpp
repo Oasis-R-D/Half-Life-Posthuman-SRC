@@ -510,7 +510,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			}
 		}
 	}
-	flRndSound = RANDOM_FLOAT(0, 1);
 
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/flashbang-1.wav", 1, ATTN_GUN);
 
