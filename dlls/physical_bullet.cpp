@@ -218,7 +218,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
 	if (pOther->IsBullet())
 		return;
-	
+	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	m_Endpos = pev->origin; // where bullet hit
 	TraceResult tr = UTIL_GetGlobalTrace();
 	TraceResult beam_tr;
@@ -275,9 +275,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(Owner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				pOther->TraceAttack(Owner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
-				ApplyMultiDamage(pev, Owner);
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(pev, owner->pev);
 
 				// VFX
 				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
@@ -310,8 +310,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	{
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
-		pOther->TraceAttack(Owner, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
-		ApplyMultiDamage(pev, Owner);
+		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+		ApplyMultiDamage(pev, owner->pev);
 
 		if (!pOther->IsBSPModel())
 		{
@@ -368,7 +368,8 @@ void CPhysbullet::AirThink()
 
 int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 {
-	if (pentTouched == Owner || pentTouched->IsBullet()) // Add some way to detect if it's a bullet
+	CBaseEntity* owner = CBaseEntity::Instance(Owner);
+	if (pentTouched == owner || pentTouched->IsBullet())
 	{
 		return 0;
 	}
