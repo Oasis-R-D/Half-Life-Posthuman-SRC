@@ -67,9 +67,10 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		if (shooter != nullptr)
-			pBullet->pev->owner = shooter;
+			pBullet->Owner = shooter;
 		else
-			pBullet->pev->owner = pBullet->edict();
+			pBullet->Owner = pBullet->edict();
+		pBullet->pev->owner = NULL;
 
 		pBullet->Spawn();
 		
@@ -149,7 +150,7 @@ void CPhysbullet::Spawn()
 		m_distpenetrate = m_fPenoverride;
 
 	UTIL_SetSize(pev, g_vecZero, g_vecZero);
-	CBaseEntity* owner = CBaseEntity::Instance(pev->owner);
+	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
 	{
 		if (owner->IsPlayer())
@@ -201,10 +202,11 @@ void CPhysbullet::Precache()
 }
 
 
-int CPhysbullet::Classify()
+int CPhysbullet::Classify() // Why is this here?
 {
 	return CLASS_NONE;
 }
+
 void CPhysbullet::Stay()
 {
 	pev->velocity = Vector(0, 0, 0);
@@ -218,8 +220,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		return;
 	
 	m_Endpos = pev->origin; // where bullet hit
-	entvars_t* pevOwner;
-	pevOwner = VARS(pev->owner);
 	TraceResult tr = UTIL_GetGlobalTrace();
 	TraceResult beam_tr;
 	TraceResult beam_tr2;
@@ -271,13 +271,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + m_direction * i;
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, pev->owner, m_bsubsonic, m_distpenetrate);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				pOther->TraceAttack(pevOwner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
-				ApplyMultiDamage(pev, pevOwner);
+				pOther->TraceAttack(Owner, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(Owner, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(pev, Owner);
 
 				// VFX
 				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
@@ -310,8 +310,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	{
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
-		pOther->TraceAttack(pevOwner, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
-		ApplyMultiDamage(pev, pevOwner);
+		pOther->TraceAttack(Owner, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+		ApplyMultiDamage(pev, Owner);
 
 		if (!pOther->IsBSPModel())
 		{
@@ -346,7 +346,7 @@ void CPhysbullet::AirThink()
 			CBaseEntity* m_pPlyr = m_ent;
 			if (m_pPlyr->IsPlayer())
 			{
-				if (!m_haswizzed && pev->owner != m_pPlyr->edict() && !m_bsubsonic)
+				if (!m_haswizzed && Owner != m_pPlyr->edict() && !m_bsubsonic)
 				{
 					char dripsnd[256];
 					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
@@ -365,6 +365,17 @@ void CPhysbullet::AirThink()
 		return;
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 }
+
+int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched == Owner || pentTouched->IsBullet()) // Add some way to detect if it's a bullet
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 #endif
 
 float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)

@@ -24,11 +24,12 @@ public:
 	void Precache() override;
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
+	int ShouldCollide(CBaseEntity* pentTouched) override;
 	void Stay();
 	bool IsBullet() override { return true; }
 	int Classify() override;
 	
-
+	edict_t Owner;
 
 	int m_Flare;
 	int m_BulletAmount;
