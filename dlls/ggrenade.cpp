@@ -514,6 +514,8 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/flashbang-1.wav", 1, ATTN_GUN);
 
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 3, 0, 0);
+
 	MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
 	WRITE_COORD(pev->origin.x);
 	WRITE_COORD(pev->origin.y);

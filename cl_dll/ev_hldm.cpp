@@ -1781,18 +1781,36 @@ void EV_Particles(event_args_t* args)
 	{
 		case 0: // muzzle smoke
 			Origin = gEngfuncs.GetViewModel()->attachment[0];
-			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+			
+			switch (args->iparam2)
+			{
+				default:
+				case 0: // Def muzzle smoke
+					
+					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+					break;
+				case 1: // shotgun?
+					//reserved for sg if we do change it
+					break;
+				case 2: // Railcannon
+					gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, args->origin, 0);
+					break;
+			}
 			break;
-		case 1: //SG sparks
+		case 1: //SG sparks // Should this be a param2 thing for the def muzzle flash?
 			Origin = gEngfuncs.GetViewModel()->attachment[0];
+
+			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 			if (args->bparam1 != true)
+			{
 				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+			}
 			else
 			{
 				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
 				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
 			}
-			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+			
 			break;
 		case 2: //explosions
 			switch (args->iparam2)
@@ -1806,6 +1824,9 @@ void EV_Particles(event_args_t* args)
 					break;
 				case 2:
 					gParticleEngine.CreateCluster("expl_frag_cluster.txt", args->origin, args->origin, 0);
+					break;
+				case 3:
+					gParticleEngine.CreateCluster("expl_flash_cluster.txt", args->origin, args->origin, 0);
 					break;
 			}
 			break;
