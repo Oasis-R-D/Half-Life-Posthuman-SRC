@@ -211,7 +211,6 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	int iContents = UTIL_PointContents(pev->origin);
 
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
@@ -225,11 +224,12 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	{
 		WRITE_SHORT(g_sModelIndexWExplosion);
 	}
-	WRITE_BYTE((pev->dmg - 50) * .60); // scale * 10
+	WRITE_BYTE(0); // scale * 10
 	WRITE_BYTE(15);					   // framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
-	MESSAGE_END();
 
+	MESSAGE_END();
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
 	if (pev->owner)
@@ -323,7 +323,6 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 
 	int iContents = UTIL_PointContents(pev->origin);
 
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
@@ -337,10 +336,12 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	{
 		WRITE_SHORT(g_sModelIndexWExplosion);
 	}
-	WRITE_BYTE((pev->dmg - 50) * .60); // scale * 10
+	WRITE_BYTE(0); // scale * 10
 	WRITE_BYTE(15);					   // framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
+
 	MESSAGE_END();
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
@@ -598,17 +599,11 @@ void CGrenade::Detonate()
 
 	vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
-	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		CPhysbullet::BulletCreate(8, 15, 5750, pev->origin + gpGlobals->v_up * 1, gpGlobals->v_up, M_PI, M_PI, 1, 12, edict());
-	}
-	else
-	{
-		CPhysbullet::BulletCreate(8, 20, 5750, pev->origin + gpGlobals->v_up * 1, gpGlobals->v_up, M_PI, M_PI, 1, 12, edict());
-	}
-	#endif
-	Explode(&tr, DMG_BLAST);
+	
+	if (m_iGrenType == 0)
+		Explode(&tr, DMG_BLAST);
+	else if (m_iGrenType == 4)
+		ExplodeHE(&tr, DMG_SONIC);
 }
 
 void CGrenade::DetonateFlash()
