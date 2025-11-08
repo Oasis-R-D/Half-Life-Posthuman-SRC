@@ -432,8 +432,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
 	}
 
-	
-
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
 	if (pev->owner)
@@ -529,30 +527,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 		for (int i = 0; i < sparkCount; i++)
 			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
 	}
-
-	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-	WRITE_BYTE(TE_BREAKMODEL);
-	// position
-	WRITE_COORD(pev->origin.x);
-	WRITE_COORD(pev->origin.y);
-	WRITE_COORD(pev->origin.z);
-	// size
-	WRITE_COORD(8);
-	WRITE_COORD(8);
-	WRITE_COORD(8);
-	// velocity
-	WRITE_COORD(pev->velocity.x);
-	WRITE_COORD(pev->velocity.y);
-	WRITE_COORD(pev->velocity.z);
-	WRITE_BYTE(50); // randomization
-	// Model
-	WRITE_SHORT(g_sModelIndexShrapnel); // model id#
-	// # of shards
-	WRITE_BYTE(2); // let client decide
-	// duration
-	WRITE_BYTE(30); // 3.0 seconds
-	WRITE_BYTE(BREAK_SMOKE); // flags
-	MESSAGE_END();
 	SetThink(&CGrenade::SUB_Remove);
 	pev->nextthink = gpGlobals->time + 0.125;
 }
@@ -623,7 +597,7 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
-	Explode(&tr, DMG_BLAST);
+	ExplodeHE(&tr, DMG_SONIC);
 }
 
 void CGrenade::DangerSoundThink()
