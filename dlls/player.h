@@ -366,9 +366,6 @@ public:
 	char m_SbarString1[SBAR_STRING_SIZE];
 
 	float m_flNextChatTime;
-	// STENCIL SHADOWS BEGIN
-	bool m_sentInitMessages;
-	// STENCIL SHADOWS END
 
 	void SetPrefsFromUserinfo(char* infobuffer);
 

@@ -3311,10 +3311,6 @@ void CBasePlayer::Precache()
 	if (gInitHUD)
 		m_fInitHUD = true;
 
-	// STENCIL SHADOWS BEGIN
-	m_sentInitMessages = false;
-	// STENCIL SHADOWS END
-
 	// RENDERERS START
 	m_bUpdateEffects = true;
 	// RENDERERS END

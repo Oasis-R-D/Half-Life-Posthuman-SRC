@@ -196,7 +196,22 @@ void CFuncConveyor::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE 
 }
 
 
+// RENDERERS START
+class CFuncMirror : public CFuncWall
+{
+public:
+	void Spawn() override;
+};
 
+LINK_ENTITY_TO_CLASS(func_mirror, CFuncMirror);
+LINK_ENTITY_TO_CLASS(func_detail_ext, CFuncWall); // TO-DO: is this needed?
+
+void CFuncMirror::Spawn()
+{
+	CFuncWall::Spawn();
+	pev->effects |= FL_MIRROR;
+}
+// RENDERERS END
 // =================== FUNC_ILLUSIONARY ==============================================
 
 

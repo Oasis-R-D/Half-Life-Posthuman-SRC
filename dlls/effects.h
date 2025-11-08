@@ -218,3 +218,51 @@ public:
 	int m_iszSpriteName;
 	Vector m_firePosition;
 };
+
+// RENDERERS START
+//=======================
+//  ClientFog
+//=======================
+class CClientFog : public CBaseEntity
+{
+public:
+	void Spawn();
+	bool KeyValue(KeyValueData* pkvd);
+	void SendInitMessage(CBasePlayer* player);
+
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+	float m_iStartDist;
+	float m_iEndDist;
+
+	bool m_fActive;
+	bool m_bDontAffectSky;
+
+	virtual bool Save(CSave& save);
+	virtual bool Restore(CRestore& restore);
+	static TYPEDESCRIPTION m_SaveData[];
+
+public:
+	static CClientFog* FogCreate();
+};
+/*
+//=======================
+// CItemProp
+//=======================
+class CItemProp : public CBaseAnimating
+{
+public:
+	void Spawn();
+	void Precache();
+	bool KeyValue(KeyValueData* pkvd);
+
+	virtual int ObjectCaps() { return CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+
+	virtual bool Save(CSave& save);
+	virtual bool Restore(CRestore& restore);
+	static TYPEDESCRIPTION m_SaveData[];
+
+	bool m_fDisableShadows;
+	bool m_fDisableDrawing;
+};
+*/
+// RENDERERS END
