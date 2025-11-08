@@ -245,14 +245,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType);
 
-	if (RANDOM_FLOAT(0, 1) < 0.5)
-	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH1); // TO-DO: make smaller
-	}
-	else
-	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH2); // TO-DO: make smaller
-	}
+	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 
 	flRndSound = RANDOM_FLOAT(0, 1);
 

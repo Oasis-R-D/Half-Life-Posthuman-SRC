@@ -163,39 +163,44 @@ void CBasePlayerWeapon::ItemPostFrame()
 		TertiaryAttack();
 		//m_pPlayer->pev->button &= ~IN_ALT1;
 	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time)
 	{
-		m_pPlayer->m_bInGrenade = true;
-		m_pPlayer->m_bInGrenadeDelay = true;
-
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
-		
-		m_pPlayer->m_iGrenadeAmnt--;
-
-		m_flNextGrenadeAttack = gpGlobals->time + 2;
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
-		m_fGrenadeFireDelay = gpGlobals->time + 0.35;
-
-		GrenadeAttack();
-		
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 		{
+			m_flNextGrenadeAttack = gpGlobals->time + 5;
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 			m_pPlayer->m_iGrenadeAmnt = 0;
 		}
-		else if (m_pPlayer->m_iGrenadeAmnt == 1)
+		else
 		{
-			switch(RANDOM_LONG(1, 3))
+			m_pPlayer->m_bInGrenade = true;
+			m_pPlayer->m_bInGrenadeDelay = true;
+
+			ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
+
+			m_pPlayer->m_iGrenadeAmnt--;
+
+			m_flNextGrenadeAttack = gpGlobals->time + 2;
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
+			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
+
+			GrenadeAttack();
+
+
+			if (m_pPlayer->m_iGrenadeAmnt == 1)
 			{
+				switch (RANDOM_LONG(1, 3))
+				{
 				case 1:
 					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
-				break;
+					break;
 				case 2:
-					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
-				break;
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);
+					break;
 				case 3:
-					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
-				break;
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);
+					break;
+				}
 			}
 		}
 		m_pPlayer->pev->button &= ~IN_SCORE;
