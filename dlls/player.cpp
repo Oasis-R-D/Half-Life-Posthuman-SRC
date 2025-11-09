@@ -4552,7 +4552,7 @@ void CBasePlayer::UpdateClientData()
 		WRITE_SHORT(Hunger);
 		MESSAGE_END();
 
-		if (FlashlightIsOn())
+		if (FlashlightIsOn() && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL;
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
@@ -4572,7 +4572,7 @@ void CBasePlayer::UpdateClientData()
 			}
 		}
 
-		if (Hunger <= 10)
+		if (Hunger <= 10 && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
@@ -4586,7 +4586,7 @@ void CBasePlayer::UpdateClientData()
 					}
 			};
 		}
-		else if (!FlashlightIsOn())
+		else if (!FlashlightIsOn() && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
@@ -4625,7 +4625,7 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_END();
 	}
 
-	if (BabyHeadcrabCount < 10 && BabyHeadcrabDelay < gpGlobals->time && HasNamedPlayerItem("weapon_snark"))
+	if (BabyHeadcrabCount < 10 && BabyHeadcrabDelay < gpGlobals->time && HasNamedPlayerItem("weapon_snark") && !m_bPrehuman)
 	{
 		BabyHeadcrabCount += 3;
 		if (BabyHeadcrabCount > 10)

@@ -100,18 +100,10 @@ bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pb
 
 bool CHudFlashlight::Draw(float flTime)
 {
-	if (m_fOn == true)
-	{
-		if (!prehuman)
-			g_iNightVision = m_fOn;
-		else
-			g_iFlashLight = m_fOn;
-	}
-	else
-	{
+	if (!prehuman)
 		g_iNightVision = m_fOn;
+	else
 		g_iFlashLight = m_fOn;
-	}
 
 	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 		return true;

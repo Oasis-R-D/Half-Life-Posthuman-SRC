@@ -66,8 +66,8 @@ double sqrt(double x);
 mleaf_t* r_oldviewleaf;
 int r_visframecount;
 
-bool g_iNightVision;
-bool g_iFlashLight;
+bool g_iNightVision = false;
+bool g_iFlashLight = false;
 
 //==========================
 //	stristr

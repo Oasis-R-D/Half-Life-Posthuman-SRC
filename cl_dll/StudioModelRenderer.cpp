@@ -3626,7 +3626,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	if (m_pCurrentEntity == gEngfuncs.GetViewModel() && m_pCvarViewmodelFov->value != 0.0f)
 	{
 		SetViewmodelFovProjection();
-		if (g_iNightVision)
+		if (g_iNightVision && !g_iFlashLight)
 		{
 			m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
 			m_pCurrentEntity->curstate.rendercolor.r = 50;
