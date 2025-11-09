@@ -1041,6 +1041,8 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	}
 	pev->maxspeed = 350;
 	m_bleedAMNT = 0;
+
+	FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
 }
 
 
