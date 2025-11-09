@@ -243,7 +243,20 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
-	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType);
+	
+	int damage;
+	if (g_iSkillLevel != SKILL_HARD)
+		damage = 25;
+	else
+		damage = 15;
+
+	UTIL_MakeVectors(pTrace->vecPlaneNormal);
+
+	#ifndef CLIENT_DLL
+	CPhysbullet::BulletCreate(40, damage, 5000, pev->origin, gpGlobals->v_forward, UTIL_DegreesToRadCone(360), CONE_60DEGREES, 0, 12, edict(), true, 0);
+	#endif
+
+	::RadiusDamage(origin, pev, pevOwner, 100, 64, CLASS_NONE, bitsDamageType);
 
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 
