@@ -29,7 +29,7 @@ void LinkUserMessages()
 
 	gmsgCurWeapon = REG_USER_MSG("CurWeapon", -1);
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
-	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
+	gmsgFlashlight = REG_USER_MSG("Flashlight", 3);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG("Health", 2);
 	gmsgDamage = REG_USER_MSG("Damage", 12);

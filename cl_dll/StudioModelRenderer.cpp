@@ -52,6 +52,7 @@ Transparency code by Neil "Jed" Jedrzejewski
 engine_studio_api_t IEngineStudio;
 
 extern bool g_iNightVision;
+extern bool g_iFlashLight;
 
 //===========================================
 // GLSL SHADER

@@ -60,7 +60,7 @@ bool loaded_decal_wad = false;
 extern mleaf_t *r_oldviewleaf;
 
 extern bool g_iNightVision;
-
+extern bool g_iFlashLight;
 //using namespace std;
 
 extern "C" {

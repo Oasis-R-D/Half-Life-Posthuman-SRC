@@ -65,7 +65,9 @@ double sqrt(double x);
 
 mleaf_t* r_oldviewleaf;
 int r_visframecount;
+
 bool g_iNightVision;
+bool g_iFlashLight;
 
 //==========================
 //	stristr
@@ -880,6 +882,11 @@ void R_CalcRefDef(ref_params_t* pparams)
 		SetupFlashlight(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
 	}
 
+	if (g_iFlashLight)
+	{
+		SetupFlashlight2(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+	}
+
 	// Set up pre-frame stuff
 	gBSPRenderer.SetupPreFrame(pparams);
 
@@ -1228,6 +1235,94 @@ void SetupFlashlight(vec3_t origin, vec3_t angles, float time, float frametime)
 	flashlight->radius = 300;
 	flashlight->color = Vector(0.3, 0.3, 0.3);
 	flashlight->die = time + 0.1;
+}
+//===============================
+// buz: flashlight managenemt
+//===============================
+void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
+{
+	pmtrace_t tr;
+	vec3_t fwd, right, up;
+
+	static float add = 0;
+	float addideal = 0;
+	
+	AngleVectors(angles, fwd, right, up);
+
+	if(gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
+		fwd = origin + (fwd*150);
+	else
+		fwd = origin + (fwd*1550);
+	
+	gEngfuncs.pEventAPI->EV_SetTraceHull( 2 );
+	gEngfuncs.pEventAPI->EV_PlayerTrace( origin, fwd, PM_NORMAL, -1, &tr );
+	
+	if(gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
+	{
+		if (tr.fraction < 1.0)
+			addideal = (1 - tr.fraction)*30;
+
+		float speed = (add - addideal)*10;
+
+		if (speed < 0) 
+			speed *= -1;
+
+		if (add < addideal)
+		{
+			add += frametime*speed;
+
+			if (add > addideal) 
+				add = addideal;
+		}
+		else if (add > addideal)
+		{
+			add -= frametime*speed;
+
+			if (add < addideal) 
+				add = addideal;
+		}
+
+		cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
+		flashlight->origin = origin + (up * 8) + (right * 10);
+		flashlight->radius = 700;
+		flashlight->die = time + 0.01;
+		flashlight->cone_size = 50 + add;
+		flashlight->color.x = 0.8;
+		flashlight->color.y = 0.8;
+		flashlight->color.z = 0.8;
+		flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[0]->iIndex;
+		flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700);
+		flashlight->justspawned = true;
+		flashlight->flags |= LIGHT_CASTSHADOWS;
+		auto sm_res = gBSPRenderer.m_pCvarFlashLightDepthRes->value;
+		if (flashlight->depth)
+			GL_ShadowMap::DeAllocateShadowMap(flashlight->depth);
+
+		flashlight->depth = GL_ShadowMap::AllocateShadowMap(GL_ShadowMap::_2DTexture_Storage, GL_RG16F, sm_res, sm_res, 0, GL_RG, GL_FLOAT);
+		VectorCopy(angles, flashlight->angles);
+
+		mlight_t *pLight = &gBSPRenderer.m_pModelLights[gBSPRenderer.m_iNumModelLights];
+		gBSPRenderer.m_iNumModelLights++;
+		
+		pLight->origin = flashlight->origin;
+		pLight->flashlight = true;
+		pLight->frustum = &flashlight->frustum;
+		pLight->radius = flashlight->radius;
+		pLight->spotcos = cos((flashlight->cone_size*2)*0.3*(M_PI*2/360));
+		pLight->color = flashlight->color;
+
+		// Shitpickle // I agree
+		FixVectorForSpotlight(angles);
+		AngleVectors(angles, pLight->forward, NULL, NULL);
+	}
+	else
+	{
+		cl_dlight_t *flashlight = gBSPRenderer.CL_AllocDLight(-666);
+		flashlight->origin = tr.endpos;
+		flashlight->radius = 300;
+		flashlight->color = Vector(0.6, 0.6, 0.6);
+		flashlight->die = time + 0.1;
+	}
 }
 float Q_rsqrt(float number)
 {

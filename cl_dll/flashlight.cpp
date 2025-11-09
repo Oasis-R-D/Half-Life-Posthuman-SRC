@@ -26,8 +26,9 @@
 #include <stdio.h>
 
 extern bool g_iNightVision;
+extern bool g_iFlashLight;
 
-
+bool prehuman;
 
 DECLARE_MESSAGE(m_Flash, FlashBat)
 DECLARE_MESSAGE(m_Flash, Flashlight)
@@ -90,6 +91,7 @@ bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pb
 	BEGIN_READ(pbuf, iSize);
 	m_fOn = READ_BYTE() != 0;
 	int x = READ_BYTE();
+	prehuman = READ_BYTE();
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
 
@@ -98,7 +100,11 @@ bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pb
 
 bool CHudFlashlight::Draw(float flTime)
 {
-	g_iNightVision = m_fOn;
+	if (!prehuman)
+		g_iNightVision = m_fOn;
+	else
+		g_iFlashLight = m_fOn;
+
 	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 		return true;
 

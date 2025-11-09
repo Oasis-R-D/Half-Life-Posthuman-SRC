@@ -11,8 +11,7 @@ Renderer base definitions and functions
 Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 */
 
-#ifndef RENDERERDEFS_H
-#define RENDERERDEFS_H
+#pragma once
 
 #include "PlatformHeaders.h"
 #include "gl/gl.h"
@@ -784,6 +783,7 @@ extern void HUD_PrintSpeeds(void);
 extern void RenderersDumpInfo(void);
 extern void GenDetail(void);
 extern void SetupFlashlight(vec3_t origin, vec3_t angles, float time, float frametime);
+extern void SetupFlashlight2(vec3_t origin, vec3_t angles, float time, float frametime);
 extern void ExportWorld(void);
 
 extern unsigned short ByteToUShort(byte* byte);
@@ -836,4 +836,3 @@ extern void R_Shutdown(void);
 
 extern vec3_t g_vecFull;
 extern int current_ext_texture_id;
-#endif

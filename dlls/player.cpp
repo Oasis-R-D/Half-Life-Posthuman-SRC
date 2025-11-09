@@ -3737,39 +3737,41 @@ void CBasePlayer::GiveNamedItem(const char* szName, int defaultAmmo)
 
 bool CBasePlayer::FlashlightIsOn()
 {
-	return FBitSet(pev->effects, EF_BRIGHTLIGHT);
+	return m_bLightOn;
 }
 
 
 void CBasePlayer::FlashlightTurnOn()
 {
-	
-
-	if (!g_pGameRules->FAllowFlashlight())
+	m_bPrehuman = true;
+	m_bLightOn = true;
+	if (!g_pGameRules->FAllowFlashlight() || !HasSuit())
 	{
 		return;
 	}
 
-	if (HasSuit())
-	{	
-		FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
+	FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
+	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
+	WRITE_BYTE(1);
+	WRITE_BYTE(m_iFlashBattery);
+	WRITE_BYTE(m_bPrehuman);
+	MESSAGE_END();
+	m_flFlashLightTime = FLASH_DRAIN_TIME + gpGlobals->time;
+
+	if (!m_bPrehuman)
+	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
-		//TODO: fix UTIL_ScreenFade nulling out green and blue color brightness //do we really need to? I think it's fine the way it is. Go for it and if it looks better we'll keep it
+		// TODO: fix UTIL_ScreenFade nulling out green and blue color brightness //do we really need to? I think it's fine the way it is. Go for it and if it looks better we'll keep it
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
 		SetBits(pev->effects, EF_BRIGHTLIGHT);
-		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
-		WRITE_BYTE(1);
-		WRITE_BYTE(m_iFlashBattery);
-		MESSAGE_END();
-		m_flFlashLightTime = FLASH_DRAIN_TIME + gpGlobals->time;
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
 		{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || 
-				pEntity->Classify() == CLASS_HASSN			|| pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY ||
+				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
-				pEntity->pev->renderfx = kRenderFxLightMultiplier;
+				pEntity->pev->renderfx = kRenderFxLightMultiplier; // TO-DO: fix stripping NPC render modes
 				pEntity->pev->rendercolor = Vector(128, 0, 0);
 			}
 			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
@@ -3779,33 +3781,49 @@ void CBasePlayer::FlashlightTurnOn()
 			}
 		}
 	}
+	else
+	{
+		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		SetBits(pev->effects, EF_DIMLIGHT);
+	}
 }
 
 
 void CBasePlayer::FlashlightTurnOff()
 {
+	m_bLightOn = false;
 	FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
-	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
-	ClearBits(pev->effects, EF_BRIGHTLIGHT);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 	WRITE_BYTE(0);
 	WRITE_BYTE(m_iFlashBattery);
+	WRITE_BYTE(m_bPrehuman);
 	MESSAGE_END();
-	UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE);
 	m_flFlashLightTime = FLASH_CHARGE_TIME + gpGlobals->time;
-	CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
-	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
+
+	if (!m_bPrehuman)
 	{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY || 
-				pEntity->Classify() == CLASS_HASSN			|| pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE);
+		ClearBits(pev->effects, EF_BRIGHTLIGHT);
+		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
+		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
+		{
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY ||
+				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
-		{
-			pEntity->pev->renderfx = kRenderFxNone;
+			{
+				pEntity->pev->renderfx = kRenderFxNone; // TO-DO: fix stripping NPC render modes
+			}
+			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
+			{
+				pEntity->pev->renderfx = kRenderFxNone;
+			}
 		}
-		else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
-		{
-			pEntity->pev->renderfx = kRenderFxNone;
-		}
+	}
+	else
+	{
+		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		ClearBits(pev->effects, EF_DIMLIGHT);
 	}
 }
 
@@ -4760,6 +4778,7 @@ void CBasePlayer::UpdateClientData()
 			MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 			WRITE_BYTE(1);
 			WRITE_BYTE(m_iFlashBattery);
+			WRITE_BYTE(m_bPrehuman);
 			MESSAGE_END();
 		}
 	}
@@ -4773,7 +4792,8 @@ void CBasePlayer::UpdateClientData()
 			{
 				m_flFlashLightTime = FLASH_DRAIN_TIME + gpGlobals->time;
 				m_iFlashBattery--;
-				UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
+				if (!m_bPrehuman)
+					UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
 				if (0 == m_iFlashBattery)
 					FlashlightTurnOff();
 			}
