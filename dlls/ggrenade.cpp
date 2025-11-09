@@ -31,7 +31,7 @@
 
 
 #ifndef CLIENT_DLL
-
+#define SHRAPNELAMNT 32
 
 //===================HopWire grenade tripwires
 LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
@@ -206,7 +206,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	// Pull out of the wall a bit
 	if (pTrace->flFraction != 1.0)
 	{
-		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
+		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 8);
 	}
 
 	int iContents = UTIL_PointContents(pev->origin);
@@ -246,17 +246,18 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	
 	int damage;
 	if (g_iSkillLevel != SKILL_HARD)
-		damage = 25;
+		damage = 30;
 	else
-		damage = 15;
+		damage = 30;
 
 	UTIL_MakeVectors(pTrace->vecPlaneNormal);
+	Vector Spread;
+	Spread.x = Spread.z = UTIL_DegreesToRadCone(360);
+	Spread.y = UTIL_DegreesToRadCone(30);
 
-	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(40, damage, 5000, pev->origin, gpGlobals->v_forward, UTIL_DegreesToRadCone(360), CONE_60DEGREES, 0, 12, edict(), true, 0);
-	#endif
-
-	::RadiusDamage(origin, pev, pevOwner, 100, 64, CLASS_NONE, bitsDamageType);
+	FireBullets(SHRAPNELAMNT, pev->origin, gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
+	FireBullets(SHRAPNELAMNT, pev->origin, -gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
+	::RadiusDamage(origin, pev, pevOwner, 100, 96, CLASS_NONE, bitsDamageType);
 
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 

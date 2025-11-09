@@ -1250,7 +1250,7 @@ void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
 	AngleVectors(angles, fwd, right, up);
 
 	if(gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
-		fwd = origin + (fwd*150);
+		fwd = origin + (fwd*100);
 	else
 		fwd = origin + (fwd*1550);
 	
@@ -1283,7 +1283,7 @@ void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
 		}
 
 		cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
-		flashlight->origin = origin + (up * 8) + (right * 10);
+		flashlight->origin = origin + (-up * 8) + (-right * 5);
 		flashlight->radius = 700;
 		flashlight->die = time + 0.01;
 		flashlight->cone_size = 50 + add;
@@ -1293,12 +1293,6 @@ void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
 		flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[0]->iIndex;
 		flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700);
 		flashlight->justspawned = true;
-		flashlight->flags |= LIGHT_CASTSHADOWS;
-		auto sm_res = gBSPRenderer.m_pCvarFlashLightDepthRes->value;
-		if (flashlight->depth)
-			GL_ShadowMap::DeAllocateShadowMap(flashlight->depth);
-
-		flashlight->depth = GL_ShadowMap::AllocateShadowMap(GL_ShadowMap::_2DTexture_Storage, GL_RG16F, sm_res, sm_res, 0, GL_RG, GL_FLOAT);
 		VectorCopy(angles, flashlight->angles);
 
 		mlight_t *pLight = &gBSPRenderer.m_pModelLights[gBSPRenderer.m_iNumModelLights];
