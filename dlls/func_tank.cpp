@@ -218,6 +218,7 @@ void CFuncTank::Precache()
 
 	if (!FStringNull(pev->noise))
 		PRECACHE_SOUND((char*)STRING(pev->noise));
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 
@@ -676,6 +677,7 @@ void CFuncTank::Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* 
 		}
 		if (!FStringNull(m_iszSpriteFlash))
 		{
+			PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, barrelEnd, forward, 0.0, 0.0, PE_MUZZLESMK, 0, true, 0);
 			CSprite* pSprite = CSprite::SpriteCreate(STRING(m_iszSpriteFlash), barrelEnd, true);
 			pSprite->AnimateAndDie(60);
 			pSprite->SetTransparency(kRenderTransAdd, 255, 255, 255, 255, kRenderFxNoDissipation);

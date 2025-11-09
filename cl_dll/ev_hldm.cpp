@@ -1777,22 +1777,32 @@ bool EV_TFC_IsAllyTeam(int iTeam1, int iTeam2)
 void EV_Particles(event_args_t* args)
 {
 	Vector Origin;
+	Vector Dir;
 	switch (args->iparam1)
 	{
 		case 0: // muzzle smoke
-			Origin = gEngfuncs.GetViewModel()->attachment[0];
-			
+			if (args->bparam1 != true)
+			{
+				Origin = gEngfuncs.GetViewModel()->attachment[0];
+				Dir = args->origin;
+			}
+			else
+			{
+				Origin = args->origin;
+				Dir = args->angles;
+			}
+
 			switch (args->iparam2)
 			{
 				default:
 				case 0: // Def muzzle smoke	
-					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
 					break;
 				case 1: // shotgun?
 					//reserved for sg if we do change it
 					break;
 				case 2: // Railcannon
-					gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, args->origin, 0);
+					gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0);
 					break;
 			}
 			break;
