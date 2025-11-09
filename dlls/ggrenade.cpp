@@ -257,7 +257,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	FireBullets(SHRAPNELAMNT, pev->origin, gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
 	FireBullets(SHRAPNELAMNT, pev->origin, -gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
-	::RadiusDamage(origin, pev, pevOwner, 100, 96, CLASS_NONE, bitsDamageType);
+	::RadiusDamage(origin, pev, pevOwner, 100, 128, CLASS_NONE, bitsDamageType);
 
 	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
 

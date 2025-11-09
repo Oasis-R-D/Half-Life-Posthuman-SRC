@@ -67,12 +67,10 @@ inline enginefuncs_t g_engfuncs;
 #define CRC32_FINAL (*g_engfuncs.pfnCRC32_Final)
 #define RANDOM_LONG (*g_engfuncs.pfnRandomLong)
 #define RANDOM_FLOAT (*g_engfuncs.pfnRandomFloat)
-/*
 inline Vector RANDOM_VECTOR(double min, double max)
 {
 	return Vector(RANDOM_FLOAT(min, max), RANDOM_FLOAT(min, max), RANDOM_FLOAT(min, max));
 }
-*/
 #define GETPLAYERAUTHID (*g_engfuncs.pfnGetPlayerAuthId)
 
 inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float* pOrigin = NULL, edict_t* ed = NULL)
