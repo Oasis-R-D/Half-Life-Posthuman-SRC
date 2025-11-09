@@ -1284,12 +1284,12 @@ void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
 
 		cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
 		flashlight->origin = origin + (-up * 8) + (-right * 5);
-		flashlight->radius = 700;
+		flashlight->radius = 600;
 		flashlight->die = time + 0.01;
 		flashlight->cone_size = 50 + add;
-		flashlight->color.x = 0.8;
-		flashlight->color.y = 0.8;
-		flashlight->color.z = 0.8;
+		flashlight->color.x = 0.85; // R
+		flashlight->color.y = 0.80; // G
+		flashlight->color.z = 0.75; // B
 		flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[0]->iIndex;
 		flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700);
 		flashlight->justspawned = true;

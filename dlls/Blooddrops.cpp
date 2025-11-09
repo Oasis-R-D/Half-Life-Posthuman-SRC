@@ -40,6 +40,8 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		}
 		if (g_pGameRules->IsMultiplayer())
 			BLDamnt /= 2;
+		if (g_iSkillLevel == SKILL_HARD)
+			BLDamnt /= 2;
 		for (i = 0; i < BLDamnt; i++) // Allows multishot
 		{
 			// Create a new entity with CPhysblood private data
