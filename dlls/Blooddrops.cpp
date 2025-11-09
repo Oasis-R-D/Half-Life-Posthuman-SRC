@@ -57,7 +57,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
 			if (i == 1)
-				PLAYBACK_EVENT_FULL(0, pBlood->edict(), pBlood->m_ParticleEvent, 0.0, VecSpawnPos, vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodType, 0, 0);
+				PLAYBACK_EVENT_FULL(0, pBlood->edict(), pBlood->m_ParticleEvent, 0.0, VecSpawnPos, -vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodType, 0, 0);
 		}
 		
 	}
@@ -186,6 +186,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	SetTouch(NULL);
 	SetThink(NULL);
 	TraceResult tr = UTIL_GetGlobalTrace();
+	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6));

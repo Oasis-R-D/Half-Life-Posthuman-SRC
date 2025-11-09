@@ -1849,5 +1849,22 @@ void EV_Particles(event_args_t* args)
 			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
 			gEngfuncs.pfnCenterPrint("neurotoxin created");
 			break;
+		case 5: // blood hit the ground
+			switch (args->iparam2)
+			{
+				case BLOOD_COLOR_RED:
+					gParticleEngine.CreateSystem("engine_blood_impact.txt", args->origin, gpGlobals->v_up, 0);
+					break;
+				case BLOOD_COLOR_YELLOW:
+					gParticleEngine.CreateSystem("engine_blood_impact_alien.txt", args->origin, gpGlobals->v_up, 0);
+					break;
+				case BLOOD_COLOR_GREEN:
+					gParticleEngine.CreateSystem("engine_blood_impact_rx.txt", args->origin, gpGlobals->v_up, 0);
+					break;
+				case BLOOD_COLOR_CYAN:
+					gParticleEngine.CreateSystem("engine_blood_impact_healing.txt", args->origin, gpGlobals->v_up, 0);
+					break;
+			}
+			break;
 	}
 }

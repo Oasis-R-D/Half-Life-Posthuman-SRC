@@ -34,6 +34,7 @@ CBaseEntity
 #define PE_EXPLOSIONCLUST 2
 #define PE_NPCIMPACTCLUST 3
 #define PE_BLOATERGASEXPL 4
+#define PE_BLDIMPACTCLUST 5
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 

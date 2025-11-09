@@ -44,6 +44,8 @@
 #include "pm_materials.h"
 #include "hgrunt.h"
 #include "physical_bullet.h"
+#include "Blooddrops.h"
+
 int g_fGruntQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
 
 //=========================================================
@@ -535,6 +537,9 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				WRITE_BYTE(TE_EXPLFLAG_NONE);
 				MESSAGE_END();
 				m_fuel = false;
+#ifndef  CLIENT_DLL
+				CPhysblood::BloodCreate(8, 350, ptr->vecEndPos, -vecDir, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(360)); // mainly to create blood hit FX
+#endif // ! CLIENT_DLL
 			}
 			flDamage *= 0.25;
 		}
