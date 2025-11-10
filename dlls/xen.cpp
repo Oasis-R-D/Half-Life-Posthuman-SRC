@@ -481,24 +481,28 @@ public:
 		return false;
 	}
 	//	void		HandleAnimEvent( MonsterEvent_t *pEvent );
-	void Attack() {}
-
+	void Attack();
+	virtual int GasOffset();
 	static const char* pModelNames[];
+	float m_fAttackTime; 
 };
 
 class CXenSporeSmall : public CXenSpore
 {
 	void Spawn() override;
+	int GasOffset() override {return 48;};
 };
 
 class CXenSporeMed : public CXenSpore
 {
 	void Spawn() override;
+	int GasOffset() override {return 116;};
 };
 
 class CXenSporeLarge : public CXenSpore
 {
 	void Spawn() override;
+	int GasOffset() override {return 224;}
 
 	static const Vector m_hullSizes[];
 };
@@ -602,6 +606,7 @@ const char* CXenSpore::pModelNames[] =
 void CXenSpore::Precache()
 {
 	PRECACHE_MODEL((char*)pModelNames[pev->skin]);
+	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 }
 
 
@@ -609,16 +614,23 @@ void CXenSpore::Touch(CBaseEntity* pOther)
 {
 }
 
+void CXenSpore::Attack()
+{
+	m_fAttackTime = gpGlobals->time + 15;
+}
 
 void CXenSpore::Think()
 {
 	float flInterval = StudioFrameAdvance();
 	pev->nextthink = gpGlobals->time + 0.1;
-
+	if (m_fAttackTime <= gpGlobals->time)
+	{
+		//::RadiusDamage(pev->origin + GasOffset(), pev, pev, 10, 160, CLASS_NONE, DMG_NEURO);
+	}
 #if 0
 	DispatchAnimEvents( flInterval );
 
-	switch( GetActivity() )
+	switch( GetActivity() ) // ???
 	{
 	default:
 	case ACT_IDLE:
