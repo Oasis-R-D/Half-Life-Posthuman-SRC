@@ -58,17 +58,26 @@
     <Filter Include="Header Files\public">
       <UniqueIdentifier>{01f1d541-3bac-4b2c-9a83-2cadcb76ff8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cl_dll\particleman">
-      <UniqueIdentifier>{b15eb5d8-7876-4b95-b327-88dc77c46466}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\cl_dll\particleman">
-      <UniqueIdentifier>{7085339d-2b33-4cdf-846c-0e4c7d33add8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\cl_dll\renderer">
       <UniqueIdentifier>{1d76c495-db74-4c63-ad71-7c54e7b955a4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\cl_dll\renderer">
       <UniqueIdentifier>{aa8e383b-36c5-4343-89cb-ddfdd36c32d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cl_dll\renderer\glshaders">
+      <UniqueIdentifier>{76e7c6e9-8952-43c8-809d-72ad85f6ce3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cl_dll\renderer\glshaders\shadow">
+      <UniqueIdentifier>{89cd2e6d-3fcc-49c4-89a4-badb149bd1cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cl_dll\renderer\opengl_utils">
+      <UniqueIdentifier>{e1c5619d-dd5b-4d06-820c-1e7d6bb9c56c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cl_dll\renderer\opengl_utils">
+      <UniqueIdentifier>{11395e50-b2bb-484d-aed6-3ec0668429c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cl_dll\renderer\glew">
+      <UniqueIdentifier>{6c08719c-370f-4dac-a4b5-487500bc53ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -168,9 +177,6 @@
     <ClCompile Include="..\..\cl_dll\flashlight.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\GameStudioModelRenderer.cpp">
-      <Filter>Source Files\cl_dll</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cl_dll\geiger.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
@@ -223,9 +229,6 @@
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
     <ClCompile Include="..\..\cl_dll\studio_util.cpp">
-      <Filter>Source Files\cl_dll</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\StudioModelRenderer.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
     <ClCompile Include="..\..\cl_dll\text_message.cpp">
@@ -315,18 +318,6 @@
     <ClCompile Include="..\..\game_shared\filesystem_utils.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\particleman\CMiniMem.cpp">
-      <Filter>Source Files\cl_dll\particleman</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\particleman\IParticleMan_Active.cpp">
-      <Filter>Source Files\cl_dll\particleman</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\particleman\CFrustum.cpp">
-      <Filter>Source Files\cl_dll\particleman</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\particleman\CBaseParticle.cpp">
-      <Filter>Source Files\cl_dll\particleman</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\m249.cpp">
       <Filter>Source Files\_hl\dlls</Filter>
     </ClCompile>
@@ -360,9 +351,6 @@
     <ClCompile Include="..\..\cl_dll\renderer\watershader.cpp">
       <Filter>Source Files\cl_dll\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\tent.cpp">
-      <Filter>Source Files\cl_dll</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\wpn_corrupted.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -374,6 +362,57 @@
     </ClCompile>
     <ClCompile Include="..\..\dlls\m29.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\BSPModelGen.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\goldsrc_beamrenderer.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\goldsrc_spriterenderer.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\goldsrc_tracerrenderer.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\HLHudSprites.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\StudioMDL_MeshGen.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\StudioModelRenderer.cpp">
+      <Filter>Source Files\cl_dll\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\glew\glew.c">
+      <Filter>Source Files\cl_dll\renderer\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\engine_hookfuncs.cpp">
+      <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -405,9 +444,6 @@
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\eventscripts.h">
-      <Filter>Header Files\cl_dll</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\GameStudioModelRenderer.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\health.h">
@@ -447,9 +483,6 @@
       <Filter>Header Files\pm_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\vgui_ScorePanel.h">
-      <Filter>Header Files\cl_dll</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\StudioModelRenderer.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\tri.h">
@@ -632,24 +665,6 @@
     <ClInclude Include="..\..\common\PlatformHeaders.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\particleman_internal.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\CFrustum.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\IParticleMan_Active.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\particleman.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\CMiniMem.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\particleman\CBaseParticle.h">
-      <Filter>Header Files\cl_dll\particleman</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\cl_dll\renderer\bsprenderer.h">
       <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
@@ -685,6 +700,93 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\discord_manager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\BSPModel_Gen.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\goldsrc_beamrenderer.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\goldsrc_spriterenderer.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\goldsrc_tracerrenderer.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\StudioMDL_MeshGen.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\StudioModelRenderer.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\tent.h">
+      <Filter>Header Files\cl_dll\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\client_state.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\net.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\bsp_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\cable_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\decal_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\gaussianblur_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\mirror_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\particle_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\skybox_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\sprite_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\studiomdl_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\water_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\shadow\bsp_solid_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders\shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\shadow\studiomdl_solid_glsl.h">
+      <Filter>Header Files\cl_dll\renderer\glshaders\shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

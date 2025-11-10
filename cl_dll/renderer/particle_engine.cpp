@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -11,12 +12,10 @@ Particle Engine
 Written by Andrew Lucas
 */
 
-#ifdef TRINITY
-
-#include "PlatformHeaders.h"
+#include <cstdlib>
+#include <cmath>
 #include "hud.h"
 #include "cl_util.h"
-#include <gl/glu.h>
 
 #include "const.h"
 #include "studio.h"
@@ -25,10 +24,8 @@ Written by Andrew Lucas
 #include "event_api.h"
 #include "pm_defs.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include <math.h>
 
 #include "propmanager.h"
 #include "particle_engine.h"
@@ -41,15 +38,48 @@ Written by Andrew Lucas
 #include "event_args.h"
 
 #include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
-#ifdef GOLDSRC_PHYS
-#include "PhyStudioModelRenderer.h"
-extern PhyStudioModelRenderer g_StudioRenderer;
-#else
-extern CGameStudioModelRenderer g_StudioRenderer;
-#endif
+#include "opengl_utils/GL_Buffers.h"
+#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/GL_StateHandler.h"
+#include "opengl_utils/GL_VertexArrayObject.h"
+#include "goldsrc_spriterenderer.h"
 
-extern int r_visframecount;
+
+char glsl_particle_vp[] = R"(
+
+	uniform mat4 projviewmatrix;
+
+	out vec2 frag_texcoord;
+	out vec4 frag_color;
+	
+	void main()
+	{
+		frag_texcoord = aTexCoord;
+		frag_color = aColor;
+		gl_Position = projviewmatrix * vec4(aPosition, 1);
+	}
+
+
+
+)";
+
+const char glsl_particle_fp[] = R"(
+
+	uniform sampler2D texture0;
+
+	in vec2 frag_texcoord;
+	in vec4 frag_color;
+
+	void main()
+	{
+		gl_FragColor = texture(texture0, frag_texcoord) * frag_color;
+	}
+
+)";
+
+CParticleEngine gParticleEngine;
+
+
 
 /*
 ====================
@@ -57,11 +87,40 @@ Init
 
 ====================
 */
-void CParticleEngine::Init(void)
+void CParticleEngine::Init() 
 {
-	m_pCvarDrawParticles = CVAR_CREATE("te_particles", "1", 0);
-	m_pCvarParticleDebug = CVAR_CREATE("te_particles_debug", "0", 0);
+	m_pCvarDrawParticles = gEngfuncs.pfnRegisterVariable("r_particles", "1", FCVAR_ARCHIVE);
+	m_pCvarParticleDebug = gEngfuncs.pfnRegisterVariable("r_particles_debug", "0", 0);
 	m_pCvarGravity = gEngfuncs.pfnGetCvarPointer("sv_gravity");
+
+	m_ParticleShader = new GL_ShaderProgram(glsl_particle_vp, glsl_particle_fp);
+
+	m_ParticleShader->Bind();
+	m_ParticleShader->Uniform1i(m_ParticleShader->GetUniformLoc("texture0"), 0);
+
+	m_pParticleVAO = new GL_VertexArrayObject();
+	m_pParticleVAO->BindVAO();
+
+	m_pQuadBuffer = new GL_BufferHandler();
+
+	m_pQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+	// limit of 100 thousand particles, i dont think this limit can be reached
+	// 9600000 bytes = 9.6 mb
+	m_pQuadBuffer->BufferData(GL_BufferHandler::ArrayBuffer, sizeof(ParticleQuad) * 100000, nullptr, GL_BufferHandler::DynamicDraw);
+
+
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, pos));
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, uv));
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, color));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Color);
+
+	GL_VertexArrayObject::ResetVAOBinding();
+
+	GL_ShaderProgram::ResetShaderBind();
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 };
 
 /*
@@ -75,13 +134,51 @@ void CParticleEngine::Shutdown(void)
 	VidInit();
 }
 
+const int dottexture[8][8] =
+	{
+		{0, 1, 1, 0, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{0, 1, 1, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+};
+
+void R_InitParticleTexture(GLuint &particle_id)
+{
+	glGenTextures(1, &particle_id);
+
+	glBindTexture(GL_TEXTURE_2D, particle_id);
+
+	char data[8][8][4] = {0};
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			for (int k = 0; k < 4; k++)
+			{
+				if (k == 3)
+					data[i][j][k] = -dottexture[j][i];
+				else
+					data[i][j][k] = -1;
+			}
+		}
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
 /*
 ====================
 VidInit
 
 ====================
 */
-void CParticleEngine::VidInit(void)
+void CParticleEngine::VidInit()
 {
 	if (m_pSystemHeader)
 	{
@@ -105,8 +202,14 @@ void CParticleEngine::VidInit(void)
 			delete[] pfree;
 		}
 
-		m_pSystemHeader = NULL;
+		m_pSystemHeader = nullptr;
 	}
+
+	if (goldsrc_particletexture)
+	{
+		glDeleteTextures(1, &goldsrc_particletexture);
+	}
+	R_InitParticleTexture(goldsrc_particletexture);
 };
 
 /*
@@ -115,7 +218,7 @@ AllocSystem
 
 ====================
 */
-particle_system_t* CParticleEngine::AllocSystem(void)
+particle_system_t* CParticleEngine::AllocSystem()
 {
 	// Allocate memory
 	particle_system_t* pSystem = new particle_system_t;
@@ -163,13 +266,13 @@ CreateCluster
 
 ====================
 */
-void CParticleEngine::CreateCluster(const char* szPath, vec3_t origin, vec3_t dir, int iId)
+void CParticleEngine::CreateCluster(const char* szPath, Vector origin, Vector dir, int iId)
 {
 	char szFilePath[64];
 	strcpy(szFilePath, "/scripts/particles/");
 	strcat(szFilePath, szPath);
 
-	char* pFile = (char*)gEngfuncs.COM_LoadFile(szFilePath, 5, NULL);
+	char* pFile = (char*)gEngfuncs.COM_LoadFile(szFilePath, 5, nullptr);
 
 	if (!pFile)
 	{
@@ -192,27 +295,28 @@ void CParticleEngine::CreateCluster(const char* szPath, vec3_t origin, vec3_t di
 
 	gEngfuncs.COM_FreeFile(pFile);
 }
+
 /*
 ====================
 CreateSystem
 
 ====================
 */
-particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, vec3_t dir, int iId, particle_system_t* parent)
+particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Vector dir, int iId, particle_system_t* parent)
 {
 	if (!strlen(szPath))
-		return NULL;
+		return nullptr;
 
 	char szFilePath[64];
 	strcpy(szFilePath, "/scripts/particles/");
 	strcat(szFilePath, szPath);
 
-	char* pFile = (char*)gEngfuncs.COM_LoadFile(szFilePath, 5, NULL);
+	char* pFile = (char*)gEngfuncs.COM_LoadFile(szFilePath, 5, nullptr);
 
 	if (!pFile)
 	{
 		gEngfuncs.Con_Printf("Could not load particle definitions file: %s!\n", szPath);
-		return NULL;
+		return nullptr;
 	}
 
 	particle_system_t* pSystem = AllocSystem();
@@ -221,13 +325,13 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 	{
 		gEngfuncs.Con_Printf("Warning! Exceeded max number of particle systems!\n");
 		gEngfuncs.COM_FreeFile(pFile);
-		return NULL;
+		return nullptr;
 	}
 
 	// Fill in default values
 	pSystem->id = iId;
 	pSystem->mainalpha = 1;
-	pSystem->spawntime = gEngfuncs.GetClientTime();
+	pSystem->spawntime = engine_cl->time;
 	VectorCopy(dir, pSystem->dir);
 
 	char* pToken = pFile;
@@ -246,7 +350,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 			break;
 
 		if (!strcmp(szField, "systemshape"))
-			pSystem->shapetype = atoi(szValue);
+			pSystem->shapetype = static_cast<byte>(atoi(szValue));
 		else if (!strcmp(szField, "minvel"))
 			pSystem->minvel = atof(szValue);
 		else if (!strcmp(szField, "maxvel"))
@@ -298,23 +402,23 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 		else if (!strcmp(szField, "systemsize"))
 			pSystem->systemsize = atoi(szValue);
 		else if (!strcmp(szField, "maxparticles"))
-			pSystem->maxparticles = atoi(szValue);
+			pSystem->maxparticles = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "intensity"))
 			pSystem->particlefreq = atof(szValue);
 		else if (!strcmp(szField, "startparticles"))
-			pSystem->startparticles = atoi(szValue);
+			pSystem->startparticles = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "maxparticlevar"))
-			pSystem->maxparticlevar = atoi(szValue);
+			pSystem->maxparticlevar = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "lightmaps"))
-			pSystem->lightcheck = atoi(szValue);
+			pSystem->lightcheck = static_cast<byte>(atoi(szValue));
 		else if (!strcmp(szField, "collision"))
-			pSystem->collision = atoi(szValue);
+			pSystem->collision = static_cast<byte>(atoi(szValue));
 		else if (!strcmp(szField, "colwater"))
-			pSystem->colwater = atoi(szValue);
+			pSystem->colwater = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "rendermode"))
-			pSystem->rendermode = atoi(szValue);
+			pSystem->rendermode = static_cast<byte>(atoi(szValue));
 		else if (!strcmp(szField, "display"))
-			pSystem->displaytype = atoi(szValue);
+			pSystem->displaytype = static_cast<byte>(atoi(szValue));
 		else if (!strcmp(szField, "impactdamp"))
 			pSystem->impactdamp = atof(szValue);
 		else if (!strcmp(szField, "rotationvar"))
@@ -342,9 +446,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 		else if (!strcmp(szField, "rotydampdelay"))
 			pSystem->rotydampdelay = atof(szValue);
 		else if (!strcmp(szField, "randomdir"))
-			pSystem->randomdir = atoi(szValue);
-		else if (!strcmp(szField, "overbright"))
-			pSystem->overbright = atoi(szValue);
+			pSystem->randomdir = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "create"))
 			strcpy(pSystem->create, szValue);
 		else if (!strcmp(szField, "deathcreate"))
@@ -374,13 +476,15 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 		else if (!strcmp(szField, "fadedistfar"))
 			pSystem->fadedistfar = atoi(szValue);
 		else if (!strcmp(szField, "numframes"))
-			pSystem->numframes = atoi(szValue);
+			pSystem->numframes = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "framesizex"))
-			pSystem->framesizex = atoi(szValue);
+			pSystem->framesizex = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "framesizey"))
-			pSystem->framesizey = atoi(szValue);
+			pSystem->framesizey = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "framerate"))
-			pSystem->framerate = atoi(szValue);
+			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframe"))
+			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -396,18 +500,60 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 			if (!pSystem->texture)
 			{
 				// Remove system
-				m_pSystemHeader = pSystem->next;
-				m_pSystemHeader->prev = NULL;
+				if (pSystem->next)
+				{
+					m_pSystemHeader = pSystem->next;
+					m_pSystemHeader->prev = nullptr;
+				}
 				delete[] pSystem;
 
 				gEngfuncs.COM_FreeFile(pFile);
-				return NULL;
+				return nullptr;
 			}
 
 			glBindTexture(GL_TEXTURE_2D, pSystem->texture->iIndex);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glBindTexture(GL_TEXTURE_2D, iOriginalBind);
+		}
+		else if (!strcmp(szField, "sprite"))
+		{
+			pSystem->legacy_sprite = true;
+			if (strcmp(szValue, "_particletexture"))
+			{
+				int iOriginalBind;
+				glGetIntegerv(GL_TEXTURE_BINDING_2D, &iOriginalBind);
+
+				char szSpritePath[256];
+				strcpy(szSpritePath, "sprites/");
+				strcat(szSpritePath, szValue);
+				strcat(szSpritePath, ".spr");
+
+				pSystem->texture = gTextureLoader.LoadSprite(szSpritePath, pSystem->startframe);
+
+				if (!pSystem->texture)
+				{
+					// Remove system
+					if (pSystem->next)
+					{
+						m_pSystemHeader = pSystem->next;
+						m_pSystemHeader->prev = nullptr;
+					}
+					delete[] pSystem;
+
+					gEngfuncs.COM_FreeFile(pFile);
+					return nullptr;
+				}
+
+				glBindTexture(GL_TEXTURE_2D, pSystem->texture->iIndex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glBindTexture(GL_TEXTURE_2D, iOriginalBind);
+			}
+			else
+			{
+				pSystem->texture = gTextureLoader.GenDummyTexture(goldsrc_particletexture);
+			}
 		}
 		else
 			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
@@ -418,14 +564,15 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 	{
 		if (!parent)
 		{
-			model_t* pWorld = IEngineStudio.GetModelByIndex(1);
+			model_t* pWorld = engine_cl->worldmodel;
 			VectorCopy(origin, pSystem->origin);
 
 			if (pWorld)
-				pSystem->leaf = Mod_PointInLeaf(pSystem->origin, pWorld);
+				pSystem->leaf = Mod_PointInLeaf(pSystem->origin);
 		}
 		else
 		{
+			VectorCopy(origin, pSystem->origin);
 			pSystem->leaf = parent->leaf;
 		}
 	}
@@ -433,16 +580,19 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 	{
 		pmtrace_t tr;
 		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
-		gEngfuncs.pEventAPI->EV_PlayerTrace(origin, origin + Vector(0, 0, 8496), PM_WORLD_ONLY, -1, &tr);
+		gEngfuncs.pEventAPI->EV_PlayerTrace(origin, origin + Vector(0, 0, 160000), PM_STUDIO_IGNORE, -1, &tr);
 
-		if (tr.fraction == 1.0 || gEngfuncs.PM_PointContents(tr.endpos, NULL) != CONTENTS_SKY)
+		if (tr.fraction == 1.0)
 		{
 			// Remove system
-			m_pSystemHeader = pSystem->next;
-			m_pSystemHeader->prev = NULL;
+			if (pSystem->next)
+			{
+				m_pSystemHeader = pSystem->next;
+				m_pSystemHeader->prev = nullptr;
+			}
 			delete[] pSystem;
 
-			return NULL;
+			return nullptr;
 		}
 
 		pSystem->skyheight = tr.endpos.z;
@@ -470,9 +620,342 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, vec3_t origin, ve
 		pSystem->maxparticles = NULL;
 		pSystem->particlefreq = NULL;
 	}
+	else if (engine_cl->worldmodel)
+	{
+		if ((pSystem->shapetype != SYSTEM_SHAPE_PLANE_ABOVE_PLAYER))
+		{
+			// create all starting particles
+			for (int i = 0; i < pSystem->startparticles; i++)
+				CreateParticle(pSystem);
+		}
+		else
+		{
+			// Create particles at random heights
+			EnvironmentCreateFirst(pSystem);
+		}
+	}
+
+	return pSystem;
+}
+
+/*
+====================
+CreateSystem
+
+====================
+*/
+particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector origin, Vector dir, int iId, particle_system_t* parent)
+{
+	if (!strlen(szSystem))
+		return nullptr;
+
+	char* pFile = szSystem;
+
+	particle_system_t* pSystem = AllocSystem();
+
+	if (!pSystem)
+	{
+		gEngfuncs.Con_Printf("Warning! Exceeded max number of particle systems!\n");
+		return nullptr;
+	}
+
+	// Fill in default values
+	pSystem->id = iId;
+	pSystem->mainalpha = 1;
+	pSystem->spawntime = engine_cl->time;
+	VectorCopy(dir, pSystem->dir);
+
+	char* pToken = pFile;
+	while (1)
+	{
+		char szField[32];
+		pToken = gEngfuncs.COM_ParseFile(pToken, szField);
+
+		if (!pToken)
+			break;
+
+		char szValue[32];
+		pToken = gEngfuncs.COM_ParseFile(pToken, szValue);
+
+		if (!pToken)
+			break;
+
+		if (!strcmp(szField, "systemshape"))
+			pSystem->shapetype = static_cast<byte>(atoi(szValue));
+		else if (!strcmp(szField, "minvel"))
+			pSystem->minvel = atof(szValue);
+		else if (!strcmp(szField, "maxvel"))
+			pSystem->maxvel = atof(szValue);
+		else if (!strcmp(szField, "maxofs"))
+			pSystem->maxofs = atof(szValue);
+		else if (!strcmp(szField, "fadein"))
+			pSystem->fadeintime = atof(szValue);
+		else if (!strcmp(szField, "fadedelay"))
+			pSystem->fadeoutdelay = atof(szValue);
+		else if (!strcmp(szField, "mainalpha"))
+			pSystem->mainalpha = atof(szValue);
+		else if (!strcmp(szField, "veldamp"))
+			pSystem->velocitydamp = atof(szValue);
+		else if (!strcmp(szField, "veldampdelay"))
+			pSystem->veldampdelay = atof(szValue);
+		else if (!strcmp(szField, "life"))
+			pSystem->maxlife = atof(szValue);
+		else if (!strcmp(szField, "lifevar"))
+			pSystem->maxlifevar = atof(szValue);
+		else if (!strcmp(szField, "pcolr"))
+			pSystem->primarycolor.x = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "pcolg"))
+			pSystem->primarycolor.y = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "pcolb"))
+			pSystem->primarycolor.z = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "scolr"))
+			pSystem->secondarycolor.x = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "scolg"))
+			pSystem->secondarycolor.y = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "scolb"))
+			pSystem->secondarycolor.z = (float)atoi(szValue) / 255;
+		else if (!strcmp(szField, "ctransd"))
+			pSystem->transitiondelay = atof(szValue);
+		else if (!strcmp(szField, "ctranst"))
+			pSystem->transitiontime = atof(szValue);
+		else if (!strcmp(szField, "ctransv"))
+			pSystem->transitionvar = atof(szValue);
+		else if (!strcmp(szField, "scale"))
+			pSystem->scale = atof(szValue);
+		else if (!strcmp(szField, "scalevar"))
+			pSystem->scalevar = atof(szValue);
+		else if (!strcmp(szField, "scaledampdelay"))
+			pSystem->scaledampdelay = atof(szValue);
+		else if (!strcmp(szField, "scaledampfactor"))
+			pSystem->scaledampfactor = atof(szValue);
+		else if (!strcmp(szField, "gravity"))
+			pSystem->gravity = atof(szValue);
+		else if (!strcmp(szField, "systemsize"))
+			pSystem->systemsize = atoi(szValue);
+		else if (!strcmp(szField, "maxparticles"))
+			pSystem->maxparticles = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "intensity"))
+			pSystem->particlefreq = atof(szValue);
+		else if (!strcmp(szField, "startparticles"))
+			pSystem->startparticles = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "maxparticlevar"))
+			pSystem->maxparticlevar = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "lightmaps"))
+			pSystem->lightcheck = static_cast<byte>(atoi(szValue));
+		else if (!strcmp(szField, "collision"))
+			pSystem->collision = static_cast<byte>(atoi(szValue));
+		else if (!strcmp(szField, "colwater"))
+			pSystem->colwater = static_cast<bool>(atoi(szValue));
+		else if (!strcmp(szField, "rendermode"))
+			pSystem->rendermode = static_cast<byte>(atoi(szValue));
+		else if (!strcmp(szField, "display"))
+			pSystem->displaytype = static_cast<byte>(atoi(szValue));
+		else if (!strcmp(szField, "impactdamp"))
+			pSystem->impactdamp = atof(szValue);
+		else if (!strcmp(szField, "rotationvar"))
+			pSystem->rotationvar = atof(szValue);
+		else if (!strcmp(szField, "rotationvel"))
+			pSystem->rotationvel = atof(szValue);
+		else if (!strcmp(szField, "rotationdamp"))
+			pSystem->rotationdamp = atof(szValue);
+		else if (!strcmp(szField, "rotationdampdelay"))
+			pSystem->rotationdampdelay = atof(szValue);
+		else if (!strcmp(szField, "rotxvar"))
+			pSystem->rotxvar = atof(szValue);
+		else if (!strcmp(szField, "rotxvel"))
+			pSystem->rotxvel = atof(szValue);
+		else if (!strcmp(szField, "rotxdamp"))
+			pSystem->rotxdamp = atof(szValue);
+		else if (!strcmp(szField, "rotxdampdelay"))
+			pSystem->rotxdampdelay = atof(szValue);
+		else if (!strcmp(szField, "rotyvar"))
+			pSystem->rotyvar = atof(szValue);
+		else if (!strcmp(szField, "rotyvel"))
+			pSystem->rotyvel = atof(szValue);
+		else if (!strcmp(szField, "rotydamp"))
+			pSystem->rotydamp = atof(szValue);
+		else if (!strcmp(szField, "rotydampdelay"))
+			pSystem->rotydampdelay = atof(szValue);
+		else if (!strcmp(szField, "randomdir"))
+			pSystem->randomdir = static_cast<bool>(atoi(szValue));
+		else if (!strcmp(szField, "create"))
+			strcpy(pSystem->create, szValue);
+		else if (!strcmp(szField, "deathcreate"))
+			strcpy(pSystem->deathcreate, szValue);
+		else if (!strcmp(szField, "watercreate"))
+			strcpy(pSystem->watercreate, szValue);
+		else if (!strcmp(szField, "windx"))
+			pSystem->windx = atof(szValue);
+		else if (!strcmp(szField, "windy"))
+			pSystem->windy = atof(szValue);
+		else if (!strcmp(szField, "windvar"))
+			pSystem->windvar = atof(szValue);
+		else if (!strcmp(szField, "windtype"))
+			pSystem->windtype = atoi(szValue);
+		else if (!strcmp(szField, "windmult"))
+			pSystem->windmult = atof(szValue);
+		else if (!strcmp(szField, "windmultvar"))
+			pSystem->windmultvar = atof(szValue);
+		else if (!strcmp(szField, "stuckdie"))
+			pSystem->stuckdie = atof(szValue);
+		else if (!strcmp(szField, "maxheight"))
+			pSystem->maxheight = atof(szValue);
+		else if (!strcmp(szField, "tracerdist"))
+			pSystem->tracerdist = atof(szValue);
+		else if (!strcmp(szField, "fadedistnear"))
+			pSystem->fadedistnear = atoi(szValue);
+		else if (!strcmp(szField, "fadedistfar"))
+			pSystem->fadedistfar = atoi(szValue);
+		else if (!strcmp(szField, "numframes"))
+			pSystem->numframes = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "framesizex"))
+			pSystem->framesizex = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "framesizey"))
+			pSystem->framesizey = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "framerate"))
+			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframe"))
+			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "texture"))
+		{
+			int iOriginalBind;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &iOriginalBind);
+
+			char szTexPath[256];
+			strcpy(szTexPath, "gfx/textures/particles/");
+			strcat(szTexPath, szValue);
+			strcat(szTexPath, ".dds");
+
+			pSystem->texture = gTextureLoader.LoadTexture(szTexPath);
+
+			if (!pSystem->texture)
+			{
+				// Remove system
+				if (pSystem->next)
+				{
+					m_pSystemHeader = pSystem->next;
+					m_pSystemHeader->prev = nullptr;
+				}
+				delete[] pSystem;
+
+				return nullptr;
+			}
+
+			glBindTexture(GL_TEXTURE_2D, pSystem->texture->iIndex);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glBindTexture(GL_TEXTURE_2D, iOriginalBind);
+		}
+		else if (!strcmp(szField, "sprite"))
+		{
+			pSystem->legacy_sprite = true;
+			if (strcmp(szValue, "_particletexture"))
+			{
+				int iOriginalBind;
+				glGetIntegerv(GL_TEXTURE_BINDING_2D, &iOriginalBind);
+
+				char szSpritePath[256];
+				strcpy(szSpritePath, "sprites/");
+				strcat(szSpritePath, szValue);
+				strcat(szSpritePath, ".spr");
+
+				pSystem->texture = gTextureLoader.LoadSprite(szSpritePath, pSystem->startframe);
+
+				model_t* sprite = IEngineStudio.Mod_ForName(szSpritePath, true);
+				int numframs = 0;
+				g_LegacySpriteRenderer.GetSpriteFrames(sprite, numframs);
+				pSystem->numframes = static_cast<unsigned short>(numframs);
+
+				if (!pSystem->texture)
+				{
+					// Remove system
+					if (pSystem->next)
+					{
+						m_pSystemHeader = pSystem->next;
+						m_pSystemHeader->prev = nullptr;
+					}
+					delete[] pSystem;
+
+					return nullptr;
+				}
+
+				glBindTexture(GL_TEXTURE_2D, pSystem->texture->iIndex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glBindTexture(GL_TEXTURE_2D, iOriginalBind);
+			}
+			else
+			{
+				pSystem->texture = gTextureLoader.GenDummyTexture(goldsrc_particletexture);
+			}
+		}
+		else
+			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
+	}
+
+	if (pSystem->shapetype != SYSTEM_SHAPE_PLANE_ABOVE_PLAYER)
+	{
+		if (!parent)
+		{
+			model_t* pWorld = engine_cl->worldmodel;
+			VectorCopy(origin, pSystem->origin);
+
+			if (pWorld)
+				pSystem->leaf = Mod_PointInLeaf(pSystem->origin);
+		}
+		else
+		{
+			VectorCopy(origin, pSystem->origin);
+			pSystem->leaf = parent->leaf;
+		}
+	}
 	else
 	{
-		if (pSystem->shapetype != SYSTEM_SHAPE_PLANE_ABOVE_PLAYER)
+		pmtrace_t tr;
+		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+		gEngfuncs.pEventAPI->EV_PlayerTrace(origin, origin + Vector(0, 0, 160000), PM_STUDIO_IGNORE, -1, &tr);
+
+		if (tr.fraction == 1.0)
+		{
+			// Remove system
+			if (pSystem->next)
+			{
+				m_pSystemHeader = pSystem->next;
+				m_pSystemHeader->prev = nullptr;
+			}
+			delete[] pSystem;
+
+			return nullptr;
+		}
+
+		pSystem->skyheight = tr.endpos.z;
+	}
+
+	if (pSystem->collision != PARTICLE_COLLISION_DECAL)
+	{
+		if (pSystem->create[0] != 0)
+			pSystem->createsystem = CreateSystem(pSystem->create, pSystem->origin, pSystem->dir, 0, pSystem);
+
+		if (!pSystem->createsystem)
+			memset(pSystem->create, 0, sizeof(pSystem->create));
+	}
+
+	if (pSystem->watercreate[0] != 0)
+		pSystem->watersystem = CreateSystem(pSystem->watercreate, pSystem->origin, pSystem->dir, 0, pSystem);
+
+	if (!pSystem->watersystem)
+		memset(pSystem->watercreate, 0, sizeof(pSystem->watercreate));
+
+	if (parent)
+	{
+		// Child systems cannot spawn on their own
+		pSystem->parentsystem = parent;
+		pSystem->maxparticles = NULL;
+		pSystem->particlefreq = NULL;
+	}
+	else if (engine_cl->worldmodel)
+	{
+		if ((pSystem->shapetype != SYSTEM_SHAPE_PLANE_ABOVE_PLAYER))
 		{
 			// create all starting particles
 			for (int i = 0; i < pSystem->startparticles; i++)
@@ -496,36 +979,39 @@ EnvironmentCreateFirst
 */
 void CParticleEngine::EnvironmentCreateFirst(particle_system_t* pSystem)
 {
-	vec3_t vOrigin;
+	Vector vOrigin;
 	int iNumParticles = pSystem->particlefreq * 4;
-	vec3_t vPlayer = gEngfuncs.GetLocalPlayer()->origin;
+	Vector vPlayer = gEngfuncs.GetLocalPlayer()->origin;
 
 	// Spawn particles inbetween the view origin and maxheight
 	for (int i = 0; i < iNumParticles; i++)
 	{
-		vOrigin[0] = vPlayer[0] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
-		vOrigin[1] = vPlayer[1] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
-
-		if (pSystem->maxheight)
+		if (pSystem->shapetype == SYSTEM_SHAPE_PLANE_ABOVE_PLAYER)
 		{
-			vOrigin[2] = vPlayer[2] + pSystem->maxheight;
+			vOrigin[0] = vPlayer[0] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
+			vOrigin[1] = vPlayer[1] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
 
-			if (vOrigin[2] > pSystem->skyheight)
+			if (pSystem->maxheight)
+			{
+				vOrigin[2] = vPlayer[2] + pSystem->maxheight;
+
+				if (vOrigin[2] > pSystem->skyheight)
+					vOrigin[2] = pSystem->skyheight;
+			}
+			else
+			{
 				vOrigin[2] = pSystem->skyheight;
+			}
+
+			vOrigin[2] = gEngfuncs.pfnRandomFloat(vPlayer[2], vOrigin[2]);
+
+			pmtrace_t pmtrace;
+			gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(vOrigin, Vector(vOrigin[0], vOrigin[1], pSystem->skyheight - 8), PM_STUDIO_IGNORE, -1, &pmtrace);
+
+			if (pmtrace.allsolid || pmtrace.fraction != 1.0)
+				continue;
 		}
-		else
-		{
-			vOrigin[2] = pSystem->skyheight;
-		}
-
-		vOrigin[2] = gEngfuncs.pfnRandomFloat(vPlayer[2], vOrigin[2]);
-
-		pmtrace_t pmtrace;
-		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
-		gEngfuncs.pEventAPI->EV_PlayerTrace(vOrigin, Vector(vOrigin[0], vOrigin[1], pSystem->skyheight - 8), PM_WORLD_ONLY, -1, &pmtrace);
-
-		if (pmtrace.allsolid || pmtrace.fraction != 1.0)
-			continue;
 
 		CreateParticle(pSystem, vOrigin);
 	}
@@ -539,15 +1025,15 @@ CreateParticle
 */
 void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin, float* flNormal)
 {
-	vec3_t vBaseOrigin;
-	vec3_t vForward, vUp, vRight;
+	Vector vBaseOrigin;
+	Vector vForward, vUp, vRight;
 	cl_particle_t* pParticle = AllocParticle(pSystem);
 
 	if (!pParticle)
 		return;
 
 	pParticle->pSystem = pSystem;
-	pParticle->spawntime = gEngfuncs.GetClientTime();
+	pParticle->spawntime = engine_cl->time;
 	pParticle->frame = -1;
 
 	if (pSystem->shapetype == SYSTEM_SHAPE_PLANE_ABOVE_PLAYER)
@@ -591,18 +1077,20 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 	VectorClear(vUp);
 	VectorClear(vRight);
 
-	gBSPRenderer.GetUpRight(vForward, vUp, vRight);
-	VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(pSystem->minvel, pSystem->maxvel), vForward, pParticle->velocity);
-	VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vRight, pParticle->velocity);
-	VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vUp, pParticle->velocity);
-	//VectorMASSE(pParticle->velocity, gEngfuncs.pfnRandomFloat(pSystem->minvel, pSystem->maxvel), vForward, pParticle->velocity);
-	//VectorMASSE(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vRight, pParticle->velocity);
-	//VectorMASSE(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vUp, pParticle->velocity);
+	if (vForward != Vector(0, 0, 0))
+	{
+		gBSPRenderer.GetUpRight(vForward, vUp, vRight);
+		VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(pSystem->minvel, pSystem->maxvel), vForward, pParticle->velocity);
+		VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vRight, pParticle->velocity);
+		VectorMA(pParticle->velocity, gEngfuncs.pfnRandomFloat(-pSystem->maxofs, pSystem->maxofs), vUp, pParticle->velocity);
+	}
+	else
+		pParticle->velocity = Vector(0, 0, 0);
 
 	if (pSystem->maxlife == -1)
 		pParticle->life = pSystem->maxlife;
 	else
-		pParticle->life = gEngfuncs.GetClientTime() + pSystem->maxlife + gEngfuncs.pfnRandomFloat(-pSystem->maxlifevar, pSystem->maxlifevar);
+		pParticle->life = engine_cl->time + pSystem->maxlife + gEngfuncs.pfnRandomFloat(-pSystem->maxlifevar, pSystem->maxlifevar);
 
 	pParticle->scale = pSystem->scale + gEngfuncs.pfnRandomFloat(-pSystem->scalevar, pSystem->scalevar);
 	pParticle->rotationvel = pSystem->rotationvel + gEngfuncs.pfnRandomFloat(-pSystem->rotationvar, pSystem->rotationvar);
@@ -614,7 +1102,7 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 		VectorCopy(flOrigin, vBaseOrigin);
 
 		if (flNormal)
-			VectorMA(vBaseOrigin, 0.1, flNormal, vBaseOrigin);
+			VectorMA(vBaseOrigin, 0.1, Vector(flNormal[0], flNormal[1], flNormal[2]), vBaseOrigin);
 	}
 	else
 	{
@@ -635,7 +1123,7 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 	{
 		if (!flOrigin)
 		{
-			vec3_t vPlayer = gEngfuncs.GetLocalPlayer()->origin;
+			Vector vPlayer = gEngfuncs.GetLocalPlayer()->origin;
 			pParticle->origin[0] = vPlayer[0] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
 			pParticle->origin[1] = vPlayer[1] + gEngfuncs.pfnRandomLong(-pSystem->systemsize, pSystem->systemsize);
 
@@ -673,11 +1161,11 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 		pParticle->fadeoutdelay = pSystem->fadeoutdelay;
 
 	if (pSystem->scaledampdelay)
-		pParticle->scaledampdelay = gEngfuncs.GetClientTime() + pSystem->scaledampdelay + gEngfuncs.pfnRandomFloat(-pSystem->scalevar, pSystem->scalevar);
+		pParticle->scaledampdelay = engine_cl->time + pSystem->scaledampdelay + gEngfuncs.pfnRandomFloat(-pSystem->scalevar, pSystem->scalevar);
 
 	if (pSystem->transitiondelay && pSystem->transitiontime)
 	{
-		pParticle->secondarydelay = gEngfuncs.GetClientTime() + pSystem->transitiondelay + gEngfuncs.pfnRandomFloat(-pSystem->transitionvar, pSystem->transitionvar);
+		pParticle->secondarydelay = engine_cl->time + pSystem->transitiondelay + gEngfuncs.pfnRandomFloat(-pSystem->transitionvar, pSystem->transitionvar);
 		pParticle->secondarytime = pSystem->transitiontime + gEngfuncs.pfnRandomFloat(-pSystem->transitionvar, pSystem->transitionvar);
 	}
 
@@ -688,7 +1176,7 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 		pParticle->windyvel = pSystem->windy + gEngfuncs.pfnRandomFloat(-pSystem->windvar, pSystem->windvar);
 	}
 
-	if (!pSystem->numframes)
+	if (!pSystem->numframes || pSystem->legacy_sprite)
 	{
 		pParticle->texcoords[0][0] = 0;
 		pParticle->texcoords[0][1] = 0;
@@ -732,23 +1220,26 @@ void CParticleEngine::CreateParticle(particle_system_t* pSystem, float* flOrigin
 			pParticle->scolor[i] = gEngfuncs.pfnRandomFloat(0, 1);
 	}
 
-	if (pSystem->lightcheck != PARTICLE_LIGHTCHECK_NONE)
+	if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_NONE)
 	{
-		if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_NORMAL)
-		{
-			pParticle->color = LightForParticle(pParticle);
-		}
-		else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_SCOLOR)
-		{
-			pParticle->scolor = LightForParticle(pParticle);
-		}
-		else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_MIXP)
-		{
-			pParticle->color = LightForParticle(pParticle);
-			pParticle->color.x = pParticle->color.x * pSystem->primarycolor.x;
-			pParticle->color.y = pParticle->color.y * pSystem->primarycolor.y;
-			pParticle->color.z = pParticle->color.z * pSystem->primarycolor.z;
-		}
+		pParticle->color = pSystem->primarycolor;
+		return;
+	}
+
+	if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_NORMAL)
+	{
+		pParticle->color = LightForParticle(pParticle);
+	}
+	else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_SCOLOR)
+	{
+		pParticle->scolor = LightForParticle(pParticle);
+	}
+	else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_MIXP)
+	{
+		pParticle->color = LightForParticle(pParticle);
+		pParticle->color.x = pParticle->color.x * pSystem->primarycolor.x;
+		pParticle->color.y = pParticle->color.y * pSystem->primarycolor.y;
+		pParticle->color.z = pParticle->color.z * pSystem->primarycolor.z;
 	}
 }
 
@@ -758,19 +1249,22 @@ Update
 
 ====================
 */
-void CParticleEngine::Update(void)
+void CParticleEngine::Update()
 {
-	if (m_pCvarParticleDebug->value)
+	// moved to imgui_manager.cpp
+	/*
+	if(m_pCvarParticleDebug->value)
 	{
 		gEngfuncs.Con_Printf("Created Particles: %i, Freed Particles %i, Active Particles: %i\nCreated Systems: %i, Freed Systems: %i, Active Systems: %i\n\n",
-			m_iNumCreatedParticles, m_iNumFreedParticles, m_iNumCreatedParticles - m_iNumFreedParticles, m_iNumCreatedSystems, m_iNumFreedSystems, m_iNumCreatedSystems - m_iNumFreedSystems);
+			m_iNumCreatedParticles, m_iNumFreedParticles,m_iNumCreatedParticles-m_iNumFreedParticles, m_iNumCreatedSystems, m_iNumFreedSystems, m_iNumCreatedSystems-m_iNumFreedSystems);
 	}
+	*/
 
-	if (m_pCvarDrawParticles->value < 1)
+	if (!m_pCvarDrawParticles->value)
 		return;
 
-	m_flFrameTime = gEngfuncs.GetClientTime() - m_flLastDraw;
-	m_flLastDraw = gEngfuncs.GetClientTime();
+	m_flFrameTime = engine_cl->time - m_flLastDraw;
+	m_flLastDraw = engine_cl->time;
 
 	if (m_flFrameTime > 1)
 		m_flFrameTime = 1;
@@ -800,7 +1294,7 @@ void CParticleEngine::Update(void)
 				{
 					psystem->particleheader = pparticle;
 					if (pparticle)
-						pparticle->prev = NULL;
+						pparticle->prev = nullptr;
 				}
 				else
 				{
@@ -828,9 +1322,9 @@ UpdateSystems
 
 ====================
 */
-void CParticleEngine::UpdateSystems(void)
+void CParticleEngine::UpdateSystems()
 {
-	float flTime = gEngfuncs.GetClientTime();
+	float flTime = engine_cl->time;
 
 	// check if any systems are available for removal
 	particle_system_t* next = m_pSystemHeader;
@@ -860,10 +1354,10 @@ void CParticleEngine::UpdateSystems(void)
 
 		// Unparent these and let the engine handle them
 		if (next->createsystem)
-			next->createsystem->parentsystem = NULL;
+			next->createsystem->parentsystem = nullptr;
 
 		if (next->watersystem)
-			next->watersystem->parentsystem = NULL;
+			next->watersystem->parentsystem = nullptr;
 
 		particle_system_t* pfree = next;
 		next = pfree->next;
@@ -872,7 +1366,7 @@ void CParticleEngine::UpdateSystems(void)
 		{
 			m_pSystemHeader = next;
 			if (next)
-				next->prev = NULL;
+				next->prev = nullptr;
 		}
 		else
 		{
@@ -898,7 +1392,7 @@ void CParticleEngine::UpdateSystems(void)
 			continue;
 		}
 
-		float flLife = gEngfuncs.GetClientTime() - next->spawntime;
+		float flLife = engine_cl->time - next->spawntime;
 		float flFreq = 1 / (float)next->particlefreq;
 		int iTimesSpawn = flLife / flFreq;
 
@@ -973,26 +1467,25 @@ LightForParticle
 
 ====================
 */
-vec3_t CParticleEngine::LightForParticle(cl_particle_t* pParticle)
+Vector CParticleEngine::LightForParticle(cl_particle_t* pParticle)
 {
 	float flRad;
 	float flDist;
 	float flAtten;
 	float flCos;
 
-	vec3_t vDir;
-	vec3_t vNorm;
-	vec3_t vForward;
+	Vector vDir;
+	Vector vNorm;
+	Vector vForward;
 
-	float flTime = gEngfuncs.GetClientTime();
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
-	vec3_t vEndPos = pParticle->origin - Vector(0, 0, 8964);
-	vec3_t vColor = Vector(0, 0, 0);
+	float flTime = engine_cl->time;
+	model_t* pWorld = engine_cl->worldmodel;
+	Vector vEndPos = pParticle->origin - Vector(0, 0, 8964);
+	Vector vColor = Vector(0, 0, 0);
 
-	g_StudioRenderer.StudioRecursiveLightPoint(NULL, pWorld->nodes, pParticle->origin, vEndPos, vColor);
-	cl_dlight_t* pLight = gBSPRenderer.m_pDynLights;
+	g_StudioRenderer.StudioRecursiveLightPoint(nullptr, BSPWorld_Model::m_pWorldNodes, pParticle->origin, vEndPos, vColor);
 
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, pLight++)
+	for (auto& pLight : gBSPRenderer.m_pDynLights)
 	{
 		if (pLight->die < flTime || !pLight->radius)
 			continue;
@@ -1002,29 +1495,25 @@ vec3_t CParticleEngine::LightForParticle(cl_particle_t* pParticle)
 			if (pLight->frustum.CullBox(pParticle->origin, pParticle->origin))
 				continue;
 
-			vec3_t vAngles = pLight->angles;
-			FixVectorForSpotlight(vAngles);
-			AngleVectors(vAngles, vForward, NULL, NULL);
+			Vector vAngles = pLight->angles;
+			AngleVectors(vAngles, &vForward, nullptr, nullptr);
 		}
 		else
 		{
-			if (CheckLightBBox(pParticle, pLight))
+			if (CheckLightBBox(pParticle, pLight.get()))
 				continue;
 		}
 
 		flRad = pLight->radius * pLight->radius;
 		VectorSubtract(pParticle->origin, pLight->origin, vDir);
 		flDist = DotProduct(vDir, vDir);
-		//DotProductSSE(&flDist, vDir, vDir);
 		flAtten = (flDist / flRad - 1) * -1;
 
 		if (pLight->cone_size)
 		{
-			VectorNormalize(vDir);
-			//VectorNormalizeFast(vDir);
-			flCos = cos((pLight->cone_size * 2) * 0.3 * (M_PI * 2 / 360));
-			flDist = DotProduct(vDir, vDir);
-			//DotProductSSE(&flDist, vForward, vDir);
+			vDir = vDir.Normalize();
+			flCos = cos((pLight->cone_size * 2) * 0.3 * (M_PI2 / 360));
+			flDist = DotProduct(Vector(flDist, flDist, flDist), vForward);
 
 			if (flDist < 0 || flDist < flCos)
 				continue;
@@ -1036,10 +1525,9 @@ vec3_t CParticleEngine::LightForParticle(cl_particle_t* pParticle)
 			continue;
 
 		VectorMA(vColor, flAtten, pLight->color, vColor);
-		//VectorMASSE(vColor, flAtten, pLight->color, vColor);
 	}
 
-	return vColor;
+	return (vColor * (gEngfuncs.pfnGetCvarFloat("lightgamma"))).Normalize();
 }
 
 /*
@@ -1053,8 +1541,8 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	pmtrace_t pmtrace;
 	bool bColWater = false;
 
-	float flTime = gEngfuncs.GetClientTime();
-	vec3_t vFinalVelocity = pParticle->velocity;
+	float flTime = engine_cl->time;
+	Vector vFinalVelocity = pParticle->velocity;
 	particle_system_t* pSystem = pParticle->pSystem;
 
 	//
@@ -1165,7 +1653,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 
 		if (pSystem->colwater)
 		{
-			if (gEngfuncs.PM_PointContents(pParticle->origin + vFinalVelocity * m_flFrameTime, 0) == CONTENTS_WATER)
+			if (gEngfuncs.PM_PointContents(pParticle->origin + vFinalVelocity * m_flFrameTime, nullptr) == CONTENTS_WATER)
 			{
 				pmtrace.endpos = pParticle->origin + vFinalVelocity * m_flFrameTime;
 				int iEntity = gEngfuncs.PM_WaterEntity(pParticle->origin + vFinalVelocity * m_flFrameTime);
@@ -1186,16 +1674,15 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 		{
 			if (pSystem->collision == PARTICLE_COLLISION_STUCK)
 			{
-				if (gEngfuncs.PM_PointContents(pmtrace.endpos, NULL) == CONTENTS_SKY)
+				if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) == CONTENTS_SKY)
 					return false;
 
 				if (pParticle->life == -1 && pSystem->stuckdie)
 				{
-					pParticle->life = gEngfuncs.GetClientTime() + pSystem->stuckdie;
-					pParticle->fadeoutdelay = gEngfuncs.GetClientTime() - pParticle->spawntime;
+					pParticle->life = engine_cl->time + pSystem->stuckdie;
+					pParticle->fadeoutdelay = engine_cl->time - pParticle->spawntime;
 				}
 				VectorMA(pParticle->origin, pmtrace.fraction * m_flFrameTime, vFinalVelocity, pParticle->origin);
-				//VectorMASSE(pParticle->origin, pmtrace.fraction * m_flFrameTime, vFinalVelocity, pParticle->origin);
 
 				pParticle->rotationvel = NULL;
 				pParticle->rotxvel = NULL;
@@ -1206,12 +1693,9 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_BOUNCE)
 			{
-				float fProj /* = DotProduct(vFinalVelocity, pmtrace.plane.normal)*/;
-				fProj = DotProduct(vFinalVelocity, pmtrace.plane.normal);
-				//DotProductSSE(&fProj, vFinalVelocity, pmtrace.plane.normal);
+				float fProj = DotProduct(vFinalVelocity, pmtrace.plane.normal);
 
 				VectorMA(vFinalVelocity, -fProj * 2, pmtrace.plane.normal, pParticle->velocity);
-				//VectorMASSE(vFinalVelocity, -fProj * 2, pmtrace.plane.normal, pParticle->velocity);
 				VectorScale(pParticle->velocity, pSystem->impactdamp, pParticle->velocity);
 				VectorScale(vFinalVelocity, pmtrace.fraction, vFinalVelocity);
 
@@ -1236,7 +1720,12 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					for (int i = 0; i < pSystem->watersystem->startparticles; i++)
 						CreateParticle(pSystem->watersystem, pmtrace.endpos, pmtrace.plane.normal);
 				}
-				if (gEngfuncs.PM_PointContents(pmtrace.endpos, NULL) != CONTENTS_SKY && pSystem->create[0] != 0)
+				if (pSystem->deathcreate[0] != 0)
+				{
+					// gEngfuncs.Con_Printf("CALLED!\n");
+					CreateSystem(pSystem->deathcreate, pParticle->origin, pParticle->velocity.Normalize(), 0);
+				}
+				if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && pSystem->create[0] != 0)
 				{
 					for (int i = 0; i < pSystem->createsystem->startparticles; i++)
 						CreateParticle(pSystem->createsystem, pmtrace.endpos, pmtrace.plane.normal);
@@ -1263,7 +1752,6 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	// Add in the final velocity
 	//
 	VectorMA(pParticle->origin, m_flFrameTime, vFinalVelocity, pParticle->origin);
-	//VectorMASSE(pParticle->origin, m_flFrameTime, vFinalVelocity, pParticle->origin);
 
 	//
 	// Always reset to 1.0
@@ -1327,24 +1815,25 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	//
 	// Check if lighting is required
 	//
-	if (pSystem->lightcheck != PARTICLE_LIGHTCHECK_NONE)
-	{
-		if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_NORMAL)
-		{
-			pParticle->color = LightForParticle(pParticle);
-		}
-		else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_SCOLOR)
-		{
-			pParticle->scolor = LightForParticle(pParticle);
-		}
-		else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_MIXP)
-		{
-			pParticle->color = LightForParticle(pParticle);
-			pParticle->color.x = pParticle->color.x * pSystem->primarycolor.x;
-			pParticle->color.y = pParticle->color.y * pSystem->primarycolor.y;
-			pParticle->color.z = pParticle->color.z * pSystem->primarycolor.z;
-		}
-	}
+	// salsa: NO, JESUS, only do it once on creation
+	// if (pSystem->lightcheck != PARTICLE_LIGHTCHECK_NONE)
+	//{
+	//	if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_NORMAL)
+	//	{
+	//		pParticle->color = LightForParticle(pParticle);
+	//	}
+	//	else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_SCOLOR)
+	//	{
+	//		pParticle->scolor = LightForParticle(pParticle);
+	//	}
+	//	else if (pSystem->lightcheck == PARTICLE_LIGHTCHECK_MIXP)
+	//	{
+	//		pParticle->color = LightForParticle(pParticle);
+	//		pParticle->color.x = pParticle->color.x * pSystem->primarycolor.x;
+	//		pParticle->color.y = pParticle->color.y * pSystem->primarycolor.y;
+	//		pParticle->color.z = pParticle->color.z * pSystem->primarycolor.z;
+	//	}
+	//}
 
 	//
 	// See if we need to blend colors
@@ -1367,18 +1856,18 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	//
 	if (pSystem->tracerdist)
 	{
-		vec3_t vDistance;
+		Vector vDistance;
 		VectorSubtract(pParticle->origin, pParticle->lastspawn, vDistance);
 
 		if (vDistance.Length() > pSystem->tracerdist)
 		{
-			vec3_t vDirection = pParticle->origin - pParticle->lastspawn;
+			Vector vDirection = pParticle->origin - pParticle->lastspawn;
 			int iNumTraces = vDistance.Length() / pSystem->tracerdist;
 
 			for (int i = 0; i < iNumTraces; i++)
 			{
 				float flFraction = (i + 1) / (float)iNumTraces;
-				vec3_t vOrigin = pParticle->lastspawn + vDirection * flFraction;
+				Vector vOrigin = pParticle->lastspawn + vDirection * flFraction;
 				CreateParticle(pSystem->createsystem, vOrigin, pParticle->velocity.Normalize());
 			}
 
@@ -1393,38 +1882,49 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	{
 		// Get desired frame
 		int iFrame = ((int)((flTime - pParticle->spawntime) * pSystem->framerate));
-		iFrame = iFrame % pSystem->numframes;
+		iFrame = (iFrame % pSystem->numframes) + pSystem->startframe;
+		if (iFrame > pSystem->numframes)
+			iFrame = pSystem->numframes;
 
 		// Check if we actually have to set the frame
 		if (iFrame != pParticle->frame)
 		{
-			cl_texture_t* pTexture = pSystem->texture;
+			if (!pSystem->legacy_sprite)
+			{
+				cl_texture_t* pTexture = pSystem->texture;
 
-			int iNumFramesX = pTexture->iWidth / pSystem->framesizex;
-			int iNumFramesY = pTexture->iHeight / pSystem->framesizey;
+				int iNumFramesX = pTexture->iWidth / pSystem->framesizex;
+				int iNumFramesY = pTexture->iHeight / pSystem->framesizey;
 
-			int iColumn = iFrame % iNumFramesX;
-			int iRow = (iFrame / iNumFramesX) % iNumFramesY;
+				int iColumn = iFrame % iNumFramesX;
+				int iRow = (iFrame / iNumFramesX) % iNumFramesY;
 
-			// Calculate these only once
-			float flFractionWidth = (float)pSystem->framesizex / (float)pTexture->iWidth;
-			float flFractionHeight = (float)pSystem->framesizey / (float)pTexture->iHeight;
+				// Calculate these only once
+				float flFractionWidth = (float)pSystem->framesizex / (float)pTexture->iWidth;
+				float flFractionHeight = (float)pSystem->framesizey / (float)pTexture->iHeight;
 
-			// Calculate top left coordinate
-			pParticle->texcoords[0][0] = (iColumn + 1) * flFractionWidth;
-			pParticle->texcoords[0][1] = iRow * flFractionHeight;
+				// Calculate top left coordinate
+				pParticle->texcoords[0][0] = (iColumn + 1) * flFractionWidth;
+				pParticle->texcoords[0][1] = iRow * flFractionHeight;
 
-			// Calculate top right coordinate
-			pParticle->texcoords[1][0] = iColumn * flFractionWidth;
-			pParticle->texcoords[1][1] = iRow * flFractionHeight;
+				// Calculate top right coordinate
+				pParticle->texcoords[1][0] = iColumn * flFractionWidth;
+				pParticle->texcoords[1][1] = iRow * flFractionHeight;
 
-			// Calculate bottom right coordinate
-			pParticle->texcoords[2][0] = iColumn * flFractionWidth;
-			pParticle->texcoords[2][1] = (iRow + 1) * flFractionHeight;
+				// Calculate bottom right coordinate
+				pParticle->texcoords[2][0] = iColumn * flFractionWidth;
+				pParticle->texcoords[2][1] = (iRow + 1) * flFractionHeight;
 
-			// Calculate bottom left coordinate
-			pParticle->texcoords[3][0] = (iColumn + 1) * flFractionWidth;
-			pParticle->texcoords[3][1] = (iRow + 1) * flFractionHeight;
+				// Calculate bottom left coordinate
+				pParticle->texcoords[3][0] = (iColumn + 1) * flFractionWidth;
+				pParticle->texcoords[3][1] = (iRow + 1) * flFractionHeight;
+			}
+			else
+			{
+				model_t* sprite = IEngineStudio.Mod_ForName(pSystem->texture->szName, true);
+				mspriteframe_t* frame = g_LegacySpriteRenderer.GetSpriteFrame(sprite, iFrame, 0);
+				pSystem->texture = gTextureLoader.LoadSprite(pSystem->texture->szName, iFrame);
+			}
 
 			// Fill in current frame
 			pParticle->frame = iFrame;
@@ -1441,51 +1941,40 @@ RenderParticle
 
 ====================
 */
-void CParticleEngine::RenderParticle(cl_particle_t* pParticle, float flUp, float flRight)
+void CParticleEngine::GetParticleQuad(cl_particle_t* pParticle, float flUp, float flRight, std::vector<ParticleQuad>& quadlist)
 {
 	float flDot;
-	vec3_t vTemp;
-	vec3_t vPoint;
-	vec3_t vDir;
-	vec3_t vAngles;
+	Vector vTemp;
+	Vector vPoint;
+	Vector vDir;
+	Vector vAngles;
 
 	if (pParticle->alpha == 0)
 		return;
 
-	VectorSubtract(pParticle->origin, gBSPRenderer.m_vRenderOrigin, vDir);
+	/*
+	if (pParticle->pSystem->shapetype == SYSTEM_SHAPE_BOX_AROUND_PLAYER)
+	{
+		pParticle->velocity[0] = gHUD.pparams->simvel[0];
+		pParticle->velocity[1] = gHUD.pparams->simvel[1];
+	}
+	*/
+
+	vDir = pParticle->origin - gBSPRenderer.m_vRenderOrigin;
 	if (gHUD.m_pFogSettings.active)
 	{
 		if (vDir.Length() > gHUD.m_pFogSettings.end)
 			return;
 	}
 
-	VectorNormalizeFast(vDir);
+	vDir = vDir.Normalize();
 	flDot = DotProduct(vDir, m_vForward);
-	//DotProductSSE(&flDot, vDir, m_vForward);
 
 	// z clipped
 	if (flDot < 0)
 		return;
 
 	cl_texture_t* pTexture = pParticle->pSystem->texture;
-	if (pParticle->pSystem->rendermode == SYSTEM_RENDERMODE_ADDITIVE)
-	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(pParticle->color[0], pParticle->color[1], pParticle->color[2], pParticle->alpha * pParticle->pSystem->mainalpha);
-		glFogfv(GL_FOG_COLOR, g_vecZero);
-	}
-	else if (pParticle->pSystem->rendermode == SYSTEM_RENDERMODE_ALPHABLEND)
-	{
-		glBlendFunc(GL_ONE, GL_ONE);
-		glColor3f(pParticle->alpha * pParticle->pSystem->mainalpha, pParticle->alpha * pParticle->pSystem->mainalpha, pParticle->alpha * pParticle->pSystem->mainalpha);
-		glFogfv(GL_FOG_COLOR, g_vecZero);
-	}
-	else
-	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(pParticle->color[0], pParticle->color[1], pParticle->color[2], pParticle->alpha * pParticle->pSystem->mainalpha);
-		glFogfv(GL_FOG_COLOR, gHUD.m_pFogSettings.color);
-	}
 
 	if (pParticle->pSystem->displaytype == SYSTEM_DISPLAY_PLANAR)
 	{
@@ -1493,7 +1982,7 @@ void CParticleEngine::RenderParticle(cl_particle_t* pParticle, float flUp, float
 	}
 	else if (pParticle->rotation || pParticle->rotx || pParticle->roty)
 	{
-		VectorCopy(gBSPRenderer.m_vViewAngles, vAngles);
+		vAngles = gBSPRenderer.m_vViewAngles;
 
 		if (pParticle->rotx)
 			vAngles[0] = pParticle->rotx;
@@ -1502,115 +1991,62 @@ void CParticleEngine::RenderParticle(cl_particle_t* pParticle, float flUp, float
 		if (pParticle->rotation)
 			vAngles[2] = pParticle->rotation;
 
-		AngleVectors(vAngles, NULL, m_vRRight, m_vRUp);
+		AngleVectors(vAngles, nullptr, &m_vRRight, &m_vRUp);
 	}
+
+	ParticleQuad quad;
 
 	if (pParticle->pSystem->displaytype == SYSTEM_DISPLAY_PARALELL)
 	{
-		glBegin(GL_TRIANGLE_FAN);
+
 		vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale * 2;
 		vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-		glTexCoord2f(pParticle->texcoords[0][0], pParticle->texcoords[0][1]);
-		glVertex3fv(vPoint);
+		quad.vert[0].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale * 2;
 		vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-		glTexCoord2f(pParticle->texcoords[1][0], pParticle->texcoords[1][1]);
-		glVertex3fv(vPoint);
+		quad.vert[1].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRRight * flRight * pParticle->scale;
-		glTexCoord2f(pParticle->texcoords[2][0], pParticle->texcoords[2][1]);
-		glVertex3fv(vPoint);
+		quad.vert[2].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRRight * flRight * (-pParticle->scale);
-		glTexCoord2f(pParticle->texcoords[3][0], pParticle->texcoords[3][1]);
-		glVertex3fv(vPoint);
-		glEnd();
+		quad.vert[3].pos = vPoint;
 	}
 	else
 	{
-		glBegin(GL_TRIANGLE_FAN);
 		vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale;
 		vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-		glTexCoord2f(pParticle->texcoords[0][0], pParticle->texcoords[0][1]);
-		glVertex3fv(vPoint);
+		quad.vert[0].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale;
 		vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-		glTexCoord2f(pParticle->texcoords[1][0], pParticle->texcoords[1][1]);
-		glVertex3fv(vPoint);
+		quad.vert[1].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRUp * flUp * (-pParticle->scale);
 		vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-		glTexCoord2f(pParticle->texcoords[2][0], pParticle->texcoords[2][1]);
-		glVertex3fv(vPoint);
+		quad.vert[2].pos = vPoint;
 
 		vPoint = pParticle->origin + m_vRUp * flUp * (-pParticle->scale);
 		vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-		glTexCoord2f(pParticle->texcoords[3][0], pParticle->texcoords[3][1]);
-		glVertex3fv(vPoint);
-		glEnd();
+		quad.vert[3].pos = vPoint;
 	}
 
-	if (gBSPRenderer.m_pCvarWireFrame->value > 0)
-	{
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
-		glDisable(GL_TEXTURE_2D);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glColor3f(1.0, 0.0, 0.0);
-		glLineWidth(1);
+	memcpy(quad.vert[0].uv, pParticle->texcoords[0], sizeof(float) * 2);
+	memcpy(quad.vert[1].uv, pParticle->texcoords[1], sizeof(float) * 2);
+	memcpy(quad.vert[2].uv, pParticle->texcoords[2], sizeof(float) * 2);
+	memcpy(quad.vert[3].uv, pParticle->texcoords[3], sizeof(float) * 2);
 
-		if (gBSPRenderer.m_pCvarWireFrame->value > 1)
-			glDisable(GL_DEPTH_TEST);
+	quad.vert[0].color.r = pParticle->color.x * 255.f;
+	quad.vert[0].color.g = pParticle->color.y * 255.f;
+	quad.vert[0].color.b = pParticle->color.z * 255.f;
+	quad.vert[0].color.a = (pParticle->alpha * pParticle->pSystem->mainalpha) * 255.f;
 
-		if (pParticle->pSystem->displaytype == SYSTEM_DISPLAY_PARALELL)
-		{
-			glBegin(GL_TRIANGLE_FAN);
-			vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale * 2;
-			vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-			glVertex3fv(vPoint);
 
-			vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale * 2;
-			vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-			glVertex3fv(vPoint);
+	quad.vert[3].color = quad.vert[2].color = quad.vert[1].color = quad.vert[0].color;
 
-			vPoint = pParticle->origin + m_vRRight * flRight * pParticle->scale;
-			glVertex3fv(vPoint);
 
-			vPoint = pParticle->origin + m_vRRight * flRight * (-pParticle->scale);
-			glVertex3fv(vPoint);
-			glEnd();
-		}
-		else
-		{
-			glBegin(GL_TRIANGLE_FAN);
-			vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale;
-			vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-			glVertex3fv(vPoint);
-
-			vPoint = pParticle->origin + m_vRUp * flUp * pParticle->scale;
-			vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-			glVertex3fv(vPoint);
-
-			vPoint = pParticle->origin + m_vRUp * flUp * (-pParticle->scale);
-			vPoint = vPoint + m_vRRight * flRight * pParticle->scale;
-			glVertex3fv(vPoint);
-
-			vPoint = pParticle->origin + m_vRUp * flUp * (-pParticle->scale);
-			vPoint = vPoint + m_vRRight * flRight * (-pParticle->scale);
-			glVertex3fv(vPoint);
-			glEnd();
-		}
-
-		if (gBSPRenderer.m_pCvarWireFrame->value > 1)
-			glEnable(GL_DEPTH_TEST);
-
-		glEnable(GL_BLEND);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_TEXTURE_2D);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
+	quadlist.push_back(quad);
 
 	m_iNumParticles++;
 }
@@ -1621,28 +2057,17 @@ DrawParticles
 
 ====================
 */
-void CParticleEngine::DrawParticles(void)
+void CParticleEngine::DrawParticles()
 {
-	if (m_pCvarDrawParticles->value <= 0)
+	if (!m_pCvarDrawParticles->value)
 		return;
 
-	AngleVectors(gBSPRenderer.m_vViewAngles, m_vForward, m_vRight, m_vUp);
-
-	RenderFog();
-	gBSPRenderer.SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-
-	gBSPRenderer.glActiveTextureARB(GL_TEXTURE0_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PRIMARY_COLOR_ARB);
-
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
-	glDisable(GL_CULL_FACE);
+	AngleVectors(gBSPRenderer.m_vViewAngles, &m_vForward, &m_vRight, &m_vUp);
 
 	float flUp;
 	float flRight;
+
+	std::unordered_map<std::pair<GLuint, int>, std::vector<ParticleQuad>, ParticlePairHash> particlebatch;
 
 	particle_system_t* psystem = m_pSystemHeader;
 	while (psystem)
@@ -1658,7 +2083,7 @@ void CParticleEngine::DrawParticles(void)
 		// Check if it's in VIS
 		if (psystem->leaf)
 		{
-			if (psystem->leaf->visframe != r_visframecount)
+			if (psystem->leaf->visframe != gBSPRenderer.m_pViewLeaf->visframe)
 			{
 				particle_system_t* pnext = psystem->next;
 				psystem = pnext;
@@ -1667,7 +2092,7 @@ void CParticleEngine::DrawParticles(void)
 		}
 
 		// Calculate up and right scalers
-		if (psystem->numframes)
+		if (psystem->numframes && !psystem->legacy_sprite)
 		{
 			if (psystem->framesizex > psystem->framesizey)
 			{
@@ -1706,34 +2131,109 @@ void CParticleEngine::DrawParticles(void)
 			VectorCopy(m_vUp, m_vRUp);
 		}
 
-		if (psystem->overbright)
-			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-
-		// Bind texture
-		gBSPRenderer.Bind2DTexture(GL_TEXTURE0_ARB, psystem->texture->iIndex);
+		std::vector<ParticleQuad> quadlist;
 
 		// Render all particles tied to this system
 		cl_particle_t* pparticle = psystem->particleheader;
 		while (pparticle)
 		{
-			RenderParticle(pparticle, flUp, flRight);
+
+			GetParticleQuad(pparticle, flUp, flRight, quadlist);
 			cl_particle_t* pnext = pparticle->next;
 			pparticle = pnext;
 		}
 
-		// Reset
-		if (psystem->overbright)
-			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
+		// append them to the correct batch
+		std::pair<GLuint, int> particlepair = std::pair<GLuint, int>(psystem->texture->iIndex, psystem->rendermode);
+		auto& batch = particlebatch[particlepair];
+		batch.insert(batch.end(), std::begin(quadlist), std::end(quadlist));
+
 
 		particle_system_t* pnext = psystem->next;
 		psystem = pnext;
 	}
 
-	glFogfv(GL_FOG_COLOR, gHUD.m_pFogSettings.color);
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+	if (particlebatch.empty())
+		return;
+
+	m_ParticleShader->Bind();
+
+	DrawQuadList(particlebatch, psystem);
+
+	GL_ShaderProgram::ResetShaderBind();
+}
+
+void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, std::vector<ParticleQuad>, ParticlePairHash>& particlebatch, particle_system_t* psystem)
+{
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetDepthWrite(false);
+	g_GlobalGLState.SetCullFace(false);
+
+	m_pParticleVAO->BindVAO();
+
+	static int projviewmatrixloc = m_ParticleShader->GetUniformLoc("projviewmatrix");
+
+	m_ParticleShader->UniformMatrix4fv(projviewmatrixloc, 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
+
+	std::vector<ParticleVertex> verts;
+	for (auto batch : particlebatch)
+	{
+		if (batch.second.empty())
+			continue;
+		for (auto quad : batch.second)
+		{
+			verts.push_back(quad.vert[0]);
+			verts.push_back(quad.vert[1]);
+			verts.push_back(quad.vert[2]);
+			verts.push_back(quad.vert[3]);
+		}
+	}
+	m_pQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+	m_pQuadBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, sizeof(ParticleVertex) * verts.size(), verts.data());
+
+	int offset = 0;
+	int currendermode = -1;
+	GLuint curtexture = 0;
+	for (auto batch : particlebatch)
+	{
+		if (batch.second.empty())
+			continue;
+		if (currendermode != batch.first.second)
+		{
+			currendermode = batch.first.second;
+			switch (batch.first.second)
+			{
+			case SYSTEM_RENDERMODE_ADDITIVE:
+			{
+				g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				break;
+			}
+			case SYSTEM_RENDERMODE_ALPHABLEND:
+			{
+				g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
+				break;
+			}
+			default:
+			{
+				g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				break;
+			}
+			}
+		}
+
+		if (curtexture != batch.first.first)
+		{
+			curtexture = batch.first.first;
+			gBSPRenderer.BindGLTexture(GL_TEXTURE0, batch.first.first);
+		}
+
+		glDrawArrays(GL_QUADS, offset, batch.second.size() * 4);
+		offset += batch.second.size() * 4;
+	}
+
+	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetDepthWrite(true);
+	g_GlobalGLState.SetCullFace(true);
 }
 
 /*
@@ -1773,17 +2273,17 @@ void CParticleEngine::RemoveSystem(int iId)
 
 		// Unlink this
 		if (psystem->createsystem)
-			psystem->createsystem->parentsystem = NULL;
+			psystem->createsystem->parentsystem = nullptr;
 
 		// Unlink this
 		if (psystem->watersystem)
-			psystem->watersystem->parentsystem = NULL;
+			psystem->watersystem->parentsystem = nullptr;
 
 		if (!psystem->prev)
 		{
 			m_pSystemHeader = psystem->next;
 			if (psystem->next)
-				psystem->next->prev = NULL;
+				psystem->next->prev = nullptr;
 		}
 		else
 		{
@@ -1808,12 +2308,12 @@ int CParticleEngine::MsgCreateSystem(const char* pszName, int iSize, void* pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
-	vec3_t pos;
-	pos.x = READ_COORD();
-	pos.y = READ_COORD();
-	pos.z = READ_COORD();
+	Vector pos;
+	pos.x = atof(READ_STRING());
+	pos.y = atof(READ_STRING());
+	pos.z = atof(READ_STRING());
 
-	vec3_t ang;
+	Vector ang;
 	ang.x = READ_COORD();
 	ang.y = READ_COORD();
 	ang.z = READ_COORD();
@@ -1831,5 +2331,3 @@ int CParticleEngine::MsgCreateSystem(const char* pszName, int iSize, void* pbuf)
 
 	return 1;
 }
-
-#endif

@@ -36,7 +36,7 @@
 
 struct fog_settings_t
 {
-	vec3_t color;
+	Vector color;
 	int start;
 	int end;
 
@@ -210,7 +210,7 @@ public:
 	bool MsgFunc_Train(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE_GLDSRC m_hSprite;
+	HSPRITE_GOLDSRC  m_hSprite;
 	int m_iPos;
 };
 
@@ -357,16 +357,16 @@ public:
 	bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE_GLDSRC m_hSprite1;
-	HSPRITE_GLDSRC m_hSprite2;
-	HSPRITE_GLDSRC m_hHeadDMG;
-	HSPRITE_GLDSRC m_hChstDMG;
-	HSPRITE_GLDSRC m_hStmchDMG;
-	HSPRITE_GLDSRC m_hLarmDMG;
-	HSPRITE_GLDSRC m_hRarmDMG;
-	HSPRITE_GLDSRC m_hLlegDMG;
-	HSPRITE_GLDSRC m_hRlegDMG;
-	HSPRITE_GLDSRC m_hGrenType;
+	HSPRITE_GOLDSRC  m_hSprite1;
+	HSPRITE_GOLDSRC  m_hSprite2;
+	HSPRITE_GOLDSRC  m_hHeadDMG;
+	HSPRITE_GOLDSRC  m_hChstDMG;
+	HSPRITE_GOLDSRC  m_hStmchDMG;
+	HSPRITE_GOLDSRC  m_hLarmDMG;
+	HSPRITE_GOLDSRC  m_hRarmDMG;
+	HSPRITE_GOLDSRC  m_hLlegDMG;
+	HSPRITE_GOLDSRC  m_hRlegDMG;
+	HSPRITE_GOLDSRC  m_hGrenType;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prc3;
@@ -385,9 +385,9 @@ private:
 	int m_iHealth_Rarm;
 	int m_iHealth_Lleg;
 	int m_iHealth_Rleg;
-	HSPRITE_GLDSRC m_hFireMode;
+	HSPRITE_GOLDSRC  m_hFireMode;
 	Rect* m_rFireMode;
-	HSPRITE_GLDSRC m_hHunger;
+	HSPRITE_GOLDSRC  m_hHunger;
 	Rect* m_rHunger;
 	Rect* m_rGrenType;
 };
@@ -407,9 +407,9 @@ public:
 	bool MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf);
 
 private:
-	HSPRITE_GLDSRC m_hSprite1;
-	HSPRITE_GLDSRC m_hSprite2;
-	HSPRITE_GLDSRC m_hBeam;
+	HSPRITE_GOLDSRC  m_hSprite1;
+	HSPRITE_GOLDSRC  m_hSprite2;
+	HSPRITE_GOLDSRC  m_hBeam;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prcBeam;
@@ -522,7 +522,7 @@ private:
 	typedef struct
 	{
 		char szSpriteName[MAX_ICONSPRITENAME_LENGTH];
-		HSPRITE_GLDSRC spr;
+		HSPRITE_GOLDSRC  spr;
 		Rect rc;
 		unsigned char r, g, b;
 	} icon_sprite_t;
@@ -539,7 +539,7 @@ class CHud
 {
 private:
 	HUDLIST* m_pHudList;
-	HSPRITE_GLDSRC m_hsprLogo;
+	HSPRITE_GOLDSRC  m_hsprLogo;
 	int m_iLogo;
 	client_sprite_t* m_pSpriteList;
 	int m_iSpriteCount;
@@ -548,7 +548,7 @@ private:
 	int m_iConcussionEffect;
 
 public:
-	HSPRITE_GLDSRC m_hsprCursor;
+	HSPRITE_GOLDSRC  m_hsprCursor;
 	float m_flTime;		  // the current client time
 	float m_fOldTime;	  // the time at which the HUD was last redrawn
 	double m_flTimeDelta; // the difference between flTime and fOldTime
@@ -590,14 +590,14 @@ public:
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
 	// freed in ~CHud()
-	HSPRITE_GLDSRC* m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
+	HSPRITE_GOLDSRC * m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
 	Rect* m_rgrcRects;							  /*[HUD_SPRITE_COUNT]*/
 	char* m_rgszSpriteNames;					  /*[HUD_SPRITE_COUNT][MAX_SPRITE_NAME_LENGTH]*/
 
 	struct cvar_s* default_fov;
 
 public:
-	HSPRITE_GLDSRC GetSprite(int index)
+	HSPRITE_GOLDSRC  GetSprite(int index)
 	{
 		return (index < 0) ? 0 : m_rghSprites[index];
 	}
@@ -687,15 +687,3 @@ extern int g_iTeamNumber;
 extern int g_iUser1;
 extern int g_iUser2;
 extern int g_iUser3;
-
-
-class CTempEntity
-{
-public:
-	int TempEntities(const char* pszName, int iSize, void* pBuf);
-
-private:
-	void CreateExplosion();
-	void HandleCustomDecals();
-
-};

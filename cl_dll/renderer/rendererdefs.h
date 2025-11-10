@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -11,11 +12,16 @@ Renderer base definitions and functions
 Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 */
 
-#pragma once
+#ifndef RENDERERDEFS_H
+#define RENDERERDEFS_H
 
 #include "PlatformHeaders.h"
+
+#include "gl/glew.h"
+
 #include "gl/gl.h"
-#include "gl/glext.h"
+#include "gl/glu.h"
+
 #include "dlight.h"
 #include "com_model.h"
 #include "cl_entity.h"
@@ -28,6 +34,27 @@ Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 #include <vector>
 #include <map>
 #include <string>
+
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#undef clamp
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class GL_FBOHandler;
+class GL_StateHandler;
+class GL_ShadowMap;
+class GL_TextureHandler;
+class StudioMDL_Model;
+
+extern GL_StateHandler g_GlobalGLState;
+
+constexpr char WATER_PASS_TIME[] = "Water_RenderTime";
+constexpr char MIRROR_PASS_TIME[] = "Mirror_RenderTime";
+constexpr char SHADOWMAP_PASS_TIME[] = "ShadowMap_Pass_RenderTime";
+constexpr char MAINWORLDSCENE_PASS_TIME[] = "MainWorldScene_RenderTime";
+constexpr char STUDIOMDL_PASS_TIME[] = "StudioMDL_RenderTime";
 
 //==============================
 //		SHARED DEFS
@@ -55,6 +82,8 @@ struct cl_texture_t
 
 	GLuint iIndex;
 
+	int texflags;
+
 	int iBpp;
 	unsigned int iWidth;
 	unsigned int iHeight;
@@ -68,6 +97,7 @@ struct cl_texture_t
 #define SYSTEM_SHAPE_POINT 0
 #define SYSTEM_SHAPE_BOX 1
 #define SYSTEM_SHAPE_PLANE_ABOVE_PLAYER 2
+#define SYSTEM_SHAPE_BOX_AROUND_PLAYER 3
 
 #define SYSTEM_DISPLAY_NORMAL 0
 #define SYSTEM_DISPLAY_PARALELL 1
@@ -100,12 +130,12 @@ struct cl_texture_t
 //========================================
 struct particle_system_t
 {
-	int id;
-	int shapetype;
-	int randomdir;
+	unsigned int id;
+	byte shapetype;
+	bool randomdir;
 
-	vec3_t origin;
-	vec3_t dir;
+	Vector origin;
+	Vector dir;
 
 	float minvel;
 	float maxvel;
@@ -127,14 +157,14 @@ struct particle_system_t
 	float windvar;
 	float windmult;
 	float windmultvar;
-	int windtype;
+	byte windtype;
 
 	float maxlife;
 	float maxlifevar;
 	float systemsize;
 
-	vec3_t primarycolor;
-	vec3_t secondarycolor;
+	Vector primarycolor;
+	Vector secondarycolor;
 	float transitiondelay;
 	float transitiontime;
 	float transitionvar;
@@ -164,25 +194,27 @@ struct particle_system_t
 	float impactdamp;
 	float mainalpha;
 
-	int startparticles;
-	int maxparticles;
-	int maxparticlevar;
+	unsigned short startparticles;
+	unsigned short maxparticles;
+	unsigned short maxparticlevar;
 
-	int overbright;
-	int lightcheck;
-	int collision;
-	int colwater;
-	int displaytype;
-	int rendermode;
-	int numspawns;
+	byte lightcheck;
+	byte collision;
+	bool colwater;
+	bool legacy_sprite;
+	byte displaytype;
+	byte rendermode;
+	unsigned short numspawns;
 
 	int fadedistfar;
 	int fadedistnear;
 
-	int numframes;
-	int framesizex;
-	int framesizey;
-	int framerate;
+	unsigned short numframes;
+	unsigned short framesizex;
+	unsigned short framesizey;
+	unsigned short framerate;
+	unsigned short startframe;
+	unsigned short randomframe;
 
 	char create[64];
 	char deathcreate[64];
@@ -193,24 +225,22 @@ struct particle_system_t
 	particle_system_t* parentsystem;
 
 	cl_texture_t* texture;
-	mleaf_t* leaf;
+	clientmleaf_t* leaf;
 
 	particle_system_t* next;
 	particle_system_t* prev;
 
 	struct cl_particle_t* particleheader;
-
-	byte pad[14];
 };
 
 struct cl_particle_t
 {
-	vec3_t velocity;
-	vec3_t origin;
-	vec3_t color;
-	vec3_t scolor;
-	vec3_t lastspawn;
-	vec3_t normal;
+	Vector velocity;
+	Vector origin;
+	Vector color;
+	Vector scolor;
+	Vector lastspawn;
+	Vector normal;
 
 	float spawntime;
 	float life;
@@ -258,7 +288,7 @@ struct cl_particle_t
 #define MAX_GROUPENTRIES 64
 #define MAX_DECAL_MSG_CACHE 256
 #define MAX_DECAL_GROUPS 256
-#define MAX_LIGHTMAPS 64
+#define MAX_LIGHTMAPS 256
 #define MAX_LIGHTSTYLES 64
 #define MAX_STYLESTRING 64
 #define MAX_DYNLIGHTS 64
@@ -266,10 +296,13 @@ struct cl_particle_t
 #define MAX_DETAIL_TEXTURES 1024
 #define MAX_MAP_LEAFS 65534
 #define DEPTHMAP_RESOLUTION 256
-#define MAX_MAP_TEXTURES 512
+#define MAX_MAP_TEXTURES 1024
 #define LIGHTMAP_RESOLUTION 1024
-#define LIGHTMAP_NUMCOLUMNS 8
-#define LIGHTMAP_NUMROWS 8
+
+#define BLOCK_SIZE 128
+
+#define LIGHTMAP_NUMCOLUMNS (LIGHTMAP_RESOLUTION / BLOCK_SIZE)
+#define LIGHTMAP_NUMROWS (LIGHTMAP_RESOLUTION / BLOCK_SIZE)
 #define MAX_SPOTLIGHT_TEXTURES 16
 
 #define MAX_GOLDSRC_DLIGHTS 32
@@ -284,16 +317,14 @@ struct cl_particle_t
 #define SURF_UNDERWATER 0x80
 #define SURF_DONTWARP 0x100
 
-#define BLOCK_WIDTH 128
-#define BLOCK_HEIGHT 128
+#define TEXTURE_SCROLL (1 << 0)
+
 #define BLOCKLIGHTS_SIZE (18 * 18)
 #define BACKFACE_EPSILON 0.01
 
 #define PLANE_X 0
 #define PLANE_Y 1
 #define PLANE_Z 2
-
-#define OFFSET(type, variable) ((const void*)&(((type*)NULL)->variable))
 
 // Texture pointer settings
 enum
@@ -322,14 +353,23 @@ enum
 	ENVSTATE_NOSTATE // uninitialized
 };
 
+struct short_3dvector
+{
+	short x, y, z;
+};
+struct short_4dvector
+{
+	short x, y, z, w;
+};
+
 //========================================
 //			BSP RENDERER STRUCTS
 //
 //========================================
 struct brushvertex_t
 {
-	vec3_t pos;
-	vec3_t normal;
+	Vector pos;
+	Vector normal;
 
 	float fogcoord;
 	float texcoord[2];
@@ -345,9 +385,9 @@ struct brushface_t
 	int start_vertex;
 	int num_vertexes;
 
-	vec3_t normal;
-	vec3_t s_tangent;
-	vec3_t t_tangent;
+	Vector normal;
+	Vector s_tangent;
+	Vector t_tangent;
 };
 
 typedef struct detailtexentry_s
@@ -357,6 +397,7 @@ typedef struct detailtexentry_s
 	int texindex;
 	float xscale;
 	float yscale;
+	float opacity; //new
 } detailtexentry_t;
 
 struct decalgroupentry_t
@@ -375,7 +416,7 @@ struct decalgroup_t
 
 typedef struct customdecalvert_s
 {
-	vec3_t position;
+	Vector position;
 	float texcoord[2];
 } customdecalvert_t;
 
@@ -384,7 +425,7 @@ typedef struct customdecalpoly_s
 	customdecalvert_t* pverts;
 	int numverts;
 
-	msurface_t* surface;
+	clientmsurface_t* surface;
 	cl_entity_t* entity;
 } customdecalpoly_t;
 
@@ -395,22 +436,19 @@ typedef struct customdecal_s
 
 	const decalgroupentry_t* texinfo;
 
-	vec3_t normal;
-	vec3_t position;
-	float angle;
-	float radius;
+	Vector normal;
+	Vector position;
 	float life;
 } customdecal_t;
 
 struct decal_msg_cache
 {
-	vec3_t pos;
-	vec3_t normal;
+	Vector pos;
+	Vector normal;
 	char name[32];
 	int persistent;
 	int fromwad;
 	float angle;
-	float radius;
 };
 
 struct clientsurfdata_t
@@ -418,7 +456,6 @@ struct clientsurfdata_t
 	float cached_light[MAXLIGHTMAPS];
 
 	texture_t* regtexture;
-	texture_t* mptexture;
 
 	int light_s;
 	int light_t;
@@ -432,8 +469,8 @@ typedef struct
 
 struct detailobject_t
 {
-	vec3_t mins;
-	vec3_t maxs;
+	Vector mins;
+	Vector maxs;
 
 	int firstsurface;
 	int numsurfaces;
@@ -445,20 +482,33 @@ struct detailobject_t
 	int rendermode;
 };
 
+#define LIGHT_STUDIOMDL_SHADOW 2 << 0	// cast shadows from studiomdl entities (renderfx = 1)
+#define LIGHT_BRUSH_SHADOW 2 << 1		// casts shadows from non-static brush entities (renderfx = 2)
+#define LIGHT_WORLD_SHADOW 2 << 2		// casts shadows from static world brushes (the entire world basically) (renderfx = 3)
+
+#define LIGHT_CLIENT_SUNSHADOW 2 << 2 // casts shadows from static world brushes (the entire world basically) (renderfx = 3)
+
+#define LIGHT_ONLYSHADOWS 2 << 3
+
+#define LIGHT_CASTSHADOWS (LIGHT_STUDIOMDL_SHADOW | LIGHT_BRUSH_SHADOW | LIGHT_WORLD_SHADOW)
+
 struct cl_dlight_t
 {
-	vec3_t origin;
-	vec3_t color;
-	vec3_t angles;
+	Vector origin;
+	Vector color;
+	Vector angles;
 
 	float radius;
 	float die;
 	float decay;
 	bool justspawned; //NEW!! for flashlights
+	int flags;
 	int key;
-	int noshadow;
 
-	GLuint depth;
+	GL_ShadowMap* depth;
+	GL_ShadowMap* cubedepth; //cubemap shadowmap (for pointlights), probably should be made a separate entity.
+
+	int visframe;
 
 	// spotlight specific:
 	float cone_size;
@@ -468,9 +518,8 @@ struct cl_dlight_t
 
 struct cl_shadow_t
 {
-	vec3_t feet;
-	vec3_t above_feet;
-	GLuint depth;
+	Vector above_feet;
+	//GL_ShadowMap *depth;
 	FrustumCheck frustum;
 };
 
@@ -507,21 +556,18 @@ struct cl_water_t
 
 	mplane_t wplane;
 
-	vec3_t mins;
-	vec3_t maxs;
-	vec3_t origin;
+	Vector mins;
+	Vector maxs;
+	Vector origin;
 	bool draw;
 
-	GLuint refract;
-	GLuint reflect;
-	GLuint waterFBO;
-	GLuint depthbuffer;
+	GL_TextureHandler* refract;
+	GL_TextureHandler* reflect;
 
-	msurface_t** surfaces;
+	clientmsurface_t** surfaces;
 	int numsurfaces;
 
-	// bacontsu - custom res per water surface
-	float res = 0.0f;
+	bool rendered;
 };
 
 //==================================================
@@ -529,7 +575,7 @@ struct cl_water_t
 //
 //==================================================
 #define MAX_MIRRORS 32
-#define MIRROR_RESOLUTION 512
+#define MIRROR_RESOLUTION 1024
 
 //==================================================
 //				MIRROR MANAGER STRUCTS
@@ -539,21 +585,21 @@ struct cl_mirror_t
 {
 	cl_entity_t* entity;
 
-	vec3_t mins;
-	vec3_t maxs;
+	Vector mins;
+	Vector maxs;
 
-	vec3_t origin;
+	Vector origin;
 	msurface_t* surface;
 
 	bool draw;
 
-	GLuint texture;
+	GL_TextureHandler* texture;
 };
 //==============================
 //		STUDIO RENDERER DEFS
 //
 //==============================
-#define MAX_MODEL_LIGHTS 6
+#define MAX_MODEL_LIGHTS 12 // 2x(up, down, left, right, front, back)
 #define MAX_MODEL_DECALS 16
 #define MAX_CACHE_MODELS 2048
 #define MAX_MODEL_SHADERS 14
@@ -576,7 +622,7 @@ struct decalvert_t
 
 struct decalvertinfo_t
 {
-	vec3_t position;
+	Vector position;
 	byte boneindex;
 };
 
@@ -588,8 +634,6 @@ struct decalpoly_t
 
 struct studiodecal_t
 {
-	int entindex;
-
 	decalpoly_t* polys;
 	int numpolys;
 
@@ -598,16 +642,27 @@ struct studiodecal_t
 
 	const decalgroupentry_t* texture;
 
-	int totaldecals;
-	studiodecal_t* next; // linked list on this entity
+	int vertstart; //index into m_pModelDecals_Buffer
+};
+
+struct studioentity_data_t //structure that holds info which is generated per frame per entity
+{
+	uint32_t entity_index;
+	model_t* entity_model;
+	matrix3x4_t rotationmatrix;
+	matrix3x4_t bonematrix[MAXSTUDIOBONES];
+	struct entextrainfo_t* entity_extrainfo;
+	int bonearrayoffset;
+	float m_flGaitMovement;
+	std::vector<studiodecal_t*> m_vStudioDecals;
 };
 
 struct studiovert_t
 {
-	int vertindex;
-	int normindex;
-	int texcoord[2];
-	byte boneindex;
+	int vertindex; //index into m_VertexTransforms
+	int normindex; //index into m_NormalTransforms
+	float texcoord[2]; //s, t
+	byte boneindex; //index into m_pbonetransforms
 };
 
 struct studiotri_t
@@ -617,19 +672,19 @@ struct studiotri_t
 
 struct mlight_t
 {
-	vec3_t origin;
+	Vector origin;
 	float radius;
-	vec3_t color;
+	Vector color;
 
 	bool flashlight;
-	vec3_t forward;
+	Vector forward;
 	float spotcos;
 	bool justspawned;
 
 	FrustumCheck* frustum;
 
-	vec3_t mins;
-	vec3_t maxs;
+	Vector mins;
+	Vector maxs;
 };
 
 struct texentry_t
@@ -642,9 +697,9 @@ struct texentry_t
 
 struct lighting_ext
 {
-	vec3_t ambientlight;
-	vec3_t diffuselight;
-	vec3_t lightdir;
+	Vector ambientlight;
+	Vector diffuselight;
+	Vector lightdir;
 };
 
 //========================================
@@ -666,7 +721,7 @@ typedef struct epair_s
 
 typedef struct
 {
-	vec3_t origin;
+	Vector origin;
 	int firstbrush;
 	int numbrushes;
 	epair_t* epairs;
@@ -701,28 +756,31 @@ struct modeldata_t
 	char name[256];
 
 	studiohdr_t* pHdr;
-	studiohdr_t* pTexHdr;
+	StudioMDL_Model* pCacheModel;
 	vboheader_t pVBOHeader;
 };
 
 struct entextradata_t
 {
-	vec3_t absmax;
-	vec3_t absmin;
-	vec3_t lightorigin;
+	Vector absmax;
+	Vector absmin;
+	Vector lightorigin;
 
 	int num_leafs;
 	short leafnums[MAX_ENT_LEAFS];
-	float pbones[MAXSTUDIOBONES][3][4];
+	//float pbones[MAXSTUDIOBONES][3][4]; unusued
 
 	modeldata_t* pModelData;
+
+	glm::mat4 modelmatrix;
 };
 
 struct entextrainfo_t
 {
 	int surfindex;
+	int prop_flags;
 	int lightstyles[4];
-	vec3_t prevpos;
+	Vector prevpos;
 
 	lighting_ext pLighting;
 	cl_entity_t* pEntity;
@@ -734,10 +792,10 @@ struct cabledata_t
 	int iwidth;
 	int isegments;
 
-	vec3_t vmins;
-	vec3_t vmaxs;
+	Vector vmins;
+	Vector vmaxs;
 
-	vec3_t vpoints[MAX_POINTS];
+	Vector vpoints[MAX_POINTS];
 	int inumpoints;
 
 	int num_leafs;
@@ -747,19 +805,24 @@ struct cabledata_t
 struct glstate_t
 {
 	glstate_t() : blending_enabled(false),
+				  blend_src(0), blend_dst(0),
+				  depth_func(0),
 				  alphatest_enabled(false),
 				  alphatest_func(0),
-				  alphatest_value(0),
+				  alphatest_value(0.f),
 				  active_texunit(0),
 				  active_clienttexunit(0)
 	{
 	}
 
 	bool blending_enabled;
+	GLint blend_src, blend_dst;
 
 	bool alphatest_enabled;
 	GLint alphatest_func;
 	GLfloat alphatest_value;
+
+	GLint depth_func;
 
 	GLint active_texunit;
 	GLint active_clienttexunit;
@@ -774,65 +837,79 @@ extern engine_studio_api_t IEngineStudio;
 extern void ClampColor(int r, int g, int b, color24* out);
 extern void FilenameFromPath(const char* szin, char* szout);
 
-extern void MyLookAt(GLdouble eyex, GLdouble eyey, GLdouble eyez, GLdouble centerx, GLdouble centery, GLdouble centerz, GLdouble upx, GLdouble upy, GLdouble upz);
-extern mleaf_t* Mod_PointInLeaf(vec3_t p, model_t* model);
-extern byte* Mod_LeafPVS(mleaf_t* leaf, model_t* model);
-extern void R_MarkLeaves(mleaf_t* pLeaf);
+extern clientmleaf_t* Mod_PointInLeaf(Vector p);
+extern byte* Mod_LeafPVS(clientmleaf_t* leaf);
+extern void R_MarkLeaves(clientmleaf_t* pLeaf);
 
 extern void HUD_PrintSpeeds(void);
 extern void RenderersDumpInfo(void);
-extern void GenDetail(void);
-extern void SetupFlashlight(vec3_t origin, vec3_t angles, float time, float frametime);
-extern void SetupFlashlight2(vec3_t origin, vec3_t angles, float time, float frametime);
-extern void ExportWorld(void);
+extern void SetupFlashlight(Vector origin, Vector angles, float time, float frametime);
 
 extern unsigned short ByteToUShort(byte* byte);
 extern unsigned int ByteToUInt(byte* byte);
 extern int ByteToInt(byte* byte);
 
+extern void R_SetupView(ref_params_t* pparams);
 extern void R_CalcRefDef(ref_params_t* pparams);
 extern void R_DrawNormalTriangles(void);
 extern void R_DrawTransparentTriangles(void);
 
-extern void RenderFog(void);
-extern void BlackFog(void);
-extern void DisableFog(void);
-extern void ClearToFogColor(void);
-
-extern void R_RotateForEntity(cl_entity_t* e);
 extern int IsEntityMoved(cl_entity_t* e);
 extern int IsEntityTransparent(cl_entity_t* e);
 extern int IsPitchReversed(float pitch);
-extern int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, mplane_t* p);
+extern int BoxOnPlaneSide(Vector emins, Vector emaxs, mplane_t* p);
 
 extern char* strLower(char* str);
 extern char* stristr(const char* string, const char* string2);
 
-extern inline void DotProductSSE(float* result, const float* v0, const float* v1);
-extern inline void SSEDotProductWorld(float* result, const float* v0, const float* v1);
-extern inline void SSEDotProductWorldInt(int* result, const float* v0, const float* v1);
-extern inline void SSEDotProductSub(float* result, vec3_t* v0, vec3_t* v1, float* subval);
+extern inline void DotProductSub(float* result, Vector* v0, Vector* v1, float* subval);
 
-extern inline void VectorAddSSE(const float* v0, const float* v1, const float* result);
-extern inline void VectorMASSE(const float* veca, float scale, const float* vecb, float* vecc);
-extern inline void VectorTransformSSE(const float* in1, float in2[3][4], float* out);
-extern inline void VectorRotateSSE(const float* in1, float in2[3][4], float* out);
-extern inline float VectorNormalizeFast(float* v);
-
-extern void VectorRotate(const vec3_t& in1, const float in2[3][4], vec3_t& out);
-extern void VectorIRotate(const vec3_t& in1, const float in2[3][4], vec3_t& out);
-extern void FixVectorForSpotlight(vec3_t& vec);
-extern void SV_FindTouchedLeafs(entextradata_t* ent, mnode_t* node);
+extern void VectorRotate(const Vector& in1, const matrix3x4_t &in2, Vector& out);
+extern void VectorIRotate(const Vector& in1, const matrix3x4_t &in2, Vector& out);
+extern void VectorRotateAbs(const Vector& in1, const matrix3x4_t& in2, Vector& out);
+extern void SV_FindTouchedLeafs(entextradata_t* ent, clientmnode_t* node);
 
 extern byte* ResizeArray(byte* pOriginal, int iSize, int iCount);
-
-extern void R_DisableSteamMSAA(void);
-extern void R_SaveGLStates(void);
-extern void R_RestoreGLStates(void);
 
 extern void R_Init(void);
 extern void R_VidInit(void);
 extern void R_Shutdown(void);
 
-extern vec3_t g_vecFull;
-extern int current_ext_texture_id;
+
+//
+//		GOLDSRC'S STUDIO FUNCTIONS
+//
+
+/*
+===============
+pfnGetPlayerState
+
+===============
+*/
+__forceinline entity_state_t* R_StudioGetPlayerState(int index) {
+	return (index < 0 || index >= engine_cl->maxclients) ? nullptr : &engine_cl->frames[engine_cl->parsecountmod].playerstate[index];
+}
+
+/*
+===============
+pfnPlayerInfo
+
+===============
+*/
+__forceinline player_info_t* pfnPlayerInfo(int index) {
+	return (index < 0 || index >= engine_cl->maxclients) ? nullptr : &engine_cl->players[index];
+}
+
+
+/*
+===============
+GetModelByIndex
+
+===============
+*/
+__forceinline model_t* CL_GetModelByIndex(int modelindex) {
+	return modelindex >= 0 && modelindex < 512 ? engine_cl->model_precache[modelindex] : NULL;
+}
+
+extern Vector g_vecFull;
+#endif

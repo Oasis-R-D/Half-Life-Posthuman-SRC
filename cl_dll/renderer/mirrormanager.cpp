@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -12,12 +13,9 @@ Code by Andrew Lucas
 Additional code taken from Id Software
 */
 
-#ifdef TRINITY
-
 #include "PlatformHeaders.h"
 #include "hud.h"
 #include "cl_util.h"
-#include <gl/glu.h>
 
 #include "const.h"
 #include "studio.h"
@@ -37,6 +35,8 @@ Additional code taken from Id Software
 #include "mirrormanager.h"
 #include "watershader.h"
 
+#include "goldsrc_beamrenderer.h"
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
@@ -46,23 +46,37 @@ Additional code taken from Id Software
 #include "event_api.h"
 #include "event_args.h"
 
-#include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
-#ifdef GOLDSRC_PHYS
-#include "PhyStudioModelRenderer.h"
-extern PhyStudioModelRenderer g_StudioRenderer;
-#else
-extern CGameStudioModelRenderer g_StudioRenderer;
-#endif
+#include "opengl_utils/GL_FBO.h"
+#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/GL_TextureHandler.h"
+#include "opengl_utils/GL_Buffers.h"
+#include "opengl_utils/GL_VertexArrayObject.h"
 
-inline float sgn(float a)
-{
-	if (a > 0.0F)
-		return (1.0F);
-	if (a < 0.0F)
-		return (-1.0F);
-	return (0.0F);
-}
+#include "goldsrc_spriterenderer.h"
+#include "StudioModelRenderer.h"
+
+CMirrorManager gMirrorManager;
+
+
+
+//===========================================
+// GLSL SHADER START
+//
+//===========================================
+
+#include "glshaders/mirror_glsl.h"
+
+//===========================================
+// GLSL SHADER END
+//
+//===========================================
+
+
+
+extern glm::mat4 oldviewmatrix;
+extern glm::mat4 oldprojectionmatrix;
+Vector m_vRestoreRenderOrigin;
+Vector m_vRestoreViewAngles;
 
 /*
 ====================
@@ -72,8 +86,14 @@ Init
 */
 void CMirrorManager::Init(void)
 {
-	m_pCvarDrawMirrors = gEngfuncs.pfnRegisterVariable("te_mirrors", "1", 0);
-	m_pCvarMirrorPlayer = gEngfuncs.pfnRegisterVariable("te_mirror_player", "0", FCVAR_ARCHIVE);
+	m_pCvarDrawMirrors = gEngfuncs.pfnRegisterVariable("r_mirrors", "1", 0);
+
+	m_MirrorShader = new GL_ShaderProgram(mirror_vertex, mirror_fragment);
+
+	m_MirrorShader->Bind();
+	m_MirrorShader->Uniform1i(m_MirrorShader->GetUniformLoc("texture0"), 0);
+
+	GL_ShaderProgram::ResetShaderBind();
 }
 
 /*
@@ -85,11 +105,31 @@ VidInit
 void CMirrorManager::VidInit(void)
 {
 	for (int i = 0; i < m_iNumMirrors; i++)
-		glDeleteTextures(1, &m_pMirrors[i].texture);
+		delete m_pMirrors[i].texture;
 
 	memset(m_pMirrors, 0, sizeof(m_pMirrors));
 	m_iNumMirrors = 0;
+	m_iNumPasses = 0;
+
+	if (!mirrorFBO)
+		mirrorFBO = new GL_FBOHandler();
+	if (!mirrorDepthBuffer)
+		mirrorDepthBuffer = new GL_RBOHandler();
+
+	mirrorFBO->Bind(GL_FBOHandler::Framebuffer);
+
+	mirrorDepthBuffer->Bind();
+	mirrorDepthBuffer->RenderBufferStorage(GL_DEPTH_COMPONENT24, MIRROR_RESOLUTION, MIRROR_RESOLUTION);
+	mirrorFBO->FramebufferRenderbuffer(GL_FBOHandler::Framebuffer, GL_FBOHandler::DepthAttachment, mirrorDepthBuffer);
+
+	GL_FBOHandler::ResetToMainFBO();
+
 }
+
+GL_TextureHandler::gl_texturecreationinfo_t mirror_textureinfo =
+{
+	std::string(), GL_TextureHandler::_2DTexture, GL_RGBA8, MIRROR_RESOLUTION, MIRROR_RESOLUTION, 0, GL_RGBA, GL_UNSIGNED_BYTE
+};
 
 /*
 ====================
@@ -111,7 +151,7 @@ void CMirrorManager::AllocNewMirror(cl_entity_t* entity)
 	cl_mirror_t* pMirror = &m_pMirrors[m_iNumMirrors];
 	m_iNumMirrors++;
 
-	msurface_t* psurf = &entity->model->surfaces[entity->model->firstmodelsurface];
+	msurface_t* psurf = &engine_cl->worldmodel->surfaces[entity->model->firstmodelsurface];
 
 	pMirror->mins = Vector(9999, 9999, 9999);
 	pMirror->maxs = Vector(-9999, -9999, -9999);
@@ -142,18 +182,11 @@ void CMirrorManager::AllocNewMirror(cl_entity_t* entity)
 	pMirror->entity = entity;
 	pMirror->entity->efrag = (efrag_s*)pMirror;
 
-	pMirror->texture = current_ext_texture_id;
-	current_ext_texture_id++;
+	pMirror->texture = new GL_TextureHandler(&mirror_textureinfo);
 	pMirror->origin[0] = (pMirror->mins[0] + pMirror->maxs[0]) * 0.5f;
 	pMirror->origin[1] = (pMirror->mins[1] + pMirror->maxs[1]) * 0.5f;
 	pMirror->origin[2] = (pMirror->mins[2] + pMirror->maxs[2]) * 0.5f;
 	pMirror->surface = psurf;
-
-	glBindTexture(GL_TEXTURE_2D, pMirror->texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
 /*
@@ -170,15 +203,15 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 	if (!m_iNumMirrors)
 		return;
 
-	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+	m_iNumPasses = 0;
 
 	// Make sure depthranged stuff is not clipped
 	gBSPRenderer.m_bMirroring = true;
 
 	memcpy(&m_pMirrorParams, pparams, sizeof(ref_params_t));
 	m_pViewParams = pparams;
+
+	FrustumCheck restorefrustum = gHUD.viewFrustum;
 
 	for (int i = 0; i < m_iNumMirrors; i++)
 	{
@@ -203,6 +236,8 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 
 	gBSPRenderer.m_bMirroring = false;
 
+	gHUD.viewFrustum = restorefrustum;
+
 	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
 }
 
@@ -214,57 +249,59 @@ SetupClipping
 */
 void CMirrorManager::SetupClipping(void)
 {
-	float dot;
-	float eq1[4];
-	float eq2[4];
-	float projection[16];
 
-	vec3_t vDist;
-	vec3_t vForward;
-	vec3_t vRight;
-	vec3_t vUp;
+	Vector vDist_;
+	Vector vForward_;
+	Vector vRight_;
+	Vector vUp_;
 
-	AngleVectors(m_pMirrorParams.viewangles, vForward, vRight, vUp);
-	VectorSubtract(m_pCurrentMirror->origin, m_pMirrorParams.vieworg, vDist);
+	AngleVectors(m_pMirrorParams.viewangles, &vForward_, &vRight_, &vUp_);
+	VectorSubtract(m_pCurrentMirror->origin, m_pMirrorParams.vieworg, vDist_);
 
-	VectorInverse(vRight);
-	VectorInverse(vUp);
+	VectorInverse(vRight_);
+	VectorInverse(vUp_);
+
+	glm::vec3 vForward(vForward_.x, vForward_.y, vForward_.z);
+	glm::vec3 vRight(vRight_.x, vRight_.y, vRight_.z);
+	glm::vec3 vUp(vUp_.x, vUp_.y, vUp_.z);
+	glm::vec3 vDist(vDist_.x, vDist_.y, vDist_.z);
+
+	glm::vec4 plane;
+	auto mirrorplane = glm::vec3(m_pCurrentMirror->surface->plane->normal.x, m_pCurrentMirror->surface->plane->normal.y, m_pCurrentMirror->surface->plane->normal.z);
 
 	if (m_pCurrentMirror->surface->flags & SURF_PLANEBACK)
 	{
-		eq1[0] = DotProduct(vRight, m_pCurrentMirror->surface->plane->normal);
-		eq1[1] = DotProduct(vUp, m_pCurrentMirror->surface->plane->normal);
-		eq1[2] = DotProduct(vForward, m_pCurrentMirror->surface->plane->normal);
-		eq1[3] = DotProduct(vDist, m_pCurrentMirror->surface->plane->normal);
+		plane.x = glm::dot(vRight, mirrorplane);
+		plane.y = glm::dot(vUp, mirrorplane);
+		plane.z = glm::dot(vForward, mirrorplane);
+		plane.w = glm::dot(vDist, mirrorplane);
 	}
 	else
 	{
-		eq1[0] = DotProduct(vRight, (-m_pCurrentMirror->surface->plane->normal));
-		eq1[1] = DotProduct(vUp, (-m_pCurrentMirror->surface->plane->normal));
-		eq1[2] = DotProduct(vForward, (-m_pCurrentMirror->surface->plane->normal));
-		eq1[3] = DotProduct(vDist, (-m_pCurrentMirror->surface->plane->normal));
+		plane.x = glm::dot(vRight, -mirrorplane);
+		plane.y = glm::dot(vUp, -mirrorplane);
+		plane.z = glm::dot(vForward, -mirrorplane);
+		plane.w = glm::dot(vDist, -mirrorplane);
 	}
 
-	// Change current projection matrix into an oblique projection matrix
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	oldprojectionmatrix = gBSPRenderer.m_ProjectionMatrix;
+	auto& projection = gBSPRenderer.m_ProjectionMatrix;
 
-	eq2[0] = (sgn(eq1[0]) + projection[8]) / projection[0];
-	eq2[1] = (sgn(eq1[1]) + projection[9]) / projection[5];
-	eq2[2] = -1.0F;
-	eq2[3] = (1.0F + projection[10]) / projection[14];
+	// Calculate clip-space corner point
+	glm::vec4 q;
+	q.x = (glm::sign(plane.x) + projection[0][2]) / projection[0][0];
+	q.y = (glm::sign(plane.y) + projection[1][2]) / projection[1][1];
+	q.z = -1.0f;
+	q.w = (1.0f + projection[2][2]) / projection[3][2];
 
-	dot = eq1[0] * eq2[0] + eq1[1] * eq2[1] + eq1[2] * eq2[2] + eq1[3] * eq2[3];
+	// Scale plane so it fits
+	float scale = 2.0f / glm::dot(plane, q);
 
-	projection[2] = eq1[0] * (2.0f / dot);
-	projection[6] = eq1[1] * (2.0f / dot);
-	projection[10] = eq1[2] * (2.0f / dot) + 1.0F;
-	projection[14] = eq1[3] * (2.0f / dot);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(projection);
-
-	glMatrixMode(GL_MODELVIEW);
+	// Modify projection matrix
+	projection[0][2] = plane.x * scale;
+	projection[1][2] = plane.y * scale;
+	projection[2][2] = plane.z * scale + 1.0f;
+	projection[3][2] = plane.w * scale;
 }
 
 /*
@@ -276,41 +313,27 @@ DrawMirrorPass
 void CMirrorManager::DrawMirrorPass(void)
 {
 	// Set world renderer
-	gBSPRenderer.RendererRefDef(&m_pMirrorParams);
+	R_SetupView(&m_pMirrorParams);
 
 	// Draw world
-	gBSPRenderer.DrawNormalTriangles();
+	gBSPRenderer.DrawNormalTriangles(true);
 
-	RenderFog();
+	g_StudioRenderer.StudioDrawModels();
 
-	for (int i = 0; i < gBSPRenderer.m_iNumRenderEntities; i++)
-	{
-		if (gBSPRenderer.m_pRenderEntities[i]->model->type != mod_studio)
-			continue;
+	g_LegacySpriteRenderer.DrawSpriteEntities();
 
-		if (!gBSPRenderer.m_pRenderEntities[i]->player)
-		{
-			g_StudioRenderer.m_pCurrentEntity = gBSPRenderer.m_pRenderEntities[i];
-			g_StudioRenderer.StudioDrawModel(STUDIO_RENDER);
-		}
-		else if (m_pCvarMirrorPlayer->value > 0)
-		{
-			entity_state_t* pPlayer = IEngineStudio.GetPlayerState((gBSPRenderer.m_pRenderEntities[i]->index - 1));
-			g_StudioRenderer.m_pCurrentEntity = gBSPRenderer.m_pRenderEntities[i];
-			g_StudioRenderer.StudioDrawPlayer(STUDIO_RENDER, pPlayer);
-		}
-	}
-	R_SaveGLStates();
-	// Draw props
-	gPropManager.RenderProps();
+	g_BeamRenderer.R_DrawBeams(engine_cl->time - engine_cl->oldtime);
 
-	// Draw Transparent world polys
-	gBSPRenderer.DrawTransparentTriangles();
+	//// Draw props
+	//gPropManager.RenderProps();
+	//
+	//// Draw Transparent world polys
+	//gBSPRenderer.DrawTransparentTriangles();
+	//
+	//// Draw particles
+	//gParticleEngine.DrawParticles();
 
-	// Draw particles
-	gParticleEngine.DrawParticles();
-
-	R_RestoreGLStates();
+	m_iNumPasses++;
 }
 
 /*
@@ -321,44 +344,72 @@ SetupMirrorPass
 */
 void CMirrorManager::SetupMirrorPass(void)
 {
-	vec3_t forward;
-	AngleVectors(m_pViewParams->viewangles, forward, NULL, NULL);
+	Vector forward_;
+	Vector up_;
+
+	Vector original_viewangles = m_pViewParams->viewangles;
+	original_viewangles = original_viewangles + gBSPRenderer.m_RefParams.punchangle;
+
+	AngleVectors(original_viewangles, &forward_, NULL, NULL);
 
 	float flDist = DotProduct(m_pViewParams->vieworg, m_pCurrentMirror->surface->plane->normal) - m_pCurrentMirror->surface->plane->dist;
-	VectorMASSE(m_pViewParams->vieworg, -2 * flDist, m_pCurrentMirror->surface->plane->normal, m_pMirrorParams.vieworg);
+	VectorMA(m_pViewParams->vieworg, -2 * flDist, m_pCurrentMirror->surface->plane->normal, m_pMirrorParams.vieworg);
 
 	if (m_pCurrentMirror->surface->flags & SURF_PLANEBACK)
 	{
-		flDist = DotProduct(forward, m_pCurrentMirror->surface->plane->normal);
-		VectorMASSE(forward, -2 * flDist, m_pCurrentMirror->surface->plane->normal, forward);
+		flDist = DotProduct(forward_, m_pCurrentMirror->surface->plane->normal);
+		VectorMA(forward_, -2 * flDist, m_pCurrentMirror->surface->plane->normal, forward_);
 	}
 	else
 	{
-		flDist = DotProduct(forward, -m_pCurrentMirror->surface->plane->normal);
-		VectorMASSE(forward, -2 * flDist, -m_pCurrentMirror->surface->plane->normal, forward);
+		flDist = DotProduct(forward_, -m_pCurrentMirror->surface->plane->normal);
+		VectorMA(forward_, -2 * flDist, -m_pCurrentMirror->surface->plane->normal, forward_);
 	}
 
-	m_pMirrorParams.viewangles[0] = -asin(forward[2]) / M_PI * 180;
-	m_pMirrorParams.viewangles[1] = atan2(forward[1], forward[0]) / M_PI * 180;
-	m_pMirrorParams.viewangles[2] = -m_pViewParams->viewangles[2];
+	m_pMirrorParams.viewangles[0] = -asin(forward_[2]) / M_PI * 180;
+	m_pMirrorParams.viewangles[1] = atan2(forward_[1], forward_[0]) / M_PI * 180;
+	m_pMirrorParams.viewangles[2] = -original_viewangles[2];
 
-	AngleVectors(m_pMirrorParams.viewangles, m_pMirrorParams.forward, m_pMirrorParams.right, m_pMirrorParams.up);
+	AngleVectors(m_pMirrorParams.viewangles, &m_pMirrorParams.forward, &m_pMirrorParams.right, &m_pMirrorParams.up);
 	VectorCopy(m_pMirrorParams.viewangles, m_pMirrorParams.cl_viewangles);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	oldviewmatrix = gBSPRenderer.m_ViewMatrix;
 
-	glRotatef(-90, 1, 0, 0); // put X going down
-	glRotatef(90, 0, 0, 1);	 // put Z going up
-	glRotatef(-m_pMirrorParams.viewangles[2], 1, 0, 0);
-	glRotatef(-m_pMirrorParams.viewangles[0], 0, 1, 0);
-	glRotatef(-m_pMirrorParams.viewangles[1], 0, 0, 1);
-	glTranslatef(-m_pMirrorParams.vieworg[0], -m_pMirrorParams.vieworg[1], -m_pMirrorParams.vieworg[2]);
+	auto& m_vViewAngles = m_pMirrorParams.viewangles;
+	auto& m_RefParams = gBSPRenderer.m_RefParams;
+	auto& m_vRenderOrigin = m_pMirrorParams.vieworg;
+
+	glm::vec3 viewangles = glm::vec3(m_vViewAngles.x + m_RefParams.punchangle.x, m_vViewAngles.y + m_RefParams.punchangle.y, m_vViewAngles.z + m_RefParams.punchangle.z);
+
+	AngleVectors(Vector(viewangles.x, viewangles.y, viewangles.z), nullptr, nullptr, &up_);
+
+	glm::vec3 forward = glm::vec3(forward_.x, forward_.y, forward_.z);
+
+	glm::vec3 cameraPos = glm::vec3(m_vRenderOrigin.x, m_vRenderOrigin.y, m_vRenderOrigin.z);
+	glm::vec3 cameraTarget = cameraPos + forward;
+	glm::vec3 cameraUp = glm::vec3(up_.x, up_.y, up_.z);
+
+	m_vRestoreRenderOrigin = gBSPRenderer.m_vRenderOrigin;
+	m_vRestoreViewAngles = gBSPRenderer.m_vViewAngles;
+	gBSPRenderer.m_vRenderOrigin = m_vRenderOrigin;
+	gBSPRenderer.m_vViewAngles = m_vViewAngles;
+
+	gBSPRenderer.m_ViewMatrix = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+	mirrorFBO->Bind(GL_FBOHandler::Framebuffer);
+	mirrorFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, m_pCurrentMirror->texture->GetTextureID(), 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
+
+	// Completely clear everything
+	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 
 	glViewport(GL_ZERO, GL_ZERO, MIRROR_RESOLUTION, MIRROR_RESOLUTION);
-
-	glCullFace(GL_FRONT);
-	glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
 	// Set up clipping
 	SetupClipping();
@@ -372,21 +423,29 @@ FinishMirrorPass
 */
 void CMirrorManager::FinishMirrorPass(void)
 {
-	// Save mirrored image
-	glBindTexture(GL_TEXTURE_2D, m_pCurrentMirror->texture);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, WATER_RESOLUTION, WATER_RESOLUTION, 0);
+	GL_FBOHandler::ResetToMainFBO();
 
-	// Completely clear everything
+		// Completely clear everything
 	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 
-	// Restore projection
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	// Turn culling off
+	gHUD.viewFrustum.DisableExtraCullBox();
 
-	// Restore modelview
+	gBSPRenderer.m_ViewMatrix = oldviewmatrix;
+	gBSPRenderer.m_ProjectionMatrix = oldprojectionmatrix;
+	R_SetupView(m_pViewParams);
+
+	gBSPRenderer.m_vRenderOrigin = m_vRestoreRenderOrigin;
+	gBSPRenderer.m_vViewAngles = m_vRestoreViewAngles;
+	m_vRestoreRenderOrigin = Vector(0, 0, 0);
+	m_vRestoreViewAngles = Vector(0, 0, 0);
+
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
 }
 
 /*
@@ -403,78 +462,38 @@ void CMirrorManager::DrawMirrors(void)
 	if (!m_iNumMirrors)
 		return;
 
-	float flProjection[16];
-	float flModelView[16];
 
-	GLfloat Splane[] = {1.0f, 0.0f, 0.0f, 0.0f};
-	GLfloat Tplane[] = {0.0f, 1.0f, 0.0f, 0.0f};
-	GLfloat Rplane[] = {0.0f, 0.0f, 1.0f, 0.0f};
-	GLfloat Qplane[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	m_MirrorShader->Bind();
 
-	gBSPRenderer.EnableVertexArray();
-	gBSPRenderer.glActiveTextureARB(GL_TEXTURE0_ARB);
-	gBSPRenderer.SetTexEnvs(ENVSTATE_REPLACE);
+	m_MirrorShader->UniformMatrix4fv(m_MirrorShader->GetUniformLoc("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
+	m_MirrorShader->UniformMatrix4fv(m_MirrorShader->GetUniformLoc("modelMatrix"), 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ModelMatrix));
 
-	glGetFloatv(GL_PROJECTION_MATRIX, flProjection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, flModelView);
 
-	gBSPRenderer.glActiveTextureARB(GL_TEXTURE0_ARB);
-	glMatrixMode(GL_TEXTURE);
-
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_GEN_R);
-	glEnable(GL_TEXTURE_GEN_Q);
-
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_S, GL_EYE_PLANE, Splane);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_T, GL_EYE_PLANE, Tplane);
-	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_R, GL_EYE_PLANE, Rplane);
-	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_Q, GL_EYE_PLANE, Qplane);
+	gBSPRenderer.m_pBSP_VAO->BindVAO();
 
 	for (int i = 0; i < m_iNumMirrors; i++)
 	{
-		if (!m_pMirrors[i].draw)
+		m_pCurrentMirror = &m_pMirrors[i];
+
+		if (!m_pCurrentMirror->draw)
 			continue;
 
-		if (gHUD.viewFrustum.CullBox(m_pMirrors[i].mins, m_pMirrors[i].maxs))
+		if (gHUD.viewFrustum.CullBox(m_pCurrentMirror->mins, m_pCurrentMirror->maxs))
 			continue;
 
-		glPushMatrix();
-		glLoadIdentity();
+		GLuint location = m_MirrorShader->GetUniformLoc("viewMatrix");
 
-		glTranslatef(0.5f, 0.5f, 0.0f);
-		glScalef(0.5f, 0.5f, 1.0f);
-
-		if (m_pMirrors[i].surface->plane->normal[2] == 1)
-			glScalef(1, -1, 1);
-		else
-			glScalef(-1, 1, 1);
-
-		glMultMatrixf(flProjection);
-		glMultMatrixf(flModelView);
-
-		glBindTexture(GL_TEXTURE_2D, m_pMirrors[i].texture);
+		m_MirrorShader->UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ViewMatrix));
 
 		model_t* model = m_pMirrors[i].entity->model;
-		msurface_t* psurf = &model->surfaces[model->firstmodelsurface];
+		clientmsurface_t* psurf = &BSPWorld_Model::m_pWorldSurfaces[model->firstmodelsurface];
 
-		gBSPRenderer.DrawPolyFromArray(gBSPRenderer.m_pWorld->surfaces, psurf);
+		gBSPRenderer.BindGLTexture(GL_TEXTURE0, m_pCurrentMirror->texture->GetTextureID());
+
+
+		gBSPRenderer.DrawPolyFromArray(BSPWorld_Model::m_pWorldSurfaces, psurf);
 		psurf->visframe = gBSPRenderer.m_iFrameCount; // For decals
-
-		glPopMatrix();
 	}
 
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
-	glDisable(GL_TEXTURE_GEN_Q);
-	glMatrixMode(GL_MODELVIEW);
-
-	gBSPRenderer.DisableVertexArray();
+	GL_ShaderProgram::ResetShaderBind();
 }
-
-#endif

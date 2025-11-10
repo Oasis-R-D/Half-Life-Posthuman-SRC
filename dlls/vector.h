@@ -1,19 +1,21 @@
 /***
-*
-*	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
-*	All Rights Reserved.
-*
-*   Use, distribution, and modification of this source code and/or resulting
-*   object code is restricted to non-commercial enhancements to products from
-*   Valve LLC.  All other use, distribution, or modification is prohibited
-*   without written permission from Valve LLC.
-*
-****/
+ *
+ *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
+ *
+ *	This product contains software technology licensed from Id
+ *	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
+ *	All Rights Reserved.
+ *
+ *   Use, distribution, and modification of this source code and/or resulting
+ *   object code is restricted to non-commercial enhancements to products from
+ *   Valve LLC.  All other use, distribution, or modification is prohibited
+ *   without written permission from Valve LLC.
+ *
+ ****/
 
 #pragma once
+
+#include <intrin.h> //sse instruction set
 
 //=========================================================
 // 2DVector - used for many pathfinding and many other
@@ -80,6 +82,10 @@ public:
 		: x(X), y(Y), z(Z)
 	{
 	}
+	constexpr Vector(float F)
+		: x(F), y(F), z(F)
+	{
+	}
 
 	constexpr Vector(float rgfl[3])
 		: x(rgfl[0]), y(rgfl[1]), z(rgfl[2])
@@ -92,6 +98,7 @@ public:
 	[[nodiscard]] constexpr bool operator!=(const Vector& v) const { return !(*this == v); }
 	[[nodiscard]] constexpr Vector operator+(const Vector& v) const { return Vector(x + v.x, y + v.y, z + v.z); }
 	[[nodiscard]] constexpr Vector operator-(const Vector& v) const { return Vector(x - v.x, y - v.y, z - v.z); }
+	[[nodiscard]] constexpr Vector operator*(const Vector& v) const { return Vector(x * v.x, y * v.y, z * v.z); }
 	[[nodiscard]] constexpr Vector operator*(float fl) const { return Vector(x * fl, y * fl, z * fl); }
 	[[nodiscard]] constexpr Vector operator/(float fl) const { return Vector(x / fl, y / fl, z / fl); }
 
@@ -128,9 +135,19 @@ public:
 	return v * fl;
 }
 
-[[nodiscard]] constexpr float DotProduct(const Vector& a, const Vector& b)
+[[nodiscard]] inline float DotProduct(const vec_t* a, const vec_t* b)
 {
-	return (a.x * b.x + a.y * b.y + a.z * b.z);
+	auto mmPos = _mm_loadu_ps((const float*)a);
+	auto mmPlane = _mm_loadu_ps((const float*)b);
+	auto result = _mm_dp_ps(mmPos, mmPlane, 0b01110111);
+	return _mm_cvtss_f32(result);
+
+	//return (a.x * b.x + a.y * b.y + a.z * b.z);
+}
+
+[[nodiscard]] inline float DotProductAbs(const vec_t* a, const vec_t* b)
+{
+	return fabsf(a[0] * b[0]) + fabsf(a[1] * b[1]) + fabsf(a[2] * b[2]);
 }
 
 [[nodiscard]] constexpr Vector CrossProduct(const Vector& a, const Vector& b)
@@ -138,4 +155,4 @@ public:
 	return Vector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-#define vec3_t Vector
+#define InvPitch(x) Vector(-x[0], x[1], x[2])

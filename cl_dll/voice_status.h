@@ -189,7 +189,7 @@ public:
 	// Squelch mode stuff.
 	bool				m_bInSquelchMode;
 	
-	HSPRITE_GLDSRC				m_VoiceHeadModel;		// Voice head model (goes above players who are speaking).
+	HSPRITE_GOLDSRC				m_VoiceHeadModel;		// Voice head model (goes above players who are speaking).
 	float				m_VoiceHeadModelHeight;	// Height above their head to place the model.
 
 	vgui::Image			*m_pSpeakerLabelIcon;	// Icon next to speaker labels.

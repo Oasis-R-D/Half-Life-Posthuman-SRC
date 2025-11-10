@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -18,7 +19,6 @@ Written by Andrew Lucas
 #endif
 
 #include "PlatformHeaders.h"
-#include "gl/gl.h"
 #include "pm_defs.h"
 #include "cl_entity.h"
 #include "ref_params.h"
@@ -26,9 +26,8 @@ Written by Andrew Lucas
 #include "parsemsg.h"
 #include "cvardef.h"
 #include "rendererdefs.h"
-#include "wad.h"
 
-#define MAX_WADFILES 12
+#define MAX_WADFILES 32
 
 #define DDS_MAGIC 0x20534444
 
@@ -38,6 +37,24 @@ Written by Andrew Lucas
 
 #define D3DFMT_DXT1 '1TXD' //  DXT1 compression texture format
 #define D3DFMT_DXT5 '5TXD' //  DXT5 compression texture format
+
+typedef struct
+{
+	char identification[4]; // should be WAD2/WAD3
+	int numlumps;
+	int infotableofs;
+} wadinfo_t;
+
+typedef struct
+{
+	int filepos;
+	int disksize;
+	int size;
+	char type;
+	char compression;
+	char pad1, pad2;
+	char name[16];
+} lumpinfo_t;
 
 struct wadfile_t
 {
@@ -106,25 +123,29 @@ public:
 	void LoadWADFiles(void);
 	void FreeWADFiles(void);
 
-	cl_texture_t* LoadTexture(const char* szFile, int iAltIndex = 0, bool bPrompt = false, bool bNoMip = false, bool bBorder = false);
-	cl_texture_t* LoadWADTexture(char* szTexture, int iAltIndex = 0);
+	cl_texture_t* LoadTexture(const char* szFile, bool bPrompt = false, bool bNoMip = false, bool bBorder = false);
+	cl_texture_t* LoadCubemapTexture(std::vector<std::string>& szFiles, bool bPrompt = false, bool bNoMip = false, bool bBorder = false);
+	cl_texture_t* LoadWADTexture(char* szTexture);
+	cl_texture_t* LoadSprite(const char* szFile, int iFrame);
+	cl_texture_t* GenDummyTexture(int texIndex);
 	cl_texture_t* HasTexture(const char* szFile);
 
 	bool LoadTGAFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip, bool bBorder);
 	bool LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip);
 	void LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture, bool isdecal = false);
 
+	byte* LoadTGAFileRaw(const char* filename, int& width, int& height, int& bitsperpixel, bool bBorder); // WARNING !!! YOU MUST DELETE THE RETURN OF THIS FUNCTION WITH delete[] ONCE YOURE DONE WITH IT;
+
 	void LoadTextureScript(void);
 	bool TextureHasFlag(const char* szModel, char* szTexture, int iFlag);
 
 public:
-	PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
 
-	cl_texture_t m_pTextures[MAX_TGA_LOADER_TEXTURES];
-	int m_iNumTextures;
+	std::vector<cl_texture_t*> m_pTextures;
 
-	texentry_t m_pTextureEntries[MAX_CACHE_MODELS * 64];
-	int m_iNumTextureEntries;
+	std::vector<cl_texture_t*> m_pEngineTextures; //should not be deleted
+
+	std::vector<texentry_t*> m_pTextureEntries;
 
 	wadfile_t m_pWADFiles[MAX_WADFILES];
 	int m_iNumWADFiles;

@@ -149,7 +149,7 @@ typedef struct
 //  'model.h' and 'gl_model.h'
 typedef struct mplane_s
 {
-	vec3_t normal; // surface normal
+	Vector normal; // surface normal
 	float dist;	   // closest appoach to origin
 	byte type;	   // for texture axis selection and fast side tests
 	byte signbits; // signx + signy<<1 + signz<<1
@@ -158,7 +158,7 @@ typedef struct mplane_s
 
 typedef struct
 {
-	vec3_t position;
+	Vector position;
 } mvertex_t;
 
 // 06/23/2002 MAH
@@ -202,6 +202,9 @@ typedef struct texture_s
 	struct texture_s* anim_next;	   // in the animation sequence
 	struct texture_s* alternate_anims; // bmodels in frmae 1 use these
 	unsigned offsets[MIPLEVELS];	   // four mip maps stored
+
+	//additional values only used by client
+	int texture_flag;
 
 } texture_t;
 
@@ -466,8 +469,8 @@ typedef struct hull_s
 	mplane_t* planes;
 	int firstclipnode;
 	int lastclipnode;
-	vec3_t clip_mins;
-	vec3_t clip_maxs;
+	Vector clip_mins;
+	Vector clip_maxs;
 } hull_t;
 
 #if !defined(CACHE_USER) && !defined(QUAKEDEF_H)
@@ -492,7 +495,7 @@ typedef struct model_s
 	//
 	// volume occupied by the model
 	//
-	vec3_t mins, maxs; // +0x054, +060
+	Vector mins, maxs; // +0x054, +060
 	float radius;	   // +0x06C
 
 	//
@@ -557,7 +560,7 @@ typedef struct alight_s
 {
 	int ambientlight; // clip at 128
 	int shadelight;	  // clip at 192 - ambientlight
-	vec3_t color;
+	Vector color;
 	float* plightvec;
 } alight_t;
 
@@ -602,11 +605,88 @@ typedef struct player_info_s
 	int gaitsequence;
 	float gaitframe;
 	float gaityaw;
-	vec3_t prevgaitorigin;
+	Vector prevgaitorigin;
 
 	customization_t customdata;
+
+	char hashedcdkey[16];
+	uint64 m_nSteamID;
 } player_info_t;
 
 extern mvertex_t* globalVertexTable;
+
+
+
+//
+// trinity specific
+//
+
+
+typedef struct clientmsurface_s
+{
+	int visframe; // should be drawn when node is crossed
+
+	mplane_t* plane;
+	int flags;
+
+	int firstedge; // look up in model->surfedges[], negative numbers
+	int numedges;  // are backwards edges
+
+	short texturemins[2];
+	short extents[2];
+
+	int light_s, light_t; // gl lightmap coordinates
+
+	glpoly_t* polys; // multiple if warped
+	struct clientmsurface_s* texturechain;
+
+	mtexinfo_t* texinfo;
+
+	int lightmaptexturenum;
+	byte styles[MAXLIGHTMAPS];
+	int cached_light[MAXLIGHTMAPS]; // values currently used in lightmap
+
+	//  byte        *samples;                   // [numstyles*surfsize]
+	std::vector<color24> samples; // note: this is the actual lightmap data for this surface
+
+} clientmsurface_t;
+
+typedef struct clientmnode_t
+{
+	// common with leaf
+	int contents; // 0, to differentiate from leafs
+	int visframe; // node needs to be traversed if current
+
+	float minmaxs[6]; // for bounding box culling
+
+	struct clientmnode_t* parent;
+
+	// node specific
+	mplane_t* plane;
+	clientmnode_t* children[2];
+
+	unsigned short firstsurface;
+	unsigned short numsurfaces;
+};
+
+typedef struct clientmleaf_s
+{
+	// common with node
+	int contents; // wil be a negative contents number
+	int visframe; // node needs to be traversed if current
+
+	float minmaxs[6]; // for bounding box culling
+
+	struct clientmnode_t* parent;
+
+	// leaf specific
+	byte* compressed_vis;
+	struct efrag_s* efrags;
+
+	clientmsurface_t** firstmarksurface;
+	int nummarksurfaces;
+	int key; // BSP sequence number for leaf's contents
+	byte ambient_sound_level[NUM_AMBIENTS];
+} clientmleaf_t;
 
 #endif // #if !defined(COM_MODEL_H)

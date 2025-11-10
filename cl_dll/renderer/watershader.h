@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -18,7 +19,6 @@ Written by Andrew Lucas
 #endif
 
 #include "PlatformHeaders.h"
-#include "gl/gl.h"
 #include "pm_defs.h"
 #include "cl_entity.h"
 #include "ref_params.h"
@@ -27,6 +27,10 @@ Written by Andrew Lucas
 #include "cvardef.h"
 #include "textureloader.h"
 #include "rendererdefs.h"
+
+class GL_FBOHandler;
+class GL_RBOHandler;
+class GL_ShaderProgram;
 
 /*
 ====================
@@ -86,6 +90,8 @@ public:
 	cvar_t* m_pCvarWaterReflectScale;
 	cvar_t* m_pCvarWaterNormalScale;
 	cvar_t* m_pCvarWaterFresnel;
+	cvar_t* m_pCvarWaterForceExpensive;
+	cvar_t* m_pCvarWaterForceReflectEntities;
 
 	cl_texture_t* m_pNormalTexture;
 	cl_water_t* m_pCurWater;
@@ -100,15 +106,46 @@ public:
 	Vector m_vWaterEntMaxs;
 
 	int m_iNumPasses;
+	double m_fRenderTime;
 
 public:
-	GLuint m_WaterFragmentShader;
+	GL_ShaderProgram *m_WaterFragmentShader;
+
+	GL_FBOHandler* m_waterFBO;
+	GL_RBOHandler* m_waterDepthBuffer;
+	
+	enum watershader_uniforms
+	{
+		watershader_renderorigin,
+
+		watershader_projviewmodelmatrix,
+
+		watershader_underwater,
+
+		watershader_waterfog, // program.local[1] = (r, g, b)
+		watershader_fogstart, 
+		watershader_fogend,
+		watershader_m_flFresnelTerm, // program.local[2] = float
+		watershader_flTime,			 // program.local[3] = client time
+
+		watershader_normalscale,
+		watershader_watertex_scale,
+		watershader_refraction_scale,
+		watershader_reflection_scale,
+
+		_watershader_locsize
+		
+	};
+
+	GLuint m_WaterShader_locs[_watershader_locsize];
+
 
 public:
 	fog_settings_t m_pMainFogSettings;
 	fog_settings_t m_pWaterFogSettings;
 
 	float m_flFresnelTerm;
+	int m_iLastWaterRes = 0;
 };
 
 extern CWaterShader gWaterShader;

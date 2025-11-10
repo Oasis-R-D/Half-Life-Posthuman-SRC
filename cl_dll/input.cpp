@@ -658,13 +658,10 @@ void DLLEXPORT CL_CreateMove(float frametime, struct usercmd_s* cmd, int active)
 	{
 		//memset( viewangles, 0, sizeof( Vector ) );
 		//viewangles[ 0 ] = viewangles[ 1 ] = viewangles[ 2 ] = 0.0;
-		gEngfuncs.GetViewAngles((float*)viewangles);
 
-		CL_AdjustAngles(frametime, viewangles);
+		CL_AdjustAngles(frametime, engine_cl->viewangles);
 
 		memset(cmd, 0, sizeof(*cmd));
-
-		gEngfuncs.SetViewAngles((float*)viewangles);
 
 		if ((in_strafe.state & 1) != 0)
 		{
@@ -693,7 +690,7 @@ void DLLEXPORT CL_CreateMove(float frametime, struct usercmd_s* cmd, int active)
 		}
 
 		// clip to maxspeed
-		spd = gEngfuncs.GetClientMaxspeed();
+		spd = engine_cl->maxspeed;
 		if (spd != 0.0)
 		{
 			// scale the 3 speeds so that the total velocity is not > cl.maxspeed
@@ -739,7 +736,7 @@ void DLLEXPORT CL_CreateMove(float frametime, struct usercmd_s* cmd, int active)
 		}
 	}
 
-	gEngfuncs.GetViewAngles((float*)viewangles);
+	viewangles = engine_cl->viewangles;
 	// Set current view angles.
 
 	if (g_iAlive)
@@ -1019,8 +1016,6 @@ void ShutdownInput()
 }
 
 #include "interface.h"
-void CL_UnloadParticleMan();
-
 
 void DLLEXPORT HUD_Shutdown()
 {	
@@ -1033,6 +1028,5 @@ void DLLEXPORT HUD_Shutdown()
 
 
 	FileSystem_FreeFileSystem();
-	CL_UnloadParticleMan();
 
 }

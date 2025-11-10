@@ -363,7 +363,7 @@ void DLLEXPORT CAM_Think()
 	// Move towards ideal
 	VectorCopy(cam_ofs, camAngles);
 
-	gEngfuncs.GetViewAngles((float*)viewangles);
+	viewangles = engine_cl->viewangles;
 
 	if (0 != cam_snapto->value)
 	{
@@ -427,17 +427,15 @@ void CAM_OutUp() { KeyUp(&cam_out); }
 
 void CAM_ToThirdPerson()
 {
-	Vector viewangles;
+	Vector viewangles = engine_cl->viewangles;
 
 #if !defined(_DEBUG)
-	if (gEngfuncs.GetMaxClients() > 1)
+	if (engine_cl->maxclients > 1)
 	{
 		// no thirdperson in multiplayer.
 		return;
 	}
 #endif
-
-	gEngfuncs.GetViewAngles((float*)viewangles);
 
 	if (!cam_thirdperson)
 	{
@@ -502,9 +500,7 @@ void CAM_Init()
 
 void CAM_ClearStates()
 {
-	Vector viewangles;
-
-	gEngfuncs.GetViewAngles((float*)viewangles);
+	Vector viewangles = engine_cl->viewangles;
 
 	cam_pitchup.state = 0;
 	cam_pitchdown.state = 0;

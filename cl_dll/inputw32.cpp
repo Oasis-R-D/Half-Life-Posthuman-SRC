@@ -187,9 +187,7 @@ void Force_CenterView_f()
 
 	if (!iMouseInUse)
 	{
-		gEngfuncs.GetViewAngles((float*)viewangles);
-		viewangles[PITCH] = 0;
-		gEngfuncs.SetViewAngles((float*)viewangles);
+		engine_cl->viewangles[PITCH] = 0;
 	}
 }
 
@@ -524,9 +522,7 @@ IN_MouseMove
 void IN_MouseMove(float frametime, usercmd_t* cmd)
 {
 	Point pos;
-	Vector viewangles;
-
-	gEngfuncs.GetViewAngles((float*)viewangles);
+	Vector viewangles = engine_cl->viewangles;
 
 	if ((in_mlook.state & 1) != 0)
 	{
@@ -631,7 +627,7 @@ void IN_MouseMove(float frametime, usercmd_t* cmd)
 		}
 	}
 
-	gEngfuncs.SetViewAngles((float*)viewangles);
+	engine_cl->viewangles = viewangles;
 
 
 	if ((!IN_UseRawInput() && SDL_FALSE != mouseRelative) || g_iVisibleMouse)
@@ -767,7 +763,7 @@ void IN_StartupJoystick()
 		s_pJoystick = NULL;
 		if (joy_avail)
 		{
-			joy_avail = 0;
+			joy_avail = false;
 			gEngfuncs.Con_DPrintf("joystick not found -- driver not present\n\n");
 		}
 	}
@@ -946,9 +942,7 @@ void IN_JoyMove(float frametime, usercmd_t* cmd)
 	float speed, aspeed;
 	float fAxisValue, fTemp;
 	int i;
-	Vector viewangles;
-
-	gEngfuncs.GetViewAngles((float*)viewangles);
+	Vector viewangles = engine_cl->viewangles;
 
 
 	// complete initialization if first time in
@@ -1122,7 +1116,7 @@ void IN_JoyMove(float frametime, usercmd_t* cmd)
 	if (viewangles[PITCH] < -cl_pitchup->value)
 		viewangles[PITCH] = -cl_pitchup->value;
 
-	gEngfuncs.SetViewAngles((float*)viewangles);
+	engine_cl->viewangles = viewangles;
 }
 
 /*

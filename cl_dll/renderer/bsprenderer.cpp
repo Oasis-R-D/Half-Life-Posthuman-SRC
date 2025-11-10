@@ -1,5 +1,6 @@
-/*
+﻿/*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -12,14 +13,10 @@ Original code by Buzer and Id Software
 Extended and/or recoded by Andrew Lucas
 */
 
-#ifdef TRINITY
-
 #include "PlatformHeaders.h"
 #include "Platform.h"
 #include "hud.h"
 #include "cl_util.h"
-#include <gl/glu.h>
-
 #include "const.h"
 #include "studio.h"
 #include "entity_state.h"
@@ -34,364 +31,69 @@ Extended and/or recoded by Andrew Lucas
 #include <math.h>
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 
 #include "propmanager.h"
 #include "bsprenderer.h"
 #include "particle_engine.h"
 #include "watershader.h"
 #include "mirrormanager.h"
+#include "goldsrc_spriterenderer.h"
+
+#include "opengl_utils/GL_FBO.h"
+#include "opengl_utils/GL_Buffers.h"
+#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/GL_StateHandler.h"
+#include "opengl_utils/GL_ShadowMap.h"
+#include "opengl_utils/GL_VertexArrayObject.h"
 
 #include "r_efx.h"
 #include "r_studioint.h"
 #include "studio_util.h"
 
-#include "stb_image_write.h"
+// #include "stb_image_write.h"
 
 #include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
-#include "bspfile.h"
-#include "wad.h"
-extern CGameStudioModelRenderer g_StudioRenderer;
+#include "BSPModel_Gen.h"
 
-extern int r_visframecount;
+// using namespace std;
 
-bool loaded_decal_wad = false;
-
-extern mleaf_t *r_oldviewleaf;
-
-extern bool g_iNightVision;
-extern bool g_iFlashLight;
-//using namespace std;
+CBSPRenderer gBSPRenderer;
 
 extern "C" {
 #include "pm_shared.h"
 }
 
-float turbsin[] = {
-	0, 0.19633, 0.392541, 0.588517, 0.784137, 0.979285, 1.17384, 1.3677,
-	1.56072, 1.75281, 1.94384, 2.1337, 2.32228, 2.50945, 2.69512, 2.87916,
-	3.06147, 3.24193, 3.42044, 3.59689, 3.77117, 3.94319, 4.11282, 4.27998,
-	4.44456, 4.60647, 4.76559, 4.92185, 5.07515, 5.22538, 5.37247, 5.51632,
-	5.65685, 5.79398, 5.92761, 6.05767, 6.18408, 6.30677, 6.42566, 6.54068,
-	6.65176, 6.75883, 6.86183, 6.9607, 7.05537, 7.14579, 7.23191, 7.31368,
-	7.39104, 7.46394, 7.53235, 7.59623, 7.65552, 7.71021, 7.76025, 7.80562,
-	7.84628, 7.88222, 7.91341, 7.93984, 7.96148, 7.97832, 7.99036, 7.99759,
-	8, 7.99759, 7.99036, 7.97832, 7.96148, 7.93984, 7.91341, 7.88222,
-	7.84628, 7.80562, 7.76025, 7.71021, 7.65552, 7.59623, 7.53235, 7.46394,
-	7.39104, 7.31368, 7.23191, 7.14579, 7.05537, 6.9607, 6.86183, 6.75883,
-	6.65176, 6.54068, 6.42566, 6.30677, 6.18408, 6.05767, 5.92761, 5.79398,
-	5.65685, 5.51632, 5.37247, 5.22538, 5.07515, 4.92185, 4.76559, 4.60647,
-	4.44456, 4.27998, 4.11282, 3.94319, 3.77117, 3.59689, 3.42044, 3.24193,
-	3.06147, 2.87916, 2.69512, 2.50945, 2.32228, 2.1337, 1.94384, 1.75281,
-	1.56072, 1.3677, 1.17384, 0.979285, 0.784137, 0.588517, 0.392541, 0.19633,
-	9.79717e-16, -0.19633, -0.392541, -0.588517, -0.784137, -0.979285, -1.17384, -1.3677,
-	-1.56072, -1.75281, -1.94384, -2.1337, -2.32228, -2.50945, -2.69512, -2.87916,
-	-3.06147, -3.24193, -3.42044, -3.59689, -3.77117, -3.94319, -4.11282, -4.27998,
-	-4.44456, -4.60647, -4.76559, -4.92185, -5.07515, -5.22538, -5.37247, -5.51632,
-	-5.65685, -5.79398, -5.92761, -6.05767, -6.18408, -6.30677, -6.42566, -6.54068,
-	-6.65176, -6.75883, -6.86183, -6.9607, -7.05537, -7.14579, -7.23191, -7.31368,
-	-7.39104, -7.46394, -7.53235, -7.59623, -7.65552, -7.71021, -7.76025, -7.80562,
-	-7.84628, -7.88222, -7.91341, -7.93984, -7.96148, -7.97832, -7.99036, -7.99759,
-	-8, -7.99759, -7.99036, -7.97832, -7.96148, -7.93984, -7.91341, -7.88222,
-	-7.84628, -7.80562, -7.76025, -7.71021, -7.65552, -7.59623, -7.53235, -7.46394,
-	-7.39104, -7.31368, -7.23191, -7.14579, -7.05537, -6.9607, -6.86183, -6.75883,
-	-6.65176, -6.54068, -6.42566, -6.30677, -6.18408, -6.05767, -5.92761, -5.79398,
-	-5.65685, -5.51632, -5.37247, -5.22538, -5.07515, -4.92185, -4.76559, -4.60647,
-	-4.44456, -4.27998, -4.11282, -3.94319, -3.77117, -3.59689, -3.42044, -3.24193,
-	-3.06147, -2.87916, -2.69512, -2.50945, -2.32228, -2.1337, -1.94384, -1.75281,
-	-1.56072, -1.3677, -1.17384, -0.979285, -0.784137, -0.588517, -0.392541, -0.19633};
+extern int r_visframecount;
+extern clientmleaf_t* r_oldviewleaf;
+
+extern bool g_iNightVision;
+
+
+static GLuint multidraw_startverts[65536];
+static GLuint multidraw_numverts[65536];
+static GLuint num_multidraws;
+
+//shaders start
 
 //===========================================
-//	ARB SHADER
+// GLSL SHADER START
+//
 //===========================================
-char fog_fp[] = //fog fragment program
-	"!!ARBfp1.0"
-	"OPTION ARB_precision_hint_fastest;"
-	"TEMP R0;"
-	"ABS R0.x, fragment.fogcoord.x;"
-	"SUB R0.y, state.fog.params.z, R0.x;"
-	"MUL_SAT R0.x, R0.y, state.fog.params.w;"
-	"MOV result.color, state.fog.color;"
-	"SUB result.color.a, 1.0, R0.x;"
-	"END";
+#include "glshaders/bsp_glsl.h"
+#include "glshaders/shadow/bsp_solid_glsl.h"
 
-char decal_fp[] = //decal fragment program (for fog it seems)
-	"!!ARBfp1.0"
-	"TEMP R0; TEMP R1;"
-	"TEX R1, fragment.texcoord[0], texture[0], 2D;"
-	"ABS R0.x, fragment.fogcoord.x;"
-	"SUB R0.y, state.fog.params.z, R0.x;"
-	"MUL_SAT R0.w, R0.y, state.fog.params.w;"
-	"MUL R0.xyz, R0.w, R1;"
-	"SUB R1.x, 1.0, R0.w;"
-	"MAD result.color.x, 0.498, R1.x, R0.x;"
-	"MAD result.color.y, 0.498, R1.x, R0.y;"
-	"MAD result.color.z, 0.498, R1.x, R0.z;"
-	"MOV result.color.w, R1.w;"
-	"END";
+#include "glshaders/decal_glsl.h"
 
-char shadow_fp[] = //pcf shadow fragment program
-	"!!ARBfp1.0"
-	"OPTION ARB_fragment_program_shadow;"
-	"OPTION ARB_precision_hint_fastest;"
-	"PARAM c[5] = {"
-	"{0, -0.00390625},"
-	"{-0.00390625, 0},"
-	"{0.00390625, 0},"
-	"{0, 0.00390625},"
-	"{5, 1}};"
-	"TEMP R0;"
-	"TEMP R1;"
-	"RCP R0.x, fragment.texcoord[2].w;"
-	"MUL R0.xyz, fragment.texcoord[2], R0.x;"
-	"TEX R0.w, R0, texture[2], SHADOW2D;"
-	"ADD R1.xyz, R0, c[0];"
-	"TEX R1.w, R1, texture[2], SHADOW2D;"
-	"ADD R0.w, R1.w, R0.w;"
-	"ADD R1.xyz, R0, c[1];"
-	"TEX R1.w, R1, texture[2], SHADOW2D;"
-	"ADD R0.w, R1.w, R0.w;"
-	"ADD R1.xyz, R0, c[2];"
-	"TEX R1.w, R1, texture[2], SHADOW2D;"
-	"ADD R0.w, R1.w, R0.w;"
-	"ADD R1.xyz, R0, c[3];"
-	"TEX R1.w, R1, texture[2], SHADOW2D;"
-	"ADD R0.w, R1.w, R0.w;"
-	"RCP R1.w, c[4].x;"
-	"MUL R1.w, R0.w, R1.w;"
-	"TXP R0, fragment.texcoord[0], texture[0], 2D;"
-	"MUL R1, R0, R1.w;"
-	"TXP R0, fragment.texcoord[1], texture[1], 1D;"
-	"MUL R1, R1, R0;"
-	"MUL result.color.xyz, fragment.color.primary, R1;"
-	"MOV result.color.w, c[4].y;"
-	"END";
+#include "glshaders/skybox_glsl.h"
+
+#include "glshaders/gaussianblur_glsl.h"
 
 //===========================================
-//	ARB SHADER
+// GLSL SHADER END
+//
 //===========================================
 
-const char *modelshadow_vertex =
-	R"(
-	#version 120
-
-	uniform mat4 textureMatrix;
-
-	uniform mat4 modelMatrix;
-
-	varying vec4 projTexCoord;
-
-	varying vec3 fragPos;
-
-	void main() {
-		fragPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-		gl_Position = ftransform();
-		projTexCoord = textureMatrix * gl_Vertex;
-	}
-	
-	)";
-
-const char* modelshadow_fragment =
-	R"(
-	#version 120
-
-	uniform sampler2DShadow shadowMap;
-
-	uniform int shadowPCF;
-
-	uniform sampler1D attenuationTex;
-
-	uniform vec3 lightPos;
-
-	uniform vec3 spotDir;
-
-	uniform float spotCosCutoff;
-
-	varying vec3 fragPos;
-
-	varying vec4 projTexCoord;
-
-	
-	float sampleShadowPCF(sampler2DShadow shadowMap, vec4 projCoord) {
-		vec3 shadowCoord = projCoord.xyz / projCoord.w;
-
-		float shadow = 0.0;
-		float texelSize = 1.0 / 256.0; //DEPTHMAP_RESOLUTION
-
-		// Sample a 3x3 region around the projected coord
-		for (int x = -1; x <= 1; ++x) {
-			for (int y = -1; y <= 1; ++y) {
-				vec3 offset = vec3(x, y, 0.0) * texelSize;
-				shadow += shadow2D(shadowMap, shadowCoord + offset).r;
-			}
-		}
-
-		shadow /= 9.0; // Average the samples
-		return shadow;
-	}
-
-	void main() {
-			
-		vec3 lightToFrag = normalize(fragPos - lightPos);
-
-		float dist = length(fragPos - lightPos);
-		float fadeStart = 170.0;
-		float fadeEnd = 270.0;
-		float shadowFade = clamp((fadeEnd - dist) / (fadeEnd - fadeStart), 0.0, 1.0);
-
-		// Spotlight cone test
-		float cosAngle = dot(-lightToFrag, normalize(spotDir)); // Use negative because we're going FROM light TO frag
-		if (cosAngle < spotCosCutoff) {
-			// Outside spotlight cone -> no shadow projected here
-			discard;
-		}
-		
-		
-		// Perform projective divide to get correct shadow map coords
-		vec3 shadowCoord = projTexCoord.xyz / projTexCoord.w;
-
-		float shadowFactor;
-
-		// Sample the shadow map: returns 1.0 if lit, 0.0 if in shadow
-		if (shadowPCF > 0)
-			shadowFactor = sampleShadowPCF(shadowMap, projTexCoord);
-		else
-			shadowFactor = shadow2D(shadowMap, shadowCoord).r;
-
-		vec3 baseColor = vec3(1.0, 1.0, 1.0);  // white
-
-		vec3 shadowColor = baseColor * 0.4;
-
-		vec3 litColor = mix(shadowColor, baseColor, shadowFactor);  //fadeout based on distance
-
-		// Blend based on shadow factor: 1.0 = lit, 0.0 = shadow
-		vec3 finalColor = mix(baseColor, litColor, shadowFade);
-
-		gl_FragColor = vec4(finalColor, 1.0);
-	}
-
-	)";
-
-
-
-typedef float mat4[16];
-
-void mat4Identity(mat4 out)
-{
-	memset(out, 0, sizeof(mat4));
-	out[0] = out[5] = out[10] = out[15] = 1.0f;
-}
-
-void mat4Multiply(mat4 out, const mat4 a, const mat4 b)
-{
-	mat4 temp;
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			temp[j * 4 + i] = 0.0f;
-			for (int k = 0; k < 4; k++)
-			{
-				temp[j * 4 + i] += a[k * 4 + i] * b[j * 4 + k];
-			}
-		}
-	}
-	memcpy(out, temp, sizeof(mat4));
-}
-
-void mat4LookAt(mat4 out, const Vector eye, const Vector target, float upSign)
-{
-	Vector forward = {
-		target[0] - eye[0],
-		target[1] - eye[1],
-		target[2] - eye[2]};
-	forward = forward.Normalize(); // Implement your own vector normalization
-
-	Vector right, up;
-	CrossProduct(right, forward, Vector(0, 0, upSign)); // Implement cross product
-	right = right.Normalize();
-	CrossProduct(up, right, forward);
-	up = up.Normalize();
-
-	mat4 view = {
-		right[0], up[0], -forward[0], 0,
-		right[1], up[1], -forward[1], 0,
-		right[2], up[2], -forward[2], 0,
-		-DotProduct(right, eye), -DotProduct(up, eye), DotProduct(forward, eye), 1};
-	memcpy(out, view, sizeof(mat4));
-}
-
-void mat4Perspective(mat4 out, float size)
-{
-	float Near = 1.0f, Far = 100.0f;
-	float range = Far - Near;
-	float a = 2.0f / (size * 2.0f);
-	float b = -2.0f / (size * 2.0f);
-
-	mat4 proj = {
-		a, 0, 0, 0,
-		0, b, 0, 0,
-		0, 0, -1.0f, -1.0f,
-		0, 0, -2.0f * Near, 0};
-	memcpy(out, proj, sizeof(mat4));
-}
-
-void mat4ScaleTranslate(mat4 out, float sx, float sy, float sz, float tx, float ty, float tz)
-{
-	mat4Identity(out);
-	out[0] = sx;
-	out[5] = sy;
-	out[10] = sz;
-	out[12] = tx;
-	out[13] = ty;
-	out[14] = tz;
-}
-
-
-
-GLuint CBSPRenderer::compileShader(const char* source, GLenum type)
-{
-	GLuint shader = glCreateShader(type);
-	glShaderSource(shader, 1, &source, nullptr);
-	glCompileShader(shader);
-
-	// Check compile status
-	GLint success;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		char log[512];
-		glGetShaderInfoLog(shader, 512, nullptr, log);
-		gEngfuncs.Con_Printf("Shader compile error: %s\n", log);
-	}
-	return shader;
-}
-
-GLuint CBSPRenderer::createShaderProgram(const char* vertexSrc, const char* fragmentSrc)
-{
-	GLuint vertexShader = compileShader(vertexSrc, GL_VERTEX_SHADER);
-	GLuint fragmentShader = compileShader(fragmentSrc, GL_FRAGMENT_SHADER);
-
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-	glLinkProgram(program);
-
-	// Check link status
-	GLint success;
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		char log[512];
-		glGetProgramInfoLog(program, 512, nullptr, log);
-		gEngfuncs.Con_Printf("Shader link error: %s\n", log);
-	}
-
-	// Cleanup
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	return program;
-}
 
 
 /*
@@ -412,7 +114,6 @@ void CBSPRenderer::Shutdown(void)
 		m_iNumSurfaces = NULL;
 	}
 
-	ClearDetailObjects();
 	DeleteDecals();
 }
 
@@ -427,138 +128,49 @@ void CBSPRenderer::Init(void)
 	//
 	// Check extensions
 	//
-	if (!ExtensionSupported("GL_ARB_multitexture"))
-	{
-		gEngfuncs.pfnClientCmd("escape\n");
-		MessageBox(NULL, "VIDEO ERROR: Your hardware does not support multitexturing!\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
-		gEngfuncs.pfnClientCmd("quit\n");
-	}
 
-	if (!ExtensionSupported("ARB_vertex_buffer_object"))
-	{
-		gEngfuncs.pfnClientCmd("escape\n");
-		MessageBox(NULL, "VIDEO ERROR: Your hardware does not support vertex buffer objects!\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
-		gEngfuncs.pfnClientCmd("quit\n");
-	}
-
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &m_iTUSupport);
-	if (m_iTUSupport < 3)
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &m_iTUSupport);
+	if (m_iTUSupport < 4)
 	{
 		gEngfuncs.pfnClientCmd("escape\n");
 		MessageBox(NULL, "VIDEO ERROR: Your hardware does not support enough multitexture units!\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
 		gEngfuncs.pfnClientCmd("quit\n");
 	}
 
-	if (ExtensionSupported("GL_NV_fog_distance"))
+	const char* glVersion = (const char*)glGetString(GL_VERSION);
+	const char* glslVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+	int glMajor = 0, glMinor = 0;
+	int glslMajor = 0, glslMinor = 0;
+	if (glVersion)
 	{
-		// Radial fog is supported
-		m_bRadialFogSupport = true;
+		sscanf(glVersion, "%d.%d", &glMajor, &glMinor);
+	}
+	if (glslVersion)
+	{
+		sscanf(glslVersion, "%d.%d", &glslMajor, &glslMinor);
 	}
 
-	if (ExtensionSupported("ARB_fragment_program") && ExtensionSupported("ARB_vertex_program"))
+	if (glslMajor < 1 || glslMinor < 2)
 	{
-		// Shaders are supported
-		m_bShaderSupport = true;
-		m_bDontPromptShaders = true;
+		MessageBox(NULL, "FATAL ERROR: Your graphics driver or this version of goldsrc does not support glsl shader version 1.20.\n"
+						 "Please get in contact with the developer of the renderer to assist with the issue."
+						 "\nPress Ok to quit the game.\n",
+			"ERROR", MB_OK);
+	}
+	else if (glMajor < 4 || (glMajor >= 4 && glMinor < 4))
+	{
+		// because of some functions that only exist after opengl 4.4 (mainly glBufferStorage.)
+		MessageBox(NULL, "ERROR: this version of goldsrc uses a older version of opengl (minimum supported : 4.4)\n"
+						 "Please get in contact with the developer of the renderer to assist with the issue."
+						 "\nPress Ok to quit the game.\n",
+			"ERROR", MB_OK);
 	}
 
-	if (ExtensionSupported("GL_ARB_fragment_program_shadow") && !ExtensionSupported("PARANOIA_HACKS_V1"))
-	{
-		m_bShadowPCFSupport = true;
-		m_bDontPromptShadowPCF = true;
-	}
+	memset(m_pRenderEntities, 0, sizeof(m_pRenderEntities));
 
-	if (ExtensionSupported("GL_ARB_shadow") && !ExtensionSupported("PARANOIA_HACKS_V1"))
-	{
-		m_bShadowSupport = true;
-		m_bDontPromptShadow = true;
-	}
+	glGenTextures(1, &m_iEngineLightmapIndex);
 
-	if (!ExtensionSupported("PARANOIA_HACKS_V1"))
-	{
-		m_bDontPromptParanoia = true;
-	}
-
-	//
-	// Load our OGL functions
-	//
-
-	glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)wglGetProcAddress("glActiveTextureARB");
-	glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC)wglGetProcAddress("glClientActiveTextureARB");
-	glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)wglGetProcAddress("glMultiTexCoord2fARB");
-
-	glBindBufferARB = (PFNGLBINDBUFFERARBPROC)wglGetProcAddress("glBindBufferARB");
-	glGenBuffersARB = (PFNGLGENBUFFERSARBPROC)wglGetProcAddress("glGenBuffersARB");
-	glBufferDataARB = (PFNGLBUFFERDATAARBPROC)wglGetProcAddress("glBufferDataARB");
-	glDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)wglGetProcAddress("glDeleteBuffersARB");
-
-	glLockArraysEXT = (PFNGLLOCKARRAYSEXTPROC)wglGetProcAddress("glLockArraysEXT");
-	glUnlockArraysEXT = (PFNGLUNLOCKARRAYSEXTPROC)wglGetProcAddress("glUnlockArraysEXT");
-
-	glTexImage3DEXT = (PFNGLTEXIMAGE3DEXTPROC)wglGetProcAddress("glTexImage3DEXT");
-
-	glGenProgramsARB = (PFNGLGENPROGRAMSARBPROC)wglGetProcAddress("glGenProgramsARB");
-	glBindProgramARB = (PFNGLBINDPROGRAMARBPROC)wglGetProcAddress("glBindProgramARB");
-	glProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC)wglGetProcAddress("glProgramStringARB");
-	glGetProgramivARB = (PFNGLGETPROGRAMIVARBPROC)wglGetProcAddress("glGetProgramivARB");
-
-	glProgramLocalParameter4fARB = (PFNGLPROGRAMLOCALPARAMETER4FARBPROC)wglGetProcAddress("glProgramLocalParameter4fARB");
-	glFogCoordPointer = (PFNGLFOGCOORDPOINTEREXTPROC)wglGetProcAddress("glFogCoordPointer");
-
-#ifdef HL25_UPDATE
-	glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-#endif
-
-	glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
-	glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
-	glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
-	glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
-	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
-	glDeleteShader = (PFNGLDELETESHADERPROC)wglGetProcAddress("glDeleteShader");
-	glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
-	glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
-	glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
-	glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
-	glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
-	glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)wglGetProcAddress("glBindAttribLocation");
-	glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
-	glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
-	glUniform2i = (PFNGLUNIFORM2IPROC)wglGetProcAddress("glUniform2i");
-	glUniform2f = (PFNGLUNIFORM2FPROC)wglGetProcAddress("glUniform2f");
-	glUniform3i = (PFNGLUNIFORM3IPROC)wglGetProcAddress("glUniform3i");
-	glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
-	glUniform1iv = (PFNGLUNIFORM1IVPROC)wglGetProcAddress("glUniform1iv");
-	glUniform1fv = (PFNGLUNIFORM1FVPROC)wglGetProcAddress("glUniform1fv");
-	glUniform2iv = (PFNGLUNIFORM2IVPROC)wglGetProcAddress("glUniform2iv");
-	glUniform2fv = (PFNGLUNIFORM2FVPROC)wglGetProcAddress("glUniform2fv");
-	glUniform3iv = (PFNGLUNIFORM3IVPROC)wglGetProcAddress("glUniform3iv");
-	glUniform3fv = (PFNGLUNIFORM3FVPROC)wglGetProcAddress("glUniform3fv");
-	glUniform4fv = (PFNGLUNIFORM4FVPROC)wglGetProcAddress("glUniform4fv");
-	glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)wglGetProcAddress("glUniformMatrix4fv");
-	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
-
-	glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC)wglGetProcAddress("glGenFramebuffersEXT");
-	glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC)wglGetProcAddress("glBindFramebufferEXT");
-	glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)wglGetProcAddress("glFramebufferTexture2DEXT");
-	glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)wglGetProcAddress("glFramebufferRenderbufferEXT");
-	glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)wglGetProcAddress("glCheckFramebufferStatusEXT");
-	glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)wglGetProcAddress("glDeleteFramebuffersEXT");
-
-	glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC)wglGetProcAddress("glGenRenderbuffersEXT");
-	glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC)wglGetProcAddress("glBindRenderbufferEXT");
-	glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC)wglGetProcAddress("glRenderbufferStorageEXT");
-	glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)wglGetProcAddress("glDeleteRenderbuffersEXT");
-
-
-	//
-	// Initialize basic stuff
-	//
-
-	m_iEngineLightmapIndex = current_ext_texture_id;
-	current_ext_texture_id++;
-
-	m_iDetailLightmapIndex = current_ext_texture_id;
-	current_ext_texture_id++;
 
 	// 0 normal
 	AddLightStyle(0, "m");
@@ -600,94 +212,274 @@ void CBSPRenderer::Init(void)
 	AddLightStyle(12, "mmnnmmnnnmmnn");
 
 	m_iFrameCount = 0;
-	m_iVisFrame = 0;
-	m_bDontPromptShadersError = true;
+
 
 	gEngfuncs.pfnAddCommand("te_dump", RenderersDumpInfo);
-	gEngfuncs.pfnAddCommand("te_detail_auto", GenDetail);
-	gEngfuncs.pfnAddCommand("te_exportworld", ExportWorld);
 
-	m_pCvarDrawWorld = CVAR_CREATE("te_world", "1", 0);
-	m_pCvarSpeeds = CVAR_CREATE("te_speeds", "0", 0);
-	m_pCvarDetailTextures = CVAR_CREATE("te_detail", "1", 0);
-	m_pCvarWorldShaders = CVAR_CREATE("te_world_shaders", "1", FCVAR_ARCHIVE);
-	m_pCvarWireFrame = CVAR_CREATE("te_wireframe", "0", 0);
-	m_pCvarDynamic = CVAR_CREATE("te_dynlights", "1", 0);
-	m_pCvarRadialFog = CVAR_CREATE("te_radialfog", "1", 0);
-	m_pCvarPCFShadows = CVAR_CREATE("te_shadows_filter", "1", FCVAR_ARCHIVE);
-	m_pCvarShadows = CVAR_CREATE("te_shadows", "1", FCVAR_ARCHIVE);
-	m_pCvarFixTextCorruption = CVAR_CREATE("te_fix_text_corruption", "1", FCVAR_ARCHIVE);
+	m_pCvarDrawWorld = CVAR_CREATE("r_drawbsp", "1", FCVAR_ARCHIVE);
+	m_pCvarLightStyles = CVAR_CREATE("r_lightstyles", "1", FCVAR_ARCHIVE);
+	m_pCvarSpeeds = CVAR_CREATE("r_trinity_speeds", "0", 0);
+	m_pCvarDetailTextures = gEngfuncs.pfnGetCvarPointer("r_detailtextures");
+	m_pCvarWireFrame = CVAR_CREATE("r_wireframe", "0", 0);
+	m_pCvarDynamic = CVAR_CREATE("r_dynlights", "1", FCVAR_ARCHIVE);
+	// if off, then use blobby shadows. (for now theres no blobby shadows)
+	m_pCvarShadows = CVAR_CREATE("r_shadowrendertotexture", "1", FCVAR_ARCHIVE);
+	m_pCvarFlashLightDepthRes = CVAR_CREATE("r_flashlightdepthres", "512", FCVAR_ARCHIVE);
+	m_pCvarLightmapDebug = CVAR_CREATE("r_lightmap_debug", "0", 0);
+	m_pCvar3DSkybox = CVAR_CREATE("r_3dsky", "1", 0);
+	m_pCvarSunShadowsQuality = CVAR_CREATE("r_sunshadows_quality", "1", FCVAR_ARCHIVE); //brushes have some problems with sun shadows currently so make them disableable (yes it seems like thats a real word)
+	m_pCvarBlurShadows = CVAR_CREATE("r_blur_shadows", "1", FCVAR_ARCHIVE);
 
-	memset(oldvisframes, 0, sizeof(oldvisframes));
+
+
+	lightgamma = gEngfuncs.pfnGetCvarPointer("lightgamma");
+	texgamma = gEngfuncs.pfnGetCvarPointer("texgamma");
+	r_fullbright = gEngfuncs.pfnGetCvarPointer("r_fullbright");
+	gl_fog = gEngfuncs.pfnGetCvarPointer("gl_fog");
+	#ifndef HL25_UPDATE
+	gl_widescreen_yfov = CVAR_CREATE("gl_widescreen_yfov", "1", FCVAR_ARCHIVE);
+	#else
+	gl_widescreen_yfov = gEngfuncs.pfnGetCvarPointer("gl_widescreen_yfov");
+	#endif
 
 	//
 	// Load shaders
 	//
 
-	// Don't bother
-	if (!m_bShaderSupport)
-		return;
+	m_WorldShader = new GL_ShaderProgram(glsl330_world_vp, glsl330_world_fp);
+	m_WorldSolidShader = new GL_ShaderProgram(glsl330_worldsolid_vp, glsl330_worldsolid_fp);
+
+	m_DecalShader = new GL_ShaderProgram(glsl_decal_vp, glsl_decal_fp);
+	m_SimpleSkyboxShader = new GL_ShaderProgram(glsl_skybox_vp, glsl_skybox_fp);
+
+	m_FilterShader = new GL_ShaderProgram(glsl_gaussianblur_vp, glsl_gaussianblur_fp);
+
+	m_WorldShader_locs[world_projectionmatrix] = m_WorldShader->GetUniformLoc("projectionmatrix");
+	m_WorldShader_locs[world_viewmatrix] = m_WorldShader->GetUniformLoc("viewmatrix");
+	m_WorldShader_locs[world_modelmatrix] = m_WorldShader->GetUniformLoc("modelmatrix");
+
+	m_WorldShader_locs[world_spotlight_texturematrix] = m_WorldShader->GetUniformLoc("spotlight_texturematrix");
+
+	m_WorldShader_locs[world_pointlight] = m_WorldShader->GetUniformLoc("pointlight");
+	m_WorldShader_locs[world_spotlight] = m_WorldShader->GetUniformLoc("spotlight");
+	m_WorldShader_locs[world_shadow] = m_WorldShader->GetUniformLoc("shadow");
+	m_WorldShader_locs[world_onlyshadow] = m_WorldShader->GetUniformLoc("onlyshadow");
+
+	m_WorldShader_locs[world_sundir] = m_WorldShader->GetUniformLoc("sunDir");
+
+	m_WorldShader_locs[world_renderamt] = m_WorldShader->GetUniformLoc("renderamt");
+	m_WorldShader_locs[world_rendercolor] = m_WorldShader->GetUniformLoc("rendercolor");
+
+	m_WorldShader_locs[world_light_pos] = m_WorldShader->GetUniformLoc("light_pos");
+	m_WorldShader_locs[world_light_radius] = m_WorldShader->GetUniformLoc("light_radius");
+	m_WorldShader_locs[world_light_color] = m_WorldShader->GetUniformLoc("light_color");
+
+	m_WorldShader_locs[world_sunshadow_fadedist] = m_WorldShader->GetUniformLoc("sunshadow_fadedist");
+	m_WorldShader_locs[world_sunshadow_strength] = m_WorldShader->GetUniformLoc("sunshadow_strength");
+
+	m_WorldShader_locs[world_lightmap_pass] = m_WorldShader->GetUniformLoc("lightmap_pass");
+	m_WorldShader_locs[world_texture_pass] = m_WorldShader->GetUniformLoc("texture_pass");
+
+	m_WorldShader_locs[world_renderorigin] = m_WorldShader->GetUniformLoc("renderorigin");
+	//m_WorldShader_locs[world_renderforward] = m_WorldShader->GetUniformLoc("renderforward");
+	m_WorldShader_locs[world_renderright] = m_WorldShader->GetUniformLoc("renderright");
+
+	m_WorldShader_locs[world_fog_active] = m_WorldShader->GetUniformLoc("fog_active");
+	m_WorldShader_locs[world_fogcolor] = m_WorldShader->GetUniformLoc("fogcolor");
+	m_WorldShader_locs[world_fogstart] = m_WorldShader->GetUniformLoc("fogstart");
+	m_WorldShader_locs[world_fogend] = m_WorldShader->GetUniformLoc("fogend");
+
+	m_WorldShader_locs[world_lightgamma] = m_WorldShader->GetUniformLoc("lightgamma");
+	m_WorldShader_locs[world_texgamma] = m_WorldShader->GetUniformLoc("texgamma");
+
+	m_WorldShader_locs[world_wireframe] = m_WorldShader->GetUniformLoc("wireframe");
+
+	m_WorldShader_locs[world_waterpolys] = m_WorldShader->GetUniformLoc("waterpolys");
+	m_WorldShader_locs[world_scrollingpolys] = m_WorldShader->GetUniformLoc("scrollingpolys");
+	m_WorldShader_locs[world_detailtexture] = m_WorldShader->GetUniformLoc("detailtexture");
+	m_WorldShader_locs[world_dt_opacity] = m_WorldShader->GetUniformLoc("dt_opacity");
+	m_WorldShader_locs[world_alphatest] = m_WorldShader->GetUniformLoc("alphatest");
+
+
+	m_WorldSolidShader_locs[worldsolid_projviewmatrix] = m_WorldSolidShader->GetUniformLoc("projviewmatrix");
+	m_WorldSolidShader_locs[worldsolid_modelmatrix] = m_WorldSolidShader->GetUniformLoc("modelmatrix");
+	m_WorldSolidShader_locs[worldsolid_alphatest] = m_WorldSolidShader->GetUniformLoc("alphatest");
+	m_WorldSolidShader_locs[worldsolid_light_pos] = m_WorldSolidShader->GetUniformLoc("light_pos");
+
+	m_SimpleSkyboxShader_locs[skybox_projviewmatrix] = m_SimpleSkyboxShader->GetUniformLoc("projviewmatrix");
+	m_SimpleSkyboxShader_locs[skybox_skyfog] = m_SimpleSkyboxShader->GetUniformLoc("skyfog");
+	m_SimpleSkyboxShader_locs[skybox_fogcolor] = m_SimpleSkyboxShader->GetUniformLoc("fogcolor");
+
+	m_DecalShader_locs[decal_projviewmatrix] = m_DecalShader->GetUniformLoc("projviewmatrix");
+	m_DecalShader_locs[decal_wireframe] = m_DecalShader->GetUniformLoc("wireframe");
+
+
+	m_WorldShader->Bind();
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("lightmap_texture"), LIGHTMAP_TEXUNIT - GL_TEXTURE0);
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("base_texture"), SURFTEXTURE_TEXUNIT - GL_TEXTURE0);
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("detail_texture"), SURF_DETAILTEXTURE_TEXUNIT - GL_TEXTURE0);
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("spotlight_texture"), SPOTLIGHT_TEXUNIT - GL_TEXTURE0);
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("shadow_texture"), SHADOWMAP_TEXUNIT - GL_TEXTURE0);
+	m_WorldShader->Uniform1i(m_WorldShader->GetUniformLoc("cubemap_texture"), CUBEMAPSHADOW_TEXUNIT - GL_TEXTURE0);
+
+	m_WorldSolidShader->Bind();
+	m_WorldSolidShader->Uniform1i(m_WorldSolidShader->GetUniformLoc("base_texture"), 1);
+
+	m_SimpleSkyboxShader->Bind();
+	m_SimpleSkyboxShader->Uniform1i(m_SimpleSkyboxShader->GetUniformLoc("texture0"), 0);
+
+	m_DecalShader->Bind();
+	m_DecalShader->Uniform1i(m_DecalShader->GetUniformLoc("texture0"), 0);
+
+	m_FilterShader->Bind();
+	m_FilterShader->Uniform1i(m_FilterShader->GetUniformLoc("texture_"), 0);
+	m_FilterShader->Uniform1i(m_FilterShader->GetUniformLoc("cube_texture_"), 1);
+
+	m_FilterShader->Uniform1i(m_FilterShader->GetUniformLoc("flipped"), 0);
+
+
+
+
+	Vector verts[] =
+		{
+			//covers entire screen
+			Vector(1.0, 1.0, 0.0),		// Top-right
+			Vector(-1.0, 1.0, 0.0),		// Top-left
+			Vector(-1.0, -1.0, 0.0),		// Bottom-left
+
+			Vector(-1.0, -1.0, 0.0),		// Bottom-left
+			Vector(1.0, -1.0, 0.0),		// Bottom-right
+			Vector(1.0, 1.0, 0.0),		// Top-right
+
+			//covers only the top right quarter of screen
+			Vector(1.0, 1.0, 0.0),		// Top-right
+			Vector(0, 1.0, 0.0),			// Top-left
+			Vector(0.0, 0.0, 0.0),				// Bottom-left
+
+			Vector(0.0, 0.0, 0.0),				// Bottom-left
+			Vector(1.0, 0.0, 0.0),			// Bottom-right
+			Vector(1.0, 1.0, 0.0),		// Top-right
+
+			// covers only the bottom right quarter of screen
+			Vector(1.0, 0.0, 0.0),		// Top-right
+			Vector(-1.0, 1.0, 0.0),			// Top-left
+			Vector(0.0, -1.0, 0.0),				// Bottom-left
+
+			Vector(0.0, -1.0, 0.0),				// Bottom-left
+			Vector(1.0f, -1.0, 0.0),			// Bottom-right
+			Vector(1.0f, 0.0, 0.0),			// Top-right
+
+			// covers only the bottom left quarter of screen
+			Vector(0.0, 0.0, 0.0),	 // Top-right
+			Vector(-1.0, 0, 0.0), // Top-left
+			Vector(-1.0, -1.0, 0.0),	 // Bottom-left
+
+			Vector(-1.0, -1.0, 0.0),	 // Bottom-left
+			Vector(0, -1.0, 0.0), // Bottom-right
+			Vector(0, 0.0, 0.0),	 // Top-right
+
+			// covers only the top left quarter of screen
+			Vector(0.0, 1.0, 0.0),	 // Top-right
+			Vector(-1.0, 1.0, 0.0),	 // Top-left
+			Vector(-1.0, 0.0, 0.0), // Bottom-left
+
+			Vector(-1.0, 0.0, 0.0), // Bottom-left
+			Vector(0, 0, 0.0),	 // Bottom-right
+			Vector(0.0, 1.0, 0.0)	// Top-right
+		};
+
+	m_pScreenQuadVAO = new GL_VertexArrayObject();
+	m_pScreenQuadVAO->BindVAO();
+
+	m_pBasicFullscreenQuad = new GL_BufferHandler();
+	m_pBasicFullscreenQuad->Bind(GL_BufferHandler::ArrayBuffer);
+	m_pBasicFullscreenQuad->BufferData(GL_BufferHandler::ArrayBuffer, sizeof(verts), verts, GL_BufferHandler::StaticDraw);
+
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vector), 0);
 	
-	m_testShaderProgram = createShaderProgram(modelshadow_vertex, modelshadow_fragment);
+	GL_VertexArrayObject::ResetVAOBinding();
 
-	GLint iErrorPos, iIsNative;
-	glEnable(GL_FRAGMENT_PROGRAM_ARB);
-	glGenProgramsARB(1, &m_iFogFragmentID);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iFogFragmentID);
 
-	glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, sizeof(fog_fp) - 1, fog_fp);
-	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &iErrorPos);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &iIsNative);
 
-	if (iErrorPos != -1 || !iIsNative)
+	m_pDecalVAO = new GL_VertexArrayObject();
+	m_pDecalVAO->BindVAO();
+
+	m_pDecalsBuffer = new GL_BufferHandler();
+	m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+	//10.48 megabytes in vram, i think space for 524 thousand vertices is enough
+	m_pDecalsBuffer->BufferData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * 524288, nullptr, GL_BufferHandler::DynamicDraw);
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(DecalVert_t), (void*)offsetof(DecalVert_t, pos));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(DecalVert_t), (void*)offsetof(DecalVert_t, texcoord));
+
+	GL_VertexArrayObject::ResetVAOBinding();
+
+
+
+	constexpr Vector m_vPoints[8] =
+		{
+		 Vector(-150, -150, -150),
+		 Vector(150, -150, -150),
+		 Vector(150, 150, -150),
+		 Vector(-150, 150, -150),
+		 Vector(-150, -150, 150),
+		 Vector(150, -150, 150),
+		 Vector(150, 150, 150),
+		 Vector(-150, 150, 150),
+		};
+
+	constexpr int m_iIDs[6][4] = {
+		{1, 2, 6, 5}, 
+		{2, 3, 7, 6}, 
+		{3, 0, 4, 7},
+		{0, 1, 5, 4}, 
+		{2, 1, 0, 3}, 
+		{7, 4, 5, 6}
+	};
+
+	std::vector<skyvert_t> skyVerts;
+	for (int i = 0; i < 6; i++)
 	{
-		m_bShaderSupport = false;
-		m_bDontPromptShadersError = false;
-		return;
+		int a = m_iIDs[i][0];
+		int b = m_iIDs[i][1];
+		int c = m_iIDs[i][2];
+		int d = m_iIDs[i][3];
+
+		// First triangle (a, b, c)
+		skyVerts.push_back({{m_vPoints[a].x, m_vPoints[a].y, m_vPoints[a].z}, {0.0f, 1.0f}});
+		skyVerts.push_back({{m_vPoints[b].x, m_vPoints[b].y, m_vPoints[b].z}, {1.0f, 1.0f}});
+		skyVerts.push_back({{m_vPoints[c].x, m_vPoints[c].y, m_vPoints[c].z}, {1.0f, 0.0f}});
+
+		// Second triangle (a, c, d)
+		skyVerts.push_back({{m_vPoints[a].x, m_vPoints[a].y, m_vPoints[a].z}, {0.0f, 1.0f}});
+		skyVerts.push_back({{m_vPoints[c].x, m_vPoints[c].y, m_vPoints[c].z}, {1.0f, 0.0f}});
+		skyVerts.push_back({{m_vPoints[d].x, m_vPoints[d].y, m_vPoints[d].z}, {0.0f, 0.0f}});
 	}
 
-	glEnable(GL_FRAGMENT_PROGRAM_ARB);
-	glGenProgramsARB(1, &m_iDecalFragmentID);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iDecalFragmentID);
+	m_pSimpleSkyVAO = new GL_VertexArrayObject();
+	m_pSimpleSkyVAO->BindVAO();
 
-	glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, sizeof(decal_fp) - 1, decal_fp);
-	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &iErrorPos);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &iIsNative);
-	glDisable(GL_FRAGMENT_PROGRAM_ARB);
+	m_pSimpleSky_Buffer = new GL_BufferHandler();
+	m_pSimpleSky_Buffer->Bind(GL_BufferHandler::ArrayBuffer);
+	m_pSimpleSky_Buffer->BufferData(GL_BufferHandler::ArrayBuffer, skyVerts.size() * sizeof(skyvert_t), skyVerts.data(), GL_BufferHandler::StaticDraw);
 
-	if (iErrorPos != -1 || !iIsNative)
-	{
-		m_bShaderSupport = false;
-		m_bDontPromptShadersError = false;
-		return;
-	}
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(skyvert_t), (void*)offsetof(skyvert_t, pos));
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(skyvert_t), (void*)offsetof(skyvert_t, texcoord));
 
-	if (iErrorPos != -1 || !iIsNative)
-	{
-		m_bShaderSupport = false;
-		m_bDontPromptShadersError = false;
-	}
 
-	if (!m_bShadowPCFSupport)
-		return;
+	GL_VertexArrayObject::ResetVAOBinding();
 
-	glEnable(GL_FRAGMENT_PROGRAM_ARB);
-	glGenProgramsARB(1, &m_iShadowFragmentID);
-	glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iShadowFragmentID);
+	GL_ShaderProgram::ResetShaderBind();
 
-	glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, sizeof(shadow_fp) - 1, shadow_fp);
-	glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &iErrorPos);
-	glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &iIsNative);
-	glDisable(GL_FRAGMENT_PROGRAM_ARB);
+	glLineWidth(0.7f);//for wireframes. this function is never called ever again, not in the goldsrc engine and not anywhere else.
 
-	if (iErrorPos != -1 || !iIsNative)
-	{
-		m_bShaderSupport = false;
-		m_bDontPromptShadersError = false;
-	}
-
-	// Mark as contents_solid
-	m_dummyNode.contents = CONTENTS_SOLID;
 };
 
 /*
@@ -698,66 +490,25 @@ VidInit
 */
 void CBSPRenderer::VidInit(void)
 {
-	if (!IEngineStudio.IsHardware())
-	{
-		gEngfuncs.pfnClientCmd("escape\n");
-		MessageBox(NULL, "VIDEO ERROR: This game does not support Software mode!\nTry using the -gl parameter in the command line.\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
-		exit(-1);
-	}
-	if (IEngineStudio.IsHardware() == 2)
-	{
-		gEngfuncs.pfnClientCmd("escape\n");
-		MessageBox(NULL, "VIDEO ERROR: This game does not support DirectX!\nTry using the -gl parameter in the command line.\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
-		exit(-1);
-	}
-
-	if (!m_bDontPromptShaders)
-		gEngfuncs.Con_Printf("ERROR! Your hardware doesn't support assembly shaders! Advanced effects will be disabled.\n");
-
-	if (!m_bDontPromptShadersError)
-		gEngfuncs.Con_Printf("ERROR! There was an error with the shaders! Advanced effects will remain disabled.\n");
-
-	if (!m_bDontPromptShadow)
-		gEngfuncs.Con_Printf("Error! Your hardware doesn't support shadow mapping! Shadows will remain disabled.\n");
-
-	if (!m_bDontPromptShadowPCF)
-		gEngfuncs.Con_Printf("Error! Your hardware doesn't support shadow filtering! Filtering on shadows won't be available.\n");
-
-	if (!m_bDontPromptParanoia)
-		gEngfuncs.Con_Printf("Paranoia's shitty opengl32.dll was detected! This conflicts with shadow mapping! Remove this dll in order to have shadow maps.\n");
 
 	// Clear this
 	VectorClear(m_vSkyOrigin);
 	VectorClear(m_vSkyWorldOrigin);
 
-	if (m_bShadowSupport)
-	{
-		for (int i = 0; i < MAX_DYNLIGHTS; i++)
-		{
-			if (m_pDynLights[i].depth)
-			{
-				glDeleteTextures(1, &m_pDynLights[i].depth);
-				m_pDynLights[i].depth = 0;
-			}
-		}
-		for (int i = 0; i < 512; i++)
-		{
-			if (m_uiShadowDepths[i].depth)
-			{
-				glDeleteTextures(1, &m_uiShadowDepths[i].depth);
-				m_uiShadowDepths[i].depth = 0;
-			}
-		}
-	}
+	m_pDynLights.clear();
+
+	m_pSunShadowMap = nullptr;
+
+	GL_ShadowMap::ClearAllShadowMaps();
+
+	m_pSunShadowMap = GL_ShadowMap::AllocateShadowMap(GL_TextureHandler::_2DTexture_Storage, GL_R16F, 3184, 3184, 0, GL_RED, GL_FLOAT, false);
+
 
 	// Clear all lightstyles.
 	memset(m_iLightStyleValue, 0, sizeof(m_iLightStyleValue));
-	memset(m_pDynLights, 0, sizeof(m_pDynLights));
-	memset(m_uiShadowDepths, 0, sizeof(m_uiShadowDepths));
 	memset(m_pDetailTextures, 0, sizeof(m_pDetailTextures));
-	memset(m_pDecalGroups, 0, sizeof(m_pDecalGroups));
+	m_pDecalGroups.clear();
 	memset(m_pNormalTextureList, 0, sizeof(m_pNormalTextureList));
-	memset(m_pMultiPassTextureList, 0, sizeof(m_pMultiPassTextureList));
 	memset(&m_pFlashlightTextures, 0, sizeof(m_pFlashlightTextures));
 	memset(&gHUD.m_pSkyFogSettings, 0, sizeof(fog_settings_t));
 	memset(&gHUD.m_pFogSettings, 0, sizeof(fog_settings_t));
@@ -776,114 +527,27 @@ void CBSPRenderer::VidInit(void)
 		m_pSurfacePointersArray = nullptr;
 	}
 
-	if (m_pDetailObjectSurfaces)
-	{
-		delete[] m_pDetailObjectSurfaces;
-		m_pDetailObjectSurfaces = nullptr;
-	}
-
-	m_numDetailSurfaces = 0;
-
-	if (m_bShadowSupport)
-	{
-		int iCurrentBinding;
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &iCurrentBinding);
-
-		for (int i = 0; i < MAX_DYNLIGHTS; i++)
-		{
-			m_pDynLights[i].depth = current_ext_texture_id;
-			current_ext_texture_id++;
-
-			glBindTexture(GL_TEXTURE_2D, m_pDynLights[i].depth);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			float color[4];
-			color[0] = color[1] = color[2] = color[3] = 1;
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-		}
-
-		glBindTexture(GL_TEXTURE_2D, iCurrentBinding);
-
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &iCurrentBinding);
-
-		for (int i = 0; i < 512; i++)
-		{
-			m_uiShadowDepths[i].depth = current_ext_texture_id;
-			current_ext_texture_id++;
-
-			glBindTexture(GL_TEXTURE_2D, m_uiShadowDepths[i].depth);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			float color[4];
-			color[0] = color[1] = color[2] = color[3] = 1;
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-		}
-
-		glBindTexture(GL_TEXTURE_2D, iCurrentBinding);
-	}
-
 	// Get pointer to very first dynamic and entity light, key doesn't matter.
 	m_pFirstELight = gEngfuncs.pEfxAPI->CL_AllocElight(0);
 	m_pFirstDLight = gEngfuncs.pEfxAPI->CL_AllocDlight(0);
 	m_fSkySpeed = NULL;
-	m_pWorld = NULL;
 	m_iNumDetailTextures = NULL;
 	m_iFrameCount = NULL;
-	m_iVisFrame = NULL;
-	m_iNumDecalGroups = NULL;
 	m_iNumTextures = NULL;
 	m_bMirroring = false;
-	m_bSpecialFog = false;
 	m_iNumFlashlightTextures = NULL;
-	memset(oldvisframes, 0, sizeof(oldvisframes));
+	m_bGotStaticLights = false;
+
 	r_oldviewleaf = nullptr;
 
-	ClearDetailObjects();
 	DeleteDecals();
 
 	// A call to VidInit means a reload
 	m_bReloaded = true;
 }
 
-/*
-====================
-ExtensionSupported
-
-====================
-*/
-bool CBSPRenderer::ExtensionSupported(const char* ext)
-{
-	const char* extensions = (const char*)glGetString(GL_EXTENSIONS);
-	const char* start = extensions;
-	const char* ptr;
-
-	while ((ptr = strstr(start, ext)) != NULL)
-	{
-		// we've found, ensure name is exactly ext
-		const char* end = ptr + strlen(ext);
-		if (isspace(*end) || *end == '\0')
-			return true;
-
-		start = end;
-	}
-	return false;
-}
+extern int cl_numvisedicts;
+extern cl_entity_s* cl_visedicts[512];
 
 /*
 ====================
@@ -894,12 +558,18 @@ GetRenderEnts
 void CBSPRenderer::GetRenderEnts(void)
 {
 	// Clear counters
-	m_iNumRenderEntities = NULL;
-	m_iNumModelLights = NULL;
-	m_iNumModelShadows = NULL;
+	m_iNumModelLights = 0;
+	m_fShadowGenerationTime = 0;
+
+	g_GlobalGLState.ResetStates();
+
+	g_StudioRenderer.StudioClearDrawList();
+	g_LegacySpriteRenderer.ClearDrawList();
+
+	m_iNumRenderEntities = 0;
 
 	cl_entity_t* pPlayer = gEngfuncs.GetLocalPlayer();
-	cl_entity_t* pView = gEngfuncs.GetViewModel();
+	cl_entity_t* pView = &engine_cl->viewent;
 
 	int iMsg = pPlayer->curstate.messagenum;
 
@@ -911,26 +581,17 @@ void CBSPRenderer::GetRenderEnts(void)
 	for (int i = 0; i < gMirrorManager.m_iNumMirrors; i++)
 		gMirrorManager.m_pMirrors[i].draw = false;
 
-	R_SaveGLStates();
-	RenderFog();
-
-	for (int i = 1; i < MAXRENDERENTS; i++)
+	for (int i = 1; i < engine_cl->max_edicts; i++)
 	{
 		cl_entity_t* pEntity = gEngfuncs.GetEntityByIndex(i);
 
 		if (!pEntity)
 			break;
 
-		if (pEntity == pView)
-			continue;
-
 		if (!pEntity->model)
 			continue;
 
 		if (pEntity->curstate.messagenum != iMsg)
-			continue;
-
-		if (pEntity->curstate.effects & EF_NODRAW)
 			continue;
 
 		if ((pEntity->curstate.effects & FL_MIRROR) && gMirrorManager.m_pCvarDrawMirrors->value > 0)
@@ -944,7 +605,7 @@ void CBSPRenderer::GetRenderEnts(void)
 			continue;
 		}
 
-		if ((pEntity->curstate.effects & FL_WATERSHADER) && m_bShaderSupport && gWaterShader.m_pCvarWaterShader->value > 0)
+		if ((pEntity->curstate.effects & FL_WATERSHADER) && gWaterShader.m_pCvarWaterShader->value >= 1)
 		{
 			if (!pEntity->efrag)
 				gWaterShader.AddEntity(pEntity);
@@ -959,12 +620,12 @@ void CBSPRenderer::GetRenderEnts(void)
 		{
 			// mlights are static
 			mlight_t* mlight = &m_pModelLights[m_iNumModelLights];
-
+			
 			mlight->color.x = (float)pEntity->curstate.rendercolor.r / 255;
 			mlight->color.y = (float)pEntity->curstate.rendercolor.g / 255;
 			mlight->color.z = (float)pEntity->curstate.rendercolor.b / 255;
 			mlight->radius = pEntity->curstate.renderamt * 9.5;
-
+			
 			mlight->origin = pEntity->origin;
 			mlight->mins.x = mlight->origin.x - mlight->radius;
 			mlight->mins.y = mlight->origin.y - mlight->radius;
@@ -972,9 +633,31 @@ void CBSPRenderer::GetRenderEnts(void)
 			mlight->maxs.x = mlight->origin.x + mlight->radius;
 			mlight->maxs.y = mlight->origin.y + mlight->radius;
 			mlight->maxs.z = mlight->origin.z + mlight->radius;
-
+			
 			mlight->spotcos = 0;
 			mlight->flashlight = false;
+
+			if (pEntity->curstate.renderfx >= 1)
+			{
+				cl_dlight_t* dlight = CL_AllocDLight(pEntity->index);
+			
+				dlight->color.x = mlight->color.x;
+				dlight->color.y = mlight->color.y;
+				dlight->color.z = mlight->color.z;
+			
+				dlight->radius = pEntity->curstate.renderamt * 9.5;
+				dlight->origin = pEntity->curstate.origin;
+				dlight->die = engine_cl->time + 1;
+				dlight->flags |= LIGHT_STUDIOMDL_SHADOW | LIGHT_ONLYSHADOWS;
+				if (pEntity->curstate.renderfx == 2)
+					dlight->flags |= LIGHT_BRUSH_SHADOW;
+				if (pEntity->curstate.renderfx == 3)
+					dlight->flags |= LIGHT_WORLD_SHADOW;
+			
+			}
+
+
+
 
 			m_iNumModelLights++;
 			continue;
@@ -987,16 +670,29 @@ void CBSPRenderer::GetRenderEnts(void)
 			dlight->color.x = (float)pEntity->curstate.rendercolor.r / 255;
 			dlight->color.y = (float)pEntity->curstate.rendercolor.g / 255;
 			dlight->color.z = (float)pEntity->curstate.rendercolor.b / 255;
-			dlight->radius = pEntity->curstate.renderamt;
+			dlight->radius = pEntity->curstate.renderamt * 16;
 			dlight->origin = pEntity->curstate.origin;
-			dlight->die = gEngfuncs.GetClientTime() + 1;
+			dlight->die = engine_cl->time + 1;
+
+			dlight->flags = pEntity->curstate.sequence ? 0 : LIGHT_CASTSHADOWS;
 			continue;
 		}
+			//debug pointlight shadowmaps
+		//if (pEntity->player)
+		//{
+		//	cl_dlight_t* dlight = CL_AllocDLight(pEntity->index);
+		//
+		//	dlight->color.x = 1;
+		//	dlight->color.y = 1;
+		//	dlight->color.z = 1;
+		//	dlight->radius = 2048;
+		//	dlight->origin = m_vRenderOrigin;
+		//	dlight->die = engine_cl->time + 1;
+		//	continue;
+		//}
 
 		if (pEntity->curstate.effects & FL_SPOTLIGHT)
 		{
-			if (!m_bShaderSupport || m_pCvarWorldShaders->value < 1)
-				continue;
 
 			if (pEntity->curstate.body >= m_iNumFlashlightTextures)
 			{
@@ -1009,13 +705,13 @@ void CBSPRenderer::GetRenderEnts(void)
 			dlight->color.x = (float)pEntity->curstate.rendercolor.r / 255;
 			dlight->color.y = (float)pEntity->curstate.rendercolor.g / 255;
 			dlight->color.z = (float)pEntity->curstate.rendercolor.b / 255;
-			dlight->radius = pEntity->curstate.renderamt;
+			dlight->radius = pEntity->curstate.renderamt * 16;
 			dlight->origin = pEntity->curstate.origin;
 			dlight->cone_size = pEntity->curstate.scale;
 			dlight->angles = pEntity->angles;
-			dlight->die = gEngfuncs.GetClientTime() + 1;
+			dlight->die = engine_cl->time + 1;
 			dlight->textureindex = m_pFlashlightTextures[pEntity->curstate.body]->iIndex;
-			dlight->noshadow = pEntity->curstate.sequence;
+			dlight->flags = pEntity->curstate.sequence ? 0 : LIGHT_CASTSHADOWS;
 
 			dlight->frustum.SetFrustum(dlight->angles, dlight->origin, dlight->cone_size * 1.2, dlight->radius);
 			continue;
@@ -1030,36 +726,58 @@ void CBSPRenderer::GetRenderEnts(void)
 			dlight->color.z = 1.0;
 			dlight->radius = 500;
 			dlight->origin = pEntity->curstate.origin;
-			dlight->die = gEngfuncs.GetClientTime() + 1;
+			dlight->die = engine_cl->time + 1;
 			dlight->decay = 500;
-			continue;
+			dlight->flags = pEntity->curstate.sequence ? 0 : LIGHT_CASTSHADOWS;
+
+			if (!pEntity->model)
+				continue;
+
+			if (!strcmp(pEntity->model->name, "null.spr") || !strcmp(pEntity->model->name, "null"))
+				continue;
 		}
 
-		if (pEntity->model->type == mod_brush || pEntity->model->type == mod_studio)
+		if (!g_StudioRenderer.m_pCvarDrawEntities->value)
+			continue;
+
+		if (pEntity->model->type == mod_brush)
 		{
 			m_pRenderEntities[m_iNumRenderEntities] = pEntity;
 			m_iNumRenderEntities++;
 		}
-		if (pEntity->model->type == mod_studio && m_pCvarShadows->value > 0)
+		else if (pEntity->model->type == mod_studio)
 		{
-			//dont make shadows of models that are far away, thats a waste of time
-			if (pEntity != gEngfuncs.GetViewModel() && !pEntity->player && 
-				(pEntity->origin - m_vRenderOrigin).Length() < 512 &&
-				!(pEntity->curstate.effects & EF_INVLIGHT))
-			{
-				CreateCustomShadow(pEntity);
-			}
+			g_StudioRenderer.StudioPushEntityToDraw(pEntity);
+		}
+		else if (pEntity->model->type == mod_sprite)
+		{
+			g_LegacySpriteRenderer.PushEntityToDraw(pEntity);
 		}
 	}
 
-	R_RestoreGLStates();
+	for (int i = 0; i < cl_numvisedicts; i++)
+	{
+		auto pEntity = cl_visedicts[i];
+		if (!pEntity->model)
+			continue;
+
+		m_pRenderEntities[m_iNumRenderEntities] = pEntity;
+		m_iNumRenderEntities++;
+
+		if (pEntity->model->type == mod_studio)
+			g_StudioRenderer.StudioPushEntityToDraw(pEntity);
+		else if (pEntity->model->type == mod_sprite)
+			g_LegacySpriteRenderer.PushEntityToDraw(pEntity);
+	}
+
+	g_StudioRenderer.StudioUploadRenderData();
 
 	m_bGotAdditional = false;
 
 	dlight_t* el = m_pFirstELight;
 	for (int i = 0; i < MAX_GOLDSRC_ELIGHTS; i++, el++)
 	{
-		if (el->die < gEngfuncs.GetClientTime() || !el->radius)
+		if (el->die < engine_cl->time || !el->radius)
 			continue;
 
 		mlight_t* mlight = &m_pModelLights[m_iNumModelLights];
@@ -1080,47 +798,37 @@ void CBSPRenderer::GetRenderEnts(void)
 		mlight->spotcos = 0;
 	}
 
-	cl_dlight_t* dl = m_pDynLights;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+	for (auto &dynlight : m_pDynLights)
 	{
-		if (dl->die < gEngfuncs.GetClientTime() || !dl->radius)
-		{
-			if (!dl->justspawned)
-				continue;
-			else
-			{
-				dl->die = gEngfuncs.GetClientTime();
-				dl->justspawned = false;
-			}
-		}
+		if (dynlight->visframe)
+			continue;
 
 		mlight_t* mlight = &m_pModelLights[m_iNumModelLights];
 
-		mlight->color.x = dl->color.x;
-		mlight->color.y = dl->color.y;
-		mlight->color.z = dl->color.z;
-		mlight->radius = dl->radius;
-		mlight->origin = dl->origin;
-		mlight->mins.x = dl->origin.x - mlight->radius;
-		mlight->mins.y = dl->origin.y - mlight->radius;
-		mlight->mins.z = dl->origin.z - mlight->radius;
-		mlight->maxs.x = dl->origin.x + mlight->radius;
-		mlight->maxs.y = dl->origin.y + mlight->radius;
-		mlight->maxs.z = dl->origin.z + mlight->radius;
+		mlight->color.x = dynlight->color.x;
+		mlight->color.y = dynlight->color.y;
+		mlight->color.z = dynlight->color.z;
+		mlight->radius = dynlight->radius;
+		mlight->origin = dynlight->origin;
+		mlight->mins.x = dynlight->origin.x - mlight->radius;
+		mlight->mins.y = dynlight->origin.y - mlight->radius;
+		mlight->mins.z = dynlight->origin.z - mlight->radius;
+		mlight->maxs.x = dynlight->origin.x + mlight->radius;
+		mlight->maxs.y = dynlight->origin.y + mlight->radius;
+		mlight->maxs.z = dynlight->origin.z + mlight->radius;
 		mlight->spotcos = 0;
 
-		if (dl->key == -666)
+		if (dynlight->key == -666)
 			mlight->flashlight = true;
 		else
 			mlight->flashlight = false;
 
-		if (dl->cone_size)
+		if (dynlight->cone_size)
 		{
-			vec3_t vAngles = dl->angles;
-			FixVectorForSpotlight(vAngles);
-			AngleVectors(vAngles, mlight->forward, NULL, NULL);
-			mlight->spotcos = dl->cone_size;
-			mlight->frustum = &dl->frustum;
+			Vector vAngles = dynlight->angles;
+			AngleVectors(vAngles, &mlight->forward, NULL, NULL);
+			mlight->spotcos = dynlight->cone_size;
+			mlight->frustum = &dynlight->frustum;
 		}
 
 		m_iNumModelLights++;
@@ -1135,7 +843,7 @@ AddEntity
 */
 void CBSPRenderer::AddEntity(cl_entity_t* pEntity)
 {
-	if (pEntity->model->type != mod_studio)
+	if (!pEntity->model)
 		return;
 
 	m_pRenderEntities[m_iNumRenderEntities] = pEntity;
@@ -1153,22 +861,18 @@ void CBSPRenderer::GetAdditionalLights(void)
 	if (m_bGotAdditional)
 		return;
 
-	// Got them all
-	m_bGotAdditional = true;
-
-	cl_entity_t* pLight = gPropManager.m_pModelLights;
-	for (int i = 0; i < gPropManager.m_iNumModelLights; i++, pLight++)
+	for (const auto mdl_light : gPropManager.m_pModelLights)
 	{
-		if (m_pPVS[pLight->visframe >> 3] & (1 << (pLight->visframe & 7)))
+		if (IsInPotentiallyVisibleSet(mdl_light.visframe))
 		{
 			mlight_t* mlight = &m_pModelLights[m_iNumModelLights];
 			m_iNumModelLights++;
 
-			mlight->color.x = (float)pLight->curstate.rendercolor.r / 255;
-			mlight->color.y = (float)pLight->curstate.rendercolor.g / 255;
-			mlight->color.z = (float)pLight->curstate.rendercolor.b / 255;
-			mlight->radius = pLight->curstate.renderamt * 9.5;
-			mlight->origin = pLight->curstate.origin;
+			mlight->color.x = (float)mdl_light.curstate.rendercolor.r / 255;
+			mlight->color.y = (float)mdl_light.curstate.rendercolor.g / 255;
+			mlight->color.z = (float)mdl_light.curstate.rendercolor.b / 255;
+			mlight->radius = mdl_light.curstate.renderamt * 9.5;
+			mlight->origin = mdl_light.curstate.origin;
 			mlight->mins.x = mlight->origin.x - mlight->radius;
 			mlight->mins.y = mlight->origin.y - mlight->radius;
 			mlight->mins.z = mlight->origin.z - mlight->radius;
@@ -1179,7 +883,32 @@ void CBSPRenderer::GetAdditionalLights(void)
 			mlight->flashlight = false;
 			mlight->spotcos = 0;
 		}
+
+		if (!m_bGotStaticLights && mdl_light.curstate.eflags) //.eflags = studioshadow keyvalue in map editor
+		{
+			cl_dlight_t* dlight = CL_AllocDLight(0);
+
+			dlight->color.x = (float)mdl_light.curstate.rendercolor.r / 255;
+			dlight->color.y = (float)mdl_light.curstate.rendercolor.g / 255;
+			dlight->color.z = (float)mdl_light.curstate.rendercolor.b / 255;
+			dlight->radius = mdl_light.curstate.renderamt * 9.5;
+			dlight->origin = mdl_light.curstate.origin;
+			dlight->die = engine_cl->time + std::numeric_limits<double>::max();
+
+			clientmleaf_t* pLeaf = Mod_PointInLeaf(dlight->origin);
+
+			if (pLeaf)
+			{
+				dlight->visframe = pLeaf - BSPWorld_Model::m_pWorldLeafs - 1;
+			}
+
+			dlight->flags |= LIGHT_STUDIOMDL_SHADOW | LIGHT_ONLYSHADOWS;
+		}
 	}
+
+	// Got them all
+	m_bGotAdditional = true;
+	m_bGotStaticLights = true;
 }
 
 /*
@@ -1219,6 +948,9 @@ int CBSPRenderer::FilterEntities(int type, struct cl_entity_s* pEntity, const ch
 	return TRUE;
 }
 
+
+extern void AdjustFOV(float* fov_x, float* fov_y, float width, float height, qboolean lock_x);
+
 /*
 ====================
 SetupPreFrame
@@ -1227,69 +959,44 @@ SetupPreFrame
 */
 void CBSPRenderer::SetupPreFrame(ref_params_t* pparams)
 {
-	// Get the leaf we're on
-	m_pWorld = IEngineStudio.GetModelByIndex(1);
-	m_pViewLeaf = Mod_PointInLeaf(pparams->vieworg, m_pWorld);
+	m_RefParams = *pparams;
 
-	// Ensure proper shadow maps
-	SetupSpotlightVis();
+	VectorCopy(pparams->viewangles, m_vViewAngles);
+	VectorCopy(pparams->vieworg, m_vRenderOrigin);
 
-	// Get current vis data
-	m_pPVS = Mod_LeafPVS(m_pViewLeaf, m_pWorld);
+	m_pViewLeaf = Mod_PointInLeaf(pparams->vieworg);
+	R_MarkLeaves(m_pViewLeaf);
 
 	// Get additional lights here
 	GetAdditionalLights();
 
-	// Bind VBO at frame start
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_uiBufferIndex);
-
-	// Set pointers up at start of frame
-	glVertexPointer(3, GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, pos));
-	glNormalPointer(GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, normal));
-
-	if (m_bSpecialFog)
-		glFogCoordPointer(GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, fogcoord));
-}
-
-/*
-====================
-SetupSpotlightVis
-
-====================
-*/
-void CBSPRenderer::SetupSpotlightVis(void)
-{
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value < 1)
+	float fov = gHUD.m_iFOV;
+	if (!fov)
 		return;
+	float fovy = fov;
 
-	if (!m_bShadowSupport || m_pCvarShadows->value < 1)
-		return;
+	AdjustFOV(&fov, &fovy, ScreenWidth, ScreenHeight, 0);
 
-	float flTime = gEngfuncs.GetClientTime();
-	cl_dlight_t* pLight = m_pDynLights;
-	cl_shadow_t* pShadow = m_uiShadowDepths;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, pLight++)
-	{
-		if (pLight->die <= flTime || !pLight->radius || !pLight->cone_size || pLight->key == -666)
-			continue;
+	float aspect = (float)ScreenWidth / (float)ScreenHeight;
 
-		// Make sure the spotlight sees it's polygons
-		// actually no these mess up r_visframecount sync and im already pISSED ABUT THIS SHIT so just dont to that
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pLight->origin, m_pWorld);
-		//R_MarkLeaves(pLeaf);
-	}
-	for (int i = 0; i < m_iNumModelShadows; i++, pShadow++)
-	{
-		if (pShadow->depth == 0)
-			return;
+	m_ProjectionMatrix = glm::perspective(fov, aspect, 8.f, 32768.f);
+	
+	Vector forward, up;
+	AngleVectors(m_vViewAngles, &forward, nullptr, &up);
 
-		// Make sure the spotlight sees it's polygons
-		//mleaf_t* pLeaf = Mod_PointInLeaf(pShadow->feet + 50, m_pWorld);
-		//R_MarkLeaves(pLeaf);
-	}
+	glm::vec3 cameraForward = glm::vec3(forward.x, forward.y, forward.z);
+
+	glm::vec3 cameraPos = glm::vec3(m_vRenderOrigin.x, m_vRenderOrigin.y, m_vRenderOrigin.z);
+	glm::vec3 cameraTarget = cameraPos + cameraForward;
+	glm::vec3 cameraUp = glm::vec3(up.x, up.y, up.z);
+
+	m_ViewMatrix = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+	m_ModelMatrix = glm::mat4(1.0f);
+
+	GL_ShaderProgram::ResetShaderBind();
+
 }
-
-extern int current_ext_texture_id;
 
 /*
 ====================
@@ -1302,7 +1009,7 @@ void CBSPRenderer::CheckTextures(void)
 	char szFile[64];
 	char szTexture[32];
 
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
+	model_t* pWorld = engine_cl->worldmodel;
 	for (int i = 0; i < pWorld->numtextures; i++)
 	{
 		if (!pWorld->textures[i])
@@ -1319,7 +1026,8 @@ void CBSPRenderer::CheckTextures(void)
 		{
 			gEngfuncs.Con_DPrintf("World has '%s' marked as using an alternate texture.\n", pWorld->textures[i]->name);
 			sprintf(szFile, "gfx/textures/world/%s.dds", szTexture);
-			cl_texture_t* pTexture = gTextureLoader.LoadTexture(szFile, pWorld->textures[i]->gl_texturenum);
+			cl_texture_t* pTexture = gTextureLoader.LoadTexture(szFile);
+			pWorld->textures[i]->gl_texturenum = pTexture->iIndex;
 
 			if (pTexture)
 			{
@@ -1327,10 +1035,19 @@ void CBSPRenderer::CheckTextures(void)
 				continue;
 			}
 		}
-		//HOPEFULLY this fixes game text corruption
-		pWorld->textures[i]->gl_texturenum = current_ext_texture_id;
+		
+		//loading textures manually seems to fix weird lightmap-being-used-as-texture issue, but only until a gamma variable has been changed, the hell is happening
+		//apparently goldsrc's GL_BuildLightmaps seems to replace the last texture in a map with the lightmap texture bruh
+		auto texture = gTextureLoader.LoadWADTexture(szTexture);
+		if(texture)
+			pWorld->textures[i]->gl_texturenum = texture->iIndex;
 
-		gTextureLoader.LoadWADTexture(szTexture, pWorld->textures[i]->gl_texturenum);
+		auto scrollingpoly = stristr(pWorld->textures[i]->name, "scroll");
+
+		pWorld->textures[i]->texture_flag = 0;
+
+		if(scrollingpoly)
+			pWorld->textures[i]->texture_flag |= TEXTURE_SCROLL;
 	}
 }
 /*
@@ -1346,33 +1063,33 @@ void CBSPRenderer::SetupRenderer(void)
 
 	glPushAttrib(GL_TEXTURE_BIT);
 
-	// Get pointer to world
-	m_pWorld = IEngineStudio.GetModelByIndex(1);
 	m_bReloaded = false;
 
-	if (!m_pWorld)
+	if (!engine_cl->worldmodel)
 	{
 		gEngfuncs.pfnClientCmd("escape\n");
 		MessageBox(NULL, "FATAL ERROR: Failed to get world!\n\nPress Ok to quit the game.\n", "ERROR", MB_OK);
 		exit(-1);
 	}
 
-	// Swap the engine cache for models
-	gTextureLoader.LoadTextureScript();
+	BSPWorld_Model::InitWorldModel(engine_cl->worldmodel);
+
 	gPropManager.GenerateEntityList();
+
+	//digest studiomdls currently precached in engine
+	g_StudioRenderer.StudioSwapEngineCache();
+
+	gTextureLoader.LoadTextureScript();
 	gTextureLoader.LoadWADFiles();
 	LoadWADDecals();
-
-	g_StudioRenderer.StudioSwapEngineCache();
+	LoadDecals();
 	CheckTextures(); // Do it for world seperately
 	gWaterShader.LoadScript();
 
-	LoadDecals();
 	CreateTextures();
-	LoadDetailFile();
 
 	UploadLightmaps();
-	//stbi_write_png("lightmap.png", 1024, 1024, 3, m_pEngineLightmaps, 1024 * 3);
+	// stbi_write_png("lightmap.png", 1024, 1024, 3, m_pEngineLightmaps, 1024 * 3);
 	LoadDetailTextures();
 	GenerateVertexArray();
 
@@ -1393,15 +1110,13 @@ RendererRefDef
 */
 void CBSPRenderer::RendererRefDef(ref_params_t* pparams)
 {
+
 	gHUD.viewFrustum.SetFrustum(pparams->viewangles, pparams->vieworg, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
-	VectorCopy(pparams->viewangles, m_vViewAngles);
-	VectorCopy(pparams->vieworg, m_vRenderOrigin);
 
 	gParticleEngine.m_iNumParticles = NULL;
 	m_iBrushPolyCounter = NULL;
-	m_iWorldPolyCounter = NULL;
+	m_iBSPVertsCounter = NULL;
 	m_iStudioPolyCounter = NULL;
-	m_pWorld = IEngineStudio.GetModelByIndex(1);
 
 	// Advance frame count here
 	m_iFrameCount++;
@@ -1410,84 +1125,6 @@ void CBSPRenderer::RendererRefDef(ref_params_t* pparams)
 	dlight_t* dl = m_pFirstDLight;
 	for (int i = 0; i < MAX_GOLDSRC_DLIGHTS; i++, dl++)
 		memset(dl, 0, sizeof(dlight_t));
-
-	PushDynLights();
-	ClearToFogColor();
-	DisableWorldDrawing(pparams);
-
-	if (!pparams->onlyClientDraw)
-		m_bCanDraw = true;
-};
-
-/*
-====================
-DisableWorldDrawing
-
-====================
-*/
-void CBSPRenderer::DisableWorldDrawing(ref_params_t* pparams)
-{
-	if (m_bMirroring)
-		return;
-	if (m_pTrueRootNode)
-	{
-		gEngfuncs.Con_Printf("%s - Called without having been restored first!\n");
-		return;
-	}
-
-	m_pTrueRootNode = m_pWorld->nodes;
-	m_pWorld->nodes = &m_dummyNode;
-};
-
-/*
-====================
-RestoreWorldDrawing
-
-====================
-*/
-void CBSPRenderer::RestoreWorldDrawing(void)
-{
-	// Shouldn't happen
-	if (!m_pTrueRootNode)
-	{
-		if(m_bMirroring)
-		{
-			int numleafnodes = 0;
-			for (int i = 0; i < m_pWorld->numleafs; i++)
-			{
-				mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
-				do
-				{
-					node->visframe = oldvisframes[numleafnodes];
-					node = node->parent;
-					numleafnodes++;
-				} while (node);
-			}
-			// Mark all leaves with current visframe
-			R_MarkLeaves(m_pViewLeaf);
-		}
-		return;
-	}
-
-	// Restore and clear pointer
-	m_pWorld->nodes = m_pTrueRootNode;
-	m_pTrueRootNode = nullptr;
-	saved_leaf_visframe = m_pWorld->nodes[0].visframe;
-	int numleafnodes = 0;
-
-	for (int i = 0; i < m_pWorld->numleafs; i++)
-	{
-		mnode_t* node = (mnode_t*)&m_pWorld->leafs[i + 1];
-		do
-		{
-			node->visframe = oldvisframes[numleafnodes];
-			node = node->parent;
-			numleafnodes++;
-		} while (node);
-	}
-
-	// Mark all leaves with current visframe
-	R_MarkLeaves(m_pViewLeaf);
 };
 
 /*
@@ -1499,8 +1136,8 @@ RemoveSky
 void CBSPRenderer::RemoveSky(void)
 {
 	bool foundSky = false;
-	msurface_t* surfaces = m_pWorld->surfaces;
-	for (int i = 0; i < m_pWorld->numsurfaces; i++)
+	clientmsurface_t* surfaces = BSPWorld_Model::m_pWorldSurfaces;
+	for (int i = 0; i < engine_cl->worldmodel->numsurfaces; i++)
 	{
 		if (surfaces[i].flags & SURF_DRAWSKY)
 		{
@@ -1516,220 +1153,6 @@ void CBSPRenderer::RemoveSky(void)
 
 /*
 ====================
-ClearDetailObjects
-
-====================
-*/
-void CBSPRenderer::ClearDetailObjects(void)
-{
-	for (int i = 0; i < m_numDetailSurfaces; i++)
-	{
-		msurface_t* psurf = &m_pDetailObjectSurfaces[i];
-
-		if (psurf->polys)
-			free(psurf->polys);
-
-		if (psurf->plane)
-			delete psurf->plane;
-
-		if (psurf->texinfo)
-			delete psurf->texinfo;
-	}
-
-	memset(m_pDetailObjects, 0, sizeof(m_pDetailObjects));
-	m_iNumDetailObjects = NULL;
-	m_iNumDetailSurfaces = NULL;
-}
-
-/*
-====================
-LoadDetailFile
-
-Comment: BLARGH
-====================
-*/
-void CBSPRenderer::LoadDetailFile(void)
-{
-	char szPath[64];
-	char szFile[64];
-	sprintf(szFile, "%s", m_pWorld->name);
-	strcpy(&szFile[strlen(szFile) - 3], "edd");
-
-	int iOffset = 0;
-	byte* pFile = gEngfuncs.COM_LoadFile(szFile, 5, NULL);
-	if (!pFile)
-		return;
-
-	bool bNeedsUpload[MAX_LIGHTMAPS];
-	memset(bNeedsUpload, 0, sizeof(bNeedsUpload));
-
-	std::vector<msurface_t> surfacesArray;
-
-	memcpy(&m_iNumDetailObjects, &pFile[iOffset], sizeof(int));
-	iOffset += 4;
-	for (int i = 0; i < m_iNumDetailObjects; i++)
-	{
-		memcpy(&m_pDetailObjects[i].mins, &pFile[iOffset], sizeof(vec3_t));
-		iOffset += 12;
-		memcpy(&m_pDetailObjects[i].maxs, &pFile[iOffset], sizeof(vec3_t));
-		iOffset += 12;
-
-		int iNumSurfaces = 0;
-		memcpy(&iNumSurfaces, &pFile[iOffset], sizeof(int));
-		iOffset += 4;
-
-		if (!iNumSurfaces)
-			continue;
-
-		m_pDetailObjects[i].firstsurface = surfacesArray.size();
-		surfacesArray.resize(surfacesArray.size() + iNumSurfaces);
-		m_pDetailObjects[i].numsurfaces = iNumSurfaces;
-		m_iNumDetailSurfaces += iNumSurfaces;
-
-		msurface_t* psurfaces = &surfacesArray[m_pDetailObjects[i].firstsurface];
-		for (int j = 0; j < iNumSurfaces; j++)
-		{
-			char szTexName[16];
-			memcpy(&szTexName, &pFile[iOffset], sizeof(char) * 16);
-			iOffset += 16;
-			memset(psurfaces[j].styles, 255, sizeof(byte) * 4);
-
-			int iVertnum = 0;
-			memcpy(&psurfaces[j].lightmaptexturenum, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-			memcpy(&iVertnum, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-
-			int iPlusVerts = iVertnum - 4;
-			if (iPlusVerts < 0)
-				iPlusVerts = 0;
-
-			psurfaces[j].polys = (glpoly_t*)malloc(sizeof(glpoly_t) + sizeof(float) * VERTEXSIZE * iPlusVerts);
-
-			glpoly_t* pPoly = psurfaces[j].polys;
-			pPoly->chain = NULL;
-			pPoly->flags = NULL;
-			pPoly->next = NULL;
-			pPoly->numverts = NULL;
-			memset(pPoly->verts, 0, sizeof(float) * VERTEXSIZE * 4);
-			pPoly->numverts = iVertnum;
-
-			psurfaces[j].plane = new mplane_t;
-			memset(psurfaces[j].plane, 0, sizeof(mplane_t));
-			memcpy(&psurfaces[j].plane->normal, &pFile[iOffset], sizeof(vec3_t));
-			iOffset += 12;
-			memcpy(&psurfaces[j].plane->dist, &pFile[iOffset], sizeof(float));
-			iOffset += 4;
-
-			psurfaces[j].texinfo = new mtexinfo_t;
-			memset(psurfaces[j].texinfo, 0, sizeof(mtexinfo_t));
-
-			// Mark as transparent
-			if (szTexName[0] == '{' && m_pDetailObjects[i].rendermode != kRenderTransAlpha)
-				m_pDetailObjects[i].rendermode = kRenderTransAlpha;
-
-			// See if we already have it
-			int k;
-			for (k = 0; k < m_iNumTextures; k++)
-			{
-				if (!strcmp(m_pNormalTextureList[k].name, szTexName))
-				{
-					psurfaces[j].texinfo->texture = &m_pNormalTextureList[k];
-					break;
-				}
-			}
-
-			if (k == m_iNumTextures)
-			{
-				cl_texture_t* pTexture = NULL;
-				psurfaces[j].texinfo->texture = &m_pNormalTextureList[m_iNumTextures];
-				texture_t* pMultiPass = &m_pMultiPassTextureList[m_iNumTextures];
-				m_iNumTextures++;
-
-				// See if it's alternate flagged
-				if (gTextureLoader.TextureHasFlag("world", szTexName, TEXFLAG_ALTERNATE))
-				{
-					sprintf(szPath, "gfx/textures/world/%s.dds", szTexName);
-					pTexture = gTextureLoader.LoadTexture(szPath);
-				}
-
-				// Just load it from a WAD then
-				if (!pTexture)
-					pTexture = gTextureLoader.LoadWADTexture(szTexName);
-
-				if (!pTexture)
-				{
-					gEngfuncs.Con_Printf("Error! .edd file couldn't load texture: %s!\n", szTexName);
-					gEngfuncs.COM_FreeFile(pFile);
-					ClearDetailObjects();
-					return;
-				}
-
-				psurfaces[j].texinfo->texture->width = pTexture->iWidth;
-				psurfaces[j].texinfo->texture->height = pTexture->iHeight;
-				psurfaces[j].texinfo->texture->gl_texturenum = pTexture->iIndex;
-				strcpy(psurfaces[j].texinfo->texture->name, szTexName);
-				memcpy(pMultiPass, psurfaces[j].texinfo->texture, sizeof(texture_t));
-			}
-
-			memcpy(&psurfaces[j].texinfo->flags, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-			memcpy(&psurfaces[j].texinfo->mipadjust, &pFile[iOffset], sizeof(float));
-			iOffset += 4;
-			memcpy(&psurfaces[j].texinfo->vecs, &pFile[iOffset], sizeof(float) * 8);
-			iOffset += sizeof(float) * 8;
-
-			memcpy(&psurfaces[j].texturemins, &pFile[iOffset], sizeof(short) * 2);
-			iOffset += 4;
-			memcpy(&psurfaces[j].extents, &pFile[iOffset], sizeof(short) * 2);
-			iOffset += 4;
-			memcpy(&psurfaces[j].light_s, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-			memcpy(&psurfaces[j].light_t, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-			memcpy(&psurfaces[j].flags, &pFile[iOffset], sizeof(int));
-			iOffset += 4;
-
-			int iXSize = (psurfaces[j].extents[0] >> 4) + 1;
-			int iYSize = (psurfaces[j].extents[1] >> 4) + 1;
-			int iSize = iXSize * iYSize;
-
-			// Read lightmap
-			psurfaces[j].samples = new color24[iSize];
-			memset(psurfaces[j].samples, 0, sizeof(color24) * iSize);
-			memcpy(psurfaces[j].samples, &pFile[iOffset], sizeof(color24) * iSize);
-			iOffset += sizeof(color24) * iSize;
-
-			// Read vertexes in
-			memcpy(psurfaces[j].polys->verts, &pFile[iOffset], VERTEXSIZE * sizeof(float) * psurfaces[j].polys->numverts);
-			iOffset += VERTEXSIZE * 4 * psurfaces[j].polys->numverts;
-		}
-	}
-	gEngfuncs.COM_FreeFile(pFile);
-
-	m_pDetailObjectSurfaces = new msurface_t[surfacesArray.size()];
-	memcpy(m_pDetailObjectSurfaces, surfacesArray.data(), sizeof(msurface_t) * surfacesArray.size());
-
-	//
-	// Get leaf numbers
-	//
-	for (int i = 0; i < m_iNumDetailObjects; i++)
-	{
-		entextradata_t pTemp;
-		memset(&pTemp, 0, sizeof(entextradata_t));
-
-		pTemp.absmin = m_pDetailObjects[i].mins;
-		pTemp.absmax = m_pDetailObjects[i].maxs;
-
-		SV_FindTouchedLeafs(&pTemp, m_pWorld->nodes);
-
-		memcpy(m_pDetailObjects[i].leafnums, pTemp.leafnums, sizeof(short) * MAX_ENT_LEAFS);
-		m_pDetailObjects[i].numleafs = pTemp.num_leafs;
-	}
-}
-
-/*
-====================
 CreateTextures
 
 ====================
@@ -1739,7 +1162,7 @@ void CBSPRenderer::CreateTextures(void)
 	//
 	// Load flashlight texture
 	//
-	m_pFlashlightTextures[0] = gTextureLoader.LoadTexture("gfx/textures/flashlight.tga", FALSE, true, false, true);
+	m_pFlashlightTextures[0] = gTextureLoader.LoadTexture("gfx/textures/flashlight.tga", true, false, true);
 	m_iNumFlashlightTextures++;
 
 	if (!m_pFlashlightTextures[0])
@@ -1756,14 +1179,14 @@ void CBSPRenderer::CreateTextures(void)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	for (int i = 0; i < gTextureLoader.m_iNumTextureEntries; i++)
+	for (int i = 0; i < gTextureLoader.m_pTextureEntries.size(); i++)
 	{
-		texentry_t* pEntry = &gTextureLoader.m_pTextureEntries[i];
+		texentry_t* pEntry = gTextureLoader.m_pTextureEntries[i];
 		if (!strcmp(pEntry->szModel, "flashlight"))
 		{
 			char szPath[64];
 			sprintf(szPath, "gfx/textures/%s.tga", pEntry->szTexture);
-			cl_texture_t* pTexture = gTextureLoader.LoadTexture(szPath, FALSE, true, false, true);
+			cl_texture_t* pTexture = gTextureLoader.LoadTexture(szPath, true, false, true);
 			if (pTexture)
 			{
 				m_pFlashlightTextures[m_iNumFlashlightTextures] = pTexture;
@@ -1779,102 +1202,14 @@ void CBSPRenderer::CreateTextures(void)
 	}
 
 	//
-	// Create spotlight attenuation texture.
-	//
-	color24 buf1[256];
-	for (int i = 0; i < 256; i++)
-	{
-		float dist = (float)i;
-		float att = (((dist * dist) / (256 * 256)) - 1) * -255;
-
-		if (i == 255 || i == 0)
-			att = 0;
-
-		buf1[i].r = buf1[i].g = buf1[i].b = (unsigned char)att;
-	}
-
-	m_iAttenuation1DTexture = current_ext_texture_id;
-	current_ext_texture_id++;
-
-	glBindTexture(GL_TEXTURE_1D, m_iAttenuation1DTexture);
-	glTexImage1D(GL_TEXTURE_1D, 0, 3, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, buf1);
-	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-
-	//
-	// Create 3d attenuation texture for point lights
-	//
-	color24* buf2 = new color24[64 * 64 * 64];
-	float f = (64 / 2) * (64 / 2);
-
-	for (int x = 0; x < 64; x++)
-	{
-		for (int y = 0; y < 64; y++)
-		{
-			for (int z = 0; z < 64; z++)
-			{
-				vec3_t vec;
-				vec[0] = (float)x - (64 / 2);
-				vec[1] = (float)y - (64 / 2);
-				vec[2] = (float)z - (64 / 2);
-				float dist = vec.Length();
-				if (dist > (64 / 2))
-					dist = (64 / 2);
-
-				float att;
-				if (x == 0 || y == 0 || z == 0 || x == 64 - 1 || y == 64 - 1 || z == 64 - 1)
-					att = 0;
-				else
-					att = (((dist * dist) / f) - 1) * -255;
-
-				buf2[x * 64 * 64 + y * 64 + z].r = (unsigned char)(att);
-				buf2[x * 64 * 64 + y * 64 + z].g = (unsigned char)(att);
-				buf2[x * 64 * 64 + y * 64 + z].b = (unsigned char)(att);
-			}
-		}
-	}
-
-	m_iAtten3DPoint = current_ext_texture_id;
-	current_ext_texture_id++;
-	glBindTexture(GL_TEXTURE_3D, m_iAtten3DPoint);
-	glTexImage3DEXT(GL_TEXTURE_3D, 0, 3, 64, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, buf2);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	delete[] buf2;
-
-	//
-	// Create color dummy texture
-	//
-	color24 buf3[16 * 16];
-
-	for (int i = 0; i < 256; i++)
-	{
-		buf3[i].r = 127;
-		buf3[i].g = 127;
-		buf3[i].b = 255;
-	}
-
-	m_iLightDummy = current_ext_texture_id;
-	current_ext_texture_id++;
-	glBindTexture(GL_TEXTURE_2D, m_iLightDummy);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, 16, 16, 0, GL_RGB, GL_UNSIGNED_BYTE, buf3);
-
-	//
 	// Copy over all world textures
 	//
-	for (int i = 0; i < m_pWorld->numtextures; i++)
+	for (int i = 0; i < engine_cl->worldmodel->numtextures; i++)
 	{
-		if (!m_pWorld->textures[i])
+		if (!engine_cl->worldmodel->textures[i])
 			continue;
 
-		memcpy(&m_pNormalTextureList[m_iNumTextures], m_pWorld->textures[i], sizeof(texture_t));
-		memcpy(&m_pMultiPassTextureList[m_iNumTextures], m_pWorld->textures[i], sizeof(texture_t));
+		memcpy(&m_pNormalTextureList[m_iNumTextures], engine_cl->worldmodel->textures[i], sizeof(texture_t));
 		m_iNumTextures++;
 	}
 
@@ -1903,10 +1238,10 @@ FreeBuffer
 */
 void CBSPRenderer::FreeBuffer(void)
 {
-	if (m_uiBufferIndex)
+	if (m_pMainBuffer)
 	{
-		glDeleteBuffersARB(1, &m_uiBufferIndex);
-		m_uiBufferIndex = NULL;
+		delete m_pMainBuffer;
+		m_pMainBuffer = nullptr;
 	}
 
 	if (m_pBufferData)
@@ -1940,8 +1275,8 @@ void CBSPRenderer::GenerateVertexArray(void)
 	// delete existing data
 	FreeBuffer();
 
-	msurface_t* surfaces = m_pWorld->surfaces;
-	for (int i = 0; i < m_pWorld->numsurfaces; i++)
+	clientmsurface_t* surfaces = BSPWorld_Model::m_pWorldSurfaces;
+	for (int i = 0; i < engine_cl->worldmodel->numsurfaces; i++)
 	{
 		if (surfaces[i].flags & SURF_DRAWSKY)
 			continue;
@@ -1955,22 +1290,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 		iNumFaces++;
 	}
 
-	if (m_iNumDetailObjects)
-	{
-		for (int i = 0; i < m_iNumDetailObjects; i++)
-		{
-			msurface_t* psurf = m_pDetailObjectSurfaces + m_pDetailObjects[i].firstsurface;
-			for (int j = 0; j < m_pDetailObjects[i].numsurfaces; j++, psurf++)
-			{
-				iNumVerts += 3 + (psurf->polys->numverts - 3) * 3;
-				iNumFaces++;
-			}
-		}
-	}
-
-	int nbPointers = m_pWorld->numsurfaces;
-	if (m_iNumDetailObjects)
-		nbPointers += m_numDetailSurfaces;
+	int nbPointers = engine_cl->worldmodel->numsurfaces;
 
 	m_pSurfacePointersArray = new brushface_t*[nbPointers];
 	for (int i = 0; i < iNumFaces; i++)
@@ -1990,7 +1310,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 	m_iTotalFaceCount = iNumFaces;
 
 	int pointerIndex = 0;
-	for (int i = 0; i < m_pWorld->numsurfaces; i++, pointerIndex++)
+	for (int i = 0; i < engine_cl->worldmodel->numsurfaces; i++, pointerIndex++)
 	{
 		if (surfaces[i].flags & SURF_DRAWSKY)
 			continue;
@@ -2023,7 +1343,6 @@ void CBSPRenderer::GenerateVertexArray(void)
 			if (!strcmp(m_pNormalTextureList[j].name, surfaces[i].texinfo->texture->name))
 			{
 				m_pSurfaces[ext->index].regtexture = &m_pNormalTextureList[j];
-				m_pSurfaces[ext->index].mptexture = &m_pMultiPassTextureList[j];
 				break;
 			}
 		}
@@ -2035,8 +1354,8 @@ void CBSPRenderer::GenerateVertexArray(void)
 				dtex = &m_pDetailTextures[m_pSurfaces[ext->index].regtexture->offsets[2]];
 		}
 
-		float column = surfaces[i].lightmaptexturenum % LIGHTMAP_NUMROWS;
-		float row = (surfaces[i].lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
+		int column = surfaces[i].lightmaptexturenum % LIGHTMAP_NUMROWS;
+		int row = (surfaces[i].lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
 
 		ext->start_vertex = iCurVert;
 		for (glpoly_t* bp = surfaces[i].polys; bp; bp = bp->next)
@@ -2053,6 +1372,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 				pVertexes[j].texcoord[1] = v[4];
 				pVertexes[j].lightmaptexcoord[0] = (v[5] + column) / LIGHTMAP_NUMCOLUMNS;
 				pVertexes[j].lightmaptexcoord[1] = (v[6] + row) / LIGHTMAP_NUMROWS;
+
 				pVertexes[j].normal[0] = ext->normal[0];
 				pVertexes[j].normal[1] = ext->normal[1];
 				pVertexes[j].normal[2] = ext->normal[2];
@@ -2061,32 +1381,6 @@ void CBSPRenderer::GenerateVertexArray(void)
 				{
 					pVertexes[j].detailtexcoord[0] = v[3] * dtex->xscale;
 					pVertexes[j].detailtexcoord[1] = v[4] * dtex->yscale;
-				}
-
-				if (m_bSpecialFog)
-				{
-					if (pVertexes[j].pos.z < 0)
-					{
-						pVertexes[j].fogcoord = abs(pVertexes[j].pos.z / (m_pWorld->mins.z + 300));
-
-						if (pVertexes[j].fogcoord > 1)
-							pVertexes[j].fogcoord = 1;
-
-						if (pVertexes[j].fogcoord < 0)
-							pVertexes[j].fogcoord = 0;
-					}
-					else
-					{
-						pVertexes[j].fogcoord = abs(pVertexes[j].pos.z / (m_pWorld->maxs.z - 300));
-
-						if (pVertexes[j].fogcoord > 1)
-							pVertexes[j].fogcoord = 1;
-
-						if (pVertexes[j].fogcoord < 0)
-							pVertexes[j].fogcoord = 0;
-					}
-
-					pVertexes[j].fogcoord *= gHUD.m_pFogSettings.end;
 				}
 			}
 
@@ -2108,6 +1402,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 				pVertexes[2].texcoord[1] = v[4];
 				pVertexes[2].lightmaptexcoord[0] = (v[5] + column) / LIGHTMAP_NUMCOLUMNS;
 				pVertexes[2].lightmaptexcoord[1] = (v[6] + row) / LIGHTMAP_NUMROWS;
+
 				pVertexes[2].normal[0] = ext->normal[0];
 				pVertexes[2].normal[1] = ext->normal[1];
 				pVertexes[2].normal[2] = ext->normal[2];
@@ -2116,32 +1411,6 @@ void CBSPRenderer::GenerateVertexArray(void)
 				{
 					pVertexes[2].detailtexcoord[0] = v[3] * dtex->xscale;
 					pVertexes[2].detailtexcoord[1] = v[4] * dtex->yscale;
-				}
-
-				if (m_bSpecialFog)
-				{
-					if (pVertexes[2].pos.z < 0)
-					{
-						pVertexes[2].fogcoord = abs(pVertexes[2].pos.z / (m_pWorld->mins.z + 300));
-
-						if (pVertexes[2].fogcoord > 1)
-							pVertexes[2].fogcoord = 1;
-
-						if (pVertexes[2].fogcoord < 0)
-							pVertexes[2].fogcoord = 0;
-					}
-					else
-					{
-						pVertexes[2].fogcoord = abs(pVertexes[2].pos.z / (m_pWorld->maxs.z - 300));
-
-						if (pVertexes[2].fogcoord > 1)
-							pVertexes[2].fogcoord = 1;
-
-						if (pVertexes[2].fogcoord < 0)
-							pVertexes[2].fogcoord = 0;
-					}
-
-					pVertexes[2].fogcoord *= gHUD.m_pFogSettings.end;
 				}
 
 				memcpy(&m_pBufferData[iCurVert], &pVertexes[0], sizeof(brushvertex_t));
@@ -2156,310 +1425,61 @@ void CBSPRenderer::GenerateVertexArray(void)
 		iCurFace++;
 	}
 
-	if (m_iNumDetailObjects)
+	if (m_pBSP_VAO)
+		delete m_pBSP_VAO;
+
+	m_pBSP_VAO = new GL_VertexArrayObject();
+	m_pBSP_VAO->BindVAO();
+
+	m_pMainBuffer = new GL_BufferHandler();
+
+	m_pMainBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+
+	m_pMainBuffer->BufferData(GL_BufferHandler::ArrayBuffer,
+							sizeof(brushvertex_t) * iNumVerts,
+							m_pBufferData, GL_BufferHandler::StaticDraw);
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, pos));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Normal);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, normal));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Detail_TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Detail_TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, detailtexcoord));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::LightMap_TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::LightMap_TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, lightmaptexcoord));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, texcoord));
+
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ElementArrayBuffer);
+
+
+	if (gPropManager.m_pStaticModelVAO)
 	{
-		int iCounter = 0;
-		for (int i = 0; i < m_iNumDetailObjects; i++, pointerIndex++)
-		{
-			detailobject_t* pObject = &m_pDetailObjects[i];
-			for (int j = 0; j < pObject->numsurfaces; j++)
-			{
-				msurface_t* psurf = m_pDetailObjectSurfaces + pObject->firstsurface;
-				glpoly_t* poly = psurf->polys;
+		gPropManager.m_pStaticModelVAO->BindVAO();
 
-				if (poly->numverts < 3)
-					continue;
+		m_pMainBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+		gPropManager.m_pStaticModelBuffer->Bind(GL_BufferHandler::ElementArrayBuffer);
 
-				brushface_t* ext = &m_pFacesExtraData[iCurFace];
-				VectorCopy(psurf->texinfo->vecs[0], ext->s_tangent);
-				VectorCopy(psurf->texinfo->vecs[1], ext->t_tangent);
-				VectorNormalize(ext->s_tangent);
-				VectorNormalize(ext->t_tangent);
-				VectorCopy(psurf->plane->normal, ext->normal);
-				ext->index = m_pWorld->numsurfaces + iCounter;
-				iCounter++;
+		glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
+		glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, pos));
 
-				// Set ptr
-				m_pSurfacePointersArray[pointerIndex] = ext;
+		glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Normal);
+		glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, normal));
 
-				if (psurf->flags & SURF_PLANEBACK)
-					VectorInverse(ext->normal);
-
-				// Link up with renderlist textures
-				for (int k = 0; k < m_iNumTextures; k++)
-				{
-					if (!strcmp(m_pNormalTextureList[k].name, psurf->texinfo->texture->name))
-					{
-						m_pSurfaces[ext->index].regtexture = &m_pNormalTextureList[k];
-						m_pSurfaces[ext->index].mptexture = &m_pMultiPassTextureList[k];
-						break;
-					}
-				}
-
-				detailtexentry_t* dtex = NULL;
-				if (m_pSurfaces[ext->index].regtexture)
-				{
-					if (m_pSurfaces[ext->index].regtexture->offsets[3])
-						dtex = &m_pDetailTextures[m_pSurfaces[ext->index].regtexture->offsets[2]];
-				}
-
-				float column = psurf->lightmaptexturenum % LIGHTMAP_NUMROWS;
-				float row = (psurf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
-
-				ext->start_vertex = iCurVert;
-				for (glpoly_t* bp = psurf->polys; bp; bp = bp->next)
-				{
-					brushvertex_t pVertexes[3];
-					float* v = bp->verts[0];
-
-					for (int k = 0; k < 3; k++, v += VERTEXSIZE)
-					{
-						pVertexes[k].pos[0] = v[0];
-						pVertexes[k].pos[1] = v[1];
-						pVertexes[k].pos[2] = v[2];
-						pVertexes[k].texcoord[0] = v[3];
-						pVertexes[k].texcoord[1] = v[4];
-						pVertexes[k].lightmaptexcoord[0] = (v[5] + column) / LIGHTMAP_NUMCOLUMNS;
-						pVertexes[k].lightmaptexcoord[1] = (v[6] + row) / LIGHTMAP_NUMROWS;
-						pVertexes[k].normal[0] = ext->normal[0];
-						pVertexes[k].normal[1] = ext->normal[1];
-						pVertexes[k].normal[2] = ext->normal[2];
-
-						if (dtex)
-						{
-							pVertexes[k].detailtexcoord[0] = v[3] * dtex->xscale;
-							pVertexes[k].detailtexcoord[1] = v[4] * dtex->yscale;
-						}
-
-						if (m_bSpecialFog)
-						{
-							if (pVertexes[k].pos.z < 0)
-							{
-								pVertexes[k].fogcoord = abs(pVertexes[k].pos.z / (m_pWorld->mins.z + 300));
-
-								if (pVertexes[k].fogcoord > 1)
-									pVertexes[k].fogcoord = 1;
-
-								if (pVertexes[k].fogcoord < 0)
-									pVertexes[k].fogcoord = 0;
-							}
-							else
-							{
-								pVertexes[k].fogcoord = abs(pVertexes[k].pos.z / (m_pWorld->maxs.z - 300));
-
-								if (pVertexes[k].fogcoord > 1)
-									pVertexes[k].fogcoord = 1;
-
-								if (pVertexes[k].fogcoord < 0)
-									pVertexes[k].fogcoord = 0;
-							}
-
-							pVertexes[k].fogcoord *= gHUD.m_pFogSettings.end;
-						}
-					}
-
-					memcpy(&m_pBufferData[iCurVert], &pVertexes[0], sizeof(brushvertex_t));
-					iCurVert++;
-					memcpy(&m_pBufferData[iCurVert], &pVertexes[1], sizeof(brushvertex_t));
-					iCurVert++;
-					memcpy(&m_pBufferData[iCurVert], &pVertexes[2], sizeof(brushvertex_t));
-					iCurVert++;
-
-					for (int k = 0; k < (bp->numverts - 3); k++, v += VERTEXSIZE)
-					{
-						memcpy(&pVertexes[1], &pVertexes[2], sizeof(brushvertex_t));
-
-						pVertexes[2].pos[0] = v[0];
-						pVertexes[2].pos[1] = v[1];
-						pVertexes[2].pos[2] = v[2];
-						pVertexes[2].texcoord[0] = v[3];
-						pVertexes[2].texcoord[1] = v[4];
-						pVertexes[2].lightmaptexcoord[0] = (v[5] + column) / LIGHTMAP_NUMCOLUMNS;
-						pVertexes[2].lightmaptexcoord[1] = (v[6] + row) / LIGHTMAP_NUMROWS;
-						pVertexes[2].normal[0] = ext->normal[0];
-						pVertexes[2].normal[1] = ext->normal[1];
-						pVertexes[2].normal[2] = ext->normal[2];
-
-						if (dtex)
-						{
-							pVertexes[2].detailtexcoord[0] = v[3] * dtex->xscale;
-							pVertexes[2].detailtexcoord[1] = v[4] * dtex->yscale;
-						}
-
-						if (m_bSpecialFog)
-						{
-							if (pVertexes[2].pos.z < 0)
-							{
-								pVertexes[2].fogcoord = abs(pVertexes[2].pos.z / (m_pWorld->mins.z + 300));
-
-								if (pVertexes[2].fogcoord > 1)
-									pVertexes[2].fogcoord = 1;
-
-								if (pVertexes[2].fogcoord < 0)
-									pVertexes[2].fogcoord = 0;
-							}
-							else
-							{
-								pVertexes[2].fogcoord = abs(pVertexes[2].pos.z / (m_pWorld->maxs.z - 300));
-
-								if (pVertexes[2].fogcoord > 1)
-									pVertexes[2].fogcoord = 1;
-
-								if (pVertexes[2].fogcoord < 0)
-									pVertexes[2].fogcoord = 0;
-							}
-
-							pVertexes[2].fogcoord *= gHUD.m_pFogSettings.end;
-						}
-
-						memcpy(&m_pBufferData[iCurVert], &pVertexes[0], sizeof(brushvertex_t));
-						iCurVert++;
-						memcpy(&m_pBufferData[iCurVert], &pVertexes[1], sizeof(brushvertex_t));
-						iCurVert++;
-						memcpy(&m_pBufferData[iCurVert], &pVertexes[2], sizeof(brushvertex_t));
-						iCurVert++;
-					}
-				}
-				ext->num_vertexes = iCurVert - ext->start_vertex;
-				iCurFace++;
-			}
-		}
+		glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
+		glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(brushvertex_t), (void*)offsetof(brushvertex_t, texcoord));
 	}
 
-	glGenBuffersARB(1, &m_uiBufferIndex);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_uiBufferIndex);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(brushvertex_t) * iNumVerts, m_pBufferData, GL_STATIC_DRAW_ARB);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, NULL);
+
+	GL_VertexArrayObject::ResetVAOBinding();
+
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 };
-
-/*
-====================
-EnableVertexArray
-
-====================
-*/
-void CBSPRenderer::EnableVertexArray(void)
-{
-	glEnableClientState(GL_VERTEX_ARRAY);
-
-	if (m_bSpecialFog)
-	{
-		glEnableClientState(GL_FOG_COORD_ARRAY);
-		glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
-	}
-};
-
-/*
-====================
-DisableVertexArray
-
-====================
-*/
-void CBSPRenderer::DisableVertexArray(void)
-{
-	glDisableClientState(GL_VERTEX_ARRAY);
-	if (m_bSpecialFog)
-	{
-		glDisableClientState(GL_FOG_COORD_ARRAY);
-		glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FRAGMENT_DEPTH_EXT);
-	}
-
-	SetTexPointer(0, TC_OFF);
-	SetTexPointer(1, TC_OFF);
-	SetTexPointer(2, TC_OFF);
-	SetTexPointer(3, TC_OFF);
-
-	// 2010-09-30 -- Not setting this caused problems with Steam HL
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-};
-
-/*
-====================
-SetTexPointer
-
-====================
-*/
-void CBSPRenderer::SetTexPointer(int unitnum, int tc)
-{
-	if (unitnum >= m_iTUSupport)
-		return;
-
-	if (m_iTexPointer[unitnum] == tc)
-		return;
-
-	glClientActiveTextureARB(unitnum + GL_TEXTURE0_ARB);
-
-	switch (tc)
-	{
-	case TC_OFF:
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		break;
-
-	case TC_TEXTURE:
-		glTexCoordPointer(2, GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, texcoord));
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		break;
-
-	case TC_DETAIL_TEXTURE:
-		glTexCoordPointer(2, GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, detailtexcoord));
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		break;
-
-	case TC_LIGHTMAP:
-		glTexCoordPointer(2, GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, lightmaptexcoord));
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		break;
-
-	case TC_VERTEX_POSITION:
-		glTexCoordPointer(3, GL_FLOAT, sizeof(brushvertex_t), OFFSET(brushvertex_t, pos));
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		break;
-	}
-
-	m_iTexPointer[unitnum] = tc;
-}
-
-/*
-====================
-ResetRenderer
-
-====================
-*/
-void CBSPRenderer::ResetRenderer(void)
-{
-	for (int i = 0; i < 3; i++)
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB + i);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		glDisable(GL_TEXTURE_2D);
-	}
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glEnable(GL_TEXTURE_2D);
-
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
-
-	glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-}
-
-/*
-====================
-ResetCache
-
-====================
-*/
-void CBSPRenderer::ResetCache(void)
-{
-	for (int i = 0; i < 3; i++)
-		m_uiCurrentBinds[i] = 0;
-
-	for (int i = 0; i < 4; i++)
-	{
-		m_iEnvStates[i] = ENVSTATE_NOSTATE;
-		m_iTexPointer[i] = TC_NOSTATE;
-	}
-}
 
 /*
 ====================
@@ -2469,27 +1489,15 @@ HasDynLights
 */
 bool CBSPRenderer::HasDynLights(void)
 {
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
-
-	if (m_pCurrentEntity->curstate.renderfx == 70)
-		return false;
+	float time = engine_cl->time;
 
 	if (IsEntityTransparent(m_pCurrentEntity))
-		return false;
-
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
 		return false;
 
 	if (m_pCvarDynamic->value < 1)
 		return false;
 
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
-	{
-		if (dl->die >= time && dl->radius)
-			return true;
-	}
-	if (m_iNumModelShadows > 0)
+	if (!m_pDynLights.empty())
 		return true;
 
 	return false;
@@ -2548,33 +1556,19 @@ void CBSPRenderer::LoadWADDecals()
 		memcpy(pWADFile->lumps, (pWADFile->wadfile + pWADFile->info->infotableofs), sizeof(lumpinfo_t) * pWADFile->info->numlumps);
 		pWADFile->numlumps = pWADFile->info->numlumps;
 	}
-	
 }
 
 /*
 ====================
-PrepareRenderer
+ClearSurfaceDrawChain
 
 ====================
 */
-void CBSPRenderer::PrepareRenderer(void)
+void CBSPRenderer::ClearSurfaceDrawChain(void)
 {
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
-
-	m_bSecondPassNeeded = HasDynLights();
-
-	ResetCache();
-	SetTexPointer(0, TC_LIGHTMAP);
-	SetTexPointer(1, TC_TEXTURE);
-	SetTexPointer(2, TC_DETAIL_TEXTURE);
-
-	// clear all chains
 	for (int i = 0; i < m_iNumTextures; i++)
 	{
 		m_pNormalTextureList[i].texturechain = NULL;
-		m_pMultiPassTextureList[i].texturechain = NULL;
 	}
 };
 
@@ -2584,59 +1578,146 @@ DrawNormalTriangles
 
 ====================
 */
-void CBSPRenderer::DrawNormalTriangles(void)
+void CBSPRenderer::DrawNormalTriangles(bool draw_world)
 {
-	if (!m_bCanDraw)
-	{
-		//for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-		//{
-		//	mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-		//	do
-		//	{
-		//		node->visframe = saved_leaf_visframe;
-		//		node = node->parent;
-		//	} while (node);
-		//}
-		//gBSPRenderer.m_pWorld->nodes[0].visframe = saved_leaf_visframe;
-		return;
-	}
-
-	// Disable water fog, it's just black anyway
-	if (glIsEnabled(GL_FOG))
-		glDisable(GL_FOG);
-
-	// Set up view leaf
-	if (m_pViewLeaf->contents != CONTENTS_SOLID)
-		m_iVisFrame = r_visframecount;
-		//m_iVisFrame = m_pViewLeaf->visframe;
-	else
-		m_iVisFrame = -2;
-
-	R_SaveGLStates();
-	RenderFog();
-
 	DrawSky();
-	float projection[16];
-	if (m_bMirroring)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, projection);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-	}
-	if (m_bMirroring)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadMatrixf(projection);
+	
+	if (draw_world)
+		DrawWorld();
+	
+	DrawDecals();
+};
 
-		glMatrixMode(GL_MODELVIEW);
-	}
-	DrawWorld();
-	R_RestoreGLStates();
+/*
+====================
+DrawNormalTriangles
 
-	// So it's called only once
-	m_bCanDraw = false;
+====================
+*/
+void CBSPRenderer::DrawNormalTriangles_Cheap(bool drawworld, bool draw_ents)
+{
+	if (m_bDrawSky)
+	{
+		m_SimpleSkyboxShader->Bind();
+		m_pSimpleSkyVAO->BindVAO();
+
+		glm::mat4 viewrotation = m_ViewMatrix;
+		viewrotation[3][0] = viewrotation[3][1] = viewrotation[3][2] = 0;
+
+		m_SimpleSkyboxShader->UniformMatrix4fv(m_SimpleSkyboxShader_locs[skybox_projviewmatrix], 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix * viewrotation));
+		m_SimpleSkyboxShader->Uniform1i(m_SimpleSkyboxShader_locs[skybox_skyfog], gHUD.m_pFogSettings.affectsky);
+		m_SimpleSkyboxShader->Uniform3fv(m_SimpleSkyboxShader_locs[skybox_fogcolor], 1, gHUD.m_pFogSettings.color);
+
+		for (int i = 0; i < 6; i++)
+		{
+			BindGLTexture(GL_TEXTURE0, m_iSkyTextures[i]);
+			glDrawArrays(GL_TRIANGLES, i * 6, 6);
+		}
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
+	if (m_pCvarDrawWorld->value && drawworld)
+	{
+		VectorCopy(m_vRenderOrigin, m_vVecToEyes);
+
+		m_pBSP_VAO->BindVAO();
+
+		m_WorldShader->Bind();
+
+		ClearSurfaceDrawChain();
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glBindTexture(GL_TEXTURE_2D, m_iEngineLightmapIndex);
+
+		RecursiveWorldNode(BSPWorld_Model::m_pWorldNodes);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_fog_active], gl_fog->value ? gHUD.m_pFogSettings.active : false);
+
+		m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_projectionmatrix], 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix));
+		m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_viewmatrix], 1, GL_FALSE, glm::value_ptr(m_ViewMatrix));
+		m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
+
+		m_WorldShader->Uniform3fv(m_WorldShader_locs[world_renderorigin], 1, m_vRenderOrigin);
+		m_WorldShader->Uniform3fv(m_WorldShader_locs[world_fogcolor], 1, gHUD.m_pFogSettings.color);
+		m_WorldShader->Uniform3i(m_WorldShader_locs[world_rendercolor], 255, 255, 255);
+
+		m_WorldShader->Uniform1f(m_WorldShader_locs[world_fogstart], gHUD.m_pFogSettings.start);
+		m_WorldShader->Uniform1f(m_WorldShader_locs[world_fogend], gHUD.m_pFogSettings.end);
+
+		float texgamma_val = 1.2 - (texgamma->value - 1.8); //cause goldsrc limits it to 1.8
+		float lightgamma_val = 1.2 - (lightgamma->value - 1.8);
+
+		m_WorldShader->Uniform1f(m_WorldShader_locs[world_texgamma], texgamma_val);
+		m_WorldShader->Uniform1f(m_WorldShader_locs[world_lightgamma], lightgamma_val);
+
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_renderamt], 255);
+
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_lightmap_pass], 1);
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_texture_pass], 1);
+
+		BindGLTexture(LIGHTMAP_TEXUNIT, m_iEngineLightmapIndex);
+
+		// Render normal ones first
+		for (int i = 0; i < m_iNumTextures; i++)
+		{
+			texture_t* pTexture = &m_pNormalTextureList[i];
+
+			clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+
+			// Nothing to draw
+			if (!psurface)
+				continue;
+
+			while (psurface)
+			{
+				int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+				brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+				if (psurface->flags & SURF_DRAWTURB)
+				{
+					psurface = psurface->texturechain;
+					continue;
+				}
+
+				multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+				multidraw_numverts[num_multidraws] = pbrushface->num_vertexes;
+				num_multidraws++;
+
+				m_iBSPVertsCounter += pbrushface->num_vertexes;
+
+				psurface = psurface->texturechain;
+			}
+
+			if (!num_multidraws)
+				continue;
+			
+			BindGLTexture(SURFTEXTURE_TEXUNIT, pTexture->gl_texturenum);
+			glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+
+			num_multidraws = 0;
+
+		}
+
+		DrawDynamicLightsForWorld();
+
+		if (draw_ents)
+		{
+			for (int i = 0; i < m_iNumRenderEntities; i++)
+			{
+				cl_entity_t* ent = m_pRenderEntities[i];
+				if (IsEntityMoved(ent) && !IsEntityTransparent(ent))
+					DrawBrushModel(ent, false);
+			}
+		}
+	}
+
+	g_GlobalGLState.SetBlend(false);
+
+	GL_ShaderProgram::ResetShaderBind();
+	GL_VertexArrayObject::ResetVAOBinding();
 };
 
 
@@ -2648,28 +1729,37 @@ DrawTransparentTriangles
 */
 void CBSPRenderer::DrawTransparentTriangles(void)
 {
-	if (!m_pCvarDrawWorld->value)
-		return;
-
-	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
-
-	ResetRenderer();
-	EnableVertexArray();
-
-	if (g_StudioRenderer.m_pCvarDrawEntities->value >= 1)
+	if (!m_pCvarDrawWorld->value || !g_StudioRenderer.m_pCvarDrawEntities->value)
 	{
-		for (int i = 0; i < m_iNumRenderEntities; i++)
-		{
-			if (IsEntityTransparent(m_pRenderEntities[i]) && m_pRenderEntities[i]->curstate.renderfx != 70)
-				DrawBrushModel(m_pRenderEntities[i], false);
-		}
+		return;
 	}
 
-	ResetRenderer();
-	DrawDecals();
+	for (int i = 0; i <= m_iNumRenderEntities; i++)
+	{
+		if (i == m_iNumRenderEntities)
+			return; //jump away from this function
 
-	DisableVertexArray();
-	ResetRenderer();
+		cl_entity_t* ent = m_pRenderEntities[i];
+		if (IsEntityTransparent(ent))
+			break;
+	}
+
+	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
+	
+	m_WorldShader->Bind();
+	
+	m_pBSP_VAO->BindVAO();
+	
+	for (int i = 0; i < m_iNumRenderEntities; i++)
+	{
+		cl_entity_t* ent = m_pRenderEntities[i];
+		if (IsEntityTransparent(ent))
+			DrawBrushModel(ent, false);
+	}
+
+	DrawDecals(true);
+
+	GL_VertexArrayObject::ResetVAOBinding();
 };
 
 /*
@@ -2678,145 +1768,119 @@ DrawWorld
 
 ====================
 */
-void CBSPRenderer::DrawWorld(void)
+void CBSPRenderer::DrawWorld(bool m_bSkyBox)
 {
-	// Restore mins/maxs
-	RestoreWorldDrawing();
-
 	if (!m_pCvarDrawWorld->value)
-		return;
-
-	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
-	VectorCopy(m_vRenderOrigin, m_vVecToEyes);
-
-	EnableVertexArray();
-	PrepareRenderer();
-
-	RecursiveWorldNode(m_pWorld->nodes);
-
-
-	// Draw all static entities
-	for (int i = 0; i < m_iNumRenderEntities; i++)
 	{
-		if ((m_pRenderEntities[i]->curstate.renderfx != 70) && !IsEntityMoved(m_pRenderEntities[i]) && !IsEntityTransparent(m_pRenderEntities[i]))
-			DrawBrushModel(m_pRenderEntities[i], true);
+		return;
 	}
 
-	RenderFirstPass();
-	DrawDynamicLightsForWorld();
+	VectorCopy(m_vRenderOrigin, m_vVecToEyes);
+	
+	m_pBSP_VAO->BindVAO();
+
+	m_WorldShader->Bind();
+
+	ClearSurfaceDrawChain();
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glBindTexture(GL_TEXTURE_2D, m_iEngineLightmapIndex);
+
+	RecursiveWorldNode(BSPWorld_Model::m_pWorldNodes);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_fog_active], gl_fog->value ? gHUD.m_pFogSettings.active : false);
+	
+	
+	m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_projectionmatrix], 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix));
+	m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_viewmatrix], 1, GL_FALSE, glm::value_ptr(m_ViewMatrix));
+	m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
+	
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_renderorigin], 1, m_vRenderOrigin);
+	//m_WorldShader->Uniform3fv(m_WorldShader_locs[world_renderright], 1, m_RefParams.right);
+	//m_WorldShader->Uniform3fv(m_WorldShader_locs[world_renderforward], 1, m_RefParams.forward);
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_fogcolor], 1, gHUD.m_pFogSettings.color);
+	m_WorldShader->Uniform3i(m_WorldShader_locs[world_rendercolor], 255, 255, 255);
+	
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_fogstart], gHUD.m_pFogSettings.start);
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_fogend], gHUD.m_pFogSettings.end);
+
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_fltime], engine_cl->time);
+	
+	float texgamma_val = 1.2 - (texgamma->value - 1.8); //cause goldsrc limits it to 1.8
+	float lightgamma_val = 1.2 - (lightgamma->value - 1.8);
+	
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_texgamma], texgamma_val);
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_lightgamma], lightgamma_val);
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_sunshadow_fadedist], m_iSunShadow_FadeDist);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_sunshadow_strength], m_iSunShadow_Strength);
+	
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_renderamt], 255);
+
+	//Draw all static entities
+	if (!m_bSkyBox)
+	{
+		for (int i = 0; i < m_iNumRenderEntities; i++)
+		{
+			cl_entity_t* ent = m_pRenderEntities[i];
+			if (!IsEntityMoved(ent) && !IsEntityTransparent(ent))
+				DrawBrushModel(ent, true);
+		}
+	}
+
+	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
+
+	//render lightmap only
+	if (!r_fullbright->value)
+	{
+		RenderFirstPass();
+		// render spotlights and shadows
+		DrawDynamicLightsForWorld();
+	}
+	//render textures and multiply it with the lightmap on the scene
+
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+
 	RenderFinalPasses();
 
+	//for debugging
+	RenderWireframe();
+
 	// Now render moved entities seperately each
-	for (int i = 0; i < m_iNumRenderEntities; i++)
+	if (!m_bSkyBox)
 	{
-		if (m_pRenderEntities[i]->curstate.renderfx != 70 && IsEntityMoved(m_pRenderEntities[i]) && !IsEntityTransparent(m_pRenderEntities[i]))
-			DrawBrushModel(m_pRenderEntities[i], false);
+		for (int i = 0; i < m_iNumRenderEntities; i++)
+		{
+			cl_entity_t* ent = m_pRenderEntities[i];
+			if (IsEntityMoved(ent) && !IsEntityTransparent(ent))
+				DrawBrushModel(ent, false);
+		}
 	}
 
-	if (m_iNumDetailObjects > 0)
-	{
-		// Draw detail objects
-		PrepareRenderer();
-		DrawDetails();
-		RenderFirstPass(true);
-		DrawDynamicLightsForDetails();
-		RenderFinalPasses(true);
-	}
-
-	DisableVertexArray();
-	ResetRenderer();
-
-	// clear texture chains
-	for (int i = 0; i < m_iNumTextures; i++)
-	{
-		m_pNormalTextureList[i].texturechain = NULL;
-		m_pMultiPassTextureList[i].texturechain = NULL;
-	}
+	GL_VertexArrayObject::ResetVAOBinding();
 };
 
-/*
-====================
-DrawDetails
+//transform a point in world space to screen space
 
-====================
-*/
-void CBSPRenderer::DrawDetails(void)
+Vector CBSPRenderer::TriWorldToScreen(Vector point)
 {
-	if (!m_iNumDetailObjects)
-		return;
+	Vector screen(0, 0, 0);
 
-	VectorCopy(m_vRenderOrigin, m_vVecToEyes);
-	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
+	glm::vec4 worldPos(point.x, point.y, point.z, 1.0f);
 
-	detailobject_t* pCurObject = m_pDetailObjects;
-	for (int i = 0; i < m_iNumDetailObjects; i++, pCurObject++)
-	{
-		int j = 0;
-		for (j = 0; j < pCurObject->numleafs; j++)
-			if (m_pPVS[pCurObject->leafnums[j] >> 3] & (1 << (pCurObject->leafnums[j] & 7)))
-				break;
+	// clip space
+	glm::vec4 clip = m_ProjectionMatrix * m_ViewMatrix * worldPos;
 
-		if (j == pCurObject->numleafs)
-			continue;
+	// perspective divide -> NDC (-1..1)
+	glm::vec3 ndc = glm::vec3(clip) / clip.w;
 
-		if (gHUD.viewFrustum.CullBox(pCurObject->mins, pCurObject->maxs))
-			continue;
+	// to screen coords (pixels)
+	float screenX = (ndc.x * 0.5f + 0.5f) * ScreenWidth;
+	float screenY = (ndc.y * 0.5f + 0.5f) * ScreenHeight;
 
-		if (!m_bShaderSupport || m_pCvarWorldShaders->value < 1)
-		{
-			float time = gEngfuncs.GetClientTime();
-			cl_dlight_t* dl = m_pDynLights;
-
-			for (int j = 0; j < MAX_DYNLIGHTS; j++)
-			{
-				if (dl[j].die < time || !dl[j].radius)
-					continue;
-
-				m_pCurrentDynLight = &dl[j];
-				m_vCurDLightOrigin = m_pCurrentDynLight->origin;
-
-				if (m_pCurrentDynLight->cone_size)
-				{
-					if (m_pCurrentDynLight->frustum.CullBox(pCurObject->mins, pCurObject->maxs))
-						continue;
-				}
-				else
-				{
-					SetDynLightBBox();
-					if (CullDynLightBBox(pCurObject->mins, pCurObject->maxs))
-						continue;
-				}
-
-				for (int k = 0; k < pCurObject->numsurfaces; k++)
-				{
-					msurface_t* psurf = m_pDetailObjectSurfaces + pCurObject->firstsurface + k;
-					if (psurf->dlightframe != m_iFrameCount)
-					{
-						psurf->dlightbits = 0;
-						psurf->dlightframe = m_iFrameCount;
-					}
-					psurf->dlightbits |= 1 << j;
-				}
-			}
-		}
-
-		bool bDynLit = DynamicLighted(pCurObject->mins, pCurObject->maxs);
-		pCurObject->visframe = m_iFrameCount; // For dynlights
-		msurface_t* psurf = m_pDetailObjectSurfaces + pCurObject->firstsurface;
-		for (int j = 0; j < pCurObject->numsurfaces; j++, psurf++)
-		{
-			float dot;
-			mplane_t* pplane = psurf->plane;
-			SSEDotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
-
-			if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
-				(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
-			{
-				SurfaceToChain(m_pDetailObjectSurfaces, psurf, bDynLit);
-				psurf->visframe = m_iFrameCount;
-			}
-		}
-	}
+	return Vector(screenX / ScreenWidth, screenY / ScreenHeight, 0);
 }
 
 /*
@@ -2825,167 +1889,128 @@ RenderFirstPass
 
 ====================
 */
-void CBSPRenderer::RenderFirstPass(bool bSecond)
+void CBSPRenderer::RenderFirstPass()
 {
-	msurface_t* psurfbase = nullptr;
-	if (bSecond)
-	{
-		Bind2DTexture(GL_TEXTURE0_ARB, m_iDetailLightmapIndex);
-		psurfbase = m_pDetailObjectSurfaces;
-	}
-	else
-	{
-		Bind2DTexture(GL_TEXTURE0_ARB, m_iEngineLightmapIndex);
-		psurfbase = m_pWorld->surfaces;
-	}
+	if (r_fullbright->value)
+		return;
+
+	BindGLTexture(LIGHTMAP_TEXUNIT, m_iEngineLightmapIndex);
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 0);
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_lightmap_pass], 1);
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_texture_pass], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_alphatest], 0);
 
 	// Render normal ones first
 	for (int i = 0; i < m_iNumTextures; i++)
 	{
 		texture_t* pTexture = TextureAnimation(&m_pNormalTextureList[i], m_pCurrentEntity->curstate.frame);
-		msurface_t* psurface = m_pNormalTextureList[i].texturechain;
+		clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+
+		auto alphatest = pTexture->name[0] == '{';
+
+		auto detailtexture = pTexture->offsets[3] && m_pCvarDetailTextures->value >= 1;
+
+		if (detailtexture || alphatest || !psurface)
+			continue;
 
 		// Nothing to draw
 		if (!psurface)
 			continue;
 
-		if (pTexture->offsets[3] && m_pCvarDetailTextures->value >= 1)
+		while (psurface)
 		{
-			SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_MUL_X2, ENVSTATE_MUL_X2);
-			Bind2DTexture(GL_TEXTURE1_ARB, pTexture->gl_texturenum);
-			Bind2DTexture(GL_TEXTURE2_ARB, pTexture->offsets[3]);
-		}
-		else
-		{
-			SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_MUL_X2);
-			Bind2DTexture(GL_TEXTURE1_ARB, pTexture->gl_texturenum);
-		}
+			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
 
-		if (pTexture->name[0] == '{')
-		{
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0.5);
-		}
-
-		if ((m_pCurrentEntity->curstate.effects & FL_CONVEYOR) && stristr(pTexture->name, "scroll"))
-		{
-			while (psurface)
+			if (!(psurface->flags & SURF_DRAWTURB))
 			{
-				DrawScrollingPoly(psurfbase, psurface);
-				psurface = psurface->texturechain;
-				m_iWorldPolyCounter++;
-			}
-		}
-		else
-		{
-			while (psurface)
-			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
-				m_iWorldPolyCounter++;
-			}
-		}
-
-		if (pTexture->name[0] == '{')
-		{
-			glDisable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0);
-		}
-
-		if (m_pCvarWireFrame->value >= 1)
-		{
-			SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glLineWidth(1);
-
-			if (m_pCvarWireFrame->value >= 2)
-				glDisable(GL_DEPTH_TEST);
-
-			if (gHUD.m_pFogSettings.active)
-				glDisable(GL_FOG);
-
-			if (m_pCurrentEntity->index == 0)
-				glColor4f(GL_ONE, GL_ZERO, GL_ZERO, GL_ONE);
-			else
-				glColor4f(GL_ONE, GL_ZERO, GL_ONE, GL_ONE);
-
-			psurface = pTexture->texturechain;
-			while (psurface)
-			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
+				multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+				multidraw_numverts[num_multidraws] = (pbrushface->num_vertexes);
+				num_multidraws++;
 			}
 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (m_pCvarWireFrame->value >= 2)
-				glEnable(GL_DEPTH_TEST);
+			m_iBSPVertsCounter += pbrushface->num_vertexes;
 
-			if (gHUD.m_pFogSettings.active)
-				glEnable(GL_FOG);
-
-			glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+			psurface = psurface->texturechain;
 		}
+
 	}
 
-	if (gHUD.m_pFogSettings.active)
-		glDisable(GL_FOG);
+	glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+	num_multidraws = 0;
 
-	// Render lightmaps only now
-
-
+	// now render special textures
 	for (int i = 0; i < m_iNumTextures; i++)
 	{
-		texture_t* pTexture = &m_pMultiPassTextureList[i];
-		msurface_t* psurface = m_pMultiPassTextureList[i].texturechain;
-
+		texture_t* pTexture = TextureAnimation(&m_pNormalTextureList[i], m_pCurrentEntity->curstate.frame);
+		clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+	
+		auto alphatest = pTexture->name[0] == '{';
+	
+		auto detailtexture = pTexture->offsets[3] && m_pCvarDetailTextures->value >= 1;
+	
+		if (!psurface)
+			continue;
+	
 		// Nothing to draw
 		if (!psurface)
 			continue;
-
-		if (pTexture->name[0] == '{')
+	
+		if (detailtexture)
 		{
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0.5);
-
-			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-			SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_REPLACE);
-			Bind2DTexture(GL_TEXTURE1_ARB, pTexture->gl_texturenum);
-			while (psurface)
-			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
-			}
-
-			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-			glDepthFunc(GL_EQUAL);
-			SetTexEnvs(ENVSTATE_REPLACE);
-
-			psurface = pTexture->texturechain;
-			while (psurface)
-			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
-			}
-			glDepthFunc(GL_LEQUAL);
-			m_iWorldPolyCounter++;
-
-			glDisable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0);
+			BindGLTexture(SURFTEXTURE_TEXUNIT, pTexture->gl_texturenum);
+			BindGLTexture(SURF_DETAILTEXTURE_TEXUNIT, pTexture->offsets[3]);
+	
+	
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 1);
+			m_WorldShader->Uniform1f(m_WorldShader_locs[world_dt_opacity], m_pDetailTextures[pTexture->offsets[2]].opacity);
+		}
+		else if (alphatest)
+		{
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_alphatest], 1);
+			BindGLTexture(SURFTEXTURE_TEXUNIT, pTexture->gl_texturenum);
 		}
 		else
+			continue;
+	
+		while (psurface)
 		{
-			SetTexEnvs(ENVSTATE_REPLACE);
-			while (psurface)
+			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+	
+			if (!(psurface->flags & SURF_DRAWTURB))
 			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
-				m_iWorldPolyCounter++;
+				multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+				multidraw_numverts[num_multidraws] = (pbrushface->num_vertexes);
+				num_multidraws++;
 			}
+			else
+			{
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 1);
+					glDisable(GL_CULL_FACE);
+					glDrawArrays(GL_TRIANGLES, pbrushface->start_vertex, pbrushface->num_vertexes);
+					glEnable(GL_CULL_FACE);
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 0);
+			}
+	
+			m_iBSPVertsCounter += pbrushface->num_vertexes;
+	
+			psurface = psurface->texturechain;
 		}
-	}
+	
+		glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+		num_multidraws = 0;
+	
+		if (pTexture->offsets[3] && m_pCvarDetailTextures->value >= 1)
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 0);
 
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
+		if (alphatest)
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_alphatest], 0);
+	
+	}
 }
 
 /*
@@ -2994,132 +2019,143 @@ RenderFinalPasses
 
 ====================
 */
-void CBSPRenderer::RenderFinalPasses(bool bSecond)
+void CBSPRenderer::RenderFinalPasses()
 {
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
+	if (m_pCvarLightmapDebug->value)
+	{
+		g_GlobalGLState.SetBlend(false);
 		return;
+	}
+	
+	if(!r_fullbright->value)
+	{
+		g_GlobalGLState.SetBlend(true);
+	}
 
-	if (!m_bSecondPassNeeded)
-		return;
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_lightmap_pass], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_texture_pass], 1);
 
-	if (m_pCvarDynamic->value == 2)
-		return;
-
-	if (m_pCvarDynamic->value < 1)
-		return;
-
-	if (gHUD.m_pFogSettings.active)
-		glDisable(GL_FOG);
-
-	msurface_t* psurfbase = nullptr;
-	if (bSecond)
-		psurfbase = m_pDetailObjectSurfaces;
-	else
-		psurfbase = m_pWorld->surfaces;
-
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
-	glDepthFunc(GL_EQUAL);
-	glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-
-	SetTexPointer(0, TC_TEXTURE);
-	SetTexPointer(1, TC_DETAIL_TEXTURE);
-
+	// Render normal ones first
 	for (int i = 0; i < m_iNumTextures; i++)
 	{
 		texture_t* pTexture = TextureAnimation(&m_pNormalTextureList[i], m_pCurrentEntity->curstate.frame);
-		msurface_t* psurface = m_pMultiPassTextureList[i].texturechain;
+		clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
 
+		// Nothing to draw
 		if (!psurface)
 			continue;
 
-		if (pTexture->offsets[3] && m_pCvarDetailTextures->value)
+		BindGLTexture(SURFTEXTURE_TEXUNIT, pTexture->gl_texturenum);
+
+		auto scrollingpoly = pTexture->texture_flag & TEXTURE_SCROLL;
+		auto detailtexture = pTexture->offsets[3] && m_pCvarDetailTextures->value >= 1;
+
+		if (scrollingpoly)
 		{
-			// has detail texture
-			SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_MUL_X2);
-			Bind2DTexture(GL_TEXTURE0_ARB, pTexture->gl_texturenum);
-			Bind2DTexture(GL_TEXTURE1_ARB, pTexture->offsets[3]);
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_scrollingpolys], 1);
 		}
-		else
+		else if (detailtexture)
 		{
-			SetTexEnvs(ENVSTATE_REPLACE);
-			Bind2DTexture(GL_TEXTURE0_ARB, pTexture->gl_texturenum);
+			BindGLTexture(SURF_DETAILTEXTURE_TEXUNIT, pTexture->offsets[3]);
+
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 1);
+			m_WorldShader->Uniform1f(m_WorldShader_locs[world_dt_opacity], m_pDetailTextures[pTexture->offsets[2]].opacity);
 		}
 
-		if ((m_pCurrentEntity->curstate.effects & FL_CONVEYOR) && stristr(pTexture->name, "scroll"))
+		while (psurface)
 		{
-			while (psurface)
+			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+			if (psurface->flags & SURF_DRAWTURB)
 			{
-				DrawScrollingPoly(psurfbase, psurface);
-				psurface = psurface->texturechain;
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 1);
+					glDisable(GL_CULL_FACE);
+					glDrawArrays(GL_TRIANGLES, pbrushface->start_vertex, pbrushface->num_vertexes);
+					glEnable(GL_CULL_FACE);
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 0);
 			}
+			else
+			{
+				multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+				multidraw_numverts[num_multidraws] = (pbrushface->num_vertexes);
+				num_multidraws++;
+			}
+
+			m_iBSPVertsCounter += pbrushface->num_vertexes;
+
+			psurface = psurface->texturechain;
 		}
-		else
+
+		glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+		num_multidraws = 0;
+
+		if (scrollingpoly)
 		{
-			while (psurface)
-			{
-				DrawPolyFromArray(psurfbase, psurface);
-				psurface = psurface->texturechain;
-			}
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_scrollingpolys], 0);
+		}
+		else if (detailtexture)
+		{
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 0);
 		}
 	}
 
-	if (gHUD.m_pFogSettings.active)
+	if (!r_fullbright->value)
 	{
-		glEnable(GL_FRAGMENT_PROGRAM_ARB);
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iFogFragmentID);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		for (int i = 0; i < m_iNumTextures; i++)
-		{
-			msurface_t* s = m_pMultiPassTextureList[i].texturechain;
-			while (s)
-			{
-				DrawPolyFromArray(psurfbase, s);
-				msurface_t* next = s->texturechain;
-				s = next;
-			}
-		}
-
-		glDisable(GL_FRAGMENT_PROGRAM_ARB);
+		g_GlobalGLState.SetBlend(false);
 	}
+}
 
-	SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
+void CBSPRenderer::RenderWireframe()
+{
+	if(!m_pCvarWireFrame->value)
+		return;
 
-	SetTexPointer(0, TC_OFF);
-	SetTexPointer(1, TC_OFF);
-	SetTexPointer(2, TC_OFF);
-	SetTexPointer(3, TC_OFF);
+	bool nodepth = m_pCvarWireFrame->value > 1 ? true : false;
 
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
+	g_GlobalGLState.SetBlend(false);
 
-	if (m_pCvarWireFrame->value >= 1)
+	if (nodepth)
 	{
-		glColor4f(1, 1, 1, 1);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-		glLineWidth(1);
-
-		if (m_pCvarWireFrame->value >= 2)
-			glDisable(GL_DEPTH_TEST);
-
-		for (int i = 0; i < m_iNumTextures; i++)
-		{
-			msurface_t* s = m_pMultiPassTextureList[i].texturechain;
-			while (s)
-			{
-				DrawPolyFromArray(psurfbase, s);
-				msurface_t* next = s->texturechain;
-				s = next;
-			}
-		}
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		g_GlobalGLState.SetDepthTest(false);
 	}
 
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_wireframe], 1);
+
+	for (int i = 0; i < m_iNumTextures; i++)
+	{
+		clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+
+		// Nothing to draw
+		if (!psurface)
+			continue;
+
+		while (psurface)
+		{
+			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+			multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+			multidraw_numverts[num_multidraws] = pbrushface->num_vertexes;
+			num_multidraws++;
+
+			psurface = psurface->texturechain;
+			m_iBSPVertsCounter += pbrushface->num_vertexes;
+		}
+	}
+
+	glMultiDrawArrays(GL_LINE_LOOP, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+	num_multidraws = 0;
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_wireframe], 0);
+
+	if (nodepth)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		g_GlobalGLState.SetDepthTest(true);
+	}
+
 }
 
 /*
@@ -3128,145 +2164,90 @@ RecursiveWorldNode
 
 ====================
 */
-void CBSPRenderer::RecursiveWorldNode(mnode_t* node)
+void CBSPRenderer::RecursiveWorldNode(clientmnode_t* node)
 {
-	int c, side;
+	unsigned short c, side;
 	mplane_t* plane;
-	msurface_t *surf, **mark;
-	mleaf_t* pleaf;
+	clientmsurface_t *surf, **mark;
+	clientmleaf_t* pleaf;
 	float dot;
 
-	if (node->contents == CONTENTS_SOLID)
-		return; // solid
-
-	if (node->visframe != r_visframecount && r_visframecount != -2)
-		return;
-
-	if (gHUD.viewFrustum.CullBox(node->minmaxs, node->minmaxs + 3))
-		return;
-
-	// if a leaf node, draw stuff
-	if (node->contents < 0)
+	while (true)
 	{
-		pleaf = (mleaf_t*)node;
-		mark = pleaf->firstmarksurface;
-		c = pleaf->nummarksurfaces;
 
+		if (node->contents == CONTENTS_SOLID)
+			return; // solid
+
+		if (node->visframe != r_visframecount && r_visframecount != -2)
+			return;
+
+		if (gHUD.viewFrustum.CullBox(node->minmaxs, node->minmaxs + 3))
+			return;
+
+		// if a leaf node, draw stuff
+		if (node->contents < 0)
+		{
+			pleaf = (clientmleaf_t*)node;
+			mark = pleaf->firstmarksurface;
+			c = pleaf->nummarksurfaces;
+
+			if (c)
+			{
+				do
+				{
+					(*mark)->visframe = m_iFrameCount;
+					mark++;
+				} while (--c);
+			}
+			return;
+		}
+
+		// node is just a decision point, so go down the apropriate sides
+		// find which side of the node we are on
+		plane = node->plane;
+		if (plane->type <= PLANE_Z)
+		{
+			dot = m_vRenderOrigin[plane->type] - plane->dist;
+		}
+		else
+		{
+			dot = DotProduct(m_vRenderOrigin, plane->normal) - plane->dist;
+		}
+
+		side = dot >= 0 ? 0 : 1;
+
+		// recurse down the children, front side first
+		RecursiveWorldNode(node->children[side]);
+
+		// draw stuff
+		c = node->numsurfaces;
 		if (c)
 		{
-			do
+			surf = BSPWorld_Model::m_pWorldSurfaces + node->firstsurface;
+
+			for (int i = 0; i < node->numsurfaces; i++, surf++)
 			{
-				(*mark)->visframe = m_iFrameCount;
-				mark++;
-			} while (--c);
-		}
-		return;
-	}
+				if (surf->visframe != m_iFrameCount)
+					continue;
 
-	// node is just a decision point, so go down the apropriate sides
-	// find which side of the node we are on
-	plane = node->plane;
-	switch (plane->type)
-	{
-	case PLANE_X:
-		dot = m_vRenderOrigin[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = m_vRenderOrigin[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = m_vRenderOrigin[2] - plane->dist;
-		break;
-	default:
-		SSEDotProductSub(&dot, &m_vRenderOrigin, &plane->normal, &plane->dist);
-		break;
-	}
+				// don't backface underwater surfaces, because they warp
+				if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
+					continue; // wrong side
 
-	if (dot >= 0)
-		side = 0;
-	else
-		side = 1;
+				if (surf->flags & SURF_DRAWSKY)
+					continue;
 
-	// recurse down the children, front side first
-	RecursiveWorldNode(node->children[side]);
-
-	// draw stuff
-	c = node->numsurfaces;
-	if (c)
-	{
-		bool bIsLit = DynamicLighted(node->minmaxs, node->minmaxs + 3);
-		surf = m_pWorld->surfaces + node->firstsurface;
-
-		if (dot < 0 - BACKFACE_EPSILON)
-			side = SURF_PLANEBACK;
-		else if (dot > BACKFACE_EPSILON)
-			side = 0;
-
-		for (int i = 0; i < node->numsurfaces; i++, surf++)
-		{
-			if (surf->visframe != m_iFrameCount)
-				continue;
-
-			// don't backface underwater surfaces, because they warp
-			if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
-				continue; // wrong side
-
-			if (surf->flags & SURF_DRAWSKY)
-				continue;
-
-			if (surf->flags & SURF_DRAWTURB)
-				EmitWaterPolys(surf);
-			else
-				SurfaceToChain(m_pWorld->surfaces, surf, bIsLit);
-
-			m_iWorldPolyCounter++;
-		}
-	}
-
-	// recurse d- the back side
-	RecursiveWorldNode(node->children[!side]);
-};
-
-/*
-====================
-MarkBrushFaces
-
-====================
-*/
-void CBSPRenderer::MarkBrushFaces(vec3_t mins, vec3_t maxs)
-{
-	if (m_bShaderSupport && m_pCvarWorldShaders->value >= 1)
-		return;
-
-	if (m_pCvarDynamic->value < 1)
-		return;
-
-	cl_dlight_t* dl = m_pDynLights;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
-	{
-		if (dl->die <= gEngfuncs.GetClientTime() || !dl->radius)
-			continue;
-
-		m_pCurrentDynLight = dl;
-		VectorCopy(dl->origin, m_vCurDLightOrigin);
-		SetDynLightBBox();
-
-		if (CullDynLightBBox(mins, maxs))
-			continue;
-
-		model_t* pmodel = m_pCurrentEntity->model;
-		msurface_t* psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
-		for (int j = 0; j < pmodel->nummodelsurfaces; j++, psurf++)
-		{
-			if (psurf->dlightframe != m_iFrameCount)
-			{
-				psurf->dlightbits = 0;
-				psurf->dlightframe = m_iFrameCount;
+				SurfaceToChain(BSPWorld_Model::m_pWorldSurfaces, surf);
 			}
-			psurf->dlightbits |= 1 << i;
 		}
+
+		// recurse down the back side
+		// NOTE: With this while loop, this is identical to just calling
+		// RecursiveWorldNode(node->children[!side]);
+		node = node->children[!side];
+
 	}
-}
+};
 
 
 /*
@@ -3277,19 +2258,19 @@ DrawBrushModel
 */
 void CBSPRenderer::DrawBrushModel(cl_entity_t* pEntity, bool bStatic)
 {
-	vec3_t mins, maxs;
+	Vector mins, maxs;
 	int i;
-	msurface_t* psurf;
+	clientmsurface_t* psurf;
 	float dot;
 	mplane_t* pplane;
-	vec3_t trans;
-	vec3_t rorigin;
+	Vector trans;
+	Vector rorigin;
 	bool bRotated = false;
 
 	m_pCurrentEntity = pEntity;
 	model_t* pModel = m_pCurrentEntity->model;
 
-	if (m_pCurrentEntity->model == m_pWorld || m_pCurrentEntity->model->type != mod_brush)
+	if (m_pCurrentEntity->model == engine_cl->worldmodel || m_pCurrentEntity->model->type != mod_brush)
 		return;
 
 	if (m_pCurrentEntity->curstate.rendermode != NULL && m_pCurrentEntity->curstate.renderamt == NULL)
@@ -3310,137 +2291,207 @@ void CBSPRenderer::DrawBrushModel(cl_entity_t* pEntity, bool bStatic)
 		VectorAdd(m_pCurrentEntity->origin, pModel->maxs, maxs);
 	}
 
-	if (m_pCurrentEntity->curstate.renderfx == 70)
-	{
-		if (!m_fSkySpeed)
-		{
-			trans = (m_pCurrentEntity->origin - m_vSkyOrigin) + m_vRenderOrigin;
-			VectorSubtract(m_vSkyOrigin, m_pCurrentEntity->origin, m_vVecToEyes);
-		}
-		else
-		{
-			trans = (m_pCurrentEntity->origin - m_vSkyOrigin) + m_vRenderOrigin;
-			trans = trans - (m_vRenderOrigin - m_vSkyWorldOrigin) / m_fSkySpeed;
-			vec3_t vSkyOrigin = m_vSkyOrigin + (m_vRenderOrigin - m_vSkyWorldOrigin) / m_fSkySpeed;
-			VectorSubtract(vSkyOrigin, m_pCurrentEntity->origin, m_vVecToEyes);
-		}
-	}
-	else
-	{
-		if (gHUD.viewFrustum.CullBox(mins, maxs))
-			return;
+	if (gHUD.viewFrustum.CullBox(mins, maxs))
+		return;
 
-		VectorSubtract(m_vRenderOrigin, m_pCurrentEntity->origin, m_vVecToEyes);
-	}
+	VectorSubtract(m_vRenderOrigin, m_pCurrentEntity->origin, m_vVecToEyes);
 
 	if (bRotated)
 	{
-		vec3_t temp;
-		vec3_t forward, right, up;
+		Vector temp;
+		Vector forward, right, up;
 
 		VectorCopy(m_vVecToEyes, temp);
-		AngleVectors(m_pCurrentEntity->angles, forward, right, up);
+		AngleVectors(m_pCurrentEntity->angles, &forward, &right, &up);
 		m_vVecToEyes[0] = DotProduct(temp, forward);
 		m_vVecToEyes[1] = DotProduct(temp, right);
 		m_vVecToEyes[2] = DotProduct(temp, up);
 		m_vVecToEyes[1] = -m_vVecToEyes[1];
 	}
 
-	if (m_pCurrentEntity->curstate.renderfx == 70)
-	{
-		VectorCopy(m_pCurrentEntity->origin, rorigin);
-		VectorCopy(trans, m_pCurrentEntity->origin);
-	}
+	glm::mat4 oldmodelmatrix = m_ModelMatrix;
 
 	if (!bStatic)
 	{
-		glPushMatrix();
-		m_pCurrentEntity->angles[0] = -m_pCurrentEntity->angles[0];
-		R_RotateForEntity(m_pCurrentEntity);
-		m_pCurrentEntity->angles[0] = -m_pCurrentEntity->angles[0];
+		glm::vec3 entityangles = glm::vec3(m_pCurrentEntity->angles.x, m_pCurrentEntity->angles.y, m_pCurrentEntity->angles.z);
 
-		if (m_pCurrentEntity->curstate.renderfx == 70)
-			VectorCopy(rorigin, m_pCurrentEntity->origin);
+		glm::mat4 modelview = glm::translate(glm::mat4(1.0f), glm::vec3(m_pCurrentEntity->origin.x, m_pCurrentEntity->origin.y, m_pCurrentEntity->origin.z));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.x), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.z), glm::vec3(1.0f, 0.0f, 0.0f));
 
-		//
-		// draw polys
-		//
-		PrepareRenderer();
+		m_ModelMatrix = modelview;
+
+		ClearSurfaceDrawChain();
 	}
 
-	// Mark any possible lit surfaces
-	MarkBrushFaces(mins, maxs);
+	int alpha = (float)m_pCurrentEntity->curstate.renderamt;
+	int r = (float)m_pCurrentEntity->curstate.rendercolor.r;
+	int g = (float)m_pCurrentEntity->curstate.rendercolor.g;
+	int b = (float)m_pCurrentEntity->curstate.rendercolor.b;
 
-	if (m_pCurrentEntity->curstate.rendermode == kRenderTransAdd)
+	if (!r && !g && !b)
 	{
-		glDepthMask(GL_FALSE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-		float alpha = (float)m_pCurrentEntity->curstate.renderamt / 255.0;
-		glColor4f(1, 1, 1, alpha);
-	}
-	else if (m_pCurrentEntity->curstate.rendermode == kRenderTransTexture)
-	{
-		glDepthMask(GL_FALSE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		float alpha = (float)m_pCurrentEntity->curstate.renderamt / 255.0;
-		glColor4f(1, 1, 1, alpha);
-	}
-	else if (m_pCurrentEntity->curstate.rendermode == kRenderTransColor)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		float alpha = (float)m_pCurrentEntity->curstate.renderamt / 255.0;
-		float r = (float)m_pCurrentEntity->curstate.rendercolor.r / 255.0;
-		float g = (float)m_pCurrentEntity->curstate.rendercolor.g / 255.0;
-		float b = (float)m_pCurrentEntity->curstate.rendercolor.b / 255.0;
-		glColor4f(r, g, b, alpha);
+		alpha = alpha ? alpha : 255;
+		r = r ? r : 255;
+		g = g ? g : 255;
+		b = b ? b : 255;
 	}
 
-	bool bIsLit = DynamicLighted(mins, maxs);
-	psurf = &m_pWorld->surfaces[pModel->firstmodelsurface];
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glBindTexture(GL_TEXTURE_2D, m_iEngineLightmapIndex);
+
+	psurf = &BSPWorld_Model::m_pWorldSurfaces[pModel->firstmodelsurface];
+
+	bool shoulddraw = false;
+
 	for (i = 0; i < pModel->nummodelsurfaces; i++, psurf++)
 	{
 		pplane = psurf->plane;
-		SSEDotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
-		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) || (!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
+		DotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
+
+		auto iswater = (psurf->flags & SURF_DRAWTURB);
+
+		if (iswater || ((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) || (!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
+			if (iswater && (psurf->plane->normal[2] != 1 || psurf->flags & SURF_PLANEBACK))
+				continue;
+
 			psurf->visframe = m_iFrameCount;
 
 			if (psurf->flags & SURF_DRAWSKY)
 				continue;
 
-			if (psurf->flags & SURF_DRAWTURB)
-				EmitWaterPolys(psurf);
-			else
-				SurfaceToChain(m_pWorld->surfaces, psurf, bIsLit);
+			SurfaceToChain(BSPWorld_Model::m_pWorldSurfaces, psurf);
+			shoulddraw = true;
 		}
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	if (!shoulddraw)
+	{
+		m_ModelMatrix = oldmodelmatrix;
+
+		m_pCurrentEntity->visframe = m_iFrameCount;
+		m_pCurrentEntity = nullptr;
+		return;
 	}
 
 	//
 	// Render every pass
 	//
 	if (!bStatic)
-		RenderFirstPass();
-
-	if (m_pCurrentEntity->curstate.rendermode == kRenderTransTexture || m_pCurrentEntity->curstate.rendermode == kRenderTransAdd || m_pCurrentEntity->curstate.rendermode == kRenderTransColor)
 	{
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
-	}
+		m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
 
-	if (!bStatic)
-	{
-		DrawDynamicLightsForEntity(m_pCurrentEntity);
-		RenderFinalPasses();
-		glPopMatrix();
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_renderamt], alpha);
+		m_WorldShader->Uniform3i(m_WorldShader_locs[world_rendercolor], r, g, b);
+
+		if (m_pCurrentEntity->curstate.rendermode == kRenderTransAdd)
+		{
+			g_GlobalGLState.SetDepthWrite(false);
+			g_GlobalGLState.SetBlend(true);
+			g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		}
+		else if (m_pCurrentEntity->curstate.rendermode == kRenderTransTexture)
+		{
+			g_GlobalGLState.SetDepthWrite(false);
+			g_GlobalGLState.SetBlend(true);
+			g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		else if (m_pCurrentEntity->curstate.rendermode == kRenderTransColor)
+		{
+			g_GlobalGLState.SetBlend(true);
+			g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		else
+		{
+			g_GlobalGLState.SetBlend(false);
+		}
+
+		if (m_pCurrentEntity->curstate.rendermode != kRenderNormal && m_pCurrentEntity->curstate.rendermode != kRenderTransAlpha)
+		{
+			if (m_pCurrentEntity->curstate.rendermode == kRenderTransAdd)
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_lightmap_pass], 0);
+			else
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_lightmap_pass], 1);
+
+			m_WorldShader->Uniform1i(m_WorldShader_locs[world_texture_pass], 1);
+
+			// Render normal ones first
+			for (int i = 0; i < m_iNumTextures; i++)
+			{
+				texture_t* pTexture = TextureAnimation(&m_pNormalTextureList[i], m_pCurrentEntity->curstate.frame);
+				clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+
+				// Nothing to draw
+				if (!psurface)
+					continue;
+
+				m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 0);
+				BindGLTexture(SURFTEXTURE_TEXUNIT, pTexture->gl_texturenum);
+
+				auto scrollingpoly = pTexture->texture_flag & TEXTURE_SCROLL;
+
+				if (scrollingpoly)
+				{
+					m_WorldShader->Uniform1i(m_WorldShader_locs[world_scrollingpolys], 1);
+				}
+
+				while (psurface)
+				{
+					int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+					brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+					if (psurface->flags & SURF_DRAWTURB)
+					{
+						m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 1);
+						glDisable(GL_CULL_FACE);
+						glDrawArrays(GL_TRIANGLES, pbrushface->start_vertex, pbrushface->num_vertexes);
+						glEnable(GL_CULL_FACE);
+						m_WorldShader->Uniform1i(m_WorldShader_locs[world_waterpolys], 0);
+					}
+					else
+					{
+						multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+						multidraw_numverts[num_multidraws] = (pbrushface->num_vertexes);
+						num_multidraws++;
+					}
+
+					m_iBSPVertsCounter += pbrushface->num_vertexes;
+
+					psurface = psurface->texturechain;
+				}
+
+				glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+				num_multidraws = 0;
+
+				if (scrollingpoly)
+				{
+					m_WorldShader->Uniform1i(m_WorldShader_locs[world_scrollingpolys], 0);
+				}
+			}
+		}
+		else
+		{
+			RenderFirstPass();
+
+			DrawDynamicLightsForEntity(m_pCurrentEntity);
+
+			RenderFinalPasses();
+		}
+
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_renderamt], 255);
+		m_WorldShader->Uniform3i(m_WorldShader_locs[world_rendercolor], 255, 255, 255);
+
+		m_ModelMatrix = oldmodelmatrix;
+
+		m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
 	}
 
 	m_pCurrentEntity->visframe = m_iFrameCount;
+	m_pCurrentEntity = nullptr;
 }
 
 /*
@@ -3449,12 +2500,14 @@ DrawPolyFromArray
 
 ====================
 */
-void CBSPRenderer::DrawPolyFromArray(msurface_t* psurfbase, msurface_t* psurf)
+void CBSPRenderer::DrawPolyFromArray(clientmsurface_t* psurfbase, clientmsurface_t* psurf)
 {
 	int surfaceIndex = psurf - psurfbase;
 	brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
 
 	glDrawArrays(GL_TRIANGLES, pbrushface->start_vertex, pbrushface->num_vertexes);
+
+	m_iBSPVertsCounter += pbrushface->num_vertexes;
 }
 
 /*
@@ -3463,236 +2516,38 @@ SurfaceToChain
 
 ====================
 */
-void CBSPRenderer::SurfaceToChain(msurface_t* psurfbase, msurface_t* s, bool dynlit)
+void CBSPRenderer::SurfaceToChain(clientmsurface_t* psurfbase, clientmsurface_t* s)
 {
 	int surfaceIndex = s - psurfbase;
 	brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
-	clientsurfdata_t* pclsurf = &m_pSurfaces[pbrushface->index];
 
-	for (int i = 0; i < MAXLIGHTMAPS || s->dlightframe; i++)
+	//	this is horrid.
+	//	the most efficient way to do this would be to make a glsl shader that does what the code below does, so there's no cpu -> gpu data transfering.
+	//	not sure when i'll do that
+
+	if (!(s->flags & SURF_DRAWTURB))
 	{
-
-		if (m_iLightStyleValue[s->styles[i]] != pclsurf->cached_light[i] || s->dlightframe)
+		for (int i = 0; i < MAXLIGHTMAPS; i++)
 		{
-			BuildLightmap(s, surfaceIndex, m_pEngineLightmaps);
+			if (s->styles[i] == 255)
+				break;
 
-			int smax = (s->extents[0] >> 4) + 1;
-			int tmax = (s->extents[1] >> 4) + 1;
+			if (m_iLightStyleValue[s->styles[i]] != m_pSurfaces[pbrushface->index].cached_light[i])
+			{
+				BuildLightmap(s, surfaceIndex, m_pEngineLightmaps);
 
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			Bind2DTexture(GL_TEXTURE0_ARB, m_iEngineLightmapIndex);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, pclsurf->light_s, pclsurf->light_t, smax, tmax, GL_RGB, GL_UNSIGNED_BYTE, m_pBlockLights);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-			break;
+				int smax = (s->extents[0] >> 4) + 1;
+				int tmax = (s->extents[1] >> 4) + 1;
+
+				glTexSubImage2D(GL_TEXTURE_2D, 0, m_pSurfaces[pbrushface->index].light_s, m_pSurfaces[pbrushface->index].light_t, smax, tmax, GL_RGB, GL_UNSIGNED_BYTE, m_pBlockLights);
+				break;
+			}
 		}
 	}
 
-	if (dynlit && pclsurf->mptexture)
-	{
-		s->texturechain = pclsurf->mptexture->texturechain;
-		pclsurf->mptexture->texturechain = s;
-	}
-	else if (pclsurf->regtexture)
-	{
-		s->texturechain = pclsurf->regtexture->texturechain;
-		pclsurf->regtexture->texturechain = s;
-	}
+	s->texturechain = (clientmsurface_t*)m_pSurfaces[pbrushface->index].regtexture->texturechain;
+	m_pSurfaces[pbrushface->index].regtexture->texturechain = (msurface_t*)s;
 };
-
-/*
-====================
-DrawScrollingPoly
-
-====================
-*/
-void CBSPRenderer::DrawScrollingPoly(msurface_t* psurfbase, msurface_t* s)
-{
-	glpoly_t* p = s->polys;
-	float* v = p->verts[0];
-
-	float speed = m_pCurrentEntity->curstate.rendercolor.b;
-	speed += (m_pCurrentEntity->curstate.rendercolor.g << 8);
-	speed *= (gEngfuncs.GetClientTime() * 0.0625 * 0.007325);
-
-	if (m_pCurrentEntity->curstate.rendercolor.r == 0)
-		speed *= -1;
-
-	int surfaceIndex = s - psurfbase;
-	brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
-	brushvertex_t* pVert = &m_pBufferData[pbrushface->start_vertex];
-
-	glBegin(GL_TRIANGLES);
-	if (m_iTexPointer[0] == TC_LIGHTMAP)
-	{
-		for (int i = 0; i < pbrushface->num_vertexes; i++, pVert++)
-		{
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB, pVert->lightmaptexcoord[0], pVert->lightmaptexcoord[1]);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB, pVert->texcoord[0] + speed, pVert->texcoord[1]);
-			glMultiTexCoord2fARB(GL_TEXTURE2_ARB, pVert->detailtexcoord[0] + speed, pVert->detailtexcoord[1]);
-			glVertex3fv(pVert->pos);
-		}
-	}
-	else
-	{
-		for (int i = 0; i < pbrushface->num_vertexes; i++, pVert++)
-		{
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB, pVert->texcoord[0] + speed, pVert->texcoord[1]);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB, pVert->detailtexcoord[0] + speed, pVert->detailtexcoord[1]);
-			glVertex3fv(pVert->pos);
-		}
-	}
-	glEnd();
-}
-
-/*
-====================
-EmitWaterPolys
-
-====================
-*/
-void CBSPRenderer::EmitWaterPolys(msurface_t* fa)
-{
-	if (m_pCurrentEntity->curstate.skin == CONTENTS_WATER || m_pCurrentEntity->curstate.skin == CONTENTS_SLIME || m_pCurrentEntity->curstate.skin == CONTENTS_LAVA)
-	{
-		// only draw if it's on the top
-		for (glpoly_t* bp = fa->polys; bp; bp = bp->next)
-		{
-			for (int i = 0; i < bp->numverts; i++)
-			{
-				if (bp->verts[i][2] != (m_pCurrentEntity->curstate.maxs.z - 1))
-					return;
-			}
-		}
-	}
-
-
-	SetTexEnvs(ENVSTATE_MUL);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	Bind2DTexture(GL_TEXTURE0_ARB, fa->texinfo->texture->gl_texturenum);
-
-	float fltime = gEngfuncs.GetClientTime();
-	for (glpoly_t* p = fa->polys; p; p = p->next)
-	{
-		glBegin(GL_POLYGON);
-		for (int i = 0; i < p->numverts; i++)
-		{
-			float os = p->verts[i][3];
-			float ot = p->verts[i][4];
-
-			float s = os + turbsin[(int)((ot * 0.125 + fltime) * 40) & 255];
-			float t = ot + turbsin[(int)((os * 0.125 + fltime) * 40) & 255];
-			float ssin = turbsin[(int)((os * 0.125 + (fltime * 3.2)) * 40) & 255];
-			float tsin = turbsin[(int)((ot * 0.125 + (fltime * 3.2)) * 40) & 255];
-			float height = (ssin - tsin) * m_pCurrentEntity->curstate.scale;
-
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB, s * (1.0 / 64), t * (1.0 / 64));
-			glVertex3f(p->verts[i][0], p->verts[i][1], p->verts[i][2] + height);
-		}
-		glEnd();
-	}
-
-	if (m_pCvarWireFrame->value >= 1)
-	{
-		SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(1);
-
-		if (m_pCvarWireFrame->value >= 2)
-			glDisable(GL_DEPTH_TEST);
-
-		if (gHUD.m_pFogSettings.active)
-			glDisable(GL_FOG);
-
-		if (m_pCurrentEntity->index == 0)
-			glColor4f(1.0, 0.0, 0.0, 1.0);
-		else
-			glColor4f(1.0, 0.0, 1.0, 1.0);
-
-		for (glpoly_t* p = fa->polys; p; p = p->next)
-		{
-			glBegin(GL_POLYGON);
-			for (int i = 0; i < p->numverts; i++)
-			{
-				float height = (sin(p->verts[i][3] * 0.125 + (gEngfuncs.GetClientTime() * 5)) * 10 - sin(p->verts[i][4] * 0.125 + (gEngfuncs.GetClientTime() * 5)) * 15) * m_pCurrentEntity->curstate.scale;
-				glVertex3f(p->verts[i][0], p->verts[i][1], p->verts[i][2] + height);
-			}
-			glEnd();
-		}
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		if (m_pCvarWireFrame->value >= 2)
-			glEnable(GL_DEPTH_TEST);
-
-		if (gHUD.m_pFogSettings.active)
-			glEnable(GL_FOG);
-	}
-}
-
-/*
-====================
-MarkLights
-
-====================
-*/
-void CBSPRenderer::MarkLights(cl_dlight_t* pLight, int iBit, mnode_t* node)
-{
-	if (node->contents < 0)
-		return;
-
-	mplane_t* splitplane = node->plane;
-	float dist /*= DotProduct (pLight->origin, splitplane->normal) - splitplane->dist*/;
-	SSEDotProductSub(&dist, &pLight->origin, &splitplane->normal, &splitplane->dist);
-
-	if (dist > pLight->radius)
-	{
-		MarkLights(pLight, iBit, node->children[0]);
-		return;
-	}
-	if (dist < -pLight->radius)
-	{
-		MarkLights(pLight, iBit, node->children[1]);
-		return;
-	}
-
-	msurface_t* surf = m_pWorld->surfaces + node->firstsurface;
-	for (int i = 0; i < node->numsurfaces; i++, surf++)
-	{
-		if (surf->dlightframe != m_iFrameCount)
-		{
-			surf->dlightframe = m_iFrameCount;
-			surf->dlightbits = 0;
-		}
-		surf->dlightbits |= iBit;
-	}
-
-	MarkLights(pLight, iBit, node->children[0]);
-	MarkLights(pLight, iBit, node->children[1]);
-}
-
-/*
-====================
-PushDynLights
-
-====================
-*/
-void CBSPRenderer::PushDynLights(void)
-{
-	if (m_bShaderSupport && m_pCvarWorldShaders->value >= 1)
-		return;
-
-	if (m_pCvarDynamic->value < 1)
-		return;
-
-	cl_dlight_t* dl = m_pDynLights;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
-	{
-		if (dl->die <= gEngfuncs.GetClientTime() || !dl->radius)
-			continue;
-
-		MarkLights(dl, 1 << i, m_pWorld->nodes);
-	}
-}
 
 /*
 ====================
@@ -3704,7 +2559,10 @@ void CBSPRenderer::AnimateLight(void)
 {
 	int i, j, k;
 
-	i = (int)(gEngfuncs.GetClientTime() * 10);
+	if (!m_pCvarLightStyles->value)
+		return;
+
+	i = (int)(engine_cl->time * 10);
 	for (j = 0; j < MAX_LIGHTSTYLES; j++)
 	{
 		if (!m_pLightStyles[j].length)
@@ -3712,13 +2570,6 @@ void CBSPRenderer::AnimateLight(void)
 			m_iLightStyleValue[j] = 256;
 			continue;
 		}
-		else if (m_pLightStyles[j].length == 1)
-		{
-			// single length style so don't bother interpolating
-			m_iLightStyleValue[j] = (m_pLightStyles[j].map[0] - 'a') * 22;
-			continue;
-		}
-
 		k = i % m_pLightStyles[j].length;
 		k = m_pLightStyles[j].map[k] - 'a';
 		k = k * 22;
@@ -3728,125 +2579,28 @@ void CBSPRenderer::AnimateLight(void)
 
 /*
 ====================
-AddDynamicLights
-
-====================
-*/
-void CBSPRenderer::AddDynamicLights(msurface_t* surf)
-{
-	vec3_t impact, local;
-
-	int smax = (surf->extents[0] >> 4) + 1;
-	int tmax = (surf->extents[1] >> 4) + 1;
-	mtexinfo_t* tex = surf->texinfo;
-
-	cl_dlight_t* dl = m_pDynLights;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
-	{
-		if (!(surf->dlightbits & (1 << i)))
-			continue;
-
-		vec3_t origin = dl->origin;
-		if (IsEntityMoved(m_pCurrentEntity))
-		{
-			VectorSubtract(origin, m_pCurrentEntity->origin, origin);
-			if (m_pCurrentEntity->angles[0] || m_pCurrentEntity->angles[1] || m_pCurrentEntity->angles[2])
-			{
-				vec3_t forward, right, up, temp;
-				AngleVectors(m_pCurrentEntity->angles, forward, right, up);
-
-				VectorCopy(origin, temp);
-				origin[0] = DotProduct(temp, forward);
-				origin[1] = DotProduct(temp, right);
-				origin[2] = DotProduct(temp, up);
-				origin[1] = -origin[1];
-			}
-		}
-
-		float dist;
-		SSEDotProductSub(&dist, &origin, &surf->plane->normal, &surf->plane->dist);
-		float rad = dl->radius - fabs(dist);
-
-		for (int j = 0; j < 3; j++)
-			impact[j] = origin[j] - surf->plane->normal[j] * dist;
-
-		local[0] = DotProduct(impact, tex->vecs[0]) + tex->vecs[0][3] - surf->texturemins[0];
-		local[1] = DotProduct(impact, tex->vecs[1]) + tex->vecs[1][3] - surf->texturemins[1];
-
-		int fsacc;
-		int ftacc = 0;
-		color24* bl = m_pBlockLights;
-
-		for (int t = 0; t < tmax; t++, ftacc += 16)
-		{
-			int td = local[1] - ftacc;
-
-			if (td < 0)
-				td = -td;
-
-			fsacc = 0;
-			for (int s = 0; s < smax; s++, fsacc += 16, bl++)
-			{
-				int sd = local[0] - fsacc;
-
-				if (sd < 0)
-					sd = -sd;
-
-				if (sd > td)
-					dist = sd + (td >> 1);
-				else
-					dist = td + (sd >> 1);
-
-				if (dist < rad)
-				{
-					int iR = bl->r + (rad - dist) * dl->color[0];
-					int iG = bl->g + (rad - dist) * dl->color[1];
-					int iB = bl->b + (rad - dist) * dl->color[2];
-					ClampColor(iR, iG, iB, bl);
-				}
-			}
-		}
-	}
-}
-
-
-/*
-====================
 BuildLightmap
 
 ====================
 */
-void CBSPRenderer::BuildLightmap(msurface_t* surf, int surfindex, color24* out, bool pitchblack)
+void CBSPRenderer::BuildLightmap(clientmsurface_t* surf, int surfindex, color24* out)
 {
 	const int smax = (surf->extents[0] >> 4) + 1;
 	const int tmax = (surf->extents[1] >> 4) + 1;
 	const int size = smax * tmax;
 
-	if (!surf->samples || size > BLOCKLIGHTS_SIZE || surf->styles[0] == 255)
+	memset(m_pBlockLights, 0, sizeof(color24) * size);
+
+	if (!surf->samples.empty() && size <= BLOCKLIGHTS_SIZE && surf->styles[0] != 255)
 	{
-		// No valid lightmap: clear to black
-		memset(m_pBlockLights, 0, sizeof(color24) * size);
-	}
-	else
-	{
-		memset(m_pBlockLights, 0, sizeof(color24) * size);
-		color24* lightmap = surf->samples;
+		color24* lightmap = surf->samples.data();
 
 		for (int maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; ++maps)
 		{
 			const int style = surf->styles[maps];
 			int styleValue = m_iLightStyleValue[style];
 
-			if (styleValue < 0)
-				styleValue = 255;
-
 			m_pSurfaces[surfindex].cached_light[maps] = styleValue;
-
-			if (styleValue == 0)
-			{
-				lightmap += size; // skip this lightmap layer
-				continue;
-			}
 
 			const float scale = styleValue / 255.0f;
 
@@ -3864,45 +2618,26 @@ void CBSPRenderer::BuildLightmap(msurface_t* surf, int surfindex, color24* out, 
 		}
 	}
 
-	if (surf->dlightframe == m_iFrameCount && surf->dlightbits)
-		AddDynamicLights(surf);
-	else if (surf->dlightframe && surf->dlightframe != m_iFrameCount)
-		surf->dlightframe = 0;
-
-	const bool fullbright = gEngfuncs.pfnGetCvarFloat("r_fullbright") != 0.0f;
-
 	for (int i = 0; i < size; ++i)
 	{
 		color24& c = m_pBlockLights[i];
 
-		if (fullbright)
-		{
-			c.r = c.g = c.b = 180;
-		}
-		else
-		{
-			// Intensity darkening
-			float intensity = (c.r + c.g + c.b);
-			intensity = std::min(1.0f, intensity);
+		float intensity = (c.r + c.g + c.b);
+		intensity = std::min(1.0f, intensity);
 
-			c.r = c.r * intensity;
-			c.g = c.g * intensity;
-			c.b = c.b * intensity;
-		}
+		c.r = c.r * intensity;
+		c.g = c.g * intensity;
+		c.b = c.b * intensity;
 	}
 
-	// Store texture atlas position
 	const int column = surf->lightmaptexturenum % LIGHTMAP_NUMROWS;
 	const int row = (surf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
-
-	m_pSurfaces[surfindex].light_s = surf->light_s + BLOCK_WIDTH * column;
-	m_pSurfaces[surfindex].light_t = surf->light_t + BLOCK_HEIGHT * row;
 
 	for (int i = 0; i < tmax; ++i)
 	{
 		color24* src = &m_pBlockLights[i * smax];
-		color24* dest = out + BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_NUMCOLUMNS * row + BLOCK_WIDTH * column;
-		dest += ((BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * surf->light_t) + surf->light_s) + (BLOCK_WIDTH * LIGHTMAP_NUMCOLUMNS * i);
+		color24* dest = out + BLOCK_SIZE * BLOCK_SIZE * LIGHTMAP_NUMCOLUMNS * row + BLOCK_SIZE * column;
+		dest += ((BLOCK_SIZE * LIGHTMAP_NUMCOLUMNS * surf->light_t) + surf->light_s) + (BLOCK_SIZE * LIGHTMAP_NUMCOLUMNS * i);
 
 		memcpy(dest, src, sizeof(color24) * smax);
 	}
@@ -3916,40 +2651,37 @@ UploadLightmaps
 */
 void CBSPRenderer::UploadLightmaps(void)
 {
-	memset(m_iLightStyleValue, 0, sizeof(m_iLightStyleValue));
+	std::fill(std::begin(m_iLightStyleValue), std::end(m_iLightStyleValue), 255); //dont set lightstyles to 0, cause we'll have to make the lightmaps in a bit
 	memset(m_pEngineLightmaps, 0, sizeof(m_pEngineLightmaps));
-	memset(m_pDetailLightmaps, 0, sizeof(m_pDetailLightmaps));
 	m_iNumLightmaps = NULL;
 
 	//
 	// Allocate all surface infos
 	//
-	m_pSurfaces = new clientsurfdata_t[(m_pWorld->numsurfaces + m_iNumDetailSurfaces)]();
-	//memset(m_pSurfaces, NULL, sizeof(clientsurfdata_t) * (m_pWorld->numsurfaces + m_iNumDetailSurfaces));
-	m_iNumSurfaces = m_pWorld->numsurfaces + m_iNumDetailSurfaces;
+	m_pSurfaces = new clientsurfdata_t[(engine_cl->worldmodel->numsurfaces)]();
+	// memset(m_pSurfaces, NULL, sizeof(clientsurfdata_t) * (m_pWorld->numsurfaces + m_iNumDetailSurfaces));
+	m_iNumSurfaces = engine_cl->worldmodel->numsurfaces;
 
-	if (m_pWorld->lightdata)
+	if (engine_cl->worldmodel->lightdata)
 	{
 		//
 		// Convert and merge lightmaps into one
 		//
-		//char filename[128];
-		//sprintf(filename, "%s/%s", gEngfuncs.pfnGetGameDirectory(), m_pWorld->name);
-		//FILE *bspfile = fopen(filename, "rb"); //name is "maps\mapname.bsp"
-		//dheader_t header;
-		//dface_t* faces;
-		//fread(&header, sizeof(dheader_t), 1, bspfile);
-		//fseek(bspfile, header.lumps[LUMP_FACES].fileofs, SEEK_SET);
-		//fread(faces, header.lumps[LUMP_FACES].filelen, 1, bspfile);
-		//dface_t* faces = fread(header.lumps[LUMP_FACES];
-		for (int i = 0; i < m_pWorld->numsurfaces; i++)
-		{
-			msurface_t* pSurf = &m_pWorld->surfaces[i];
 
-			if (pSurf->flags & (SURF_DRAWSKY | SURF_DRAWTURB)) //|| faces[i].lightofs == -1)
+		for (int i = 0; i < engine_cl->worldmodel->numsurfaces; i++)
+		{
+			clientmsurface_t* pSurf = &BSPWorld_Model::m_pWorldSurfaces[i];
+
+			if (pSurf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
 				continue;
 
 			BuildLightmap(pSurf, i, m_pEngineLightmaps);
+
+			const int column = pSurf->lightmaptexturenum % LIGHTMAP_NUMROWS;
+			const int row = (pSurf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
+
+			m_pSurfaces[i].light_s = pSurf->light_s + BLOCK_SIZE * column;
+			m_pSurfaces[i].light_t = pSurf->light_t + BLOCK_SIZE * row;
 
 			if (pSurf->lightmaptexturenum > m_iNumLightmaps)
 				m_iNumLightmaps = pSurf->lightmaptexturenum;
@@ -3960,9 +2692,9 @@ void CBSPRenderer::UploadLightmaps(void)
 		//
 		// Count lightmaps anyway
 		//
-		for (int i = 0; i < m_pWorld->numsurfaces; i++)
+		for (int i = 0; i < engine_cl->worldmodel->numsurfaces; i++)
 		{
-			msurface_t* pSurf = &m_pWorld->surfaces[i];
+			clientmsurface_t* pSurf = &BSPWorld_Model::m_pWorldSurfaces[i];
 
 			if (pSurf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
 				continue;
@@ -3981,182 +2713,22 @@ void CBSPRenderer::UploadLightmaps(void)
 	// Upload the large texture
 	//
 	glBindTexture(GL_TEXTURE_2D, m_iEngineLightmapIndex);
+	glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGB8, LIGHTMAP_RESOLUTION, LIGHTMAP_RESOLUTION);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, LIGHTMAP_RESOLUTION, LIGHTMAP_RESOLUTION, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pEngineLightmaps);
-
-	if (!m_iNumDetailSurfaces)
-		return;
-
-	//
-	// Load lightmaps of detail surfaces
-	//
-	int iSurfaceIndex = m_pWorld->numsurfaces;
-	for (int i = 0; i < m_iNumDetailObjects; i++)
-	{
-		msurface_t* psurf = m_pDetailObjectSurfaces + m_pDetailObjects[i].firstsurface;
-		for (int j = 0; j < m_pDetailObjects[i].numsurfaces; j++, psurf++)
-		{
-			// Upload it
-			BuildLightmap(psurf, iSurfaceIndex, m_pDetailLightmaps);
-
-			// Append
-			iSurfaceIndex++;
-		}
-	}
-
-	//
-	// Upload the large texture
-	//
-	glBindTexture(GL_TEXTURE_2D, m_iDetailLightmapIndex);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, LIGHTMAP_RESOLUTION, LIGHTMAP_RESOLUTION, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pDetailLightmaps);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LIGHTMAP_RESOLUTION, LIGHTMAP_RESOLUTION, GL_RGB, GL_UNSIGNED_BYTE, m_pEngineLightmaps);
 }
 
 /*
 ====================
-Bind2DTexture
+BindGLTexture
 
 ====================
 */
-void CBSPRenderer::Bind2DTexture(GLenum texture, GLuint id)
+void CBSPRenderer::BindGLTexture(GLenum texture, GLuint id)
 {
-	int idx = texture - GL_TEXTURE0_ARB;
-	if (m_uiCurrentBinds[idx] != id)
-	{
-		glActiveTextureARB(texture);
-		glBindTexture(GL_TEXTURE_2D, id);
-
-		m_uiCurrentBinds[idx] = id;
-	}
+	glBindTextureUnit(texture - GL_TEXTURE0, id);
 }
-
-/*
-====================
-SetTexEnv_Internal
-
-====================
-*/
-void CBSPRenderer::SetTexEnv_Internal(int env)
-{
-	switch (env)
-	{
-	case ENVSTATE_OFF:
-		glDisable(GL_TEXTURE_2D);
-		break;
-
-	case ENVSTATE_REPLACE:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		break;
-
-	case ENVSTATE_MUL_CONST:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_CONSTANT_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		break;
-
-	case ENVSTATE_MUL_PREV_CONST:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PRIMARY_COLOR_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		break;
-
-	case ENVSTATE_MUL:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		break;
-
-	case ENVSTATE_MUL_X2:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-		break;
-
-	case ENVSTATE_ADD:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_ADD);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		break;
-
-	case ENVSTATE_DOT:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_DOT3_RGBA_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		break;
-
-	case ENVSTATE_DOT_CONST:
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_DOT3_RGBA_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_CONSTANT_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-		break;
-
-	case ENVSTATE_PREVCOLOR_CURALPHA:
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
-		break;
-	}
-}
-/*
-====================
-SetTexEnvs
-
-====================
-*/
-void CBSPRenderer::SetTexEnvs(int env0, int env1, int env2, int env3)
-{
-	if (m_iEnvStates[0] != env0)
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		SetTexEnv_Internal(env0);
-		m_iEnvStates[0] = env0;
-	}
-	if (m_iEnvStates[1] != env1)
-	{
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		SetTexEnv_Internal(env1);
-		m_iEnvStates[1] = env1;
-	}
-	if (m_iEnvStates[2] != env2)
-	{
-		glActiveTextureARB(GL_TEXTURE2_ARB);
-		SetTexEnv_Internal(env2);
-		m_iEnvStates[2] = env2;
-	}
-	if (m_iEnvStates[3] != env3)
-	{
-		glActiveTextureARB(GL_TEXTURE3_ARB);
-		SetTexEnv_Internal(env3);
-		m_iEnvStates[3] = env3;
-	}
-};
-
 /*
 ====================
 TextureAnimation
@@ -4177,7 +2749,7 @@ texture_t* CBSPRenderer::TextureAnimation(texture_t* base, int frame)
 	if ((base->name[0] != '+') || (!base->anim_total))
 		return base;
 
-	reletive = (int)(gEngfuncs.GetClientTime() * 20) % base->anim_total;
+	reletive = (int)(engine_cl->time * 20) % base->anim_total;
 
 	count = 0;
 	while (base->anim_min > reletive || base->anim_max <= reletive)
@@ -4245,6 +2817,7 @@ void CBSPRenderer::ParseDetailTextureFile(void)
 		char detailtexture[256];
 		char sz_xscale[64];
 		char sz_yscale[64];
+		char sz_opacity[64];
 
 		if (m_iNumDetailTextures >= MAX_DETAIL_TEXTURES)
 		{
@@ -4277,8 +2850,13 @@ void CBSPRenderer::ParseDetailTextureFile(void)
 		if (!ptext)
 			break;
 
+		ptext = gEngfuncs.COM_ParseFile(ptext, sz_opacity);
+		if (!ptext)
+			strcpy(sz_opacity, "1");
+
 		float i_xscale = atof(sz_xscale);
 		float i_yscale = atof(sz_yscale);
+		float i_opacity = atof(sz_opacity);
 
 		if (strlen(texture) > 32 || strlen(detailtexture) > 32)
 		{
@@ -4297,6 +2875,7 @@ void CBSPRenderer::ParseDetailTextureFile(void)
 		strcpy(m_pDetailTextures[m_iNumDetailTextures].detailtexname, detailtexture);
 		m_pDetailTextures[m_iNumDetailTextures].xscale = i_xscale;
 		m_pDetailTextures[m_iNumDetailTextures].yscale = i_yscale;
+		m_pDetailTextures[m_iNumDetailTextures].opacity = i_opacity;
 		m_pDetailTextures[m_iNumDetailTextures].texindex = pTexture->iIndex;
 		m_iNumDetailTextures++;
 	}
@@ -4345,10 +2924,10 @@ FindIntersectionPoint
 
 ====================
 */
-void CBSPRenderer::FindIntersectionPoint(const vec3_t& p1, const vec3_t& p2, const vec3_t& normal, const vec3_t& planepoint, vec3_t& newpoint)
+void CBSPRenderer::FindIntersectionPoint(const Vector& p1, const Vector& p2, const Vector& normal, const Vector& planepoint, Vector& newpoint)
 {
-	vec3_t planevec;
-	vec3_t linevec;
+	Vector planevec;
+	Vector linevec;
 	float planedist, linedist;
 
 	VectorSubtract(planepoint, p1, planevec);
@@ -4371,7 +2950,7 @@ ClipPolygonByPlane
 
 ====================
 */
-int CBSPRenderer::ClipPolygonByPlane(const vec3_t* arrIn, int numpoints, vec3_t normal, vec3_t planepoint, vec3_t* arrOut)
+int CBSPRenderer::ClipPolygonByPlane(const Vector* arrIn, int numpoints, Vector normal, Vector planepoint, Vector* arrOut)
 {
 	int i, cur, prev;
 	int first = -1;
@@ -4379,7 +2958,7 @@ int CBSPRenderer::ClipPolygonByPlane(const vec3_t* arrIn, int numpoints, vec3_t 
 	float dots[64];
 	for (i = 0; i < numpoints; i++)
 	{
-		vec3_t vecDir;
+		Vector vecDir;
 		VectorSubtract(arrIn[i], planepoint, vecDir);
 		dots[i] = DotProduct(vecDir, normal);
 
@@ -4417,7 +2996,7 @@ int CBSPRenderer::ClipPolygonByPlane(const vec3_t* arrIn, int numpoints, vec3_t 
 
 	if (dots[cur] < 0)
 	{
-		vec3_t newpoint;
+		Vector newpoint;
 		if (cur > 0)
 			prev = cur - 1;
 		else
@@ -4451,7 +3030,7 @@ int CBSPRenderer::ClipPolygonByPlane(const vec3_t* arrIn, int numpoints, vec3_t 
 
 	if (dots[cur] > 0 && dots[prev] < 0)
 	{
-		vec3_t newpoint;
+		Vector newpoint;
 		FindIntersectionPoint(arrIn[prev], arrIn[cur], normal, planepoint, newpoint);
 		VectorCopy(newpoint, arrOut[outCur]);
 		outCur++;
@@ -4474,7 +3053,7 @@ GetUpRight
 
 ====================
 */
-void CBSPRenderer::GetUpRight(vec3_t forward, vec3_t& up, vec3_t& right)
+void CBSPRenderer::GetUpRight(Vector forward, Vector& up, Vector& right)
 {
 	VectorClear(up);
 
@@ -4484,10 +3063,10 @@ void CBSPRenderer::GetUpRight(vec3_t forward, vec3_t& up, vec3_t& right)
 		up.x = 1;
 
 	right = CrossProduct(forward, up);
-	VectorNormalizeFast(right);
+	right = right.Normalize();
 
 	up = CrossProduct(forward, right);
-	VectorNormalizeFast(up);
+	up = up.Normalize();
 };
 
 /*
@@ -4600,30 +3179,29 @@ void CBSPRenderer::LoadDecals(void)
 				continue;
 			}
 
-			m_pDecalGroups[m_iNumDecalGroups].iSize = numtemp;
-			strcpy(m_pDecalGroups[m_iNumDecalGroups].szName, token);
-			memcpy(m_pDecalGroups[m_iNumDecalGroups].entries, tempentries, sizeof(tempentries));
+			auto decalgroup = std::make_unique<decalgroup_t>();
 
-			m_iNumDecalGroups++;
+			decalgroup->iSize = numtemp;
+			strcpy(decalgroup->szName, token);
+			memcpy(decalgroup->entries, tempentries, sizeof(tempentries));
+
+			m_pDecalGroups.push_back(std::move(decalgroup));
+
 			counter++;
 		}
 	}
-
 
 getout:
 	gEngfuncs.COM_FreeFile(pfile);
 	gEngfuncs.Con_Printf("BSP Renderer: %d decal groups created\n", counter);
 
-	//load decals.wad
+	// load decals.wad
 
-	//if (loaded_decal_wad)
-	//	return;
 
 	cl_texture_t* pTexture = nullptr;
-	bool gonna_load_valve_decals = false;
 	for (int i = 0; i < gTextureLoader.m_iNumWADFiles; i++)
 	{
-		if (!strcmp(gTextureLoader.m_pWADFiles[i].wadname, "decals.wad") && !gonna_load_valve_decals)
+		if (!stricmp(gTextureLoader.m_pWADFiles[i].wadname, "decals.wad"))
 		{
 			byte* pFile = gTextureLoader.m_pWADFiles[i].wadfile;
 			wadinfo_t* pInfo = gTextureLoader.m_pWADFiles[i].info;
@@ -4635,8 +3213,7 @@ getout:
 
 				strLower(pLump->name);
 
-				pTexture = &gTextureLoader.m_pTextures[gTextureLoader.m_iNumTextures];
-				gTextureLoader.m_iNumTextures++;
+				pTexture = new cl_texture_t{};
 
 				// Fill in data
 				strcpy(pTexture->szName, pLump->name);
@@ -4656,74 +3233,22 @@ getout:
 
 				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
 				gTextureLoader.LoadPallettedTexture(pPixels, pPalette, pTexture, true);
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].name, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo = new decalgroupentry_t;
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->szName, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->gl_texid = pTexture->iIndex;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->xsize = pTexture->iWidth / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->ysize = pTexture->iHeight / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->group = nullptr; //unused
+
+				auto& waddecal = gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals];
+
+				strcpy(waddecal.name, pLump->name);
+				waddecal.texinfo = new decalgroupentry_t;
+				strcpy(waddecal.texinfo->szName, pLump->name);
+				waddecal.texinfo->gl_texid = pTexture->iIndex;
+				waddecal.texinfo->xsize = pTexture->iWidth / 2;
+				waddecal.texinfo->ysize = pTexture->iHeight / 2;
+				waddecal.texinfo->group = nullptr; // unused
+
 				gTextureLoader.m_iNumWADDecals++;
-				loaded_decal_wad = true;
-				gonna_load_valve_decals = true;
+				gTextureLoader.m_pTextures.push_back(pTexture);
 			}
-		}
-		else if (gonna_load_valve_decals)
-		{
-			byte* pFile = gTextureLoader.m_pWADFiles[i].wadfile;
-			wadinfo_t* pInfo = gTextureLoader.m_pWADFiles[i].info;
-			for (int j = 0; j < pInfo->numlumps; j++)
-			{
-				bool alreadyexists = false;
-				lumpinfo_t* pLump = &gTextureLoader.m_pWADFiles[i].lumps[j];
-				if (pLump->type != 0 && !(pLump->type & 0x43))
-					continue;
-
-				strLower(pLump->name);
-
-				for (int k = 0; k < gTextureLoader.m_iNumTextures; k++)
-				{
-					if (!strcmp(gTextureLoader.m_pTextures[k].szName, pLump->name))
-						alreadyexists = true;
-				}
-				if (alreadyexists)
-					continue;
-
-				pTexture = &gTextureLoader.m_pTextures[gTextureLoader.m_iNumTextures];
-				gTextureLoader.m_iNumTextures++;
-
-				// Fill in data
-				strcpy(pTexture->szName, pLump->name);
-				pTexture->iWidth = ByteToUInt(pFile + pLump->filepos + 16);
-				pTexture->iHeight = ByteToUInt(pFile + pLump->filepos + 20);
-				pTexture->iBpp = 4;
-
-				// Get offsets
-				int iIndexOffset = ByteToUInt(pFile + pLump->filepos + 24);
-				int iMip3Offset = ByteToUInt(pFile + pLump->filepos + 36);
-
-				byte* pPalette;
-				if (pLump->type & 0x43)
-					pPalette = pFile + pLump->filepos + iMip3Offset + ((pTexture->iWidth / 8) * (pTexture->iHeight / 8)) + 2;
-				else
-					pPalette = pFile + pLump->filepos + iIndexOffset + (pTexture->iWidth * pTexture->iHeight) + 2;
-
-				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
-				gTextureLoader.LoadPallettedTexture(pPixels, pPalette, pTexture, true);
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].name, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo = new decalgroupentry_t;
-				strcpy(gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->szName, pLump->name);
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->gl_texid = pTexture->iIndex;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->xsize = pTexture->iWidth / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->ysize = pTexture->iHeight / 2;
-				gTextureLoader.m_pWAD_Decals[gTextureLoader.m_iNumWADDecals].texinfo->group = nullptr; // unused
-				gTextureLoader.m_iNumWADDecals++;
-				loaded_decal_wad = true;
-			}
-			return;
 		}
 	}
-
 };
 
 /*
@@ -4734,14 +3259,7 @@ AllocDecal
 */
 customdecal_t* CBSPRenderer::AllocDecal(void)
 {
-	customdecal_t* ret = &m_pDecals[m_iCurDecal];
-
-	if (m_iNumDecals < MAX_CUSTOMDECALS)
-		m_iNumDecals++;
-
-	m_iCurDecal++;
-	if (m_iCurDecal == MAX_CUSTOMDECALS)
-		m_iCurDecal = 0; // get decals from root again
+	auto ret = std::make_unique<customdecal_t>();
 
 	if (ret->inumpolys)
 	{
@@ -4751,8 +3269,11 @@ customdecal_t* CBSPRenderer::AllocDecal(void)
 		delete[] ret->polys;
 	}
 
-	memset(ret, 0, sizeof(customdecal_t));
-	return ret;
+	customdecal_t* ptr = ret.get();
+
+	m_pDecals.push_back(std::move(ret));
+
+	return ptr;
 }
 
 /*
@@ -4763,11 +3284,14 @@ AllocStaticDecal
 */
 customdecal_t* CBSPRenderer::AllocStaticDecal(void)
 {
-	if (m_iNumStaticDecals < MAX_STATICDECALS)
+	if (m_pStaticDecals.size() < MAX_STATICDECALS)
 	{
-		customdecal_t* ret = &m_pStaticDecals[m_iNumStaticDecals];
-		m_iNumStaticDecals++;
-		return ret;
+		auto ret = std::make_unique<customdecal_t>();
+
+		customdecal_t* ptr = ret.get();
+
+		m_pStaticDecals.push_back(std::move(ret));
+		return ptr;
 	}
 	return NULL;
 }
@@ -4780,15 +3304,15 @@ FindDecalByName
 */
 decalgroupentry_t* CBSPRenderer::FindDecalByName(const char* szName)
 {
-	for (int i = 0; i < m_iNumDecalGroups; i++)
+	for (int i = 0; i < m_pDecalGroups.size(); i++)
 	{
-		if (m_pDecalGroups[i].iSize == 0)
+		if (m_pDecalGroups[i]->iSize == 0)
 			continue;
 
-		for (int j = 0; j < m_pDecalGroups[i].iSize; j++)
+		for (int j = 0; j < m_pDecalGroups[i]->iSize; j++)
 		{
-			if (!strcmp(m_pDecalGroups[i].entries[j].szName, szName))
-				return &m_pDecalGroups[i].entries[j];
+			if (!strcmp(m_pDecalGroups[i]->entries[j].szName, szName))
+				return &m_pDecalGroups[i]->entries[j];
 		}
 	}
 	return NULL;
@@ -4821,10 +3345,10 @@ FindGroup
 */
 decalgroup_t* CBSPRenderer::FindGroup(const char* _name)
 {
-	for (int i = 0; i < m_iNumDecalGroups; i++)
+	for (int i = 0; i < m_pDecalGroups.size(); i++)
 	{
-		if (!strcmp(m_pDecalGroups[i].szName, _name))
-			return &m_pDecalGroups[i];
+		if (!strcmp(m_pDecalGroups[i]->szName, _name))
+			return m_pDecalGroups[i].get();
 	}
 
 	return NULL; // nothing found
@@ -4836,7 +3360,7 @@ CullDecalBBox
 
 ====================
 */
-bool CBSPRenderer::CullDecalBBox(vec3_t mins, vec3_t maxs)
+bool CBSPRenderer::CullDecalBBox(Vector mins, Vector maxs)
 {
 	if (mins[0] > m_vDecalMaxs[0])
 		return true;
@@ -4865,36 +3389,35 @@ CreateDecal
 
 ====================
 */
-void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, int persistent, int fromwad, float angle, float customradius)
+void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, int persistent, bool fromwad, float angle)
 {
-	vec3_t mins, maxs;
-	vec3_t decalpos, decalnormal;
+	Vector mins, maxs;
+	Vector decalpos, decalnormal;
 	decalgroupentry_t* pDecalTex;
 
-	m_pWorld = IEngineStudio.GetModelByIndex(1);
-	if (!m_pWorld || (fromwad && gTextureLoader.m_iNumWADDecals == 0))
+	if (!engine_cl->worldmodel || (fromwad && gTextureLoader.m_iNumWADDecals == 0))
 	{
-		if (m_iCacheDecals >= MAX_DECAL_MSG_CACHE)
+		if (m_pMsgCache.size() >= MAX_DECAL_MSG_CACHE)
 			return;
 
-		strcpy(m_pMsgCache[m_iCacheDecals].name, name);
-		strLower(m_pMsgCache[m_iCacheDecals].name);
-		m_pMsgCache[m_iCacheDecals].normal = pnormal;
-		m_pMsgCache[m_iCacheDecals].pos = endpos;
-		m_pMsgCache[m_iCacheDecals].persistent = persistent;
-		m_pMsgCache[m_iCacheDecals].fromwad = fromwad;
-		m_pMsgCache[m_iCacheDecals].angle = angle;
-		m_pMsgCache[m_iCacheDecals].radius = customradius;
-		m_iCacheDecals++;
+		auto msgcache = std::make_unique<decal_msg_cache>();
+
+		strcpy(msgcache->name, name);
+		msgcache->normal = pnormal;
+		msgcache->pos = endpos;
+		msgcache->persistent = persistent;
+		msgcache->fromwad = fromwad;
+		msgcache->angle = angle;
+		m_pMsgCache.push_back(std::move(msgcache));
 		return;
 	}
 
-	char lowername[128];
-	strcpy(lowername, name);
-	strLower(lowername);
-
 	if (fromwad)
 	{
+		char lowername[128];
+		strcpy(lowername, name);
+		strLower(lowername);
+
 		customdecal_t* pDecal = NULL;
 		for (int i = 0; i < gTextureLoader.m_iNumWADDecals; i++)
 		{
@@ -4905,8 +3428,6 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 				VectorCopy(endpos, pDecal->position);
 				VectorCopy(pnormal, pDecal->normal);
 				float radius = (pDecal->texinfo->xsize > pDecal->texinfo->ysize) ? pDecal->texinfo->xsize : pDecal->texinfo->ysize;
-				if (customradius)
-					radius = customradius;
 
 				m_vDecalMins[0] = endpos[0] - radius;
 				m_vDecalMins[1] = endpos[1] - radius;
@@ -4915,10 +3436,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 				m_vDecalMaxs[1] = endpos[1] + radius;
 				m_vDecalMaxs[2] = endpos[2] + radius;
 
-				pDecal->angle = angle;
-				pDecal->radius = radius;
-
-				RecursiveCreateDecal(m_pWorld->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
+				RecursiveCreateDecal(engine_cl->worldmodel->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
 
 
 				for (int j = 1; j < MAXRENDERENTS; j++)
@@ -4960,8 +3478,8 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 						VectorSubtract(endpos, pEntity->origin, decalpos);
 						if (pEntity->angles[0] || pEntity->angles[1] || pEntity->angles[2])
 						{
-							vec3_t temp, forward, right, up;
-							AngleVectors(pEntity->angles, forward, right, up);
+							Vector temp, forward, right, up;
+							AngleVectors(pEntity->angles, &forward, &right, &up);
 
 							VectorCopy(decalpos, temp);
 							decalpos[0] = DotProduct(temp, forward);
@@ -4985,19 +3503,19 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 						VectorCopy(endpos, decalpos);
 					}
 
-					msurface_t* surf = &m_pWorld->surfaces[pEntity->model->firstmodelsurface];
+					clientmsurface_t* surf = &BSPWorld_Model::m_pWorldSurfaces[pEntity->model->firstmodelsurface];
 					for (int k = 0; k < pEntity->model->nummodelsurfaces; k++, surf++)
 					{
 						float dot;
 						mplane_t* pplane = surf->plane;
-						SSEDotProductSub(&dot, &decalpos, &pplane->normal, &pplane->dist);
+						DotProductSub(&dot, &decalpos, &pplane->normal, &pplane->dist);
 
 						if (dot < 0)
 							dot *= -1;
 
 						if (dot < radius)
 						{
-							vec3_t normal = pplane->normal;
+							Vector normal = pplane->normal;
 
 							if (surf->flags & SURF_PLANEBACK)
 								VectorInverse(normal);
@@ -5005,11 +3523,10 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 							if (DotProduct(normal, decalnormal) < 0.01)
 								continue;
 
-							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal, angle);
+							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal);
 						}
 					}
 				}
-
 			}
 		}
 		return;
@@ -5054,30 +3571,31 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 	}
 	else
 	{
-		for (int i = 0; i < m_iNumDecals; i++)
+		for (int i = 0; i < m_pDecals.size(); i++)
 		{
-			if (m_pDecals[i].texinfo->group != pDecalTex->group)
+			if (m_pDecals[i]->texinfo->group != pDecalTex->group)
 				continue;
 
-			xsize = m_pDecals[i].texinfo->xsize;
-			ysize = m_pDecals[i].texinfo->ysize;
+			xsize = m_pDecals[i]->texinfo->xsize;
+			ysize = m_pDecals[i]->texinfo->ysize;
 			radius = (xsize > ysize) ? xsize : ysize;
 
-			mins[0] = m_pDecals[i].position[0] - radius;
-			mins[1] = m_pDecals[i].position[1] - radius;
-			mins[2] = m_pDecals[i].position[2] - radius;
-			maxs[0] = m_pDecals[i].position[0] + radius;
-			maxs[1] = m_pDecals[i].position[1] + radius;
-			maxs[2] = m_pDecals[i].position[2] + radius;
+			mins[0] = m_pDecals[i]->position[0] - radius;
+			mins[1] = m_pDecals[i]->position[1] - radius;
+			mins[2] = m_pDecals[i]->position[2] - radius;
+			maxs[0] = m_pDecals[i]->position[0] + radius;
+			maxs[1] = m_pDecals[i]->position[1] + radius;
+			maxs[2] = m_pDecals[i]->position[2] + radius;
 
 			if (!CullDecalBBox(mins, maxs))
 			{
-				for (int j = 0; j < m_pDecals[i].inumpolys; j++)
-					delete[] m_pDecals[i].polys[j].pverts;
+				for (int j = 0; j < m_pDecals[i]->inumpolys; j++)
+					delete[] m_pDecals[i]->polys[j].pverts;
 
-				delete[] m_pDecals[i].polys;
-				memset(&m_pDecals[i], 0, sizeof(customdecal_t));
-				pDecal = &m_pDecals[i];
+				delete[] m_pDecals[i]->polys;
+				m_pDecals.erase(m_pDecals.begin() + i);
+				m_pDecals.push_back(std::move(std::make_unique<customdecal_t>()));
+				pDecal = m_pDecals[m_pDecals.size() - 1].get();
 				break;
 			}
 		}
@@ -5093,7 +3611,7 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 	VectorCopy(endpos, pDecal->position);
 	VectorCopy(pnormal, pDecal->normal);
 
-	RecursiveCreateDecal(m_pWorld->nodes, pDecalTex, pDecal, endpos, pnormal);
+	RecursiveCreateDecal(engine_cl->worldmodel->nodes, pDecalTex, pDecal, endpos, pnormal);
 
 	for (int i = 1; i < MAXRENDERENTS; i++)
 	{
@@ -5134,8 +3652,8 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 			VectorSubtract(endpos, pEntity->origin, decalpos);
 			if (pEntity->angles[0] || pEntity->angles[1] || pEntity->angles[2])
 			{
-				vec3_t temp, forward, right, up;
-				AngleVectors(pEntity->angles, forward, right, up);
+				Vector temp, forward, right, up;
+				AngleVectors(pEntity->angles, &forward, &right, &up);
 
 				VectorCopy(decalpos, temp);
 				decalpos[0] = DotProduct(temp, forward);
@@ -5159,19 +3677,19 @@ void CBSPRenderer::CreateDecal(vec3_t endpos, vec3_t pnormal, const char* name, 
 			VectorCopy(endpos, decalpos);
 		}
 
-		msurface_t* surf = &m_pWorld->surfaces[pEntity->model->firstmodelsurface];
+		clientmsurface_t* surf = &BSPWorld_Model::m_pWorldSurfaces[pEntity->model->firstmodelsurface];
 		for (int k = 0; k < pEntity->model->nummodelsurfaces; k++, surf++)
 		{
 			float dot;
 			mplane_t* pplane = surf->plane;
-			SSEDotProductSub(&dot, &decalpos, &pplane->normal, &pplane->dist);
+			DotProductSub(&dot, &decalpos, &pplane->normal, &pplane->dist);
 
 			if (dot < 0)
 				dot *= -1;
 
 			if (dot < radius)
 			{
-				vec3_t normal = pplane->normal;
+				Vector normal = pplane->normal;
 
 				if (surf->flags & SURF_PLANEBACK)
 					VectorInverse(normal);
@@ -5191,7 +3709,7 @@ RecursiveCreateDecal
 
 ====================
 */
-void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle)
+void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr, customdecal_t* pDecal, Vector endpos, Vector pnormal, float angle)
 {
 	if (node->contents == CONTENTS_SOLID)
 		return; // solid
@@ -5206,27 +3724,19 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 	int ysize = texptr->ysize;
 
 	float radius = (xsize > ysize) ? xsize : ysize;
-	if (pDecal->radius)
-		radius = pDecal->radius;
 
 	int side;
 	float dot;
 	mplane_t* plane = node->plane;
 
-	switch (plane->type)
+	plane = node->plane;
+	if (plane->type <= PLANE_Z)
 	{
-	case PLANE_X:
-		dot = endpos[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = endpos[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = endpos[2] - plane->dist;
-		break;
-	default:
-		SSEDotProductSub(&dot, &endpos, &plane->normal, &plane->dist);
-		break;
+		dot = endpos[plane->type] - plane->dist;
+	}
+	else
+	{
+		dot = DotProduct(endpos, plane->normal) - plane->dist;
 	}
 
 	if (dot >= 0)
@@ -5241,7 +3751,7 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 	int c = node->numsurfaces;
 	if (c)
 	{
-		msurface_t* surf = m_pWorld->surfaces + node->firstsurface;
+		clientmsurface_t* surf = BSPWorld_Model::m_pWorldSurfaces + node->firstsurface;
 
 		if (dot < 0 - BACKFACE_EPSILON)
 			side = SURF_PLANEBACK;
@@ -5252,14 +3762,14 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 		{
 			float dot;
 			mplane_t* pplane = surf->plane;
-			SSEDotProductSub(&dot, &endpos, &pplane->normal, &pplane->dist);
+			DotProductSub(&dot, &endpos, &pplane->normal, &pplane->dist);
 
 			if (dot < 0)
 				dot *= -1;
 
 			if (dot < radius)
 			{
-				vec3_t normal = pplane->normal;
+				Vector normal = pplane->normal;
 
 				if (surf->flags & SURF_PLANEBACK)
 					VectorInverse(normal);
@@ -5270,7 +3780,6 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 						continue;
 
 					DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal, angle);
-
 				}
 				else
 					DecalSurface(surf, texptr, NULL, pDecal, endpos, normal, angle);
@@ -5287,18 +3796,18 @@ DecalSurface
 
 ====================
 */
-void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_entity_t* pEntity, customdecal_t* pDecal, vec3_t endpos, vec3_t pnormal, float angle)
+void CBSPRenderer::DecalSurface(clientmsurface_t* surf, decalgroupentry_t* texptr, cl_entity_t* pEntity, customdecal_t* pDecal, Vector endpos, Vector pnormal, float angle)
 {
-	vec3_t norm;
-	vec3_t right, up;
+	Vector norm;
+	Vector right, up;
 
-	vec3_t dverts1[64];
-	vec3_t dverts2[64];
+	Vector dverts1[64];
+	Vector dverts2[64];
 
 	if (pEntity && surf->texinfo->texture->name[0] == '{' && pEntity->curstate.rendermode == kRenderTransAlpha)
 		return;
 
-	if (stristr(surf->texinfo->texture->name, "scroll") && pEntity->curstate.eflags == EFLAG_CONVEYOR)
+	if (surf->texinfo->texture->texture_flag & TEXTURE_SCROLL)
 		return;
 
 	if (surf->flags & SURF_DRAWTURB || surf->flags & SURF_DRAWSKY)
@@ -5306,8 +3815,8 @@ void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_
 
 	mtexinfo_t* texinfo = surf->texinfo;
 
-	vec3_t sAxis = {texinfo->vecs[0][0], texinfo->vecs[0][1], texinfo->vecs[0][2]};
-	vec3_t tAxis = {texinfo->vecs[1][0], texinfo->vecs[1][1], texinfo->vecs[1][2]};
+	Vector sAxis = {texinfo->vecs[0][0], texinfo->vecs[0][1], texinfo->vecs[0][2]};
+	Vector tAxis = {texinfo->vecs[1][0], texinfo->vecs[1][1], texinfo->vecs[1][2]};
 
 	VectorNormalize(sAxis);
 	VectorNormalize(tAxis);
@@ -5321,7 +3830,7 @@ void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_
 		float cosA = cosf(radians);
 		float sinA = sinf(radians);
 
-		vec3_t newRight, newUp;
+		Vector newRight, newUp;
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -5332,8 +3841,6 @@ void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_
 		VectorCopy(newRight, right);
 		VectorCopy(newUp, up);
 	}
-
-	//GetUpRight(pnormal, up, right);
 
 	int xsize = texptr->xsize;
 	int ysize = texptr->ysize;
@@ -5348,21 +3855,17 @@ void CBSPRenderer::DecalSurface(msurface_t* surf, decalgroupentry_t* texptr, cl_
 		VectorCopy(v, dverts1[j]);
 
 	int nv;
-	vec3_t planepoint;
+	Vector planepoint;
 	VectorMA(endpos, -xsize, right, planepoint);
-	//VectorMASSE(endpos, -xsize, right, planepoint);
 	nv = ClipPolygonByPlane(dverts1, p->numverts, right, planepoint, dverts2);
 
 	VectorMA(endpos, xsize, right, planepoint);
-	//VectorMASSE(endpos, xsize, right, planepoint);
 	nv = ClipPolygonByPlane(dverts2, nv, right * -1, planepoint, dverts1);
 
 	VectorMA(endpos, -ysize, up, planepoint);
-	//VectorMASSE(endpos, -ysize, up, planepoint);
 	nv = ClipPolygonByPlane(dverts1, nv, up, planepoint, dverts2);
 
 	VectorMA(endpos, ysize, up, planepoint);
-	//VectorMASSE(endpos, ysize, up, planepoint);
 	nv = ClipPolygonByPlane(dverts2, nv, up * -1, planepoint, dverts1);
 
 	if (!nv)
@@ -5408,44 +3911,44 @@ CreateCachedDecals
 */
 void CBSPRenderer::CreateCachedDecals(void)
 {
-	for (int i = 0; i < gPropManager.m_iNumDecals; i++)
+	for (auto decal : gPropManager.m_pDecals)
 	{
 		pmtrace_t pTrace;
 		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
 
 		// Z Axis
-		gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos + Vector(0, 0, 2), gPropManager.m_pDecals[i].pos - Vector(0, 0, 2), PM_WORLD_ONLY, -2, &pTrace);
+		gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos + Vector(0, 0, 2), decal.pos - Vector(0, 0, 2), PM_WORLD_ONLY, -2, &pTrace);
 
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
-			gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos - Vector(0, 0, 2), gPropManager.m_pDecals[i].pos + Vector(0, 0, 2), PM_WORLD_ONLY, -2, &pTrace);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos - Vector(0, 0, 2), decal.pos + Vector(0, 0, 2), PM_WORLD_ONLY, -2, &pTrace);
 
 		// Y Axis
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
-			gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos + Vector(0, 2, 0), gPropManager.m_pDecals[i].pos - Vector(0, 2, 0), PM_WORLD_ONLY, -2, &pTrace);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos + Vector(0, 2, 0), decal.pos - Vector(0, 2, 0), PM_WORLD_ONLY, -2, &pTrace);
 
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
-			gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos - Vector(0, 2, 0), gPropManager.m_pDecals[i].pos + Vector(0, 2, 0), PM_WORLD_ONLY, -2, &pTrace);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos - Vector(0, 2, 0), decal.pos + Vector(0, 2, 0), PM_WORLD_ONLY, -2, &pTrace);
 
 		// X Axis
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
-			gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos + Vector(2, 0, 0), gPropManager.m_pDecals[i].pos - Vector(2, 0, 0), PM_WORLD_ONLY, -2, &pTrace);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos + Vector(2, 0, 0), decal.pos - Vector(2, 0, 0), PM_WORLD_ONLY, -2, &pTrace);
 
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
-			gEngfuncs.pEventAPI->EV_PlayerTrace(gPropManager.m_pDecals[i].pos - Vector(2, 0, 0), gPropManager.m_pDecals[i].pos + Vector(2, 0, 0), PM_WORLD_ONLY, -2, &pTrace);
+			gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos - Vector(2, 0, 0), decal.pos + Vector(2, 0, 0), PM_WORLD_ONLY, -2, &pTrace);
 
 		if (pTrace.fraction == 1 || pTrace.fraction == 0)
 			pTrace.plane.normal = Vector(0, 0, 1);
 
-		CreateDecal(gPropManager.m_pDecals[i].pos, pTrace.plane.normal, gPropManager.m_pDecals[i].name, gPropManager.m_pDecals[i].persistent);
+		CreateDecal(decal.pos, pTrace.plane.normal, decal.name, decal.persistent);
 	}
 
-	for (int i = 0; i < m_iCacheDecals; i++)
+	for (int i = 0; i < m_pMsgCache.size(); i++)
 	{
-		CreateDecal(m_pMsgCache[i].pos, m_pMsgCache[i].normal, m_pMsgCache[i].name, m_pMsgCache[i].persistent, m_pMsgCache[i].fromwad, m_pMsgCache[i].angle, m_pMsgCache[i].radius);
+		CreateDecal(m_pMsgCache[i]->pos, m_pMsgCache[i]->normal, m_pMsgCache[i]->name, m_pMsgCache[i]->persistent, m_pMsgCache[i]->fromwad);
 	}
 
-	m_iCacheDecals = 0;
-	gPropManager.m_iNumDecals = 0;
+	m_pMsgCache.clear();
+	gPropManager.m_pDecals.clear();
 }
 
 /*
@@ -5454,157 +3957,64 @@ DrawSingleDecal
 
 ====================
 */
-void CBSPRenderer::DrawSingleDecal(customdecal_t* decal)
+void CBSPRenderer::DrawSingleDecal(customdecal_t* decal, std::vector<DecalVert_t> &decalvertlist, bool m_bTransPass, bool *bNeedsBufferUpdate)
 {
-	Bind2DTexture(GL_TEXTURE0_ARB, decal->texinfo->gl_texid);
-	if (decal->texinfo->szName[0] == '{')
-	{
-		// oy you! shut yo mouth and looka mah waaad!
-		glEnable(GL_BLEND);
-
-		////////////////////////////////////
-		int index = decal->texinfo->szName[6] - '0';
-		char blood[64];
-		sprintf(blood, "{blood%d", index);
-
-		int index2 = decal->texinfo->szName[7] - '0';
-		char bblood[64];
-		sprintf(bblood, "{bblood%d", index2); 
-
-		int index3 = decal->texinfo->szName[11] - '0'; // all possible values ( [] = name length minus { )
-		char bloodspray[64]; // texture name without { + #
-		sprintf(bloodspray, "{bloodspray%d", index3);
-		
-		int index4 = decal->texinfo->szName[12] - '0';
-		char bbloodspray[64];
-		sprintf(bbloodspray, "{bbloodspray%d", index4); 
-
-		int index5 = decal->texinfo->szName[12] - '0';
-		char nbloodspray[64];
-		sprintf(nbloodspray, "{nbloodspray%d", index5); 
-
-		int index6 = decal->texinfo->szName[8] - '0';
-		char message[64];
-		sprintf(message, "{message%d", index6); 
-
-		int index7 = decal->texinfo->szName[9] - '0';
-		char bigblood[64];
-		sprintf(bigblood, "{bigblood%d", index7);
-		////////////////////////////////////
-
-		if (!strcmp(decal->texinfo->szName, blood) && g_iNightVision)
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
-		}
-		else if (!strcmp(decal->texinfo->szName, bloodspray)  && g_iNightVision)
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
-		}	
-		else if (!strcmp(decal->texinfo->szName, bigblood)  && g_iNightVision)
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz we're zombiesss
-		}	
-		else if (!strcmp(decal->texinfo->szName, bblood))
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
-		}
-		else if (!strcmp(decal->texinfo->szName, bbloodspray))
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da blood cuz healing watah glowsss
-		}
-		else if (!strcmp(decal->texinfo->szName, nbloodspray))
-		{
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da noiseblood cuz I don't fucking know anymore
-		}
-		else if (!strcmp(decal->texinfo->szName, message))
-		{
-			if (g_iNightVision)
-				glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // glow da messages cuz we're FUCKED up broooooooooooooooo
-			else
-				return;
-		}
-		else 
-		{
-			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		}
-	}
-	else
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-	}
+	glm::mat4 modelmatrix = glm::mat4(1.0f);
 
 	for (int i = 0; i < decal->inumpolys; i++)
 	{
 		customdecalpoly_t* ppoly = &decal->polys[i];
 
 		if (ppoly->surface->visframe != m_iFrameCount)
-		{
-			if (ppoly->entity)
-			{
-				if (!IsEntityTransparent(ppoly->entity)) // TO-DO: pretty sure removing this would fix decals not map spawning on transparent things
-					continue;
-			}
-			else 
-				continue;
-		}
+			continue;
 
 		if (ppoly->entity)
 		{
+			if (IsEntityTransparent(ppoly->entity) && !m_bTransPass)
+				continue;
+			else if (!IsEntityTransparent(ppoly->entity) && m_bTransPass && (!ppoly->entity->curstate.effects & FL_MIRROR) )
+				continue;
+
 			if (IsEntityMoved(ppoly->entity))
 			{
-				glPushMatrix();
-				ppoly->entity->angles[0] = -ppoly->entity->angles[0]; // stupid quake bug
-				R_RotateForEntity(ppoly->entity);
-				ppoly->entity->angles[0] = -ppoly->entity->angles[0]; // stupid quake bug
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(ppoly->entity->origin[0], ppoly->entity->origin[1], ppoly->entity->origin[2]));
+				glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(ppoly->entity->angles[1]), glm::vec3(0, 0, 1));
+				rotation = glm::rotate(rotation, glm::radians(ppoly->entity->angles[0]), glm::vec3(0, 1, 0));
+				rotation = glm::rotate(rotation, glm::radians(ppoly->entity->angles[2]), glm::vec3(1, 0, 0));
+
+				modelmatrix = translation * rotation;
+				if ( (ppoly->entity->curstate.origin != ppoly->entity->prevstate.origin) || (ppoly->entity->curstate.angles != ppoly->entity->prevstate.angles) )
+					(*bNeedsBufferUpdate) = true;
 			}
-
 		}
+		else if (m_bTransPass)
+			continue;
 
-		glBegin(GL_POLYGON);
-		for (int k = 0; k < ppoly->numverts; k++)
+		for (int k = 1; k < ppoly->numverts - 1; ++k)
 		{
-			glTexCoord2f(ppoly->pverts[k].texcoord[0], ppoly->pverts[k].texcoord[1]);
-			glVertex3fv(ppoly->pverts[k].position);
+			DecalVert_t v0, v1, v2;
+
+			glm::vec4 pos1(ppoly->pverts[0].position.x, ppoly->pverts[0].position.y, ppoly->pverts[0].position.z, 1.0f);
+			glm::vec4 pos2(ppoly->pverts[k].position.x, ppoly->pverts[k].position.y, ppoly->pverts[k].position.z, 1.0f);
+			glm::vec4 pos3(ppoly->pverts[k + 1].position.x, ppoly->pverts[k + 1].position.y, ppoly->pverts[k + 1].position.z, 1.0f);
+
+			pos1 = modelmatrix * pos1;
+			pos2 = modelmatrix * pos2;
+			pos3 = modelmatrix * pos3;
+
+			v0.pos = Vector(pos1.x, pos1.y, pos1.z);
+			memcpy(v0.texcoord, ppoly->pverts[0].texcoord, sizeof(float) * 2);
+
+			v1.pos = Vector(pos2.x, pos2.y, pos2.z);
+			memcpy(v1.texcoord, ppoly->pverts[k].texcoord, sizeof(float) * 2);
+
+			v2.pos = Vector(pos3.x, pos3.y, pos3.z);
+			memcpy(v2.texcoord, ppoly->pverts[k + 1].texcoord, sizeof(float) * 2);
+
+			decalvertlist.push_back(v0);
+			decalvertlist.push_back(v1);
+			decalvertlist.push_back(v2);
 		}
-		glEnd();
-
-		if (m_pCvarWireFrame->value)
-		{
-			glDisable(GL_TEXTURE_2D);
-			glLineWidth(1);
-			glColor4f(0.0, 1.0, 1.0, 1.0);
-
-			SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-
-			if (m_pCvarWireFrame->value >= 2)
-			{
-				if (gHUD.m_pFogSettings.active && !m_bSecondPassNeeded)
-					glDisable(GL_FOG);
-			}
-
-			for (int j = 2; j < ppoly->numverts; j++)
-			{
-				glBegin(GL_LINE_STRIP);
-				glVertex3fv(ppoly->pverts[0].position);
-				glVertex3fv(ppoly->pverts[j - 1].position);
-				glVertex3fv(ppoly->pverts[j].position);
-				glVertex3fv(ppoly->pverts[0].position);
-				glEnd();
-			}
-
-			if (m_pCvarWireFrame->value >= 2)
-			{
-				if (gHUD.m_pFogSettings.active && !m_bSecondPassNeeded)
-					glEnable(GL_FOG);
-			}
-
-			glEnable(GL_TEXTURE_2D);
-			glColor4f(GL_ONE, GL_ZERO, GL_ONE, GL_ONE);
-		}
-
-		if (ppoly->entity && IsEntityMoved(ppoly->entity))
-			glPopMatrix();
 	}
 }
 
@@ -5614,71 +4024,115 @@ DrawDecals
 
 ====================
 */
-void CBSPRenderer::DrawDecals(void)
+void CBSPRenderer::DrawDecals(bool m_bTransPass)
 {
 	CreateCachedDecals();
 
-	if (!m_iNumDecals && !m_iNumStaticDecals)
+	if (m_pDecals.empty() && m_pStaticDecals.empty())
+	{
+		return;
+	}
+
+	std::unordered_map<GLuint, std::vector<DecalVert_t>> decalbatch;
+
+	bool needsbufferupdate = false;
+	for (int i = 0; i < m_pDecals.size(); i++)
+	{
+		std::vector<DecalVert_t> decalvertlist;
+		DrawSingleDecal(m_pDecals[i].get(), decalvertlist, m_bTransPass, &needsbufferupdate);
+		auto& row = decalbatch[m_pDecals[i].get()->texinfo->gl_texid];
+		row.insert(row.end(), std::begin(decalvertlist), std::end(decalvertlist));
+	}
+	if (decalbatch.empty())
 		return;
 
-	ResetCache();
+	std::vector<DecalVert_t> decalvertlist_buffer;
+	for (auto texture : decalbatch)
+	{
+		decalvertlist_buffer.insert(decalvertlist_buffer.end(), std::begin(texture.second), std::end(texture.second));
+	}
+	if (decalvertlist_buffer.size() >= (2 << 19))
+		gEngfuncs.Con_Printf("[TRINITY] WARNING!! Decal vertice count has reached its limit !! (maximum of 524.288 vertices space stored in gpu buffer)");
 
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	m_pDecalVAO->BindVAO();
+
+	static bool updated_base_buffer = false; //this is so ugly
+
+	static int lastdecalvertbuffersize = 0;
+	static int lastdecalvertbuffersize_trans = 0;
+	if(!m_bTransPass)
+	{
+		if (lastdecalvertbuffersize != decalvertlist_buffer.size() || needsbufferupdate)
+		{
+			updated_base_buffer = true;
+			lastdecalvertbuffersize = decalvertlist_buffer.size();
+			m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
+		}
+	}
+	else
+	{
+		if (!decalvertlist_buffer.empty())
+		{
+			if (lastdecalvertbuffersize_trans != decalvertlist_buffer.size() || needsbufferupdate || updated_base_buffer)
+			{
+				updated_base_buffer = false;
+				lastdecalvertbuffersize_trans = decalvertlist_buffer.size();
+				m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+				m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * lastdecalvertbuffersize, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
+			}
+		}
+	}
+
+
+	m_DecalShader->Bind();
+
 
 	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_FALSE);
-	
-	//normal decals
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+	g_GlobalGLState.SetDepthWrite(false);
 
-	//wad decals
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 
 	glPolygonOffset(-1, -1);
-	glEnable(GL_POLYGON_OFFSET_FILL);
+	g_GlobalGLState.SetPolygonOffsetFill(true);
 
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.1);
+	m_DecalShader->UniformMatrix4fv(m_DecalShader_locs[decal_projviewmatrix], 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix * m_ViewMatrix));
 
-	SetTexEnvs(ENVSTATE_REPLACE);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-
-	if (gHUD.m_pFogSettings.active && m_pCvarWorldShaders->value && m_bShaderSupport)
+	int bufferoffset = 0;
+	if (m_bTransPass)
+		bufferoffset = lastdecalvertbuffersize;
+	for (auto texture : decalbatch)
 	{
-		glDisable(GL_FOG);
-		glEnable(GL_FRAGMENT_PROGRAM_ARB);
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iDecalFragmentID);
-	}
-	else if (gHUD.m_pFogSettings.active)
-	{
-		glDisable(GL_FOG);
+		BindGLTexture(GL_TEXTURE0, texture.first);
+
+		glDrawArrays(GL_TRIANGLES, bufferoffset, texture.second.size());
+		bufferoffset += texture.second.size();
 	}
 
-	for (int i = 0; i < m_iNumDecals; i++)
-		DrawSingleDecal(&m_pDecals[i]);
-
-	for (int i = 0; i < m_iNumStaticDecals; i++)
-		DrawSingleDecal(&m_pStaticDecals[i]);
-
-	glDisable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0);
-	glDepthMask(GL_TRUE);
-
-	glDisable(GL_BLEND);
-	glColor4f(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-	glDisable(GL_POLYGON_OFFSET_FILL);
-
-	if (gHUD.m_pFogSettings.active && m_pCvarWorldShaders->value && m_bShaderSupport)
+	if(m_pCvarWireFrame->value)
 	{
-		glDisable(GL_FRAGMENT_PROGRAM_ARB);
-		glEnable(GL_FOG);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		g_GlobalGLState.SetCullFace(false);
+
+		m_DecalShader->Uniform1i(m_DecalShader_locs[decal_wireframe], 1);
+
+		glDrawArrays(GL_TRIANGLES, 0, decalvertlist_buffer.size());
+
+		m_DecalShader->Uniform1i(m_DecalShader_locs[decal_wireframe], 0);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		g_GlobalGLState.SetCullFace(true);
 	}
-	else if (gHUD.m_pFogSettings.active)
-	{
-		glEnable(GL_FOG);
-	}
+
+	g_GlobalGLState.SetDepthWrite(true);
+
+	g_GlobalGLState.SetBlend(false);;
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+	g_GlobalGLState.SetPolygonOffsetFill(false);
+
+	GL_VertexArrayObject::ResetVAOBinding();
+
 }
 
 /*
@@ -5691,7 +4145,7 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
-	vec3_t pos, normal;
+	Vector pos, normal;
 	pos.x = READ_COORD();
 	pos.y = READ_COORD();
 	pos.z = READ_COORD();
@@ -5702,9 +4156,8 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 	int persistent = READ_BYTE();
 	int fromwad = READ_BYTE();
 	float angle = READ_COORD();
-	float radius = READ_COORD();
 
-	CreateDecal(pos, normal, decalname, persistent, fromwad, angle, radius);
+	CreateDecal(pos, normal, decalname, persistent, fromwad, angle);
 	return 1;
 }
 
@@ -5716,37 +4169,27 @@ DeleteDecals
 */
 void CBSPRenderer::DeleteDecals(void)
 {
-	m_iCurDecal = 0;
-
-	if (m_iNumDecals)
+	for (int i = 0; i < m_pDecals.size(); i++)
 	{
-		for (int i = 0; i < m_iNumDecals; i++)
-		{
-			for (int j = 0; j < m_pDecals[i].inumpolys; j++)
-				delete[] m_pDecals[i].polys[j].pverts;
+		for (int j = 0; j < m_pDecals[i]->inumpolys; j++)
+			delete[] m_pDecals[i]->polys[j].pverts;
 
-			delete[] m_pDecals[i].polys;
-		}
-
-		// Clear array completely
-		memset(m_pDecals, 0, sizeof(m_pDecals));
-		m_iNumDecals = NULL;
+		delete[] m_pDecals[i]->polys;
 	}
 
-	if (m_iNumStaticDecals)
+	// Clear array completely
+	m_pDecals.clear();
+
+	for (int i = 0; i < m_pStaticDecals.size(); i++)
 	{
-		for (int i = 0; i < m_iNumStaticDecals; i++)
-		{
-			for (int j = 0; j < m_pStaticDecals[i].inumpolys; j++)
-				delete[] m_pStaticDecals[i].polys[j].pverts;
+		for (int j = 0; j < m_pStaticDecals[i]->inumpolys; j++)
+			delete[] m_pStaticDecals[i]->polys[j].pverts;
 
-			delete[] m_pStaticDecals[i].polys;
-		}
-
-		// Clear array completely
-		memset(m_pStaticDecals, 0, sizeof(m_pStaticDecals));
-		m_iNumStaticDecals = NULL;
+		delete[] m_pStaticDecals[i]->polys;
 	}
+
+	// Clear array completely
+	m_pStaticDecals.clear();
 }
 
 /*
@@ -5771,7 +4214,7 @@ CullDynLightBBox
 
 ====================
 */
-int CBSPRenderer::CullDynLightBBox(vec3_t mins, vec3_t maxs)
+int CBSPRenderer::CullDynLightBBox(Vector mins, Vector maxs)
 {
 	if (mins[0] > m_vDLightMaxs[0])
 		return TRUE;
@@ -5802,35 +4245,26 @@ SetupDynLight
 */
 void CBSPRenderer::SetupDynLight(void)
 {
-	glBlendFunc(GL_ONE, GL_ONE);
-	glColor3fv(m_pCurrentDynLight->color);
+	auto color = m_pCurrentDynLight->color;
 
-	SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_MUL_PREV_CONST);
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_light_pos], 1, m_vCurDLightOrigin);
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_light_color], 1, m_pCurrentDynLight->color);
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_light_radius], m_pCurrentDynLight->radius);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_pointlight], 1);
 
-	// 3d attenuation texture
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_TEXTURE_3D);
-	glBindTexture(GL_TEXTURE_3D, m_iAtten3DPoint);
+	bool onlyshadows = (m_pCurrentDynLight->flags & LIGHT_ONLYSHADOWS);
 
-	float r = 1 / (m_pCurrentDynLight->radius * 2);
-	GLfloat planeS[] = {r, 0, 0, -m_vCurDLightOrigin[0] * r + (float)0.5};
-	GLfloat planeT[] = {0, r, 0, -m_vCurDLightOrigin[1] * r + (float)0.5};
-	GLfloat planeR[] = {0, 0, r, -m_vCurDLightOrigin[2] * r + (float)0.5};
+	if (m_pCvarShadows->value && m_bMainPass && m_pCurrentDynLight->cubedepth)
+	{
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 1);
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_onlyshadow], onlyshadows);
+		BindGLTexture(CUBEMAPSHADOW_TEXUNIT, m_pCurrentDynLight->cubedepth->GetTextureID());
+	}
 
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_S, GL_EYE_PLANE, planeS);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_T, GL_EYE_PLANE, planeT);
-	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_R, GL_EYE_PLANE, planeR);
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_GEN_R);
-
-	// light color (bind dummy texture)
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	Bind2DTexture(GL_TEXTURE1_ARB, m_iLightDummy);
+	if (!onlyshadows)
+		g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
+	else
+		g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_ZERO);
 }
 
 /*
@@ -5841,13 +4275,11 @@ FinishDynLight
 */
 void CBSPRenderer::FinishDynLight(void)
 {
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glDisable(GL_TEXTURE_3D);
-	glEnable(GL_TEXTURE_2D);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_pointlight], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_onlyshadow], 0);
 
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
+	BindGLTexture(CUBEMAPSHADOW_TEXUNIT, 0);
 }
 
 /*
@@ -5858,9 +4290,6 @@ LightCanShadow
 */
 bool CBSPRenderer::LightCanShadow(void)
 {
-	if (!m_bShadowSupport)
-		return false;
-
 	if (m_pCvarShadows->value < 1)
 		return false;
 
@@ -5870,7 +4299,7 @@ bool CBSPRenderer::LightCanShadow(void)
 	if (m_pCurrentEntity->angles[2])
 		return false;
 
-	if (m_pCurrentDynLight->noshadow)
+	if (!(m_pCurrentDynLight->flags & LIGHT_CASTSHADOWS))
 		return false;
 
 	return true;
@@ -5884,217 +4313,54 @@ SetupSpotLight
 */
 void CBSPRenderer::SetupSpotLight(void)
 {
-	glBlendFunc(GL_ONE, GL_ONE);
+	glm::vec3 viewangles = glm::vec3(m_pCurrentDynLight->angles.x, m_pCurrentDynLight->angles.y, m_pCurrentDynLight->angles.z);
+	Vector forward_, up_;
+	AngleVectors(Vector(viewangles.x, viewangles.y, viewangles.z), &forward_, nullptr, &up_);
 
-	GLfloat planeS1D[4];
-	planeS1D[0] = m_vCurSpotForward[0] / m_pCurrentDynLight->radius;
-	planeS1D[1] = m_vCurSpotForward[1] / m_pCurrentDynLight->radius;
-	planeS1D[2] = m_vCurSpotForward[2] / m_pCurrentDynLight->radius;
-	planeS1D[3] = -DotProduct(m_vCurSpotForward, m_vCurDLightOrigin) / m_pCurrentDynLight->radius;
+	glm::vec3 forward = glm::vec3(forward_.x, forward_.y, forward_.z);
+	glm::vec3 up = glm::vec3(up_.x, up_.y, up_.z);
 
-	// enable automatic texture coordinates generation
-	GLfloat planeS[] = {1.0, 0.0, 0.0, 0.0};
-	GLfloat planeT[] = {0.0, 1.0, 0.0, 0.0};
-	GLfloat planeR[] = {0.0, 0.0, 1.0, 0.0};
-	GLfloat planeQ[] = {0.0, 0.0, 0.0, 1.0};
 
-	m_bLightShadow = LightCanShadow();
-	float flSize = tan((M_PI / 360) * m_pCurrentDynLight->cone_size);
-	float flFrustum[] = {2 / (flSize * 2), 0, 0, 0, 0, 2 / (flSize * 2), 0, 0, 0, 0, -1, -1, 0, 0, -2, 0};
+	float fov = m_pCurrentDynLight->cone_size;
+	float aspect = 1.0f;
+	float nearPlane = 1.0f;
+	float farPlane = m_pCurrentDynLight->radius;
 
-	int bReversed = IsPitchReversed(m_pCurrentDynLight->angles[PITCH]);
-	vec3_t vTarget = m_vCurDLightOrigin + (m_vCurSpotForward * m_pCurrentDynLight->radius);
+	glm::mat4 lightProj = glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
 
-	// setup texture stages
-	if (m_bLightShadow)
-		SetTexEnvs(ENVSTATE_MUL, ENVSTATE_MUL, ENVSTATE_MUL);
+	// spotlight view
+	glm::vec3 lightPos = glm::vec3(m_vCurDLightOrigin.x, m_vCurDLightOrigin.y, m_vCurDLightOrigin.z);
+	glm::vec3 lightDir = glm::vec3(forward.x * 50, forward.y * 50, forward.z * 50);
+
+	glm::mat4 lightView = glm::lookAt(lightPos, lightPos + lightDir, up);
+
+	// final texture matrix
+	glm::mat4 textureMatrix = lightProj * lightView;
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_spotlight], 1);
+
+	bool onlyshadows = (m_pCurrentDynLight->flags & LIGHT_ONLYSHADOWS);
+
+	m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_spotlight_texturematrix], 1, GL_FALSE, glm::value_ptr(textureMatrix));
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_light_pos], 1, m_pCurrentDynLight->origin);
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_light_color], 1, m_pCurrentDynLight->color);
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_light_radius], m_pCurrentDynLight->radius);
+
+	BindGLTexture(SPOTLIGHT_TEXUNIT, m_pCurrentDynLight->textureindex);
+
+	if (m_pCvarShadows->value && m_bMainPass && m_pCurrentDynLight->depth)
+	{
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 1);
+		m_WorldShader->Uniform1i(m_WorldShader_locs[world_onlyshadow], onlyshadows);
+
+		BindGLTexture(SHADOWMAP_TEXUNIT, m_pCurrentDynLight->depth->GetTextureID());
+	}
+
+
+	if (!onlyshadows)
+		g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
 	else
-		SetTexEnvs(ENVSTATE_MUL, ENVSTATE_MUL);
-
-	// Set color
-	glColor4f(m_pCurrentDynLight->color.x, m_pCurrentDynLight->color.y, m_pCurrentDynLight->color.z, 1.0);
-
-	// spotlight texture
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	Bind2DTexture(GL_TEXTURE0_ARB, m_pCurrentDynLight->textureindex);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_S, GL_EYE_PLANE, planeS);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_T, GL_EYE_PLANE, planeT);
-	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_R, GL_EYE_PLANE, planeR);
-	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_Q, GL_EYE_PLANE, planeQ);
-
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_GEN_R);
-	glEnable(GL_TEXTURE_GEN_Q);
-
-	// load texture projection matrix
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-
-	glTranslatef(0.5, 0.5, 0.5);
-	glScalef(0.5, 0.5, 0.5);
-	glMultMatrixf(flFrustum);
-
-	MyLookAt(m_vCurDLightOrigin[0], m_vCurDLightOrigin[1], m_vCurDLightOrigin[2], vTarget[0], vTarget[1], vTarget[2], 0, 0, bReversed ? -1 : 1);
-	glMatrixMode(GL_MODELVIEW);
-
-	// attenuation
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_TEXTURE_1D);
-	glBindTexture(GL_TEXTURE_1D, m_iAttenuation1DTexture);
-
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_S, GL_EYE_PLANE, planeS1D);
-	glEnable(GL_TEXTURE_GEN_S);
-
-	if (m_bLightShadow)
-	{
-		// depth texture
-		glActiveTextureARB(GL_TEXTURE2_ARB);
-		Bind2DTexture(GL_TEXTURE2_ARB, m_pCurrentDynLight->depth);
-
-		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-		glTexGenfv(GL_S, GL_EYE_PLANE, planeS);
-		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-		glTexGenfv(GL_T, GL_EYE_PLANE, planeT);
-		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-		glTexGenfv(GL_R, GL_EYE_PLANE, planeR);
-		glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-		glTexGenfv(GL_Q, GL_EYE_PLANE, planeQ);
-
-		glEnable(GL_TEXTURE_GEN_S);
-		glEnable(GL_TEXTURE_GEN_T);
-		glEnable(GL_TEXTURE_GEN_R);
-		glEnable(GL_TEXTURE_GEN_Q);
-
-		// load texture projection matrix
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-
-		glTranslatef(0.5, 0.5, 0.5);
-		glScalef(0.5, 0.5, 0.5);
-
-		glMultMatrixf(flFrustum);
-		MyLookAt(m_vCurDLightOrigin[0], m_vCurDLightOrigin[1], m_vCurDLightOrigin[2], vTarget[0], vTarget[1], vTarget[2], 0, 0, bReversed ? -1 : 1);
-		glMatrixMode(GL_MODELVIEW);
-
-		if (m_pCvarPCFShadows->value >= 1 && m_bShadowPCFSupport)
-		{
-			glEnable(GL_FRAGMENT_PROGRAM_ARB);
-			glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_iShadowFragmentID);
-		}
-	}
-	
-}
-
-/*
-====================
-SetupModelShadow
-
-====================
-*/
-void CBSPRenderer::SetupModelShadow(cl_shadow_t shadow)
-{
-	glBlendFunc(GL_DST_COLOR, GL_ZERO);
-
-	GLfloat planeS1D[4];
-	planeS1D[0] = m_vCurSpotForward[0] / 500;
-	planeS1D[1] = m_vCurSpotForward[1] / 500;
-	planeS1D[2] = m_vCurSpotForward[2] / 500;
-	planeS1D[3] = -DotProduct(m_vCurSpotForward, m_vCurDLightOrigin) / 500;
-
-	// enable automatic texture coordinates generation
-	GLfloat planeS[] = {1.0, 0.0, 0.0, 0.0};
-	GLfloat planeT[] = {0.0, 1.0, 0.0, 0.0};
-	GLfloat planeR[] = {0.0, 0.0, 1.0, 0.0};
-	GLfloat planeQ[] = {0.0, 0.0, 0.0, 1.0};
-
-	// Standard perspective projection matrix
-	float flSize = tan((M_PI / 360) * 40);
-	float flFrustum[] = {2 / (flSize * 2), 0, 0, 0, 0, 2 / (flSize * 2), 0, 0, 0, 0, -1, -1, 0, 0, -2, 0};
-
-	int bReversed = IsPitchReversed(89);
-	vec3_t vTarget = m_vCurDLightOrigin + (m_vCurSpotForward * 100);
-
-	// setup texture stages
-	SetTexEnvs(ENVSTATE_MUL, ENVSTATE_MUL, ENVSTATE_MUL);
-
-	glColor4f(1, 1, 1, 1.0);
-
-	// depth texture
-	glActiveTextureARB(GL_TEXTURE2_ARB);
-	Bind2DTexture(GL_TEXTURE2_ARB, shadow.depth);
-
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_S, GL_EYE_PLANE, planeS);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_T, GL_EYE_PLANE, planeT);
-	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_R, GL_EYE_PLANE, planeR);
-	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenfv(GL_Q, GL_EYE_PLANE, planeQ);
-
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_GEN_R);
-	glEnable(GL_TEXTURE_GEN_Q);
-
-	// load texture projection matrix
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-
-	glTranslatef(0.5, 0.5, 0.5);
-	glScalef(0.5, 0.5, 0.5);
-
-	glMultMatrixf(flFrustum);
-	MyLookAt(m_vCurDLightOrigin[0], m_vCurDLightOrigin[1], m_vCurDLightOrigin[2], vTarget[0], vTarget[1], vTarget[2], 0, 0, bReversed ? -1 : 1);
-
-	GLfloat textureMatrix[16];
-	glGetFloatv(GL_TEXTURE_MATRIX, textureMatrix);
-	GLfloat modelViewMatrix[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, modelViewMatrix);
-	glMatrixMode(GL_MODELVIEW);
-
-	mat4 worldSpotDir = {m_vCurSpotForward[0], m_vCurSpotForward[1], m_vCurSpotForward[2], 0.0f};
-
-	Vector eyeSpotDir;
-	for (int i = 0; i < 3; ++i)
-	{
-		eyeSpotDir[i] =
-			worldSpotDir[0] * modelViewMatrix[i + 0] +
-			worldSpotDir[1] * modelViewMatrix[i + 4] +
-			worldSpotDir[2] * modelViewMatrix[i + 8];
-	}
-
-	mat4 worldLightPos = {m_vCurDLightOrigin[0], m_vCurDLightOrigin[1], m_vCurDLightOrigin[2], 1.0f};
-
-	Vector eyeLightPos;
-	for (int i = 0; i < 3; ++i)
-	{
-		eyeLightPos[i] =
-			worldLightPos[0] * modelViewMatrix[i + 0] +
-			worldLightPos[1] * modelViewMatrix[i + 4] +
-			worldLightPos[2] * modelViewMatrix[i + 8] +
-			worldLightPos[3] * modelViewMatrix[i + 12];
-	}
-
-	glUseProgram(m_testShaderProgram);
-	glUniform1i(glGetUniformLocation(m_testShaderProgram, "shadowMap"), 2);
-	glUniform1i(glGetUniformLocation(m_testShaderProgram, "shadowPCF"), m_pCvarPCFShadows->value);
-	glUniformMatrix4fv(glGetUniformLocation(m_testShaderProgram, "textureMatrix"), 1, GL_FALSE, textureMatrix);
-
-	glUniform3fv(glGetUniformLocation(m_testShaderProgram, "lightPos"), 1, eyeLightPos);
-	glUniform3fv(glGetUniformLocation(m_testShaderProgram, "spotDir"), 1, -eyeSpotDir);
-
-	GLint loc_spotCosCutoff = glGetUniformLocation(m_testShaderProgram, "spotCosCutoff");
-	float angleDegrees = 90.0f; // adjust to your desired cone angle
-	glUniform1f(glGetUniformLocation(m_testShaderProgram, "spotCosCutoff"), cosf(angleDegrees * M_PI / 180.0f));
-	
+		g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_ZERO);
 }
 
 /*
@@ -6105,183 +4371,129 @@ FinishSpotLight
 */
 void CBSPRenderer::FinishSpotLight(void)
 {
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_spotlight], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 0);
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_onlyshadow], 0);
+}
 
-	glMatrixMode(GL_MODELVIEW);
+// move this somewhere else
 
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
-	glDisable(GL_TEXTURE_GEN_Q);
+struct brushface
+{
+	int startvert = 0, numverts = 0;
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisable(GL_TEXTURE_1D);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_GEN_S);
-
-	if (m_bLightShadow)
+	bool operator<(const brushface& other) const
 	{
-		if (m_pCvarPCFShadows->value >= 1 && m_bShadowPCFSupport)
-			glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-		glActiveTextureARB(GL_TEXTURE2_ARB);
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-
-		glMatrixMode(GL_MODELVIEW);
-
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		glDisable(GL_TEXTURE_GEN_R);
-		glDisable(GL_TEXTURE_GEN_Q);
+		return startvert < other.startvert || (startvert == other.startvert && numverts < other.numverts);
 	}
-}
-
-/*
-====================
-FinishSpotLight
-
-====================
-*/
-void CBSPRenderer::FinishModelShadow(void)
-{
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
-	glDisable(GL_TEXTURE_GEN_Q);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisable(GL_TEXTURE_1D);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_GEN_S);
-
-	if (m_pCvarPCFShadows->value >= 1 && m_bShadowPCFSupport)
-		glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-	glActiveTextureARB(GL_TEXTURE2_ARB);
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-
-	glDisable(GL_ALPHA_TEST);
-
-	glMatrixMode(GL_MODELVIEW);
-
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
-	glDisable(GL_TEXTURE_GEN_Q);
-	glUseProgram(0);
-}
-
-
-/*
-====================
-DrawDynamicLightsForDetails
-
-====================
-*/
-void CBSPRenderer::DrawDynamicLightsForDetails(void)
-{
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
-		return;
-
-	if (m_pCvarDynamic->value < 1)
-		return;
-
-	if (!m_bSecondPassNeeded)
-		return;
-
-	if (gHUD.m_pFogSettings.active)
-		glDisable(GL_FOG);
-
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
-	glDepthFunc(GL_EQUAL);
-
-	// Set this
-	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
-
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
-
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+	bool operator==(const brushface& other) const
 	{
-		if (dl->die < time || !dl->radius)
-			continue;
+		return startvert == other.startvert && numverts == other.numverts;
+	}
+};
 
-		m_pCurrentDynLight = dl;
-		m_vCurDLightOrigin = m_pCurrentDynLight->origin;
+struct brushfacehash
+{
+    std::size_t operator()(const brushface& f) const noexcept
+    {
+        std::size_t h1 = std::hash<int>()(f.startvert);
+        std::size_t h2 = std::hash<int>()(f.numverts);
+        return h1 ^ (h2 << 1); // simple combine
+    }
+};
 
-		if (dl->cone_size)
-		{
-			vec3_t lightangles = m_pCurrentDynLight->angles;
-			FixVectorForSpotlight(lightangles);
-			AngleVectors(lightangles, m_vCurSpotForward, NULL, NULL);
-			SetupSpotLight();
-		}
-		else
-		{
-			SetupDynLight();
-			SetDynLightBBox();
-		}
+void CBSPRenderer::RenderSunShadow()
+{
+	if (!m_pCvarShadows->value || !m_bMainPass)
+		return;
 
-		detailobject_t* pObject = m_pDetailObjects;
-		for (int k = 0; k < m_iNumDetailObjects; k++, pObject++)
+	//	this is just a way to mimic source engine's sun shadows. this works well, for me its good enough, a little weird-
+	//	- but certainly alot better than the previous method which involved making a 256x256 shadowmap for every single-
+	//	- entity on screen and projecting it onto the ground (yuck).
+
+	Vector sunForward, sunUp;
+	static float sunRadius = 8192;
+
+	Vector sunAngles = Vector(75, 0, 0);
+	if (g_StudioRenderer.m_pCvarSkyVecX->value != 0 &&
+		g_StudioRenderer.m_pCvarSkyVecY->value != 0 &&
+		g_StudioRenderer.m_pCvarSkyVecZ->value != 0)
+	{
+		Vector skyvec = Vector(g_StudioRenderer.m_pCvarSkyVecX->value, g_StudioRenderer.m_pCvarSkyVecY->value, g_StudioRenderer.m_pCvarSkyVecZ->value);
+		VectorAngles(skyvec, sunAngles);
+		sunAngles.x *= -1;
+	}
+	AngleVectors(sunAngles, &sunForward, nullptr, &sunUp);
+
+	glm::vec3 glmSunForward = glm::vec3(sunForward.x, sunForward.y, sunForward.z);
+	glm::vec3 glmSunUp = glm::vec3(sunUp.x, sunUp.y, sunUp.z);
+
+	Vector vSunPos = m_vRenderOrigin + -(sunForward * sunRadius / 4);
+
+	glm::vec3 glmvSunPos = glm::vec3(vSunPos.x, vSunPos.y, vSunPos.z);
+	static glm::mat4 sunProjectionMatrix = glm::ortho(-768.f, 768.f, -768.f, 768.f, 1.0f, sunRadius);
+	glm::mat4 sunViewMatrix = glm::lookAt(glmvSunPos, glmvSunPos + glmSunForward, glmSunUp);
+
+	// final texture matrix
+	glm::mat4 textureMatrix = sunProjectionMatrix * sunViewMatrix;
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 1);
+
+	m_WorldShader->UniformMatrix4fv(m_WorldShader_locs[world_spotlight_texturematrix], 1, GL_FALSE, glm::value_ptr(textureMatrix));
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_sundir], 1, glm::value_ptr(glmSunForward));
+	m_WorldShader->Uniform3fv(m_WorldShader_locs[world_light_pos], 1, vSunPos);
+	m_WorldShader->Uniform1f(m_WorldShader_locs[world_light_radius], sunRadius);
+
+	BindGLTexture(SHADOWMAP_TEXUNIT, m_pSunShadowMap->GetTextureID());
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_ZERO);
+
+	for (int i = 0; i < m_iNumTextures; i++)
+	{
+		clientmsurface_t* psurface = (clientmsurface_t*)m_pNormalTextureList[i].texturechain;
+
+		while (psurface)
 		{
-			if (pObject->visframe != m_iFrameCount)
+			if (psurface->flags & SURF_DRAWTURB)
+			{
+				psurface = psurface->texturechain;
 				continue;
-
-			if (dl->cone_size)
-			{
-				if (dl->frustum.CullBox(pObject->mins, pObject->maxs))
-					continue;
-			}
-			else
-			{
-				if (CullDynLightBBox(pObject->mins, pObject->maxs))
-					continue;
 			}
 
-			msurface_t* psurf = m_pDetailObjectSurfaces + pObject->firstsurface;
-			for (int i = 0; i < pObject->numsurfaces; i++, psurf++)
+			mplane_t* plane = psurface->plane;
+
+			float dot; 
+			dot = DotProduct(plane->normal, -sunForward);
+
+			if ((dot < 0) ^ !!(psurface->flags & SURF_PLANEBACK))
 			{
-				if (psurf->visframe == m_iFrameCount) // visible
-				{
-					float dot;
-					mplane_t* pplane = psurf->plane;
-					SSEDotProductSub(&dot, &m_vCurDLightOrigin, &pplane->normal, &pplane->dist);
-					if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
-						(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
-					{
-						if (dot < m_pCurrentDynLight->radius)
-							DrawPolyFromArray(m_pDetailObjectSurfaces, psurf);
-					}
-				}
+				psurface = psurface->texturechain;
+				continue;
 			}
+
+
+			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+			multidraw_startverts[num_multidraws] = (pbrushface->start_vertex);
+			multidraw_numverts[num_multidraws] = (pbrushface->num_vertexes);
+
+			num_multidraws++;
+
+			m_iBSPVertsCounter += pbrushface->num_vertexes;
+
+			psurface = psurface->texturechain;
 		}
 
-		if (dl->cone_size)
-			FinishSpotLight();
-		else
-			FinishDynLight();
 	}
 
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
+	glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+	num_multidraws = 0;
 
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
+	g_GlobalGLState.SetBlend(true);
+
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_shadow], 0);
 }
-
 
 /*
 ====================
@@ -6291,41 +4503,48 @@ DrawDynamicLightsForWorld
 */
 void CBSPRenderer::DrawDynamicLightsForWorld(void)
 {
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
-		return;
 
 	if (m_pCvarDynamic->value < 1)
 		return;
 
-	if (!m_bSecondPassNeeded)
-		return;
-
-	if (gHUD.m_pFogSettings.active)
-		glDisable(GL_FOG);
-
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetDepthWrite(false);
 	glDepthFunc(GL_EQUAL);
 
-	// Set this
-	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
+	if(m_pCvarSunShadowsQuality->value > 0)
+		RenderSunShadow();
 
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
+	float time = engine_cl->time;
 
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+	for (auto &dynlight : m_pDynLights)
 	{
-		if (dl->die < time || !dl->radius)
+		if (dynlight->die < time || !dynlight->radius || ( (dynlight->flags & LIGHT_ONLYSHADOWS) && !m_bMainPass))
 			continue;
 
-		m_pCurrentDynLight = dl;
+		if (dynlight->visframe)
+			if (!IsInPotentiallyVisibleSet(dynlight->visframe))
+				continue;
+
+		m_pCurrentDynLight = dynlight.get();
 		m_vCurDLightOrigin = m_pCurrentDynLight->origin;
 
-		if (dl->cone_size)
+		bool onlyshadows = (m_pCurrentDynLight->flags & LIGHT_ONLYSHADOWS);
+
+		if (onlyshadows)
 		{
-			vec3_t lightangles = m_pCurrentDynLight->angles;
-			FixVectorForSpotlight(lightangles);
-			AngleVectors(lightangles, m_vCurSpotForward, NULL, NULL);
+			float dist = (m_RefParams.vieworg - dynlight->origin).Length();
+			if (dist > 768)
+				continue;
+		}
+
+		if (!m_pCvarShadows->value || !m_bMainPass || !m_pCurrentDynLight->cubedepth)
+			if (onlyshadows)
+				continue;
+		
+		if (dynlight->cone_size)
+		{
+			Vector lightangles = m_pCurrentDynLight->angles;
+			AngleVectors(lightangles, &m_vCurSpotForward, NULL, NULL);
 			SetupSpotLight();
 		}
 		else
@@ -6334,61 +4553,60 @@ void CBSPRenderer::DrawDynamicLightsForWorld(void)
 			SetDynLightBBox();
 		}
 
-		RecursiveWorldNodeLight(m_pWorld->nodes);
+		RecursiveWorldNodeLight(BSPWorld_Model::m_pWorldNodes);
 
 		for (int i = 0; i < m_iNumRenderEntities; i++)
 		{
-			if ((m_pRenderEntities[i]->curstate.renderfx != 70) && !IsEntityMoved(m_pRenderEntities[i]) && !IsEntityTransparent(m_pRenderEntities[i]) && m_pRenderEntities[i]->visframe == m_iFrameCount)
+			auto ent = m_pRenderEntities[i];
+
+			if(!ent->model)
+				continue;
+			if (ent->model->type != mod_brush)
+				continue;
+
+			if ((ent->curstate.renderfx != 70) && !IsEntityMoved(ent) && !IsEntityTransparent(ent) && ent->visframe == m_iFrameCount)
 			{
-				if (dl->cone_size)
+				if (dynlight->cone_size)
 				{
-					if (dl->frustum.CullBox(m_pRenderEntities[i]->curstate.mins, m_pRenderEntities[i]->curstate.maxs))
+					if (dynlight->frustum.CullBox(ent->curstate.mins, ent->curstate.maxs))
 						continue;
 				}
 				else
 				{
-					if (CullDynLightBBox(m_pRenderEntities[i]->curstate.mins, m_pRenderEntities[i]->curstate.maxs))
+					if (CullDynLightBBox(ent->curstate.mins, ent->curstate.maxs))
 						continue;
 				}
 
-				DrawEntityFacesForLight(m_pRenderEntities[i]);
+				DrawEntityFacesForLight(ent);
 			}
 		}
 
-		if (dl->cone_size)
+		if (!num_multidraws)
+		{
+			if (dynlight->cone_size)
+				FinishSpotLight();
+			else
+				FinishDynLight();
+
+			continue;
+		}
+
+		glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+
+		num_multidraws = 0;
+		
+		if (dynlight->cone_size)
 			FinishSpotLight();
 		else
 			FinishDynLight();
 	}
 
-	
-	for (int i = 0; i < m_iNumModelShadows; i++)
-	{
-		if (m_uiShadowDepths[i].above_feet.z == 0.f)
-			continue;
-
-		m_vCurDLightOrigin = m_uiShadowDepths[i].above_feet;
-
-		vec3_t lightangles = Vector(90, 0, 0);
-		FixVectorForSpotlight(lightangles);
-		AngleVectors(lightangles, m_vCurSpotForward, NULL, NULL);
-		SetupModelShadow(m_uiShadowDepths[i]);
-
-		m_pCurrentShadow = &m_uiShadowDepths[i];
-
-		RecursiveWorldNodeShadow(m_pWorld->nodes);
-
-		FinishModelShadow();
-	}
-
-
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+	g_GlobalGLState.SetDepthWrite(true);
 	glDepthFunc(GL_LEQUAL);
-
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
+	m_pCurrentDynLight = nullptr;
 }
+
 
 /*
 ====================
@@ -6396,186 +4614,118 @@ RecursiveWorldNodeLight
 
 ====================
 */
-void CBSPRenderer::RecursiveWorldNodeLight(mnode_t* node)
+void CBSPRenderer::RecursiveWorldNodeLight(clientmnode_t* node)
 {
 	int side;
 	float dot;
 
-	if (node->contents == CONTENTS_SOLID)
-		return; // solid
-
-	if (node->visframe != r_visframecount)
-		return;
-
-	// buz: visible surfaces already marked
-	if (node->contents < 0)
-		return;
-
-	if (!m_pCurrentDynLight->cone_size)
+	while(true)
 	{
-		if (CullDynLightBBox(node->minmaxs, node->minmaxs + 3)) // cull from point light bbox
+		if (node->contents == CONTENTS_SOLID)
+			return; // solid
+
+		if (node->visframe != r_visframecount)
 			return;
-	}
-	else
-	{
-		if (m_pCurrentDynLight->frustum.CullBox(node->minmaxs, node->minmaxs + 3))
+
+		// buz: visible surfaces already marked
+		if (node->contents < 0)
 			return;
-	}
 
-	// node is just a decision point, so go down the apropriate sides
-	// find which side of the node we are on
-
-	mplane_t* plane = node->plane;
-	switch (plane->type)
-	{
-	case PLANE_X:
-		dot = m_vCurDLightOrigin[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = m_vCurDLightOrigin[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = m_vCurDLightOrigin[2] - plane->dist;
-		break;
-	default:
-		SSEDotProductSub(&dot, &m_vCurDLightOrigin, &plane->normal, &plane->dist);
-		break;
-	}
-
-	if (dot >= 0)
-		side = 0;
-	else
-		side = 1;
-
-	// recurse down the children, front side first
-	RecursiveWorldNodeLight(node->children[side]);
-
-	// draw stuff
-	int c = node->numsurfaces;
-	if (c)
-	{
-		msurface_t* surf = m_pWorld->surfaces + node->firstsurface;
-
-		if (dot < 0 - BACKFACE_EPSILON)
-			side = SURF_PLANEBACK;
-		else if (dot > BACKFACE_EPSILON)
-			side = 0;
-
-		for (; c; c--, surf++)
+		if (!m_pCurrentDynLight->cone_size)
 		{
-			if (surf->visframe != m_iFrameCount)
-				continue;
-
-			if (surf->flags & SURF_DRAWTURB)
-				continue;
-
-			if (surf->flags & SURF_DRAWSKY)
-				continue;
-
-			// don't backface underwater surfaces, because they warp
-			if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
-				continue; // wrong side
-
-			mplane_t* pplane = surf->plane;
-			SSEDotProductSub(&dot, &m_vCurDLightOrigin, &surf->plane->normal, &surf->plane->dist);
-
-			if (dot < m_pCurrentDynLight->radius)
-				DrawPolyFromArray(m_pWorld->surfaces, surf);
+			if (CullDynLightBBox(node->minmaxs, node->minmaxs + 3)) // cull from point light bbox
+				return;
 		}
-	}
-
-	// recurse down the back side
-	RecursiveWorldNodeLight(node->children[!side]);
-}
-
-/*
-====================
-RecursiveWorldNodeLight
-
-====================
-*/
-void CBSPRenderer::RecursiveWorldNodeShadow(mnode_t* node)
-{
-	int side;
-	float dot;
-
-	if (node->contents == CONTENTS_SOLID)
-		return; // solid
-
-	if (node->visframe != r_visframecount)
-		return;
-
-	// buz: visible surfaces already marked
-	if (node->contents < 0)
-		return;
-
-	if (m_pCurrentShadow->frustum.CullBox(node->minmaxs, node->minmaxs + 3))
-		return;
-
-	// node is just a decision point, so go down the apropriate sides
-	// find which side of the node we are on
-
-	mplane_t* plane = node->plane;
-	switch (plane->type)
-	{
-	case PLANE_X:
-		dot = m_vCurDLightOrigin[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = m_vCurDLightOrigin[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = m_vCurDLightOrigin[2] - plane->dist;
-		break;
-	default:
-		SSEDotProductSub(&dot, &m_vCurDLightOrigin, &plane->normal, &plane->dist);
-		break;
-	}
-
-	if (dot >= 0)
-		side = 0;
-	else
-		side = 1;
-
-	// recurse down the children, front side first
-	RecursiveWorldNodeShadow(node->children[side]);
-
-	// draw stuff
-	int c = node->numsurfaces;
-	if (c)
-	{
-		msurface_t* surf = m_pWorld->surfaces + node->firstsurface;
-
-		if (dot < 0 - BACKFACE_EPSILON)
-			side = SURF_PLANEBACK;
-		else if (dot > BACKFACE_EPSILON)
-			side = 0;
-
-		for (; c; c--, surf++)
+		else
 		{
-			if (surf->visframe != m_iFrameCount)
-				continue;
-
-			if (surf->flags & SURF_DRAWTURB)
-				continue;
-
-			if (surf->flags & SURF_DRAWSKY)
-				continue;
-
-			// don't backface underwater surfaces, because they warp
-			if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
-				continue; // wrong side
-
-			mplane_t* pplane = surf->plane;
-			SSEDotProductSub(&dot, &m_vCurDLightOrigin, &surf->plane->normal, &surf->plane->dist);
-
-			if (dot < 1000)
-				DrawPolyFromArray(m_pWorld->surfaces, surf);
+			if (m_pCurrentDynLight->frustum.CullBox(node->minmaxs, node->minmaxs + 3))
+				return;
 		}
+
+		// node is just a decision point, so go down the apropriate sides
+		// find which side of the node we are on
+
+		mplane_t* plane = node->plane;
+		if (plane->type <= PLANE_Z)
+		{
+			dot = m_vCurDLightOrigin[plane->type] - plane->dist;
+		}
+		else
+		{
+			dot = DotProduct(m_vCurDLightOrigin, plane->normal) - plane->dist;
+		}
+
+		side = dot >= 0 ? 0 : 1;
+
+		// recurse down the children, front side first
+		RecursiveWorldNodeLight(node->children[side]);
+
+		// draw stuff
+		int c = node->numsurfaces;
+		if (c)
+		{
+			clientmsurface_t* surf = BSPWorld_Model::m_pWorldSurfaces + node->firstsurface;
+
+			for (; c; c--, surf++)
+			{
+				if (surf->visframe != m_iFrameCount)
+					continue;
+
+				if (surf->flags & SURF_DRAWTURB)
+					continue;
+
+				if (surf->flags & SURF_DRAWSKY)
+					continue;
+
+				// don't backface underwater surfaces, because they warp
+				if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
+					continue; // wrong side
+
+				DotProductSub(&dot, &m_vCurDLightOrigin, &surf->plane->normal, &surf->plane->dist);
+
+				if (dot < m_pCurrentDynLight->radius)
+				{
+					int surfaceIndex = surf - BSPWorld_Model::m_pWorldSurfaces;
+					brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+
+					multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+					multidraw_numverts[num_multidraws] = pbrushface->num_vertexes;
+					num_multidraws++;
+				}
+			}
+		}
+
+		// recurse down the back side
+		// NOTE: With this while loop, this is identical to just calling
+		// RecursiveWorldNodeLight(node->children[!side]);
+		node = node->children[!side];
 	}
 
-	// recurse down the back side
-	RecursiveWorldNodeShadow(node->children[!side]);
+//	for (int i = 0; i < m_iNumTextures; i++)
+//	{
+//		msurface_t* psurface = m_pNormalTextureList[i].texturechain;
+//
+//		while (psurface)
+//		{
+//			float dot;
+//	
+//			mplane_t* pplane = psurface->plane;
+//			DotProductSub(&dot, &m_vCurDLightOrigin, &psurface->plane->normal, &psurface->plane->dist);
+//	
+//			if (dot > m_pCurrentDynLight->radius)
+//			{
+//				psurface = psurface->texturechain;
+//				continue;
+//			}
+//	
+//			int surfaceIndex = psurface - BSPWorld_Model::m_pWorldSurfaces;
+//			brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
+//	
+//			faces_.insert({pbrushface->start_vertex, pbrushface->num_vertexes});
+//	
+//			psurface = psurface->texturechain;
+//		}
+//	}
 }
 
 /*
@@ -6584,28 +4734,23 @@ DynamicLighted
 
 ====================
 */
-bool CBSPRenderer::DynamicLighted(const vec3_t& vmins, const vec3_t& vmaxs)
+bool CBSPRenderer::DynamicLighted(const Vector& vmins, const Vector& vmaxs)
 {
-	if (!m_bSecondPassNeeded)
-		return false;
-
 	if (IsEntityTransparent(m_pCurrentEntity))
 		return false;
 
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
-
-	for (int i = 0; i < MAX_DYNLIGHTS; i++)
+	float time = engine_cl->time;
+	for (auto &dynlight : m_pDynLights)
 	{
-		if (dl[i].die < time || !dl[i].radius)
+		if (dynlight->die < time || !dynlight->radius)
 			continue;
 
-		m_pCurrentDynLight = &dl[i];
+		m_pCurrentDynLight = dynlight.get();
 		m_vCurDLightOrigin = m_pCurrentDynLight->origin;
 
 		if (m_pCurrentDynLight->cone_size)
 		{
-			if (m_pCurrentDynLight->frustum.CullBox((vec3_t)vmins, (vec3_t)vmaxs))
+			if (m_pCurrentDynLight->frustum.CullBox((Vector)vmins, (Vector)vmaxs))
 				continue;
 		}
 		else
@@ -6615,11 +4760,11 @@ bool CBSPRenderer::DynamicLighted(const vec3_t& vmins, const vec3_t& vmaxs)
 				continue;
 		}
 
+		m_pCurrentDynLight = nullptr;
+
 		return true;
 	}
-	if (m_iNumModelShadows > 0)
-		return true;
-
+	m_pCurrentDynLight = nullptr;
 	return false;
 }
 
@@ -6631,16 +4776,10 @@ DrawDynamicLightsForEntity
 */
 void CBSPRenderer::DrawDynamicLightsForEntity(cl_entity_t* pEntity)
 {
-	vec3_t mins, maxs;
+	Vector mins, maxs;
 	int rotated;
 
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
-		return;
-
-	if (!m_bSecondPassNeeded)
-		return;
-
-	if (m_pCvarDynamic->value < 1)
+	if (m_pCvarDynamic->value < 1 || !HasDynLights())
 		return;
 
 	if (pEntity->angles[0] || pEntity->angles[1] || pEntity->angles[2])
@@ -6659,53 +4798,43 @@ void CBSPRenderer::DrawDynamicLightsForEntity(cl_entity_t* pEntity)
 		maxs = pEntity->model->maxs;
 	}
 
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
+	float time = engine_cl->time;
 
-	if (gHUD.m_pFogSettings.active)
-		glDisable(GL_FOG);
-
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetDepthWrite(false);
 	glDepthFunc(GL_EQUAL);
 
-	for (int l = 0; l < MAX_DYNLIGHTS; l++, dl++)
+	for (auto &dynlight : m_pDynLights)
 	{
-		vec3_t temp, forward, right, up;
+		Vector temp, forward, right, up;
 
-		if (dl->die < time || !dl->radius)
+		if (dynlight->die < time || !dynlight->radius)
 			continue;
 
-		m_pCurrentDynLight = dl;
+		m_pCurrentDynLight = dynlight.get();
+		m_vCurDLightOrigin = m_pCurrentDynLight->origin;
 
-		VectorSubtract(m_pCurrentDynLight->origin, pEntity->origin, m_vCurDLightOrigin);
-		if (rotated)
+		bool onlyshadows = (m_pCurrentDynLight->flags & LIGHT_ONLYSHADOWS);
+
+		if (onlyshadows)
 		{
-			AngleVectors(pEntity->angles, forward, right, up);
-
-			VectorCopy(m_vCurDLightOrigin, temp);
-			m_vCurDLightOrigin[0] = DotProduct(temp, forward);
-			m_vCurDLightOrigin[1] = -DotProduct(temp, right);
-			m_vCurDLightOrigin[2] = DotProduct(temp, up);
+			float dist = (m_RefParams.vieworg - dynlight->origin).Length();
+			if (dist > 768)
+				continue;
 		}
+
+		if (!m_pCvarShadows->value || !m_bMainPass || !m_pCurrentDynLight->cubedepth)
+			if (onlyshadows)
+				continue;
 
 		if (m_pCurrentDynLight->cone_size)
 		{
-			vec3_t tmins, tmaxs;
+			Vector tmins, tmaxs;
 			VectorAdd(mins, m_pCurrentEntity->origin, tmins);
 			VectorAdd(maxs, m_pCurrentEntity->origin, tmaxs);
 
 			if (m_pCurrentDynLight->frustum.CullBox(tmins, tmaxs))
 				continue;
-
-			AngleVectors(m_pCurrentDynLight->angles, m_vCurSpotForward, NULL, NULL);
-			if (rotated)
-			{
-				VectorCopy(m_vCurSpotForward, temp);
-				m_vCurSpotForward[0] = DotProduct(temp, forward);
-				m_vCurSpotForward[1] = -DotProduct(temp, right);
-				m_vCurSpotForward[2] = DotProduct(temp, up);
-			}
 
 			SetupSpotLight();
 		}
@@ -6719,20 +4848,32 @@ void CBSPRenderer::DrawDynamicLightsForEntity(cl_entity_t* pEntity)
 			SetupDynLight();
 		}
 
+		
+		VectorSubtract(m_pCurrentDynLight->origin, pEntity->origin, m_vCurDLightOrigin);
+		if (rotated)
+		{
+			AngleVectors(pEntity->angles, &forward, &right, &up);
+		
+			VectorCopy(m_vCurDLightOrigin, temp);
+			m_vCurDLightOrigin[0] = DotProduct(temp, forward);
+			m_vCurDLightOrigin[1] = -DotProduct(temp, right);
+			m_vCurDLightOrigin[2] = DotProduct(temp, up);
+		}
+
+
 		DrawEntityFacesForLight(pEntity);
 
-		if (dl->cone_size)
+		if (dynlight->cone_size)
 			FinishSpotLight();
 		else
 			FinishDynLight();
 	}
 
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+	g_GlobalGLState.SetDepthWrite(true);
 	glDepthFunc(GL_LEQUAL);
-
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
+	m_pCurrentDynLight = nullptr;
 }
 
 /*
@@ -6744,7 +4885,7 @@ DrawEntityFacesForLight
 void CBSPRenderer::DrawEntityFacesForLight(cl_entity_t* pEntity)
 {
 	float dot;
-	msurface_t* psurf = &m_pWorld->surfaces[pEntity->model->firstmodelsurface];
+	clientmsurface_t* psurf = &BSPWorld_Model::m_pWorldSurfaces[pEntity->model->firstmodelsurface];
 	for (int i = 0; i < pEntity->model->nummodelsurfaces; i++, psurf++)
 	{
 		if (psurf->flags & SURF_DRAWTURB)
@@ -6756,12 +4897,12 @@ void CBSPRenderer::DrawEntityFacesForLight(cl_entity_t* pEntity)
 		if (psurf->visframe == m_iFrameCount) // visible
 		{
 			mplane_t* pplane = psurf->plane;
-			SSEDotProductSub(&dot, &m_vCurDLightOrigin, &pplane->normal, &pplane->dist);
+			DotProductSub(&dot, &m_vCurDLightOrigin, &pplane->normal, &pplane->dist);
 			if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 				(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 			{
 				if (dot < m_pCurrentDynLight->radius)
-					DrawPolyFromArray(m_pWorld->surfaces, psurf);
+					DrawPolyFromArray(BSPWorld_Model::m_pWorldSurfaces, psurf);
 			}
 		}
 	}
@@ -6800,7 +4941,7 @@ void CBSPRenderer::InitSky(void)
 		}
 		else
 		{
-			pTexture = gTextureLoader.LoadTexture(szPathS, FALSE, true, true);
+			pTexture = gTextureLoader.LoadTexture(szPathS, true, true);
 
 			if (!pTexture)
 			{
@@ -6831,115 +4972,105 @@ void CBSPRenderer::DrawSky(void)
 	static float projection[16];
 
 	if (!m_bDrawSky)
-	{
-		if (m_bMirroring)
-		{
-			//fix weird water framebuffer issue
-			ResetRenderer();
-			glClear(GL_DEPTH_BUFFER_BIT);
-		}
-
 		return;
-	}
 
-	if (gHUD.m_pSkyFogSettings.active)
+	m_SimpleSkyboxShader->Bind();
+	m_pSimpleSkyVAO->BindVAO();
+
+	glm::mat4 viewrotation = m_ViewMatrix;
+	viewrotation[3][0] = viewrotation[3][1] = viewrotation[3][2] = 0;
+
+	m_SimpleSkyboxShader->UniformMatrix4fv(m_SimpleSkyboxShader_locs[skybox_projviewmatrix], 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix * viewrotation));
+	m_SimpleSkyboxShader->Uniform1i(m_SimpleSkyboxShader_locs[skybox_skyfog], gHUD.m_pFogSettings.affectsky);
+	m_SimpleSkyboxShader->Uniform3fv(m_SimpleSkyboxShader_locs[skybox_fogcolor], 1, gHUD.m_pFogSettings.color);
+
+	for (int i = 0; i < 6; i++)
 	{
-		memcpy(&pSaved, &gHUD.m_pFogSettings, sizeof(fog_settings_t));
-		memcpy(&gHUD.m_pFogSettings, &gHUD.m_pSkyFogSettings, sizeof(fog_settings_t));
-		gHUD.m_pFogSettings.end = gHUD.m_pFogSettings.end / m_fSkySpeed;
-		gHUD.m_pFogSettings.start = gHUD.m_pFogSettings.start / m_fSkySpeed;
-		ClearToFogColor();
-		RenderFog();
+		BindGLTexture(GL_TEXTURE0, m_iSkyTextures[i]);
+		glDrawArrays(GL_TRIANGLES, i * 6, 6);
 	}
 
-	if (gHUD.m_pFogSettings.active)
+	GL_ShaderProgram::ResetShaderBind();
+
+
+	if (m_vSkyOrigin != Vector(0, 0, 0) && m_pCvar3DSkybox->value && m_bMainPass)
 	{
-		if (!gHUD.m_pFogSettings.affectsky)
-			glDisable(GL_FOG);
+		m_bMainPass = !m_bMainPass;
+
+		Vector oldrenderorigin = m_vRenderOrigin;
+		glm::mat4 oldviewmatrix = m_ViewMatrix;
+		glm::mat4 oldprojmatrix = m_ProjectionMatrix;
+		FrustumCheck oldfrustum = gHUD.viewFrustum;
+		ref_params_t oldviewparams = m_RefParams;
+
+		float fov = gHUD.m_iFOV;
+		if (!fov)
+			return;
+		float fovy = fov;
+
+		AdjustFOV(&fov, &fovy, ScreenWidth, ScreenHeight, 0);
+
+		float aspect = (float)ScreenWidth / (float)ScreenHeight;
+
+		m_ProjectionMatrix = glm::perspective(fov, aspect, 1.f, 16384.f);
+
+
+		m_vRenderOrigin = (m_vSkyOrigin + m_vRenderOrigin * 0.0005f);
+
+		Vector viewangles = m_vViewAngles;
+		Vector forward, right, up;
+		AngleVectors(viewangles, &forward, &right, &up);
+
+		glm::vec3 cameraForward = glm::vec3(forward.x, forward.y, forward.z);
+		glm::vec3 cameraUp = glm::vec3(up.x, up.y, up.z);
+
+		glm::vec3 cameraPos = glm::vec3(m_vRenderOrigin.x, m_vRenderOrigin.y, m_vRenderOrigin.z);
+		glm::vec3 cameraTarget = cameraPos + cameraForward;
+
+		clientmleaf_t* skyboxleaf = Mod_PointInLeaf(m_vRenderOrigin);
+
+		R_MarkLeaves(skyboxleaf);
+
+		m_ViewMatrix = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+		gHUD.viewFrustum.SetFrustum(viewangles, m_vRenderOrigin, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
+
+		fog_settings_t restorefog = gHUD.m_pFogSettings;
+		gHUD.m_pFogSettings.end *= 0.2;
+
+		m_RefParams.vieworg = m_vRenderOrigin;
+		m_RefParams.forward = forward;
+		m_RefParams.right = right;
+		m_RefParams.up = up;
+		g_StudioRenderer.StudioPreFrame(&m_RefParams);
+
+		DrawWorld(true);
+
+		//fog disabled for studiomdl static props for now, theyre a bit messed up 
+		//gHUD.m_pFogSettings.active = 0;
+
+		gPropManager.RenderProps(true);
+
+		gHUD.m_pFogSettings = restorefog;
+
+		m_vRenderOrigin = oldrenderorigin;
+		m_ViewMatrix = oldviewmatrix;
+		m_ProjectionMatrix = oldprojmatrix;
+		gHUD.viewFrustum = oldfrustum;
+		m_RefParams = oldviewparams;
+		
+		m_bMainPass = !m_bMainPass;
+
+
+		g_StudioRenderer.StudioPreFrame(&m_RefParams);
+
+		//SALSATOBIAS: hackyyyy please improve
+
+		r_oldviewleaf = nullptr;
+		R_MarkLeaves(m_pViewLeaf);
 	}
 
-	if (m_bMirroring)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, projection);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-	}
-
-	if (!gHUD.m_pFogSettings.affectsky || !gHUD.m_pFogSettings.active)
-	{
-		glDisable(GL_BLEND);
-		glDepthMask(GL_FALSE);
-		glDepthFunc(GL_LEQUAL);
-
-		SetTexEnvs(ENVSTATE_REPLACE, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-
-		vec3_t m_vPoints[8];
-		m_vPoints[0] = m_vRenderOrigin + Vector(0, -10, 0) - Vector(10, 0, 0) + Vector(0, 0, -10);
-		m_vPoints[1] = m_vRenderOrigin + Vector(0, -10, 0) + Vector(10, 0, 0) + Vector(0, 0, -10);
-		m_vPoints[2] = m_vRenderOrigin - Vector(0, -10, 0) + Vector(10, 0, 0) + Vector(0, 0, -10);
-		m_vPoints[3] = m_vRenderOrigin - Vector(0, -10, 0) - Vector(10, 0, 0) + Vector(0, 0, -10);
-		m_vPoints[4] = m_vRenderOrigin + Vector(0, -10, 0) - Vector(10, 0, 0) - Vector(0, 0, -10);
-		m_vPoints[5] = m_vRenderOrigin + Vector(0, -10, 0) + Vector(10, 0, 0) - Vector(0, 0, -10);
-		m_vPoints[6] = m_vRenderOrigin - Vector(0, -10, 0) + Vector(10, 0, 0) - Vector(0, 0, -10);
-		m_vPoints[7] = m_vRenderOrigin - Vector(0, -10, 0) - Vector(10, 0, 0) - Vector(0, 0, -10);
-
-		int m_iIDs[6][4] = {
-			{1, 2, 6, 5}, {2, 3, 7, 6}, {3, 0, 4, 7},
-			{0, 1, 5, 4}, {2, 1, 0, 3}, {7, 4, 5, 6}};
-
-		glDepthMask(GL_FALSE);
-		for (int i = 0; i < 6; i++)
-		{
-			Bind2DTexture(GL_TEXTURE0_ARB, m_iSkyTextures[i]);
-			glBegin(GL_POLYGON);
-			glTexCoord2i(0, 1);
-			glVertex3fv(m_vPoints[m_iIDs[i][0]]);
-			glTexCoord2i(1, 1);
-			glVertex3fv(m_vPoints[m_iIDs[i][1]]);
-			glTexCoord2i(1, 0);
-			glVertex3fv(m_vPoints[m_iIDs[i][2]]);
-			glTexCoord2i(0, 0);
-			glVertex3fv(m_vPoints[m_iIDs[i][3]]);
-			glEnd();
-		}
-		glDepthMask(GL_TRUE);
-	}
-
-	if (gHUD.m_pFogSettings.active)
-		glEnable(GL_FOG);
-
-	// Render all skybox solid ents
-	EnableVertexArray();
-	for (int i = 0; i < m_iNumRenderEntities; i++)
-	{
-		if (m_pRenderEntities[i]->curstate.renderfx == 70)
-			DrawBrushModel(m_pRenderEntities[i], false);
-	}
-
-	ResetRenderer();
-	DisableVertexArray();
-
-	// Render all skybox prop entities
-	gPropManager.RenderSkyProps();
-
-	// Clear depth buffer for the final time
 	glClear(GL_DEPTH_BUFFER_BIT);
-
-	if (gHUD.m_pSkyFogSettings.active)
-	{
-		memcpy(&gHUD.m_pFogSettings, &pSaved, sizeof(fog_settings_t));
-		RenderFog();
-	}
-
-	if (m_bMirroring)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadMatrixf(projection);
-
-		glMatrixMode(GL_MODELVIEW);
-	}
 };
 
 /*
@@ -6951,47 +5082,50 @@ CL_AllocDLight
 cl_dlight_t* CBSPRenderer::CL_AllocDLight(int key)
 {
 	int i;
-	cl_dlight_t* dl;
-	float time = gEngfuncs.GetClientTime();
+	float time = engine_cl->time;
 
 	// first look for an exact key match
 	if (key)
 	{
-		dl = m_pDynLights;
-		for (i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+		for (auto &dlight : m_pDynLights)
 		{
-			if (dl->key == key)
+			if (dlight->key == key)
 			{
-				GLuint idepth = dl->depth;
-				memset(dl, 0, sizeof(*dl));
-				dl->key = key;
-				dl->depth = idepth;
-				return dl;
+				GL_ShadowMap* idepth = dlight->depth;
+				GL_ShadowMap* cubedepth = dlight->cubedepth;
+				memset(dlight.get(), 0, sizeof(cl_dlight_t));
+				dlight->key = key;
+				dlight->depth = idepth;
+				dlight->cubedepth = cubedepth;
+				return dlight.get();
 			}
 		}
 	}
-
+	
 	// then look for anything else
-	dl = m_pDynLights;
-	for (i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+	for (auto& dlight : m_pDynLights)
 	{
-		if (dl->die < time)
+		if (dlight->die < time)
 		{
-			GLuint idepth = dl->depth;
-			memset(dl, 0, sizeof(*dl));
-			dl->key = key;
-			dl->depth = idepth;
-			return dl;
+			GL_ShadowMap* idepth = dlight->depth;
+			GL_ShadowMap* cubedepth = dlight->cubedepth;
+			memset(dlight.get(), 0, sizeof(cl_dlight_t));
+			dlight->key = key;
+			dlight->depth = idepth;
+			dlight->cubedepth = cubedepth;
+			return dlight.get();
 		}
 	}
 
-	dl = &m_pDynLights[0];
-	GLuint idepth = dl->depth;
-	memset(dl, 0, sizeof(*dl));
-	dl->key = key;
-	dl->depth = idepth;
-	dl->justspawned = false;
-	return dl;
+	cl_dlight_t* dlight = m_pDynLights.emplace_back(std::make_unique<cl_dlight_t>()).get();
+	GL_ShadowMap* idepth = nullptr;
+	GL_ShadowMap* cubedepth = nullptr;
+	memset(dlight, 0, sizeof(cl_dlight_t));
+	dlight->key = key;
+	dlight->depth = idepth;
+	dlight->cubedepth = cubedepth;
+	dlight->justspawned = false;
+	return dlight;
 }
 
 /*
@@ -7004,7 +5138,7 @@ void CBSPRenderer::DecayLights(void)
 {
 	static float lasttime = 0;
 
-	float time = gEngfuncs.GetClientTime();
+	float time = engine_cl->time;
 	float frametime = time - lasttime;
 
 	if (frametime > 1)
@@ -7015,24 +5149,33 @@ void CBSPRenderer::DecayLights(void)
 
 	lasttime = time;
 
-	cl_dlight_t* dl = m_pDynLights;
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+	for (int i = 0; i < m_pDynLights.size();)
 	{
-		if (dl->die < time || !dl->radius)
+		auto &dlight = m_pDynLights[i];
+		if (dlight->die < time || !dlight->radius)
 		{
-			if (!dl->justspawned)
+			if (!dlight->justspawned)
+			{
+				if (dlight->depth)
+					GL_ShadowMap::DeAllocateShadowMap(dlight->depth);
+				else if (dlight->cubedepth)
+					GL_ShadowMap::DeAllocateShadowMap(dlight->cubedepth);
+
+				m_pDynLights.erase(m_pDynLights.begin() + i);
 				continue;
+			}
 			else
 			{
-				dl->die = time;
-				dl->justspawned = false;
+				dlight->justspawned = false;
 			}
 		}
 
-		dl->radius -= frametime * dl->decay;
+		dlight->radius -= frametime * dlight->decay;
 
-		if (dl->radius < 0)
-			dl->radius = 0;
+		if (dlight->radius < 0)
+			dlight->radius = 0;
+
+		i++;
 	}
 }
 
@@ -7098,221 +5241,354 @@ int CBSPRenderer::MsgDynLight(const char* pszName, int iSize, void* pbuf)
 	dl->origin.x = READ_COORD();
 	dl->origin.y = READ_COORD();
 	dl->origin.z = READ_COORD();
-	dl->radius = READ_BYTE() * 10;
+	dl->radius = READ_BYTE() * 64;
 	dl->color.x = (float)READ_BYTE() / 255;
 	dl->color.y = (float)READ_BYTE() / 255;
 	dl->color.z = (float)READ_BYTE() / 255;
-	dl->die = READ_LONG() + gEngfuncs.GetClientTime();
+	dl->die = READ_FLOAT() + engine_cl->time;
 	dl->decay = READ_BYTE() * 10;
+	dl->flags |= LIGHT_CASTSHADOWS;
 	return 1;
 }
 
 /*
 ====================
-DrawShadowPasses
+Make_ShadowMaps
+
+purpose: Generates all the shadowmaps that are to be projected in the main view pass
 
 ====================
 */
-void CBSPRenderer::DrawShadowPasses(void)
+void CBSPRenderer::Make_ShadowMaps(void)
 {
-	if (!m_bShaderSupport || m_pCvarWorldShaders->value <= 0)
-		return;
+	m_iNumTotalShadows = 0;
 
 	if (m_pCvarDynamic->value < 1)
 		return;
 
-	if (!m_bShadowSupport || m_pCvarShadows->value < 1)
+	if (m_pCvarShadows->value < 1)
 		return;
 
-	float time = gEngfuncs.GetClientTime();
-	cl_dlight_t* dl = m_pDynLights;
+	GL_ShaderProgram::ResetShaderBind();
 
-	R_SaveGLStates();
-	RenderFog();
+	float time = engine_cl->time;
 
-	for (int i = 0; i < MAX_DYNLIGHTS; i++, dl++)
+
+	glm::mat4 oldprojection = m_ProjectionMatrix;
+	glm::mat4 oldviewmatrix = m_ViewMatrix;
+	FrustumCheck oldfrustum = gHUD.viewFrustum;
+
+	Vector restoreviewangles = m_vViewAngles;
+	Vector restorerenderorigin = m_vRenderOrigin;
+
+
+
+	GL_ShadowMap::StartShadowMapping();
+
+	if (m_pCvarSunShadowsQuality->value > 0)
+		Generate_Sun_Shadow();
+
+	for (auto &dynlight : m_pDynLights)
 	{
-		if (dl->die < time || !dl->radius || !dl->cone_size || dl->noshadow)
+		if (dynlight->die < time || !dynlight->radius || !(dynlight->flags & LIGHT_CASTSHADOWS))
 			continue;
 
-		m_pCurrentDynLight = dl;
-		CreateShadowMap();
-	}
-	R_RestoreGLStates();
-}
+		if(dynlight->visframe)
+			if (!CHECKVISBIT(m_pPVS, dynlight->visframe))
+				continue;
 
-/*
-====================
-CreateShadowMap
-
-====================
-*/
-void CBSPRenderer::CreateShadowMap(void)
-{
-	float flProj[16];
-	float flModel[16];
-
-	// Doing this otherwise fucks shit up
-	glGetFloatv(GL_PROJECTION_MATRIX, flProj);
-	glGetFloatv(GL_MODELVIEW_MATRIX, flModel);
-
-	// Ahh I love polygonoffset
-	glPolygonOffset(5, 0);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-
-	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
-	glColorMask(GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO);
-
-	glCullFace(GL_FRONT);
-	glDisable(GL_BLEND);
-	glDisable(GL_FOG);
-	glShadeModel(GL_FLAT);
-
-	glViewport(GL_ZERO, GL_ZERO, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION);
-
-	// Disable texturing
-	SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-
-	float flSize = tan((M_PI / 360) * m_pCurrentDynLight->cone_size);
-	float flFrustum[] = {2 / (flSize * 2), 0, 0, 0, 0, 2 / (flSize * 2), 0, 0, 0, 0, -1, -1, 0, 0, -2, 0};
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMultMatrixf(flFrustum);
-
-	// Asscawks
-	vec3_t vAngles = m_pCurrentDynLight->angles;
-	FixVectorForSpotlight(vAngles);
-	AngleVectors(vAngles, m_vCurSpotForward, NULL, NULL);
-
-	int bReversed = IsPitchReversed(m_pCurrentDynLight->angles[PITCH]);
-	vec3_t vTarget = m_pCurrentDynLight->origin + (m_vCurSpotForward * m_pCurrentDynLight->radius);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	MyLookAt(m_pCurrentDynLight->origin[0], m_pCurrentDynLight->origin[1], m_pCurrentDynLight->origin[2], vTarget[0], vTarget[1], vTarget[2], 0, 0, bReversed ? -1 : 1);
-
-	DrawWorldSolid();
-
-	for (int i = 0; i < m_iNumRenderEntities; i++)
-	{
-		if (m_pRenderEntities[i]->model->type != mod_studio)
-			continue;
-
-		if (!m_pRenderEntities[i]->player)
+		if (dynlight->flags & LIGHT_ONLYSHADOWS)
 		{
-			g_StudioRenderer.m_pCurrentEntity = gBSPRenderer.m_pRenderEntities[i];
-			g_StudioRenderer.StudioDrawModelSolid();
+			float dist = (m_RefParams.vieworg - dynlight->origin).Length();
+			if (dist > 768)
+				continue;
+		}
+
+		m_pCurrentDynLight = dynlight.get();
+		if (dynlight->cone_size)
+		{
+			Generate_Spotlight_Shadow();
+			dynlight->depth->SetPosition(dynlight->origin);
+		}
+		else
+		{
+			Generate_Pointlight_Shadow();
+			dynlight->cubedepth->SetPosition(dynlight->origin);
 		}
 	}
 
+	m_ProjectionMatrix = oldprojection;
+	m_ViewMatrix = oldviewmatrix;
+	gHUD.viewFrustum = oldfrustum;
+
+	m_vViewAngles = restoreviewangles;
+	m_vRenderOrigin = restorerenderorigin;
+
+	r_oldviewleaf = nullptr;
+	R_MarkLeaves(m_pViewLeaf);
+
+	m_pCurrentDynLight = nullptr;
+
+	GL_ShadowMap::EndShadowMapping();
+
+}
+
+cl_dlight_t dummylight;
+
+void CBSPRenderer::Generate_Sun_Shadow()
+{
+	m_pSunShadowMap->InitRendering(Vector(1, 1, 0));
+
+	m_bSunShadowMapPass = true;
+
+	glm::mat4 oldprojection = m_ProjectionMatrix;
+	glm::mat4 oldviewmatrix = m_ViewMatrix;
+	FrustumCheck oldfrustum = gHUD.viewFrustum;
+	Vector oldviewangles = m_vViewAngles;
+	Vector oldrenderorigin = m_vRenderOrigin;
+
+	gHUD.viewFrustum.SetFrustum(m_vViewAngles, m_vRenderOrigin, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
+
+	//static Vector sunForward = Vector(0, 0, -1);
+	//static Vector sunUp = Vector(-1, 0, 0);
+	Vector sunForward, sunUp;
+	static float sunRadius = 8192;
+
+	Vector sunAngles = Vector(75, 0, 0);
+	if (g_StudioRenderer.m_pCvarSkyVecX->value != 0 && 
+		g_StudioRenderer.m_pCvarSkyVecY->value != 0 && 
+		g_StudioRenderer.m_pCvarSkyVecZ->value != 0)
+	{
+		Vector skyvec = Vector(g_StudioRenderer.m_pCvarSkyVecX->value, g_StudioRenderer.m_pCvarSkyVecY->value, g_StudioRenderer.m_pCvarSkyVecZ->value);
+		VectorAngles(skyvec, sunAngles);
+		sunAngles.x *= -1;
+	}
+	m_vViewAngles = sunAngles;
+	AngleVectors(m_vViewAngles, &sunForward, nullptr, &sunUp);
+	VectorAngles(sunForward, m_vViewAngles);
+	m_vViewAngles.x *= -1;
+	
+	glm::vec3 glmSunForward = glm::vec3(sunForward.x, sunForward.y, sunForward.z);
+	glm::vec3 glmSunUp = glm::vec3(sunUp.x, sunUp.y, sunUp.z);
+	
+	m_vRenderOrigin = m_vRenderOrigin + -(sunForward * sunRadius / 4);
+	m_pCurrentDynLight = &dummylight;
+	m_pCurrentDynLight->origin = m_vRenderOrigin;
+	m_pCurrentDynLight->radius = sunRadius;
+	glm::vec3 glmvSunPos = glm::vec3(m_vRenderOrigin.x, m_vRenderOrigin.y, m_vRenderOrigin.z);
+	m_ProjectionMatrix = glm::ortho(-768.f, 768.f, -768.f, 768.f, 1.0f, sunRadius);
+	m_ViewMatrix = glm::lookAt(glmvSunPos, glmvSunPos + glmSunForward, glmSunUp);
+
+	if (m_pCvarSunShadowsQuality->value > 1)
+		DrawWorldSolid();
+	
+	
+	g_StudioRenderer.StudioDrawModelsSolid();
+
 	gPropManager.RenderPropsSolid();
 
-	// Save Depth Buffer
-	glBindTexture(GL_TEXTURE_2D, m_pCurrentDynLight->depth);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, 0, 0, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION, 0);
 
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
-	glColorMask(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
 
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	m_ProjectionMatrix = oldprojection;
+	m_ViewMatrix = oldviewmatrix;
+	gHUD.viewFrustum = oldfrustum;
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(flProj);
+	m_vViewAngles = oldviewangles;
+	m_vRenderOrigin = oldrenderorigin;
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(flModel);
+	m_pSunShadowMap->FinishRendering();
+
+	m_bSunShadowMapPass = false;
 }
 
 /*
 ====================
-CreateShadowMap
+Generate_Spotlight_Shadow
+
+purpose: generates a shadow depth texture for the current spotlight.
 
 ====================
 */
-void CBSPRenderer::CreateCustomShadow(cl_entity_s *model)
+void CBSPRenderer::Generate_Spotlight_Shadow(void)
 {
-	float flProj[16];
-	float flModel[16];
 
-	// Doing this otherwise fucks shit up
-	glGetFloatv(GL_PROJECTION_MATRIX, flProj);
-	glGetFloatv(GL_MODELVIEW_MATRIX, flModel);
+	if (!m_pCurrentDynLight->depth)
+	{
+		m_pCurrentDynLight->depth = GL_ShadowMap::AllocateShadowMap(
+			GL_ShadowMap::_2DTexture_Storage,
+			GL_RG16F,
+			DEFAULT_SHADOWMAP_RES, DEFAULT_SHADOWMAP_RES,
+			0,
+			GL_RG, GL_FLOAT);
+	}
 
-	// Ahh I love polygonoffset
-	glPolygonOffset(5, 0);
-	glEnable(GL_POLYGON_OFFSET_FILL);
+	m_pCurrentDynLight->depth->InitRendering(Vector(1, 1, 0));
 
-	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
-	glColorMask(GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO);
+	gHUD.viewFrustum.SetFrustum(m_pCurrentDynLight->angles, m_pCurrentDynLight->origin, m_pCurrentDynLight->cone_size, m_pCurrentDynLight->radius);
 
-	glCullFace(GL_FRONT);
-	glDisable(GL_BLEND);
-	glDisable(GL_FOG);
-	glShadeModel(GL_FLAT);
+	Vector forward_, up_;
+	AngleVectors(m_pCurrentDynLight->angles, &forward_, nullptr, &up_);
 
-	glViewport(GL_ZERO, GL_ZERO, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION);
-
-	// Disable texturing
-	SetTexEnvs(ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF, ENVSTATE_OFF);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-
-	float flSize = tan((M_PI / 360) * 40);
-	float flFrustum[] = {2 / (flSize * 2), 0, 0, 0, 0, 2 / (flSize * 2), 0, 0, 0, 0, -1, -1, 0, 0, -2, 0};
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMultMatrixf(flFrustum);
-
-	// Asscawks
-	vec3_t vAngles = Vector(90, 180, 0);
-	FixVectorForSpotlight(vAngles);
-	AngleVectors(vAngles, m_vCurSpotForward, NULL, NULL);
-
-	Vector from(model->curstate.origin.x, model->curstate.origin.y, model->curstate.origin.z);
-	from.z += 180;
-
-	m_uiShadowDepths[m_iNumModelShadows].above_feet = from;
-	m_uiShadowDepths[m_iNumModelShadows].feet = model->curstate.origin;
+	glm::vec3 forward = glm::vec3(forward_.x, forward_.y, forward_.z);
+	glm::vec3 up = glm::vec3(up_.x, up_.y, up_.z);
 
 
-	int bReversed = IsPitchReversed(89);
-	vec3_t vTarget = from + (m_vCurSpotForward * 500);
+	float fov = m_pCurrentDynLight->cone_size; // degrees
+	float aspect = 1.0f;					   // square spotlight texture
+	float nearPlane = 1.0f;
+	float farPlane = m_pCurrentDynLight->radius;
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	MyLookAt(model->curstate.origin.x, model->curstate.origin.y, model->curstate.origin.z + 180, vTarget[0], vTarget[1], vTarget[2], 0, 0, bReversed ? 1 : -1);
+	m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane );
+
+	// spotlight view
+	glm::vec3 lightPos = glm::vec3(m_pCurrentDynLight->origin.x, m_pCurrentDynLight->origin.y, m_pCurrentDynLight->origin.z);
+	glm::vec3 lightDir = glm::vec3(forward.x, forward.y, forward.z);
+
+	m_ViewMatrix = glm::lookAt(lightPos, lightPos + lightDir, up);
+
+	m_ModelMatrix = glm::mat4(1.0f);
+
+	m_vViewAngles = m_pCurrentDynLight->angles;
+	m_vRenderOrigin = m_pCurrentDynLight->origin;
 
 
-	//if (model->player)
-	//{
-		g_StudioRenderer.m_pCurrentEntity = model;
-		g_StudioRenderer.StudioDrawModelSolid();
-	//}
+	clientmleaf_t* spotlight_leaf = Mod_PointInLeaf(m_vRenderOrigin);
 
-	m_uiShadowDepths[m_iNumModelShadows].frustum.SetFrustum(Vector(90, 0, 0), from, 100 * 1.2, 500);
+	R_MarkLeaves(spotlight_leaf);
 
-	// Save Depth Buffer
-	glBindTexture(GL_TEXTURE_2D, m_uiShadowDepths[m_iNumModelShadows].depth);
-	m_iNumModelShadows++;
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, 0, 0, DEPTHMAP_RESOLUTION, DEPTHMAP_RESOLUTION, 0);
+	if ((m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW) || (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW))
+		DrawWorldSolid();
+	
+	if(m_pCurrentDynLight->flags & LIGHT_STUDIOMDL_SHADOW)
+	{
+		g_StudioRenderer.StudioDrawModelsSolid();
 
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
-	glColorMask(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+		gPropManager.RenderPropsSolid();
+	}
 
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	r_oldviewleaf = nullptr;
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(flProj);
+	m_pCurrentDynLight->depth->FinishRendering();
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(flModel);
+	m_iNumTotalShadows++;
+
+	R_MarkLeaves(m_pViewLeaf);
 }
+
+/*
+====================
+Generate_Pointlight_Shadow
+
+purpose: generates a shadow depth texture for the current point light.
+
+====================
+*/
+void CBSPRenderer::Generate_Pointlight_Shadow(void)
+{
+	if (!m_pCurrentDynLight->cubedepth)
+	{
+		if ((m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW) || (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW))
+			m_pCurrentDynLight->cubedepth = GL_ShadowMap::AllocateShadowMap(
+				GL_ShadowMap::_CubeMap_Storage,
+				GL_RG16F,
+				DEFAULT_SHADOWMAP_RES, DEFAULT_SHADOWMAP_RES,
+				0,
+				GL_RG, GL_FLOAT);
+		else //ev_elight shadows are much cheaper
+			m_pCurrentDynLight->cubedepth = GL_ShadowMap::AllocateShadowMap(
+				GL_ShadowMap::_CubeMap_Storage,
+				GL_R8,
+				DEFAULT_SHADOWMAP_RES, DEFAULT_SHADOWMAP_RES,
+				0,
+				GL_RED, GL_FLOAT);
+	}
+
+	static const Vector forwards[] = {
+		Vector(1, 0, 0), //positive x
+		Vector(-1, 0, 0),//negative x
+		Vector(0, 1, 0), //positive y
+		Vector(0, -1, 0),//negative y
+		Vector(0, 0, 1),//positive z
+		Vector(0, 0, -1)//negative z
+	};
+
+	static const Vector ups[] = {
+		Vector(0, -1, 0), //positive x
+		Vector(0, -1, 0),//negative x
+		Vector(0, 0, 1),//positive y
+		Vector(0, 0, -1),//negative y
+		Vector(0, -1, 0),//positive z
+		Vector(0, -1, 0)//negative z
+	};
+
+	static const Vector cubemap_angles[] = {
+		Vector(0, 0, 0),   // positive x
+		Vector(0, 180, 0), // negative x
+		Vector(0, 90, 0),  // positive y
+		Vector(0, 270, 0), // negative y
+		Vector(-90, 0, 0), // positive z
+		Vector(-270, 0, 0) // negative z
+	};
+
+	glm::vec3 lightPos = glm::vec3(m_pCurrentDynLight->origin.x, m_pCurrentDynLight->origin.y, m_pCurrentDynLight->origin.z);
+
+	m_vRenderOrigin = m_pCurrentDynLight->origin;
+
+	if ((m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW) || (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW))
+	{
+
+		r_oldviewleaf = nullptr;
+
+		clientmleaf_t* spotlight_leaf = Mod_PointInLeaf(m_vRenderOrigin);
+
+		R_MarkLeaves(spotlight_leaf);
+	}
+
+	constexpr float fov = 90;	   // degrees
+	constexpr float aspect = 1.0f; // square spotlight texture
+	constexpr float nearPlane = 8.0f;
+	float farPlane = m_pCurrentDynLight->radius;
+	m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
+
+	for(int i = 0; i < 6; i++)
+	{
+		m_pCurrentDynLight->cubedepth->InitRendering(Vector(1, 1, 0));
+		
+		Vector forward_ = forwards[i];
+		Vector up_ = ups[i];
+		
+		m_vViewAngles = m_pCurrentDynLight->angles = cubemap_angles[i];
+		
+		gHUD.viewFrustum.SetFrustum(m_pCurrentDynLight->angles, m_pCurrentDynLight->origin, 90, m_pCurrentDynLight->radius);
+		
+		glm::vec3 forward = glm::vec3(forward_.x, forward_.y, forward_.z);
+		glm::vec3 up = glm::vec3(up_.x, up_.y, up_.z);
+		
+		m_ViewMatrix = glm::lookAt(lightPos, lightPos + forward, up);
+		
+		// start rendering stuff
+		if  ( (m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW) || (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW) )
+			DrawWorldSolid();
+		
+		if (m_pCurrentDynLight->flags & LIGHT_STUDIOMDL_SHADOW)
+		{
+			g_StudioRenderer.StudioDrawModelsSolid();
+
+			gPropManager.RenderPropsSolid();
+		}
+		
+		m_iNumTotalShadows++;
+	}
+
+	m_pCurrentDynLight->cubedepth->FinishRendering();
+
+	if ((m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW) || (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW))
+	{
+		R_MarkLeaves(m_pViewLeaf);
+	}
+}
+
+#define SHADOWMAP_PASS_TIME "ShadowMap_Pass_RenderTime"
 
 /*
 ====================
@@ -7322,37 +5598,47 @@ DrawWorldSolid
 */
 void CBSPRenderer::DrawWorldSolid(void)
 {
-	gHUD.viewFrustum.SetFrustum(m_pCurrentDynLight->angles, m_pCurrentDynLight->origin, m_pCurrentDynLight->cone_size, m_pCurrentDynLight->radius);
-	VectorCopy(m_pCurrentDynLight->angles, m_vViewAngles);
-	VectorCopy(m_pCurrentDynLight->origin, m_vRenderOrigin);
-	m_pWorld = IEngineStudio.GetModelByIndex(1);
-
 	// Advance frame count here
 	m_iFrameCount++;
 
-	// Render everything
-	if (m_pViewLeaf->contents != CONTENTS_SOLID)
-		m_iVisFrame = r_visframecount;
-		//m_iVisFrame = m_pViewLeaf->visframe;
-	else
-		m_iVisFrame = -2;
-
 	m_pCurrentEntity = gEngfuncs.GetEntityByIndex(0);
-	VectorCopy(m_vRenderOrigin, m_vVecToEyes);
+	m_vVecToEyes = m_vRenderOrigin;
 
-	EnableVertexArray();
-	RecursiveWorldNodeSolid(m_pWorld->nodes);
-	DrawDetailsSolid();
+	auto curdlight = m_pCurrentDynLight;
 
-	if (g_StudioRenderer.m_pCvarDrawEntities->value)
+	auto projviewmatrix = glm::value_ptr(m_ProjectionMatrix * m_ViewMatrix);
+	auto light_pos = glm::value_ptr(glm::vec4(curdlight->origin.x, curdlight->origin.y, curdlight->origin.z, curdlight->radius));
+
+	m_WorldSolidShader->Bind();
+	m_WorldSolidShader->UniformMatrix4fv(m_WorldSolidShader_locs[worldsolid_projviewmatrix], 1, false, projviewmatrix);
+	m_WorldSolidShader->UniformMatrix4fv(m_WorldSolidShader_locs[worldsolid_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
+	m_WorldSolidShader->Uniform4fv(m_WorldSolidShader_locs[worldsolid_light_pos], 1, light_pos);
+
+	m_pBSP_VAO->BindVAO();
+
+	BindGLTexture(SURFTEXTURE_TEXUNIT, 0);
+	m_WorldSolidShader->Uniform1i(m_WorldSolidShader_locs[worldsolid_alphatest], 0); //cunt
+
+	if (!m_bSunShadowMapPass && (m_pCurrentDynLight->flags & LIGHT_WORLD_SHADOW))
+	{
+		RecursiveWorldNodeSolid(BSPWorld_Model::m_pWorldNodes);
+
+		glMultiDrawArrays(GL_TRIANGLES, (GLint*)multidraw_startverts, (GLint*)multidraw_numverts, num_multidraws);
+		num_multidraws = 0;
+
+	}
+
+
+	//todo: organize entities by distance
+	if (g_StudioRenderer.m_pCvarDrawEntities->value && (m_pCurrentDynLight->flags & LIGHT_BRUSH_SHADOW))
 	{
 		for (int i = 0; i < m_iNumRenderEntities; i++)
 		{
-			if (!IsEntityTransparent(m_pRenderEntities[i]))
-				DrawBrushModelSolid(m_pRenderEntities[i]);
+			cl_entity_t* ent = m_pRenderEntities[i];
+			if (!IsEntityTransparent(ent))
+				DrawBrushModelSolid(ent);
 		}
 	}
-	DisableVertexArray();
 }
 
 /*
@@ -7361,166 +5647,99 @@ RecursiveWorldNodeSolid
 
 ====================
 */
-void CBSPRenderer::RecursiveWorldNodeSolid(mnode_t* node)
+void CBSPRenderer::RecursiveWorldNodeSolid(clientmnode_t* node)
 {
 	int c, side;
 	mplane_t* plane;
-	msurface_t *surf, **mark;
-	mleaf_t* pleaf;
+	clientmsurface_t *surf, **mark;
+	clientmleaf_t* pleaf;
 	float dot;
 
-	if (node->contents == CONTENTS_SOLID)
-		return; // solid
-
-	if (node->visframe != r_visframecount && r_visframecount != -2)
-		return;
-
-	if (gHUD.viewFrustum.CullBox(node->minmaxs, node->minmaxs + 3))
-		return;
-
-	// if a leaf node, draw stuff
-	if (node->contents < 0)
+	while (true)
 	{
-		pleaf = (mleaf_t*)node;
-		mark = pleaf->firstmarksurface;
-		c = pleaf->nummarksurfaces;
 
+		if (node->contents == CONTENTS_SOLID)
+			return; // solid
+
+		if (node->visframe != r_visframecount && r_visframecount != -2)
+			return;
+
+		if (gHUD.viewFrustum.CullBox(node->minmaxs, node->minmaxs + 3))
+			return;
+
+		// if a leaf node, draw stuff
+		if (node->contents < 0)
+		{
+			pleaf = (clientmleaf_t*)node;
+			mark = pleaf->firstmarksurface;
+			c = pleaf->nummarksurfaces;
+
+			if (c)
+			{
+				do
+				{
+					(*mark)->visframe = m_iFrameCount;
+					mark++;
+				} while (--c);
+			}
+			return;
+		}
+
+		// node is just a decision point, so go down the apropriate sides
+		// find which side of the node we are on
+		plane = node->plane;
+		if (plane->type <= PLANE_Z)
+		{
+			dot = m_vRenderOrigin[plane->type] - plane->dist;
+		}
+		else
+		{
+			DotProductSub(&dot, &m_vRenderOrigin, &plane->normal, &plane->dist);
+		}
+
+		side = dot >= 0 ? 0 : 1;
+
+		// recurse down the children, front side first
+		RecursiveWorldNodeSolid(node->children[side]);
+
+		// draw stuff
+		c = node->numsurfaces;
 		if (c)
 		{
-			do
+			surf = BSPWorld_Model::m_pWorldSurfaces + node->firstsurface;
+
+			for (int i = 0; i < node->numsurfaces; i++, surf++)
 			{
-				//(*mark)->visframe = m_iFrameCount;
-				mark++;
-			} while (--c);
-		}
-		return;
-	}
+				if (surf->visframe != m_iFrameCount)
+					continue;
 
-	// node is just a decision point, so go down the apropriate sides
-	// find which side of the node we are on
-	plane = node->plane;
-	switch (plane->type)
-	{
-	case PLANE_X:
-		dot = m_vRenderOrigin[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = m_vRenderOrigin[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = m_vRenderOrigin[2] - plane->dist;
-		break;
-	default:
-		SSEDotProductSub(&dot, &m_vRenderOrigin, &plane->normal, &plane->dist);
-		break;
-	}
+				// don't backface underwater surfaces, because they warp
+				if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
+					continue; // wrong side
 
-	if (dot >= 0)
-		side = 0;
-	else
-		side = 1;
+				if (surf->flags & SURF_DRAWSKY)
+					continue;
 
-	// recurse down the children, front side first
-	RecursiveWorldNodeSolid(node->children[side]);
-
-	// draw stuff
-	c = node->numsurfaces;
-	if (c)
-	{
-		surf = m_pWorld->surfaces + node->firstsurface;
-
-		if (dot < 0 - BACKFACE_EPSILON)
-			side = SURF_PLANEBACK;
-		else if (dot > BACKFACE_EPSILON)
-			side = 0;
-
-		for (int i = 0; i < node->numsurfaces; i++, surf++)
-		{
-			if (surf->visframe != m_iFrameCount)
-				continue;
-
-			// don't backface underwater surfaces, because they warp
-			if (!(surf->flags & SURF_UNDERWATER) && ((dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
-				continue; // wrong side
-
-			if (surf->flags & SURF_DRAWSKY)
-				continue;
-
-			if (surf->flags & SURF_DRAWTURB)
-				continue;
-
-			DrawPolyFromArray(m_pWorld->surfaces, surf);
-		}
-	}
-
-	// recurse down the back side
-	RecursiveWorldNodeSolid(node->children[!side]);
-};
+				if (surf->flags & SURF_DRAWTURB)
+					continue;
 
 
-/*
-====================
-DrawDetailsSolid
+				int surfaceIndex = surf - BSPWorld_Model::m_pWorldSurfaces;
+				brushface_t* pbrushface = m_pSurfacePointersArray[surfaceIndex];
 
-====================
-*/
-void CBSPRenderer::DrawDetailsSolid(void)
-{
-	if (!m_iNumDetailObjects)
-		return;
+				multidraw_startverts[num_multidraws] = pbrushface->start_vertex;
+				multidraw_numverts[num_multidraws] = pbrushface->num_vertexes;
 
-	detailobject_t* pCurObject = m_pDetailObjects;
-	for (int i = 0; i < m_iNumDetailObjects; i++, pCurObject++)
-	{
-		int j = 0;
-		for (j = 0; j < pCurObject->numleafs; j++)
-			if (m_pPVS[pCurObject->leafnums[j] >> 3] & (1 << (pCurObject->leafnums[j] & 7)))
-				break;
-
-		if (j == pCurObject->numleafs)
-			continue;
-
-		if (gHUD.viewFrustum.CullBox(pCurObject->mins, pCurObject->maxs))
-			continue;
-
-		if (pCurObject->rendermode == kRenderTransAlpha)
-		{
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0.5);
-
-			SetTexEnvs(ENVSTATE_REPLACE);
-			SetTexPointer(0, TC_TEXTURE);
-		}
-
-		pCurObject->visframe = m_iFrameCount; // For dynlights
-		msurface_t* psurf = m_pDetailObjectSurfaces + pCurObject->firstsurface;
-		for (int j = 0; j < pCurObject->numsurfaces; j++, psurf++)
-		{
-			float dot;
-			mplane_t* pplane = psurf->plane;
-			SSEDotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
-
-			if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
-				(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
-			{
-				if (pCurObject->rendermode == kRenderTransAlpha)
-					Bind2DTexture(GL_TEXTURE0_ARB, psurf->texinfo->texture->gl_texturenum);
-
-				DrawPolyFromArray(m_pDetailObjectSurfaces, psurf);
-				psurf->visframe = m_iFrameCount;
+				num_multidraws++;
 			}
 		}
 
-		if (pCurObject->rendermode == kRenderTransAlpha)
-		{
-			glDisable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0);
-
-			SetTexEnvs(ENVSTATE_OFF);
-			SetTexPointer(0, TC_OFF);
-		}
+		// recurse down the back side
+		// NOTE: With this while loop, this is identical to just calling
+		// RecursiveWorldNodeSolid(node->children[!side]);
+		node = node->children[!side];
 	}
-}
+};
 
 /*
 ====================
@@ -7530,9 +5749,9 @@ DrawBrushModelSolid
 */
 void CBSPRenderer::DrawBrushModelSolid(cl_entity_t* pEntity)
 {
-	vec3_t mins, maxs;
+	Vector mins, maxs;
 	int i;
-	msurface_t* psurf;
+	clientmsurface_t* psurf;
 	float dot;
 	mplane_t* pplane;
 	bool bRotated = false;
@@ -7540,7 +5759,7 @@ void CBSPRenderer::DrawBrushModelSolid(cl_entity_t* pEntity)
 	m_pCurrentEntity = pEntity;
 	model_t* pModel = m_pCurrentEntity->model;
 
-	if (m_pCurrentEntity->model == m_pWorld || m_pCurrentEntity->model->type != mod_brush || m_pCurrentEntity->curstate.renderfx == 70)
+	if (m_pCurrentEntity->model == engine_cl->worldmodel || m_pCurrentEntity->model->type != mod_brush)
 		return;
 
 	if (m_pCurrentEntity->curstate.rendermode != NULL && m_pCurrentEntity->curstate.renderamt == NULL)
@@ -7568,11 +5787,11 @@ void CBSPRenderer::DrawBrushModelSolid(cl_entity_t* pEntity)
 
 	if (bRotated)
 	{
-		vec3_t temp;
-		vec3_t forward, right, up;
+		Vector temp;
+		Vector forward, right, up;
 
 		VectorCopy(m_vVecToEyes, temp);
-		AngleVectors(m_pCurrentEntity->angles, forward, right, up);
+		AngleVectors(m_pCurrentEntity->angles, &forward, &right, &up);
 		m_vVecToEyes[0] = DotProduct(temp, forward);
 		m_vVecToEyes[1] = DotProduct(temp, right);
 		m_vVecToEyes[2] = DotProduct(temp, up);
@@ -7581,25 +5800,36 @@ void CBSPRenderer::DrawBrushModelSolid(cl_entity_t* pEntity)
 
 	m_pCurrentEntity->visframe = m_iFrameCount;
 
-	glPushMatrix();
-	m_pCurrentEntity->angles[0] = -m_pCurrentEntity->angles[0];
-	R_RotateForEntity(m_pCurrentEntity);
-	m_pCurrentEntity->angles[0] = -m_pCurrentEntity->angles[0];
+	glm::mat4 oldmodelmatrix = m_ModelMatrix;
 
-	if (m_pCurrentEntity->curstate.rendermode == kRenderTransAlpha)
+	if (IsEntityMoved(m_pCurrentEntity))
 	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.25);
 
-		SetTexEnvs(ENVSTATE_REPLACE);
-		SetTexPointer(0, TC_TEXTURE);
+		glm::vec3 entityangles = glm::vec3(m_pCurrentEntity->angles.x, m_pCurrentEntity->angles.y, m_pCurrentEntity->angles.z);
+		glm::vec3 viewangles = glm::vec3(m_vViewAngles.x + m_RefParams.punchangle.x, m_vViewAngles.y + m_RefParams.punchangle.y, m_vViewAngles.z + m_RefParams.punchangle.z);
+		Vector forward_, up_;
+		AngleVectors(Vector(viewangles.x, viewangles.y, viewangles.z), &forward_, nullptr, &up_);
+
+		glm::vec3 forward = glm::vec3(forward_.x, forward_.y, forward_.z);
+
+		glm::mat4 modelview = glm::mat4(1.0f);
+		modelview = glm::translate(modelview, glm::vec3(m_pCurrentEntity->origin.x, m_pCurrentEntity->origin.y, m_pCurrentEntity->origin.z));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.y), glm::vec3(0.0f, 0.0f, 1.0f));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.x), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelview = glm::rotate(modelview, glm::radians(entityangles.z), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		m_ModelMatrix = modelview;
+
+		m_WorldSolidShader->UniformMatrix4fv(m_WorldSolidShader_locs[worldsolid_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
 	}
 
-	psurf = &m_pWorld->surfaces[pModel->firstmodelsurface];
+	m_WorldSolidShader->Uniform1i(m_WorldSolidShader_locs[worldsolid_alphatest], 1); // cunt
+
+	psurf = &BSPWorld_Model::m_pWorldSurfaces[pModel->firstmodelsurface];
 	for (i = 0; i < pModel->nummodelsurfaces; i++, psurf++)
 	{
 		pplane = psurf->plane;
-		SSEDotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
+		DotProductSub(&dot, &m_vVecToEyes, &pplane->normal, &pplane->dist);
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) || (!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
 			psurf->visframe = m_iFrameCount;
@@ -7610,19 +5840,14 @@ void CBSPRenderer::DrawBrushModelSolid(cl_entity_t* pEntity)
 			if (psurf->flags & SURF_DRAWTURB)
 				continue;
 
-			Bind2DTexture(GL_TEXTURE0_ARB, psurf->texinfo->texture->gl_texturenum);
-			DrawPolyFromArray(m_pWorld->surfaces, psurf);
+			BindGLTexture(SURFTEXTURE_TEXUNIT, psurf->texinfo->texture->gl_texturenum);
+			DrawPolyFromArray(BSPWorld_Model::m_pWorldSurfaces, psurf);
 		}
 	}
 
-	if (m_pCurrentEntity->curstate.rendermode == kRenderTransAlpha)
-	{
-		SetTexEnvs(ENVSTATE_OFF);
-		SetTexPointer(0, TC_OFF);
-		glDisable(GL_ALPHA_TEST);
-	}
+	m_WorldSolidShader->Uniform1i(m_WorldSolidShader_locs[worldsolid_alphatest], 1); // cunt cunt cunt
 
-	glPopMatrix();
+	m_ModelMatrix = oldmodelmatrix;
+
+	m_WorldSolidShader->UniformMatrix4fv(m_WorldSolidShader_locs[worldsolid_modelmatrix], 1, GL_FALSE, glm::value_ptr(m_ModelMatrix));
 }
-
-#endif

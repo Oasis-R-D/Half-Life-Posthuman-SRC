@@ -100,7 +100,7 @@ void SpectatorSpray()
 	if (0 == gEngfuncs.IsSpectateOnly())
 		return;
 
-	AngleVectors(v_angles, forward, NULL, NULL);
+	AngleVectors(v_angles, &forward, NULL, NULL);
 	VectorScale(forward, 128, forward);
 	VectorAdd(forward, v_origin, forward);
 	pmtrace_t* trace = gEngfuncs.PM_TraceLine(v_origin, forward, PM_TRACELINE_PHYSENTSONLY, 2, -1);
@@ -394,7 +394,7 @@ void CHudSpectator::SetCameraView(Vector pos, Vector angle, float fov)
 	m_FOV = fov;
 	VectorCopy(pos, vJumpOrigin);
 	VectorCopy(angle, vJumpAngles);
-	gEngfuncs.SetViewAngles(vJumpAngles);
+	engine_cl->viewangles = vJumpAngles;
 	iJumpSpectator = true; // jump anyway
 }
 
@@ -465,7 +465,7 @@ bool CHudSpectator::GetDirectorCamera(Vector& position, Vector& angle)
 		{
 			Vector vt = ent->curstate.origin;
 
-			if (m_ChaseEntity <= gEngfuncs.GetMaxClients())
+			if (m_ChaseEntity <= engine_cl->maxclients)
 			{
 				if (ent->curstate.solid == SOLID_NOT)
 				{
@@ -624,7 +624,7 @@ bool CHudSpectator::Draw(float flTime)
 	if ((m_moveDelta != 0.0f) && (g_iUser1 != OBS_ROAMING))
 	{
 		Vector right;
-		AngleVectors(v_angles, NULL, right, NULL);
+		AngleVectors(v_angles, NULL, &right, NULL);
 		VectorNormalize(right);
 		VectorScale(right, m_moveDelta, right);
 
@@ -1009,7 +1009,7 @@ void CHudSpectator::FindPlayer(const char* name)
 
 void CHudSpectator::HandleButtonsDown(int ButtonPressed)
 {
-	double time = gEngfuncs.GetClientTime();
+	double time = engine_cl->time;
 
 	int newMainMode = g_iUser1;
 	int newInsetMode = m_pip->value;
@@ -1540,7 +1540,7 @@ void CHudSpectator::DrawOverviewEntities()
 	Vector origin, angles, point, forward, right, left, up, world, screen, offset;
 	float x, y, z, r, g, b, sizeScale = 4.0f;
 	cl_entity_t* ent;
-	float rmatrix[3][4]; // transformation matrix
+	matrix3x4_t rmatrix; // transformation matrix
 
 	float zScale = (90.0f - v_angles[0]) / 90.0f;
 
@@ -1572,7 +1572,7 @@ void CHudSpectator::DrawOverviewEntities()
 		// see R_DrawSpriteModel
 		// draws players sprite
 
-		AngleVectors(ent->angles, right, up, NULL);
+		AngleVectors(ent->angles, &right, &up, NULL);
 
 		VectorCopy(ent->origin, origin);
 
@@ -1706,7 +1706,7 @@ void CHudSpectator::DrawOverviewEntities()
 
 	gEngfuncs.pTriAPI->Color4f(r, g, b, 1.0);
 
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 	VectorScale(forward, 512.0f, forward);
 
 	offset[0] = 0.0f;
@@ -1753,7 +1753,7 @@ void CHudSpectator::DrawOverview()
 }
 void CHudSpectator::CheckOverviewEntities()
 {
-	double time = gEngfuncs.GetClientTime();
+	double time = engine_cl->time;
 
 	// removes old entities from list
 	for (int i = 0; i < MAX_OVERVIEW_ENTITIES; i++)
@@ -1768,7 +1768,7 @@ void CHudSpectator::CheckOverviewEntities()
 
 bool CHudSpectator::AddOverviewEntity(int type, struct cl_entity_s* ent, const char* modelname)
 {
-	HSPRITE_GLDSRC hSprite = 0;
+	HSPRITE_GOLDSRC  hSprite = 0;
 	double duration = -1.0f; // duration -1 means show it only this frame;
 
 	if (!ent)
@@ -1802,7 +1802,7 @@ bool CHudSpectator::AddOverviewEntity(int type, struct cl_entity_s* ent, const c
 	else
 		return false;
 
-	return AddOverviewEntityToList(hSprite, ent, gEngfuncs.GetClientTime() + duration);
+	return AddOverviewEntityToList(hSprite, ent, engine_cl->time + duration);
 }
 
 void CHudSpectator::DeathMessage(int victim)
@@ -1811,10 +1811,10 @@ void CHudSpectator::DeathMessage(int victim)
 	cl_entity_t* pl = gEngfuncs.GetEntityByIndex(victim);
 
 	if (pl && 0 != pl->player)
-		AddOverviewEntityToList(m_hsprPlayerDead, pl, gEngfuncs.GetClientTime() + 2.0f);
+		AddOverviewEntityToList(m_hsprPlayerDead, pl, engine_cl->time + 2.0f);
 }
 
-bool CHudSpectator::AddOverviewEntityToList(HSPRITE_GLDSRC sprite, cl_entity_t* ent, double killTime)
+bool CHudSpectator::AddOverviewEntityToList(HSPRITE_GOLDSRC  sprite, cl_entity_t* ent, double killTime)
 {
 	for (int i = 0; i < MAX_OVERVIEW_ENTITIES; i++)
 	{

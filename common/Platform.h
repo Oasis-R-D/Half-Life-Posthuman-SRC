@@ -40,6 +40,8 @@
 #include "common_types.h"
 
 // Misc C-runtime library headers
+
+#include <vector>
 #include <cctype>
 #include <climits>
 #include <cmath>
@@ -50,9 +52,12 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <memory>
+
 using byte = unsigned char;
 using string_t = unsigned int;
 using qboolean = int;
+using HSPRITE_GOLDSRC = int;
 
 #define ARRAYSIZE(p) (sizeof(p) / sizeof(p[0]))
 

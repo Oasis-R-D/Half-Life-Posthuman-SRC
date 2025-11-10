@@ -45,7 +45,7 @@ void UpdateBeams()
 	// Determine our last predicted origin
 	HUD_GetLastOrg((float*)&origin);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	VectorCopy(origin, vecSrc);
 
@@ -67,21 +67,21 @@ void UpdateBeams()
 	if (pBeam)
 	{
 		pBeam->target = tr.endpos;
-		pBeam->die = gEngfuncs.GetClientTime() + 0.1; // We keep it alive just a little bit forward in the future, just in case.
+		pBeam->die = engine_cl->time + 0.1; // We keep it alive just a little bit forward in the future, just in case.
 	}
 
 	if (pBeam2)
 	{
 		pBeam2->target = tr.endpos;
-		pBeam2->die = gEngfuncs.GetClientTime() + 0.1; // We keep it alive just a little bit forward in the future, just in case.
+		pBeam2->die = engine_cl->time + 0.1; // We keep it alive just a little bit forward in the future, just in case.
 	}
 
 	if (pFlare) // Vit_amiN: beam flare
 	{
 		pFlare->entity.origin = tr.endpos;
-		pFlare->die = gEngfuncs.GetClientTime() + 0.1f; // We keep it alive just a little bit forward in the future, just in case.
+		pFlare->die = engine_cl->time + 0.1f; // We keep it alive just a little bit forward in the future, just in case.
 
-		if (gEngfuncs.GetMaxClients() != 1) // Singleplayer always draws the egon's energy beam flare
+		if (engine_cl->maxclients != 1) // Singleplayer always draws the egon's energy beam flare
 		{
 			pFlare->flags |= FTENT_NOMODEL;
 

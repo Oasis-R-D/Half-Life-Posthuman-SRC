@@ -99,7 +99,7 @@ void UTIL_Remove(CBaseEntity* pEntity) {}
 void UTIL_SetSize(entvars_t* pev, const Vector& vecMin, const Vector& vecMax) {}
 CBaseEntity* UTIL_FindEntityInSphere(CBaseEntity* pStartEntity, const Vector& vecCenter, float flRadius) { return 0; }
 
-Vector UTIL_VecToAngles(const Vector& vec) { return 0; }
+Vector UTIL_VecToAngles(const Vector& vec) { return vec3_origin; }
 CSprite* CSprite::SpriteCreate(const char* pSpriteName, const Vector& origin, bool animate) { return 0; }
 void CBeam::PointEntInit(const Vector& start, int endIndex) {}
 CBeam* CBeam::BeamCreate(const char* pSpriteName, int width) { return NULL; }

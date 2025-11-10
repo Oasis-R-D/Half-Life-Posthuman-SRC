@@ -17,6 +17,10 @@
 #include "Platform.h"
 #include "mathlib.h"
 #include "const.h"
+#include <cassert>
+
+#include <smmintrin.h> // SSE4.1
+
 
 // up / down
 #define PITCH 0
@@ -31,7 +35,7 @@ int nanmask = 255 << 23;
 
 float anglemod(float a)
 {
-	a = static_cast<float>(360.0f / 65536) * (static_cast<int>(a * static_cast<float>(65536 / 360.0f)) & 65535);
+	a = (360.0 / 65536) * ((int)(a * (65536 / 360.0)) & 65535);
 	return a;
 }
 
@@ -40,13 +44,13 @@ void AngleVectors(const Vector& angles, Vector* forward, Vector* right, Vector* 
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
 
-	angle = angles[YAW] * (M_PI * 2 / 360);
+	angle = angles[YAW] * (M_PI2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI * 2 / 360);
+	angle = angles[PITCH] * (M_PI2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI * 2 / 360);
+	angle = angles[ROLL] * (M_PI2 / 360);
 	sr = sin(angle);
 	cr = cos(angle);
 
@@ -75,13 +79,13 @@ void AngleVectorsTranspose(const Vector& angles, Vector* forward, Vector* right,
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
 
-	angle = angles[YAW] * (M_PI * 2 / 360);
+	angle = angles[YAW] * (M_PI2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI * 2 / 360);
+	angle = angles[PITCH] * (M_PI2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI * 2 / 360);
+	angle = angles[ROLL] * (M_PI2 / 360);
 	sr = sin(angle);
 	cr = cos(angle);
 
@@ -105,48 +109,71 @@ void AngleVectorsTranspose(const Vector& angles, Vector* forward, Vector* right,
 	}
 }
 
-void AngleMatrix(const float* angles, float (*matrix)[4])
+#define _MM_SHUFFLE_XYZW(x, y, z, w) _MM_SHUFFLE(w, z, y, x)
+
+void AngleMatrix(const float* angles, matrix3x4_t &matrix)
 {
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
 
-	angle = angles[YAW] * (M_PI * 2 / 360);
-	sy = sin(angle);
-	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI * 2 / 360);
-	sp = sin(angle);
-	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI * 2 / 360);
-	sr = sin(angle);
-	cr = cos(angle);
+	__m128 angles_ = _mm_mul_ps(_mm_loadu_ps(angles), _mm_set_ps1(M_PI2 / 360));
+	__m128 cosines;
+
+	__m128 sines = _mm_sincos_ps(&cosines, angles_);
+
+	float sines_[4];
+	float cosines_[4];
+	_mm_store_ps(sines_, sines);
+	_mm_store_ps(cosines_, cosines);
+
+	//angle = angles[YAW] * (M_PI2 / 360);
+	//sy = sin(angle);
+	//cy = cos(angle);
+	//angle = angles[PITCH] * (M_PI2 / 360);
+	//sp = sin(angle);
+	//cp = cos(angle);
+	//angle = angles[ROLL] * (M_PI2 / 360);
+	//sr = sin(angle);
+	//cr = cos(angle);
 
 	// matrix = (YAW * PITCH) * ROLL
-	matrix[0][0] = cp * cy;
-	matrix[1][0] = cp * sy;
-	matrix[2][0] = -sp;
-	matrix[0][1] = sr * sp * cy + cr * -sy;
-	matrix[1][1] = sr * sp * sy + cr * cy;
-	matrix[2][1] = sr * cp;
-	matrix[0][2] = (cr * sp * cy + -sr * -sy);
-	matrix[1][2] = (cr * sp * sy + -sr * cy);
-	matrix[2][2] = cr * cp;
+	//matrix[0][0] = cp * cy;
+	//matrix[1][0] = cp * sy;
+	//matrix[2][0] = -sp;
+	//matrix[0][1] = sr * sp * cy + cr * -sy;
+	//matrix[1][1] = sr * sp * sy + cr * cy;
+	//matrix[2][1] = sr * cp;
+	//matrix[0][2] = (cr * sp * cy + -sr * -sy);
+	//matrix[1][2] = (cr * sp * sy + -sr * cy);
+	//matrix[2][2] = cr * cp;
+
+	matrix[0][0] = cosines_[0] * cosines_[1];
+	matrix[1][0] = cosines_[0] * sines_[1];
+	matrix[2][0] = -sines_[0];
+	matrix[0][1] = sines_[2] * sines_[0] * cosines_[1] + cosines_[2] * -sines_[1];
+	matrix[1][1] = sines_[2] * sines_[0] * sines_[1] + cosines_[2] * cosines_[1];
+	matrix[2][1] = sines_[2] * cosines_[0];
+	matrix[0][2] = (cosines_[2] * sines_[0] * cosines_[1] + -sines_[2] * -sines_[1]);
+	matrix[1][2] = (cosines_[2] * sines_[0] * sines_[1] + -sines_[2] * cosines_[1]);
+	matrix[2][2] = cosines_[2] * cosines_[0];
+
 	matrix[0][3] = 0.0;
 	matrix[1][3] = 0.0;
 	matrix[2][3] = 0.0;
 }
 
-void AngleIMatrix(const Vector& angles, float matrix[3][4])
+void AngleIMatrix(const Vector& angles, matrix3x4_t &matrix)
 {
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
 
-	angle = angles[YAW] * (M_PI * 2 / 360);
+	angle = angles[YAW] * (M_PI2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI * 2 / 360);
+	angle = angles[PITCH] * (M_PI2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI * 2 / 360);
+	angle = angles[ROLL] * (M_PI2 / 360);
 	sr = sin(angle);
 	cr = cos(angle);
 
@@ -243,11 +270,26 @@ float AngleBetweenVectors(const Vector& v1, const Vector& v2)
 	return angle;
 }
 
-void VectorTransform(const float* in1, float in2[3][4], float* out)
+void VectorTransform(const float* in1, const matrix3x4_t &in2, float* out)
 {
-	out[0] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[0])) + in2[0][3];
-	out[1] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[1])) + in2[1][3];
-	out[2] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[2])) + in2[2][3];
+	//out[0] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[0])) + in2[0][3];
+	//out[1] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[1])) + in2[1][3];
+	//out[2] = DotProduct(*reinterpret_cast<const Vector*>(in1), *reinterpret_cast<const Vector*>(in2[2])) + in2[2][3];
+
+	 __m128 v = _mm_set_ps(0.0f, in1[2], in1[1], in1[0]);
+
+	__m128 row0 = _mm_loadu_ps(in2[0]);
+	 __m128 row1 = _mm_loadu_ps(in2[1]);
+	 __m128 row2 = _mm_loadu_ps(in2[2]);
+
+	 __m128 dp0 = _mm_dp_ps(v, row0, 0b01110111);
+	 row0 = _mm_dp_ps(v, row1, 0b01110111);
+	 row1 = _mm_dp_ps(v, row2, 0b01110111);
+
+	 out[0] = _mm_cvtss_f32(dp0) + in2[0][3];
+	 out[1] = _mm_cvtss_f32(row0) + in2[1][3];
+	 out[2] = _mm_cvtss_f32(row1) + in2[2][3];
+
 }
 
 bool VectorCompare(const float* v1, const float* v2)
@@ -263,9 +305,22 @@ bool VectorCompare(const float* v1, const float* v2)
 
 void VectorMA(const float* veca, float scale, const float* vecb, float* vecc)
 {
-	vecc[0] = veca[0] + scale * vecb[0];
-	vecc[1] = veca[1] + scale * vecb[1];
-	vecc[2] = veca[2] + scale * vecb[2];
+	// vecc[0] = veca[0] + scale * vecb[0];
+	// vecc[1] = veca[1] + scale * vecb[1];
+	// vecc[2] = veca[2] + scale * vecb[2];
+
+	__m128 v1 = _mm_set_ps(0.0f, veca[2], veca[1], veca[0]);
+	__m128 v2 = _mm_set_ps(0.0f, vecb[2], vecb[1], vecb[0]);
+	__m128 v3 = _mm_set_ps1(scale);
+
+	__m128 scale_n_vecb = _mm_mul_ps(v2, v3);
+	v3 = _mm_add_ps(v1, scale_n_vecb);
+	float p[4];
+	_mm_store_ps(p, v3);
+	vecc[0] = p[0];
+	vecc[1] = p[1];
+	vecc[2] = p[2];
+
 }
 
 void CrossProduct(const float* v1, const float* v2, float* cross)
@@ -393,7 +448,7 @@ ConcatTransforms
 
 ================
 */
-void ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4])
+void ConcatTransforms(const matrix3x4_t& in1, const matrix3x4_t& in2, matrix3x4_t &out)
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];

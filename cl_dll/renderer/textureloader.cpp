@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -11,18 +12,17 @@ Texture loader interface
 Written by Andrew Lucas
 */
 
-#ifdef TRINITY
-
 #include "hud.h"
 #include "textureloader.h"
 #include "bsprenderer.h"
 #include "propmanager.h"
 #include "PlatformHeaders.h"
-#include "gl/glext.h"
 
-#pragma warning(disable : 4018)
+#include "goldsrc_spriterenderer.h"
 
-//taken from quake
+CTextureLoader gTextureLoader;
+
+// taken from quake
 static const struct
 {
 	const char* name;
@@ -45,7 +45,6 @@ Init
 */
 void CTextureLoader::Init(void)
 {
-	glCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)wglGetProcAddress("glCompressedTexImage2DARB");
 }
 
 /*
@@ -56,14 +55,15 @@ VidInit
 */
 void CTextureLoader::VidInit(void)
 {
-	if (!m_iNumTextures)
+	if (m_pTextures.empty())
 		return;
 
-	for (int i = 0; i < m_iNumTextures; i++)
-		glDeleteTextures(1, &m_pTextures[i].iIndex);
+	for (int i = 0; i < m_pTextures.size(); i++)
+		glDeleteTextures(1, &m_pTextures[i]->iIndex);
 
-	memset(m_pTextures, NULL, sizeof(m_pTextures));
-	m_iNumTextures = NULL;
+	m_pTextures.clear();
+
+	m_pEngineTextures.clear();
 
 	for (int i = 0; i < m_iNumWADDecals; i++)
 		delete m_pWAD_Decals[i].texinfo;
@@ -110,13 +110,56 @@ bool CTextureLoader::IsPowerOfTwo(int iWidth, int iHeight)
 	return true;
 }
 
+cl_texture_t* CTextureLoader::LoadSprite(const char* szFile, int iFrame)
+{
+	for (auto texture : m_pEngineTextures)
+	{
+		if (!strcmp(szFile, texture->szName))
+		{
+			mspriteframe_t* frame = g_LegacySpriteRenderer.GetSpriteFrame(IEngineStudio.Mod_ForName(szFile, true), iFrame, 0);
+			if (texture->iIndex == frame->gl_texturenum)
+				return texture;
+		}
+	}
+	model_t* sprite = IEngineStudio.Mod_ForName(szFile, true);
+	mspriteframe_t* frame = g_LegacySpriteRenderer.GetSpriteFrame(sprite, iFrame, 0);
+
+	assert(frame);
+
+	cl_texture_t* pTexture = new cl_texture_t{};
+
+	pTexture->iWidth = frame->width;
+	pTexture->iHeight = frame->height;
+	strcpy(pTexture->szName, szFile);
+	pTexture->iIndex = frame->gl_texturenum;
+
+	m_pEngineTextures.push_back(pTexture);
+
+	return pTexture;
+
+}
+
+cl_texture_t* CTextureLoader::GenDummyTexture(int texIndex)
+{
+	cl_texture_t* pTexture = new cl_texture_t{};
+
+	pTexture->iWidth = 8;
+	pTexture->iHeight = 8;
+	strcpy(pTexture->szName, "dummy");
+	pTexture->iIndex = texIndex;
+
+	m_pEngineTextures.push_back(pTexture);
+
+	return pTexture;
+}
+
 /*
 ====================
 LoadTexture
 
 ====================
 */
-cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, int iAltIndex, bool bPrompt, bool bNoMip, bool bBorder)
+cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, bool bPrompt, bool bNoMip, bool bBorder)
 {
 	int iType = 0;
 	char szAlt[128];
@@ -131,8 +174,7 @@ cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, int iAltIndex, boo
 	// Try and find a match
 	cl_texture_t* pTexture = NULL;
 
-	if (!iAltIndex)
-		pTexture = HasTexture(szFile);
+	pTexture = HasTexture(szFile);
 
 	if (pTexture)
 	{
@@ -166,18 +208,9 @@ cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, int iAltIndex, boo
 	//
 	// Allocate cache
 	//
-	pTexture = &m_pTextures[m_iNumTextures];
-	m_iNumTextures++;
+	pTexture = new cl_texture_t{};
 
-	if (!iAltIndex)
-	{
-		pTexture->iIndex = current_ext_texture_id;
-		current_ext_texture_id++;
-	}
-	else
-	{
-		pTexture->iIndex = iAltIndex;
-	}
+	glGenTextures(1, &pTexture->iIndex);
 
 	// Copy the name over
 	strcpy(pTexture->szName, szFile);
@@ -190,8 +223,8 @@ cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, int iAltIndex, boo
 			gEngfuncs.Con_Printf("Error! Failed to load: %s.\n", szFile);
 			gEngfuncs.COM_FreeFile(pFile);
 
-			memset(pTexture, 0, sizeof(cl_texture_t));
-			m_iNumTextures--;
+			glDeleteTextures(1, &pTexture->iIndex);
+			delete pTexture;
 			return NULL;
 		}
 	}
@@ -202,14 +235,109 @@ cl_texture_t* CTextureLoader::LoadTexture(const char* szFile, int iAltIndex, boo
 			gEngfuncs.Con_Printf("Error! Failed to load: %s.\n", szFile);
 			gEngfuncs.COM_FreeFile(pFile);
 
-			memset(pTexture, 0, sizeof(cl_texture_t));
-			m_iNumTextures--;
+			glDeleteTextures(1, &pTexture->iIndex);
+			delete pTexture;
 			return NULL;
 		}
 	}
+	m_pTextures.push_back(pTexture);
 
 	gEngfuncs.COM_FreeFile(pFile);
 	return pTexture;
+}
+
+/*
+====================
+LoadTexture
+
+====================
+*/
+cl_texture_t* CTextureLoader::LoadCubemapTexture(std::vector<std::string> &szFile, bool bPrompt, bool bNoMip, bool bBorder)
+{
+	//int iType = 0;
+	//char szAlt[128];
+	//byte* pFile = NULL;
+	//
+	//if (strlen(szFile) >= 128)
+	//{
+	//	gEngfuncs.Con_Printf("Token too large on %s.\n", szFile);
+	//	return NULL;
+	//}
+	//
+	//// Try and find a match
+	//cl_texture_t* pTexture = NULL;
+	//
+	//pTexture = HasTexture(szFile);
+	//
+	//if (pTexture)
+	//{
+	//	// Just return regular ones if already loaded
+	//	return pTexture;
+	//}
+	//
+	//// Some files need to be .tga
+	//if (!strcmp(&szFile[strlen(szFile) - 3], "dds"))
+	//	pFile = (byte*)gEngfuncs.COM_LoadFile(szFile, 5, NULL);
+	//
+	//if (!pFile)
+	//{
+	//	// Check for .tga then
+	//	strcpy(szAlt, szFile);
+	//	strcpy(&szAlt[strlen(szAlt) - 3], "tga");
+	//
+	//	pFile = (byte*)gEngfuncs.COM_LoadFile(szAlt, 5, NULL);
+	//	iType = 1;
+	//}
+	//
+	//if (!pFile)
+	//{
+	//	if (bPrompt)
+	//		gEngfuncs.Con_Printf("Failed to load image: %s\n", szFile);
+	//	else
+	//		gEngfuncs.Con_DPrintf("Failed to load image: %s\n", szFile);
+	//	return NULL;
+	//}
+	//
+	////
+	//// Allocate cache
+	////
+	//pTexture = new cl_texture_t{};
+	//
+	//glGenTextures(1, &pTexture->iIndex);
+	//
+	//// Copy the name over
+	//strcpy(pTexture->szName, szFile);
+	//
+	//// Load DDS file
+	//if (iType == 0)
+	//{
+	//	if (!LoadDDSFile(pFile, pTexture, bNoMip))
+	//	{
+	//		gEngfuncs.Con_Printf("Error! Failed to load: %s.\n", szFile);
+	//		gEngfuncs.COM_FreeFile(pFile);
+	//
+	//		glDeleteTextures(1, &pTexture->iIndex);
+	//		delete pTexture;
+	//		return NULL;
+	//	}
+	//}
+	//else if (iType == 1)
+	//{
+	//	if (!LoadTGAFile(pFile, pTexture, bNoMip, bBorder))
+	//	{
+	//		gEngfuncs.Con_Printf("Error! Failed to load: %s.\n", szFile);
+	//		gEngfuncs.COM_FreeFile(pFile);
+	//
+	//		glDeleteTextures(1, &pTexture->iIndex);
+	//		delete pTexture;
+	//		return NULL;
+	//	}
+	//}
+	//m_pTextures.push_back(pTexture);
+	//
+	//gEngfuncs.COM_FreeFile(pFile);
+	//return pTexture;
+	return nullptr;
 }
 
 /*
@@ -470,7 +598,7 @@ bool CTextureLoader::LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMi
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Upload to OpenGL
-	glCompressedTexImage2DARB(GL_TEXTURE_2D, 0, (iFourCC == D3DFMT_DXT1) ? GL_COMPRESSED_RGBA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, pTexture->iWidth, pTexture->iHeight, 0, iLinSize, pData);
+	glCompressedTexImage2D(GL_TEXTURE_2D, 0, (iFourCC == D3DFMT_DXT1) ? GL_COMPRESSED_RGBA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, pTexture->iWidth, pTexture->iHeight, 0, iLinSize, pData);
 
 	delete[] pData;
 	return true;
@@ -484,10 +612,10 @@ HasTexture
 */
 cl_texture_t* CTextureLoader::HasTexture(const char* szFile)
 {
-	for (int i = 0; i < m_iNumTextures; i++)
+	for (int i = 0; i < m_pTextures.size(); i++)
 	{
-		if (!strcmp(m_pTextures[i].szName, szFile))
-			return &m_pTextures[i];
+		if (!strcmp(m_pTextures[i]->szName, szFile))
+			return m_pTextures[i];
 	}
 	return NULL;
 }
@@ -531,11 +659,14 @@ void CTextureLoader::LoadWADFiles(void)
 			iLen++;
 		}
 
-		FilenameFromPath(szWAD, szFile);
-		if (!strcmp(szFile, "decals"))
-			continue; //we load decals separately
+		gEngfuncs.Con_Printf(szWAD);
 
-		strcat(szFile, ".wad");
+		FilenameFromPath(szWAD, szFile);
+		if (!stricmp(szFile, "decals"))
+			continue; // we load decals separately
+
+		if (!strstr(szFile, ".wad"))
+			strcat(szFile, ".wad");
 
 		int iSize = 0;
 		byte* pFile = gEngfuncs.COM_LoadFile(szFile, 5, &iSize);
@@ -589,7 +720,7 @@ LoadWADTexture
 
 ====================
 */
-cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture, int iAltIndex)
+cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture)
 {
 	char szName[32];
 	cl_texture_t* pTexture = NULL;
@@ -609,8 +740,7 @@ cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture, int iAltIndex)
 
 			if (!strcmp(szName, szTexture))
 			{
-				pTexture = &m_pTextures[m_iNumTextures];
-				m_iNumTextures++;
+				pTexture = new cl_texture_t{};
 
 				// Fill in data
 				strcpy(pTexture->szName, szTexture);
@@ -628,11 +758,12 @@ cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture, int iAltIndex)
 				else
 					pPalette = pFile + pLump->filepos + iIndexOffset + (pTexture->iWidth * pTexture->iHeight) + 2;
 
-				if (iAltIndex && gBSPRenderer.m_pCvarFixTextCorruption->value == 0)
-					pTexture->iIndex = iAltIndex;
+				// if (iAltIndex && gBSPRenderer.m_pCvarFixTextCorruption->value == 0)
+				//	pTexture->iIndex = iAltIndex;
 
 				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
 				LoadPallettedTexture(pPixels, pPalette, pTexture);
+				m_pTextures.push_back(pTexture);
 				return pTexture;
 			}
 		}
@@ -763,13 +894,11 @@ void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* p
 		}
 	}
 
-	if (!pTexture->iIndex)
-	{
-		pTexture->iIndex = current_ext_texture_id;
-		current_ext_texture_id++;
-	}
+	glGenTextures(1, &pTexture->iIndex);
 
 	glBindTexture(GL_TEXTURE_2D, pTexture->iIndex);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
 	for (int i = 0; i < sizeof(texModes) / sizeof(texModes[0]); i++)
 	{
@@ -802,10 +931,9 @@ void CTextureLoader::LoadTextureScript(void)
 	char szTexture[32];
 
 	// Clear previous list
-	if (m_iNumTextureEntries)
+	if (!m_pTextureEntries.empty())
 	{
-		memset(m_pTextureEntries, 0, sizeof(m_pTextureEntries));
-		m_iNumTextureEntries = NULL;
+		m_pTextureEntries.clear();
 	}
 
 	int iSize = NULL;
@@ -963,14 +1091,14 @@ void CTextureLoader::LoadTextureScript(void)
 
 		if (iFlags)
 		{
-			texentry_t* pEntry = &m_pTextureEntries[m_iNumTextureEntries];
-			m_iNumTextureEntries++;
+			texentry_t* pEntry = new texentry_t{};
 
 			strcpy(pEntry->szModel, szModel);
 			strLower(pEntry->szModel);
 			strcpy(pEntry->szTexture, szTexture);
 			strLower(pEntry->szTexture);
 			pEntry->iFlags = iFlags;
+			m_pTextureEntries.push_back(pEntry);
 		}
 	}
 
@@ -985,12 +1113,12 @@ TextureHasFlag
 */
 bool CTextureLoader::TextureHasFlag(const char* szModel, char* szTexture, int iFlag)
 {
-	if (!m_iNumTextureEntries)
+	if (m_pTextureEntries.empty())
 		return false;
 
-	for (int i = 0; i < m_iNumTextureEntries; i++)
+	for (int i = 0; i < m_pTextureEntries.size(); i++)
 	{
-		if (!strcmp(m_pTextureEntries[i].szModel, szModel) && !strcmp(m_pTextureEntries[i].szTexture, szTexture) && m_pTextureEntries[i].iFlags & iFlag)
+		if (!strcmp(m_pTextureEntries[i]->szModel, szModel) && !strcmp(m_pTextureEntries[i]->szTexture, szTexture) && m_pTextureEntries[i]->iFlags & iFlag)
 			return true;
 	}
 
@@ -1061,4 +1189,177 @@ void CTextureLoader::WriteTGA(byte* pixels, int bpp, int width, int height, char
 	delete[] pBuf;
 }
 
-#endif
+/*
+====================
+LoadTGAFile
+
+====================
+*/
+byte* CTextureLoader::LoadTGAFileRaw(const char* filename, int &width, int &height, int& bitsperpixel, bool bBorder)
+{
+	byte* pFile = (byte*)gEngfuncs.COM_LoadFile(filename, 5, NULL);
+
+	if (!pFile)
+		return nullptr;
+
+	// Set basic information
+	tga_header_t* pHeader = (tga_header_t*)pFile;
+	if (pHeader->datatypecode != 2 && pHeader->datatypecode != 10 || pHeader->bitsperpixel != 24 && pHeader->bitsperpixel != 32)
+	{
+		gEngfuncs.Con_Printf("Error! %s is using a non-supported format. Only 24 bit and 32 bit true color formats are supported.\n", filename);
+		return false;
+	}
+
+	auto iWidth = width = ByteToUShort(pHeader->width);
+	auto iHeight = height  = ByteToUShort(pHeader->height);
+
+	if (!IsPowerOfTwo(width, height))
+	{
+		gEngfuncs.Con_Printf("Error! %s is not a power of two texture!\n", filename);
+		return false;
+	}
+
+	// Allocate data
+	auto iBpp = bitsperpixel = pHeader->bitsperpixel / 8;
+	int iSize = iWidth * iHeight;
+	int iImageSize = iSize * iBpp;
+
+	byte* pOriginal = new byte[iImageSize];
+	memset(pOriginal, 0, sizeof(byte) * iImageSize);
+
+	// Load based on type
+	byte* pCurrent = pFile + 18;
+	if (pHeader->datatypecode == 2)
+	{
+		// Uncompressed TGA
+		if (iBpp == 3)
+		{
+			for (int i = 0; i < iImageSize; i += 3)
+			{
+				pOriginal[i] = pCurrent[i + 2];
+				pOriginal[i + 1] = pCurrent[i + 1];
+				pOriginal[i + 2] = pCurrent[i];
+			}
+		}
+		else if (iBpp == 4)
+		{
+			for (int i = 0; i < iImageSize; i += 4)
+			{
+				pOriginal[i] = pCurrent[i + 2];
+				pOriginal[i + 1] = pCurrent[i + 1];
+				pOriginal[i + 2] = pCurrent[i];
+				pOriginal[i + 3] = pCurrent[i + 3];
+			}
+		}
+	}
+	else
+	{
+		// RLE Compression
+		int i = 0;
+		if (iBpp == 3)
+		{
+			while (i < iImageSize)
+			{
+				if (*pCurrent & 0x80)
+				{
+					byte bLength = *pCurrent - 127;
+					pCurrent++;
+
+					for (int j = 0; j < bLength; j++, i += iBpp)
+					{
+						pOriginal[i] = pCurrent[2];
+						pOriginal[i + 1] = pCurrent[1];
+						pOriginal[i + 2] = pCurrent[0];
+					}
+
+					pCurrent += iBpp;
+				}
+				else
+				{
+					byte bLength = *pCurrent + 1;
+					pCurrent++;
+
+					for (int j = 0; j < bLength; j++, i += iBpp, pCurrent += iBpp)
+					{
+						pOriginal[i] = pCurrent[2];
+						pOriginal[i + 1] = pCurrent[1];
+						pOriginal[i + 2] = pCurrent[0];
+					}
+				}
+			}
+		}
+		else
+		{
+			while (i < iImageSize)
+			{
+				if (*pCurrent & 0x80)
+				{
+					byte bLength = *pCurrent - 127;
+					pCurrent++;
+
+					for (int j = 0; j < bLength; j++, i += iBpp)
+					{
+						pOriginal[i] = pCurrent[2];
+						pOriginal[i + 1] = pCurrent[1];
+						pOriginal[i + 2] = pCurrent[0];
+						pOriginal[i + 3] = pCurrent[3];
+					}
+
+					pCurrent += iBpp;
+				}
+				else
+				{
+					byte bLength = *pCurrent + 1;
+					pCurrent++;
+
+					for (int j = 0; j < bLength; j++, i += iBpp, pCurrent += iBpp)
+					{
+						pOriginal[i] = pCurrent[2];
+						pOriginal[i + 1] = pCurrent[1];
+						pOriginal[i + 2] = pCurrent[0];
+						pOriginal[i + 3] = pCurrent[3];
+					}
+				}
+			}
+		}
+	}
+
+	// Flip vertically
+	byte* pFlipped = new byte[iImageSize];
+	for (int i = 0; i < iHeight; i++)
+	{
+		GLubyte* dst = pFlipped + i * iWidth * iBpp;
+		GLubyte* src = pOriginal + (iHeight - i - 1) * iWidth * iBpp;
+		memcpy(dst, src, sizeof(GLubyte) * iWidth * iBpp);
+	}
+
+	// Add border if asked to
+	if (bBorder)
+	{
+		byte* pCurrent = pFlipped;
+		for (int i = 0; i < iHeight; i++)
+		{
+			for (int j = 0; j < iWidth; j++)
+			{
+				if (i == 0 || i == (iHeight - 1) || j == 0 || j == (iWidth - 1))
+				{
+					pCurrent[0] = 0;
+					pCurrent[1] = 0;
+					pCurrent[2] = 0;
+				}
+
+				if (iBpp == 3)
+					pCurrent += 3;
+				else
+					pCurrent += 4;
+			}
+		}
+	}
+
+	gEngfuncs.COM_FreeFile(pFile);
+
+
+	delete[] pOriginal;
+
+	return pFlipped;
+}

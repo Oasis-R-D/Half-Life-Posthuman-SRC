@@ -57,7 +57,7 @@
 #define NOWINRES
 #define NOIME
 
-// Fix problems with ARRAYSIZE and HSPRITE SDK definitions conflicting with Windows header definitions
+// Fix problems with ARRAYSIZE and HSPRITE_GOLDSRC SDK definitions conflicting with Windows header definitions
 // TODO: ARRAYSIZE should be replaced with std::size, which is a superior replacement
 #pragma push_macro("ARRAYSIZE")
 #ifdef ARRAYSIZE_GLDSRC

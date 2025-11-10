@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <cassert>
 
 typedef float vec_t;
 
@@ -36,6 +37,42 @@ typedef int fixed16_t;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846 // matches value in gcc v2 math.h
 #endif
+
+#ifndef M_PI2
+#define M_PI2 6.28318530717958647692
+#endif
+
+#ifndef RAD2DEG
+#define RAD2DEG(x) ((float)(x) * (float)(180.f / M_PI))
+#endif
+
+#ifndef DEG2RAD
+#define DEG2RAD(x) ((float)(x) * (float)(M_PI / 180.f))
+#endif
+
+#define bound(min, num, max) ((num) >= (min) ? ((num) < (max) ? (num) : (max)) : (min))
+
+#define V_min(a, b) (((a) < (b)) ? (a) : (b))
+#define V_max(a, b) (((a) > (b)) ? (a) : (b))
+
+
+struct matrix3x4_t
+{
+	inline float* operator[](int i)
+	{
+		assert((i >= 0) && (i < 3));
+		return m_flMatVal[i];
+	}
+	inline const float* operator[](int i) const
+	{
+		assert((i >= 0) && (i < 3));
+		return m_flMatVal[i];
+	}
+	inline float* Base() { return &m_flMatVal[0][0]; }
+	inline const float* Base() const { return &m_flMatVal[0][0]; }
+
+	float m_flMatVal[3][4];
+};
 
 struct mplane_s;
 
@@ -63,6 +100,21 @@ extern int nanmask;
 		(b)[1] = (a)[1]; \
 		(b)[2] = (a)[2]; \
 	}
+
+inline void VectorMin(const Vector& a, const Vector& b, Vector& result)
+{
+	result.x = V_min(a.x, b.x);
+	result.y = V_min(a.y, b.y);
+	result.z = V_min(a.z, b.z);
+}
+
+inline void VectorMax(const Vector& a, const Vector& b, Vector& result)
+{
+	result.x = V_max(a.x, b.x);
+	result.y = V_max(a.y, b.y);
+	result.z = V_max(a.z, b.z);
+}
+
 inline void VectorClear(float* a)
 {
 	a[0] = 0.0;
@@ -81,7 +133,7 @@ void VectorScale(const float* in, float scale, float* out);
 int Q_log2(int val);
 
 void R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3]);
-void R_ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4]);
+void R_ConcatTransforms(const matrix3x4_t in1, const matrix3x4_t in2, matrix3x4_t& out);
 
 void FloorDivMod(double numer, double denom, int* quotient,
 	int* rem);
@@ -92,9 +144,9 @@ void AngleVectors(const Vector& angles, Vector* forward, Vector* right, Vector* 
 void AngleVectorsTranspose(const Vector& angles, Vector* forward, Vector* right, Vector* up);
 #define AngleIVectors AngleVectorsTranspose
 
-void AngleMatrix(const float* angles, float (*matrix)[4]);
-void AngleIMatrix(const Vector& angles, float (*matrix)[4]);
-void VectorTransform(const float* in1, float in2[3][4], float* out);
+void AngleMatrix(const float* angles, matrix3x4_t &matrix);
+void AngleIMatrix(const Vector& angles, matrix3x4_t &matrix);
+void VectorTransform(const float* in1, const matrix3x4_t &in2, float* out);
 
 void NormalizeAngles(float* angles);
 void InterpolateAngles(float* start, float* end, float* output, float frac);
@@ -106,7 +158,6 @@ void VectorAngles(const float* forward, float* angles);
 
 int InvertMatrix(const float* m, float* out);
 
-//int BoxOnPlaneSide(const Vector& emins, const Vector& emaxs, struct mplane_s* plane);
 float anglemod(float a);
 
 

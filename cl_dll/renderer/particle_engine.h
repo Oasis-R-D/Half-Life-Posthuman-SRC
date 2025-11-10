@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -18,7 +19,6 @@ Written by Andrew Lucas
 #endif
 
 #include "PlatformHeaders.h"
-#include "gl/gl.h"
 #include "pm_defs.h"
 #include "cl_entity.h"
 #include "ref_params.h"
@@ -27,6 +27,41 @@ Written by Andrew Lucas
 #include "cvardef.h"
 #include "textureloader.h"
 #include "rendererdefs.h"
+
+#include <unordered_map>
+
+
+struct ParticlePairHash
+{
+	template <class T1, class T2>
+	std::size_t operator()(const std::pair<T1, T2>& p) const
+	{
+		auto h1 = std::hash<T1>{}(p.first);
+		auto h2 = std::hash<T2>{}(p.second);
+		return h1 ^ (h2 << 1);
+	}
+};
+
+struct ParticleColor
+{
+	byte r, g, b, a;
+};
+
+struct ParticleVertex
+{
+	Vector pos;
+	float uv[2];
+	ParticleColor color;
+};
+
+struct ParticleQuad
+{
+	ParticleVertex vert[4];
+};
+
+class GL_BufferHandler;
+class GL_ShaderProgram;
+class GL_VertexArrayObject;
 
 /*
 ====================
@@ -41,8 +76,9 @@ public:
 	void VidInit(void);
 	void Shutdown(void);
 
-	void CreateCluster(const char* szPath, vec3_t origin, vec3_t dir, int iId);
-	particle_system_t* CreateSystem(char* szPath, vec3_t origin, vec3_t dir, int iId, particle_system_t* parent = NULL);
+	void CreateCluster(const char* szPath, Vector origin, Vector dir, int iId);
+	particle_system_t* CreateSystem(char* szPath, Vector origin, Vector dir, int iId, particle_system_t* parent = NULL);
+	particle_system_t* CreateSystem_File(char* szSystem, Vector origin, Vector dir, int iId, particle_system_t* parent = NULL);
 	void RemoveSystem(int iId);
 
 	particle_system_t* AllocSystem(void);
@@ -53,18 +89,25 @@ public:
 	void CullSystems(void);
 	void UpdateSystems(void);
 
-	vec3_t LightForParticle(cl_particle_t* pParticle);
+	Vector LightForParticle(cl_particle_t* pParticle);
 	bool CheckLightBBox(cl_particle_t* pParticle, cl_dlight_t* pLight);
 
 	void EnvironmentCreateFirst(particle_system_t* pSystem);
 
 	void CreateParticle(particle_system_t* pSystem, float* flOrigin = NULL, float* flNormal = NULL);
 	bool UpdateParticle(cl_particle_t* pParticle);
-	void RenderParticle(cl_particle_t* pParticle, float flUp, float flRight);
+	void GetParticleQuad(cl_particle_t* pParticle, float flUp, float flRight, std::vector<ParticleQuad>& quadlist);
+
+	void DrawQuadList(std::unordered_map<std::pair<GLuint, int>, std::vector<ParticleQuad>, ParticlePairHash>& particlebatch, particle_system_t* psystem);
 
 	int MsgCreateSystem(const char* pszName, int iSize, void* pbuf);
 
 public:
+	GL_BufferHandler* m_pQuadBuffer;
+	GL_ShaderProgram *m_ParticleShader;
+	GL_VertexArrayObject* m_pParticleVAO;
+	GLuint goldsrc_particletexture;
+
 	particle_system_t* m_pSystemHeader;
 
 	cvar_t* m_pCvarDrawParticles;
@@ -82,12 +125,12 @@ public:
 	int m_iNumFreedSystems;
 	int m_iNumCreatedSystems;
 
-	vec3_t m_vForward;
-	vec3_t m_vRight;
-	vec3_t m_vUp;
+	Vector m_vForward;
+	Vector m_vRight;
+	Vector m_vUp;
 
-	vec3_t m_vRRight;
-	vec3_t m_vRUp;
+	Vector m_vRRight;
+	Vector m_vRUp;
 };
 extern CParticleEngine gParticleEngine;
 #endif

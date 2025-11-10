@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -9,14 +10,10 @@ ails.
 
 Renderer base definitions and functions
 Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
+Overhauled by SalsaTobias
 */
 
-#ifdef TRINITY
-
 #include "PlatformHeaders.h"
-#include <gl/gl.h>
-#include "gl/glext.h"
-
 #include "STDIO.H"
 #include "STDLIB.H"
 #include "MATH.H"
@@ -28,21 +25,32 @@ Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 #include "triangleapi.h"
 #include "event_api.h"
 
+#include "shake.h"
+
 #include "rendererdefs.h"
 #include "bsprenderer.h"
 #include "particle_engine.h"
 #include "propmanager.h"
 #include "watershader.h"
 #include "mirrormanager.h"
+#include "goldsrc_beamrenderer.h"
+#include "goldsrc_tracerrenderer.h"
+
+#include "exports.h"
 
 #include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
-#ifdef GOLDSRC_PHYS
-#include "PhyStudioModelRenderer.h"
-extern PhyStudioModelRenderer g_StudioRenderer;
-#else
-extern CGameStudioModelRenderer g_StudioRenderer;
-#endif
+
+#include "goldsrc_spriterenderer.h"
+
+#include "opengl_utils/GL_FBO.h"
+#include "opengl_utils/GL_Buffers.h"
+#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/GL_DebugInterface.h"
+#include "opengl_utils/GL_ShadowMap.h"
+#include "opengl_utils/GL_StateHandler.h"
+
+#include "BSPModel_Gen.h"
+
 
 #ifndef BOX_ON_PLANE_SIDE
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p)                                                                 \
@@ -54,20 +62,27 @@ extern CGameStudioModelRenderer g_StudioRenderer;
 					 : BoxOnPlaneSide((emins), (emaxs), (p)))
 #endif
 
-#define BASE_EXT_TEXTURE_ID (1 << 26) // dont use zero
-int current_ext_texture_id = BASE_EXT_TEXTURE_ID;
-
-vec3_t g_vecFull(1.0f, 1.0f, 1.0f); // color of 3d attenuation texture
+Vector g_vecFull(1.0f, 1.0f, 1.0f); // color of 3d attenuation texture
 
 glstate_t g_savedGLState;
 
-double sqrt(double x);
+bool g_iNightVision;
+bool g_iFlashLight;
 
-mleaf_t* r_oldviewleaf;
 int r_visframecount;
+clientmleaf_t* r_oldviewleaf;
 
-bool g_iNightVision = false;
-bool g_iFlashLight = false;
+model_t* cl_sprite_dot;
+model_t* cl_sprite_lightning;
+model_t* cl_sprite_white;
+model_t* cl_sprite_glow;
+model_t* cl_sprite_muzzleflash[3];
+model_t* cl_sprite_ricochet;
+model_t* cl_sprite_shell;
+
+extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
+
+double sqrt(double x);
 
 //==========================
 //	stristr
@@ -145,175 +160,12 @@ void FilenameFromPath(const char* szin, char* szout)
 
 #define shuffle(a, b, c) (((a) << 4) | ((b) << 2) | ((c)))
 
-//==========================
-// SSE DotProduct Plane EQ
-//
-//==========================
-inline void SSEDotProductSub(float* result, vec3_t* v0, vec3_t* v1, float* subval)
+inline void DotProductSub(float* result, Vector* v0, Vector* v1, float* subval)
 {
-	_asm {
-		mov             esi,    v0
-		mov             edi,    v1
-		mov             eax,    result;
-		mov             edx,    subval;
-
-		movups  xmm0,   [esi];
-		movups  xmm1,   [edi];
-
-		mulps   xmm0,   xmm1;
-
-		movups  xmm2,   xmm0;
-		shufps  xmm2,   xmm0, shuffle(0x01, 0x00, 0x02);
-		addps   xmm2,   xmm0;
-		shufps  xmm0,   xmm2, shuffle(0x02, 0x00, 0x01);
-		addps   xmm0,   xmm2;
-
-		subss   xmm0,   [edx];
-		movss   [eax],  xmm0;
-	}
-}
-
-//==========================
-// SSE DotProduct world coord on Studio Models
-//
-//==========================
-inline void SSEDotProductWorld(float* result, const float* v0, const float* v1)
-{
-	_asm {
-		mov             esi,    v0
-		mov             edi,    v1
-		mov             eax,    result;
-
-		movups  xmm0,   [esi];
-		movups  xmm1,   [edi];
-
-		mulps   xmm0,   xmm1;
-
-		movups  xmm2,   xmm0;
-		shufps  xmm2,   xmm0, shuffle(0x01, 0x00, 0x02);
-		addps   xmm2,   xmm0;
-		shufps  xmm0,   xmm2, shuffle(0x02, 0x00, 0x01);
-		addps   xmm0,   xmm2;
-
-		addss   xmm0,   [edi+12];
-		movss   [eax],  xmm0;
-	}
-}
-
-//==========================
-// SSE DotProduct
-//
-//==========================
-inline void DotProductSSE(float* result, const float* v0, const float* v1)
-{
-	_asm {
-		mov             esi,    v0
-		mov             edi,    v1
-		mov             eax,    result;
-
-		movups  xmm0,   [esi];
-		movups  xmm1,   [edi];
-
-		mulps   xmm0,   xmm1;
-
-		movups  xmm2,   xmm0;
-		shufps  xmm2,   xmm0, shuffle(0x01, 0x00, 0x02);
-		addps   xmm2,   xmm0;
-		shufps  xmm0,   xmm2, shuffle(0x02, 0x00, 0x01);
-		addps   xmm0,   xmm2;
-
-		movss   [eax],  xmm0;
-	}
-}
-
-/*
-====================
-VectorAddSSE
-
-====================
-*/
-inline void VectorAddSSE(const float* v0, const float* v1, const float* result)
-{
-	_asm {
-		mov	esi,	v0
-		mov	edi,	v1
-		mov	eax,	result
-
-		movss	xmm0,	[esi]
-		movss	xmm1,	[esi+4]
-		movss   xmm2,	[esi+8]
-
-		addss	xmm0,   [edi]
-		addss	xmm1,   [edi+4]
-		addss	xmm2,   [edi+8]
-
-		movss	[eax],		xmm0
-		movss	[eax+4],	xmm1
-		movss	[eax+8],	xmm2
-	}
-}
-
-/*
-====================
-VectorSubtract
-
-====================
-*/
-inline void VectorMASSE(const float* veca, float scale, const float* vecb, float* vecc)
-{
-	_asm {
-		mov		eax,  veca;
-		mov		ebx,  vecb;
-		mov		ecx,  vecc;
-		movss	xmm7, scale;
-
-		;scale*vecb
-		movss	xmm0, [ebx];
-		movss	xmm1, [ebx+4];
-		movss	xmm2, [ebx+8];
-		mulss	xmm0, xmm7;
-		mulss	xmm1, xmm7;
-		mulss	xmm2, xmm7;
-
-		;(scale*vecb) + veca
-		movss	xmm3, [eax];
-		movss	xmm4, [eax+4];
-		movss	xmm5, [eax+8];
-		addss	xmm0, xmm3;
-		addss	xmm1, xmm4;
-		addss	xmm2, xmm5;
-
-		;return_it
-		movss	[ecx],   xmm0;
-		movss	[ecx+4], xmm1;
-		movss	[ecx+8], xmm2;
-	}
-}
-
-/*
-====================
-VectorRotateSSE
-
-====================
-*/
-inline void VectorRotateSSE(const float* in1, float in2[3][4], float* out)
-{
-	DotProductSSE(&out[0], in1, in2[0]);
-	DotProductSSE(&out[1], in1, in2[1]);
-	DotProductSSE(&out[2], in1, in2[2]);
-}
-
-/*
-====================
-VectorTransformSSE
-
-====================
-*/
-inline void VectorTransformSSE(const float* in1, float in2[3][4], float* out)
-{
-	SSEDotProductWorld(&out[0], in1, in2[0]);
-	SSEDotProductWorld(&out[1], in1, in2[1]);
-	SSEDotProductWorld(&out[2], in1, in2[2]);
+	auto mmPos = _mm_loadu_ps((const float*)v0);
+	auto mmPlane = _mm_loadu_ps((const float*)v1);
+	auto result_ = _mm_sub_ps(_mm_dp_ps(mmPos, mmPlane, 0b01110111), _mm_load_ps1(subval));
+	*result = _mm_cvtss_f32(result_);
 }
 
 /*
@@ -322,7 +174,7 @@ VectorIRotate
 
 ====================
 */
-void VectorIRotate(const vec3_t& in1, const float in2[3][4], vec3_t& out)
+void VectorIRotate(const Vector& in1, const matrix3x4_t &in2, Vector& out)
 {
 	out[0] = in1[0] * in2[0][0] + in1[1] * in2[1][0] + in1[2] * in2[2][0];
 	out[1] = in1[0] * in2[0][1] + in1[1] * in2[1][1] + in1[2] * in2[2][1];
@@ -331,15 +183,29 @@ void VectorIRotate(const vec3_t& in1, const float in2[3][4], vec3_t& out)
 
 /*
 ====================
-VectorIRotate
+VectorRotate
 
 ====================
 */
-void VectorRotate(const vec3_t& in1, const float in2[3][4], vec3_t& out)
+void VectorRotate(const Vector& in1, const matrix3x4_t &in2, Vector& out)
 {
 	out[0] = in1[0] * in2[0][0] + in1[1] * in2[0][1] + in1[2] * in2[0][2];
 	out[1] = in1[0] * in2[1][0] + in1[1] * in2[1][1] + in1[2] * in2[1][2];
 	out[2] = in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2];
+
+}
+
+/*
+====================
+VectorRotate
+
+====================
+*/
+void VectorRotateAbs(const Vector& in1, const matrix3x4_t& in2, Vector& out)
+{
+	out[0] = fabs(in1[0] * in2[0][0]) + fabs(in1[1] * in2[0][1]) + fabs(in1[2] * in2[0][2]);
+	out[1] = fabs(in1[0] * in2[1][0]) + fabs(in1[1] * in2[1][1]) + fabs(in1[2] * in2[1][2]);
+	out[2] = fabs(in1[0] * in2[2][0]) + fabs(in1[1] * in2[2][1]) + fabs(in1[2] * in2[2][2]);
 }
 
 //==========================
@@ -368,29 +234,25 @@ void ClampColor(int r, int g, int b, color24* out)
 }
 
 //==========================
-//	R_RotateForEntity
-//
-//==========================
-void R_RotateForEntity(cl_entity_t* e)
-{
-	glTranslatef(e->origin[0], e->origin[1], e->origin[2]);
-
-	glRotatef(e->angles[1], 0, 0, 1);
-	glRotatef(-e->angles[0], 0, 1, 0);
-	glRotatef(e->angles[2], 1, 0, 0);
-}
-
-//==========================
 //	IsEntityMoved
 //
 //==========================
 int IsEntityMoved(cl_entity_t* e)
 {
+	//need a better way to identify ents with scrolling textures without the use of flags
+
+	//auto psurf = &engine_cl->worldmodel->surfaces[e->model->firstmodelsurface];
+	//for (int i = 0; i < e->model->nummodelsurfaces; i++, psurf++)
+	//{
+	//	if (stristr(psurf->texinfo->texture->name, "scroll"))
+	//	{
+	//		return true;
+	//	}
+	//}
+
 	if (e->angles[0] || e->angles[1] || e->angles[2] ||
 		e->origin[0] || e->origin[1] || e->origin[2] ||
-		e->curstate.renderfx == 70 ||
-		e->curstate.effects & FL_CONVEYOR ||
-		e->curstate.frame > 0) // skybox models reques separate pass
+		e->curstate.frame > 0)
 		return TRUE;
 	else
 		return FALSE;
@@ -425,222 +287,85 @@ int IsPitchReversed(float pitch)
 	return 1;
 }
 
-//==========================
-//	BlackFog
-//
-//==========================
-void BlackFog(void)
-{
-	if (gHUD.m_pFogSettings.active)
-		glFogfv(GL_FOG_COLOR, g_vecZero);
-	else
-		glDisable(GL_FOG);
-}
-
-//==========================
-//	RenderFog
-//
-//==========================
-void RenderFog(void)
-{
-	if (gHUD.m_pFogSettings.active)
-	{
-		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
-		glFogf(GL_FOG_DENSITY, 1.0f);
-		glHint(GL_FOG_HINT, GL_NICEST);
-
-		glFogf(GL_FOG_START, gHUD.m_pFogSettings.start);
-		glFogf(GL_FOG_END, gHUD.m_pFogSettings.end);
-		glFogfv(GL_FOG_COLOR, gHUD.m_pFogSettings.color);
-
-		if (gBSPRenderer.m_bRadialFogSupport && gBSPRenderer.m_pCvarRadialFog->value >= 1)
-			glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_RADIAL_NV);
-		else
-			glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_PLANE_ABSOLUTE_NV);
-	}
-	else
-	{
-		glDisable(GL_FOG);
-	}
-}
-
-//==========================
-//	ClearToFogColor
-//
-//	Thanks to Laurie
-//==========================
-void ClearToFogColor(void)
-{
-	if (!gHUD.m_pFogSettings.active)
-		return;
-
-	glClearColor(gHUD.m_pFogSettings.color[0], gHUD.m_pFogSettings.color[1], gHUD.m_pFogSettings.color[2], 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-//==========================
-//	DisableFog
-//
-//==========================
-void DisableFog(void)
-{
-	glDisable(GL_FOG);
-}
-
-void MyLookAt(GLdouble eyex, GLdouble eyey, GLdouble eyez,
-	GLdouble centerx, GLdouble centery, GLdouble centerz,
-	GLdouble upx, GLdouble upy, GLdouble upz)
-{
-	GLdouble m[16];
-	GLdouble x[3], y[3], z[3];
-	GLdouble mag;
-
-	/* Make rotation matrix */
-
-	/* Z vector */
-	z[0] = eyex - centerx;
-	z[1] = eyey - centery;
-	z[2] = eyez - centerz;
-	mag = sqrt(z[0] * z[0] + z[1] * z[1] + z[2] * z[2]);
-	if (mag)
-	{ /* mpichler, 19950515 */
-		z[0] /= mag;
-		z[1] /= mag;
-		z[2] /= mag;
-	}
-
-	/* Y vector */
-	y[0] = upx;
-	y[1] = upy;
-	y[2] = upz;
-
-	/* X vector = Y cross Z */
-	x[0] = y[1] * z[2] - y[2] * z[1];
-	x[1] = -y[0] * z[2] + y[2] * z[0];
-	x[2] = y[0] * z[1] - y[1] * z[0];
-
-	/* Recompute Y = Z cross X */
-	y[0] = z[1] * x[2] - z[2] * x[1];
-	y[1] = -z[0] * x[2] + z[2] * x[0];
-	y[2] = z[0] * x[1] - z[1] * x[0];
-
-	/* mpichler, 19950515 */
-	/* cross product gives area of parallelogram, which is < 1.0 for
-	 * non-perpendicular unit-length vectors; so normalize x, y here
-	 */
-
-	mag = sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
-	if (mag)
-	{
-		x[0] /= mag;
-		x[1] /= mag;
-		x[2] /= mag;
-	}
-
-	mag = sqrt(y[0] * y[0] + y[1] * y[1] + y[2] * y[2]);
-	if (mag)
-	{
-		y[0] /= mag;
-		y[1] /= mag;
-		y[2] /= mag;
-	}
-
-#define M(row, col) m[col * 4 + row]
-	M(0, 0) = x[0];
-	M(0, 1) = x[1];
-	M(0, 2) = x[2];
-	M(0, 3) = 0.0;
-	M(1, 0) = y[0];
-	M(1, 1) = y[1];
-	M(1, 2) = y[2];
-	M(1, 3) = 0.0;
-	M(2, 0) = z[0];
-	M(2, 1) = z[1];
-	M(2, 2) = z[2];
-	M(2, 3) = 0.0;
-	M(3, 0) = 0.0;
-	M(3, 1) = 0.0;
-	M(3, 2) = 0.0;
-	M(3, 3) = 1.0;
-#undef M
-	glMultMatrixd(m);
-	glTranslated(-eyex, -eyey, -eyez);
-}
 
 //==========================
 //	MOD_PointInLeaf
 //
 //==========================
-mleaf_t* Mod_PointInLeaf(vec3_t p, model_t* model)
+clientmleaf_t* Mod_PointInLeaf(Vector p)
 {
-	mnode_t* node;
+	clientmnode_t* node;
 	float d;
 	mplane_t* plane;
 
-	if (!model || !model->nodes)
-		return NULL;
-		//Sys_Error("%s: bad model", __func__);
-
-	node = model->nodes;
-	while (node->contents >= 0)
+	node = BSPWorld_Model::m_pWorldNodes;
+	while (1)
 	{
+		if (node->contents < 0)
+			return (clientmleaf_t*)node;
 		plane = node->plane;
-		if (plane->type >= 3u)
-			d = DotProduct(plane->normal, p) - plane->dist;
-		else
-			d = p[plane->type] - plane->dist;
-
-		if (d <= 0.0)
-			node = node->children[1];
-		else
+		d = DotProduct (p,plane->normal) - plane->dist;
+		if (d > 0)
 			node = node->children[0];
+		else
+			node = node->children[1];
 	}
-	return (mleaf_t*)node;
+
+	return NULL; // never reached
 }
-int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, mplane_t* p)
+int BoxOnPlaneSide(Vector emins, Vector emaxs, mplane_t* p)
 {
 	float dist1, dist2;
 	int sides;
+
+	// fast axial cases
+	if (p->type < 3)
+	{
+		if (p->dist <= emins[p->type])
+			return 1;
+		if (p->dist >= emaxs[p->type])
+			return 2;
+		return 3;
+	}
 
 	// general case
 	switch (p->signbits)
 	{
 	case 0:
-		dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
-		dist2 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
+		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
+		dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
 		break;
 	case 1:
-		dist1 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
-		dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
+		dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
+		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
 		break;
 	case 2:
-		dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
-		dist2 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
+		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
+		dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
 		break;
 	case 3:
-		dist1 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
-		dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
+		dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
+		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
 		break;
 	case 4:
-		dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
-		dist2 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
+		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
+		dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
 		break;
 	case 5:
-		dist1 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
-		dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
+		dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
+		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
 		break;
 	case 6:
-		dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
-		dist2 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
+		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
+		dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
 		break;
 	case 7:
-		dist1 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
-		dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
+		dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
+		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
 		break;
 	default:
-		dist1 = dist2 = 0; // shut up compiler
-		gEngfuncs.Con_Printf("BoxOnPlaneSide error\n");
+		dist1 = dist2 = 0;		// shut up compiler
+		assert( 0 );
 		break;
 	}
 
@@ -657,10 +382,10 @@ SV_FindTouchedLeafs
 
 ===============
 */
-void SV_FindTouchedLeafs(entextradata_t* ent, mnode_t* node)
+void SV_FindTouchedLeafs(entextradata_t* ent, clientmnode_t* node)
 {
 	mplane_t* splitplane;
-	mleaf_t* leaf;
+	clientmleaf_t* leaf;
 	int sides;
 	int leafnum;
 
@@ -668,14 +393,13 @@ void SV_FindTouchedLeafs(entextradata_t* ent, mnode_t* node)
 		return;
 
 	// add an efrag if the node is a leaf
-	model_t* world = IEngineStudio.GetModelByIndex(1);
 	if (node->contents < 0)
 	{
 		if (ent->num_leafs == MAX_ENT_LEAFS)
 			return;
 
-		leaf = (mleaf_t*)node;
-		leafnum = leaf - world->leafs - 1;
+		leaf = (clientmleaf_t*)node;
+		leafnum = leaf - BSPWorld_Model::m_pWorldLeafs - 1;
 
 		ent->leafnums[ent->num_leafs] = leafnum;
 		ent->num_leafs++;
@@ -701,14 +425,14 @@ Mod_DecompressVis
 ===================
 */
 
-byte* Mod_DecompressVis(byte* in, model_t* model)
+byte* Mod_DecompressVis(byte* in)
 {
 	static byte decompressed[MAX_MAP_LEAFS / 8];
 	int c;
 	byte* out;
 	int row;
 
-	row = (model->numleafs + 7) >> 3;
+	row = (BSPWorld_Model::m_iNumWorldLeafs + 7) >> 3;
 	out = decompressed;
 
 	if (!in)
@@ -741,57 +465,57 @@ byte* Mod_DecompressVis(byte* in, model_t* model)
 	return decompressed;
 }
 
-byte* Mod_LeafPVS(mleaf_t* leaf, model_t* model)
+byte* Mod_LeafPVS(clientmleaf_t* leaf)
 {
-	if (leaf == model->leafs)
-		return Mod_DecompressVis(NULL, model);
+	if (leaf == BSPWorld_Model::m_pWorldLeafs)
+		return Mod_DecompressVis(NULL);
 
-	return Mod_DecompressVis(leaf->compressed_vis, model);
+	return Mod_DecompressVis(leaf->compressed_vis);
 }
 
 /*
 ===============
 R_MarkLeaves
-it doesnt even work but ill try to fix it
 ===============
 */
-void R_MarkLeaves(mleaf_t* pLeaf)
+void R_MarkLeaves(clientmleaf_t* pLeaf)
 {
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
-	cl_entity_t* worldent = gEngfuncs.GetEntityByIndex(1);
-	byte* vis;
-	byte solid[4096];
+	static cl_entity_t* worldent = gEngfuncs.GetEntityByIndex(1);
+	static byte solid[4096];
+	static cvar_t* r_novis = gEngfuncs.pfnGetCvarPointer("r_novis");
 	if (r_oldviewleaf == pLeaf)
 	{
-		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
-			goto savevis;
+		if (r_novis->value == 0)
+			return;
 
 		r_visframecount++;
+
 		goto label;
 	}
 	else
 	{
-		r_visframecount++;
 		r_oldviewleaf = pLeaf;
-		if (gEngfuncs.pfnGetCvarFloat("r_novis") == 0)
+		r_visframecount++;
+		if (r_novis->value == 0)
 		{
-			vis = Mod_LeafPVS(pLeaf, pWorld);
+			// Get current vis data
+			gBSPRenderer.m_pPVS = Mod_LeafPVS(pLeaf);
 		}
 		else
 		{
 		label:
-			memset(solid, 255, (pWorld->numleafs + 7) >> 3);
-			vis = solid;
+			memset(solid, 255, (BSPWorld_Model::m_iNumWorldLeafs + 7) >> 3);
+			gBSPRenderer.m_pPVS = solid;
 		}
 	}
 
-	if (pWorld->numleafs > 0)
+	if (BSPWorld_Model::m_iNumWorldLeafs > 0)
 	{
-		for (int i = 0; i < pWorld->numleafs; i++)
+		for (int i = 0; i < BSPWorld_Model::m_iNumWorldLeafs; i++)
 		{
-			if (vis[i >> 3] & (1 << (i & 7)))
+			if (CHECKVISBIT(gBSPRenderer.m_pPVS, i))
 			{
-				mnode_t* node = (mnode_t*)&pWorld->leafs[i + 1];
+				clientmnode_t* node = (clientmnode_t*)&BSPWorld_Model::m_pWorldLeafs[i + 1];
 				do
 				{
 					if (node->visframe == r_visframecount)
@@ -803,22 +527,6 @@ void R_MarkLeaves(mleaf_t* pLeaf)
 			}
 		}
 	}
-
-savevis:
-
-	int numleafnodes = 0;
-
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs; i++)
-	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i + 1];
-		do
-		{
-			gBSPRenderer.oldvisframes[numleafnodes] = node->visframe;
-			node = node->parent;
-			numleafnodes++;
-		} while (node);
-	}
-	numleafnodes = numleafnodes;
 }
 
 byte* ResizeArray(byte* pOriginal, int iSize, int iCount)
@@ -835,6 +543,19 @@ byte* ResizeArray(byte* pOriginal, int iSize, int iCount)
 	return pArray;
 }
 
+
+char* UTIL_VarArgs_client(const char* format, ...)
+{
+	va_list argptr;
+	static char string[1024];
+
+	va_start(argptr, format);
+	vsprintf(string, format, argptr);
+	va_end(argptr);
+
+	return string;
+}
+
 /*
 =================
 HUD_PrintSpeeds
@@ -843,11 +564,11 @@ HUD_PrintSpeeds
 */
 void HUD_PrintSpeeds(void)
 {
-	if (gBSPRenderer.m_pCvarSpeeds->value <= 0)
+	if (!gBSPRenderer.m_pCvarSpeeds->value)
 		return;
 
 	static float flLastTime;
-	float flCurTime = gEngfuncs.GetClientTime();
+	float flCurTime = engine_cl->time;
 	float flFrameTime = flCurTime - flLastTime;
 	flLastTime = flCurTime;
 
@@ -859,9 +580,29 @@ void HUD_PrintSpeeds(void)
 		flFrameTime = 1;
 
 	int iFPS = 1 / flFrameTime;
-	gEngfuncs.Con_Printf("%i wpolys, %i epolys, %i studio polys\n, %i particles, %i fps\n",
-		gBSPRenderer.m_iWorldPolyCounter, gBSPRenderer.m_iBrushPolyCounter, gBSPRenderer.m_iStudioPolyCounter,
-		gParticleEngine.m_iNumParticles, iFPS);
+
+	gHUD.DrawHudString(50, 20, 0, UTIL_VarArgs_client("FPS: %d\n", iFPS), 255, 255, 255);
+	gHUD.DrawHudString(50, 50, 0, UTIL_VarArgs_client("%s took %f ms\n", WATER_PASS_TIME, gWaterShader.m_fRenderTime), 255, 255, 255);
+	gHUD.DrawHudString(70, 70, 0, UTIL_VarArgs_client("water passes made: %d\n", gWaterShader.m_iNumPasses), 255, 255, 255);
+	gHUD.DrawHudString(50, 100, 0, UTIL_VarArgs_client("%s took %f ms\n", MIRROR_PASS_TIME, gMirrorManager.m_fRenderTime), 255, 255, 255);
+	gHUD.DrawHudString(70, 120, 0, UTIL_VarArgs_client("mirror passes made: %d\n", gMirrorManager.m_iNumPasses), 255, 255, 255);
+	gHUD.DrawHudString(50, 150, 0, UTIL_VarArgs_client("%s took %f ms\n", SHADOWMAP_PASS_TIME, gBSPRenderer.m_fShadowGenerationTime), 255, 255, 255);
+	gHUD.DrawHudString(70, 170, 0, UTIL_VarArgs_client("shadow passes made: %d\n", gBSPRenderer.m_iNumTotalShadows), 255, 255, 255);
+	gHUD.DrawHudString(50, 200, 0, UTIL_VarArgs_client("%s took %f ms\n", MAINWORLDSCENE_PASS_TIME, gBSPRenderer.m_fMainWorldRenderTime), 255, 255, 255);
+	gHUD.DrawHudString(70, 220, 0, UTIL_VarArgs_client("num brush verts drawn: %d\n", gBSPRenderer.m_iBSPVertsCounter), 255, 255, 255);
+	gHUD.DrawHudString(50, 250, 0, UTIL_VarArgs_client("%s took %f ms\n", STUDIOMDL_PASS_TIME, g_StudioRenderer.m_fStudioMDLRenderTime), 255, 255, 255);
+	gHUD.DrawHudString(70, 270, 0, UTIL_VarArgs_client("num studiomdl polys drawn: %d\n", gBSPRenderer.m_iStudioPolyCounter), 255, 255, 255);
+}
+
+
+ref_params_t* r_refdef; // the refdef param pointer lasts until the end of v_renderview. so reset it on hud_drawtransparenttriangles
+
+int restore_numleafs = 0;
+
+void R_SetupView(ref_params_t* pparams)
+{
+	gBSPRenderer.RendererRefDef(pparams);
+	g_StudioRenderer.StudioPreFrame(pparams);
 }
 
 /*
@@ -872,47 +613,238 @@ R_CalcRefDef
 */
 void R_CalcRefDef(ref_params_t* pparams)
 {
-	// Set this at start
+	if (gEngfuncs.pfnGetCvarFloat("r_norefresh") != 0.0)
+		return;
 
-	gBSPRenderer.saved_leaf_visframe = gBSPRenderer.m_pWorld->nodes[0].visframe;
-	RenderFog();
+	if (restore_numleafs)
+		engine_cl->worldmodel->numleafs = restore_numleafs;
 
-	if (g_iNightVision)
-	{
-		SetupFlashlight(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
-	}
+	pparams->onlyClientDraw = 1;
+	r_refdef = pparams;
+
+	// all entities have been set up by goldsrc, get them
+	gBSPRenderer.GetRenderEnts();
+
+	//if (g_iNightVision) 
+	//{
+	//	SetupFlashlight(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+	//}
 
 	if (g_iFlashLight)
 	{
-		SetupFlashlight2(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+		SetupFlashlight(pparams->vieworg, pparams->viewangles, engine_cl->time, gHUD.m_flTimeDelta);
 	}
 
 	// Set up pre-frame stuff
 	gBSPRenderer.SetupPreFrame(pparams);
 
-	// Render shadow maps into depth images
-	gBSPRenderer.DrawShadowPasses();
-
-	// Render water shader perspectives
-	gWaterShader.DrawWaterPasses(pparams);
-
-	// Render mirror perspectives
-	gMirrorManager.DrawMirrorPasses(pparams);
+	g_StudioRenderer.StudioPreFrame(pparams);
 
 	// Set up basic rendering
 	gBSPRenderer.RendererRefDef(pparams);
 
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-		do
-		{
-			node->visframe = gBSPRenderer.saved_leaf_visframe;
-			node = node->parent;
-		} while (node);
-	}
-	gBSPRenderer.m_pWorld->nodes[0].visframe = gBSPRenderer.saved_leaf_visframe;
+	if (!restore_numleafs)
+		restore_numleafs = engine_cl->worldmodel->numleafs;
+
+	engine_cl->worldmodel->numleafs = 0;
 }
+
+extern cvar_t* cl_first_person_uses_world_model;
+
+void R_DrawMultiViews()
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
+
+	// Render water shader perspectives
+	gWaterShader.DrawWaterPasses(&gBSPRenderer.m_RefParams);
+
+	// Render mirror perspectives
+	gMirrorManager.DrawMirrorPasses(&gBSPRenderer.m_RefParams);
+
+	// Render shadow maps into depth images
+	gBSPRenderer.Make_ShadowMaps();
+}
+
+void R_DrawMainView()
+{
+	glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
+	
+	glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
+	
+	gBSPRenderer.m_bMainPass = true;
+	
+	// Render world
+	gBSPRenderer.DrawNormalTriangles();
+	
+	// Render props on the list
+	gPropManager.RenderProps();
+	
+	// Render any cables
+	gPropManager.DrawCables();
+	
+	gBSPRenderer.m_bMainPass = false;
+	
+	// Render water shader
+	gWaterShader.DrawWater();
+	
+	// Draw mirrors
+	gMirrorManager.DrawMirrors();
+	
+	// draw studio models and whatnot
+	
+	gBSPRenderer.m_bMainPass = true;
+
+	g_StudioRenderer.StudioDrawModels();
+
+	// Render transparent entities
+	gBSPRenderer.DrawTransparentTriangles();
+
+	g_LegacySpriteRenderer.DrawSpriteEntities();
+
+	// Render our own goldsrc beams
+	g_BeamRenderer.R_DrawBeams(engine_cl->time - engine_cl->oldtime);
+
+	// Render our own goldsrc tracers
+	g_TracerRenderer.CL_DrawTracers();
+
+	// Render particles
+	gParticleEngine.DrawParticles();
+
+	g_StudioRenderer.StudioDrawViewmodel();
+
+	gBSPRenderer.m_bMainPass = false;
+
+	g_BeamRenderer.NewFrame();
+}
+
+void DrawQuadDebugTest()
+{
+	if (!gBSPRenderer.m_pSunShadowMap)
+		return;
+
+	gBSPRenderer.m_FilterShader->Bind();
+	gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+	gBSPRenderer.m_pScreenQuadVAO->BindVAO();
+
+	gBSPRenderer.BindGLTexture(GL_TEXTURE0, gBSPRenderer.m_iEngineLightmapIndex);
+
+	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetCullFace(false);
+	g_GlobalGLState.SetDepthTest(false);
+
+	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_TopRight, 6);
+
+	GL_ShaderProgram::ResetShaderBind();
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
+}
+
+int V_FadeAlpha()
+{
+	bool fade_in = (engine_cl->sf.fadeFlags & FFADE_IN);
+	bool fade_out = (engine_cl->sf.fadeFlags & FFADE_OUT);
+	bool fade_modulate = (engine_cl->sf.fadeFlags & FFADE_MODULATE);
+	bool fade_stayout = (engine_cl->sf.fadeFlags & FFADE_STAYOUT);
+	bool fade_longfade = (engine_cl->sf.fadeFlags & FFADE_LONGFADE);
+
+	float time = engine_cl->time;
+
+	int result = 0;
+	float fadetime = 0;
+	int fadealpha = 0;
+
+	int alpha;
+
+	if (time > engine_cl->sf.fadeReset && time > engine_cl->sf.fadeEnd)
+	{
+		if (!engine_cl->sf.fadeFlags & FFADE_STAYOUT)
+			return 0;
+	}
+
+	if (engine_cl->sf.fadeFlags & FFADE_STAYOUT)
+	{
+		alpha = engine_cl->sf.fadealpha;
+		if ((engine_cl->sf.fadeFlags & FFADE_OUT) && engine_cl->sf.fadeTotalEnd > time)
+		{
+			alpha += engine_cl->sf.fadeSpeed * (engine_cl->sf.fadeTotalEnd - time);
+		}
+		else
+		{
+			engine_cl->sf.fadeEnd = time + 0.1;
+		}
+	}
+	else
+	{
+		alpha = engine_cl->sf.fadeSpeed * (engine_cl->sf.fadeEnd - time);
+		if (engine_cl->sf.fadeFlags & FFADE_OUT)
+		{
+			alpha += engine_cl->sf.fadealpha;
+		}
+	}
+	alpha = bound(0, alpha, engine_cl->sf.fadealpha);
+
+	return alpha;
+}
+
+void R_PolyBlend()
+{
+
+	int alpha = V_FadeAlpha();
+	if (!alpha)
+		return;
+
+	byte color[4];
+	int glx = r_refdef->viewport[0];
+	int gly = r_refdef->viewport[1];
+	int glwidth = r_refdef->viewport[2];
+	int glheight = r_refdef->viewport[3];
+
+	// GL_DisableMultitexture();
+	g_GlobalGLState.SetBlend(true);
+	g_GlobalGLState.SetCullFace(false);
+	g_GlobalGLState.SetDepthTest(false);
+	glDisable(GL_TEXTURE_2D);
+	if ((engine_cl->sf.fadeFlags & FFADE_MODULATE) != 0)
+	{
+		g_GlobalGLState.SetBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		color[3] = -1;
+		color[0] = color[1] = color[2] = (alpha * (engine_cl->sf.fader - 255) - 511) >> 8;
+	}
+	else
+	{
+		g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		color[3] = alpha;
+		color[0] = color[1] = color[2] = engine_cl->sf.fadeb;
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, glwidth, glheight, 0, -99999.0, 99999.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glColor4ubv(color);
+	glBegin(GL_QUADS);
+	glVertex2f(0, 0);
+	glVertex2f(0, glheight);
+	glVertex2f(glwidth, glheight);
+	glVertex2f(glwidth, 0);
+	glEnd();
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	g_GlobalGLState.SetDepthTest(true);
+	g_GlobalGLState.SetCullFace(true);
+	glEnable(GL_TEXTURE_2D);
+}
+
+extern cvar_t* cl_first_person_uses_world_model;
 
 /*
 =================
@@ -922,401 +854,153 @@ R_DrawNormalTriangles
 */
 void R_DrawNormalTriangles(void)
 {
-	// Set this at start
-	RenderFog();
+	g_StudioRenderer.m_fStudioMDLRenderTime = 0;
 
-	// Render world
-	gBSPRenderer.DrawNormalTriangles();
+	R_DrawMultiViews(); //shadowmaps, water povs, mirrors, etc
+	
+	R_DrawMainView();
 
-	// Save everything at this point too
-	R_SaveGLStates();
-
-	// Apply fog
-	RenderFog();
-
-	// Render props on the list
-	gPropManager.RenderProps();
-
-	// Render any cables
-	gPropManager.DrawCables();
-
-	// Render water shader
-	gWaterShader.DrawWater();
-
-	// Draw mirrors
-	gMirrorManager.DrawMirrors();
-
-	// Render transparent entities
-	gBSPRenderer.DrawTransparentTriangles();
-
-	// Render particles
-	gParticleEngine.DrawParticles();
-
-	//do this here so particles and other stuff work
-
-	for (int i = 0; i < gBSPRenderer.m_pWorld->numleafs + 1; i++)
-	{
-		mnode_t* node = (mnode_t*)&gBSPRenderer.m_pWorld->leafs[i];
-		do
-		{
-			node->visframe = gBSPRenderer.saved_leaf_visframe;
-			node = node->parent;
-		} while (node);
-	}
-	gBSPRenderer.m_pWorld->nodes[0].visframe = gBSPRenderer.saved_leaf_visframe;
-
-	//PLANNED: optional motion blur
-	// either read pixels from gpu (pretty fucking slow) or render the scene again.
-	// the second option is more preferable, here's how it'll go down:
-	// setup 2 framebuffers (current and previous frame).
-	// to make the previous frame, we can just make a framecounter of sort,
-	// and only
-	// 
-	// and pass them to the glsl shader.
-
-	// Restore
-	R_RestoreGLStates();
-
-}
-
-/*
-=================
-R_DrawTransparentTriangles
-
-=================
-*/
-void R_DrawTransparentTriangles(void)
-{
-	// Set basic fog, and then turn it black for sprites
-	RenderFog();
-	BlackFog();
-
-	// Reset for HUD display
-	if (gBSPRenderer.m_bRadialFogSupport && gBSPRenderer.m_pCvarRadialFog->value >= 1)
-		glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_PLANE_ABSOLUTE_NV);
+	//just for debugging certain textures
+	//DrawQuadDebugTest();
 
 	// Restore fog params
 	gWaterShader.Restore();
 
-	// Disable VBO here
-	gBSPRenderer.glBindBufferARB(GL_ARRAY_BUFFER_ARB, NULL);
-	gBSPRenderer.SetTexEnvs(ENVSTATE_REPLACE);
+	GL_ShaderProgram::ResetShaderBind();
+	GL_VertexArrayObject::ResetVAOBinding();
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 
-	// 2012-05-23 -- Not setting this caused problems with Steam HL
-	gBSPRenderer.ResetRenderer();
-	gBSPRenderer.glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	R_PolyBlend(); // restore goldsrc's ugly screen fade code
 }
 
 void RenderersDumpInfo(void)
 {
 	gEngfuncs.Con_Printf("Engine Data Dump:\n");
-	gEngfuncs.Con_Printf("Number of models in client cache: %i of 4096 max.\n", g_StudioRenderer.m_iNumStudioModels);
-	gEngfuncs.Con_Printf("Number of models in engine cache: %i of 512 max.\n", g_StudioRenderer.m_iNumEngineCacheModels);
-	gEngfuncs.Con_Printf("Number of tga textures cached: %i on client.\n", gTextureLoader.m_iNumTextures);
+	gEngfuncs.Con_Printf("Number of models in engine cache: %i of 512 max.\n", engine_cl->model_precache_count);
+	gEngfuncs.Con_Printf("Number of entities in PVS: %i.\n", engine_cl->num_entities);
+	gEngfuncs.Con_Printf("Number of tga textures cached: %i on client.\n", gTextureLoader.m_pTextures.size());
 	gEngfuncs.Con_Printf("Number of lightmaps: %i of 64 max.\n", gBSPRenderer.m_iNumLightmaps);
 	gEngfuncs.Con_Printf("Number of surfaces: %i.\n", gBSPRenderer.m_iTotalFaceCount);
 	gEngfuncs.Con_Printf("Number of triangles: %i.\n", gBSPRenderer.m_iTotalTriCount);
 	gEngfuncs.Con_Printf("Number of vertexes: %i.\n", gBSPRenderer.m_iTotalVertCount);
-	gEngfuncs.Con_Printf("Number of client side entities: %i.\n", gPropManager.m_iNumEntities);
+	gEngfuncs.Con_Printf("Number of client side entities: %i.\n", gPropManager.m_pEntities.size());
 	gEngfuncs.Con_Printf("Number of detail textures: %i.\n", gBSPRenderer.m_iNumDetailTextures);
-	gEngfuncs.Con_Printf("Current free texture ID: %i.\n", current_ext_texture_id);
-	if (gBSPRenderer.m_bShaderSupport)
-		gEngfuncs.Con_Printf("ARB shaders supported.\n");
-	else
-		gEngfuncs.Con_Printf("ARB shaders not supported.\n");
-	if (gBSPRenderer.m_bRadialFogSupport)
-		gEngfuncs.Con_Printf("Radial fog supported.\n");
-	else
-		gEngfuncs.Con_Printf("Radial fog not supported.\n");
+	gEngfuncs.Con_Printf("Number of OpenGL Buffers: %i.\n", GL_BufferHandler::GetNumBuffers());
+	gEngfuncs.Con_Printf("Approximated total size of buffers in kb: %f.\n", GL_BufferHandler::GetTotalMemorySize() * 0.001);
+	gEngfuncs.Con_Printf("Number of OpenGL FrameBuffers: %i.\n", GL_FBOHandler::GetNumFrameBuffers());
+	gEngfuncs.Con_Printf("Number of OpenGL RenderBuffers: %i.\n\n\n", GL_RBOHandler::GetNumRenderBuffers());
+
+	const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+
+	if (stristr(vendor, "nvidia"))
+	{
+		//NOT TESTED
+		int dedicated_vidmem, total_available_mem, current_available_mem, eviction_count, evicted_mem;
+		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_vidmem);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &total_available_mem);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &current_available_mem);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &eviction_count);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &evicted_mem);
+
+		gEngfuncs.Con_Printf("OpenGL meminfo: dedicated video memory: %i kb\n", dedicated_vidmem);
+		gEngfuncs.Con_Printf("OpenGL meminfo: total available memory: %i kb\n", total_available_mem);
+		gEngfuncs.Con_Printf("OpenGL meminfo: current available memory: %i kb\n\n", current_available_mem);
+
+		gEngfuncs.Con_Printf("OpenGL meminfo: eviction count: %i\n", eviction_count);
+		gEngfuncs.Con_Printf("OpenGL meminfo: evicted memory: %i kb\n", evicted_mem);
+	}
+	else if (stristr(vendor, "amd") || stristr(vendor, "ati"))
+	{
+		int params[4];
+		int params1[4];
+		int params2[4];
+		glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, params);
+		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, params1);
+		glGetIntegerv(GL_RENDERBUFFER_FREE_MEMORY_ATI, params2);
+
+		gEngfuncs.Con_Printf("OpenGL VBO: total memory free in the pool: %i kb\n", params[0]);
+		gEngfuncs.Con_Printf("OpenGL VBO: largest available free block in the pool: %i kb\n", params[1]);
+		gEngfuncs.Con_Printf("OpenGL VBO: total auxiliary memory free: %i kb\n", params[2]);
+		gEngfuncs.Con_Printf("OpenGL VBO: largest auxiliary free block: %i kb\n\n\n", params[3]);
+
+		gEngfuncs.Con_Printf("OpenGL Texture: total memory free in the pool: %i kb\n", params1[0]);
+		gEngfuncs.Con_Printf("OpenGL Texture: largest available free block in the pool: %i kb\n", params1[1]);
+		gEngfuncs.Con_Printf("OpenGL Texture: total auxiliary memory free: %i kb\n", params1[2]);
+		gEngfuncs.Con_Printf("OpenGL Texture: largest auxiliary free block: %i kb\n\n\n", params1[3]);
+
+		gEngfuncs.Con_Printf("OpenGL RenderBuffer: total memory free in the pool: %i kb\n", params2[0]);
+		gEngfuncs.Con_Printf("OpenGL RenderBuffer: largest available free block in the pool: %i kb\n", params2[1]);
+		gEngfuncs.Con_Printf("OpenGL RenderBuffer: total auxiliary memory free: %i kb\n", params2[2]);
+		gEngfuncs.Con_Printf("OpenGL RenderBuffer: largest auxiliary free block: %i kb\n", params2[3]);
+	}
 }
 
-void GenDetail(void)
-{
-	char szLevelName[64];
-	char szPathOut[128];
 
-	bool bFound[512];
-	memset(bFound, 0, sizeof(bFound));
-
-	strcpy(szLevelName, gEngfuncs.pfnGetLevelName());
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
-
-	if (strlen(szLevelName) == 0)
-		return;
-
-	szLevelName[strlen(szLevelName) - 4] = 0;
-	strcpy(szPathOut, gEngfuncs.pfnGetGameDirectory());
-	strcat(szPathOut, "/");
-	strcat(szPathOut, szLevelName);
-	strcat(szPathOut, "_detail.txt");
-
-	FILE* fout = fopen(szPathOut, "w");
-
-	int iSize = 0;
-	char* pFile = (char*)gEngfuncs.COM_LoadFile("maps/detailtextures.txt", 5, &iSize);
-	if (!pFile)
-	{
-		gEngfuncs.Con_Printf("Failed to load temp detail texture file for %s\n", szLevelName);
-		return;
-	}
-
-	int i = NULL;
-	while (1)
-	{
-		// Reached EOF
-		if (i >= iSize)
-			break;
-
-		char szTexture[32];
-		// Skip to next token
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] != ' ' && pFile[i] != '\n' && pFile[i] != '\r')
-				break;
-
-			i++;
-		}
-
-		if (i >= iSize)
-			break;
-
-		// Read token in
-		int j = NULL;
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-				break;
-
-			szTexture[j] = pFile[i];
-			j++;
-			i++;
-		}
-
-		// Terminator
-		szTexture[j] = 0;
-
-		if (i >= iSize)
-			break;
-
-		// Skip to next token
-		char szDetail[32];
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] != ' ' && pFile[i] != '\n' && pFile[i] != '\r')
-				break;
-
-			i++;
-		}
-
-		if (i >= iSize)
-			break;
-
-		// Read token in
-		j = NULL;
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-				break;
-
-			szDetail[j] = pFile[i];
-			j++;
-			i++;
-		}
-
-		// Terminator
-		szDetail[j] = 0;
-
-		if (i >= iSize)
-			break;
-
-		cl_texture_t* pDetail = gBSPRenderer.LoadDetailTexture(szDetail);
-
-		if (!pDetail)
-		{
-			gEngfuncs.Con_Printf("Could not load detail texture: %s\n", szDetail);
-			continue;
-		}
-
-		texture_t* pTexture = NULL;
-
-		char maptexture[16];
-		strLower(szTexture);
-		strLower(szDetail);
-
-		int i = 0;
-		for (; i < pWorld->numtextures; i++)
-		{
-			if (!pWorld->textures[i] || pWorld->textures[i]->name[0] == 0)
-				continue;
-
-			strcpy(maptexture, pWorld->textures[i]->name);
-			strLower(maptexture);
-
-			if (!strcmp(maptexture, szTexture))
-			{
-				pTexture = pWorld->textures[i];
-				break;
-			}
-		}
-
-		if (!pTexture)
-			continue;
-
-		bFound[i] = true;
-		float detailx = (((float)pTexture->height) / 256.0) * (128.0 / ((float)pDetail->iHeight)) * 12.0;
-		float detaily = (((float)pTexture->width) / 256.0) * (128.0 / ((float)pDetail->iWidth)) * 12.0;
-
-		fprintf(fout, "%s %s %f %f\n", szTexture, szDetail, detaily, detailx);
-	}
-	gEngfuncs.COM_FreeFile(pFile);
-	fclose(fout);
-
-	char* pPrevious = NULL;
-	char* pPrevFile = (char*)gEngfuncs.COM_LoadFile("detail_failures.txt", 5, NULL);
-
-	if (pPrevFile)
-	{
-		pPrevious = new char[strlen(pPrevFile)];
-		memcpy(pPrevious, pPrevFile, sizeof(char) * strlen(pPrevFile));
-		gEngfuncs.COM_FreeFile(pPrevFile);
-	}
-
-	strcpy(szPathOut, gEngfuncs.pfnGetGameDirectory());
-	strcat(szPathOut, "/detail_failures.txt");
-	FILE* fList = fopen(szPathOut, "w");
-
-	if (pPrevious)
-	{
-		fprintf(fList, "%s", pPrevious);
-		delete[] pPrevious;
-	}
-
-	// Print out world name
-	fprintf(fList, "--------------%s\n", pWorld->name);
-
-	for (int i = 0; i < pWorld->numtextures; i++)
-	{
-		if (bFound[i])
-			continue;
-
-		fprintf(fList, "%s\n", pWorld->textures[i]->name);
-	}
-
-	gEngfuncs.Con_Printf("List of missing textures written.");
-	fclose(fList);
-}
 //===============================
 // buz: flashlight managenemt
 //===============================
-void SetupFlashlight(vec3_t origin, vec3_t angles, float time, float frametime)
+void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 {
 	pmtrace_t tr;
-	vec3_t fwd, right, up;
+	Vector fwd, right, up;
 
 	static float add = 0;
 	float addideal = 0;
 
-	AngleVectors(angles, fwd, right, up);
+	static float mult = 0;
+	mult = lerp(mult, (float)g_iFlashLight, gHUD.m_flTimeDelta * 10);
 
-	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
-	flashlight->origin = origin;
-	flashlight->radius = 300;
-	flashlight->color = Vector(0.3, 0.3, 0.3);
-	flashlight->die = time + 0.1;
-}
-//===============================
-// buz: flashlight managenemt
-//===============================
-void SetupFlashlight2(Vector origin, Vector angles, float time, float frametime)
-{
-	pmtrace_t tr;
-	vec3_t fwd, right, up;
+	if (mult <= 0.001)
+		return;
 
-	static float add = 0;
-	float addideal = 0;
-	
-	AngleVectors(angles, fwd, right, up);
+	AngleVectors(angles, &fwd, &right, &up);
 
-	if(gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
-		fwd = origin + (fwd*100);
-	else
-		fwd = origin + (fwd*1550);
-	
-	gEngfuncs.pEventAPI->EV_SetTraceHull( 2 );
-	gEngfuncs.pEventAPI->EV_PlayerTrace( origin, fwd, PM_NORMAL, -1, &tr );
-	
-	if(gBSPRenderer.m_bShaderSupport && gBSPRenderer.m_pCvarWorldShaders->value >= 1)
+	fwd = origin + (fwd * 150);
+
+	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+	gEngfuncs.pEventAPI->EV_PlayerTrace(origin, fwd, PM_WORLD_ONLY, -1, &tr);
+
+	if (tr.fraction < 1.0)
+		addideal = (1 - tr.fraction) * 30;
+
+	float speed = (add - addideal) * 10;
+
+	if (speed < 0)
+		speed *= -1;
+
+	if (add < addideal)
 	{
-		if (tr.fraction < 1.0)
-			addideal = (1 - tr.fraction)*30;
+		add += frametime * speed;
 
-		float speed = (add - addideal)*10;
-
-		if (speed < 0) 
-			speed *= -1;
+		if (add > addideal)
+			add = addideal;
+	}
+	else if (add > addideal)
+	{
+		add -= frametime * speed;
 
 		if (add < addideal)
-		{
-			add += frametime*speed;
-
-			if (add > addideal) 
-				add = addideal;
-		}
-		else if (add > addideal)
-		{
-			add -= frametime*speed;
-
-			if (add < addideal) 
-				add = addideal;
-		}
-
-		cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
-		flashlight->origin = origin + (-up * 8) + (-right * 5);
-		flashlight->radius = 600;
-		flashlight->die = time + 0.01;
-		flashlight->cone_size = 50 + add;
-		flashlight->color.x = 0.85; // R
-		flashlight->color.y = 0.80; // G
-		flashlight->color.z = 0.75; // B
-		flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[0]->iIndex;
-		flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700);
-		flashlight->justspawned = true;
-		VectorCopy(angles, flashlight->angles);
-
-		mlight_t *pLight = &gBSPRenderer.m_pModelLights[gBSPRenderer.m_iNumModelLights];
-		gBSPRenderer.m_iNumModelLights++;
-		
-		pLight->origin = flashlight->origin;
-		pLight->flashlight = true;
-		pLight->frustum = &flashlight->frustum;
-		pLight->radius = flashlight->radius;
-		pLight->spotcos = cos((flashlight->cone_size*2)*0.3*(M_PI*2/360));
-		pLight->color = flashlight->color;
-
-		// Shitpickle // I agree
-		FixVectorForSpotlight(angles);
-		AngleVectors(angles, pLight->forward, NULL, NULL);
+			add = addideal;
 	}
-	else
-	{
-		cl_dlight_t *flashlight = gBSPRenderer.CL_AllocDLight(-666);
-		flashlight->origin = tr.endpos;
-		flashlight->radius = 300;
-		flashlight->color = Vector(0.6, 0.6, 0.6);
-		flashlight->die = time + 0.1;
-	}
+
+	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
+	flashlight->origin = origin + (up * 8) + (right * 10);
+	flashlight->radius = 700;
+	flashlight->die = time + 0.01;
+	flashlight->cone_size = 50 + add;
+	flashlight->color.x = 1.0 * mult;
+	flashlight->color.y = 1.0 * mult;
+	flashlight->color.z = 1.0 * mult;
+	flashlight->textureindex = gBSPRenderer.m_pFlashlightTextures[0]->iIndex;
+	flashlight->frustum.SetFrustum(angles, flashlight->origin, flashlight->cone_size * 1.2, 700);
+	flashlight->justspawned = true;
+	flashlight->flags |= LIGHT_CASTSHADOWS;
+	auto sm_res = gBSPRenderer.m_pCvarFlashLightDepthRes->value;
+	if (flashlight->depth)
+		GL_ShadowMap::DeAllocateShadowMap(flashlight->depth);
+
+	flashlight->depth = GL_ShadowMap::AllocateShadowMap(GL_ShadowMap::_2DTexture_Storage, GL_RG16F, sm_res, sm_res, 0, GL_RG, GL_FLOAT);
+	VectorCopy(angles, flashlight->angles);
 }
 float Q_rsqrt(float number)
 {
@@ -1332,56 +1016,6 @@ float Q_rsqrt(float number)
 	y = y * (threehalfs - (x2 * y * y)); // 1st iteration
 
 	return y;
-}
-
-float VectorNormalizeFast(float* v)
-{
-	float ilength;
-	DotProductSSE(&ilength, v, v);
-	float sqroot = Q_rsqrt(ilength);
-	VectorScale(v, sqroot, v);
-
-	return ilength;
-}
-
-// not finished
-void ExportWorld(void)
-{
-	model_t* pWorld = IEngineStudio.GetModelByIndex(1);
-
-	if (!pWorld)
-		return;
-
-	FILE* pFile = fopen("export.smd", "w");
-	if (!pFile)
-		return;
-
-	fprintf(pFile, "version 1\nnodes\n");
-	fprintf(pFile, "  0 Bone01 -1\nend\n");
-	fprintf(pFile, "skeleton\ntime 0\n");
-	fprintf(pFile, "0 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000\n");
-	fprintf(pFile, "end\ntriangles\n");
-
-	msurface_t* psurf = pWorld->surfaces + pWorld->nummodelsurfaces;
-	for (int i = pWorld->nummodelsurfaces; i < pWorld->numsurfaces; i++, psurf++)
-	{
-		if (psurf->flags & (SURF_DRAWTURB | SURF_DRAWSKY))
-			continue;
-
-		brushface_t* pFace = &gBSPRenderer.m_pFacesExtraData[psurf->polys->flags];
-		brushvertex_t* pVert = gBSPRenderer.m_pBufferData + pFace->start_vertex;
-
-		for (int j = 0; j < pFace->num_vertexes; j += 3)
-		{
-			fprintf(pFile, "%s.bmp\n", psurf->texinfo->texture->name);
-			fprintf(pFile, "0 %f %f %f %f %f %f %f %f\n", pVert[j].pos.x, pVert[j].pos.y, pVert[j].pos.z, pVert[j].normal.x, pVert[j].normal.y, pVert[j].normal.z, pVert[j].texcoord[0], pVert[j].texcoord[1]);
-			fprintf(pFile, "0 %f %f %f %f %f %f %f %f\n", pVert[j + 1].pos.x, pVert[j + 1].pos.y, pVert[j + 1].pos.z, pVert[j + 1].normal.x, pVert[j + 1].normal.y, pVert[j + 1].normal.z, pVert[j + 1].texcoord[0], pVert[j + 1].texcoord[1]);
-			fprintf(pFile, "0 %f %f %f %f %f %f %f %f\n", pVert[j + 2].pos.x, pVert[j + 2].pos.y, pVert[j + 2].pos.z, pVert[j + 2].normal.x, pVert[j + 2].normal.y, pVert[j + 2].normal.z, pVert[j + 2].texcoord[0], pVert[j + 2].texcoord[1]);
-		}
-	}
-
-	fprintf(pFile, "end\n");
-	fclose(pFile);
 }
 
 // Detect litte/big endian
@@ -1414,157 +1048,6 @@ int ByteToInt(byte* byte)
 	return iValue;
 }
 
-void FixVectorForSpotlight(vec3_t& vec)
-{
-	if (vec[PITCH] == 0)
-		vec[PITCH] = 1;
-	if (vec[PITCH] == 90)
-		vec[PITCH] = 89;
-	if (vec[PITCH] == 180)
-		vec[PITCH] = 179;
-	if (vec[PITCH] == 270)
-		vec[PITCH] = 269;
-	if (vec[PITCH] == -90)
-		vec[PITCH] = -89;
-	if (vec[PITCH] == -180)
-		vec[PITCH] = -179;
-	if (vec[PITCH] == -270)
-		vec[PITCH] = -269;
-
-	if (vec[YAW] == 0)
-		vec[YAW] = 1;
-	if (vec[YAW] == 90)
-		vec[YAW] = 89;
-	if (vec[YAW] == 180)
-		vec[YAW] = 179;
-	if (vec[YAW] == 270)
-		vec[YAW] = 269;
-	if (vec[YAW] == -90)
-		vec[YAW] = -89;
-	if (vec[YAW] == -180)
-		vec[YAW] = -179;
-	if (vec[YAW] == -270)
-		vec[YAW] = -269;
-
-	if (vec[ROLL] == 0)
-		vec[ROLL] = 1;
-	if (vec[ROLL] == 90)
-		vec[ROLL] = 89;
-	if (vec[ROLL] == 180)
-		vec[ROLL] = 179;
-	if (vec[ROLL] == 270)
-		vec[ROLL] = 269;
-	if (vec[ROLL] == -90)
-		vec[ROLL] = -89;
-	if (vec[ROLL] == -180)
-		vec[ROLL] = -179;
-	if (vec[ROLL] == -270)
-		vec[ROLL] = -269;
-}
-
-void R_DisableSteamMSAA(void)
-{
-	// make sure we start with FBO / AA disabled
-	//gEngfuncs.pfnClientCmd("_set_vid_level 1");
-	//gEngfuncs.pfnClientCmd("_sethdmodels 0");
-	//gEngfuncs.pfnClientCmd("gl_texturemode GL_LINEAR_MIPMAP_LINEAR");
-	//gEngfuncs.pfnClientCmd("gl_round_down 0");
-	//gEngfuncs.pfnClientCmd("_restart");
-	//
-	//pretty sure this is obsolete
-}
-#ifdef HL25_UPDATE
-bool g_areVertexShadersEnabled = false;
-bool g_areFragmentShadersEnabled = false;
-GLint g_shaderProgramBinding = 0;
-#endif
-
-bool g_glStateSaved = false;
-
-void R_SaveGLStates(void)
-{
-	assert(g_glStateSaved == false);
-	g_glStateSaved = true;
-
-#ifdef HL25_UPDATE
-	g_areVertexShadersEnabled = (glIsEnabled(GL_VERTEX_SHADER) == GL_TRUE) ? true : false;
-	g_areFragmentShadersEnabled = (glIsEnabled(GL_FRAGMENT_SHADER) == GL_TRUE) ? true : false;
-
-	glGetIntegerv(GL_PROGRAM_BINDING_ARB, &g_shaderProgramBinding);
-	gBSPRenderer.glUseProgram(0);
-#endif
-
-	glPushAttrib(GL_TEXTURE_BIT | GL_CLIENT_VERTEX_ARRAY_BIT);
-
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &g_savedGLState.active_texunit);
-	glGetIntegerv(GL_CLIENT_ACTIVE_TEXTURE_ARB, &g_savedGLState.active_clienttexunit);
-
-	g_savedGLState.blending_enabled = glIsEnabled(GL_BLEND) ? true : false;
-
-	glMatrixMode(GL_TEXTURE);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-
-	g_savedGLState.alphatest_enabled = glIsEnabled(GL_ALPHA_TEST) ? true : false;
-	glGetIntegerv(GL_ALPHA_TEST_FUNC, &g_savedGLState.alphatest_func);
-	glGetFloatv(GL_ALPHA_TEST_REF, &g_savedGLState.alphatest_value);
-
-	// Disable these to avoid slowdown bug
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	gBSPRenderer.glClientActiveTextureARB(GL_TEXTURE1);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	gBSPRenderer.glClientActiveTextureARB(GL_TEXTURE2);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	gBSPRenderer.glClientActiveTextureARB(GL_TEXTURE3);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	gBSPRenderer.glClientActiveTextureARB(GL_TEXTURE0);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
-void R_RestoreGLStates(void)
-{
-	if (!g_glStateSaved)
-		return;
-
-	glPopAttrib();
-
-	// load saved matrix for steam version
-	glMatrixMode(GL_TEXTURE);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
-	gBSPRenderer.glActiveTextureARB(g_savedGLState.active_texunit);
-	gBSPRenderer.glClientActiveTextureARB(g_savedGLState.active_clienttexunit);
-
-	if (g_savedGLState.blending_enabled)
-		glEnable(GL_BLEND);
-	else
-		glDisable(GL_BLEND);
-
-	if (g_savedGLState.alphatest_enabled)
-		glEnable(GL_ALPHA_TEST);
-	else
-		glDisable(GL_ALPHA_TEST);
-
-	glAlphaFunc(g_savedGLState.alphatest_func, g_savedGLState.alphatest_value);
-
-#ifdef HL25_UPDATE
-	if (g_areVertexShadersEnabled)
-		glEnable(GL_VERTEX_SHADER);
-
-	if (g_areVertexShadersEnabled)
-		glEnable(GL_FRAGMENT_SHADER);
-
-	gBSPRenderer.glUseProgram(g_shaderProgramBinding);
-#endif
-
-	g_glStateSaved = false;
-}
-
 /*
 =================
 R_Init
@@ -1573,7 +1056,18 @@ R_Init
 */
 void R_Init(void)
 {
-	glPushAttrib(GL_TEXTURE_BIT);
+	cl_sprite_dot = IEngineStudio.Mod_ForName("sprites/dot.spr", true);
+	cl_sprite_lightning = IEngineStudio.Mod_ForName("sprites/lgtning.spr", true);
+	cl_sprite_white = IEngineStudio.Mod_ForName("sprites/white.spr", true);
+	cl_sprite_glow = IEngineStudio.Mod_ForName("sprites/animglow01.spr", true);
+	cl_sprite_ricochet = IEngineStudio.Mod_ForName("sprites/richo1.spr", true);
+	cl_sprite_shell = IEngineStudio.Mod_ForName("sprites/shellchrome.spr", true);
+
+	glewInit();
+
+	g_IGLDebug.Initialize();
+
+	gpTempEnts.clear();
 
 	gPropManager.Init();
 	gTextureLoader.Init();
@@ -1581,8 +1075,7 @@ void R_Init(void)
 	gParticleEngine.Init();
 	gWaterShader.Init();
 	gMirrorManager.Init();
-
-	glPopAttrib();
+	g_LegacySpriteRenderer.Init();
 }
 
 /*
@@ -1593,7 +1086,17 @@ R_VidInit
 */
 void R_VidInit(void)
 {
-	glPushAttrib(GL_TEXTURE_BIT);
+	restore_numleafs = 0;
+
+	GLint mainfbo;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &mainfbo);
+
+	GL_FBOHandler::SetMainGameFBO(mainfbo);
+
+	if (mainfbo < 0)
+		mainfbo = 0;
+
+	gpTempEnts.clear();
 
 	gTextureLoader.VidInit();
 	gWaterShader.VidInit();
@@ -1602,8 +1105,9 @@ void R_VidInit(void)
 	gMirrorManager.VidInit();
 	g_StudioRenderer.VidInit();
 	gPropManager.VidInit();
-
-	glPopAttrib();
+	g_LegacySpriteRenderer.VidInit();
+	g_TracerRenderer.CL_ClearTracerList();
+	g_BeamRenderer.Reset();
 }
 
 /*
@@ -1614,15 +1118,9 @@ R_Shutdown
 */
 void R_Shutdown(void)
 {
-	glPushAttrib(GL_TEXTURE_BIT);
-
 	gTextureLoader.Shutdown();
 	gBSPRenderer.Shutdown();
 	gPropManager.Shutdown();
 	gWaterShader.Shutdown();
 	gParticleEngine.Shutdown();
-
-	glPopAttrib();
 }
-
-#endif

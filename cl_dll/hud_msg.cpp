@@ -27,14 +27,8 @@
 #include "../renderer/watershader.h"
 
 #include "studio.h"
-#include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
-
-extern CGameStudioModelRenderer g_StudioRenderer;
+#include "../renderer/StudioModelRenderer.h"
 // RENDERERS END
-
-#include "particleman.h"
-extern IParticleMan* g_pParticleMan;
 
 extern BEAM* pBeam;
 extern BEAM* pBeam2;
@@ -106,11 +100,6 @@ void CHud::MsgFunc_InitHUD(const char* pszName, int iSize, void* pbuf)
 			pList->p->InitHUDData();
 		pList = pList->pNext;
 	}
-
-
-	//TODO: needs to be called on every map change, not just when starting a new game
-	if (g_pParticleMan)
-		g_pParticleMan->ResetParticles();
 
 	//Probably not a good place to put this.
 	pBeam = pBeam2 = NULL;
@@ -231,7 +220,7 @@ bool CHud ::MsgFunc_StudioDecal(const char* pszName, int iSize, void* pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
-	vec3_t pos, normal;
+	Vector pos, normal;
 	pos.x = READ_COORD();
 	pos.y = READ_COORD();
 	pos.z = READ_COORD();

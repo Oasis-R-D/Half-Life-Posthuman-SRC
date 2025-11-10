@@ -27,6 +27,11 @@
 #include "../renderer/watershader.h"
 // RENDERERS END
 
+float lerp(float a, float b, float t)
+{
+	return a + t * (b - a);
+}
+
 int CL_IsThirdPerson();
 void CL_CameraOffset(float* ofs);
 
@@ -224,7 +229,7 @@ float V_CalcRoll(Vector angles, Vector velocity, float rollangle, float rollspee
 	float value;
 	Vector forward, right, up;
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	side = DotProduct(velocity, right);
 	sign = side < 0 ? -1 : 1;
@@ -254,7 +259,7 @@ static pitchdrift_t pd;
 
 void V_StartPitchDrift()
 {
-	if (pd.laststop == gEngfuncs.GetClientTime())
+	if (pd.laststop == engine_cl->time)
 	{
 		return; // something else is keeping it from drifting
 	}
@@ -269,7 +274,7 @@ void V_StartPitchDrift()
 
 void V_StopPitchDrift()
 {
-	pd.laststop = gEngfuncs.GetClientTime();
+	pd.laststop = engine_cl->time;
 	pd.nodrift = 1;
 	pd.pitchvel = 0;
 }
@@ -369,7 +374,7 @@ void V_CalcGunAngle(struct ref_params_s* pparams)
 {
 	cl_entity_t* viewent;
 
-	viewent = gEngfuncs.GetViewModel();
+	viewent = &engine_cl->viewent;
 	if (!viewent)
 		return;
 
@@ -442,7 +447,7 @@ void V_CalcIntermissionRefdef(struct ref_params_s* pparams)
 	ent = gEngfuncs.GetLocalPlayer();
 
 	// view is the weapon model (only visible from inside body )
-	view = gEngfuncs.GetViewModel();
+	view = &engine_cl->viewent;
 
 	VectorCopy(pparams->simorg, pparams->vieworg);
 	VectorCopy(pparams->cl_viewangles, pparams->viewangles);
@@ -501,7 +506,7 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 
 	// Calculate our drift
 	Vector forward, right, up;
-	AngleVectors(vOriginalAngles, forward, right, up);
+	AngleVectors(vOriginalAngles, &forward, &right, &up);
 
 	if (pparams->frametime != 0.0f) // not in paused
 	{
@@ -528,7 +533,7 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 		origin = origin + (vDifference * -1.0f) * m_flScale;
 	}
 
-	AngleVectors(original_angles, forward, right, up);
+	AngleVectors(original_angles, &forward, &right, &up);
 
 	float pitch = original_angles[PITCH];
 
@@ -588,7 +593,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	}
 
 	// view is the weapon model (only visible from inside body )
-	view = gEngfuncs.GetViewModel();
+	view = &engine_cl->viewent;
 
 	// transform the view offset by the model's matrix to get the offset from
 	// model origin for the view
@@ -680,7 +685,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	// offsets
 	VectorCopy(pparams->cl_viewangles, angles);
 
-	AngleVectors(angles, pparams->forward, pparams->right, pparams->up);
+	AngleVectors(angles, &pparams->forward, &pparams->right, &pparams->up);
 
 	// don't allow cheats in multiplayer
 	if (pparams->maxclients <= 1)
@@ -703,7 +708,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 		VectorCopy(ofs, camAngles);
 		camAngles[ROLL] = 0;
 
-		AngleVectors(camAngles, camForward, camRight, camUp);
+		AngleVectors(camAngles, &camForward, &camRight, &camUp);
 
 		for (i = 0; i < 3; i++)
 		{
@@ -997,7 +1002,7 @@ void V_GetChaseOrigin(float* angles, float* origin, float distance, float* retur
 	cl_entity_t* ent = NULL;
 
 	// Trace back from the target using the player's view angles
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 
 	VectorScale(forward, -1, forward);
 
@@ -1429,7 +1434,7 @@ void V_GetMapFreePosition(float* cl_angles, float* origin, float* angles)
 	zScaledTarget[2] = gHUD.m_Spectator.m_mapOrigin[2] * ((90.0f - angles[0]) / 90.0f);
 
 
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 
 	VectorNormalize(forward);
 
@@ -1472,7 +1477,7 @@ void V_GetMapChasePosition(int target, float* cl_angles, float* origin, float* a
 	origin[2] *= ((90.0f - angles[0]) / 90.0f);
 	angles[2] = 0.0f; // don't roll angle (if chased player is dead)
 
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 
 	VectorNormalize(forward);
 
@@ -1574,7 +1579,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 
 			pparams->health = 1;
 
-			cl_entity_t* gunModel = gEngfuncs.GetViewModel();
+			cl_entity_t* gunModel = &engine_cl->viewent;
 
 			if (lastWeaponModelIndex != ent->curstate.weaponmodel)
 			{

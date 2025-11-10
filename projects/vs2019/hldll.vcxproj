@@ -45,7 +45,7 @@
     <IntDir>$(SolutionDir)$(Configuration)\$(ProjectName)\int\</IntDir>
     <TargetName>hl</TargetName>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <OutDir>P:\SteamLibrary\steamapps\common\Half-Life\PostHuman\dlls</OutDir>
+    <OutDir>C:\Program Files (x86)\Steam\SteamApps\common\Half-Life\posthuman\dlls</OutDir>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

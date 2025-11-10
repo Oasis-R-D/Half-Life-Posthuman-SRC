@@ -312,7 +312,7 @@ void EV_HLDM_DecalGunshot(pmtrace_t* pTrace, int iBulletType)
 void EV_HLDM_CheckTracer(int idx, float* vecSrc, float* end, float* forward, float* right, int iBulletType, int iTracerFreq, int* tracerCount)
 {
 	int i;
-	bool player = idx >= 1 && idx <= gEngfuncs.GetMaxClients();
+	bool player = idx >= 1 && idx <= engine_cl->maxclients;
 
 	if (iTracerFreq != 0 && ((*tracerCount)++ % iTracerFreq) == 0)
 	{
@@ -462,7 +462,7 @@ void EV_FireGlock1(event_args_t* args)
 	VectorCopy(args->velocity, velocity);
 
 	empty = 0 != args->bparam1;
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
 
@@ -503,7 +503,7 @@ void EV_FireGlock2(event_args_t* args)
 	VectorCopy(args->velocity, velocity);
 
 	empty = 0 != args->bparam1;
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
 
@@ -553,7 +553,7 @@ void EV_FireShotGunDouble(event_args_t* args)
 	VectorCopy(args->angles, angles);
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
 
@@ -569,7 +569,7 @@ void EV_FireShotGunDouble(event_args_t* args)
 	EV_GetGunPosition(args, vecSrc, origin);
 	VectorCopy(forward, vecAiming);
 
-	if (gEngfuncs.GetMaxClients() > 1)
+	if (engine_cl->maxclients > 1)
 	{
 		EV_HLDM_FireBullets(idx, forward, right, up, 8, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx - 1], 0.17365, 0.04362);
 	}
@@ -597,7 +597,7 @@ void EV_FireShotGunSingle(event_args_t* args)
 	VectorCopy(args->angles, angles);
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
 
@@ -658,7 +658,7 @@ void EV_FireMP5(event_args_t* args)
 	VectorCopy(args->angles, angles);
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
 
@@ -740,12 +740,12 @@ void EV_FirePython(event_args_t* args)
 	VectorCopy(args->angles, angles);
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	if (EV_IsLocal(idx))
 	{
 		// Python uses different body in multiplayer versus single player
-		bool multiplayer = gEngfuncs.GetMaxClients() != 1;
+		bool multiplayer = engine_cl->maxclients != 1;
 
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
@@ -793,7 +793,7 @@ void EV_FireM29(event_args_t* args)
 	VectorCopy(args->angles, angles);
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	if (EV_IsLocal(idx))
 	{
@@ -900,7 +900,7 @@ void EV_FireGauss(event_args_t* args)
 	m_iBeam = gEngfuncs.pEventAPI->EV_FindModelIndex("sprites/smoke.spr");
 	m_iBalls = m_iGlow = gEngfuncs.pEventAPI->EV_FindModelIndex("sprites/hotglow.spr");
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	VectorMA(vecSrc, 8192, forward, vecDest);
 
@@ -1201,7 +1201,7 @@ void EV_FireCrossbow2(event_args_t* args)
 
 	VectorCopy(args->velocity, velocity);
 
-	AngleVectors(angles, forward, right, up);
+	AngleVectors(angles, &forward, &right, &up);
 
 	EV_GetGunPosition(args, vecSrc, origin);
 
@@ -1391,7 +1391,7 @@ void EV_EgonFire(event_args_t* args)
 		{
 			VectorCopy(gHUD.m_vecAngles, angles);
 
-			AngleVectors(angles, forward, right, up);
+			AngleVectors(angles, &forward, &right, &up);
 
 			EV_GetGunPosition(args, vecSrc, pl->origin);
 
@@ -1477,9 +1477,9 @@ void EV_EgonStop(event_args_t* args)
 
 		if (pFlare) // Vit_amiN: egon beam flare
 		{
-			pFlare->die = gEngfuncs.GetClientTime();
+			pFlare->die = engine_cl->time;
 
-			if (gEngfuncs.GetMaxClients() == 1 || (pFlare->flags & FTENT_NOMODEL) == 0)
+			if (engine_cl->maxclients == 1 || (pFlare->flags & FTENT_NOMODEL) == 0)
 			{
 				if (pFlare->tentOffset.x != 0.0f) // true for iFireMode == FIRE_WIDE
 				{
@@ -1557,7 +1557,7 @@ void EV_TripmineFire(event_args_t* args)
 	VectorCopy(args->origin, vecSrc);
 	VectorCopy(args->angles, angles);
 
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 
 	if (!EV_IsLocal(idx))
 		return;
@@ -1598,7 +1598,7 @@ void EV_SnarkFire(event_args_t* args)
 	VectorCopy(args->origin, vecSrc);
 	VectorCopy(args->angles, angles);
 
-	AngleVectors(angles, forward, NULL, NULL);
+	AngleVectors(angles, &forward, NULL, NULL);
 
 	if (!EV_IsLocal(idx))
 		return;
@@ -1629,9 +1629,9 @@ void EV_SnarkFire(event_args_t* args)
 //======================
 void EV_VMstain(event_args_t* args)
 {
-	if (gEngfuncs.GetViewModel()->model != nullptr)
+	if (engine_cl->viewent.model != nullptr)
 	{
-		gEngfuncs.GetViewModel()->curstate.skin = args->iparam1;
+		engine_cl->viewent.curstate.skin = args->iparam1;
 	}
 }
 //======================
@@ -1643,8 +1643,8 @@ void EV_VMstain(event_args_t* args)
 //======================
 void EV_VMsilence(event_args_t* args)
 {
-	if (gEngfuncs.GetViewModel()->model != nullptr)
-		gEngfuncs.GetViewModel()->curstate.body = args->iparam1;
+	if (engine_cl->viewent.model != nullptr)
+		engine_cl->viewent.curstate.body = args->iparam1;
 }
 //======================
 //	   SILENCE END
@@ -1783,7 +1783,7 @@ void EV_Particles(event_args_t* args)
 		case 0: // muzzle smoke
 			if (args->bparam1 != true)
 			{
-				Origin = gEngfuncs.GetViewModel()->attachment[0];
+				Origin = engine_cl->viewent.attachment[0];
 				Dir = args->origin;
 			}
 			else
@@ -1807,7 +1807,7 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case 1: //SG sparks // Should this be a param2 thing for the def muzzle flash? // Should this be a cluster?
-			Origin = gEngfuncs.GetViewModel()->attachment[0];
+			Origin = engine_cl->viewent.attachment[0];
 
 			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 			if (args->bparam1 != true)

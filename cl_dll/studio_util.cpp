@@ -112,7 +112,7 @@ QuaternionMatrix
 
 ====================
 */
-void QuaternionMatrix(vec4_t quaternion, float (*matrix)[4])
+void QuaternionMatrix(vec4_t quaternion, matrix3x4_t &matrix)
 {
 	matrix[0][0] = 1.0 - 2.0 * quaternion[1] * quaternion[1] - 2.0 * quaternion[2] * quaternion[2];
 	matrix[1][0] = 2.0 * quaternion[0] * quaternion[1] + 2.0 * quaternion[3] * quaternion[2];

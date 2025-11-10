@@ -38,22 +38,17 @@
 #include "..\renderer\particle_engine.h"
 #include "..\renderer\watershader.h"
 #include "..\renderer\mirrormanager.h"
+#include "..\renderer\tent.h"
+#include "..\renderer\StudioModelRenderer.h"
+
 #include "r_efx.h"
-
 #include "studio.h"
-#include "StudioModelRenderer.h"
-#include "GameStudioModelRenderer.h"
 
-extern CGameStudioModelRenderer g_StudioRenderer;
 extern engine_studio_api_t IEngineStudio;
-
-extern CTempEntity gTempEntities;
 // RENDERERS END
 
 hud_player_info_t g_PlayerInfoList[MAX_PLAYERS_HUD + 1];	// player info from the engine
 extra_player_info_t g_PlayerExtraInfo[MAX_PLAYERS_HUD + 1]; // additional player info sent directly to the client dll
-
-SDL_Window* game_sdl_window;
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
 {
@@ -414,8 +409,6 @@ void CHud::Init()
 	CVAR_CREATE("hud_classautokill", "1", FCVAR_ARCHIVE | FCVAR_USERINFO); // controls whether or not to suicide immediately on TF class switch
 	CVAR_CREATE("hud_takesshots", "0", FCVAR_ARCHIVE);					   // controls whether or not to automatically take screenshots at the end of a round
 
-	#ifdef TRINITY
-
 	// RENDERERS START
 	HOOK_MESSAGE(SetFog);
 	HOOK_MESSAGE(LightStyle);
@@ -428,10 +421,6 @@ void CHud::Init()
 	HOOK_MESSAGE(Particle);
 	HOOK_MESSAGE(WaterInfo);
 	HOOK_MESSAGE(TempEnt);
-
-	R_Init();
-	// RENDERERS END
-	#endif
 
 	m_iLogo = 0;
 	m_iFOV = 0;
@@ -448,17 +437,6 @@ void CHud::Init()
 	r_decals = gEngfuncs.pfnGetCvarPointer("r_decals");
 
 	m_pSpriteList = NULL;
-
-	// transparent game icon
-	for (Uint32 id = 0; id < UINT32_MAX; ++id)
-	{
-		auto window = SDL_GetWindowFromID(id);
-		if (window)
-		{
-			game_sdl_window = window;
-			break;
-		}
-	}
 
 	// Clear any old HUD list
 	if (m_pHudList)
@@ -586,7 +564,7 @@ void CHud::VidInit()
 			}
 
 			// allocated memory for sprite handle arrays
-			m_rghSprites = new HSPRITE_GLDSRC[m_iSpriteCount];
+			m_rghSprites = new HSPRITE_GOLDSRC [m_iSpriteCount];
 			m_rgrcRects = new Rect[m_iSpriteCount];
 			m_rgszSpriteNames = new char[m_iSpriteCount * MAX_SPRITE_NAME_LENGTH];
 

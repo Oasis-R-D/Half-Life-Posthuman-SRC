@@ -1,5 +1,6 @@
 /*
 Trinity Rendering Engine - Copyright Andrew Lucas 2009-2012
+Overhauled Trinity Rendering Engine - Copyright SalsaTobias 2025-2025
 
 The Trinity Engine is free software, distributed in the hope th-
 at it will be useful, but WITHOUT ANY WARRANTY; without even the
@@ -19,7 +20,6 @@ Additional code taken from Id Software
 #endif
 
 #include "PlatformHeaders.h"
-#include "gl/gl.h"
 #include "pm_defs.h"
 #include "cl_entity.h"
 #include "ref_params.h"
@@ -28,6 +28,10 @@ Additional code taken from Id Software
 #include "cvardef.h"
 #include "textureloader.h"
 #include "rendererdefs.h"
+
+class GL_FBOHandler;
+class GL_RBOHandler;
+class GL_ShaderProgram;
 
 /*
 ====================
@@ -56,10 +60,6 @@ public:
 
 public:
 	cvar_t* m_pCvarDrawMirrors;
-	cvar_t* m_pCvarMirrorPlayer;
-
-	cl_entity_t* m_pTempEntities[512];
-	int m_iNumTempEntities;
 
 	ref_params_t m_pMirrorParams;
 	ref_params_t* m_pViewParams;
@@ -67,6 +67,14 @@ public:
 	cl_mirror_t* m_pCurrentMirror;
 	cl_mirror_t m_pMirrors[MAX_MIRRORS];
 	int m_iNumMirrors;
+
+	int m_iNumPasses;
+
+	GL_FBOHandler* mirrorFBO;
+	GL_RBOHandler* mirrorDepthBuffer;
+	GL_ShaderProgram* m_MirrorShader;
+
+	double m_fRenderTime;
 };
 
 extern CMirrorManager gMirrorManager;
