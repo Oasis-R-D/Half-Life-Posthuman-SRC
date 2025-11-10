@@ -482,8 +482,9 @@ public:
 		return false;
 	}
 	//	void		HandleAnimEvent( MonsterEvent_t *pEvent );
-	
+	#ifndef CLIENT_DLL
 	virtual int GasOffset();
+	#endif
 	static const char* pModelNames[];
 	float m_fAttackTime; 
 };
