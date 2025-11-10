@@ -1,6 +1,6 @@
 #pragma once
 
-//simple shader for decals (should probably make one definite shader for simple quad rendering like this)
+// simple shader for decals (should probably make one definite shader for simple quad rendering like this)
 
 char glsl_decal_vp[] = R"(
 

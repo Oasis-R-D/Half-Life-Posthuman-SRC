@@ -267,7 +267,7 @@ char glsl330_studiomdl_frag[] = R"(
 	in vec4 vertexdiffusecolor;
 	in vec4 vertexspecularcolor;
 
-	#define MAX_MODEL_LIGHTS 12 // 2x(up, down, left, right, front, back)
+	#define MAX_MODEL_LIGHTS 12 // 2*(up, down, left, right, front, back)
 
 	// lighting options
 	#define STUDIO_NF_FLATSHADE 1

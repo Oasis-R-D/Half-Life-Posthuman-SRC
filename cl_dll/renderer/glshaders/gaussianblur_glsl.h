@@ -1,7 +1,7 @@
 #pragma once
 
 //shader for blurring textures (kinda incomplete and also used for rendering debug quads into screen)
-
+// We're using gaussian blur instead of bilinear now?
 char glsl_gaussianblur_vp[] = R"(
 	out vec2 frag_texcoord;
 

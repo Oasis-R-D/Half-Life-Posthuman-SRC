@@ -10,7 +10,7 @@ char glsl_sprite_vp[] = R"(
 	void main()
 	{
 		
-		//calculate texture coordinates dynamically, since all goldsrc sprite entities stretch the texture to fit inside the quad
+		// calculate texture coordinates dynamically, since all goldsrc sprite entities stretch the texture to fit inside the quad
 		int vertIndex  = gl_VertexID % 4; //example: |60 = 0| |61 = 1| |62 = 2| |63 = 3| |64 = 0|
 
 		vec2 uv[4] = vec2[](

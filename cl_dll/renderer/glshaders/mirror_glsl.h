@@ -1,5 +1,6 @@
 #pragma once
 
+// To-do: some sort of glass texture overlayed over the mirror would be nice (and realistic and stuff)
 const char* mirror_vertex =
 	R"(
 

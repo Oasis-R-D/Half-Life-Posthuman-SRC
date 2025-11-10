@@ -8,8 +8,9 @@ char glsl330_studiomdlsolid_vert[] = R"(
 	#define STUDIO_NF_CHROME 2
 	#define STUDIO_NF_ADDITIVE 32  // buz
 	#define STUDIO_NF_ALPHATEST 64 // buz
-	#define STUDIO_NF_FULLBRIGHT 512
 	#define STUDIO_NF_NOMIPMAP 256
+	#define STUDIO_NF_FULLBRIGHT 512
+
 
 	layout(std140) uniform StudioSolidUBO
 	{
@@ -78,8 +79,9 @@ char glsl330_studiomdlsolid_frag[] = R"(
 	#define STUDIO_NF_CHROME 2
 	#define STUDIO_NF_ADDITIVE 32  // buz
 	#define STUDIO_NF_ALPHATEST 64 // buz
-	#define STUDIO_NF_FULLBRIGHT 512
 	#define STUDIO_NF_NOMIPMAP 256
+	#define STUDIO_NF_FULLBRIGHT 512
+
 
 	uniform sampler2D texture0;
 	uniform int texture_flags;

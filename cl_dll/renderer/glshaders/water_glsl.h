@@ -119,7 +119,7 @@ const char* water_fragment_water_regular =
 		refractiveFactor = clamp(refractiveFactor * m_flFresnelTerm, 0.0, 1.0);
 
 		if(underwater > 0)
-			refractiveFactor = 1.0; //dont reflect underwater
+			refractiveFactor = 1.0; // don't reflect underwater
 
 		vec4 water_result = mix(reflectionPixel, refractionPixel, refractiveFactor);
 		vec4 base_watertex =  texture2D(texture3, basetex_texcoord);

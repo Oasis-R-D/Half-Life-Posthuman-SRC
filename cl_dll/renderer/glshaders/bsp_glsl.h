@@ -45,7 +45,7 @@ char glsl330_world_vp[] = R"(
 
 	float turbsin(int index)
 	{
-		//	turbsin is simply a lookup table with 
+		// turbsin is simply a lookup table with 
 		// 256 values such that turbsin[n] = 8 * sin( 2 * Pi * n/256).
 
 		return 8.0 * sin( M_PI2 * (index & 255) / 256);

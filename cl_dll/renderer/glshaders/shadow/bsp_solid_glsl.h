@@ -37,7 +37,7 @@ const char glsl330_worldsolid_fp[] = R"(
 
 	void main() {
 
-		if(alphatest) //i would leave it hard coded but for some reason the fucking entire shadowmap gets filled with holes after some map reloads even if i bind the surface texture unit to  texture id 0 ??????? what the fuck ?
+		if(alphatest) //i would leave it hard coded but for some reason the fucking entire shadowmap gets filled with holes after some map reloads even if i bind the surface texture unit to texture id 0 ??????? what the fuck ?
 		{
 			if(texture(base_texture, texcoord).a < 0.5)
 				discard;
