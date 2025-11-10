@@ -213,6 +213,9 @@ std::vector<std::unique_ptr<studioentity_data_t>> CStudioModelRenderer::m_pStudi
 // Global engine <-> studio model rendering code interface
 engine_studio_api_t IEngineStudio;
 
+extern bool g_iNightVision;
+extern bool g_iFlashLight;
+
 CStudioModelRenderer g_StudioRenderer;
 
 extern model_t* cl_sprite_muzzleflash[3];
