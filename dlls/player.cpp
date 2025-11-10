@@ -3745,7 +3745,6 @@ bool CBasePlayer::FlashlightIsOn()
 
 void CBasePlayer::FlashlightTurnOn()
 {
-	m_bPrehuman = true;
 	m_bLightOn = true;
 	if (!g_pGameRules->FAllowFlashlight() || !HasSuit())
 	{

@@ -3174,10 +3174,11 @@ void CTriggerPreHuman::Spawn()
 void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	edict_t* pentTarget = NULL;
+
 	switch (usetype)
 	{
 		case 0:
-			pActivator->m_bPrehuman = PreHuman;
+			pCaller->m_bPrehuman = PreHuman;
 			break;
 		case 1:
 			if (FStringNull(pev->target))
@@ -3193,19 +3194,19 @@ void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 				if (pTarget && (pTarget->pev->flags & FL_KILLME) == 0) // Don't use dying ents
 				{
 					ALERT(at_aiconsole, "Found: %s, pre-humaning (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
-					pTarget->m_bPrehuman = PreHuman;
+					
 					if (pTarget->IsPlayer())
 					{
 						auto player = (CBasePlayer*)pTarget;
-						pTarget->m_bPrehuman = PreHuman;
-						player->FlashlightTurnOff();
+						
+						if (player->FlashlightIsOn())
+							player->FlashlightTurnOff();
 					}
+					pTarget->m_bPrehuman = PreHuman;
 				}
 			}
 			break;
 		case 2:
-			if (FStringNull(pev->target))
-				return;
 
 			for (;;)
 			{
@@ -3218,8 +3219,10 @@ void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 				{
 					auto player = (CBasePlayer*)pTarget;
 					ALERT(at_aiconsole, "Found: %s, pre-humaning (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
+					
+					if (player->FlashlightIsOn())
+						player->FlashlightTurnOff();
 					pTarget->m_bPrehuman = PreHuman;
-					player->FlashlightTurnOff();
 				}
 			}
 			break;
