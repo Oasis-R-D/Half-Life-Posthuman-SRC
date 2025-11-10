@@ -10,8 +10,9 @@ char glsl330_studiomdl_vert[] = R"(
 	#define STUDIO_NF_CHROME 2
 	#define STUDIO_NF_ADDITIVE 32  // buz
 	#define STUDIO_NF_ALPHATEST 64 // buz
-	#define STUDIO_NF_FULLBRIGHT 512
 	#define STUDIO_NF_NOMIPMAP 256
+	#define STUDIO_NF_FULLBRIGHT 512
+
 
 
 	//for gpu skinning

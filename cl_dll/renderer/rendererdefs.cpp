@@ -946,7 +946,7 @@ void SetupNightVision(Vector origin, Vector angles, float time, float frametime)
 	static float add = 0;
 	float addideal = 0;
 
-	AngleVectors(angles, fwd, right, up);
+	AngleVectors(angles, &fwd, &right, &up);
 
 	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
 	flashlight->origin = origin;
