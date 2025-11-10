@@ -938,10 +938,10 @@ void RenderersDumpInfo(void)
 //===============================
 // buz: flashlight managenemt
 //===============================
-void SetupNightVision(vec3_t origin, vec3_t angles, float time, float frametime)
+void SetupNightVision(Vector origin, Vector angles, float time, float frametime)
 {
 	pmtrace_t tr;
-	vec3_t fwd, right, up;
+	Vector fwd, right, up;
 
 	static float add = 0;
 	float addideal = 0;
