@@ -3155,3 +3155,88 @@ bool CTriggerLimbDMG::KeyValue(KeyValueData* pkvd)
 	}
 	return CPointEntity::KeyValue(pkvd);
 }
+
+class CTriggerPreHuman : public CPointEntity
+{
+public:
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	bool PreHuman;
+	int usetype;
+};
+LINK_ENTITY_TO_CLASS(trigger_plyrhuman, CTriggerPreHuman);
+
+void CTriggerPreHuman::Spawn()
+{
+}
+
+void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	edict_t* pentTarget = NULL;
+	switch (usetype)
+	{
+		case 0:
+			pActivator->m_bPrehuman = PreHuman;
+			break;
+		case 1:
+			if (FStringNull(pev->target))
+				return;
+
+			for (;;)
+			{
+				pentTarget = FIND_ENTITY_BY_TARGETNAME(pentTarget, STRING(pev->target));
+				if (FNullEnt(pentTarget))
+					break;
+
+				CBaseEntity* pTarget = CBaseEntity::Instance(pentTarget);
+				if (pTarget && (pTarget->pev->flags & FL_KILLME) == 0) // Don't use dying ents
+				{
+					ALERT(at_aiconsole, "Found: %s, pre-humaning (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
+					pTarget->m_bPrehuman = PreHuman;
+					if (pTarget->IsPlayer())
+					{
+						auto player = (CBasePlayer*)pTarget;
+						pTarget->m_bPrehuman = PreHuman;
+						player->FlashlightTurnOff();
+					}
+				}
+			}
+			break;
+		case 2:
+			if (FStringNull(pev->target))
+				return;
+
+			for (;;)
+			{
+				pentTarget = FIND_ENTITY_BY_CLASSNAME(pentTarget, "player");
+				if (FNullEnt(pentTarget))
+					break;
+
+				CBaseEntity* pTarget = CBaseEntity::Instance(pentTarget);
+				if (pTarget)
+				{
+					auto player = (CBasePlayer*)pTarget;
+					ALERT(at_aiconsole, "Found: %s, pre-humaning (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
+					pTarget->m_bPrehuman = PreHuman;
+					player->FlashlightTurnOff();
+				}
+			}
+			break;
+	}
+}
+
+bool CTriggerPreHuman::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "PreHuman"))
+	{
+		PreHuman = (bool)atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "Type"))
+	{
+		usetype = atoi(pkvd->szValue);
+		return true;
+	}
+	return CPointEntity::KeyValue(pkvd);
+}
