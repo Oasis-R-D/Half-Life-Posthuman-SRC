@@ -3762,7 +3762,7 @@ void CBasePlayer::FlashlightTurnOn()
 
 	if (!m_bPrehuman)
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_NVG_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		// TODO: fix UTIL_ScreenFade nulling out green and blue color brightness //do we really need to? I think it's fine the way it is. Go for it and if it looks better we'll keep it
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE | FFADE_STAYOUT);
 		SetBits(pev->effects, EF_BRIGHTLIGHT);
@@ -3785,7 +3785,7 @@ void CBasePlayer::FlashlightTurnOn()
 	}
 	else
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT, 1.0, ATTN_NORM, 0, PITCH_NORM );
 		SetBits(pev->effects, EF_DIMLIGHT);
 	}
 }
@@ -3804,7 +3804,7 @@ void CBasePlayer::FlashlightTurnOff()
 
 	if (!m_bPrehuman)
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_NVG_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE);
 		ClearBits(pev->effects, EF_BRIGHTLIGHT);
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
@@ -3824,7 +3824,7 @@ void CBasePlayer::FlashlightTurnOff()
 	}
 	else
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT, 1.0, ATTN_NORM, 0, PITCH_NORM );
 		ClearBits(pev->effects, EF_DIMLIGHT);
 	}
 }

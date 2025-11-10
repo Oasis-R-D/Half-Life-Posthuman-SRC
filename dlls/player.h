@@ -56,8 +56,9 @@
 
 #define CSUITNOREPEAT 32
 
-#define SOUND_FLASHLIGHT_ON "items/flashlight1.wav"
-#define SOUND_FLASHLIGHT_OFF "items/flashlight2.wav"
+#define SOUND_NVG_ON "items/flashlight1.wav"
+#define SOUND_NVG_OFF "items/flashlight2.wav"
+#define SOUND_FLASHLIGHT "items/flashlight.wav"
 
 #define TEAM_NAME_LENGTH 16
 
