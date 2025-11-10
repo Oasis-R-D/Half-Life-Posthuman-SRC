@@ -482,9 +482,7 @@ public:
 		return false;
 	}
 	//	void		HandleAnimEvent( MonsterEvent_t *pEvent );
-	#ifndef CLIENT_DLL
-	virtual int GasOffset();
-	#endif
+	int m_iGasOffset;
 	static const char* pModelNames[];
 	float m_fAttackTime; 
 };
@@ -492,25 +490,16 @@ public:
 class CXenSporeSmall : public CXenSpore
 {
 	void Spawn() override;
-	#ifndef CLIENT_DLL
-	int GasOffset() override {return 48;}
-	#endif
 };
 
 class CXenSporeMed : public CXenSpore
 {
 	void Spawn() override;
-	#ifndef CLIENT_DLL
-	int GasOffset() override {return 116;}
-	#endif
 };
 
 class CXenSporeLarge : public CXenSpore
 {
 	void Spawn() override;
-	#ifndef CLIENT_DLL
-	int GasOffset() override {return 224;}
-	#endif
 	static const Vector m_hullSizes[];
 };
 
@@ -549,12 +538,14 @@ LINK_ENTITY_TO_CLASS(xen_hull, CXenHull);
 void CXenSporeSmall::Spawn()
 {
 	pev->skin = 0;
+	m_iGasOffset = 48;
 	CXenSpore::Spawn();
 	UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 64));
 }
 void CXenSporeMed::Spawn()
 {
 	pev->skin = 1;
+	m_iGasOffset = 112;
 	CXenSpore::Spawn();
 	UTIL_SetSize(pev, Vector(-40, -40, 0), Vector(40, 40, 120));
 }
@@ -573,6 +564,7 @@ const Vector CXenSporeLarge::m_hullSizes[] =
 void CXenSporeLarge::Spawn()
 {
 	pev->skin = 2;
+	m_iGasOffset = 224;
 	CXenSpore::Spawn();
 	UTIL_SetSize(pev, Vector(-48, -48, 110), Vector(48, 48, 240));
 
@@ -632,7 +624,7 @@ void CXenSpore::Think()
 	pev->nextthink = gpGlobals->time + 0.1;
 	if (m_fAttackTime <= gpGlobals->time)
 	{
-		//::RadiusDamage(pev->origin + GasOffset(), pev, pev, 10, 160, CLASS_NONE, DMG_NEURO);
+		//::RadiusDamage(pev->origin + m_iGasOffset, pev, pev, 10, 160, CLASS_NONE, DMG_NEURO);
 	}
 #if 0
 	DispatchAnimEvents( flInterval );
