@@ -70,7 +70,7 @@ void DiscordMan_Update(void)
 			skilllevel = "Realism Mode";
 			break;
 	}
-	discordPresence.details = curArea;	// Chapter name doesn't matter; if it's blank, Discord shows nothing
+	discordPresence.details = curArea;	// Chapter name doesn't matter; if it's blank, Discord shows map name
 	discordPresence.state = skilllevel;
 	discordPresence.largeImageKey = curImage;
     discordPresence.largeImageText = "Post-Human";
