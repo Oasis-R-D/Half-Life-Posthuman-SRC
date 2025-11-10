@@ -12,21 +12,10 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
-//=========================================================
-// hgrunt
-//=========================================================
 
 //=========================================================
-// Hit groups!
+// shocktrooper
 //=========================================================
-/*
-
-  1 - Head
-  2 - Stomach
-  3 - Gun
-
-*/
-
 
 #include "extdll.h"
 #include "plane.h"

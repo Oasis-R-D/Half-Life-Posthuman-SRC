@@ -12,8 +12,9 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
 //=========================================================
-// headcrab.cpp - tiny, jumpy alien parasite
+// shockroach - tiny, jumpy alien weapon
 //=========================================================
 
 #include "extdll.h"

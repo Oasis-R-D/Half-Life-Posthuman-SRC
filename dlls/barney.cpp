@@ -12,9 +12,11 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
 //=========================================================
-// monster template
+// BMRF Security Guard
 //=========================================================
+
 // UNDONE: Holster weapon?
 
 #include "extdll.h"

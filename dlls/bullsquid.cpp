@@ -12,8 +12,9 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
 //=========================================================
-// bullsquid - big, spotty tentacle-mouthed meanie. // just like your mo- -PM
+// bullsquid - big, spotty tentacle-mouthed meanie.
 //=========================================================
 
 #include "extdll.h"

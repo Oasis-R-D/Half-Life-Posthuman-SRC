@@ -8,6 +8,7 @@
 //=========================================================
 // playermonster - for scripted sequence use.
 //=========================================================
+
 #include	"extdll.h"
 #include	"util.h"
 #include	"cbase.h"

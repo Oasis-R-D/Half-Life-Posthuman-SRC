@@ -12,8 +12,9 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
 //=========================================================
-// Houndeye - spooky sonic dog.
+// Houndeye - cute sonic dog.
 //=========================================================
 
 #include "extdll.h"

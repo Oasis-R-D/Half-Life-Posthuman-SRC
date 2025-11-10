@@ -12,18 +12,18 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
+
 //=========================================================
 // leech - basic little swimming monster
 //=========================================================
-//
-// UNDONE:
-// DONE:Steering force model for attack
-// DONE:Attack animation control / damage
-// DONE:Establish range of up/down motion and steer around vertical obstacles
-// DONE:Re-evaluate height periodically
-// DONE:Fall (MOVETYPE_TOSS) and play different anim if out of water
+
+// DONE: Steering force model for attack
+// DONE: Attack animation control / damage
+// DONE: Establish range of up/down motion and steer around vertical obstacles
+// DONE: Re-evaluate height periodically
+// DONE: Fall (MOVETYPE_TOSS) and play different anim if out of water
 // Test in complex room (c2a3?)
-// DONE:Sounds? - Kelly will fix
+// DONE: Sounds? - Kelly will fix
 // Blood cloud? Hurt effect?
 // Group behavior?
 // DONE:Save/restore
@@ -32,8 +32,6 @@
 //
 // Try this on a bird
 // Try this on a model with hulls/tracehull?
-//
-
 
 #include "float.h"
 #include "extdll.h"
@@ -41,13 +39,9 @@
 #include "cbase.h"
 #include "monsters.h"
 
-
-
-
 // Animation events
 #define LEECH_AE_ATTACK 1
 #define LEECH_AE_FLOP 2
-
 
 // Movement constants
 
@@ -60,14 +54,11 @@
 #define LEECH_SIZEX 10
 #define LEECH_FRAMETIME 0.1
 
-
-
 #define DEBUG_BEAMS 0
 
 #if DEBUG_BEAMS
 #include "effects.h"
 #endif
-
 
 class CLeech : public CBaseMonster
 {
