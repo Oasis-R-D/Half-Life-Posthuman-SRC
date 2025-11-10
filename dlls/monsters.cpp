@@ -104,6 +104,7 @@ TYPEDESCRIPTION CBaseMonster::m_SaveData[] =
 		DEFINE_FIELD(CBaseMonster, m_pCine, FIELD_CLASSPTR),
 		DEFINE_FIELD(CBaseMonster, m_AllowItemDropping, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_bRailed, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBaseMonster, m_bPrehuman, FIELD_BOOLEAN),
 };
 
 //IMPLEMENT_SAVERESTORE( CBaseMonster, CBaseToggle );

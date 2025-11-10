@@ -104,6 +104,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iExtraSoundTypes, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iWeaponFlash, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_fLongJump, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_bPrehuman, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_fInitHUD, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_tbdPrev, FIELD_TIME),
 
