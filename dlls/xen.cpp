@@ -475,13 +475,14 @@ public:
 	void Precache() override;
 	void Touch(CBaseEntity* pOther) override;
 	void Think() override;
+	void Attack();
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override
 	{
 		Attack();
 		return false;
 	}
 	//	void		HandleAnimEvent( MonsterEvent_t *pEvent );
-	void Attack();
+	
 	virtual int GasOffset();
 	static const char* pModelNames[];
 	float m_fAttackTime; 
@@ -490,20 +491,25 @@ public:
 class CXenSporeSmall : public CXenSpore
 {
 	void Spawn() override;
-	int GasOffset() override {return 48;};
+	#ifndef CLIENT_DLL
+	int GasOffset() override {return 48;}
+	#endif
 };
 
 class CXenSporeMed : public CXenSpore
 {
 	void Spawn() override;
-	int GasOffset() override {return 116;};
+	#ifndef CLIENT_DLL
+	int GasOffset() override {return 116;}
+	#endif
 };
 
 class CXenSporeLarge : public CXenSpore
 {
 	void Spawn() override;
+	#ifndef CLIENT_DLL
 	int GasOffset() override {return 224;}
-
+	#endif
 	static const Vector m_hullSizes[];
 };
 
