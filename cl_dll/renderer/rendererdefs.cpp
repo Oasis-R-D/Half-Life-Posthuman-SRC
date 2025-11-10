@@ -625,10 +625,10 @@ void R_CalcRefDef(ref_params_t* pparams)
 	// all entities have been set up by goldsrc, get them
 	gBSPRenderer.GetRenderEnts();
 
-	//if (g_iNightVision) 
-	//{
-	//	SetupFlashlight(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
-	//}
+	if (g_iNightVision) 
+	{
+		SetupNightVision(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+	}
 
 	if (g_iFlashLight)
 	{
@@ -935,6 +935,25 @@ void RenderersDumpInfo(void)
 	}
 }
 
+//===============================
+// buz: flashlight managenemt
+//===============================
+void SetupNightVision(vec3_t origin, vec3_t angles, float time, float frametime)
+{
+	pmtrace_t tr;
+	vec3_t fwd, right, up;
+
+	static float add = 0;
+	float addideal = 0;
+
+	AngleVectors(angles, fwd, right, up);
+
+	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
+	flashlight->origin = origin;
+	flashlight->radius = 300;
+	flashlight->color = Vector(0.3, 0.3, 0.3);
+	flashlight->die = time + 0.1;
+}
 
 //===============================
 // buz: flashlight managenemt
@@ -1002,6 +1021,7 @@ void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 	flashlight->depth = GL_ShadowMap::AllocateShadowMap(GL_ShadowMap::_2DTexture_Storage, GL_RG16F, sm_res, sm_res, 0, GL_RG, GL_FLOAT);
 	VectorCopy(angles, flashlight->angles);
 }
+
 float Q_rsqrt(float number)
 {
 	long i;

@@ -844,6 +844,7 @@ extern void R_MarkLeaves(clientmleaf_t* pLeaf);
 extern void HUD_PrintSpeeds(void);
 extern void RenderersDumpInfo(void);
 extern void SetupFlashlight(Vector origin, Vector angles, float time, float frametime);
+extern void SetupNightVision(Vector origin, Vector angles, float time, float frametime);
 
 extern unsigned short ByteToUShort(byte* byte);
 extern unsigned int ByteToUInt(byte* byte);
