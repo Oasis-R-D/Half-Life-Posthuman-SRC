@@ -217,8 +217,8 @@ struct particle_system_t
 	unsigned short randomframe;
 
 	// particle randomly chooses are var ifdef. Will also use the associated numvar
-	unsigned short framevar1;
-	unsigned short numvarframes1;
+	unsigned short framevar1; // startframe
+	unsigned short numvarframes1; // how many frames
 	unsigned short framevar2;
 	unsigned short numvarframes2;
 	unsigned short framevar3;
@@ -227,6 +227,7 @@ struct particle_system_t
 	unsigned short numvarframes4;
 	unsigned short framevar5;
 	unsigned short numvarframes5;
+	int variants; // easier than checking which ones are defined
 
 	char create[64];
 	char deathcreate[64];

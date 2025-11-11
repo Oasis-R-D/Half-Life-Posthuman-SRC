@@ -494,17 +494,35 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 		else if (!strcmp(szField, "framerate"))
 			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframe"))
+		{
+			pSystem->variants = 0;
 			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "startframevar1"))
+		{
+			pSystem->variants = 1;
 			pSystem->framevar1 = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "startframevar2"))
+		{
+			pSystem->variants = 2;
 			pSystem->framevar2 = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "startframevar3"))
+		{
+			pSystem->variants = 3;
 			pSystem->framevar3 = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "startframevar4"))
+		{
+			pSystem->variants = 4;
 			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "startframevar5"))
+		{
+			pSystem->variants = 5;
 			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
+		}
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -1901,11 +1919,21 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	if (pSystem->numframes)
 	{
 		// Get desired frame
-		int iFrame = ((int)((flTime - pParticle->spawntime) * pSystem->framerate));
-		iFrame = (iFrame % pSystem->numframes) + pSystem->startframe;
-		if (iFrame > pSystem->numframes)
-			iFrame = pSystem->numframes;
 
+		// TO-DO: add variations here
+		unsigned short startingvarframe
+
+		int iFrame = ((int)((flTime - pParticle->spawntime) * pSystem->framerate));
+		if (pSystem->variants == 0) // if it's defined will randomize between startframe and framevar1 (ifndef the others)
+		{
+			iFrame = (iFrame % pSystem->numframes) + pSystem->startframe;
+			if (iFrame > pSystem->numframes)
+				iFrame = pSystem->numframes;
+		}
+		else
+		{
+			
+		}
 		// Check if we actually have to set the frame
 		if (iFrame != pParticle->frame)
 		{
