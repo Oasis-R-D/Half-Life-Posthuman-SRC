@@ -1942,23 +1942,23 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				case 1:
 					varnumframe = pSystem->numvarframes1;
 					varstartingframe = pSystem->framevar1;
-					break
+					break;
 				case 2:
 					varnumframe = pSystem->numvarframes2;
 					varstartingframe = pSystem->framevar2;
-					break
+					break;
 				case 3:
 					varnumframe = pSystem->numvarframes3;
 					varstartingframe = pSystem->framevar3;
-					break
+					break;
 				case 4:
 					varnumframe = pSystem->numvarframes4;
 					varstartingframe = pSystem->framevar4;
-					break
+					break;
 				case 5:
 					varnumframe = pSystem->numvarframes5;
 					varstartingframe = pSystem->framevar5;
-					break
+					break;
 			}
 			iFrame = (iFrame % varnumframe) + varstartingframe;
 			if (iFrame > varnumframe)
