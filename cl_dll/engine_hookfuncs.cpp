@@ -251,7 +251,7 @@ minvel 0
 maxvel 0
 
 sprite %s
-framerate 15
+framerate 30
 rendermode 2
 
 scale 4.0
@@ -319,6 +319,11 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	std::string modelname2 = CL_GetModelByIndex(modelIndex2)->name;
 	char filename[256];
 	char filename2[256];
+
+	int scale = size;
+	scale = round(scale / 2);
+	std::string size2 = std::to_string(scale);
+	const char* charPtr = size2.c_str();
 	int R = 0, G = 0, B = 0;
 	switch (colorindex)
 	{
@@ -351,8 +356,9 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	FilenameFromPath(modelname2.c_str(), filename2);
 
 	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, vec3_origin, 0);
-	for (int i  = 0; i < 12; i++)
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), size, R, G, B), org, vec3_origin, 0);
+	gEngfuncs.pfnConsolePrint(charPtr);
+	for (int i  = 0; i < 24; i++)
+		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), scale + gEngfuncs.pfnRandomLong(-1, 1), R, G, B), org, vec3_origin, 0);
 }
 
 FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
@@ -562,8 +568,8 @@ randomdir 1
 
 fadedelay 1.3
 
-minvel -50
-maxvel 100
+minvel 50
+maxvel 200
 
 sprite _particletexture
 rendermode 2
@@ -575,7 +581,7 @@ pcolg 47
 pcolb 47
 
 
-gravity 0.5
+gravity 1
 
 startparticles 30
 
@@ -588,8 +594,8 @@ lightmaps 0
 FuncHook(R_BulletImpactParticles, void, float* pos)
 {
 	Hooked_R_SparkStreaks(pos, 2, -200, 200);
-
-	gParticleEngine.CreateCluster("concrete_impact_cluster.txt", pos, Vector(0, 0, 0), 0);
+	// find out how to get angle
+	//gParticleEngine.CreateCluster("concrete_impact_cluster.txt", pos, Vector(0, 0, 0), 0);
 	gParticleEngine.CreateSystem_File(particle_bulletimpact, pos, Vector(0, 0, 0), 0);
 }
 FuncHook(R_EntityParticles, void, struct cl_entity_s* ent)
@@ -680,9 +686,6 @@ lightmaps 0
 
 FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 {
-	OrigR_MuzzleFlash(pos1, type);
-
-	/*
 	TEMPENTITY* pTemp;
 	int index;
 	float scale;
@@ -694,13 +697,11 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	
 	if (!cl_sprite_muzzleflash[index])
 		return;
-	*/
 
 	// smelly particle vers
 	//gParticleEngine.CreateSystem_File(particle_muzzleflash, pos1, Vector(0, 0, 0), 0);
 	
 	// smelly tempent remake
-	/*
 	// must set position for right culling on render
 	pTemp = Hooked_CL_TempEntAlloc(pos1, cl_sprite_muzzleflash[index]);
 	if (!pTemp)
@@ -710,7 +711,7 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	pTemp->entity.curstate.renderamt = 255;
 	pTemp->entity.curstate.framerate = 10;
 	pTemp->entity.curstate.renderfx = 0;
-	pTemp->die = engine_cl->time + 0.05; // die at next frame
+	pTemp->die = engine_cl->time + 0.025; // die at next frame
 	pTemp->entity.curstate.frame = gEngfuncs.pfnRandomLong(0, pTemp->frameMax);
 	pTemp->flags |= FTENT_SPRANIMATE | FTENT_SPRANIMATELOOP;
 	pTemp->entity.curstate.scale = scale;
@@ -721,7 +722,6 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
 	
 	CL_AddVisibleEntity(&pTemp->entity);
-	*/
 }
 
 FuncHook(R_ParticleBox, void, float* mins, float* maxs, unsigned char r, unsigned char g, unsigned char b, float life)
