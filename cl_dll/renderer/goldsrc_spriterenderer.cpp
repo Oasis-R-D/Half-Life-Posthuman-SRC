@@ -87,7 +87,7 @@ void CSpriteRenderer::PushEntityToDraw(cl_entity_s* pEnt)
 		return;
 
 	model_t* beamsprite = CL_GetModelByIndex(m_pCurrentEntity->curstate.movetype);
-	if (beamsprite)
+	if (beamsprite && beamsprite->type == mod_sprite)
 		return; // hacky way to not draw beams
 
 	m_vSpriteDrawList.push_back(m_pCurrentEntity);
