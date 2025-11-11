@@ -2384,6 +2384,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	if (m_pCurrentEntity == &engine_cl->viewent && m_pCvarViewmodelFov->value != 0.0f)
 	{
 		CheckProjection();
+		/*
 		if (g_iNightVision && !g_iFlashLight)
 		{
 			m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
@@ -2394,6 +2395,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 			m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
 			m_pCurrentEntity->curstate.rendercolor.r = 0;
 		}
+		*/
 	}
 
 	if (m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || m_pCurrentEntity->curstate.renderfx == kRenderFxAlly)
