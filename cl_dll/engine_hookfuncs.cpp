@@ -245,14 +245,10 @@ char bloodsprite[] = R"(
 life 0.5
 lifevar 0.1
 
-systemshape 1
-systemsize 1
-randomdir 1
-
-fadedelay 0.3
+fadedelay 4.9
 
 minvel 0
-maxvel 5
+maxvel 0
 
 sprite %s
 framerate 15
@@ -263,9 +259,9 @@ scale 4.0
 rotationvel 4
 rotationvar 4
 
-pcolr 160
-pcolg 0
-pcolb 0
+pcolr %d
+pcolg %d
+pcolb %d
 
 gravity 0
 
@@ -278,8 +274,6 @@ char bloodchunks[] = R"(
 life 5.5
 lifevar 0.1
 
-systemshape 1
-systemsize 1
 randomdir 1
 
 fadedelay 2
@@ -356,9 +350,9 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	FilenameFromPath(modelname.c_str(), filename);
 	FilenameFromPath(modelname2.c_str(), filename2);
 
-	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, dir, 0);
+	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, vec3_origin, 0);
 	for (int i  = 0; i < 12; i++)
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), size, R, G, B), org, dir, 0);
+		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), size, R, G, B), org, vec3_origin, 0);
 }
 
 FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
@@ -686,6 +680,9 @@ lightmaps 0
 
 FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 {
+	OrigR_MuzzleFlash(pos1, type);
+
+	/*
 	TEMPENTITY* pTemp;
 	int index;
 	float scale;
@@ -697,29 +694,34 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	
 	if (!cl_sprite_muzzleflash[index])
 		return;
+	*/
 
-	gParticleEngine.CreateSystem_File(particle_muzzleflash, pos1, Vector(0, 0, 0), 0);
+	// smelly particle vers
+	//gParticleEngine.CreateSystem_File(particle_muzzleflash, pos1, Vector(0, 0, 0), 0);
 	
+	// smelly tempent remake
+	/*
 	// must set position for right culling on render
-	//pTemp = Hooked_CL_TempEntAlloc(pos1, cl_sprite_muzzleflash[index]);
-	//if (!pTemp)
-	//	return;
-	//
-	//pTemp->entity.curstate.rendermode = kRenderTransAdd;
-	//pTemp->entity.curstate.renderamt = 255;
-	//pTemp->entity.curstate.framerate = 10;
-	//pTemp->entity.curstate.renderfx = 0;
-	//pTemp->die = engine_cl->time + 0.05; // die at next frame
-	//pTemp->entity.curstate.frame = gEngfuncs.pfnRandomLong(0, pTemp->frameMax);
-	//pTemp->flags |= FTENT_SPRANIMATE | FTENT_SPRANIMATELOOP;
-	//pTemp->entity.curstate.scale = scale;
-	//
-	//if (index == 0)
-	//	pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 20); // rifle flash
-	//else
-	//	pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
-	//
-	//CL_AddVisibleEntity(&pTemp->entity);
+	pTemp = Hooked_CL_TempEntAlloc(pos1, cl_sprite_muzzleflash[index]);
+	if (!pTemp)
+		return;
+	
+	pTemp->entity.curstate.rendermode = kRenderTransAdd;
+	pTemp->entity.curstate.renderamt = 255;
+	pTemp->entity.curstate.framerate = 10;
+	pTemp->entity.curstate.renderfx = 0;
+	pTemp->die = engine_cl->time + 0.05; // die at next frame
+	pTemp->entity.curstate.frame = gEngfuncs.pfnRandomLong(0, pTemp->frameMax);
+	pTemp->flags |= FTENT_SPRANIMATE | FTENT_SPRANIMATELOOP;
+	pTemp->entity.curstate.scale = scale;
+	
+	if (index == 0)
+		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 20); // rifle flash
+	else
+		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
+	
+	CL_AddVisibleEntity(&pTemp->entity);
+	*/
 }
 
 FuncHook(R_ParticleBox, void, float* mins, float* maxs, unsigned char r, unsigned char g, unsigned char b, float life)
