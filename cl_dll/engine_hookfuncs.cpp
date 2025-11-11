@@ -39,6 +39,11 @@ extern model_t* cl_sprite_muzzleflash[3];
 extern model_t* cl_sprite_ricochet;
 extern model_t* cl_sprite_shell;
 
+#define BLOOD_COLOR_RED (byte)247
+#define BLOOD_COLOR_YELLOW (byte)195
+#define BLOOD_COLOR_GREEN (byte)176
+#define BLOOD_COLOR_CYAN (byte)43
+
 std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
 
@@ -277,7 +282,7 @@ systemshape 1
 systemsize 1
 randomdir 1
 
-fadedelay 0.3
+fadedelay 2
 
 minvel 80
 maxvel 105
@@ -287,16 +292,16 @@ framerate 0
 rendermode 2
 startframe %d
 
-scale 3.5
+scale %d
 
 collision 2
 
 rotationvel 10
 rotationvar 10
 
-pcolr 160
-pcolg 0
-pcolb 0
+pcolr %d
+pcolg %d
+pcolb %d
 
 gravity 0.5
 
@@ -309,23 +314,53 @@ lightmaps 0
 
 FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int modelIndex2, float size)
 {
+	//ORIGINAL FUNCTION CALL
 	//OrigR_BloodSprite(org, colorindex, modelIndex, modelIndex2, size);
+	
+	// NEW PARTICLE BASED SYSTEM
 	auto randomfloat = gEngfuncs.pfnRandomFloat;
 	Vector dir( randomfloat(-2, 2), randomfloat(-2, 2), randomfloat(0, 2) );
-	//gParticleEngine.CreateCluster("blood_effects_cluster.txt", org, dir, 0);
 
 	std::string modelname = CL_GetModelByIndex(modelIndex)->name;
 	std::string modelname2 = CL_GetModelByIndex(modelIndex2)->name;
 	char filename[256];
 	char filename2[256];
+	int R = 0, G = 0, B = 0;
+	switch (colorindex)
+	{
+		case BLOOD_COLOR_RED:
+			R = 160;
+			break;
+		case BLOOD_COLOR_YELLOW:
+			R = 199;
+			G = 155;
+			B = 55;
+			break;
+		case BLOOD_COLOR_GREEN:
+			R = 185;
+			G = 155;
+			B = 55;
+			break;
+		case BLOOD_COLOR_CYAN:
+			G = 255;
+			B = 140;
+			break;
+		default:
+			if (gEngfuncs.pfnRandomLong(0, 1) == 1)
+			{
+				B = 255;
+				R = 255;
+			}
+			break;
+	}
 	FilenameFromPath(modelname.c_str(), filename);
 	FilenameFromPath(modelname2.c_str(), filename2);
 
-	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename), org, dir, 0);
+	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, dir, 0);
 	for (int i  = 0; i < 12; i++)
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8)), org, dir, 0);
-
+		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), size, R, G, B), org, dir, 0);
 }
+
 FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
 {
 	OrigR_BloodStream(org, dir, pcolor, speed);
