@@ -1932,10 +1932,10 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 		}
 		else
 		{
-			unsigned short varstartingframe
-			unsigned short varnumframe
+			unsigned short varstartingframe;
+			unsigned short varnumframe;
 
-			switch (RANDOM_LONG(0, pSystem->variants))
+			switch (gEngfuncs.pfnRandomLong(0, pSystem->variants))
 			{
 				default: // just so it doesn't break while this is undone
 				case 0:
@@ -1947,22 +1947,25 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					varstartingframe = pSystem->framevar1;
 					break
 				case 2:
-					varnumframe = pSystem->numvarframes1;
-					varstartingframe = pSystem->framevar1;
+					varnumframe = pSystem->numvarframes2;
+					varstartingframe = pSystem->framevar2;
 					break
 				case 3:
-					varnumframe = pSystem->numvarframes1;
-					varstartingframe = pSystem->framevar1;
+					varnumframe = pSystem->numvarframes3;
+					varstartingframe = pSystem->framevar3;
 					break
 				case 4:
-					varnumframe = pSystem->numvarframes1;
-					varstartingframe = pSystem->framevar1;
+					varnumframe = pSystem->numvarframes4;
+					varstartingframe = pSystem->framevar4;
 					break
 				case 5:
-					varnumframe = pSystem->numvarframes1;
-					varstartingframe = pSystem->framevar1;
+					varnumframe = pSystem->numvarframes5;
+					varstartingframe = pSystem->framevar5;
 					break
 			}
+			iFrame = (iFrame % varnumframe) + varstartingframe;
+			if (iFrame > varnumframe)
+				iFrame = varnumframe;
 		}
 		// Check if we actually have to set the frame
 		if (iFrame != pParticle->frame)
