@@ -329,7 +329,8 @@ void CBSPRenderer::Init(void)
 	m_SimpleSkyboxShader->Uniform1i(m_SimpleSkyboxShader->GetUniformLoc("texture0"), 0);
 
 	m_DecalShader->Bind();
-	m_DecalShader->Uniform1i(m_DecalShader->GetUniformLoc("texture0"), 0);
+	m_DecalShader->Uniform1i(m_DecalShader->GetUniformLoc("lmtexture"), 0);
+	m_DecalShader->Uniform1i(m_DecalShader->GetUniformLoc("texture1"), 1);
 
 	m_FilterShader->Bind();
 	m_FilterShader->Uniform1i(m_FilterShader->GetUniformLoc("texture_"), 0);
@@ -416,6 +417,9 @@ void CBSPRenderer::Init(void)
 
 	glEnableVertexAttribArray(GL_ShaderProgram::TexCoord);
 	glVertexAttribPointer(GL_ShaderProgram::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(DecalVert_t), (void*)offsetof(DecalVert_t, texcoord));
+
+	glEnableVertexAttribArray(GL_ShaderProgram::LightMap_TexCoord);
+	glVertexAttribPointer(GL_ShaderProgram::LightMap_TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(DecalVert_t), (void*)offsetof(DecalVert_t, lmcoord));
 
 	GL_VertexArrayObject::ResetVAOBinding();
 
@@ -2680,8 +2684,8 @@ void CBSPRenderer::UploadLightmaps(void)
 			const int column = pSurf->lightmaptexturenum % LIGHTMAP_NUMROWS;
 			const int row = (pSurf->lightmaptexturenum / LIGHTMAP_NUMROWS) % LIGHTMAP_NUMCOLUMNS;
 
-			m_pSurfaces[i].light_s = pSurf->light_s + BLOCK_SIZE * column;
-			m_pSurfaces[i].light_t = pSurf->light_t + BLOCK_SIZE * row;
+			m_pSurfaces[i].light_s = pSurf->light_s = pSurf->light_s + BLOCK_SIZE * column;
+			m_pSurfaces[i].light_t = pSurf->light_t = pSurf->light_t + BLOCK_SIZE * row;
 
 			if (pSurf->lightmaptexturenum > m_iNumLightmaps)
 				m_iNumLightmaps = pSurf->lightmaptexturenum;
@@ -3782,7 +3786,17 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 					DecalSurface(surf, texptr, NULL, pDecal, endpos, pnormal, angle);
 				}
 				else
+				{
+					if (pplane->type <= PLANE_Z)
+						dot = endpos[pplane->type] - pplane->dist;
+					else
+						dot = DotProduct(endpos, pplane->normal) - pplane->dist;
+
+					if (-dot > 0.01)
+						continue;
+
 					DecalSurface(surf, texptr, NULL, pDecal, endpos, normal, angle);
+				}
 			}
 		}
 	}
@@ -4011,10 +4025,50 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal, std::vector<DecalVert_t
 			v2.pos = Vector(pos3.x, pos3.y, pos3.z);
 			memcpy(v2.texcoord, ppoly->pverts[k + 1].texcoord, sizeof(float) * 2);
 
+			DecalVertsLight(&v0, ppoly->surface, 1);
+			DecalVertsLight(&v1, ppoly->surface, 1);
+			DecalVertsLight(&v2, ppoly->surface, 1);
+
+			//v0.lmcoord[0] = 0.0;	v0.lmcoord[1] = 0.0;
+			//v1.lmcoord[0] = 0.0;	v1.lmcoord[1] = 0.1;
+			//v2.lmcoord[0] = 0.1;	v2.lmcoord[1] = 0.1;
+
 			decalvertlist.push_back(v0);
 			decalvertlist.push_back(v1);
 			decalvertlist.push_back(v2);
 		}
+	}
+}
+
+// Generate lightmap coordinates at each vertex for decal vertices v[] on surface psurf
+void CBSPRenderer::DecalVertsLight(DecalVert_t* v, clientmsurface_t* psurf, int vertCount)
+{
+	int j;
+	float s, t;
+	mtexinfo_t* tex = psurf->texinfo;
+
+	for (j = 0; j < vertCount; j++, v++)
+	{
+		s = DotProduct(v->pos, tex->vecs[0]) + tex->vecs[0][3];
+		s -= psurf->texturemins[0];
+
+		assert(s <= psurf->extents[0]);
+
+		s += psurf->light_s * 16;
+		s += 8;
+		s /= LIGHTMAP_RESOLUTION * 16;
+
+		t = DotProduct(v->pos, tex->vecs[1]) + tex->vecs[1][3];
+		t -= psurf->texturemins[1];
+
+		assert(t <= psurf->extents[1]);
+
+		t += psurf->light_t * 16;
+		t += 8;
+		t /= LIGHTMAP_RESOLUTION * 16;
+
+		v->lmcoord[0] = s;
+		v->lmcoord[1] = t;
 	}
 }
 
@@ -4087,12 +4141,14 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 	m_DecalShader->Bind();
 
+	BindGLTexture(LIGHTMAP_TEXUNIT, m_iEngineLightmapIndex);
+
 
 	glDepthFunc(GL_LEQUAL);
 	g_GlobalGLState.SetDepthWrite(false);
 
 	g_GlobalGLState.SetBlend(true);
-	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+	g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glPolygonOffset(-1, -1);
 	g_GlobalGLState.SetPolygonOffsetFill(true);
@@ -4104,7 +4160,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 		bufferoffset = lastdecalvertbuffersize;
 	for (auto texture : decalbatch)
 	{
-		BindGLTexture(GL_TEXTURE0, texture.first);
+		BindGLTexture(GL_TEXTURE1, texture.first);
 
 		glDrawArrays(GL_TRIANGLES, bufferoffset, texture.second.size());
 		bufferoffset += texture.second.size();

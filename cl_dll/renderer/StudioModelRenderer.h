@@ -349,6 +349,8 @@ public:
 
 		glm::ivec4 int_values; // x = numlights; y = chromeshell boolean; z = is this entity is static (prop_static) or not
 
+		glm::vec4 rendervalues; //rendercolor.x, rendercolor.y, rendercolor.z, renderamt
+
 		glm::mat3x4 modellight_info[MAX_MODEL_LIGHTS];
 	};
 

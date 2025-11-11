@@ -47,6 +47,7 @@ char glsl330_studiomdl_vert[] = R"(
 	
 		ivec4 int_values; //x = numlights; y = chromeshell boolean; z = is this entity is static (prop_static) or not |||| 16 bytes
 
+		vec4 rendervalues; //rendercolor.r, rendercolor.g, rendercolor.b, renderamt
 		
 		mat3x4 modellight_info[MAX_MODEL_LIGHTS]; // 1536 bytes
 
@@ -300,6 +301,7 @@ char glsl330_studiomdl_frag[] = R"(
 	
 		ivec4 int_values; //x = numlights; y = chromeshell boolean; z = is this entity is static (prop_static) or not
 
+		vec4 rendervalues; //rendercolor.r, rendercolor.g, rendercolor.b, renderamt
 		
 		mat3x4 modellight_info[MAX_MODEL_LIGHTS];
 
@@ -370,6 +372,8 @@ char glsl330_studiomdl_frag[] = R"(
 			else
 				gl_FragColor = texcolor;
 		}
+
+		gl_FragColor.a = rendervalues.a;
 		
 	}
 

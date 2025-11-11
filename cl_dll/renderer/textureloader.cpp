@@ -823,9 +823,12 @@ void CTextureLoader::LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* p
 				byte* pix = &pal[index * 3];
 				byte r = pix[0], g = pix[1], b = pix[2];
 
-				float luminance = (0.30f * r + 0.59f * g + 0.11f * b);
+				byte alpha = (int(r) + int(g) + int(b)) / 3;
 
-				byte alpha = 255 - static_cast<byte>(luminance);
+				byte alpha_factor = pal[0];
+
+				alpha = alpha_factor ? alpha_factor - alpha : alpha - alpha_factor; //this works but is this really how goldsrc does it? what other way is there?
+
 				pix = &pal[255 * 3];
 
 				out[0] = pix[0];

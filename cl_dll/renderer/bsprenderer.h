@@ -57,7 +57,8 @@ struct DecalVert_t
 {
 	Vector pos;
 	float texcoord[2];
-	byte _padding[12];
+	float lmcoord[2];
+	byte _padding[4];
 };
 
 struct skyvert_t
@@ -177,6 +178,7 @@ public:
 	void DrawDecals(bool m_bTransPass = false);
 	void LoadDecals(void);
 	void DeleteDecals(void);
+	void DecalVertsLight(DecalVert_t* v, clientmsurface_t* psurf, int vertCount);
 
 	decalgroup_t* FindGroup(const char* _name);
 	cl_texture_t* LoadDecalTexture(const char* texname);

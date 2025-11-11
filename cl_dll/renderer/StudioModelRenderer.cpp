@@ -2387,7 +2387,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 
 		// this looks like what happens when a fullbright texture was on a model in the software renderer
 		// Use in ICH? Maybe if the player is damaged by a noise guy it does this?
-		/*
+
 		if (g_iNightVision && !g_iFlashLight)
 		{
 			m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
@@ -2398,7 +2398,6 @@ void CStudioModelRenderer::StudioRenderModel(void)
 			m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
 			m_pCurrentEntity->curstate.rendercolor.r = 0;
 		}
-		*/
 	}
 
 	if (m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || m_pCurrentEntity->curstate.renderfx == kRenderFxAlly)
@@ -2419,6 +2418,9 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	{
 		StudioRenderFinal();
 	}
+
+	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetDepthWrite(true);
 }
 
 /*
@@ -2632,6 +2634,10 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 	m_dModelPerEntityData.int_values.y = m_bChromeShell;
 	m_dModelPerEntityData.int_values.z = m_bExternalEntity;
 
+	auto colors = m_pCurrentEntity->curstate.rendercolor;
+
+	m_dModelPerEntityData.rendervalues = glm::vec4(colors.r / 255.f, colors.g / 255.f, colors.b / 255.f, m_pCurrentEntity->curstate.renderamt / 255.f);
+
 	if (!m_bChromeShell) // dont bother with light data if doing chrome shell
 	{
 		// lightmap light
@@ -2659,6 +2665,19 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_Model_PerEntityBuffer->Bind(GL_BufferHandler::UniformBuffer);
 	m_Model_PerEntityBuffer->BufferSubData(GL_BufferHandler::UniformBuffer, 0, sizeof(mdlshader_perentitydata_t), &m_dModelPerEntityData);
+
+	if (rendermode == kRenderTransTexture)
+	{
+		g_GlobalGLState.SetBlend(true);
+		g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		g_GlobalGLState.SetDepthWrite(false);
+	}
+	else if (rendermode == kRenderTransAdd)
+	{
+		g_GlobalGLState.SetBlend(true);
+		g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		g_GlobalGLState.SetDepthWrite(false);
+	}
 }
 
 /*

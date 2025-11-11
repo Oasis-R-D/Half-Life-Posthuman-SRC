@@ -1335,7 +1335,7 @@ void CBasePlayer::WaterMove()
 
 	// make bubbles
 
-	if (pev->waterlevel == 3)
+	if (pev->waterlevel == 3 && m_pActiveItem)
 	{
 		CBasePlayerWeapon* weapon = m_pActiveItem->GetWeaponPtr();
 		weapon->m_stain = 0;
