@@ -1919,10 +1919,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	if (pSystem->numframes)
 	{
 		// Get desired frame
-
-		// TO-DO: add variations here
-		unsigned short startingvarframe
-
+		
 		int iFrame = ((int)((flTime - pParticle->spawntime) * pSystem->framerate));
 		if (pSystem->variants == 0) // if it's defined will randomize between startframe and framevar1 (ifndef the others)
 		{
