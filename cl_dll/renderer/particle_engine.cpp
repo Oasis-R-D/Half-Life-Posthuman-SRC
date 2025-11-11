@@ -2309,9 +2309,9 @@ int CParticleEngine::MsgCreateSystem(const char* pszName, int iSize, void* pbuf)
 	BEGIN_READ(pbuf, iSize);
 
 	Vector pos;
-	pos.x = atof(READ_STRING());
-	pos.y = atof(READ_STRING());
-	pos.z = atof(READ_STRING());
+	pos.x = READ_COORD();
+	pos.y = READ_COORD();
+	pos.z = READ_COORD();
 
 	Vector ang;
 	ang.x = READ_COORD();
