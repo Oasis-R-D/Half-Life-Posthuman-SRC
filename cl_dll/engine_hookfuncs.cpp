@@ -10,12 +10,13 @@
 #include "Exports.h"
 
 #include "renderer/StudioModelRenderer.h"
-
+#include "engine_particles.h"
 #include "renderer/particle_engine.h"
 #include "renderer/bsprenderer.h"
 #include "renderer/goldsrc_beamrenderer.h"
 #include "renderer/goldsrc_tracerrenderer.h"
 #include "renderer/opengl_utils/GL_StateHandler.h"
+
 //
 //	Dont worry, this doesnt do any intense raw dll-level function hacking, (like some other mods...) 
 //  this only hooks the given gEngfuncs functions, which arent inlined, and the engine's "cl" 
@@ -23,9 +24,10 @@
 //	thank meetem for this) that holds some important and useful stuff, like the raw list of precached models,
 //	precached weapon events, etc. this should be compatible with other versions of goldsrc with minimal effort.
 //
+//	NOTE: Most of these are engine particles remade using Trinity's particle engine
+//
 
-
-// Global engine <-> studio model rendering code interface
+//	Global engine <-> studio model rendering code interface
 extern engine_studio_api_t IEngineStudio;
 
 client_state_s *engine_cl = nullptr;
@@ -153,6 +155,7 @@ FuncHook(CL_TempEntAlloc, TEMPENTITY*, float* org, struct model_s* model)
 	return tempent;
 	//return OrigCL_TempEntAlloc(org, model);
 }
+
 FuncHook(CL_TempEntAllocNoModel, TEMPENTITY*, float* org)
 {
 	if (gpTempEnts.size() > MAX_TEMPENTS)
@@ -181,6 +184,7 @@ FuncHook(CL_TempEntAllocNoModel, TEMPENTITY*, float* org)
 
 	return tempent;
 }
+
 FuncHook(CL_TempEntAllocHigh, TEMPENTITY*, float* org, struct model_s* model)
 {
 	if (gpTempEnts.size() > MAX_TEMPENTS)
@@ -209,6 +213,7 @@ FuncHook(CL_TempEntAllocHigh, TEMPENTITY*, float* org, struct model_s* model)
 
 	return tempent;
 }
+
 FuncHook(CL_TentEntAllocCustom, TEMPENTITY*, float* origin, struct model_s* model, int high, void (*callback)(struct tempent_s* ent, float frametime, float currenttime))
 {
 	TEMPENTITY* customtent;
@@ -240,69 +245,6 @@ FuncHook(R_Blood, void, float* org, float* dir, int pcolor, int speed)
 {
 	OrigR_Blood(org, dir, pcolor, speed);
 }
-
-char bloodsprite[] = R"(
-life 0.5
-lifevar 0.1
-
-fadedelay 4.9
-
-minvel 0
-maxvel 0
-
-sprite %s
-framerate 30
-rendermode 2
-
-scale 4.0
-
-rotationvel 4
-rotationvar 4
-
-pcolr %d
-pcolg %d
-pcolb %d
-
-gravity 0
-
-startparticles 1
-
-lightmaps 0
-)";
-
-char bloodchunks[] = R"(
-life 5.5
-lifevar 0.1
-
-randomdir 1
-
-fadedelay 2
-
-minvel 80
-maxvel 105
-
-sprite %s
-framerate 0
-rendermode 2
-startframe %d
-
-scale %d
-
-collision 2
-
-rotationvel 10
-rotationvar 10
-
-pcolr %d
-pcolg %d
-pcolb %d
-
-gravity 0.5
-
-startparticles 1
-
-lightmaps 0
-)";
 
  extern char * UTIL_VarArgs_client(const char* format, ...);
 
@@ -367,7 +309,6 @@ FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
 }
 
 #define SHARD_VOLUME 12.0f // on shard ever n^3 units
-
 FuncHook(R_BreakModel, void, float* pos, float* size, float* dir, float random, float life, int count, int modelIndex, char flags)
 {
 	int i, frameCount;
@@ -495,6 +436,7 @@ FuncHook(R_Bubbles, void, float* mins, float* maxs, float height, int modelIndex
 		pTemp->entity.curstate.renderamt = 255;
 	}
 }
+
 FuncHook(R_BubbleTrail, void, float* start, float* end, float height, int modelIndex, int count, float speed)
 {
 	if (!modelIndex)
@@ -536,6 +478,7 @@ FuncHook(R_BubbleTrail, void, float* start, float* end, float height, int modelI
 		bubble->entity.curstate.scale = 1.0 / RandomFloat(2, 5);
 	}
 }
+
 FuncHook(R_SparkStreaks, void, float* pos, int count, int velocityMin, int velocityMax)
 {
 	particle_t* p;
@@ -558,39 +501,6 @@ FuncHook(R_SparkStreaks, void, float* pos, int count, int velocityMin, int veloc
 	}
 }
 
-char particle_bulletimpact[] = R"(
-life 1.5
-lifevar 0.1
-
-systemshape 1
-systemsize 1
-randomdir 1
-
-fadedelay 1.3
-
-minvel 50
-maxvel 200
-
-sprite _particletexture
-rendermode 2
-
-scale 1.5
-
-pcolr 47
-pcolg 47
-pcolb 47
-
-
-gravity 1
-
-startparticles 30
-
-collision 2
-
-lightmaps 0
-
-)";
-
 FuncHook(R_BulletImpactParticles, void, float* pos)
 {
 	Hooked_R_SparkStreaks(pos, 2, -200, 200);
@@ -598,10 +508,12 @@ FuncHook(R_BulletImpactParticles, void, float* pos)
 	//gParticleEngine.CreateCluster("concrete_impact_cluster.txt", pos, Vector(0, 0, 0), 0);
 	gParticleEngine.CreateSystem_File(particle_bulletimpact, pos, Vector(0, 0, 0), 0);
 }
+
 FuncHook(R_EntityParticles, void, struct cl_entity_s* ent)
 {
 	OrigR_EntityParticles(ent);
 }
+
 FuncHook(R_Explosion, void, float* pos, int model, float scale, float framerate, int flags)
 {
 	//dont even bother its not used at all
@@ -615,74 +527,48 @@ FuncHook(R_Explosion, void, float* pos, int model, float scale, float framerate,
 	//	}
 	//}
 }
+
 FuncHook(R_FizzEffect, void, struct cl_entity_s* pent, int modelIndex, int density)
 {
 	OrigR_FizzEffect(pent, modelIndex, density);
 }
+
 FuncHook(R_FireField, void, float* org, int radius, int modelIndex, int count, int flags, float life)
 {
 	OrigR_FireField(org, radius, modelIndex, count, flags, life);
 }
+
 FuncHook(R_FlickerParticles, void, float* org)
 {
 	OrigR_FlickerParticles(org);
 }
+
 FuncHook(R_FunnelSprite, void, float* org, int modelIndex, int reverse)
 {
 	OrigR_FunnelSprite(org, modelIndex, reverse);
 }
+
 FuncHook(R_Implosion, void, float* end, float radius, int count, float life)
 {
 	OrigR_Implosion(end, radius, count, life);
 }
+
 FuncHook(R_LargeFunnel, void, float* org, int reverse)
 {
 	OrigR_LargeFunnel(org, reverse);
 }
+
 FuncHook(R_LavaSplash, void, float* org)
 {
 	OrigR_LavaSplash(org);
 }
+
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
 	OrigR_MultiGunshot(org, dir, noise, count, decalCount, decalIndices);
 }
 
 extern int CL_AddVisibleEntity(cl_entity_t* pEntity);
-
-char particle_muzzleflash[] = R"(
-life 0.18
-lifevar 0.05
-
-systemshape 1
-systemsize 1
-
-fadedelay 0.01
-
-sprite muzzleflash1
-rendermode 0
-
-scale 2.5
-scalevar 0.5
-scaledampfactor -8.5
-
-rotationvel 4
-rotationvar 4
-
-pcolr 255
-pcolg 255
-pcolb 0
-
-
-gravity 0
-
-startparticles 1
-
-collision 0
-
-lightmaps 0
-
-)";
 
 FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 {
@@ -699,7 +585,7 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 		return;
 
 	// smelly particle vers
-	//gParticleEngine.CreateSystem_File(particle_muzzleflash, pos1, Vector(0, 0, 0), 0);
+	//gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_muzzleflash, cl_sprite_muzzleflash[index], scale), pos1, Vector(0, 0, 0), 0);
 	
 	// smelly tempent remake
 	// must set position for right culling on render
@@ -728,53 +614,27 @@ FuncHook(R_ParticleBox, void, float* mins, float* maxs, unsigned char r, unsigne
 {
 	OrigR_ParticleBox(mins, maxs, r, g, b, life);
 }
+
 FuncHook(R_ParticleBurst, void, float* pos, int size, int color, float life)
 {
 	OrigR_ParticleBurst(pos, size, color, life);
 }
 
-char particle_explosion[] = R"(
-life 1.5
-lifevar 0.1
-
-systemshape 1
-systemsize 1
-randomdir 1
-
-fadedelay 1.3
-
-minvel -512
-maxvel 512
-
-sprite _particletexture
-rendermode 1
-
-scale 1.5
-
-pcolr 255
-pcolg 243
-pcolb 27
-
-gravity 0.1
-
-startparticles 1024
-
-lightmaps 0
-
-)";
-
 FuncHook(R_ParticleExplosion, void, float* org)
 {
 	gParticleEngine.CreateSystem_File(particle_explosion, org, Vector(0, 0, 0), 0);
 }
+
 FuncHook(R_ParticleExplosion2, void, float* org, int colorStart, int colorLength)
 {
 	OrigR_ParticleExplosion2(org, colorStart, colorLength);
 }
+
 FuncHook(R_ParticleLine, void, float* start, float* end, unsigned char r, unsigned char g, unsigned char b, float life)
 {
 	OrigR_ParticleLine(start, end, r, g, b, life);
 }
+
 FuncHook(R_PlayerSprites, void, int client, int modelIndex, int count, int size)
 {
 	if (client <= 0 || client >= engine_cl->maxclients)
@@ -842,6 +702,7 @@ FuncHook(R_PlayerSprites, void, int client, int modelIndex, int count, int size)
 	}
 
 }
+
 FuncHook(R_Projectile, void, float* origin, float* velocity, int modelIndex, int life, int owner, void (*hitcallback)(struct tempent_s* ent, struct pmtrace_s* ptr))
 {
 	model_t* modelbyindex = CL_GetModelByIndex(modelIndex);
@@ -942,6 +803,7 @@ FuncHook(R_RicochetSprite, void, float* pos, struct model_s* pmodel, float durat
 	ricochet->entity.angles.z = 45 * gEngfuncs.pfnRandomLong(0, 7);
 
 }
+
 FuncHook(R_RocketFlare, void, float* pos)
 {
 	//if (engine_cl->time == engine_cl->oldtime)
@@ -961,6 +823,7 @@ FuncHook(R_RocketFlare, void, float* pos)
 	//flare->die = engine_cl->time + 0.01;
 	//flare->entity.curstate.frame = gEngfuncs.pfnRandomLong(0, framecount - 1);
 }
+
 FuncHook(R_RocketTrail, void, float* start, float* end, int type)
 {
 	OrigR_RocketTrail(start, end, type);
@@ -969,6 +832,7 @@ FuncHook(R_RunParticleEffect, void, float* org, float* dir, int color, int count
 {
 	OrigR_RunParticleEffect(org, dir, color, count);
 }
+
 FuncHook(R_ShowLine, void, float* start, float* end)
 {
 	OrigR_ShowLine(start, end);
@@ -979,6 +843,7 @@ FuncHook(R_SparkEffect, void, float* pos, int count, int velocityMin, int veloci
 	Hooked_R_SparkStreaks(pos, count, velocityMin, velocityMax);
 	Hooked_R_RicochetSprite(pos, cl_sprite_ricochet, 0.1, gEngfuncs.pfnRandomFloat(0.5, 1.0));
 }
+
 FuncHook(R_SparkShower, void, float* pos)
 {
 	TEMPENTITY* spark = Hooked_CL_TempEntAllocNoModel(pos);
@@ -1048,6 +913,7 @@ FuncHook(R_Spray, void, float* pos, float* dir, int modelIndex, int count, int s
 	}
 
 }
+
 FuncHook(R_Sprite_Explode, void, TEMPENTITY* pTemp, float scale, int flags)
 {
 	qboolean noadditive;
@@ -1068,6 +934,7 @@ FuncHook(R_Sprite_Explode, void, TEMPENTITY* pTemp, float scale, int flags)
 	pTemp->entity.curstate.rendercolor.g = 0;
 	pTemp->entity.curstate.rendercolor.b = 0;
 }
+
 FuncHook(R_Sprite_Smoke, void, TEMPENTITY* pTemp, float scale)
 {
 	if (!pTemp)
@@ -1087,10 +954,12 @@ FuncHook(R_Sprite_Spray, void, float* pos, float* dir, int modelIndex, int count
 {
 	OrigR_Sprite_Spray(pos, dir, modelIndex, count, speed, iRand);
 }
+
 FuncHook(R_Sprite_Trail, void, int type, float* start, float* end, int modelIndex, int count, float life, float size, float amplitude, int renderamt, float speed)
 {
 	OrigR_Sprite_Trail(type, start, end, modelIndex, count, life, size, amplitude, renderamt, speed);
 }
+
 FuncHook(R_Sprite_WallPuff, void, TEMPENTITY* pTemp, float scale)
 {
 	if (!pTemp)
@@ -1107,6 +976,7 @@ FuncHook(R_Sprite_WallPuff, void, TEMPENTITY* pTemp, float scale)
 	pTemp->entity.curstate.frame = 0.0;
 	pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
 }
+
 FuncHook(R_StreakSplash, void, float* pos, float* dir, int color, int count, float speed, int velocityMin, int velocityMax)
 {
 	Vector vel, vel2;
@@ -1127,6 +997,7 @@ FuncHook(R_StreakSplash, void, float* pos, float* dir, int color, int count, flo
 		p->ramp = 1.0f;
 	}
 }
+
 FuncHook(R_TracerParticles, particle_t*, float* org, float* vel, float life)
 {
 	particle_t* tracer = g_TracerRenderer.AllocateTracer(org, vel, life);
@@ -1136,6 +1007,7 @@ FuncHook(R_TracerParticles, particle_t*, float* org, float* vel, float life)
 	tracer->ramp = gEngfuncs.pfnGetCvarFloat("tracerlength");
 	return tracer;
 }
+
 FuncHook(R_TracerEffect, void, float* start, float* end)
 {
 	cvar_t* tracerSpeed = gEngfuncs.pfnGetCvarPointer("tracerspeed");
@@ -1161,6 +1033,7 @@ FuncHook(R_TracerEffect, void, float* start, float* end)
 
 
 }
+
 FuncHook(R_UserTracerParticle, void, float* org, float* vel, float life, int colorIndex, float length, unsigned char deathcontext, void (*deathfunc)(struct particle_s* particle))
 {
 	particle_t* p;
@@ -1176,10 +1049,12 @@ FuncHook(R_UserTracerParticle, void, float* org, float* vel, float life, int col
 		p->ramp = length;
 	}
 }
+
 FuncHook(R_TeleportSplash, void, float* org)
 {
 	OrigR_TeleportSplash(org);
 }
+
 FuncHook(R_TempSphereModel, void, float* pos, float speed, float life, int count, int modelIndex)
 {
 	if (!modelIndex)
@@ -1237,6 +1112,7 @@ FuncHook(R_TempSphereModel, void, float* pos, float speed, float life, int count
 		pTemp->die = engine_cl->time + life;
 	}
 }
+
 FuncHook(R_TempModel, TEMPENTITY*, float* pos, float* dir, float* angles, float life, int modelIndex, int soundtype)
 {
 	if (!modelIndex)
@@ -1292,6 +1168,7 @@ FuncHook(R_TempModel, TEMPENTITY*, float* pos, float* dir, float* angles, float 
 	return tempent;
 
 }
+
 FuncHook(R_DefaultSprite, TEMPENTITY*, float* pos, int spriteIndex, float framerate)
 {
 	if (engine_cl->time == engine_cl->oldtime)
@@ -1317,6 +1194,7 @@ FuncHook(R_DefaultSprite, TEMPENTITY*, float* pos, int spriteIndex, float framer
 	sprite->entity.origin = pos;
 	return sprite;
 }
+
 FuncHook(R_TempSprite, TEMPENTITY*, float* pos, const float* dir, float scale, int modelIndex, int rendermode, int renderfx, float a, float life, int flags)
 {
 	//return OrigR_TempSprite(pos, dir, scale, modelIndex, rendermode, renderfx, a, life, flags);
@@ -1352,19 +1230,23 @@ FuncHook(R_TempSprite, TEMPENTITY*, float* pos, const float* dir, float scale, i
 
 	return pTemp;
 }
+
 FuncHook(Draw_DecalIndex, int, int id)
 {
 	return OrigDraw_DecalIndex(id);
 }
+
 FuncHook(Draw_DecalIndexFromName, int, char* name)
 {
 	return OrigDraw_DecalIndexFromName(name);
 }
+
 FuncHook(R_DecalShoot, void, int textureIndex, int entity, int modelIndex, float* position, int flags)
 {
 	//OrigR_DecalShoot(textureIndex, entity, modelIndex, position, flags);
 	//comment this until we figure out how to get goldsrc decal data
 }
+
 FuncHook(R_AttachTentToPlayer, void, int client, int modelIndex, float zoffset, float life)
 {
 	TEMPENTITY* pTemp;
@@ -1414,6 +1296,7 @@ FuncHook(R_AttachTentToPlayer, void, int client, int modelIndex, float zoffset, 
 
 	pTemp->entity.curstate.frame = 0;
 }
+
 FuncHook(R_KillAttachedTents, void, int client)
 {
 	if (client < 0 || client > engine_cl->maxclients)
@@ -1432,6 +1315,7 @@ FuncHook(R_KillAttachedTents, void, int client)
 		}
 	}
 }
+
 FuncHook(R_BeamCirclePoints, BEAM*, int type, float* start, float* end, int modelIndex, float life, float width, float amplitude, float brightness, float speed, int startFrame, float framerate, float r, float g, float b)
 {
 	BEAM* pbeam = g_BeamRenderer.AllocateTempBeam();
@@ -1456,6 +1340,7 @@ FuncHook(R_BeamCirclePoints, BEAM*, int type, float* start, float* end, int mode
 
 	return pbeam;
 }
+
 FuncHook(R_BeamEntPoint, BEAM*, int startEnt, float* end, int modelIndex, float life, float width, float amplitude, float brightness, float speed, int startFrame, float framerate, float r, float g, float b)
 {
 	cl_entity_t* ent;
@@ -1498,6 +1383,7 @@ FuncHook(R_BeamEntPoint, BEAM*, int startEnt, float* end, int modelIndex, float 
 	return pbeam;
 
 }
+
 FuncHook(R_BeamEnts, BEAM*, int startEnt, int endEnt, int modelIndex, float life, float width, float amplitude, float brightness, float speed, int startFrame, float framerate, float r, float g, float b)
 {
 	cl_entity_t* ent;
@@ -1539,6 +1425,7 @@ FuncHook(R_BeamEnts, BEAM*, int startEnt, int endEnt, int modelIndex, float life
 
 	return pbeam;
 }
+
 FuncHook(R_BeamFollow, BEAM*, int startEnt, int modelIndex, float life, float width, float r, float g, float b, float brightness)
 {
 	BEAM* pbeam = g_BeamRenderer.AllocateTempBeam();
@@ -1580,6 +1467,7 @@ FuncHook(R_BeamKill, void, int deadEntity)
 		}
 	}
 }
+
 FuncHook(R_BeamLightning, BEAM*, float* start, float* end, int modelIndex, float life, float width, float amplitude, float brightness, float speed)
 {
 	BEAM* pbeam = g_BeamRenderer.AllocateTempBeam();
@@ -1617,38 +1505,45 @@ FuncHook(R_BeamPoints, BEAM*, float* start, float* end, int modelIndex, float li
 
 	return pbeam;
 }
+
 FuncHook(R_BeamRing, BEAM*, int startEnt, int endEnt, int modelIndex, float life, float width, float amplitude, float brightness, float speed, int startFrame, float framerate, float r, float g, float b)
 {
 	return nullptr;
 }
+
 FuncHook(CL_AllocDlight, dlight_t*, int key)
 {
 	return OrigCL_AllocDlight(key);
 } 
+
 FuncHook(CL_AllocElight, dlight_t*, int key)
 {
 	return OrigCL_AllocElight(key);
 }
+
 FuncHook(R_GetPackedColor, void, short* packed, short color)
 {
 	OrigR_GetPackedColor(packed, color);
 }
+
 FuncHook(R_LookupColor, short, unsigned char r, unsigned char g, unsigned char b)
 {
 	return OrigR_LookupColor(r, g, b);
 }
+
 FuncHook(R_DecalRemoveAll, void, int textureIndex) // textureIndex points to the decal index in the array, not the actual texture index.
 {
 	OrigR_DecalRemoveAll(textureIndex);
 }
+
 FuncHook(R_FireCustomDecal, void, int textureIndex, int entity, int modelIndex, float* position, int flags, float scale)
 {
 	OrigR_FireCustomDecal(textureIndex, entity, modelIndex, position, flags, scale);
 }
 
 //////////////////////////////////////////
-//  TRIAPI
-// 
+//
+// 	△ TRIAPI △
 //
 //////////////////////////////////////////
 
