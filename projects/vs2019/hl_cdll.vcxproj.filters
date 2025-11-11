@@ -701,6 +701,9 @@
     <ClInclude Include="..\..\cl_dll\discord_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\cl_dll\engine_particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\cl_dll\renderer\BSPModel_Gen.h">
       <Filter>Header Files\cl_dll\renderer</Filter>
     </ClInclude>
