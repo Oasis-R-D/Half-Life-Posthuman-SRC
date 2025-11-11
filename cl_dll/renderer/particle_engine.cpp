@@ -1972,7 +1972,6 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 
 			switch (gEngfuncs.pfnRandomLong(0, pSystem->variants))
 			{
-				default: // just so it doesn't break while this is undone
 				case 0:
 					varnumframe = pSystem->numframes;
 					varstartingframe = pSystem->startframe;
