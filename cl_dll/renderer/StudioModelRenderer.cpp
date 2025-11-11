@@ -2384,6 +2384,9 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	if (m_pCurrentEntity == &engine_cl->viewent && m_pCvarViewmodelFov->value != 0.0f)
 	{
 		CheckProjection();
+
+		// this looks like what happens when a fullbright texture was on a model in the software renderer
+		// Use in ICH? Maybe if the player is damaged by a noise guy it does this?
 		/*
 		if (g_iNightVision && !g_iFlashLight)
 		{

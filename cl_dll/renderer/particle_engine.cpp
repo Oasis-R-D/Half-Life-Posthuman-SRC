@@ -477,6 +477,16 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			pSystem->fadedistfar = atoi(szValue);
 		else if (!strcmp(szField, "numframes"))
 			pSystem->numframes = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "numframesvar1"))
+			pSystem->numvarframes1 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "numframesvar2"))
+			pSystem->numvarframes2 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "numframesvar3"))
+			pSystem->numvarframes3 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "numframesvar4"))
+			pSystem->numvarframes4 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "numframesvar5"))
+			pSystem->numvarframes5 = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "framesizex"))
 			pSystem->framesizex = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "framesizey"))
@@ -485,6 +495,16 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframe"))
 			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframevar1"))
+			pSystem->framevar1 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframevar2"))
+			pSystem->framevar2 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframevar3"))
+			pSystem->framevar3 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframevar4"))
+			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "startframevar5"))
+			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
