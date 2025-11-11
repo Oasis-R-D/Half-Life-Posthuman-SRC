@@ -6,6 +6,10 @@
 *
 */
 
+//8========================================================D
+// ENGINE_PARTICLES.H: File to store code defined particles
+//8========================================================D
+
 char bloodsprite[] = R"(
 life 0.5
 lifevar 0.1
@@ -109,7 +113,7 @@ lifevar 0.025
 
 fadedelay 0.05
 
-sprite %d
+sprite %s
 rendermode 0
 
 scale %d
