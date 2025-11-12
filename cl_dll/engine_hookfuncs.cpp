@@ -267,6 +267,8 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	std::string size2 = std::to_string(scale);
 	const char* charPtr = size2.c_str();
 	int R = 0, G = 0, B = 0;
+
+	bool missing = false;
 	switch (colorindex)
 	{
 		case BLOOD_COLOR_RED:
@@ -291,6 +293,7 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 			{
 				B = 255;
 				R = 255;
+				missing = true;
 			}
 			break;
 	}
@@ -299,8 +302,23 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 
 	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, vec3_origin, 0);
 	gEngfuncs.pfnConsolePrint(charPtr);
-	for (int i  = 0; i < 24; i++)
+	for (int i = 0; i < 24; i++)
+	{
+		if (missing)
+		{
+			switch (gEngfuncs.pfnRandomLong(0, 1))
+			{
+				case 0:
+					B = 255;
+					R = 255;
+					break;
+				case 1:
+					R = G = B = 0;
+					break;
+			}
+		}
 		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), scale + gEngfuncs.pfnRandomLong(-1, 1), R, G, B), org, vec3_origin, 0);
+	}
 }
 
 FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
