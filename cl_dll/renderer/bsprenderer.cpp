@@ -4029,10 +4029,6 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal, std::vector<DecalVert_t
 			DecalVertsLight(&v1, ppoly->surface, 1);
 			DecalVertsLight(&v2, ppoly->surface, 1);
 
-			//v0.lmcoord[0] = 0.0;	v0.lmcoord[1] = 0.0;
-			//v1.lmcoord[0] = 0.0;	v1.lmcoord[1] = 0.1;
-			//v2.lmcoord[0] = 0.1;	v2.lmcoord[1] = 0.1;
-
 			decalvertlist.push_back(v0);
 			decalvertlist.push_back(v1);
 			decalvertlist.push_back(v2);
