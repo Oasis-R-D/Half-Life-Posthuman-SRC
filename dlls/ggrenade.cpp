@@ -229,7 +229,8 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
 
 	MESSAGE_END();
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
+	if (iContents != CONTENTS_WATER)
+		PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
 	if (pev->owner)
@@ -248,7 +249,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 	if (g_iSkillLevel != SKILL_HARD)
 		damage = 30;
 	else
-		damage = 30;
+		damage = 35;
 
 	UTIL_MakeVectors(pTrace->vecPlaneNormal);
 	Vector Spread;
