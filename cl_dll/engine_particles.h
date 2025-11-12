@@ -11,10 +11,9 @@
 //8========================================================D
 
 char bloodsprite[] = R"(
-life 0.5
-lifevar 0.1
+life 0.33
 
-fadedelay 4.9
+fadedelay 0.3
 
 minvel 0
 maxvel 0
