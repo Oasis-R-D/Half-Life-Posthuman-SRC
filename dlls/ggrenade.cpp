@@ -31,7 +31,7 @@
 
 
 #ifndef CLIENT_DLL
-#define SHRAPNELAMNT 32
+#define SHRAPNELAMNT 36
 
 //===================HopWire grenade tripwires
 LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
