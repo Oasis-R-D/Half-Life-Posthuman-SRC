@@ -557,11 +557,12 @@ void CEagle::PrimaryAttack()
 	
 	#ifndef CLIENT_DLL
 	CPhysbullet::BulletCreate(1, 200, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
+	CBasePlayerWeapon::Recoil(5, 15);
 	#endif
 
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
-	CBasePlayerWeapon::Recoil(5, 15);
+
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 15;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 32 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
