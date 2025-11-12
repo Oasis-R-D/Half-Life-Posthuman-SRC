@@ -274,13 +274,13 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 			break;
 		case BLOOD_COLOR_YELLOW:
 			R = 199;
-			G = 155;
+			G = 195;
 			B = 55;
 			break;
 		case BLOOD_COLOR_GREEN:
 			R = 185;
-			G = 155;
-			B = 55;
+			G = 235;
+			B = 85;
 			break;
 		case BLOOD_COLOR_CYAN:
 			G = 255;
