@@ -412,7 +412,7 @@ void CEagle::Spawn()
 	Precache();
 	m_iId = WEAPON_EAGLE;
 	SET_MODEL(edict(), "models/w_desert_eagle.mdl");
-	m_iDefaultAmmo = 7;
+	m_iDefaultAmmo = 10;
 	FallInit();
 }
 
@@ -529,8 +529,8 @@ void CEagle::PrimaryAttack()
 		return;
 	}
 
-	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
-	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
+	m_pPlayer->m_iWeaponVolume = 2048;
+	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
 	--m_iClip;
 
@@ -555,19 +555,18 @@ void CEagle::PrimaryAttack()
 
 	const float flSpread = m_bLaserActive ? 0.001 : 0.1;
 	
-	//m_pPlayer->FireBullets(1,vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192.0, BULLET_PLAYER_357, 1, 1000);
 	#ifndef CLIENT_DLL
 	CPhysbullet::BulletCreate(1, 200, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
 	#endif
+
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
-	m_pPlayer->pev->punchangle.x -= 5;
-	m_pPlayer->pev->punchangle.y += RANDOM_LONG(-5, 5);
+	CBasePlayerWeapon::Recoil(5, 15);
 
-	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
+	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 15;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 32 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (m_bLaserActive ? 0.5 : 0.22);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (m_bLaserActive ? 0.5 : 0.05);
 
 	if (0 == m_iClip)
 	{
@@ -607,11 +606,11 @@ void CEagle::Reload()
 {
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
 	{
-		const bool bResult = DefaultReload(8, 0 != m_iClip ? EAGLE_RELOAD : EAGLE_RELOAD_NOSHOT, 1.5);
+		const bool bResult = DefaultReload(10, 0 != m_iClip ? EAGLE_RELOAD : EAGLE_RELOAD_NOSHOT, 1.5);
 
 #ifndef CLIENT_DLL
 		// Only turn it off if we're actually reloading
-		if (bResult && m_pLaser && m_bLaserActive)
+		if (bResult && m_pLaser && m_bLaserActive) // Should the laser be ported to the client so that it follows the laser instead? (idk if the attachments work with angles though)
 		{
 			m_pLaser->pev->effects |= EF_NODRAW;
 			m_pLaser->SetThink(&CEagleLaser::Revive);
@@ -673,7 +672,7 @@ bool CEagle::GetItemInfo(ItemInfo* p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = 0;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
-	p->iMaxClip = 8;
+	p->iMaxClip = 10;
 	p->iSlot = 1;
 	p->iPosition = 2;
 	p->iFlags = 0;
