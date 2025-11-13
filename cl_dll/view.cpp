@@ -1517,7 +1517,7 @@ int V_FindViewModelByWeaponModel(int weaponindex)
 		{
 			if (!strnicmp(weaponModel->name, modelmap[i][0], len))
 			{
-				return gEngfuncs.pEventAPI->EV_FindModelIndex(modelmap[i][1]);
+				return EV_FindModelIndex(modelmap[i][1]);
 			}
 			i++;
 		}
@@ -1589,7 +1589,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 				lastViewModelIndex = V_FindViewModelByWeaponModel(lastWeaponModelIndex);
 				if (0 != lastViewModelIndex)
 				{
-					gEngfuncs.pfnWeaponAnim(0, 0); // reset weapon animation
+					EV_WeaponAnimation(0, 0); // reset weapon animation
 				}
 				else
 				{

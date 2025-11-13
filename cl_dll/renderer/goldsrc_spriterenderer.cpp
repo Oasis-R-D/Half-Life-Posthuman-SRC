@@ -378,7 +378,7 @@ float CSpriteRenderer::SpriteGlowBlend(Vector origin, int rendermode, int render
 	glowDist = origin - gBSPRenderer.m_RefParams.vieworg;
 	dist = glowDist.Length();
 
-	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+	EV_SetTraceHull(2);
 	gEngfuncs.pEventAPI->EV_PlayerTrace(gBSPRenderer.m_RefParams.vieworg, origin, r_traceglow->value ? PM_GLASS_IGNORE : (PM_GLASS_IGNORE | PM_STUDIO_IGNORE), -2, &tr);
 
 	if ((1.0f - tr.fraction) * dist > 8.0f)

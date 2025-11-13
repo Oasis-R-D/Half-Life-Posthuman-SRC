@@ -77,10 +77,11 @@ char glsl330_studiomdlsolid_frag[] = R"(
 	// lighting options
 	#define STUDIO_NF_FLATSHADE 1
 	#define STUDIO_NF_CHROME 2
-	#define STUDIO_NF_ADDITIVE 32  // buz
-	#define STUDIO_NF_ALPHATEST 64 // buz
-	#define STUDIO_NF_NOMIPMAP 256
-	#define STUDIO_NF_FULLBRIGHT 512
+	#define STUDIO_NF_FULLBRIGHT 4
+	#define STUDIO_NF_NOMIPMAPS 8
+	#define STUDIO_NF_ALPHATEST 16
+	#define STUDIO_NF_ADDITIVE 32
+	#define STUDIO_NF_MASKED 64
 
 
 	uniform sampler2D texture0;

@@ -90,7 +90,7 @@ bool EV_IsLocal(int idx)
 	if (IS_FIRSTPERSON_SPEC)
 		return (g_iUser2 == idx);
 	else
-		return gEngfuncs.pEventAPI->EV_IsLocal(idx - 1) != 0;
+		return (engine_cl->playernum == (idx - 1)) != 0;
 }
 
 /*
@@ -114,7 +114,7 @@ void EV_GetGunPosition(event_args_t* args, float* pos, float* origin)
 		if (EV_IsLocal(idx) && !IS_FIRSTPERSON_SPEC)
 		{
 			// Grab predicted result for local player
-			gEngfuncs.pEventAPI->EV_LocalPlayerViewheight(view_ofs);
+			EV_LocalPlayerViewheight(view_ofs);
 		}
 		else if (args->ducking == 1)
 		{
@@ -162,7 +162,7 @@ void EV_GetDefaultShellInfo(event_args_t* args, float* origin, float* velocity, 
 	{
 		if (EV_IsLocal(idx))
 		{
-			gEngfuncs.pEventAPI->EV_LocalPlayerViewheight(view_ofs);
+			EV_LocalPlayerViewheight(view_ofs);
 		}
 		else if (args->ducking == 1)
 		{

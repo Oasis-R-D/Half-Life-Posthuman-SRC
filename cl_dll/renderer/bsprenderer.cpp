@@ -3928,7 +3928,7 @@ void CBSPRenderer::CreateCachedDecals(void)
 	for (auto decal : gPropManager.m_pDecals)
 	{
 		pmtrace_t pTrace;
-		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+		EV_SetTraceHull(2);
 
 		// Z Axis
 		gEngfuncs.pEventAPI->EV_PlayerTrace(decal.pos + Vector(0, 0, 2), decal.pos - Vector(0, 0, 2), PM_WORLD_ONLY, -2, &pTrace);

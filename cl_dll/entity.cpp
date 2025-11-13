@@ -488,7 +488,7 @@ void HUD_TempEntUpdate_(
 	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction(0, 1);
 
 	// Store off the old count
-	gEngfuncs.pEventAPI->EV_PushPMStates();
+	EV_PushPMStates();
 
 	// Now add in all of the players.
 	gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
@@ -659,14 +659,14 @@ void HUD_TempEntUpdate_(
 				pmtrace_t pmtrace;
 				physent_t* pe;
 
-				gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+				EV_SetTraceHull(2);
 
 				gEngfuncs.pEventAPI->EV_PlayerTrace(pTemp->entity.prevstate.origin, pTemp->entity.origin, PM_STUDIO_BOX, -1, &pmtrace);
 
 
 				if (pmtrace.fraction != 1)
 				{
-					pe = gEngfuncs.pEventAPI->EV_GetPhysent(pmtrace.ent);
+					pe = EV_GetPhysent(pmtrace.ent);
 
 					if (0 == pmtrace.ent || (pe->info != pTemp->clientIndex))
 					{
@@ -684,7 +684,7 @@ void HUD_TempEntUpdate_(
 			{
 				pmtrace_t pmtrace;
 
-				gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+				EV_SetTraceHull(2);
 
 				gEngfuncs.pEventAPI->EV_PlayerTrace(pTemp->entity.prevstate.origin, pTemp->entity.origin, PM_STUDIO_BOX | PM_WORLD_ONLY, -1, &pmtrace);
 
@@ -818,7 +818,7 @@ void HUD_TempEntUpdate_(
 
 finish:
 	// Restore state info
-	gEngfuncs.pEventAPI->EV_PopPMStates();
+	EV_PopPMStates();
 }
 
 /*

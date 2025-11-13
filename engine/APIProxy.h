@@ -330,7 +330,7 @@ typedef struct cl_enginefuncs_s
 	pfnEngSrc_pfnPlaySoundByNameAtLocation_t pfnPlaySoundByNameAtLocation;
 	pfnEngSrc_pfnPrecacheEvent_t pfnPrecacheEvent;
 	pfnEngSrc_pfnPlaybackEvent_t pfnPlaybackEvent;
-	pfnEngSrc_pfnWeaponAnim_t pfnWeaponAnim;
+	[[deprecated("use event_api.cpp EV_WeaponAnim")]] pfnEngSrc_pfnWeaponAnim_t pfnWeaponAnim;
 	pfnEngSrc_pfnRandomFloat_t pfnRandomFloat;
 	pfnEngSrc_pfnRandomLong_t pfnRandomLong;
 	pfnEngSrc_pfnHookEvent_t pfnHookEvent;

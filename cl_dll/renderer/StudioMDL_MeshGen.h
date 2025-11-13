@@ -39,9 +39,8 @@ struct studiomdl_vertbufferdata_t
 {
 	Vector pos;
 	short_3dvector normal;
-	unsigned short texcoord[2];
+	float texcoord[2];
 	unsigned int bonedata;
-	byte _padding[4]; //:(
 };
 
 class StudioMDL_Model

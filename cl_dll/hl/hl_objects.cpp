@@ -40,7 +40,7 @@ void UpdateBeams()
 	int idx = pthisplayer->index;
 
 	// Get our exact viewangles from engine
-	gEngfuncs.GetViewAngles((float*)angles);
+	angles = engine_cl->viewangles;
 
 	// Determine our last predicted origin
 	HUD_GetLastOrg((float*)&origin);
@@ -54,15 +54,15 @@ void UpdateBeams()
 	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction(0, 1);
 
 	// Store off the old count
-	gEngfuncs.pEventAPI->EV_PushPMStates();
+	EV_PushPMStates();
 
 	// Now add in all of the players.
 	gEngfuncs.pEventAPI->EV_SetSolidPlayers(idx - 1);
 
-	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+	EV_SetTraceHull(2);
 	gEngfuncs.pEventAPI->EV_PlayerTrace(vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr);
 
-	gEngfuncs.pEventAPI->EV_PopPMStates();
+	EV_PopPMStates();
 
 	if (pBeam)
 	{
@@ -87,7 +87,7 @@ void UpdateBeams()
 
 			if (!(0 != tr.allsolid || tr.ent <= 0 || tr.fraction == 1.0f)) // Beam hit some non-world entity
 			{
-				physent_t* pEntity = gEngfuncs.pEventAPI->EV_GetPhysent(tr.ent);
+				physent_t* pEntity = EV_GetPhysent(tr.ent);
 
 				// Not the world, let's assume that we hit something organic ( dog, cat, uncle joe, etc )
 				if (pEntity && !(pEntity->solid == SOLID_BSP || pEntity->movetype == MOVETYPE_PUSHSTEP))

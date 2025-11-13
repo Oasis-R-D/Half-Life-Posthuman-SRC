@@ -617,7 +617,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 	else
 	{
 		pmtrace_t tr;
-		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+		EV_SetTraceHull(2);
 		gEngfuncs.pEventAPI->EV_PlayerTrace(origin, origin + Vector(0, 0, 160000), PM_STUDIO_IGNORE, -1, &tr);
 
 		if (tr.fraction == 1.0)
@@ -988,7 +988,7 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 	else
 	{
 		pmtrace_t tr;
-		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+		EV_SetTraceHull(2);
 		gEngfuncs.pEventAPI->EV_PlayerTrace(origin, origin + Vector(0, 0, 160000), PM_STUDIO_IGNORE, -1, &tr);
 
 		if (tr.fraction == 1.0)
@@ -1082,7 +1082,7 @@ void CParticleEngine::EnvironmentCreateFirst(particle_system_t* pSystem)
 			vOrigin[2] = gEngfuncs.pfnRandomFloat(vPlayer[2], vOrigin[2]);
 
 			pmtrace_t pmtrace;
-			gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+			EV_SetTraceHull(2);
 			gEngfuncs.pEventAPI->EV_PlayerTrace(vOrigin, Vector(vOrigin[0], vOrigin[1], pSystem->skyheight - 8), PM_STUDIO_IGNORE, -1, &pmtrace);
 
 			if (pmtrace.allsolid || pmtrace.fraction != 1.0)
@@ -1721,7 +1721,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 	//
 	if (pSystem->collision)
 	{
-		gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+		EV_SetTraceHull(2);
 		gEngfuncs.pEventAPI->EV_PlayerTrace(pParticle->origin, (pParticle->origin + vFinalVelocity * m_flFrameTime), PM_WORLD_ONLY, -1, &pmtrace);
 
 		if (pmtrace.allsolid)

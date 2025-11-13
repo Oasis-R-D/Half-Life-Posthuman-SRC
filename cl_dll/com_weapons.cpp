@@ -23,6 +23,7 @@
 #include "const.h"
 #include "entity_state.h"
 #include "r_efx.h"
+#include "event_api.h"
 
 // g_runfuncs is true if this is the first time we've "predicated" a particular movement/firing
 //  command.  If it is 1, then we should play events/sounds etc., otherwise, we just will be
@@ -91,7 +92,7 @@ void HUD_SendWeaponAnim(int iAnim, int body, bool force)
 	g_currentanim = iAnim;
 
 	// Tell animation system new info
-	gEngfuncs.pfnWeaponAnim(iAnim, body);
+	EV_WeaponAnimation(iAnim, body);
 }
 
 /*
@@ -273,6 +274,5 @@ stub functions for such things as precaching.  So we don't have to modify weapon
 */
 int stub_PrecacheModel(const char* s) { return 0; }
 int stub_PrecacheSound(const char* s) { return 0; }
-unsigned short stub_PrecacheEvent(int type, const char* s) { return 0; }
 const char* stub_NameForFunction(uint32 function) { return "func"; }
 void stub_SetModel(edict_t* e, const char* m) {}

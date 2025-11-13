@@ -108,7 +108,7 @@ StudioMDL_Model::StudioMDL_Model(model_t* model)
 	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Normal, 3, GL_SHORT, GL_TRUE, /*GL_FLOAT, GL_FALSE,*/ sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, normal));
 
 	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_SHORT, GL_TRUE, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, texcoord));
+	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, texcoord));
 
 	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID);
 	glVertexAttribIPointer(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID, 1, GL_UNSIGNED_INT, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, bonedata));
@@ -487,12 +487,10 @@ StudioMDL_Mesh::StudioMDL_Mesh(const mstudiomesh_t mesh, studiohdr_t* studiohdr,
 			vert.normal.y = normal.y * std::numeric_limits<short>::max();
 			vert.normal.z = normal.z * std::numeric_limits<short>::max();
 
-			assert(uv[0] < 32767 && uv[0] > -32767 && uv[1] < 32767 && uv[1] > -32767);
-
 			unsigned int bonedata = (vertboneid & 0xFF) | (normboneid & (0xFF << 8));
 
-			vert.texcoord[0] = (uv[0] / basewidth) * std::numeric_limits<short>::max();
-			vert.texcoord[1] = (uv[1] / baseheight) * std::numeric_limits<short>::max();
+			vert.texcoord[0] = (uv[0] / basewidth);
+			vert.texcoord[1] = (uv[1] / baseheight);
 
 			vert.bonedata = bonedata;
 

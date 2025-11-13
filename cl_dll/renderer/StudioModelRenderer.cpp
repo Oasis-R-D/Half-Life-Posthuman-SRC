@@ -201,12 +201,7 @@ std::vector<std::unique_ptr<studiodecal_t>> CStudioModelRenderer::m_pStudioDecal
 int CStudioModelRenderer::m_iNumStudioDecalVerts = 0;
 std::vector<std::unique_ptr<studioentity_data_t>> CStudioModelRenderer::m_pStudioEntityData;
 
-
-
-
-
-
-
+extra_viewmodel_t extra_viewmodels[4];
 
 
 
@@ -217,6 +212,8 @@ extern bool g_iNightVision;
 extern bool g_iFlashLight;
 
 CStudioModelRenderer g_StudioRenderer;
+
+cl_entity_t viewent2;
 
 extern model_t* cl_sprite_muzzleflash[3];
 extern model_t* cl_sprite_ricochet;
@@ -858,6 +855,53 @@ void CStudioModelRenderer::StudioSetupViewmodel()
 	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 }
 
+void CStudioModelRenderer::StudioSetupExtraViewmodel()
+{
+	// salsatobias obs: engine gets viewmodel from server player 
+	// pev->viewmodel and stores it in engine_cl->stats[2].
+	// 
+	// //viewent.model = CL_GetModelByIndex(engine_cl->stats[2]);
+	// 
+	// goldsrc only seems to use engine_cl->stats[0] and ->stats[2], so
+	// feel free to use the others to store info
+
+	m_pCurrentEntity = &extra_viewmodels[0].viewent;
+
+	if (!m_pCurrentEntity->model || !m_pCvarDrawViewmodel->value)
+		return;
+
+	m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
+
+	if (!extra_viewmodels[0].weaponstarttime)
+		extra_viewmodels[0].weaponstarttime = engine_cl->time;
+
+	m_pCurrentEntity->curstate.framerate = 1.0f;
+	m_pCurrentEntity->curstate.sequence = extra_viewmodels[0].weaponsequence;
+	m_pCurrentEntity->curstate.animtime = extra_viewmodels[0].weaponstarttime;
+
+	for (int i = 0; i < 4; i++)
+	{
+		VectorCopy(m_pCurrentEntity->origin, m_pCurrentEntity->attachment[i]);
+	}
+
+	auto studiomdl_model = ((StudioMDL_Model*)m_pCurrentEntity->model->entities);
+	studiomdl_model->EnableBuffers();
+
+	if (!m_pCurrentEntity->efrag)
+		m_pCurrentEntity->efrag = (efrag_t*)StudioAllocEntityData();
+
+	m_pCurrentStudioEntData = (studioentity_data_t*)m_pCurrentEntity->efrag;
+
+	StudioSetUpTransform(0);
+	StudioSetupBones();
+
+	m_pCurrentStudioEntData->rotationmatrix = (*m_protationmatrix);
+
+	memcpy(m_pCurrentStudioEntData->bonematrix, (*m_pbonetransform), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+
+	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
+}
+
 void CStudioModelRenderer::StudioPushEntityToDraw(cl_entity_s* pEnt)
 {
 	// every entity that gets passed to this function is guaranteed to have a model
@@ -1086,6 +1130,21 @@ void CStudioModelRenderer::StudioDrawViewmodel()
 	m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
 
 	StudioDrawModel(STUDIO_RENDER | STUDIO_EVENTS);
+
+	//extra viewmodel
+
+	m_pCurrentEntity = &extra_viewmodels[0].viewent;
+
+	if (m_pCurrentEntity->model)
+	{
+		studiomdl_model = ((StudioMDL_Model*)m_pCurrentEntity->model->entities);
+		studiomdl_model->EnableBuffers();
+
+		m_pCurrentStudioEntData = (studioentity_data_t*)m_pCurrentEntity->efrag;
+		m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
+
+		StudioDrawModel(STUDIO_RENDER | STUDIO_EVENTS);
+	}
 
 	m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_viewmodel], 0);
 
@@ -2953,7 +3012,7 @@ StudioEntityLight
 void CStudioModelRenderer::StudioEntityLight(void)
 {
 	pmtrace_t pmtrace;
-	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+	EV_SetTraceHull(2);
 
 	Vector vCenter;
 	VectorAdd(m_vMins, m_vMaxs, vCenter);

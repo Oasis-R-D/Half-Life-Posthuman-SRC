@@ -41,6 +41,16 @@ class StudioMDL_BodyPart;
 class StudioMDL_Mesh;
 class StudioMDL_Texture;
 
+
+// salsatobias: more viewmodels
+struct extra_viewmodel_t
+{
+	float weaponstarttime;
+	float weaponsequence;
+
+	cl_entity_t viewent;
+};
+
 /*
 ====================
 CStudioModelRenderer
@@ -89,6 +99,9 @@ public:
 
 	// sets up viewmodel for rendering later
 	static void StudioSetupViewmodel();
+
+	// sets up EXTRA viewmodel for rendering later
+	static void StudioSetupExtraViewmodel();
 
 	// cleanup a entity's custom data (m_pCurrentEntity->efrag)
 	static void StudioFreeEntity();

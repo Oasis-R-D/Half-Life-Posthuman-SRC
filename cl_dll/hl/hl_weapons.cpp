@@ -378,7 +378,7 @@ void UTIL_ParticleBoxes()
 	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction(0, 1);
 
 	// Store off the old count
-	gEngfuncs.pEventAPI->EV_PushPMStates();
+	EV_PushPMStates();
 
 	player = gEngfuncs.GetLocalPlayer();
 	// Now add in all of the players.
@@ -386,11 +386,11 @@ void UTIL_ParticleBoxes()
 
 	for (idx = 1; idx < 100; idx++)
 	{
-		pe = gEngfuncs.pEventAPI->EV_GetPhysent(idx);
+		pe = EV_GetPhysent(idx);
 		if (!pe)
 			break;
 
-		if (pe->info >= 1 && pe->info <= gEngfuncs.GetMaxClients())
+		if (pe->info >= 1 && pe->info <= engine_cl->maxclients)
 		{
 			mins = pe->origin + pe->mins;
 			maxs = pe->origin + pe->maxs;
@@ -399,7 +399,7 @@ void UTIL_ParticleBoxes()
 		}
 	}
 
-	gEngfuncs.pEventAPI->EV_PopPMStates();
+	EV_PopPMStates();
 }
 
 /*
@@ -438,7 +438,6 @@ void HUD_InitClientWeapons()
 	// Fake functions
 	g_engfuncs.pfnPrecacheModel = stub_PrecacheModel;
 	g_engfuncs.pfnPrecacheSound = stub_PrecacheSound;
-	g_engfuncs.pfnPrecacheEvent = stub_PrecacheEvent;
 	g_engfuncs.pfnNameForFunction = stub_NameForFunction;
 	g_engfuncs.pfnSetModel = stub_SetModel;
 	g_engfuncs.pfnSetClientMaxspeed = HUD_SetMaxSpeed;
@@ -448,7 +447,7 @@ void HUD_InitClientWeapons()
 	g_engfuncs.pfnAlertMessage = AlertMessage;
 
 	// Pass through to engine
-	g_engfuncs.pfnPrecacheEvent = gEngfuncs.pfnPrecacheEvent;
+	g_engfuncs.pfnPrecacheEvent = EV_PrecacheEvent;
 	g_engfuncs.pfnRandomFloat = gEngfuncs.pfnRandomFloat;
 	g_engfuncs.pfnRandomLong = gEngfuncs.pfnRandomLong;
 	g_engfuncs.pfnCVarGetPointer = gEngfuncs.pfnGetCvarPointer;

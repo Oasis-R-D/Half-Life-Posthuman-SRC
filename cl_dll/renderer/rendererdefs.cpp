@@ -976,7 +976,7 @@ void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 
 	fwd = origin + (fwd * 150);
 
-	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
+	EV_SetTraceHull(2);
 	gEngfuncs.pEventAPI->EV_PlayerTrace(origin, fwd, PM_WORLD_ONLY, -1, &tr);
 
 	if (tr.fraction < 1.0)
