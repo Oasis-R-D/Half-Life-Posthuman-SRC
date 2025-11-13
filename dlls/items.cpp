@@ -186,14 +186,14 @@ class CItemSuit : public CItem
 			return false;
 
 		pPlayer->SetHasSuit(true);
-		pPlayer->FlashingHUDDelay = gpGlobals->time + 15;
+		if (!pPlayer->m_bPrehuman) // Suit ain't broke
+			pPlayer->FlashingHUDDelay = gpGlobals->time + 15;
 
 		return true;
 	}
 };
 
 LINK_ENTITY_TO_CLASS(item_suit, CItemSuit);
-
 
 
 class CItemBattery : public CItem
@@ -224,13 +224,13 @@ class CItemBattery : public CItem
 
 			pPlayer->pev->armorvalue += (gSkillData.batteryCapacity + (RANDOM_LONG(-3, 10)));
 			pPlayer->pev->armorvalue = V_min(pPlayer->pev->armorvalue, MAX_NORMAL_BATTERY);
-
+			if (!pPlayer->m_bPrehuman) // Suit ain't broke
+				UTIL_Sparks(pev->origin + gpGlobals->v_up * 4);
 			EMIT_SOUND(pPlayer->edict(), CHAN_AUTO, "items/battery.wav", 1, ATTN_NORM);
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev);
 			WRITE_STRING(STRING(pev->classname));
 			MESSAGE_END();
-
 
 			// Suit reports new power level
 			// For some reason this wasn't working in release build -- round it.
