@@ -1580,7 +1580,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 			pparams->health = 1;
 
 			cl_entity_t* gunModel = &engine_cl->viewent;
-
+			//extra_viewmodel_t* gunModel2 = &engine_cl->viewent;
 			if (lastWeaponModelIndex != ent->curstate.weaponmodel)
 			{
 				// weapon model changed
@@ -1589,7 +1589,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 				lastViewModelIndex = V_FindViewModelByWeaponModel(lastWeaponModelIndex);
 				if (0 != lastViewModelIndex)
 				{
-					EV_WeaponAnimation(0, 0); // reset weapon animation
+					EV_WeaponAnimation(0, 0, false); // reset weapon animation
 				}
 				else
 				{
