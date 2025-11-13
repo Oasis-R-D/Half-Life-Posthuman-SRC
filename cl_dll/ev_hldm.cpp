@@ -511,7 +511,7 @@ void EV_FireGlock2(event_args_t* args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		EV_WeaponAnimation(empty ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
+		EV_WeaponAnimation(empty ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0, false);
 
 		V_PunchAxis(0, -2.0);
 	}
@@ -749,7 +749,7 @@ void EV_FirePython(event_args_t* args)
 
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		EV_WeaponAnimation(PYTHON_FIRE1, multiplayer ? 1 : 0);
+		EV_WeaponAnimation(PYTHON_FIRE1, multiplayer ? 1 : 0, false);
 
 		//V_PunchAxis(0, -10.0);
 	}
@@ -799,7 +799,7 @@ void EV_FireM29(event_args_t* args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		EV_WeaponAnimation(PYTHON_FIRE1, 0);
+		EV_WeaponAnimation(PYTHON_FIRE1, 0, (bool)M29numb);
 	}
 
 	//switch (gEngfuncs.pfnRandomLong(0, 1)) // should this be per weapon?
@@ -907,7 +907,7 @@ void EV_FireGauss(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		V_PunchAxis(0, -2.0);
-		EV_WeaponAnimation(GAUSS_FIRE2, 0);
+		EV_WeaponAnimation(GAUSS_FIRE2, 0, false);
 
 		if (!m_fPrimaryFire)
 			g_flApplyVel = flDamage;
@@ -1213,9 +1213,9 @@ void EV_FireCrossbow2(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		if (0 != args->iparam1)
-			EV_WeaponAnimation(CROSSBOW_FIRE1, 0);
+			EV_WeaponAnimation(CROSSBOW_FIRE1, 0, false);
 		else
-			EV_WeaponAnimation(CROSSBOW_FIRE3, 0);
+			EV_WeaponAnimation(CROSSBOW_FIRE3, 0, false);
 	}
 
 	// Store off the old count
@@ -1289,9 +1289,9 @@ void EV_FireCrossbow(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		if (0 != args->iparam1)
-			EV_WeaponAnimation(CROSSBOW_FIRE1, 0);
+			EV_WeaponAnimation(CROSSBOW_FIRE1, 0, false);
 		else
-			EV_WeaponAnimation(CROSSBOW_FIRE3, 0);
+			EV_WeaponAnimation(CROSSBOW_FIRE3, 0, false);
 	}
 }
 //======================
@@ -1315,7 +1315,7 @@ void EV_FireRpg(event_args_t* args)
 	//Only play the weapon anims if I shot it.
 	if (EV_IsLocal(idx))
 	{
-		EV_WeaponAnimation(RPG_FIRE2, 0);
+		EV_WeaponAnimation(RPG_FIRE2, 0, false);
 
 		V_PunchAxis(0, -5.0);
 	}
@@ -1378,7 +1378,7 @@ void EV_EgonFire(event_args_t* args)
 
 	//Only play the weapon anims if I shot it.
 	if (EV_IsLocal(idx))
-		EV_WeaponAnimation(g_fireAnims1[gEngfuncs.pfnRandomLong(0, 3)], 0);
+		EV_WeaponAnimation(g_fireAnims1[gEngfuncs.pfnRandomLong(0, 3)], 0, false);
 
 	if (iStartup && EV_IsLocal(idx) && !pBeam && !pBeam2 && !pFlare && 0 != cl_lw->value) //Adrian: Added the cl_lw check for those lital people that hate weapon prediction.
 	{
@@ -1498,7 +1498,7 @@ void EV_EgonStop(event_args_t* args)
 		// HACK: only reset animation if the Egon is still equipped.
 		if (g_CurrentWeaponId == WEAPON_EGON)
 		{
-			EV_WeaponAnimation(EGON_IDLE1, 0);
+			EV_WeaponAnimation(EGON_IDLE1, 0, false);
 		}
 	}
 }
@@ -1522,7 +1522,7 @@ void EV_HornetGunFire(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		V_PunchAxis(0, gEngfuncs.pfnRandomLong(0, 2));
-		EV_WeaponAnimation(HGUN_SHOOT, 0);
+		EV_WeaponAnimation(HGUN_SHOOT, 0, false);
 	}
 
 	switch (gEngfuncs.pfnRandomLong(0, 2))
@@ -1577,7 +1577,7 @@ void EV_TripmineFire(event_args_t* args)
 
 	//Hit something solid
 	if (tr.fraction < 1.0)
-		EV_WeaponAnimation(TRIPMINE_DRAW, 0);
+		EV_WeaponAnimation(TRIPMINE_DRAW, 0, false);
 
 	EV_PopPMStates();
 }
@@ -1616,7 +1616,7 @@ void EV_SnarkFire(event_args_t* args)
 
 	//Find space to drop the thing.
 	if (tr.allsolid == 0 && tr.startsolid == 0 && tr.fraction > 0.25)
-		EV_WeaponAnimation(SQUEAK_THROW, 0);
+		EV_WeaponAnimation(SQUEAK_THROW, 0, false);
 
 	EV_PopPMStates();
 }

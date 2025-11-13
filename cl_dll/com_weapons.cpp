@@ -83,7 +83,7 @@ HUD_SendWeaponAnim
 Change weapon model animation
 =====================
 */
-void HUD_SendWeaponAnim(int iAnim, int body, bool force)
+void HUD_SendWeaponAnim(int iAnim, int body, bool force, bool altvm)
 {
 	// Don't actually change it.
 	if (!g_runfuncs && !force)
@@ -92,7 +92,7 @@ void HUD_SendWeaponAnim(int iAnim, int body, bool force)
 	g_currentanim = iAnim;
 
 	// Tell animation system new info
-	EV_WeaponAnimation(iAnim, body);
+	EV_WeaponAnimation(iAnim, body, altvm);
 }
 
 /*
