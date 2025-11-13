@@ -1034,15 +1034,22 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (0 == m_rgItems[ITEM_ANTIDOTE])
 	{
-		if (!g_pGameRules->IsMultiplayer())
-			UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT);
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			if (!g_pGameRules->IsMultiplayer())
+				UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT);
+		}
+		else
+		{
+			if (!g_pGameRules->IsMultiplayer())
+				UTIL_ScreenFade(this, Vector(48, 0, 0), 0.001f, 0, 255, FFADE_OUT);
+		}
 	}
 	else
 	{
-		if (!g_pGameRules->IsMultiplayer())
-			UTIL_ScreenFade(this, Vector(48, 0, 0), 0.001, 50, 255, FFADE_OUT);
+		UTIL_ScreenFade(this, Vector(0, 0, 0), 1.0f, 0, 255, FFADE_OUT);
 	}
 	pev->maxspeed = 350;
 	m_bleedAMNT = 0;
@@ -1392,6 +1399,7 @@ bool CBasePlayer::IsOnLadder()
 
 void CBasePlayer::PlayerDeathThink()
 {
+	// TO-DO: add defib
 	float flForward;
 
 	if (FBitSet(pev->flags, FL_ONGROUND))
