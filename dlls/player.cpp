@@ -118,6 +118,8 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, BabyHeadcrabCount, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, BabyHeadcrabDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
+		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
+		DEFINE_FIELD(CBasePlayer, m_bleedtime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, Hunger, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_head, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_chest, FIELD_INTEGER),
@@ -397,6 +399,8 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 
 bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
+	if (bitsDamageType == DMG_RADIATION && m_fRadImmuneTime >= gpGlobals->time)
+		return false; // or should this be true?
 	if (bitsDamageType == DMG_FALL)
 	{
 		switch(RANDOM_LONG(0, 4))

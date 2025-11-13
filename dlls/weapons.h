@@ -106,8 +106,7 @@ public:
 #define ITEM_ANTIDOTE 2
 #define ITEM_SECURITY 3
 #define ITEM_BATTERY 4
-#define ITEM_RADBGONE 5
-#define ITEM_DEFIB 6
+#define ITEM_DEFIB 5
 
 #define MAX_NORMAL_BATTERY 100
 

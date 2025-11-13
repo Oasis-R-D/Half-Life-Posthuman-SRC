@@ -267,8 +267,7 @@ class CItemRadBGone : public CItem
 	bool MyTouch(CBasePlayer* pPlayer) override
 	{
 		pPlayer->SetSuitUpdate("!HEV_DET4", false, SUIT_NEXT_IN_1MIN); // TO-DO: make sentence
-
-		pPlayer->m_rgItems[ITEM_RADBGONE] += 1;
+		pPlayer->m_fRadImmuneTime = gpGlobals->time + 30; // 30 makes it more useful
 		return true;
 	}
 };
