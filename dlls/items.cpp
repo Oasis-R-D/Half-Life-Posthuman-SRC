@@ -72,7 +72,9 @@ void CWorldItem::Spawn()
 		case 41: // ITEM_RADBGONE:
 			pEntity = CBaseEntity::Create("item_radbgone", pev->origin, pev->angles);
 			break;
-
+		case 40: // ITEM_DEFIB:
+			pEntity = CBaseEntity::Create("item_defib", pev->origin, pev->angles);
+			break;
 	}
 
 	if (!pEntity)
@@ -300,6 +302,29 @@ class CItemAntidote : public CItem
 };
 
 LINK_ENTITY_TO_CLASS(item_antidote, CItemAntidote);
+
+class CItemDefib : public CItem
+{
+	void Spawn() override
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_antidote.mdl");
+		CItem::Spawn();
+	}
+	void Precache() override
+	{
+		PRECACHE_MODEL("models/w_antidote.mdl");
+	}
+	bool MyTouch(CBasePlayer* pPlayer) override
+	{
+		pPlayer->SetSuitUpdate("!HEV_DET4", false, SUIT_NEXT_IN_1MIN); // TO-DO: make HEV line
+
+		pPlayer->m_rgItems[ITEM_DEFIB] += 1;
+		return true;
+	}
+};
+
+LINK_ENTITY_TO_CLASS(item_defib, CItemDefib);
 
 class CItemSecurity : public CItem
 {
