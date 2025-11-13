@@ -46,8 +46,8 @@ randomdir 1
 
 fadedelay 2
 
-minvel 80
-maxvel 105
+minvel 100
+maxvel 180
 
 sprite %s
 framerate 0
@@ -65,7 +65,7 @@ pcolr %d
 pcolg %d
 pcolb %d
 
-gravity 0.5
+gravity 1
 
 startparticles 1
 
@@ -101,7 +101,7 @@ startparticles 30
 
 collision 2
 
-lightmaps 0
+lightmaps 1
 
 )";
 

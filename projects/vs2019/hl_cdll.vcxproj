@@ -53,7 +53,7 @@
     <TargetName>client</TargetName>
     <IntDir>$(SolutionDir)$(Configuration)\\$(ProjectName)\int\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <OutDir>C:\Program Files (x86)\Steam\SteamApps\common\Half-Life\posthuman\cl_dlls</OutDir>
+    <OutDir>..\..\..\..\..\SteamLibrary\steamapps\common\Half-Life\PostHuman\cl_dlls</OutDir>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

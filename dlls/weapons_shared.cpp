@@ -557,7 +557,7 @@ void CEagle::PrimaryAttack()
 	
 	#ifndef CLIENT_DLL
 	CPhysbullet::BulletCreate(1, 200, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
-	CBasePlayerWeapon::Recoil(5, 15);
+	CBasePlayerWeapon::Recoil(5, 10);
 	#endif
 
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
@@ -580,6 +580,12 @@ void CEagle::PrimaryAttack()
 #ifndef CLIENT_DLL
 	UpdateLaser();
 #endif
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+
+	Vector addedvel = -gpGlobals->v_forward * 200;
+	m_pPlayer->pev->velocity.x += addedvel.x;
+	m_pPlayer->pev->velocity.y += addedvel.y;
+	m_pPlayer->pev->velocity.z += addedvel.z;
 }
 
 void CEagle::SecondaryAttack()
