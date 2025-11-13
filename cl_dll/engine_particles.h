@@ -97,7 +97,7 @@ pcolb 47
 
 gravity 1
 
-startparticles 30
+startparticles 20
 
 collision 2
 
