@@ -181,7 +181,7 @@ public:
 
 	bool m_fNoPlayerSound; // a debugging feature. Player makes no sound if this is true.
 	bool m_fLongJump;	   // does this player have the longjump module?
-
+	bool m_bNoSprint;
 	bool m_bLightOn;
 
 	float m_tSneaking;

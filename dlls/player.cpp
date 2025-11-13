@@ -2242,7 +2242,7 @@ void CBasePlayer::PreThink()
 		m_flFallVelocity = -pev->velocity.z;
 	}
 
-	// StudioFrameAdvance( );//!!!HACKHACK!!! Can't be hit by traceline when not animating?
+	// StudioFrameAdvance(); //!!!HACKHACK!!! Can't be hit by traceline when not animating?
 
 	// Clear out ladder pointer
 	m_hEnemy = NULL;
@@ -2251,7 +2251,7 @@ void CBasePlayer::PreThink()
 	{
 		pev->velocity = g_vecZero;
 	}
-	if (health_legL && health_legR >= 90)
+	if (health_legL && health_legR >= 90 || m_bNoSprint)
 	{
 		pev->maxspeed = 250;
 	}
@@ -2276,6 +2276,7 @@ void CBasePlayer::PreThink()
 		pev->maxspeed = 384;
 	}
 }
+
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:
 
@@ -2351,9 +2352,6 @@ void CBasePlayer::PreThink()
 //#define SLOWFREEZE_DURATION	1.0
 //#define SLOWFREEZE_DAMAGE	3.0
 
-/* */
-
-
 void CBasePlayer::CheckTimeBasedDamage()
 {
 	int i;
@@ -2378,7 +2376,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 			switch (i)
 			{
 			case itbd_Paralyze:
-				// UNDONE - flag movement as half-speed
+				m_bNoSprint = true;
 				bDuration = PARALYZE_DURATION;
 				break;
 			case itbd_NerveGas:
@@ -2442,6 +2440,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 					m_rgbTimeBasedDamage[i] = 0;
 					// if we're done, clear damage bits
 					m_bitsDamageType &= ~(DMG_PARALYZE << i);
+					m_bNoSprint = false;
 				}
 			}
 			else

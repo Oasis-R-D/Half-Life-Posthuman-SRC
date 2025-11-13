@@ -252,6 +252,29 @@ class CItemBattery : public CItem
 LINK_ENTITY_TO_CLASS(item_battery, CItemBattery);
 
 
+class CItemRadBGone : public CItem
+{
+	void Spawn() override
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_antidote.mdl"); // TO-DO: W_model
+		CItem::Spawn();
+	}
+	void Precache() override
+	{
+		PRECACHE_MODEL("models/w_antidote.mdl"); // TO-DO: W_model
+	}
+	bool MyTouch(CBasePlayer* pPlayer) override
+	{
+		pPlayer->SetSuitUpdate("!HEV_DET4", false, SUIT_NEXT_IN_1MIN); // TO-DO: make sentence
+
+		pPlayer->m_rgItems[ITEM_RADBGONE] += 1;
+		return true;
+	}
+};
+
+LINK_ENTITY_TO_CLASS(item_radbgone, CItemRadBGone);
+
 class CItemAntidote : public CItem
 {
 	void Spawn() override
@@ -274,7 +297,6 @@ class CItemAntidote : public CItem
 };
 
 LINK_ENTITY_TO_CLASS(item_antidote, CItemAntidote);
-
 
 class CItemSecurity : public CItem
 {
