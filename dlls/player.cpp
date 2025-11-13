@@ -1034,6 +1034,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
+	// add FFADE_PERMANENT so they don't get removed after a while
 	if (0 == m_rgItems[ITEM_ANTIDOTE])
 	{
 		if (g_iSkillLevel != SKILL_HARD)
