@@ -1128,7 +1128,7 @@ class CGrenadePickup : public CBaseButton
 	void Spawn() override
 	{
 		Precache();
-
+		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
 		SET_MODEL(ENT(pev), "models/w_grenade.mdl");
 		ASSERT((3 - m_iAmnt) >= 0);
 		//SetBodygroup(1, 3 - m_iAmnt);
@@ -1139,8 +1139,14 @@ class CGrenadePickup : public CBaseButton
 		SetSequenceBox();
 
 		UTIL_SetOrigin(pev, pev->origin);
-		
-		pev->movetype = MOVETYPE_NONE;
+
+		pev->movetype = MOVETYPE_TOSS;
+		if (DROP_TO_FLOOR(ENT(pev)) == 0)
+		{
+			ALERT(at_error, "Item %s fell out of level at %f,%f,%f", STRING(pev->classname), pev->origin.x, pev->origin.y, pev->origin.z);
+			UTIL_Remove(this);
+			return;
+		}
 	}
 	void Precache() override
 	{
