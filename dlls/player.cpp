@@ -2466,7 +2466,7 @@ Protection
 		will come on and the battery will drain while the player stays in the area. 
 		After the battery is dead, the player starts to take damage. 
 		This feature is built into the suit and is automatically engaged.
-	Radiation Syringe
+	Radiation Syringe // TO-DO:
 		This will cause the player to be immune from the effects of radiation for N seconds. Single use item.
 	Anti-Toxin Syringe
 		This will cure the player from being poisoned. Single use item.
@@ -2488,14 +2488,19 @@ x	Automatic Health Care
 x	Geiger counter
 		Classic Geiger counter sound and status bar at top of HUD 
 		alerts player to dangerous levels of radiation. This is not visible when radiation levels are normal.
-x	Poison
-	Armor
+x	Damage type icons
+x	Armor
 		Displays the current level of armor. 
+x	Grenade Amount and type
 
 Augmentation 
-
-	Reanimation (w/adrenaline)
-		Causes the player to come back to life after he has been dead for 3 seconds. 
+	// TO-DO:
+	// It'd probably be helpful to replace the flashlight hud area
+	// with a inventory lookup that shows anti-toxin, rad-away, defibs,
+	// grenades, grenade type and also keys/keycards. The flashlight
+	// could be moved to the bottom left like in HL2:EP3-1.
+	Reanimation (w/Defibrillator) // TO-DO:
+		Causes the player to come back to life after he has been dead for 1 second. 
 		Will not work if player was gibbed. Single use.
 	Long Jump
 		Used by hitting the ??? key(s). Caused the player to further than normal.

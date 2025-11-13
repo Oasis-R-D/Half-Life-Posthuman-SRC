@@ -108,11 +108,11 @@ bool CHudFlashlight::Draw(float flTime)
 	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 		return true;
 
+	if (!gHUD.HasSuit() || !prehuman)
+		return true;
+
 	int r, g, b, x, y, a;
 	Rect rc;
-
-	if (!gHUD.HasSuit())
-		return true;
 
 	if (m_fOn)
 		a = 225;
