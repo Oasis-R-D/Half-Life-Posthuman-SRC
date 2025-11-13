@@ -206,7 +206,7 @@ typedef enum
 	BULLET_MONSTER_9MM,
 	BULLET_MONSTER_MP5,
 	BULLET_MONSTER_12MM,
-	BULLET_MONSTER_727,
+	BULLET_MONSTER_727, // Ignore the duplicate, 1 was the M727 and the other the black ops sniper
 	BULLET_PLAYER_556
 } Bullet;
 
