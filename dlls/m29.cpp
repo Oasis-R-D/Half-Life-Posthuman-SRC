@@ -160,16 +160,7 @@ void CM29::SecondaryAttack()
 	m_flNextSecondaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	Vector vecDir;
 	Shoot(1);
-	int flags;
-#if defined(CLIENT_WEAPONS)
-	flags = FEV_NOTHOST;
-#else
-	flags = 0;
-#endif
-
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 1, 0, 0, 0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
@@ -213,16 +204,7 @@ void CM29::PrimaryAttack()
 	m_flNextPrimaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	Vector vecDir;
 	Shoot(0);
-	int flags;
-#if defined(CLIENT_WEAPONS)
-	flags = FEV_NOTHOST;
-#else
-	flags = 0;
-#endif
-
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
@@ -273,6 +255,16 @@ void CM29::Shoot(int gunnumb)
 
 	}
 	m_fTimeSincePrimary = gpGlobals->time;
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+	Vector vecDir;
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, gunnumb, 0, 0, 0);
 
 	Vector vecSrc;
 	if (gunnumb == 0)
