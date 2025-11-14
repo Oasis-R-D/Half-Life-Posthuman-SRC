@@ -237,10 +237,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			i += 1;
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
 			if (i > m_distpenetrate)
-			{
-				ALERT(at_console, "Wall is too thick! Max Size: %i\n", i);
 				break;
-			}
 		}
 		if (0 == beam_tr2.fAllSolid) // Raymarch found da way
 		{
@@ -271,7 +268,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					m_BulletDamage = 2;
 
 				// Fire penetrated bullet
-				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
+				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1)); // use beam_tr2?
 				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
 
 				// Damage
