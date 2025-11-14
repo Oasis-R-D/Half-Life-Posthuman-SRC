@@ -271,7 +271,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					m_BulletDamage = 2;
 
 				// Fire penetrated bullet
-				Vector spawnpos = tr.vecEndPos + m_direction * i+1;
+				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
 				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
 
 				// Damage
