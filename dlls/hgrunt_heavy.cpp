@@ -225,11 +225,11 @@ void CHGruntHeavy::Spawn()
 
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		pev->health = round(133);
+		pev->health = round(gSkillData.hgruntHealth * 1.75);
 	}
 	else
 	{
-		pev->health = 225;
+		pev->health = 200;
 	}
 
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
