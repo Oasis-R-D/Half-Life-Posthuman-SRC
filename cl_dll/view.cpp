@@ -1489,27 +1489,27 @@ int V_FindViewModelByWeaponModel(int weaponindex)
 
 	static const char* modelmap[][3] = {
 
-		{"models/p_crossbow.mdl", "models/v_crossbow.mdl", nullptr},
-		{"models/p_crowbar.mdl", "models/v_crowbar.mdl", nullptr},
-		{"models/p_egon.mdl", "models/v_egon.mdl", nullptr},
-		{"models/p_gauss.mdl", "models/v_gauss.mdl", nullptr},
-		{"models/p_9mmhandgun.mdl", "models/v_9mmhandgun.mdl", nullptr},
-		{"models/p_grenade.mdl", "models/v_grenade.mdl", nullptr},
-		{"models/p_hgun.mdl", "models/v_hgun.mdl", nullptr},
-		{"models/p_9mmAR.mdl", "models/v_9mmAR.mdl", nullptr},
-		{"models/p_357.mdl", "models/v_357.mdl", nullptr},
-		{"models/p_rpg.mdl", "models/v_rpg.mdl", nullptr},
-		{"models/p_shotgun.mdl", "models/v_shotgun.mdl", nullptr},
-		{"models/p_squeak.mdl", "models/v_squeak.mdl", nullptr},
-		{"models/p_tripmine.mdl", "models/v_tripmine.mdl", nullptr},
-		{"models/p_satchel_radio.mdl", "models/v_satchel_radio.mdl", nullptr},
-		{"models/p_satchel.mdl", "models/v_satchel.mdl", nullptr},
-		{"models/p_corruptWPN.mdl", "models/v_corruptWPN.mdl", nullptr},
-		{"models/p_desert_eagle.mdl", "models/v_desert_eagle.mdl", nullptr},
-		{"models/p_saw.mdl", "models/v_saw.mdl", nullptr},
-		{"models/p_9mmAR.mdl", "models/v_727.mdl", nullptr},
+		{"models/p_crossbow.mdl", "models/v_crossbow.mdl", NULL},
+		{"models/p_crowbar.mdl", "models/v_crowbar.mdl", NULL},
+		{"models/p_egon.mdl", "models/v_egon.mdl", NULL},
+		{"models/p_gauss.mdl", "models/v_gauss.mdl", NULL},
+		{"models/p_9mmhandgun.mdl", "models/v_9mmhandgun.mdl", NULL},
+		{"models/p_grenade.mdl", "models/v_grenade.mdl", NULL},
+		{"models/p_hgun.mdl", "models/v_hgun.mdl", NULL},
+		{"models/p_9mmAR.mdl", "models/v_9mmAR.mdl", NULL},
+		{"models/p_357.mdl", "models/v_357.mdl", NULL},
+		{"models/p_rpg.mdl", "models/v_rpg.mdl", NULL},
+		{"models/p_shotgun.mdl", "models/v_shotgun.mdl", NULL},
+		{"models/p_squeak.mdl", "models/v_squeak.mdl", NULL},
+		{"models/p_tripmine.mdl", "models/v_tripmine.mdl", NULL},
+		{"models/p_satchel_radio.mdl", "models/v_satchel_radio.mdl", NULL},
+		{"models/p_satchel.mdl", "models/v_satchel.mdl", NULL},
+		{"models/p_corruptWPN.mdl", "models/v_corruptWPN.mdl", NULL},
+		{"models/p_desert_eagle.mdl", "models/v_desert_eagle.mdl", NULL},
+		{"models/p_saw.mdl", "models/v_saw.mdl", NULL},
+		{"models/p_9mmAR.mdl", "models/v_727.mdl", NULL},
 		{"models/p_357.mdl", "models/v_m29R.mdl", "models/v_m29L.mdl"},
-		{NULL, NULL}};
+		{NULL, NULL, NULL}};
 
 	struct model_s* weaponModel = IEngineStudio.GetModelByIndex(weaponindex);
 
