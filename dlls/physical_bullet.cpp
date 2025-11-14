@@ -228,7 +228,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
-		float p;
+		double p;
 		int i = 1;
 
 		UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
@@ -263,16 +263,16 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					m_distpenetrate = 0;
 
 				ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-				ALERT(at_console, "penetrated: %f units + mult\n", p);
+				ALERT(at_console, "penetrated: %d units + mult\n", p);
 
 				// Damage reduction
-				m_BulletDamage -= round(0.125f * p);
+				m_BulletDamage -= round(0.125 * p);
 				if (m_BulletDamage <= 0)
 					m_BulletDamage = 2;
 
 				// Fire penetrated bullet
-				Vector spawnpos = tr.vecEndPos + m_direction * i;
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, CONE_1DEGREES, CONE_1DEGREES, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
+				Vector spawnpos = tr.vecEndPos + m_direction * i+1;
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
 
 				// Damage
 				ClearMultiDamage();
@@ -329,10 +329,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			UTIL_Remove(this);
 		}
 	}
-	if (pOther->IsBSPModel())
+	else
 	{
-		pev->angles = tr.vecPlaneNormal;
-		PLAYBACK_EVENT_FULL(0, Owner, m_ParticleEvent, 0.0f, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0f, 0.0f, PE_BLLTIMPACTGLOW, 0, 0, 0);
+		if (pOther->IsBSPModel())
+		{
+			pev->angles = tr.vecPlaneNormal;
+			PLAYBACK_EVENT_FULL(0, Owner, m_ParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+		}
 	}
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);
 	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
@@ -343,7 +346,7 @@ void CPhysbullet::AirThink()
 {
 	m_direction = UTIL_VecToAngles(pev->velocity);
 	pev->angles = m_direction;
-	pev->nextthink = gpGlobals->time + 0.1f; // was 0.05f
+	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
 	CBaseEntity* m_ent = NULL;
 	if (!m_haswizzed && !m_bsubsonic)
 	{

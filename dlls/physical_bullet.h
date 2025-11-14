@@ -39,18 +39,18 @@ public:
 	Vector m_direction;
 	Vector m_SpreadVect;
 
-	float m_Spread;
-	float m_SpreadVert;
-	float m_BulletDamage;
-	float m_Gravity;
-	float m_distpenetrate;
+	double m_Spread;
+	double m_SpreadVert;
+	int m_BulletDamage;
+	double m_Gravity;
+	double m_distpenetrate;
 
 	bool m_bsubsonic;
 
 private:
 	bool m_bHeavyDecal = false;
 	bool m_haswizzed;
-	float m_fPenoverride;
+	double m_fPenoverride;
 	Vector m_Endpos;
 };
 #endif
