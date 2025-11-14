@@ -286,7 +286,7 @@ void CM29::Shoot(int gunnumb)
 	{
 		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
 	}
-	CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
+	CBasePlayerWeapon::Recoil(2, 1);
 #endif
 }
 

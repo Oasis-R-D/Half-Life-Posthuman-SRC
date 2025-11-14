@@ -107,26 +107,12 @@ enum WeaponId
 #define DMG_SLOWFREEZE (1 << 22)   // in a subzero freezer
 #define DMG_MORTAR (1 << 23)	   // Hit by air raid (done to distinguish grenade from mortar)
 
-//TF ADDITIONS
+//PH ADDITIONS
 #define DMG_IGNITE (1 << 24)	   // Players hit by this begin to burn
-#define DMG_RADIUS_MAX (1 << 25)   // Radius damage with this flag doesn't decrease over distance
-#define DMG_RADIUS_QUAKE (1 << 26) // Radius damage is done like Quake. 1/2 damage at 1/2 radius.
-#define DMG_IGNOREARMOR (1 << 27)  // Damage ignores target's armor
-#define DMG_AIMED (1 << 28)		   // Does Hit location damage
-#define DMG_WALLPIERCING (1 << 29) // Blast Damages ents through walls
-
-#define DMG_CALTROP (1 << 30)
-#define DMG_HALLUC (1 << 31)
-
-// TF Healing Additions for TakeHealth
-#define DMG_IGNORE_MAXHEALTH DMG_IGNITE
-// TF Redefines since we never use the originals
-#define DMG_NAIL DMG_SLASH
-#define DMG_NOT_SELF DMG_FREEZE
-
-
-#define DMG_TRANQ DMG_MORTAR
-#define DMG_CONCUSS DMG_SONIC
+#define DMG_IGNOREARMOR (1 << 25)  // Damage ignores target's armor
+#define DMG_WALLPIERCING (1 << 26) // Blast Damages ents through walls
+#define DMG_HALLUC (1 << 27) // TO-DO: add FX for this
+#define DMG_CONCUSS (1 << 28) // TO-DO: add FX for this
 
 // these are the damage types that are allowed to gib corpses
 #define DMG_GIB_CORPSE (DMG_CRUSH | DMG_FALL | DMG_BLAST | DMG_SONIC | DMG_CLUB)
@@ -136,26 +122,26 @@ enum WeaponId
 
 // NOTE: tweak these values based on gameplay feedback:
 
-#define PARALYZE_DURATION 2 // number of 2 second intervals to take damage
-#define PARALYZE_DAMAGE 1.0 // damage to take each 2 second interval
+#define PARALYZE_DURATION 5 // number of 2 second intervals to take damage
+#define PARALYZE_DAMAGE 1.0f // damage to take each 2 second interval
 
-#define NERVEGAS_DURATION 2
-#define NERVEGAS_DAMAGE 5.0
+#define NERVEGAS_DURATION 8
+#define NERVEGAS_DAMAGE 4.0f
 
 #define POISON_DURATION 5
-#define POISON_DAMAGE 2.0
+#define POISON_DAMAGE 2.0f
 
-#define RADIATION_DURATION 2
-#define RADIATION_DAMAGE 1.0
+#define RADIATION_DURATION 8
+#define RADIATION_DAMAGE 1.0f
 
-#define ACID_DURATION 2
-#define ACID_DAMAGE 5.0
+#define ACID_DURATION 5
+#define ACID_DAMAGE 1.0f
 
 #define SLOWBURN_DURATION 2
-#define SLOWBURN_DAMAGE 1.0
+#define SLOWBURN_DAMAGE 1.0f
 
 #define SLOWFREEZE_DURATION 2
-#define SLOWFREEZE_DAMAGE 1.0
+#define SLOWFREEZE_DAMAGE 1.0f
 
 
 #define itbd_Paralyze 0

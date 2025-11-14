@@ -2390,6 +2390,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 			{
 			case itbd_Paralyze:
 				m_bNoSprint = true;
+				TakeDamage(pev, pev, PARALYZE_DAMAGE, DMG_GENERIC);
 				bDuration = PARALYZE_DURATION;
 				break;
 			case itbd_NerveGas:
@@ -2417,15 +2418,15 @@ void CBasePlayer::CheckTimeBasedDamage()
 				bDuration = 4; // get up to 5*10 = 50 points back
 				break;
 			case itbd_Acid:
-				//				TakeDamage(pev, pev, ACID_DAMAGE, DMG_GENERIC);
+				TakeDamage(pev, pev, ACID_DAMAGE, DMG_GENERIC);
 				bDuration = ACID_DURATION;
 				break;
 			case itbd_SlowBurn:
-				//				TakeDamage(pev, pev, SLOWBURN_DAMAGE, DMG_GENERIC);
+				TakeDamage(pev, pev, SLOWBURN_DAMAGE, DMG_GENERIC);
 				bDuration = SLOWBURN_DURATION;
 				break;
 			case itbd_SlowFreeze:
-				//				TakeDamage(pev, pev, SLOWFREEZE_DAMAGE, DMG_GENERIC);
+				TakeDamage(pev, pev, SLOWFREEZE_DAMAGE, DMG_GENERIC);
 				bDuration = SLOWFREEZE_DURATION;
 				break;
 			default:
@@ -2478,7 +2479,7 @@ Protection
 		will come on and the battery will drain while the player stays in the area. 
 		After the battery is dead, the player starts to take damage. 
 		This feature is built into the suit and is automatically engaged.
-	Radiation Syringe // TO-DO:
+x	Radiation Syringe
 		This will cause the player to be immune from the effects of radiation for N seconds. Single use item.
 	Anti-Toxin Syringe
 		This will cure the player from being poisoned. Single use item.
