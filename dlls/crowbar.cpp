@@ -76,6 +76,7 @@ bool CCrowbar::GetItemInfo(ItemInfo* p)
 
 bool CCrowbar::Deploy()
 {
+	m_pPlayer->CrowbarFlinch = 0;
 	if (pev->weapons == 0)
 	{
 		pev->weapons = 1;
@@ -86,6 +87,7 @@ bool CCrowbar::Deploy()
 
 void CCrowbar::Holster()
 {
+	m_pPlayer->CrowbarFlinch = 0;
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim(CROWBAR_HOLSTER);
 }
@@ -147,10 +149,13 @@ void CCrowbar::PrimaryAttack()
 
 void CCrowbar::SecondaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 1;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 1.66;
 	pev->health = gpGlobals->time + 0.34;
 	SendWeaponAnim(CROWBAR_ATTACK2);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_VOICE, RANDOM_LONG(0, 1) ? "zombie/zo_attack1.wav" : "zombie/zo_attack2.wav", 1, ATTN_NORM);
+	#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil(2, 0);
+	#endif
 }
 
 void CCrowbar::Smack()
@@ -411,6 +416,16 @@ void CCrowbar::Hit(bool type)
 						m_pPlayer->health_chest = 0;
 					if (m_pPlayer->health_stomach < 0)
 						m_pPlayer->health_stomach = 0;
+					
+					MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, m_pPlayer->pev);
+					WRITE_BYTE(m_pPlayer->health_head);
+					WRITE_BYTE(m_pPlayer->health_chest);
+					WRITE_BYTE(m_pPlayer->health_stomach);
+					WRITE_BYTE(m_pPlayer->health_armL);
+					WRITE_BYTE(m_pPlayer->health_armR);
+					WRITE_BYTE(m_pPlayer->health_legL);
+					WRITE_BYTE(m_pPlayer->health_legR);
+					MESSAGE_END();
 				}
 				else if (pHit->BloodColor() == BLOOD_COLOR_RED)
 				{
@@ -419,21 +434,12 @@ void CCrowbar::Hit(bool type)
 				}
 				else if (pHit->BloodColor() != DONT_BLEED)
 				{
-					m_pPlayer->Hunger += 10;
+					m_pPlayer->Hunger += 15;
 					m_pPlayer->TakeHealth(5, DMG_GENERIC);
 				}
 
 				if (m_pPlayer->Hunger > 100)
 					m_pPlayer->Hunger = 100;
-			MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, m_pPlayer->pev);
-			WRITE_BYTE(m_pPlayer->health_head);
-			WRITE_BYTE(m_pPlayer->health_chest);
-			WRITE_BYTE(m_pPlayer->health_stomach);
-			WRITE_BYTE(m_pPlayer->health_armL);
-			WRITE_BYTE(m_pPlayer->health_armR);
-			WRITE_BYTE(m_pPlayer->health_legL);
-			WRITE_BYTE(m_pPlayer->health_legR);
-			MESSAGE_END();
 			}
 		}
 
