@@ -87,8 +87,8 @@ void CM29::Precache()
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("weapons/m29_fire1.wav");
 	PRECACHE_SOUND("weapons/m29_fire2.wav");
+
 	m_usFireM29 = PRECACHE_EVENT(1, "events/m29.sc");
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 }
 void CM29::CalculateAmmo()
 {
@@ -109,7 +109,6 @@ bool CM29::Deploy()
 {
 	m_bFirstShot = true;
 	CalculateAmmo();
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 
 	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
@@ -281,11 +280,11 @@ void CM29::Shoot(int gunnumb)
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, 0, 0, 1, 44, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, 0, 0, 1, 44, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
 	}
 	CBasePlayerWeapon::Recoil(3, RANDOM_LONG(-1, 1));
 #endif
@@ -337,7 +336,6 @@ void CM29::WeaponIdle()
 
 void CM29::ItemPostFrame() // completely overriden to make multiple changes
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{
 		// complete the reload.
