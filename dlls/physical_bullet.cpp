@@ -23,7 +23,6 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 #include "soundent.h"
-
 #ifndef CLIENT_DLL
 
 /*
@@ -83,7 +82,6 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
-	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 
 	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
@@ -172,6 +170,8 @@ void CPhysbullet::Spawn()
 		pev->renderamt = 5;
 	else if (pev->renderamt != 0)
 		pev->renderamt = 150;
+
+	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
@@ -281,9 +281,19 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				// TO-DO: replace exit wound TA with just blood vfx (the halved damage is too OP)
-				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				// exit wound
+				//pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				int blood = pOther->BloodColor();
+				if (blood != DONT_BLEED)
+				{
+					int BLDAMNT;
+					Vector vecOrigin = beam_tr.vecEndPos - (-m_direction) * 4;
+					BLDAMNT = round(m_BulletDamage / 2);
+					SpawnBlood(vecOrigin, blood, m_BulletDamage/2); // a little surface blood.
+					TraceBleed(m_BulletDamage/2, -m_direction, &beam_tr, DMG_BULLET);
+
+				}
 				ApplyMultiDamage(pev, owner->pev);
 
 				// VFX
