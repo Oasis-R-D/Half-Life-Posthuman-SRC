@@ -83,10 +83,15 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
+	UTIL_SetSize(pev, g_vecZero, g_vecZero);
+
 	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction + m_SpreadVect;
+
 	m_haswizzed = false;
+
+
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
 	if (m_Flare == 556) // probably 556
@@ -108,14 +113,14 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
 		m_distpenetrate = 10;
 	}
-	else if (m_Flare == 357)
+	else if (m_Flare == 357) // 357 magnum
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
 		m_distpenetrate = 18;
 		m_bHeavyDecal = true;
 	}
-	else if (m_Flare == 44)
+	else if (m_Flare == 44) // 44 magnum
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 		pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
@@ -149,7 +154,6 @@ void CPhysbullet::Spawn()
 	if (m_fPenoverride != NULL)
 		m_distpenetrate = m_fPenoverride;
 
-	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
 	{
@@ -163,12 +167,15 @@ void CPhysbullet::Spawn()
 			}
 		}
 	}
+	
 	if (m_bsubsonic)
 		pev->renderamt = 5;
 	else if (pev->renderamt != 0)
 		pev->renderamt = 150;
+
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
+	// TRAIL START
 	pev->nextthink = gpGlobals->time + 0.05f;
 	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 	WRITE_BYTE(TE_BEAMFOLLOW);
