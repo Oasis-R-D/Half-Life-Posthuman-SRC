@@ -799,7 +799,7 @@ void EV_FireM29(event_args_t* args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		EV_WeaponAnimation(PYTHON_FIRE1, 0, (bool)M29numb);
+		EV_WeaponAnimation(PYTHON_FIRE1, 0, M29numb);
 	}
 
 	//switch (gEngfuncs.pfnRandomLong(0, 1)) // should this be per weapon?
