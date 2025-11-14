@@ -337,7 +337,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (pOther->IsBSPModel())
+		if (pOther->IsBSPModel() && pev->waterlevel == 0)
 		{
 			pev->angles = tr.vecPlaneNormal;
 			PLAYBACK_EVENT_FULL(0, Owner, m_ParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);

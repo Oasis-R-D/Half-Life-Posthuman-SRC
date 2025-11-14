@@ -26,15 +26,16 @@ rendermode 0
 
 scale 5
 
-pcolr 200
-pcolg 200
-pcolb 200
+pcolr 255
+pcolg 255
+pcolb 255
 
 gravity 0
 
 startparticles 1
 
 lightmaps 0
+mainalpha 0.33
 )";
 
 char bloodsprite[] = R"(
