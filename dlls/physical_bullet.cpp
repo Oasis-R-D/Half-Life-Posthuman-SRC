@@ -167,7 +167,7 @@ void CPhysbullet::Spawn()
 			}
 		}
 	}
-	
+
 	if (m_bsubsonic)
 		pev->renderamt = 5;
 	else if (pev->renderamt != 0)
@@ -175,6 +175,7 @@ void CPhysbullet::Spawn()
 
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
+
 	// TRAIL START
 	pev->nextthink = gpGlobals->time + 0.05f;
 	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
@@ -226,15 +227,15 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
 	if (pOther->IsBullet())
 		return;
+	
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	m_Endpos = pev->origin; // where bullet hit
 	TraceResult tr = UTIL_GetGlobalTrace();
-	TraceResult beam_tr;
-	TraceResult beam_tr2;
-	CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 	
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
+		TraceResult beam_tr;
+		TraceResult beam_tr2;
 		double p;
 		int i = 1;
 
@@ -281,7 +282,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// Damage
 				ClearMultiDamage();
 				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				// TO-DO: replace exit wound TA with just blood vfx (the halved damage is too OP)
+				pOther->TraceAttack(owner->pev, 3, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
 				ApplyMultiDamage(pev, owner->pev);
 
 				// VFX
