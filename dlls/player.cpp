@@ -677,6 +677,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 		SetSuitUpdate("!HEV_MED1", false, SUIT_NEXT_IN_30MIN); // automedic on
 
 		// give morphine shot if not given recently
+		// to-do: make it so some damages don't give morphine (poisons, radiation and such)
 		SetSuitUpdate("!HEV_HEAL7", false, SUIT_NEXT_IN_30MIN); // morphine shot
 		m_bleedAMNT = 0;
 	}

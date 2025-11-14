@@ -42,9 +42,9 @@
 #include "r_studioint.h"
 #include "com_model.h"
 
+#include "engine_particles.h"
 #include "../renderer/bsprenderer.h"
 #include "../renderer/particle_engine.h"
-
 extern engine_studio_api_t IEngineStudio;
 
 static int tracerCount[MAX_PLAYERS];
@@ -1875,6 +1875,9 @@ void EV_Particles(event_args_t* args)
 					gParticleEngine.CreateSystem("engine_blood_impact_healing.txt", args->origin, gpGlobals->v_up, 0);
 					break;
 			}
+			break;
+		case 6: // glowing bullet impact 'crater'
+			gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
 			break;
 	}
 }

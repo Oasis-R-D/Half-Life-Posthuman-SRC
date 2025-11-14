@@ -417,6 +417,9 @@
     <ClCompile Include="..\..\cl_dll\event_api.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\engine_particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
