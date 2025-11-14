@@ -281,9 +281,9 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 				// TO-DO: replace exit wound TA with just blood vfx (the halved damage is too OP)
-				pOther->TraceAttack(owner->pev, 3, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
 				ApplyMultiDamage(pev, owner->pev);
 
 				// VFX
