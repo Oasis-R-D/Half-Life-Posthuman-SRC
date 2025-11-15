@@ -1734,7 +1734,7 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 		vecTraceDir.y += RANDOM_FLOAT(-flNoise, flNoise);
 		vecTraceDir.z += RANDOM_FLOAT(-flNoise, flNoise);
 
-		UTIL_TraceLine(ptr->vecEndPos, ptr->vecEndPos + vecTraceDir * -172, ignore_monsters, ENT(pev), &Bloodtr);
+		UTIL_TraceLine(ptr->vecEndPos, ptr->vecEndPos + vecTraceDir * -128, ignore_monsters, ENT(pev), &Bloodtr);
 
 		if (Bloodtr.flFraction != 1.0)
 		{
