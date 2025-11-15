@@ -333,7 +333,7 @@ void CFlockingBloaterFlock::Spawn()
 void CFlockingBloaterFlock::Precache()
 {
 	PRECACHE_MODEL("models/floater.mdl");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 	PrecacheFlockSounds();
 }
 
@@ -413,7 +413,6 @@ void CFlockingBloater::Spawn()
 void CFlockingBloater::Precache()
 {
 	PRECACHE_MODEL("models/floater.mdl");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
 	CFlockingBloaterFlock::PrecacheFlockSounds();
 }
 
@@ -491,7 +490,7 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 	TraceResult tr;
 
 	pSquad = (CFlockingBloater*)m_pSquadLeader;
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BLOATERGASEXPL, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BLOATERGASEXPL, 0, 0, 0);
 	while (pSquad)
 	{
 		pSquad->m_bAggro = true;

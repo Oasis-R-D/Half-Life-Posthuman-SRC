@@ -605,7 +605,7 @@ const char* CXenSpore::pModelNames[] =
 void CXenSpore::Precache()
 {
 	PRECACHE_MODEL((char*)pModelNames[pev->skin]);
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 

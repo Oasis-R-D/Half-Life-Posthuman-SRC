@@ -137,7 +137,6 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 		else
 		{
 			UTIL_Remove(this);
-			UTIL_BloodPuff(tr, pOther->BloodColor());
 		}
 	}
 	else

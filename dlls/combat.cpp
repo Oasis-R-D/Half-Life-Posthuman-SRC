@@ -724,10 +724,11 @@ void CGib::WaitTillLand()
 	}
 	else
 	{
-		//if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED)
-		//{
-		//}
-		pev->nextthink = gpGlobals->time + 0.1; // WAS 0.1
+		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED && (RANDOM_LONG(0, 1) == 1))
+		{
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+		}
+		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}
 }
 

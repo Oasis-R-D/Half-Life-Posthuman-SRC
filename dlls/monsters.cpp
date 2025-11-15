@@ -515,7 +515,10 @@ void CBaseMonster::Railed() //:troll:
 	{
 		TraceResult tr;
 		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
-		UTIL_BloodPuff(tr, BloodColor());
+		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
+		if (RANDOM_LONG(0, 1) == 1 && BloodColor() != DONT_BLEED)
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
+
 		pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
 		{

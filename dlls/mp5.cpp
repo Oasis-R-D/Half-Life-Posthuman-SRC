@@ -64,7 +64,7 @@ void CMP5::Precache()
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 bool CMP5::GetItemInfo(ItemInfo* p)
@@ -129,7 +129,7 @@ void CMP5::PrimaryAttack()
 			return;
 		}
 
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 		m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
 		m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
@@ -172,7 +172,7 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -544,7 +544,7 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/bay_hitbod3.wav");
 	PRECACHE_SOUND("weapons/cbar_miss1.wav");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)
@@ -646,7 +646,7 @@ void CM727::PrimaryAttack()
 	}
 	m_flNextSecondaryAttack = 0.15;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 	m_iClip--;

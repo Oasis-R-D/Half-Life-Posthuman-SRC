@@ -55,7 +55,7 @@ void CGlock::Precache()
 	m_usFireGlock2 = PRECACHE_EVENT(1, "events/glock2.sc");
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 bool CGlock::GetItemInfo(ItemInfo* p)
@@ -206,7 +206,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	else
 	{
 		// non-silenced
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 		m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 		m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;

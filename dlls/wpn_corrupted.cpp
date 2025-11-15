@@ -85,7 +85,7 @@ void CCorruptedWPN::Precache()
 
 	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc"); // bodygroup change event (repurposed from glock)
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
@@ -252,7 +252,7 @@ void CCorruptedWPN::PrimaryAttack()
 			break;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_ParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = RANDOM_LONG(600, 1000);
 	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
 

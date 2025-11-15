@@ -178,7 +178,7 @@ LINK_ENTITY_TO_CLASS(grenade, CGrenade);
 
 void CGrenade::Precache()
 {
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 //
@@ -230,7 +230,7 @@ void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
 
 	MESSAGE_END();
 	if (iContents != CONTENTS_WATER)
-		PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
 	if (pev->owner)
@@ -349,7 +349,7 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
 
 	MESSAGE_END();
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
@@ -520,7 +520,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/flashbang-1.wav", 1, ATTN_GUN);
 
-	PLAYBACK_EVENT_FULL(0, edict(), m_ParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 3, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 3, 0, 0);
 
 	MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
 	WRITE_COORD(pev->origin.x);

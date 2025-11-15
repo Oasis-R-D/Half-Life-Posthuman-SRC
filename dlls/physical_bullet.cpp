@@ -207,7 +207,7 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND("weapons/nearmiss5.wav");
 	PRECACHE_SOUND("weapons/nearmiss6.wav");
 	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
-	m_ParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	
 }
 
 
@@ -350,7 +350,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		if (pOther->IsBSPModel() && pev->waterlevel == 0)
 		{
 			pev->angles = tr.vecPlaneNormal;
-			PLAYBACK_EVENT_FULL(0, Owner, m_ParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+			PLAYBACK_EVENT_FULL(0, Owner, g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
 		}
 	}
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);

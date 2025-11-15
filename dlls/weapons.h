@@ -433,6 +433,7 @@ public:
 
 inline DLL_GLOBAL short g_sModelIndexLaser; // holds the index for the laser beam
 inline DLL_GLOBAL short g_sModelIndexLgtng; // holds the index for the laser beam
+inline DLL_GLOBAL unsigned short g_sParticleEvent; // holds the event for the EVDM particles
 
 constexpr DLL_GLOBAL const char* g_pModelNameLaser = "sprites/laserbeam.spr";
 constexpr DLL_GLOBAL const char* g_pModelNameLgtng = "sprites/lgtning.spr";
