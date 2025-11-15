@@ -182,6 +182,7 @@ bool CHudBattery::Draw(float flTime)
 
 	if (m_iHunger < 1000)
 	{
+		/*
 		x = (m_prc1->right - m_prc1->left) * 6;
 		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 - (m_rHunger->bottom - m_rHunger->top) / 3;
 
@@ -200,10 +201,8 @@ bool CHudBattery::Draw(float flTime)
 		x += (m_prc1->right - m_prc1->left) / 2;
 		y += gHUD.m_iFontHeight / 4;
 		FillRGBA(x, y, m_iHunger, gHUD.m_iFontHeight / 2, r, g, b, a);
+		*/
 	}
-
-	//if (m_iBat <= 0)
-		//return true;
 
 	rc = *m_prc2;
 	rc.top += m_iHeight * ((float)(100 - (V_min(100, m_iBat))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1
