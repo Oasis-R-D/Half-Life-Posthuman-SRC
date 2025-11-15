@@ -204,7 +204,7 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(func_mirror, CFuncMirror);
-LINK_ENTITY_TO_CLASS(func_detail_ext, CFuncWall); // TO-DO: is this needed?
+LINK_ENTITY_TO_CLASS(func_detail_ext, CFuncWall);
 
 void CFuncMirror::Spawn()
 {

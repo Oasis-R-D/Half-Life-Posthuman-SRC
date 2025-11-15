@@ -203,7 +203,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3));
 	}
-	else if (m_BloodType == NULL) // water drop TO-DO: see if we should do a puddle decal for this
+	else if (m_BloodType == NULL) // add decal?
 	{
 		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3));
 	}

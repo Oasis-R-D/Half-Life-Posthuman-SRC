@@ -126,7 +126,7 @@ void CM29::Holster()
 
 void CM29::SecondaryAttack()
 {
-	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0) // TO-DO: NON FUNCTIONAL
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
 
 	// don't fire underwater
@@ -358,7 +358,7 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 		MESSAGE_END();
 		ShootGrenade(m_pPlayer->m_iGrenadeType);
 		m_pPlayer->m_bInGrenadeDelay = false;
-		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon  grenade anims since this is for the animations
+		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon grenade anims since this is for the animations
 	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{

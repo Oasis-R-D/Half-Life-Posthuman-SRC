@@ -3792,7 +3792,7 @@ void CBasePlayer::FlashlightTurnOn()
 				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
-				pEntity->pev->renderfx = kRenderFxLightMultiplier; // TO-DO: fix stripping NPC render modes
+				pEntity->pev->renderfx = kRenderFxLightMultiplier; // TO-DO: fix stripping NPC render modes (verify if true)
 				pEntity->pev->rendercolor = Vector(128, 0, 0);
 			}
 			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
@@ -3833,7 +3833,7 @@ void CBasePlayer::FlashlightTurnOff()
 				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
-				pEntity->pev->renderfx = kRenderFxNone; // TO-DO: fix stripping NPC render modes
+				pEntity->pev->renderfx = kRenderFxNone; // TO-DO: fix stripping NPC render modes (verify if true)
 			}
 			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
 			{
@@ -4767,7 +4767,7 @@ void CBasePlayer::UpdateClientData()
 		}
 
 		// only send down damage type that have hud art
-		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD; // TO-DO: maybe add blast? (https://en.wikipedia.org/wiki/GHS_hazard_pictograms)
+		int visibleDamageBits = m_bitsDamageType & DMG_SHOWNHUD;
 
 		MESSAGE_BEGIN(MSG_ONE, gmsgDamage, NULL, pev);
 		WRITE_BYTE(pev->dmg_save);

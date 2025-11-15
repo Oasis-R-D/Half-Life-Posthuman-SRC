@@ -505,7 +505,7 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 	}
 
 	pev->deadflag = DEAD_DEAD;
-	::RadiusDamage(pev->origin, pev, pev, pev->dmg, 160, CLASS_NONE, DMG_NERVEGAS); // TO-DO: make bloater immune to nervegas
+	::RadiusDamage(pev->origin, pev, pev, pev->dmg, 160, CLASS_NONE, DMG_NERVEGAS);
 
 
 	UTIL_Remove(this);
