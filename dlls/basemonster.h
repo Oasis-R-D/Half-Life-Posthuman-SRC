@@ -98,6 +98,9 @@ public:
 	float m_flDistTooFar = 1024.0; // if enemy farther away than this, bits_COND_ENEMY_TOOFAR set in CheckEnemy
 	float m_flDistLook = 2048.0;	  // distance monster sees
 
+	float m_flMaxDistTooFar = 1024.0; // if enemy farther away than this, bits_COND_ENEMY_TOOFAR set in CheckEnemy
+	float m_flMaxDistLook = 2048.0;	  // distance monster sees
+
 	int m_iTriggerCondition;	 // for scripted AI, this is the condition that will cause the activation of the monster's TriggerTarget
 	string_t m_iszTriggerTarget; // name of target that should be fired.
 

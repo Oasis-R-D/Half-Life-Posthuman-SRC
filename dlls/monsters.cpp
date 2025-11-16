@@ -511,6 +511,18 @@ CSound* CBaseMonster::PBestScent()
 
 void CBaseMonster::Railed() //:troll:
 {
+	if (m_flMaxDistTooFar != m_flDistTooFar)
+	{
+		m_flDistTooFar += 25;
+		if (m_flDistTooFar > m_flMaxDistTooFar)
+			m_flDistTooFar = m_flMaxDistTooFar;
+	}
+	if (m_flMaxDistLook != m_flDistLook)
+	{
+		m_flDistLook += 25;
+		if (m_flDistLook > m_flMaxDistLook)
+			m_flDistLook = m_flMaxDistLook;
+	}
 	if (m_bRailed)
 	{
 		TraceResult tr;
@@ -2065,6 +2077,8 @@ void CBaseMonster::MonsterInit()
 	}
 
 	// Set fields common to all monsters
+	m_flMaxDistTooFar = m_flDistTooFar;
+	m_flMaxDistLook = m_flDistLook;
 	pev->effects = 0;
 	pev->takedamage = DAMAGE_AIM;
 	pev->ideal_yaw = pev->angles.y;
