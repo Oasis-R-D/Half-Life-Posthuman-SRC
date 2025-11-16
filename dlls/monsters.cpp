@@ -513,13 +513,13 @@ void CBaseMonster::Railed() //:troll:
 {
 	if (m_flMaxDistTooFar != m_flDistTooFar)
 	{
-		m_flDistTooFar += 16;
+		m_flDistTooFar += 2;
 		if (m_flDistTooFar > m_flMaxDistTooFar)
 			m_flDistTooFar = m_flMaxDistTooFar;
 	}
 	if (m_flMaxDistLook != m_flDistLook)
 	{
-		m_flDistLook += 16;
+		m_flDistLook += 2;
 		if (m_flDistLook > m_flMaxDistLook)
 			m_flDistLook = m_flMaxDistLook;
 	}
