@@ -239,7 +239,7 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 		}
 
 		pev->velocity = vecJumpDir;
-		m_flNextAttack = gpGlobals->time + 2;
+		m_flNextAttack = gpGlobals->time + 1.75;
 	}
 	break;
 

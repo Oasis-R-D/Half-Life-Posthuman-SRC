@@ -475,26 +475,29 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			if (pMonster != nullptr)
 			{
 				UTIL_TraceLine(origin, pMonster->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
-				if (sightline.flFraction == 1.0)
-				{
-					ALERT(at_console, "attempt stun\n");
-					pMonster->TaskComplete();
-					pMonster->ClearSchedule();
-					pMonster->m_hEnemy = NULL;
-					pMonster->m_movementGoal = MOVEGOAL_NONE;
-					pMonster->m_Activity = ACT_COWER;
-					pMonster->m_IdealMonsterState = MONSTERSTATE_IDLE;
-					pMonster->SetActivity(ACT_COWER);
-					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
-					pMonster->SetConditions(bits_COND_TASK_FAILED | bits_COND_LIGHT_DAMAGE);
-					
-					pMonster->TakeDamage(pev, pev, 5, DMG_SONIC);
-					pMonster->pev->nextthink = gpGlobals->time;
-					if (pMonster->pev->health > 0)
-						pMonster->pev->nextthink = gpGlobals->time + 4.5;
-				}
+				pMonster->TaskComplete();
+				pMonster->ClearSchedule();
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND);
 				pMonster->Forget(bits_MEMORY_INCOVER);
+				pMonster->m_hEnemy = NULL;
+				pMonster->m_movementGoal = MOVEGOAL_NONE;
+				
+				if (sightline.flFraction == 1.0)
+				{
+					Task_t* pTask;
+					pTask->iTask = TASK_FIND_COVER_FROM_ORIGIN;
+					pTask->flData = 3.75f;
+					pMonster->StartTask(pTask);
+					pMonster->m_flDistLook = 32;
+					pMonster->m_flDistTooFar = 128; // TO-DO: make this reset after a bit
+					pMonster->m_flNextAttack = 1.0f;
+					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
+
+					pMonster->pev->nextthink = gpGlobals->time;
+					if (pMonster->pev->health > 0)
+						pMonster->pev->nextthink = gpGlobals->time + 0.25f;
+				}
+				pMonster->SetConditions(bits_COND_LIGHT_DAMAGE);
 			}
 		}
 		if (pEntity->IsPlayer())
@@ -509,10 +512,17 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					UTIL_MakeVectors(pPlayer->pev->v_angle);
 					float dp = DotProduct(Grennormal, -gpGlobals->v_forward);
 					Vector Color = (g_iSkillLevel == SKILL_HARD) ? Vector(255, 255, 255) : Vector(128, 128, 128);
-					if (dp < 0)	
+					if (dp < 0)
+					{
 						UTIL_ScreenFade(pPlayer, Color, 2, 1, 255, FFADE_IN);
+						pPlayer->TakeDamage(pev, pev, 2, DMG_SONIC);
+					}
 					else
+					{
 						UTIL_ScreenFade(pPlayer, Color, 1, 0, 255, FFADE_IN);
+						pPlayer->TakeDamage(pev, pev, 1, DMG_SONIC);
+					}
+					
 				}
 			}
 		}
