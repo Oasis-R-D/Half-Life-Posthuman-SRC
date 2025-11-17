@@ -36,9 +36,8 @@
 */
 
 // UNDONE: Save/restore this?
-//
+
 // OVERLOADS SOME ENTVARS:
-//
 // speed - the ideal magnitude of my velocity
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
