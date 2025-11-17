@@ -32,7 +32,7 @@
 * 12G MV: 5750 // REALISM: 14.4-19.2k
 * 44M MV: 6000 // REALISM: 14.4-21.6k
 * NOTE: The game MOST DEFINITELY cannot handle realistic muzzle velocities. // TO-DO: Verify ^
-*
+* NOTE: Realism values calculated by multiplying FPS by 12 (IPS) (assuming Inches = HU)
 */
 
 // UNDONE: Save/restore this?
