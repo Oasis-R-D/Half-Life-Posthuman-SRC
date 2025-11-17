@@ -26,11 +26,13 @@
 #ifndef CLIENT_DLL
 
 /*
-* 9MM MV: 6000
-* 556 MV: 7000
-* 357 MV: 7500
-* 12G MV: 5750
-* 
+* 9MM MV: 6000 // REALISM: 10.0-15.0k
+* 556 MV: 7000 // REALISM: 32.4-39.6k
+* 357 MV: 7500 // REALISM: 14.4-18.0k
+* 12G MV: 5750 // REALISM: 14.4-19.2k
+* 44M MV: 6000 // REALISM: 14.4-21.6k
+* NOTE: The game MOST DEFINITELY cannot handle realistic muzzle velocities. // TO-DO: Verify ^
+*
 */
 
 // UNDONE: Save/restore this?
@@ -92,6 +94,8 @@ void CPhysbullet::Spawn()
 
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
+
+	// make a switch?
 	if (m_Flare == 556) // probably 556
 	{
 		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");

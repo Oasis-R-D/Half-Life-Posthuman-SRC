@@ -26,7 +26,7 @@
 #include "hgrunt.h" //.h...grunt file :D
 #ifndef CLIENT_DLL
 
-// UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
+// UNDONE: Save/restore this?
 
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
