@@ -10,10 +10,6 @@
 #include "UserMessages.h"
 
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
-//
-// OVERLOADS SOME ENTVARS:
-//
-// speed - the ideal magnitude of my velocity
 #ifndef CLIENT_DLL
 class CPhysblood : public CBaseEntity
 {

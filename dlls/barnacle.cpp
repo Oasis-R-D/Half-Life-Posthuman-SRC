@@ -22,7 +22,7 @@
 #include "cbase.h"
 #include "monsters.h"
 #include "schedule.h"
-
+#include "blooddrops.h"
 #define BARNACLE_BODY_HEIGHT 44 // how 'tall' the barnacle's model is.
 #define BARNACLE_PULL_SPEED 8
 #define BARNACLE_KILL_VICTIM_DELAY 5 // how many seconds after pulling prey in to gib them.
@@ -381,7 +381,7 @@ void CBarnacle::WaitTillDead()
 
 	float flInterval = StudioFrameAdvance(0.1);
 	DispatchAnimEvents(flInterval);
-
+	// To-do: add blood drops
 	if (m_fSequenceFinished)
 	{
 		// death anim finished.
