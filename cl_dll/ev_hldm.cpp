@@ -774,6 +774,7 @@ void EV_FirePython(event_args_t* args)
 //	    PHYTON END
 //	     ( .357 )
 //======================
+
 //======================
 //	    M29 START
 //	    
@@ -784,7 +785,7 @@ void EV_FireM29(event_args_t* args)
 	Vector origin;
 	Vector angles;
 	Vector velocity;
-	int M29numb = args->iparam1;
+	int M29numb = args->iparam1; // 0 for R || 1 for L
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
@@ -798,11 +799,10 @@ void EV_FireM29(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		// Add muzzle flash to current weapon model
-		EV_MuzzleFlash();
+		EV_MuzzleFlash(M29numb);
 		EV_WeaponAnimation(PYTHON_FIRE1, 0, M29numb);
 	}
 
-	//switch (gEngfuncs.pfnRandomLong(0, 1)) // should this be per weapon?
 	switch (M29numb)
 	{
 	case 0:
@@ -1136,7 +1136,7 @@ void EV_FireGauss(event_args_t* args)
 //======================
 int g_iSwing;
 
-//Only predict the miss sounds, hit sounds are still played
+//Only predicts the miss sounds, hit sounds are still played
 //server side, so players don't get the wrong idea.
 void EV_Crowbar(event_args_t* args)
 {
@@ -1273,7 +1273,7 @@ void EV_FireCrossbow2(event_args_t* args)
 	EV_PopPMStates();
 }
 
-//TODO: Fully predict the fliying bolt.
+//TODO: Fully predict the flying bolt.
 void EV_FireCrossbow(event_args_t* args)
 {
 	int idx;

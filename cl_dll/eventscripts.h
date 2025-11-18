@@ -18,5 +18,5 @@ bool EV_IsPlayer(int idx);
 void EV_CreateTracer(float* start, float* end);
 
 struct cl_entity_s* GetEntity(int idx);
-struct cl_entity_s* GetViewEntity();
-void EV_MuzzleFlash();
+struct cl_entity_s* GetViewEntity(bool altvm = false);
+void EV_MuzzleFlash(bool altvm = false);

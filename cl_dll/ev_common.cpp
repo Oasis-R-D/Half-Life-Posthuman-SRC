@@ -45,7 +45,7 @@ GetViewEntity
 Return's the current weapon/view model
 =================
 */
-struct cl_entity_s* GetViewEntity()
+struct cl_entity_s* GetViewEntity(bool altvm) // TO-DO: make return secondary VM when true
 {
 	return gEngfuncs.GetViewModel();
 }
@@ -187,10 +187,10 @@ EV_MuzzleFlash
 Flag weapon/view model for muzzle flash
 =================
 */
-void EV_MuzzleFlash()
+void EV_MuzzleFlash(bool altvm)
 {
 	// Add muzzle flash to current weapon model
-	cl_entity_t* ent = GetViewEntity();
+	cl_entity_t* ent = GetViewEntity(altvm);
 	if (!ent)
 	{
 		return;
