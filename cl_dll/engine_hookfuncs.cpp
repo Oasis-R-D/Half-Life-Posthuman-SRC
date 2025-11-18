@@ -521,8 +521,9 @@ FuncHook(R_SparkStreaks, void, float* pos, int count, int velocityMin, int veloc
 
 FuncHook(R_BulletImpactParticles, void, float* pos)
 {
+	// global: needs angle and material type
 	Hooked_R_SparkStreaks(pos, 2, -200, 200);
-	// can't really use this without the angle. would also benefit from changing color based on the texture hit's color
+	
 	//gParticleEngine.CreateCluster("concrete_impact_cluster.txt", pos, Vector(0, 0, 0), 0);
 	
 	gParticleEngine.CreateSystem_File(particle_bulletimpact, pos, Vector(0, 0, 0), 0);
