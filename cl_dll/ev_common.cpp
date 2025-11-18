@@ -192,7 +192,7 @@ Flag weapon/view model for muzzle flash
 void EV_MuzzleFlash(bool altvm)
 {
 	// Add muzzle flash to current weapon model
-	cl_entity_t* ent = engine_cl->viewent;
+	cl_entity_t ent = engine_cl->viewent;
 	if (!ent)
 	{
 		return;
