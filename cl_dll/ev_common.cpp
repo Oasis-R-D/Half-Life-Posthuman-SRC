@@ -47,7 +47,7 @@ Return's the current weapon/view model
 */
 struct cl_entity_s* GetViewEntity(bool altvm) // TO-DO: make return secondary VM when true
 {
-	return gEngfuncs.GetViewModel();
+	return engine_cl->viewent; // replaced engine func get VM with viewent
 }
 
 /*
