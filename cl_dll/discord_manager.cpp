@@ -50,27 +50,42 @@ void DiscordMan_Startup(void)
 
 void DiscordMan_Update(void)
 {
-	char curArea[64];	// If the CVar is empty, use the map file name
+	char curArea[64]; // If the CVar is empty, use the map file name
 	snprintf(curArea, sizeof(curArea) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_chapter"), "", sizeof(curArea)) ? gEngfuncs.pfnGetCvarString("rpc_chapter") : gEngfuncs.pfnGetLevelName());
-	char curImage[16];	// If the CVar is empty, use the default logo
+	char curImage[16]; // If the CVar is empty, use the default logo
 	snprintf(curImage, sizeof(curImage) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_image"), "", sizeof(curImage)) ? gEngfuncs.pfnGetCvarString("rpc_image") : defaultLogo);
 
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 	const char* skilllevel;
+	const char* map = curArea;
 	switch (skill)
 	{
-		default:
-		case 1:
-			skilllevel = "Easy Mode";
-			break;
-		case 2:
-			skilllevel = "Hard Mode";
-			break;
-		case 3:
-			skilllevel = "Realism Mode";
-			break;
+	default:
+		skilllevel = "In Menus";
+	case 1:
+		skilllevel = "Easy Mode";
+		break;
+	case 2:
+		skilllevel = "Hard Mode";
+		break;
+	case 3:
+		skilllevel = "Realism Mode";
+		break;
 	}
-	discordPresence.details = curArea;	// Chapter name doesn't matter; if it's blank, Discord shows map name
+	if (engine_cl->paused)
+	{
+		skilllevel = "In Menus";
+	}
+	if (engine_cl->intermission)
+	{
+		skilllevel = "Intermission";
+	}
+	if (engine_cls->state == ca_disconnected)
+	{
+		map = 0;
+		skilllevel = "In Main Menus";
+	}
+	discordPresence.details = map;	// Chapter name doesn't matter; if it's blank, Discord shows map name
 	discordPresence.state = skilllevel;
 	discordPresence.largeImageKey = curImage;
     discordPresence.largeImageText = "Post-Human";
