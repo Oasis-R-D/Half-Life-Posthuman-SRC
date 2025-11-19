@@ -604,7 +604,7 @@ void ChgruntRobo::Shoot()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_5DEGREES, 2048, BULLET_MONSTER_MP5, 2, 1); // shoot +-2.5 degrees
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, 1, 3000, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_5DEGREES, 0.7, 69, edict());
+	CPhysbullet::BulletCreate(1, 2, 4000, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_5DEGREES, 0.9, 69, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -633,7 +633,7 @@ void ChgruntRobo::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1, 1); // shoot +-5 degrees
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(9, 1, 2800, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 0.8, 12, edict());
+	CPhysbullet::BulletCreate(3, 2, 3500, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 0.9, 69, edict());
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
 
