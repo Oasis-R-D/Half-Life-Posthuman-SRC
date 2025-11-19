@@ -192,12 +192,12 @@ Flag weapon/view model for muzzle flash
 void EV_MuzzleFlash(bool altvm)
 {
 	// Add muzzle flash to current weapon model
-	auto pieceofpoopoo = engine_cl.viewent;
-	if (!pieceofpoopoo)
+	cl_entity_t* ent = GetViewEntity(altvm);
+	if (!ent)
 	{
 		return;
 	}
 
 	// Or in the muzzle flash
-	pieceofpoopoo->curstate.effects |= EF_MUZZLEFLASH;
+	ent->curstate.effects |= EF_MUZZLEFLASH;
 }
