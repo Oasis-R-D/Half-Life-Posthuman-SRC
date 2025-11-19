@@ -183,6 +183,7 @@ public:
 	bool m_fLongJump;	   // does this player have the longjump module?
 	bool m_bNoSprint;
 	bool m_bLightOn;
+	int m_iWeaponStatus;
 
 	float m_tSneaking;
 	float m_fRadImmuneTime;

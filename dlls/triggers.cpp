@@ -3243,3 +3243,66 @@ bool CTriggerPreHuman::KeyValue(KeyValueData* pkvd)
 	}
 	return CPointEntity::KeyValue(pkvd);
 }
+
+class CTriggerWeapons : public CPointEntity
+{
+public:
+	void Spawn() override;
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	bool Training;
+	int usetype;
+};
+LINK_ENTITY_TO_CLASS(trigger_plyrwpns, CTriggerWeapons);
+
+void CTriggerWeapons::Spawn()
+{
+}
+
+void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	edict_t* pentTarget = NULL;
+
+	switch (usetype)
+	{
+		case 0:
+			if (pCaller->IsPlayer)
+			{
+				auto player = (CBasePlayer*)pTarget;
+				player->m_iWeaponStatus = Training;
+			}
+			break;
+		case 1:
+
+			for (;;)
+			{
+				pentTarget = FIND_ENTITY_BY_CLASSNAME(pentTarget, "player");
+				if (FNullEnt(pentTarget))
+					break;
+
+				CBaseEntity* pTarget = CBaseEntity::Instance(pentTarget);
+				if (pTarget)
+				{
+					auto player = (CBasePlayer*)pTarget;
+					ALERT(at_aiconsole, "Found: %s, training (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
+					player->m_iWeaponStatus = Training;
+				}
+			}
+			break;
+	}
+}
+
+bool CTriggerWeapons::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "Status"))
+	{
+		Training = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "Type"))
+	{
+		usetype = atoi(pkvd->szValue);
+		return true;
+	}
+	return CPointEntity::KeyValue(pkvd);
+}
