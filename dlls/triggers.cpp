@@ -3266,9 +3266,9 @@ void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 	switch (usetype)
 	{
 		case 0:
-			if (pCaller->IsPlayer)
+			if (pCaller->IsPlayer())
 			{
-				auto player = (CBasePlayer*)pTarget;
+				auto player = (CBasePlayer*)pCaller;
 				player->m_iWeaponStatus = Training;
 			}
 			break;
