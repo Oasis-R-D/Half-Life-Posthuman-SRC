@@ -183,7 +183,7 @@ public:
 	bool m_fLongJump;	   // does this player have the longjump module?
 	bool m_bNoSprint;
 	bool m_bLightOn;
-	int m_iWeaponStatus = 0; // Bullet or rubber bullet or prehuman or prehuman and rubber
+	int m_iWeaponStatus; // Bullet or rubber bullet or prehuman or prehuman and rubber
 
 	float m_tSneaking;
 	float m_fRadImmuneTime;
