@@ -880,7 +880,8 @@ void CBasePlayer::PackDeadPlayerItems()
 
 	pWeaponBox->pev->angles.x = 0; // don't let weaponbox tilt.
 	pWeaponBox->pev->angles.z = 0;
-
+	pWeaponBox->m_iStoredGrenades = m_iGrenadeAmnt;
+	
 	pWeaponBox->SetThink(&CWeaponBox::Kill);
 	pWeaponBox->pev->nextthink = gpGlobals->time + 120;
 

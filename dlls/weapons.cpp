@@ -824,7 +824,7 @@ void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz, bool patterned)
 
 	if (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25)
 	{
-		m_pPlayer->pev->punchangle.x -= 0.8;
+		m_pPlayer->pev->punchangle.x -= 0.75;
 	}
 
 	if (m_pPlayer->health_armL < 100 && RANDOM_LONG(0, m_pPlayer->health_armL) / m_pPlayer->health_armL > 0.1)
@@ -1114,6 +1114,7 @@ TYPEDESCRIPTION CWeaponBox::m_SaveData[] =
 		DEFINE_ARRAY(CWeaponBox, m_rgiszAmmo, FIELD_STRING, MAX_AMMO_SLOTS),
 		DEFINE_ARRAY(CWeaponBox, m_rgpPlayerItems, FIELD_CLASSPTR, MAX_ITEM_TYPES),
 		DEFINE_FIELD(CWeaponBox, m_cAmmoTypes, FIELD_INTEGER),
+		DEFINE_FIELD(CWeaponBox, m_iStoredGrenades, FIELD_INTEGER),
 };
 
 IMPLEMENT_SAVERESTORE(CWeaponBox, CBaseEntity);
@@ -1210,6 +1211,12 @@ void CWeaponBox::Touch(CBaseEntity* pOther)
 	}
 
 	CBasePlayer* pPlayer = (CBasePlayer*)pOther;
+
+	if (pPlayer->m_iGrenadeAmnt < m_iStoredGrenades)
+	{
+		pPlayer->m_iGrenadeAmnt = m_iStoredGrenades;
+	}
+	
 	int i;
 
 	// dole out ammo

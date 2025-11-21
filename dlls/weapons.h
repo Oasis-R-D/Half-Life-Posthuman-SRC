@@ -535,6 +535,7 @@ public:
 	int m_rgiszAmmo[MAX_AMMO_SLOTS]; // ammo names
 	int m_rgAmmo[MAX_AMMO_SLOTS];	 // ammo quantities
 
+	int m_iStoredGrenades;
 	int m_cAmmoTypes; // how many ammo types packed into this box (if packed by a level designer)
 };
 
