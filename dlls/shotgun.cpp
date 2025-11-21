@@ -148,13 +148,20 @@ void CShotgun::PrimaryAttack()
 	float spreadvert = pev->armorvalue == 0 ? CONE_5DEGREES : 0.01746;
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+		}
+		else
+		{
+			CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
+		}
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); //1.5 degree spread
+		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	if (pev->armorvalue == 0)
@@ -234,7 +241,14 @@ void CShotgun::SecondaryAttack()
 	float spreadvert = pev->armorvalue == 0 ? CONE_15DEGREES : 0.02;
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
+	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
+	{
+		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, spread - CONE_3DEGREES, spreadvert - CONE_10DEGREES, 1, 69, m_pPlayer->edict());
+	}
 	#endif
 	
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, Vector(0.25, 0.02, 0.25), 2048, BULLET_PLAYER_BUCKSHOT, 1);
