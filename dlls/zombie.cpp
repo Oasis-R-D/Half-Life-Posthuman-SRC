@@ -66,7 +66,7 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 	{
-		if (ptr->iHitgroup == HITGROUP_HEAD)
+		if (ptr->iHitgroup == HITGROUP_HEAD || RANDOM_LONG(0, 2) == 1)
 		{
 			pev->armortype = 1;
 			m_bloodColor = BLOOD_COLOR_YELLOW;
