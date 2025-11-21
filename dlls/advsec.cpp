@@ -32,6 +32,8 @@
 #include "effects.h"
 #include "customentity.h"
 #include "physical_bullet.h"
+#include "railcannon_bolt.h"
+
 int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
 
 //=========================================================

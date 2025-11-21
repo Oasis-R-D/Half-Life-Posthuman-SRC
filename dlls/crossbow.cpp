@@ -21,6 +21,7 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
+#include "railcannon_bolt.h"
 
 #define BOLT_AIR_VELOCITY 4500
 #define BOLT_WATER_VELOCITY 1000

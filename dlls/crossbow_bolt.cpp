@@ -1,3 +1,18 @@
+/***
+*
+*	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
+*	
+*	This product contains software technology licensed from Id 
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*	All Rights Reserved.
+*
+*   Use, distribution, and modification of this source code and/or resulting
+*   object code is restricted to non-commercial enhancements to products from
+*   Valve LLC.  All other use, distribution, or modification is prohibited
+*   without written permission from Valve LLC.
+*
+****/
+
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -6,25 +21,13 @@
 #include "player.h"
 #include "gamerules.h"
 #include "UserMessages.h"
-// UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
-//
-// OVERLOADS SOME ENTVARS:
-//
-// speed - the ideal magnitude of my velocity
-class CCrossbowBolt : public CBaseEntity
-{
-	void Spawn() override;
-	void Precache() override;
-	int Classify() override;
-	void EXPORT BubbleThink();
-	void EXPORT BoltTouch(CBaseEntity* pOther);
-	void EXPORT ExplodeThink();
-	void Stay();
-	int m_iTrail;
+#include "railcannon_bolt.h"
 
-public:
-	static CCrossbowBolt* BoltCreate(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner);
-};
+// UNDONE: Save/restore this?  Don't forget to set classname
+
+// OVERLOADS SOME ENTVARS:
+// speed - the ideal magnitude of my velocity
+
 LINK_ENTITY_TO_CLASS(crossbow_bolt, CCrossbowBolt);
 
 CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner)
