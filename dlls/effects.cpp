@@ -2972,14 +2972,14 @@ class CEnvBarrel : public CGrenade
 		{
 			TraceResult tr;
 			UTIL_TraceLine(pev->origin, pev->velocity, dont_ignore_monsters, edict(), &tr);
-			Explode(&tr, DMG_BLAST);
+			ExplodeHE(&tr, DMG_BLAST);
 		}
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{
 		TraceResult tr;
 		UTIL_TraceLine(pev->origin, pev->origin - Vector(0, 0, 16), dont_ignore_monsters, edict(), &tr);
-		Explode(&tr, DMG_BLAST);
+		ExplodeHE(&tr, DMG_BLAST);
 	}
 };
 LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);

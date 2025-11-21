@@ -252,7 +252,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			if (i > m_distpenetrate)
 				break;
 		}
-		if (0 == beam_tr2.fAllSolid) // Raymarch found da way
+		if (0 == beam_tr2.fAllSolid) // Raymarch found da way // BUGBUG!! the while loop just skips and returns 1 if the player is far from the end point
 		{
 			ALERT(at_console, "est wall depth %i\n", i);
 
@@ -287,15 +287,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// Damage
 				ClearMultiDamage();
 				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				// exit wound
-				//pOther->TraceAttack(owner->pev, m_BulletDamage/2, pev->velocity.Normalize(), &beam_tr, DMG_BULLET | DMG_NEVERGIB);
-				int blood = pOther->BloodColor();
-				if (blood != DONT_BLEED)
+				
+				if (pOther->BloodColor() != DONT_BLEED)
 				{
 					int BLDAMNT;
 					Vector vecOrigin = beam_tr.vecEndPos - (-m_direction) * 4;
 					BLDAMNT = round(m_BulletDamage / 2);
-					SpawnBlood(vecOrigin, blood, m_BulletDamage/2); // a little surface blood.
+					SpawnBlood(vecOrigin, pOther->BloodColor(), m_BulletDamage/2); // a little surface blood.
 					TraceBleed(m_BulletDamage/2, -m_direction, &beam_tr, DMG_BULLET);
 
 				}

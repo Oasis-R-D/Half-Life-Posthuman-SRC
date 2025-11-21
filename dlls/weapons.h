@@ -50,7 +50,6 @@ public:
 	static void UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code);
 
 	void Explode(Vector vecSrc, Vector vecAim);
-	void Explode(TraceResult* pTrace, int bitsDamageType);
 	void ExplodeHE(TraceResult* pTrace, int bitsDamageType);
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void Precache();

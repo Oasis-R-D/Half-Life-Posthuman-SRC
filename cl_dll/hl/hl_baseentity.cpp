@@ -86,7 +86,8 @@ void CBaseToggle::SentenceStop() {}
 // CGrenade Stubs
 void CGrenade::BounceSound() {}
 void CGrenade::Explode(Vector, Vector) {}
-void CGrenade::Explode(TraceResult*, int) {}
+void CGrenade::ExplodeHE(TraceResult*, int) {}
+void CGrenade::ExplodeFlash(TraceResult*, int) {}
 void CGrenade::Killed(entvars_t*, int) {}
 void CGrenade::Spawn() {}
 void CGrenade::Precache() {}

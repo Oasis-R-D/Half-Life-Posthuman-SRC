@@ -1849,9 +1849,6 @@ void EV_Particles(event_args_t* args)
 					gParticleEngine.CreateCluster("expl_he_cluster.txt", args->origin, args->origin, 0);
 					break;
 				case 2:
-					gParticleEngine.CreateCluster("expl_frag_cluster.txt", args->origin, args->origin, 0);
-					break;
-				case 3:
 					gParticleEngine.CreateCluster("expl_flash_cluster.txt", args->origin, args->origin, 0);
 					break;
 			}

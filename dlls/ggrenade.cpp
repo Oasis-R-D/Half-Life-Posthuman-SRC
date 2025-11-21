@@ -31,7 +31,6 @@
 
 
 #ifndef CLIENT_DLL
-#define SHRAPNELAMNT 36
 
 //===================HopWire grenade tripwires
 LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
@@ -180,7 +179,6 @@ void CGrenade::Precache()
 {
 	
 }
-
 //
 // Grenade Explode
 //
@@ -189,135 +187,11 @@ void CGrenade::Explode(Vector vecSrc, Vector vecAim)
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -32), ignore_monsters, ENT(pev), &tr);
 	if (m_iGrenType == 0)
-		Explode(&tr, DMG_BLAST);
-	else if (m_iGrenType == 4)
-		ExplodeHE(&tr, DMG_SONIC);
-}
-
-void CGrenade::Explode(TraceResult* pTrace, int bitsDamageType)
-{
-	float flRndSound; // sound randomizer
-
-	pev->model = iStringNull; //invisible
-	pev->solid = SOLID_NOT;	  // intangible
-
-	pev->takedamage = DAMAGE_NO;
-
-	// Pull out of the wall a bit
-	if (pTrace->flFraction != 1.0)
-	{
-		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 8);
-	}
-
-	int iContents = UTIL_PointContents(pev->origin);
-
-	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
-	WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
-	WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
-	WRITE_COORD(pev->origin.y);
-	WRITE_COORD(pev->origin.z);
-	if (iContents != CONTENTS_WATER)
-	{
-		WRITE_SHORT(g_sModelIndexFireball);
-	}
-	else
-	{
-		WRITE_SHORT(g_sModelIndexWExplosion);
-	}
-	WRITE_BYTE(0); // scale * 10
-	WRITE_BYTE(15);					   // framerate
-	WRITE_BYTE(TE_EXPLFLAG_NONE);
-
-	MESSAGE_END();
-	if (iContents != CONTENTS_WATER)
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
-	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
-	entvars_t* pevOwner;
-	if (pev->owner)
-		pevOwner = VARS(pev->owner);
-	else
-		pevOwner = NULL;
-
-	pev->owner = NULL; // can't traceline attack owner if this is set
-
-	// Counteract the + 1 in RadiusDamage.
-	Vector origin = pev->origin;
-	origin.z -= 1;
-
-	
-	int damage;
-	if (g_iSkillLevel != SKILL_HARD)
-		damage = 30;
-	else
-		damage = 35;
-
-	UTIL_MakeVectors(pTrace->vecPlaneNormal);
-	Vector Spread;
-	Spread.x = Spread.z = UTIL_DegreesToRadCone(360);
-	Spread.y = UTIL_DegreesToRadCone(30);
-
-	FireBullets(SHRAPNELAMNT, pev->origin, gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
-	FireBullets(SHRAPNELAMNT, pev->origin, -gpGlobals->v_forward, Spread, 1024, BULLET_MONSTER_727, 3, damage, pev);
-	::RadiusDamage(origin, pev, pevOwner, 100, 128, CLASS_NONE, bitsDamageType);
-
-	UTIL_DecalTrace(pTrace, RANDOM_LONG(DECAL_OFSCORCH1, DECAL_OFSCORCH3));
-
-	flRndSound = RANDOM_FLOAT(0, 1);
-
-	switch (RANDOM_LONG(0, 2))
-	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55, ATTN_NORM);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55, ATTN_NORM);
-		break;
-	}
-
-	pev->effects |= EF_NODRAW;
-	SetThink(&CGrenade::Smoke);
-	pev->velocity = g_vecZero;
-	pev->nextthink = gpGlobals->time + 0.3;
-
-	if (iContents != CONTENTS_WATER)
-	{
-		int sparkCount = RANDOM_LONG(0, 3);
-		for (int i = 0; i < sparkCount; i++)
-			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
-	}
-
-	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-	WRITE_BYTE(TE_BREAKMODEL);
-	// position
-	WRITE_COORD(pev->origin.x);
-	WRITE_COORD(pev->origin.y);
-	WRITE_COORD(pev->origin.z);
-	// size
-	WRITE_COORD(8);
-	WRITE_COORD(8);
-	WRITE_COORD(8);
-	// velocity
-	WRITE_COORD(pev->velocity.x);
-	WRITE_COORD(pev->velocity.y);
-	WRITE_COORD(pev->velocity.z);
-	WRITE_BYTE(50); // randomization
-	// Model
-	WRITE_SHORT(g_sModelIndexShrapnel); // model id#
-	// # of shards
-	WRITE_BYTE(pev->dmg / 10); // let client decide
-	// duration
-	WRITE_BYTE(30); // 3.0 seconds
-	WRITE_BYTE(BREAK_SMOKE); // flags
-	MESSAGE_END();
+		ExplodeHE(&tr, DMG_BLAST);
 }
 
 void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 {
-	float flRndSound; // sound randomizer
-
 	pev->model = iStringNull; //invisible
 	pev->solid = SOLID_NOT;	  // intangible
 
@@ -374,8 +248,6 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	{
 		UTIL_DecalTrace(pTrace, DECAL_SCORCH2);
 	}
-
-	flRndSound = RANDOM_FLOAT(0, 1);
 
 	switch (RANDOM_LONG(0, 2))
 	{
@@ -530,7 +402,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 
 	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/flashbang-1.wav", 1, ATTN_GUN);
 
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 3, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 2, 0, 0);
 
 	MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
 	WRITE_COORD(pev->origin.x);
@@ -594,10 +466,7 @@ void CGrenade::Detonate()
 	vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
 	
-	if (m_iGrenType == 0)
-		Explode(&tr, DMG_BLAST);
-	else if (m_iGrenType == 4)
-		ExplodeHE(&tr, DMG_SONIC);
+	ExplodeHE(&tr, DMG_BLAST);
 }
 
 void CGrenade::DetonateFlash()
@@ -812,7 +681,7 @@ void CGrenade::CallDetonate()
 {
 	switch (m_iGrenType)
 	{
-		case 0: // Frag
+		case 0: // H.E
 			SetThink(&CGrenade::Detonate);
 			break;
 		case 1: // Impact (shouldn't be called)
@@ -831,9 +700,6 @@ void CGrenade::CallDetonate()
 				SetThink(&CGrenade::Detonate);
 				
 			}
-			break;
-		case 4: // H.E
-			SetThink(&CGrenade::Detonate);
 			break;
 	}
 
@@ -985,7 +851,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 
 	switch (type)
 	{
-		case 0: // Frag
+		case 0: // High Explosive
 			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
@@ -1011,11 +877,6 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			pGrenade->wireamnt = 8;
 			pGrenade->nextwire = gpGlobals->time;
-			break;
-		case 4: // High Explosive
-			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
-			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
-			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 	}
 

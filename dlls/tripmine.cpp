@@ -347,7 +347,7 @@ void CTripmineGrenade::DelayDeathThink()
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 64, dont_ignore_monsters, ENT(pev), &tr);
 
-	Explode(&tr, DMG_BLAST);
+	ExplodeHE(&tr, DMG_BLAST);
 }
 #endif
 
