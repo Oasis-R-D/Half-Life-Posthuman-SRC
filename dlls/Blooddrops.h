@@ -33,7 +33,6 @@ private:
 	float m_Gravity;
 	bool m_isgib;
 	bool m_hashealed = false;
-	bool m_hasstained = false;
 	bool m_randomspeed = false;
 
 };

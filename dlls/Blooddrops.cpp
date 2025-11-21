@@ -222,70 +222,18 @@ void CPhysblood::AirThink()
 {
 	
 	pev->nextthink = gpGlobals->time + 0.05f;
-	CBaseEntity* pObject = NULL;
-	pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
-	if (pObject)
+	if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		if (m_BloodType == BLOOD_COLOR_CYAN && !pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true)
+		CBaseEntity* pObject = NULL;
+		pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
+		if (pObject)
 		{
-			ALERT(at_console, "attempt heal\n");
-			m_hashealed = true;
-			pObject->TakeHealth(2, DMG_GENERIC);
-		}
-		if (pObject->IsPlayer() && m_hasstained != true)
-		{
-			ALERT(at_console, "attempt stain\n");
-			int flags;
-			flags = 0;
-			m_hasstained = true;
-			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pObject);
-			if (player->m_pActiveItem != nullptr)
+			if (!pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true)
 			{
-				CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
-
-				if (m_BloodType == BLOOD_COLOR_RED)
-				{
-					// PLAYBACK_EVENT_FULL(flags, player->edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 1, 0, 0, 0);
-					weapon->m_stain = 1;
-				}
-				else if (m_BloodType == BLOOD_COLOR_YELLOW)
-				{
-					weapon->m_stain = 2;
-				}
-				else if (m_BloodType == BLOOD_COLOR_GREEN)
-				{
-					weapon->m_stain = 3;
-				}
-				else if (m_BloodType == BLOOD_COLOR_CYAN)
-				{
-					weapon->m_stain = 4;
-				}
-				else if (m_BloodType == NULL) // water
-				{
-					weapon->m_stain = 0;
-				}
-				else // corruption
-				{
-					// does nothing currently
-				}
+				ALERT(at_console, "attempt heal\n");
+				m_hashealed = true;
+				pObject->TakeHealth(2, DMG_GENERIC);
 			}
-			char dripsnd[256];
-			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-			EMIT_SOUND(player->edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
-		}
-		if (FClassnameIs(pObject->pev, "monster_human_grunt") && m_hasstained != true && m_BloodType == NULL)
-		{
-			m_hasstained = true;
-			ALERT(at_console, "pObject is now cleaned HECU\n");
-			CHGrunt* Hgrunt = dynamic_cast<CHGrunt*>(pObject); //Kinda pointless, should remove?
-			if (Hgrunt->pev->skin % 2 == 0)
-				Hgrunt->pev->skin = 0;
-			else
-				Hgrunt->pev->skin = 1;
-			Hgrunt->pev->armortype = 0;
-			char dripsnd[256];
-			sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-			EMIT_SOUND(Hgrunt->edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
 		}
 	}
 	if (pev->waterlevel == 0)

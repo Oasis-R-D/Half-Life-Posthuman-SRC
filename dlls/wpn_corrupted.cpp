@@ -82,8 +82,6 @@ void CCorruptedWPN::Precache()
 	PRECACHE_SOUND("weapons/pl_gun3.wav"); //handgun
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
-
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	m_silenceevent = PRECACHE_EVENT(1, "events/glocksilence.sc"); // bodygroup change event (repurposed from glock)
 	
 }
@@ -110,7 +108,7 @@ bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 bool CCorruptedWPN::Deploy()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0); // TO-DO: update random long with current skin amnts
+//	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0); // TO-DO: update random long with current skin amnts
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
 }
 
@@ -352,7 +350,7 @@ void CCorruptedWPN::ItemPostFrame()
 {
 	int iReloadAMNT;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_corrskin, 0, 0, 0); // repurposed for skin changing
+//	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_corrskin, 0, 0, 0); // repurposed for skin changing
 
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{	

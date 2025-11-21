@@ -1351,9 +1351,6 @@ void CBasePlayer::WaterMove()
 
 	if (pev->waterlevel == 3 && m_pActiveItem)
 	{
-		CBasePlayerWeapon* weapon = m_pActiveItem->GetWeaponPtr();
-		weapon->m_stain = 0;
-		//PLAYBACK_EVENT_FULL(0, edict(), m_stain, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
 		air = (int)(pev->air_finished - gpGlobals->time);
 		if (!RANDOM_LONG(0, 0x1f) && RANDOM_LONG(0, AIRTIME - 1) >= air)
 		{

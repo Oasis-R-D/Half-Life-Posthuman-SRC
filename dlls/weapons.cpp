@@ -415,7 +415,6 @@ TYPEDESCRIPTION CBasePlayerWeapon::m_SaveData[] =
 		DEFINE_FIELD(CBasePlayerWeapon, m_iSecondaryAmmoType, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayerWeapon, m_iClip, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayerWeapon, m_iDefaultAmmo, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayerWeapon, m_stain, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayerWeapon, NotFirstDraw, FIELD_BOOLEAN),
 };
 

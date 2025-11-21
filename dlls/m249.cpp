@@ -53,7 +53,6 @@ void CM249::Precache()
 	PRECACHE_SOUND("weapons/saw_fire1.wav");
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
 	PRECACHE_SOUND("weapons/saw_fire3.wav");
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	
 }
 
@@ -70,7 +69,6 @@ void CM249::Spawn()
 
 bool CM249::Deploy()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	m_pPlayer->pev->maxspeed = 192;
 	return DefaultDeploy("models/v_saw.mdl", "models/p_saw.mdl", M249_DRAW, "mp5");
 }
@@ -377,8 +375,3 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(ammo_556, CAmmo556);
-void CM249::ItemPostFrame()
-{
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
-	CBasePlayerWeapon::ItemPostFrame();
-}

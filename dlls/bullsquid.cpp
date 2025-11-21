@@ -178,13 +178,6 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 		{
 			pOther->TakeDamage(pev, pev, 15, DMG_ACID); //made damage lower to account for more projectiles
 		}
-		if (pOther->IsPlayer())
-		{
-			CBasePlayer* player = dynamic_cast<CBasePlayer*>(pOther);
-			CBasePlayerWeapon* weapon = player->m_pActiveItem->GetWeaponPtr();
-			weapon->m_stain = 3;
-			ALERT(at_console, "green gun\n");
-		}
 	}
 
 	SetThink(&CSquidSpit::SUB_Remove);

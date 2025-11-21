@@ -180,20 +180,22 @@ void CPhysbullet::Spawn()
 
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-
-	// TRAIL START
-	pev->nextthink = gpGlobals->time + 0.05f;
-	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
-	WRITE_BYTE(TE_BEAMFOLLOW);
-	WRITE_SHORT(entindex()); // entity
-	WRITE_SHORT(m_iTrail);	 // model
-	WRITE_BYTE(RANDOM_LONG(2, 3));	// life
-	WRITE_BYTE(1);			 // width
-	WRITE_BYTE(128);		 // r, g, b
-	WRITE_BYTE(128);		 // r, g, b
-	WRITE_BYTE(128);		 // r, g, b
-	WRITE_BYTE(RANDOM_LONG(60,80));	 // brightness
-	MESSAGE_END();
+	if (!g_pGameRules->IsMultiplayer())
+	{
+		// TRAIL START
+		pev->nextthink = gpGlobals->time + 0.05f;
+		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+		WRITE_BYTE(TE_BEAMFOLLOW);
+		WRITE_SHORT(entindex());		 // entity
+		WRITE_SHORT(m_iTrail);			 // model
+		WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
+		WRITE_BYTE(1);					 // width
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
+		MESSAGE_END();
+	}
 }
 
 

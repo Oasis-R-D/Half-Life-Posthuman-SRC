@@ -63,7 +63,6 @@ void CMP5::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
 	
 }
 
@@ -86,7 +85,6 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 
 bool CMP5::Deploy()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
@@ -351,7 +349,6 @@ void CMP5::WeaponIdle()
 }
 void CMP5::ItemPostFrame()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	CBasePlayerWeapon::ItemPostFrame();
 }
 void CMP5::ReloadSetAmmos()
@@ -550,8 +547,6 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/bay_hitbod2.wav");
 	PRECACHE_SOUND("weapons/bay_hitbod3.wav");
 	PRECACHE_SOUND("weapons/cbar_miss1.wav");
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
-	
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)
@@ -576,7 +571,6 @@ bool CM727::Deploy()
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(firemode ? 3 : 1);
 	MESSAGE_END();
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	if (NotFirstDraw)
 	{
 		if (pev->weapons == 0)
@@ -796,7 +790,6 @@ void CM727::WeaponIdle()
 
 void CM727::ItemPostFrame()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	CBasePlayerWeapon::ItemPostFrame();
 }
 

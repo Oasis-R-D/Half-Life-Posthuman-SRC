@@ -70,14 +70,11 @@ void CPython::Precache()
 	PRECACHE_SOUND("weapons/357_shot1.wav");
 	PRECACHE_SOUND("weapons/357_shot2.wav");
 	m_usFirePython = PRECACHE_EVENT(1, "events/python.sc");
-	m_stainevent = PRECACHE_EVENT(1, "events/bloodspray.sc");
-	
 }
 
 bool CPython::Deploy()
 {
 	m_bFirstShot = true;
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
@@ -273,7 +270,6 @@ void CPython::WeaponIdle()
 
 void CPython::ItemPostFrame()
 {
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_stain, 0, 0, 0);
 	CBasePlayerWeapon::ItemPostFrame();
 }
 
