@@ -1629,9 +1629,14 @@ void EV_SnarkFire(event_args_t* args)
 //======================
 void EV_VMstain(event_args_t* args)
 {
-	if (engine_cl->viewent.model != nullptr)
+	int idx;
+	idx = args->entindex;
+	if (EV_IsLocal(idx))
 	{
-		engine_cl->viewent.curstate.skin = args->iparam1;
+		if (engine_cl->viewent.model != nullptr)
+		{
+			engine_cl->viewent.curstate.skin = args->iparam1;
+		}
 	}
 }
 //======================
@@ -1643,8 +1648,13 @@ void EV_VMstain(event_args_t* args)
 //======================
 void EV_VMsilence(event_args_t* args)
 {
-	if (engine_cl->viewent.model != nullptr)
-		engine_cl->viewent.curstate.body = args->iparam1;
+	int idx;
+	idx = args->entindex;
+	if (EV_IsLocal(idx))
+		{
+			if (engine_cl->viewent.model != nullptr)
+				engine_cl->viewent.curstate.body = args->iparam1;
+		}
 }
 //======================
 //	   SILENCE END
@@ -1778,46 +1788,54 @@ void EV_Particles(event_args_t* args)
 {
 	Vector Origin;
 	Vector Dir;
+	int idx;
+	idx = args->entindex;
+
 	switch (args->iparam1)
 	{
 		case 0: // muzzle smoke
-			if (args->bparam1 != true)
+			if (EV_IsLocal(idx))
 			{
-				Origin = engine_cl->viewent.attachment[0];
-				Dir = args->origin;
-			}
-			else
-			{
-				Origin = args->origin;
-				Dir = args->angles;
-			}
-
-			switch (args->iparam2)
-			{
+				if (args->bparam1 != true)
+				{
+					Origin = engine_cl->viewent.attachment[0];
+					Dir = args->origin;
+				}
+				else
+				{
+					Origin = args->origin;
+					Dir = args->angles;
+				}
+				switch (args->iparam2)
+				{
 				default:
-				case 0: // Def muzzle smoke	
+				case 0: // Def muzzle smoke
+
 					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
 					break;
 				case 1: // shotgun?
-					//reserved for sg if we do change it
+					// reserved for sg if we do change it
 					break;
 				case 2: // Railcannon
 					gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0);
 					break;
+				}
 			}
 			break;
 		case 1: //SG sparks // Should this be a param2 thing for the def muzzle flash? // Should this be a cluster?
 			Origin = engine_cl->viewent.attachment[0];
-
-			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
-			if (args->bparam1 != true)
+			if (EV_IsLocal(idx))
 			{
-				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
-			}
-			else
-			{
-				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
-				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
+				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+				if (args->bparam1 != true)
+				{
+					gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+				}
+				else
+				{
+					gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
+					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
+				}
 			}
 			break;
 		case 2: //explosions

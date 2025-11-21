@@ -134,6 +134,7 @@ void CPhysbullet::Spawn()
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
 		m_distpenetrate = 2;
 		pev->rendermode = kRenderNormal;
+		pev->scale = 1;
 	}
 	else if (m_Flare == 420) // HC Deagle
 	{
@@ -272,7 +273,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					m_distpenetrate = 0;
 
 				ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-				ALERT(at_console, "penetrated: %d units + mult\n", p);
+				ALERT(at_console, "penetrated: %f units + mult\n", p);
 
 				// Damage reduction
 				m_BulletDamage -= round(0.125 * p);
