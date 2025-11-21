@@ -81,6 +81,9 @@
     <ClCompile Include="..\..\dlls\bloater.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\Blooddrops.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\dlls\bmodels.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
@@ -391,9 +394,6 @@
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\physical_bullet.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\Blooddrops.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\pitdrone.cpp">
@@ -730,6 +730,9 @@
     </ClInclude>
     <ClInclude Include="..\..\dlls\PS2suitcharger.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\railcannon_bolt.h">
+      <Filter>Header Files\dlls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\headercrab.h">
       <Filter>Header Files</Filter>

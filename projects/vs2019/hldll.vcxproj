@@ -316,6 +316,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\dlls\PS2healthcharger.h" />
     <ClInclude Include="..\..\dlls\PS2itemgeneric.h" />
     <ClInclude Include="..\..\dlls\PS2suitcharger.h" />
+    <ClInclude Include="..\..\dlls\railcannon_bolt.h" />
     <ClInclude Include="..\..\dlls\saverestore.h" />
     <ClInclude Include="..\..\dlls\schedule.h" />
     <ClInclude Include="..\..\dlls\scripted.h" />
