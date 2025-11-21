@@ -4511,64 +4511,66 @@ void CBasePlayer::UpdateClientData()
 {
 	if (HasSuit())
 	{
-		if (Hunger <= 0)
+		if (!g_pGameRules->IsMultiplayer())
 		{
-			if (HungerDamageTime < gpGlobals->time)
+			if (Hunger <= 0)
 			{
-				TakeDamage(pev, pev, 2, DMG_GENERIC | DMG_IGNOREARMOR);
+				if (HungerDamageTime < gpGlobals->time)
+				{
+					TakeDamage(pev, pev, 2, DMG_GENERIC | DMG_IGNOREARMOR);
 
-				HungerDamageTime = gpGlobals->time + 9;
+					HungerDamageTime = gpGlobals->time + 9;
+				}
 			}
-		}
-		else if (Hunger <= 10)
-		{
-			if (HungerDamageTime < gpGlobals->time)
+			else if (Hunger <= 10)
 			{
-				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
-				HungerDamageTime = gpGlobals->time + 9;
+				if (HungerDamageTime < gpGlobals->time)
+				{
+					TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
+					HungerDamageTime = gpGlobals->time + 9;
+				}
 			}
-		}
 
-		if (HungerTime < gpGlobals->time && Hunger > 0 && Hunger <= 100)
-		{
-			Hunger--;
-			HungerTime = gpGlobals->time + 9;
-			health_armR += RANDOM_LONG(0, 1);
-			health_armL += RANDOM_LONG(0, 1);
-			health_legL -= RANDOM_LONG(0, 1);
-			health_legR -= RANDOM_LONG(0, 1);
-			health_head -= RANDOM_LONG(0, 1);
-			health_chest -= RANDOM_LONG(0, 1);
-			health_stomach -= RANDOM_LONG(0, 1);
-			if (health_armR > 100)
-				health_armR = 100;
-			if (health_armL > 100)
-				health_armL = 100;
-			if (health_legL < 0)
-				health_legL = 0;
-			if (health_legR < 0)
-				health_legR = 0;
-			if (health_head < 0)
-				health_head = 0;
-			if (health_chest < 0)
-				health_chest = 0;
-			if (health_stomach < 0)
-				health_stomach = 0;
-			MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-			WRITE_BYTE(health_head);
-			WRITE_BYTE(health_chest);
-			WRITE_BYTE(health_stomach);
-			WRITE_BYTE(health_armL);
-			WRITE_BYTE(health_armR);
-			WRITE_BYTE(health_legL);
-			WRITE_BYTE(health_legR);
+			if (HungerTime < gpGlobals->time && Hunger > 0 && Hunger <= 100)
+			{
+				Hunger--;
+				HungerTime = gpGlobals->time + 9;
+				health_armR += RANDOM_LONG(0, 1);
+				health_armL += RANDOM_LONG(0, 1);
+				health_legL -= RANDOM_LONG(0, 1);
+				health_legR -= RANDOM_LONG(0, 1);
+				health_head -= RANDOM_LONG(0, 1);
+				health_chest -= RANDOM_LONG(0, 1);
+				health_stomach -= RANDOM_LONG(0, 1);
+				if (health_armR > 100)
+					health_armR = 100;
+				if (health_armL > 100)
+					health_armL = 100;
+				if (health_legL < 0)
+					health_legL = 0;
+				if (health_legR < 0)
+					health_legR = 0;
+				if (health_head < 0)
+					health_head = 0;
+				if (health_chest < 0)
+					health_chest = 0;
+				if (health_stomach < 0)
+					health_stomach = 0;
+				MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+				WRITE_BYTE(health_head);
+				WRITE_BYTE(health_chest);
+				WRITE_BYTE(health_stomach);
+				WRITE_BYTE(health_armL);
+				WRITE_BYTE(health_armR);
+				WRITE_BYTE(health_legL);
+				WRITE_BYTE(health_legR);
+				MESSAGE_END();
+			}
+
+			MESSAGE_BEGIN(MSG_ONE, gmsgHunger, NULL, pev);
+			WRITE_SHORT(Hunger);
 			MESSAGE_END();
 		}
-
-		MESSAGE_BEGIN(MSG_ONE, gmsgHunger, NULL, pev);
-		WRITE_SHORT(Hunger);
-		MESSAGE_END();
-
 		if (FlashlightIsOn() && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL;

@@ -290,7 +290,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				ClearMultiDamage();
 				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 				
-				if (pOther->BloodColor() != DONT_BLEED)
+				if (pOther->BloodColor() != DONT_BLEED && !g_pGameRules->IsMultiplayer())
 				{
 					int BLDAMNT;
 					Vector vecOrigin = beam_tr.vecEndPos - (-m_direction) * 4;

@@ -2605,7 +2605,7 @@ void CItemSoda::CanTouch(CBaseEntity* pOther)
 
 	auto player = (CBasePlayer*)pOther;
 
-	if (player->pev->health >= player->pev->max_health && player->Hunger >= 100)
+	if (player->pev->health >= player->pev->max_health)
 		return;
 
 	player->TakeHealth(1, DMG_GENERIC); // a bit of health.
