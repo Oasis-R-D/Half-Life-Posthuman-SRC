@@ -165,7 +165,7 @@ void CCrossbowBolt::ExplodeThink()
 	int iContents = UTIL_PointContents(pev->origin);
 	int iScale;
 
-	pev->dmg = 60;
+	pev->dmg = 30;
 	iScale = 10;
 
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -195,7 +195,7 @@ void CCrossbowBolt::ExplodeThink()
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
-	::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 128, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB);
+	::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB); // TO-DO: make full radius do full damage instead of falling off
 
 	UTIL_Remove(this);
 }
