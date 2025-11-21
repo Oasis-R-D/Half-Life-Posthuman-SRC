@@ -232,6 +232,7 @@ public:
 	//	void Think() override;
 	virtual void Jump();
 	virtual void Duck();
+	void Railed();
 	virtual void PreThink();
 	virtual void PostThink();
 	Vector GetGunPosition() override;

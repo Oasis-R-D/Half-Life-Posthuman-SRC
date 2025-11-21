@@ -2031,22 +2031,58 @@ void CBasePlayer::UpdateStatusBar()
 	}
 }
 
-
-
-
-
-
-
-
-
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
 #define MAX_CLIMB_SPEED 200		 // fastest vertical climbing speed possible
 #define CLIMB_SPEED_DEC 15		 // climbing deceleration rate
 #define CLIMB_PUNCH_X -7		 // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z 7			 // how far to 'punch' client Z axis when climbing
 
+void CBasePlayer::Railed() //:troll:
+{
+	if (m_bRailed)
+	{
+		TraceResult tr;
+		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
+		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
+		if (RANDOM_LONG(0, 2) == 1 && BloodColor() != DONT_BLEED)
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
+
+		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
+		{
+			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+			TakeDamage(nullptr, nullptr, 30, DMG_BLAST);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
+			
+			MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
+			WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
+			WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
+			WRITE_COORD(pev->origin.y);
+			WRITE_COORD(pev->origin.z);
+			WRITE_SHORT(g_sModelIndexFireball);
+			WRITE_BYTE(0); // scale * 10
+			WRITE_BYTE(15);					   // framerate
+			WRITE_BYTE(TE_EXPLFLAG_NONE);
+			MESSAGE_END();
+
+			m_flRailChargeTime = 0;
+			m_bRailed = false;
+		}
+	}
+}
+
 void CBasePlayer::PreThink()
 {
+	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
+
+	// Debounced button codes for pressed/released
+	// UNDONE: Do we need auto-repeat?
+	m_afButtonPressed = buttonsChanged & pev->button;	  // The changed ones still down are "pressed"
+	m_afButtonReleased = buttonsChanged & (~pev->button); // The ones not down are "released"
+
+	g_pGameRules->PlayerThink(this);
+	if (g_fGameOver)
+		return; // intermission or finale
+
 	if (m_bleedAMNT > 0)
 	{
 		if (m_bleedtime <= gpGlobals->time)
@@ -2063,17 +2099,7 @@ void CBasePlayer::PreThink()
 #endif
 		}
 	}
-	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
-
-	// Debounced button codes for pressed/released
-	// UNDONE: Do we need auto-repeat?
-	m_afButtonPressed = buttonsChanged & pev->button;	  // The changed ones still down are "pressed"
-	m_afButtonReleased = buttonsChanged & (~pev->button); // The ones not down are "released"
-
-	g_pGameRules->PlayerThink(this);
-	if (g_fGameOver)
-		return; // intermission or finale
-	
+	Railed();
 	UpdateShockEffect();
 
 	UTIL_MakeVectors(pev->v_angle); // is this still used?

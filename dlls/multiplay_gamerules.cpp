@@ -34,6 +34,7 @@
 #define ITEM_RESPAWN_TIME 30
 #define WEAPON_RESPAWN_TIME 20
 #define AMMO_RESPAWN_TIME 20
+#define WALK_SPEED 192
 
 CVoiceGameMgr g_VoiceGameMgr;
 
@@ -503,6 +504,17 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 	}
 
 	pPlayer->m_iAutoWepSwitch = originalAutoWepSwitch;
+
+	CVAR_SET_FLOAT("sv_maxspeed", WALK_SPEED * 2);
+	CVAR_SET_FLOAT("cl_anglespeedkey", 1);
+	CVAR_SET_FLOAT("cl_yawspeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_pitchspeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_upspeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_forwardspeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_backspeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_sidespeed", WALK_SPEED);
+	CVAR_SET_FLOAT("cl_movespeedkey", 2);
+	CVAR_SET_FLOAT("cl_lw", 0);
 }
 
 //=========================================================

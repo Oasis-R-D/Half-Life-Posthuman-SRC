@@ -31,14 +31,14 @@
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
 {
-	if (UTIL_ShouldShowBlood(BloodType) == true && !g_pGameRules->IsMultiplayer())
+	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
 		int i;
 		if (isgib == false && BLDamnt > 16)
 		{
 			BLDamnt = 16;
 		}
-		if (g_iSkillLevel == SKILL_HARD)
+		if (g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer())
 			BLDamnt /= 2;
 		for (i = 0; i < BLDamnt; i++) // Allows multishot
 		{
