@@ -136,11 +136,9 @@ void CCrossbow::FireBolt()
 	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 #ifndef CLIENT_DLL
-	auto pBolt = Create("crossbow_bolt", vecSrc, vecDir, m_pPlayer->edict());
-	pBolt->pev->origin = vecSrc;
-	pBolt->pev->angles = anglesAim;
-	pBolt->pev->owner = m_pPlayer->edict();
 
+	CCrossbowBolt* pBolt = CCrossbowBolt::BoltCreate(vecSrc, anglesAim, m_pPlayer); 
+	// Fixed the underwater firing because for some reason fixing some obscure bug in the base codebae messes with the gameplay too much smh
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		pBolt->pev->velocity = vecDir * BOLT_WATER_VELOCITY;

@@ -215,9 +215,9 @@ void CBasePlayerWeapon::ItemPostFrame()
 		m_pPlayer->TabulateAmmo();
 		PrimaryAttack();
 	}
-	else if ((m_pPlayer->pev->button & IN_RELOAD) != 0 && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+	else if ((m_pPlayer->pev->button & IN_RELOAD) != 0 && iMaxClip() != WEAPON_NOCLIP && !m_fInReload && m_iClip != iMaxClip())
 	{
-		// reload when reload is pressed, or if no buttons are down and weapon is empty.
+		// reload when reload key is pressed and the clip is not full.
 		Reload();
 	}
 	else if ((m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2)) == 0)
@@ -346,6 +346,11 @@ void CBasePlayer::SelectLastItem()
 		return;
 	}
 
+	auto weapon = m_pLastItem->GetWeaponPtr();
+
+	// don't switch if the weapon is out of ammo, otherwise it will break the animations.
+	if (weapon && !weapon->CanDeploy()) return;
+
 	ResetAutoaim();
 
 	// FIX, this needs to queue them up and delay
@@ -355,8 +360,6 @@ void CBasePlayer::SelectLastItem()
 	CBasePlayerItem* pTemp = m_pActiveItem;
 	m_pActiveItem = m_pLastItem;
 	m_pLastItem = pTemp;
-
-	auto weapon = m_pActiveItem->GetWeaponPtr();
 
 	if (weapon)
 	{

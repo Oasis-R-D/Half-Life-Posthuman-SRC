@@ -3343,7 +3343,7 @@ void CBasePlayer::Precache()
 	m_flgeigerRange = 1000;
 	m_igeigerRangePrev = 1000;
 
-	m_bitsDamageType = 0;
+	//m_bitsDamageType = 0; Commented out to fix time based damage resetting on reload
 	m_bitsHUDDamage = -1;
 
 	m_iClientBattery = -1;
@@ -3738,6 +3738,7 @@ static edict_t* GiveNamedItem_Common(entvars_t* pev, const char* pszName)
 		ALERT(at_console, "NULL Ent in GiveNamedItem!\n");
 		return nullptr;
 	}
+	VARS(pent)->effects |= EF_NODRAW;
 	VARS(pent)->origin = pev->origin;
 	pent->v.spawnflags |= SF_NORESPAWN;
 
