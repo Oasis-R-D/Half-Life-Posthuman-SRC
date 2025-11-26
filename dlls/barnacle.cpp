@@ -383,8 +383,8 @@ void CBarnacle::WaitTillDead()
 	DispatchAnimEvents(flInterval);
 
 #ifndef CLIENT_DLL
-	if (RANDOM_LONG(0, 1) == 1)
-		CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
+	if (RANDOM_LONG(0, 2) == 1)
+		CPhysblood::BloodCreate(RANDOM_LONG(1, 2), 0, pev->origin - (gpGlobals->v_up * 24) + (gpGlobals->v_right * RANDOM_FLOAT(-4, 4)) + (gpGlobals->v_forward * RANDOM_FLOAT(-4, 4)), VECTOR_CONE_20DEGREES, 0.5, BloodColor());
 #endif
 	if (m_fSequenceFinished)
 	{
