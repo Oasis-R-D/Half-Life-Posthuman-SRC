@@ -221,8 +221,8 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(0); // scale * 10
 	WRITE_BYTE(15);					   // framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
-
 	MESSAGE_END();
+
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);

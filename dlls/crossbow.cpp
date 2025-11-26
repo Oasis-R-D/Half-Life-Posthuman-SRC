@@ -75,9 +75,7 @@ bool CCrossbow::GetItemInfo(ItemInfo* p)
 
 bool CCrossbow::Deploy()
 {
-	if (0 != m_iClip)
-		return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW1, "bow");
-	return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW2, "bow");
+	return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW1, "bow");
 }
 
 void CCrossbow::Holster()
@@ -90,10 +88,7 @@ void CCrossbow::Holster()
 	}
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-	if (0 != m_iClip)
-		SendWeaponAnim(CROSSBOW_HOLSTER1);
-	else
-		SendWeaponAnim(CROSSBOW_HOLSTER2);
+	SendWeaponAnim(CROSSBOW_HOLSTER1);
 }
 
 void CCrossbow::PrimaryAttack()
@@ -230,11 +225,6 @@ void CCrossbow::WeaponIdle()
 			}
 		}
 	}
-}
-
-void CCrossbow::ItemPostFrame()
-{
-	CBasePlayerWeapon::ItemPostFrame();
 }
 
 class CCrossbowAmmo : public CBasePlayerAmmo

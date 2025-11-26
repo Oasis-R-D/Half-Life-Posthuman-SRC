@@ -19,6 +19,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "player.h"
+#include "decals.h"
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "railcannon_bolt.h"
@@ -193,8 +194,8 @@ void CCrossbowBolt::ExplodeThink()
 	{
 		WRITE_SHORT(g_sModelIndexWExplosion);
 	}
-	WRITE_BYTE(iScale); // scale * 10
-	WRITE_BYTE(15);		// framerate
+	WRITE_BYTE(0); // scale * 10
+	WRITE_BYTE(15);// framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
 	MESSAGE_END();
 
@@ -208,6 +209,11 @@ void CCrossbowBolt::ExplodeThink()
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
 	::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB); // TO-DO: make full radius do full damage instead of falling off
+	
+	TraceResult tr = UTIL_GetGlobalTrace();
+	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
+
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 
 	UTIL_Remove(this);
 }
