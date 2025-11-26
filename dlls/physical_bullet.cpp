@@ -373,10 +373,9 @@ void CPhysbullet::AirThink()
 	{
 		while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 		{
-			CBaseEntity* m_pPlyr = m_ent;
-			if (m_pPlyr->IsPlayer())
+			if (m_ent->IsPlayer())
 			{
-				if (!m_haswizzed && Owner != m_pPlyr->edict() && !m_bsubsonic)
+				if (!m_haswizzed && Owner != m_ent->edict() && !m_bsubsonic) // TO-DO: make m_haswizzed per player (or ignore this, not too noticeable anyways)
 				{
 					char dripsnd[256];
 					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));

@@ -381,7 +381,11 @@ void CBarnacle::WaitTillDead()
 
 	float flInterval = StudioFrameAdvance(0.1);
 	DispatchAnimEvents(flInterval);
-	// To-do: add blood drops
+
+#ifndef CLIENT_DLL
+	if (RANDOM_LONG(0, 1) == 1)
+		CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
+#endif
 	if (m_fSequenceFinished)
 	{
 		// death anim finished.

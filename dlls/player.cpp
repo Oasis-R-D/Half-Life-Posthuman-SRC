@@ -690,7 +690,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 		if (pev->health < 6)
 			SetSuitUpdate("!HEV_HLTH3", false, SUIT_NEXT_IN_10MIN); // near death
 		else if (pev->health < 20)
-			SetSuitUpdate("!HEV_HLTH2", false, SUIT_NEXT_IN_10MIN); // health critical
+			SetSuitUpdate("!HEV_HLTH2", false, SUIT_NEXT_IN_5MIN); // health critical
 
 		// give critical health warnings
 		if (!RANDOM_LONG(0, 3) && flHealthPrev < 50)
@@ -772,7 +772,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 			break;
 		}
 	}
-	/////////////////////////
+/////////////////////////
 
 	m_bleedtime = gpGlobals->time;
 	ALERT(at_console, "bleed amnt is: %d\n", m_bleedAMNT);
