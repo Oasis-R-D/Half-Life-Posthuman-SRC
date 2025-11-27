@@ -173,7 +173,7 @@ void CGlock::PrimaryAttack()
 		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
 
 	}
-	GlockFire(m_isilenced ? 0.01f : spread, 0.125f, true);
+	GlockFire(spread, 0.125f, true);
 	m_fTimeSincePrimary = gpGlobals->time;
 }
 
@@ -219,6 +219,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		vecAiming = gpGlobals->v_forward;
 	}
+
 #ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
@@ -264,6 +265,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY_SILENCER : GLOCK_SHOOT_SILENCER, 1);
 	}
+
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, pev->body ? "weapons/pl_gun1.wav" : "weapons/pl_gun3.wav", 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
@@ -276,19 +278,16 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
 	m_flTimeWeaponIdle = 1;
-// recoil
+
 #ifndef CLIENT_DLL
-	if (m_isilenced == 0)
-		CBasePlayerWeapon::Recoil(1, 1);
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(0.85, 1.00));
+	}
 	else
-		if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
-			CBasePlayerWeapon::Recoil(2, 1);
-		}
-		else
-		{
-			CBasePlayerWeapon::Recoil(3, 1);
-		}
+	{
+		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(1.00, 1.15));
+	}
 #endif
 }
 
