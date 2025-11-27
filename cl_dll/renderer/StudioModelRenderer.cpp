@@ -287,7 +287,7 @@ void CStudioModelRenderer::Init(void)
 	m_pCvarStudioModelBBox = gEngfuncs.pfnRegisterVariable("r_drawstudiomdl_bbox", "0", 0);
 	m_pCvarStudioModelLightDebug = gEngfuncs.pfnRegisterVariable("r_drawstudiomdl_debuglight", "0", 0);
 
-	m_pCvarViewmodelFov = gEngfuncs.pfnRegisterVariable("viewmodel_fov", "70", FCVAR_ARCHIVE); // best matches the half-life 2 viewmodel fov
+	m_pCvarViewmodelFov = gEngfuncs.pfnRegisterVariable("viewmodel_fov", "72", FCVAR_ARCHIVE); // best matches the half-life 2 viewmodel fov // made it 72 instead of 70 -PM
 
 	cl_sprite_muzzleflash[0] = IEngineStudio.Mod_ForName("sprites/muzzleflash1.spr", false);
 	cl_sprite_muzzleflash[1] = IEngineStudio.Mod_ForName("sprites/muzzleflash2.spr", false);
@@ -855,7 +855,7 @@ void CStudioModelRenderer::StudioSetupViewmodel()
 	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 }
 
-void CStudioModelRenderer::StudioSetupExtraViewmodel()
+void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually render
 {
 	// salsatobias obs: engine gets viewmodel from server player 
 	// pev->viewmodel and stores it in engine_cl->stats[2].
