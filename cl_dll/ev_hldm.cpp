@@ -1650,11 +1650,10 @@ void EV_VMsilence(event_args_t* args)
 {
 	int idx;
 	idx = args->entindex;
-	if (EV_IsLocal(idx))
-		{
-			if (engine_cl->viewent.model != nullptr)
-				engine_cl->viewent.curstate.body = args->iparam1;
-		}
+	if (EV_IsLocal(idx) && engine_cl->viewent.model != nullptr)
+	{
+		engine_cl->viewent.curstate.body = args->iparam1;
+	}
 }
 //======================
 //	   SILENCE END

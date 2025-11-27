@@ -867,7 +867,7 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
 
-	if (!m_pCurrentEntity->model || !m_pCvarDrawViewmodel->value)
+	if (!m_pCurrentEntity->model || !m_pCvarDrawViewmodel->value || CL_IsThirdPerson())
 		return;
 
 	m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
