@@ -945,6 +945,7 @@ void CBasePlayer::RemoveAllItems(bool removeSuit)
 	m_pActiveItem = NULL;
 
 	pev->viewmodel = 0;
+	altviewmodel = 0; // ALTVM CODE
 	pev->weaponmodel = 0;
 
 	m_WeaponBits = 0ULL;
@@ -4318,6 +4319,7 @@ bool CBasePlayer::RemovePlayerItem(CBasePlayerItem* pItem)
 		pItem->SetThink(NULL);
 		m_pActiveItem = NULL;
 		pev->viewmodel = 0;
+		altviewmodel = 0; // ALTVM CODE
 		pev->weaponmodel = 0;
 	}
 	if (m_pLastItem == pItem)

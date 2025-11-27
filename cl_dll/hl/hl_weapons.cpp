@@ -724,7 +724,7 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	player.pev->maxspeed = from->client.maxspeed;
 	player.m_iFOV = from->client.fov;
 	player.pev->weaponanim = from->client.weaponanim;
-	player.pev->viewmodel = from->client.viewmodel; // to-do: make alt verswions of these be used in the same spots
+	player.pev->viewmodel = from->client.viewmodel;
 	player.altweaponanim = from->client.fuser4; // ALTVMCODE
 	player.altviewmodel = from->client.fuser1;
 	player.m_flNextAttack = from->client.m_flNextAttack;

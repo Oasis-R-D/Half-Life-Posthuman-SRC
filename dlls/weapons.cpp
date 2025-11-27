@@ -632,6 +632,7 @@ void CBasePlayerItem::Kill()
 void CBasePlayerItem::Holster()
 {
 	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->altviewmodel = 0; // ALTVM CODE
 	m_pPlayer->pev->weaponmodel = 0;
 }
 
@@ -931,6 +932,7 @@ void CBasePlayerWeapon::Holster()
 {
 	m_fInReload = false; // cancel any reload in progress.
 	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->altviewmodel = 0; // ALTVM CODE
 	m_pPlayer->pev->weaponmodel = 0;
 }
 

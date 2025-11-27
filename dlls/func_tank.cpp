@@ -370,6 +370,7 @@ bool CFuncTank::StartControl(CBasePlayer* pController)
 		m_pController->m_pActiveItem->Holster();
 		m_pController->pev->weaponmodel = 0;
 		m_pController->pev->viewmodel = 0;
+		m_pController->altviewmodel = 0; // ALTVM CODE
 	}
 
 	m_pController->m_iHideHUD |= HIDEHUD_WEAPONS;
