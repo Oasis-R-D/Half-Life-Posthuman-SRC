@@ -165,14 +165,14 @@ typedef struct clientdata_s
 	char physinfo[MAX_PHYSINFO_STRING];
 
 	// For mods
-	int iuser1; // ALTVM MODEL
+	int iuser1;
 	int iuser2;
 	int iuser3;
-	int iuser4; // ALTVM ANIM
-	float fuser1;
+	int iuser4;
+	float fuser1; // ALTVM MODEL
 	float fuser2;
 	float fuser3;
-	float fuser4;
+	float fuser4; // ALTVM ANIM
 	Vector vuser1;
 	Vector vuser2;
 	Vector vuser3;
