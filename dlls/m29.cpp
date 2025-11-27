@@ -336,6 +336,30 @@ void CM29::WeaponIdle()
 		m_flTimeWeaponIdle = (170.0 / 30.0);
 	}
 	SendWeaponAnim(iAnim, 0);
+
+	int iAltAnim;
+	flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
+	if (flRand <= 0.5)
+	{
+		iAltAnim = PYTHON_IDLE1;
+		m_flTimeWeaponIdle = (70.0 / 30.0);
+	}
+	else if (flRand <= 0.7)
+	{
+		iAltAnim = PYTHON_IDLE2;
+		m_flTimeWeaponIdle = (60.0 / 30.0);
+	}
+	else if (flRand <= 0.9)
+	{
+		iAltAnim = PYTHON_IDLE3;
+		m_flTimeWeaponIdle = (88.0 / 30.0);
+	}
+	else
+	{
+		iAltAnim = PYTHON_FIDGET;
+		m_flTimeWeaponIdle = (170.0 / 30.0);
+	}
+	SendWeaponAnim(iAltAnim, 0, true);
 }
 
 void CM29::ItemPostFrame() // completely overriden to make multiple changes

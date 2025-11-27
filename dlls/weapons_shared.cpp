@@ -49,7 +49,8 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 bool CBasePlayerWeapon::CanDeploy()
 {
 	bool bHasAmmo = false;
-
+	if (m_pPlayer->m_bInGrenade)
+		return false;
 	if (!pszAmmo1())
 	{
 		// this weapon doesn't use ammo, can always deploy.
@@ -76,12 +77,14 @@ bool CBasePlayerWeapon::CanDeploy()
 	return true;
 }
 
-bool CBasePlayerWeapon::DefaultReload(int iClipSize, int iAnim, float fDelay, int body)
+bool CBasePlayerWeapon::DefaultReload(int iClipSize, int iAnim, float fDelay, int body, bool altvm, int iAltAnim)
 {
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 || V_min(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]) == 0)
 		return false;
 
 	SendWeaponAnim(iAnim, body);
+	if (altvm && iAltAnim != -1)
+		SendWeaponAnim(iAltAnim, body, true);
 
 	m_fInReload = true;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3;

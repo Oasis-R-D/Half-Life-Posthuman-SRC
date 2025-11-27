@@ -362,7 +362,7 @@ public:
 	bool CanDeploy() override;
 	virtual bool IsUseable();
 	bool DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body = 0, const char* szAltViewModel = nullptr, int iAltAnim = NULL);
-	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0);
+	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0, bool altvm = false, int iAltAnim = -1);
 	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink
 	void ShootGrenade(int type);// called by CBasePlayerWeapons ItemPostFrame()
