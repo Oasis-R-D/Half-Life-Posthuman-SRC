@@ -1578,14 +1578,13 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 		}
 
 		// predict missing client data and set weapon model ( in HLTV mode or inset in eye mode )
-		if (0 != gEngfuncs.IsSpectateOnly())
+		if (0 != gEngfuncs.IsSpectateOnly()) // ALTVM CODE needs to be here somewhere idfk
 		{
 			V_GetInEyePos(g_iUser2, pparams->simorg, pparams->cl_viewangles);
 
 			pparams->health = 1;
 
 			cl_entity_t* gunModel = &engine_cl->viewent;
-			//extra_viewmodel_t* gunModel2 = &engine_cl->viewent;
 			if (lastWeaponModelIndex != ent->curstate.weaponmodel)
 			{
 				// weapon model changed
@@ -1614,7 +1613,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 			}
 			else
 			{
-				gunModel->model = NULL; // disable weaopn model
+				gunModel->model = NULL; // disable weapon model
 			}
 		}
 		else
