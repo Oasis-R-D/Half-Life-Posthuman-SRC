@@ -725,8 +725,8 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	player.m_iFOV = from->client.fov;
 	player.pev->weaponanim = from->client.weaponanim;
 	player.pev->viewmodel = from->client.viewmodel;
-	player.altweaponanim = from->client.fuser4; // ALTVMCODE
-	player.altviewmodel = from->client.fuser1;
+	player.altweaponanim = (int)&from->client.fuser4; // ALTVMCODE
+	player.altviewmodel = (int)&from->client.fuser1;
 	player.m_flNextAttack = from->client.m_flNextAttack;
 	player.m_flNextAmmoBurn = from->client.fuser2;
 	player.m_flAmmoStartCharge = from->client.fuser3;
