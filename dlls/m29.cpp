@@ -116,6 +116,7 @@ bool CM29::Deploy()
 
 void CM29::Holster()
 {
+	m_pPlayer->altviewmodel = 0; // ALTVM CODE
 	m_fInReload = false; // cancel any reload in progress.
 	if (slowmo)
 	{

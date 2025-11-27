@@ -865,7 +865,9 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 	// goldsrc only seems to use engine_cl->stats[0] and ->stats[2], so
 	// feel free to use the others to store info
 
+	//extra_viewmodels[0].viewent.model = CL_GetModelByIndex(3);
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
+	//m_pCurrentEntity->model = CL_GetModelByIndex() // Somehow get the client data fuser1 value and figure out how to do this
 
 	if (!m_pCurrentEntity->model || !m_pCvarDrawViewmodel->value || CL_IsThirdPerson())
 		return;
