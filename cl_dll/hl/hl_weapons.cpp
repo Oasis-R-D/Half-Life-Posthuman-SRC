@@ -725,8 +725,8 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	player.m_iFOV = from->client.fov;
 	player.pev->weaponanim = from->client.weaponanim;
 	player.pev->viewmodel = from->client.viewmodel;
-	player.altweaponanim = (int)&from->client.fuser4; // ALTVMCODE
-	player.altviewmodel = (int)&from->client.fuser1;
+	player.altweaponanim = *(int*)&from->client.fuser4; // ALTVMCODE
+	player.altviewmodel = *(int*)&from->client.fuser1;
 	player.m_flNextAttack = from->client.m_flNextAttack;
 	player.m_flNextAmmoBurn = from->client.fuser2;
 	player.m_flAmmoStartCharge = from->client.fuser3;
@@ -798,10 +798,10 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 
 	// Copy in results of prediction code
 	to->client.viewmodel = player.pev->viewmodel;
-	to->client.fuser1 = player.altviewmodel; // ALTVMCODE
+	to->client.fuser1 = *(float*)&player.altviewmodel; // ALTVMCODE
 	to->client.fov = player.m_iFOV;
 	to->client.weaponanim = player.pev->weaponanim;
-	to->client.fuser4 = player.altweaponanim;
+	to->client.fuser4 = *(float*)&player.altweaponanim;
 	to->client.m_flNextAttack = player.m_flNextAttack;
 	to->client.fuser2 = player.m_flNextAmmoBurn;
 	to->client.fuser3 = player.m_flAmmoStartCharge;
