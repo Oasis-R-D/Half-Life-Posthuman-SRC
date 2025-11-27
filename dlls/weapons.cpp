@@ -743,18 +743,20 @@ bool CBasePlayerWeapon::UpdateClientData(CBasePlayer* pPlayer)
 }
 
 
-void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body)
+void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body, bool altvm)
 {
 	const bool skiplocal = !m_ForceSendAnimations && UseDecrement() != false;
-
-	m_pPlayer->pev->weaponanim = iAnim;
+	if (!altvm)
+		m_pPlayer->pev->weaponanim = iAnim;
+	else
+		m_pPlayer->pev->altweaponanim = iAnim;
 
 #if defined(CLIENT_WEAPONS)
 	if (skiplocal && ENGINE_CANSKIP(m_pPlayer->edict()))
 		return;
 #endif
 
-	MESSAGE_BEGIN(MSG_ONE, SVC_WEAPONANIM, NULL, m_pPlayer->pev);
+	MESSAGE_BEGIN(MSG_ONE, SVC_WEAPONANIM, NULL, m_pPlayer->pev); // ALTVM CODE
 	WRITE_BYTE(iAnim);	   // sequence number
 	WRITE_BYTE(pev->body); // weaponmodel bodygroup.
 	MESSAGE_END();
@@ -1057,9 +1059,9 @@ void CBasePlayerWeapon::DoRetireWeapon()
 	}
 
 	// first, no viewmodel at all.
-	m_pPlayer->pev->viewmodel = iStringNull;
-	m_pPlayer->pev->weaponmodel = iStringNull;
-	//m_pPlayer->pev->viewmodelindex = NULL;
+	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->pev->altviewmodel = 0; // ALTVM CODE
+	m_pPlayer->pev->weaponmodel = 0;
 
 	g_pGameRules->GetNextBestWeapon(m_pPlayer, this);
 

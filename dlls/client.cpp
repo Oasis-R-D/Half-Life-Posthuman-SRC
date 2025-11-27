@@ -1910,6 +1910,7 @@ void UpdateClientData(const edict_t* ent, int sendweapons, struct clientdata_s* 
 	cd->maxspeed = pev->maxspeed;
 	cd->fov = pl->m_iFOV;
 	cd->weaponanim = pev->weaponanim;
+	//cd->weaponanim = pev->altweaponanim; // ALTVM CODE
 
 	cd->pushmsec = pev->pushmsec;
 

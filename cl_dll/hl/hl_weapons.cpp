@@ -173,7 +173,7 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 	if (!CanDeploy())
 		return false;
 
-	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel);
+	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel); // ALTVM CODE
 
 	SendWeaponAnim(iAnim, body);
 
@@ -213,6 +213,7 @@ void CBasePlayerWeapon::Holster()
 	m_fInReload = false; // cancel any reload in progress.
 	g_irunninggausspred = false;
 	m_pPlayer->pev->viewmodel = 0;
+	m_pPlayer->pev->altviewmodel = 0;
 }
 
 /*
@@ -222,11 +223,14 @@ CBasePlayerWeapon::SendWeaponAnim
 Animate weapon model
 =====================
 */
-void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body)
+void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body, bool altvm)
 {
-	m_pPlayer->pev->weaponanim = iAnim;
+	if (!altvm)
+		m_pPlayer->pev->weaponanim = iAnim;
+	else
+		m_pPlayer->pev->altweaponanim = iAnim;
 
-	HUD_SendWeaponAnim(iAnim, body, false);
+	HUD_SendWeaponAnim(iAnim, body, altvm);
 }
 
 /*
@@ -718,6 +722,8 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	player.m_iFOV = from->client.fov;
 	player.pev->weaponanim = from->client.weaponanim;
 	player.pev->viewmodel = from->client.viewmodel;
+	//player.pev->altweaponanim = from->client.weaponanim; // ALTVMCODE
+	//player.pev->altviewmodel = from->client.viewmodel;
 	player.m_flNextAttack = from->client.m_flNextAttack;
 	player.m_flNextAmmoBurn = from->client.fuser2;
 	player.m_flAmmoStartCharge = from->client.fuser3;
@@ -789,8 +795,10 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 
 	// Copy in results of prediction code
 	to->client.viewmodel = player.pev->viewmodel;
+	//to->client.viewmodel = player.pev->altviewmodel; // ALTVMCODE
 	to->client.fov = player.m_iFOV;
 	to->client.weaponanim = player.pev->weaponanim;
+	//to->client.weaponanim = player.pev->altweaponanim;
 	to->client.m_flNextAttack = player.m_flNextAttack;
 	to->client.fuser2 = player.m_flNextAmmoBurn;
 	to->client.fuser3 = player.m_flAmmoStartCharge;

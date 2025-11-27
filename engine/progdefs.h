@@ -88,6 +88,7 @@ typedef struct entvars_s
 	string_t model;
 
 	int viewmodel;	 // player's viewmodel
+	int altviewmodel;// player's alt viewmodel
 	int weaponmodel; // what other players see
 
 	Vector absmin; // BB max translated to world coord
@@ -184,6 +185,7 @@ typedef struct entvars_s
 
 	float fov;
 	int weaponanim;
+	int altweaponanim;
 
 	int pushmsec;
 
