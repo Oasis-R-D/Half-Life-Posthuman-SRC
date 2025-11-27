@@ -127,6 +127,7 @@ typedef struct clientdata_s
 	Vector velocity;
 
 	int viewmodel;
+
 	Vector punchangle;
 	int flags;
 	int waterlevel;
@@ -164,10 +165,10 @@ typedef struct clientdata_s
 	char physinfo[MAX_PHYSINFO_STRING];
 
 	// For mods
-	int iuser1;
+	int iuser1; // ALTVM MODEL
 	int iuser2;
 	int iuser3;
-	int iuser4;
+	int iuser4; // ALTVM ANIM
 	float fuser1;
 	float fuser2;
 	float fuser3;

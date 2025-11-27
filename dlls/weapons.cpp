@@ -749,7 +749,7 @@ void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body, bool altvm)
 	if (!altvm)
 		m_pPlayer->pev->weaponanim = iAnim;
 	else
-		m_pPlayer->pev->altweaponanim = iAnim;
+		m_pPlayer->altweaponanim = iAnim;
 
 #if defined(CLIENT_WEAPONS)
 	if (skiplocal && ENGINE_CANSKIP(m_pPlayer->edict()))
@@ -876,13 +876,19 @@ bool CBasePlayerWeapon::IsUseable()
 	return false;
 }
 
-bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body)
+bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body, const char* szAltViewModel, int iAltAnim)
 {
 	if (!CanDeploy())
 		return false;
 
 	m_pPlayer->TabulateAmmo();
 	m_pPlayer->pev->viewmodel = MAKE_STRING(szViewModel);
+	if (szAltViewModel != nullptr)
+	{
+		m_pPlayer->altviewmodel = MAKE_STRING(szAltViewModel);
+		SendWeaponAnim(iAltAnim, body, true);
+	}
+	
 	m_pPlayer->pev->weaponmodel = MAKE_STRING(szWeaponModel);
 
 	strcpy(m_pPlayer->m_szAnimExtention, szAnimExt);
@@ -1060,7 +1066,7 @@ void CBasePlayerWeapon::DoRetireWeapon()
 
 	// first, no viewmodel at all.
 	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->altviewmodel = 0; // ALTVM CODE
+	m_pPlayer->altviewmodel = 0; // ALTVM CODE
 	m_pPlayer->pev->weaponmodel = 0;
 
 	g_pGameRules->GetNextBestWeapon(m_pPlayer, this);

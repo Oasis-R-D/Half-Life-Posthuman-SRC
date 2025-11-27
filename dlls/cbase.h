@@ -405,6 +405,9 @@ public:
 
 	bool m_bPrehuman; // Required for some NPCs (here because headcrab unlatching uses base entity and not base monster [too lazy to change, plus this could probably be used by the player at some point])
 	int m_iMaxDeathBleed = 6; // How much can the monster bleed after dead (helps avoid mass decal spam on the ground)
+
+	int altviewmodel;
+	int altweaponanim;
 };
 
 inline bool FNullEnt(CBaseEntity* ent) { return (ent == NULL) || FNullEnt(ent->edict()); }

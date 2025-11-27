@@ -110,18 +110,22 @@ bool CM29::Deploy()
 	m_bFirstShot = true;
 	CalculateAmmo();
 
-	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
+	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body, "models/v_m29L.mdl", PYTHON_DRAW);
 }
 
 
 void CM29::Holster()
 {
 	m_fInReload = false; // cancel any reload in progress.
-	slowmo = false;
-	CVAR_SET_STRING("host_framerate", "0");
+	if (slowmo)
+	{
+		CVAR_SET_STRING("host_framerate", "0");
+		slowmo = false;
+	}
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	SendWeaponAnim(PYTHON_HOLSTER);
+	SendWeaponAnim(PYTHON_HOLSTER, 0 , true);
 }
 
 void CM29::SecondaryAttack()

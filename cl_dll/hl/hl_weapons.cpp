@@ -168,14 +168,17 @@ CBasePlayerWeapon:: DefaultDeploy
 
 =====================
 */
-bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body)
+bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body, const char* szAltViewModel, int iAltAnim)
 {
 	if (!CanDeploy())
 		return false;
 
 	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel); // ALTVM CODE
+	gEngfuncs.CL_LoadModel(szAltViewModel, &m_pPlayer->altviewmodel); // ALTVM CODE
 
-	SendWeaponAnim(iAnim, body);
+	SendWeaponAnim(iAnim, body, false);
+	if (szAltViewModel)
+		SendWeaponAnim(iAltAnim, body, true);
 
 	g_irunninggausspred = false;
 	m_pPlayer->m_flNextAttack = 1;
@@ -213,7 +216,7 @@ void CBasePlayerWeapon::Holster()
 	m_fInReload = false; // cancel any reload in progress.
 	g_irunninggausspred = false;
 	m_pPlayer->pev->viewmodel = 0;
-	m_pPlayer->pev->altviewmodel = 0;
+	m_pPlayer->altviewmodel = 0;
 }
 
 /*
@@ -228,7 +231,7 @@ void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body, bool altvm)
 	if (!altvm)
 		m_pPlayer->pev->weaponanim = iAnim;
 	else
-		m_pPlayer->pev->altweaponanim = iAnim;
+		m_pPlayer->altweaponanim = iAnim;
 
 	HUD_SendWeaponAnim(iAnim, body, altvm);
 }
@@ -721,9 +724,9 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	player.pev->maxspeed = from->client.maxspeed;
 	player.m_iFOV = from->client.fov;
 	player.pev->weaponanim = from->client.weaponanim;
-	player.pev->viewmodel = from->client.viewmodel;
-	//player.pev->altweaponanim = from->client.weaponanim; // ALTVMCODE
-	//player.pev->altviewmodel = from->client.viewmodel;
+	player.pev->viewmodel = from->client.viewmodel; // to-do: make alt verswions of these be used in the same spots
+	player.altweaponanim = from->client.fuser4; // ALTVMCODE
+	player.altviewmodel = from->client.fuser1;
 	player.m_flNextAttack = from->client.m_flNextAttack;
 	player.m_flNextAmmoBurn = from->client.fuser2;
 	player.m_flAmmoStartCharge = from->client.fuser3;
@@ -795,10 +798,10 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 
 	// Copy in results of prediction code
 	to->client.viewmodel = player.pev->viewmodel;
-	//to->client.viewmodel = player.pev->altviewmodel; // ALTVMCODE
+	to->client.fuser1 = player.altviewmodel; // ALTVMCODE
 	to->client.fov = player.m_iFOV;
 	to->client.weaponanim = player.pev->weaponanim;
-	//to->client.weaponanim = player.pev->altweaponanim;
+	to->client.fuser4 = player.altweaponanim;
 	to->client.m_flNextAttack = player.m_flNextAttack;
 	to->client.fuser2 = player.m_flNextAmmoBurn;
 	to->client.fuser3 = player.m_flAmmoStartCharge;
@@ -829,7 +832,15 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		g_Python.pev->body = bIsMultiplayer() ? 1 : 0;
 
 		// Force a fixed anim down to viewmodel
-		HUD_SendWeaponAnim(to->client.weaponanim, pWeapon->pev->body, true);
+		HUD_SendWeaponAnim(to->client.weaponanim, pWeapon->pev->body, false);
+	}
+	if (g_runfuncs && (HUD_GetAltWeaponAnim() != to->client.fuser4))
+	{
+		//Make sure the 357 has the right body
+		g_Python.pev->body = bIsMultiplayer() ? 1 : 0; // is this needed?
+
+		// Force a fixed anim down to viewmodel
+		HUD_SendWeaponAnim(to->client.fuser4, pWeapon->pev->body, true);
 	}
 
 	for (i = 0; i < MAX_WEAPONS; i++)

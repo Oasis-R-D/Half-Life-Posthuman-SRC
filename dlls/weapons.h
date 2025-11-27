@@ -361,7 +361,7 @@ public:
 
 	bool CanDeploy() override;
 	virtual bool IsUseable();
-	bool DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body = 0);
+	bool DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body = 0, const char* szAltViewModel = nullptr, int iAltAnim = NULL);
 	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0);
 	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink

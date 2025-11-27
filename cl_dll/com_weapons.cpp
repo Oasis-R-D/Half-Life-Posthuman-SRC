@@ -75,6 +75,7 @@ void COM_Log(const char* pszFile, const char* fmt, ...)
 // remember the current animation for the view model, in case we get out of sync with
 //  server.
 static int g_currentanim;
+static int g_currentaltanim; // ALTVM CODE
 
 /*
 =====================
@@ -88,8 +89,10 @@ void HUD_SendWeaponAnim(int iAnim, int body, bool force, bool altvm)
 	// Don't actually change it.
 	if (!g_runfuncs && !force)
 		return;
-
-	g_currentanim = iAnim;
+	if (!altvm)
+		g_currentanim = iAnim;
+	else
+		g_currentaltanim = iAnim;
 
 	// Tell animation system new info
 	EV_WeaponAnimation(iAnim, body, altvm);
@@ -106,7 +109,10 @@ int HUD_GetWeaponAnim()
 {
 	return g_currentanim;
 }
-
+int HUD_GetAltWeaponAnim()
+{
+	return g_currentaltanim;
+}
 /*
 =====================
 HUD_PlaySound
