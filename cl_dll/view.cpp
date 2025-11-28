@@ -25,6 +25,7 @@
 #include "../renderer/propmanager.h"
 #include "../renderer/mirrormanager.h"
 #include "../renderer/watershader.h"
+#include "../renderer/studiomodelrenderer.h"
 // RENDERERS END
 
 float lerp(float a, float b, float t)
@@ -559,7 +560,7 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 		origin = origin + up * (-pitch * 0.02f);
 	}
 }
-
+extern extra_viewmodel_t extra_viewmodels[4];
 /*
 ==================
 V_CalcRefdef
@@ -594,7 +595,6 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 
 	// view is the weapon model (only visible from inside body )
 	view = &engine_cl->viewent;
-
 	// transform the view offset by the model's matrix to get the offset from
 	// model origin for the view
 	bob = V_CalcBob(pparams);
@@ -752,10 +752,11 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	// pushing the view origin down off of the same X/Z plane as the ent's origin will give the
 	// gun a very nice 'shifting' effect when the player looks up/down. If there is a problem
 	// with view model distortion, this may be a cause. (SJB).
-	view->origin[2] -= 1; // TO-DO: this is probably what is breaking stuff
+	view->origin[2] -= 1;
 
 	// fudge position around to keep amount of weapon visible
 	// roughly equal with different FOV
+	/* Use VM fov instead
 	if (pparams->viewsize == 110)
 	{
 		view->origin[2] += 1;
@@ -772,7 +773,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	{
 		view->origin[2] += 0.5;
 	}
-
+	*/
 	// Add in the punchangle, if any
 	VectorAdd(pparams->viewangles, pparams->punchangle, pparams->viewangles);
 
@@ -926,6 +927,9 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	VectorCopy(view->origin, view->latched.prevorigin);
 	VectorCopy(view->angles, view->curstate.angles);
 	VectorCopy(view->angles, view->latched.prevangles);
+	
+	VectorCopy(view->angles, extra_viewmodels[0].viewent.angles); // ALTVM CODE
+	VectorCopy(view->origin, extra_viewmodels[0].viewent.origin);
 
 	lasttime = pparams->time;
 
@@ -1719,8 +1723,6 @@ void V_CalcSpectatorRefdef(struct ref_params_s* pparams)
 
 void DLLEXPORT V_CalcRefdef(struct ref_params_s* pparams)
 {
-	//	RecClCalcRefdef(pparams);
-
 	// intermission / finale rendering
 	if (0 != pparams->intermission)
 	{
@@ -1752,13 +1754,11 @@ void DLLEXPORT V_CalcRefdef(struct ref_params_s* pparams)
 	}
 #endif
 */
-	#ifdef TRINITY
-
 	// RENDERER START
-	// 2012-02-25
+#ifdef TRINITY
 	R_CalcRefDef(pparams);
+#endif
 	// RENDERER END
-	#endif
 }
 
 /*
