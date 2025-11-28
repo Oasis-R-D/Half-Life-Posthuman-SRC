@@ -928,8 +928,11 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	VectorCopy(view->angles, view->curstate.angles);
 	VectorCopy(view->angles, view->latched.prevangles);
 	
-	VectorCopy(view->angles, extra_viewmodels[0].viewent.angles); // ALTVM CODE
-	VectorCopy(view->origin, extra_viewmodels[0].viewent.origin);
+	extra_viewmodels[0].viewent.angles = view->angles; // ALTVM CODE
+	extra_viewmodels[0].viewent.origin = view->origin;
+	extra_viewmodels[0].viewent.latched = view->latched;
+	extra_viewmodels[0].viewent.curstate.angles = view->curstate.angles;
+	extra_viewmodels[0].viewent.curstate.origin = view->curstate.origin;
 
 	lasttime = pparams->time;
 

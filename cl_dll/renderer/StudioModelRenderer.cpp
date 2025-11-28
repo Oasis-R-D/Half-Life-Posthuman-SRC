@@ -210,10 +210,11 @@ engine_studio_api_t IEngineStudio;
 
 extern bool g_iNightVision;
 extern bool g_iFlashLight;
+int altviewmodel; // ALTVM CODE
 
 CStudioModelRenderer g_StudioRenderer;
 
-cl_entity_t viewent2;
+cl_entity_t viewent2; // remove this?
 
 extern model_t* cl_sprite_muzzleflash[3];
 extern model_t* cl_sprite_ricochet;
@@ -801,6 +802,7 @@ void CStudioModelRenderer::StudioClearDrawList()
 void CStudioModelRenderer::StudioUploadRenderData()
 {
 	StudioSetupViewmodel();
+	StudioSetupExtraViewmodel();
 
 #if _DEBUG
 	if ((gl_bonetransforms.size() * sizeof(matrix3x4_t)) > m_ModelBones_Buffer->GetBufferSize())
@@ -865,7 +867,8 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 	// goldsrc only seems to use engine_cl->stats[0] and ->stats[2], so
 	// feel free to use the others to store info
 
-	//extra_viewmodels[0].viewent.model = CL_GetModelByIndex(3);
+	extra_viewmodels[0].viewent.model = CL_GetModelByIndex(altviewmodel);
+	gEngfuncs.Con_Printf("altvm is: %i \n", altviewmodel);
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
 	// Somehow get the client data fuser1 value and figure out how to do this
 

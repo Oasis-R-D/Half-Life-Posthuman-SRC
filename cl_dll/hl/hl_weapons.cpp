@@ -525,7 +525,7 @@ void HUD_SetLastOrg()
 		previousorigin[i] = g_finalstate->playerstate.origin[i] + g_finalstate->client.view_ofs[i];
 	}
 }
-
+extern int altviewmodel; // ALTVM CODE
 /*
 =====================
 HUD_WeaponsPostThink
@@ -799,6 +799,7 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	// Copy in results of prediction code
 	to->client.viewmodel = player.pev->viewmodel;
 	to->client.fuser1 = *(float*)&player.altviewmodel; // ALTVMCODE
+	altviewmodel = to->client.fuser1; // ALTVM CODE
 	to->client.fov = player.m_iFOV;
 	to->client.weaponanim = player.pev->weaponanim;
 	to->client.fuser4 = *(float*)&player.altweaponanim;

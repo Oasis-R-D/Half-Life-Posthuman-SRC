@@ -757,9 +757,10 @@ void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int body, bool altvm)
 		return;
 #endif
 
-	MESSAGE_BEGIN(MSG_ONE, SVC_WEAPONANIM, NULL, m_pPlayer->pev); // ALTVM CODE
+	MESSAGE_BEGIN(MSG_ONE, gmsgWPNAnimation, NULL, m_pPlayer->pev); // ALTVM CODE
 	WRITE_BYTE(iAnim);	   // sequence number
 	WRITE_BYTE(pev->body); // weaponmodel bodygroup.
+	WRITE_BYTE(altvm);
 	MESSAGE_END();
 }
 

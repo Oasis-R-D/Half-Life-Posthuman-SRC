@@ -104,18 +104,43 @@ extern extra_viewmodel_t extra_viewmodels[4];
 
 void EV_WeaponAnimation(int sequence, int body, bool extraviewmodel)
 {
-	if (extraviewmodel)
-		goto use_extra_viewmodel;
-
-	engine_cl->weaponstarttime = 0;
-	engine_cl->weaponsequence = sequence;
-	engine_cl->viewent.curstate.body = body;
-	if (engine_cls->demorecording)
+	if (!extraviewmodel)
 	{
-		if (!engine_cls->demofile)
-			return;
+		engine_cl->weaponstarttime = 0;
+		engine_cl->weaponsequence = sequence;
+		engine_cl->viewent.curstate.body = body;
+		if (engine_cls->demorecording)
+		{
+			if (!engine_cls->demofile)
+				return;
 
-		gEngfuncs.pfnWeaponAnim(sequence, body); // dont have realtime and host_framecount, for now. :(
+			gEngfuncs.pfnWeaponAnim(sequence, body); // dont have realtime and host_framecount, for now. :(
+
+			// demo_anim_t demcmd;
+			//
+			//
+			// demcmd.cmd = '\a';
+			// demcmd.time = (realtime - engine_cls->demostarttime);
+			// demcmd.frame = (host_framecount - engine_cls->demostartframe);
+			// demcmd.anim = anim;
+			// demcmd.body = body;
+			// FS_Write(&demcmd, 17, 1, g_pcls.demofile);
+		}
+	}
+	else
+	{
+		extra_viewmodels[0].weaponstarttime = 0;
+		extra_viewmodels[0].weaponsequence = sequence;
+		extra_viewmodels[0].viewent.curstate.body = body;
+
+		// no demo support for these extra viewmodels for now
+
+		// if (engine_cls->demorecording)
+		//{
+		//	if (!engine_cls->demofile)
+		//		return;
+		//
+		//	gEngfuncs.pfnWeaponAnim(sequence, body); // dont have realtime and host_framecount, for now. :(
 
 		// demo_anim_t demcmd;
 		//
@@ -126,33 +151,8 @@ void EV_WeaponAnimation(int sequence, int body, bool extraviewmodel)
 		// demcmd.anim = anim;
 		// demcmd.body = body;
 		// FS_Write(&demcmd, 17, 1, g_pcls.demofile);
+		//}
 	}
-
-use_extra_viewmodel:
-
-	extra_viewmodels[0].weaponstarttime = 0;
-	extra_viewmodels[0].weaponsequence = sequence;
-	extra_viewmodels[0].viewent.curstate.body = body;
-
-	//no demo support for these extra viewmodels for now
-
-	// if (engine_cls->demorecording)
-	//{
-	//	if (!engine_cls->demofile)
-	//		return;
-	//
-	//	gEngfuncs.pfnWeaponAnim(sequence, body); // dont have realtime and host_framecount, for now. :(
-
-	// demo_anim_t demcmd;
-	//
-	//
-	// demcmd.cmd = '\a';
-	// demcmd.time = (realtime - engine_cls->demostarttime);
-	// demcmd.frame = (host_framecount - engine_cls->demostartframe);
-	// demcmd.anim = anim;
-	// demcmd.body = body;
-	// FS_Write(&demcmd, 17, 1, g_pcls.demofile);
-	//}
 }
 
 unsigned short EV_PrecacheEvent(int type, const char* psz)
@@ -417,4 +417,16 @@ const char* EV_TraceTexture(int ground, float* vstart, float* vend)
 	}
 
 	return NULL;
+}
+
+int CHud::MsgWpnAnim(const char* pszName, int iSize, void* pBuf)
+{
+	BEGIN_READ(pBuf, iSize);
+
+	int  seq = READ_BYTE();
+	int  bod = READ_BYTE();
+	bool alt = (bool)READ_BYTE();
+	EV_WeaponAnimation(seq, bod, alt);
+
+	return 1;
 }

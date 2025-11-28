@@ -77,5 +77,7 @@ inline int gmsgWaterInfo = 0;
 
 inline int gmsgTempEntities = 0;
 
+inline int gmsgWPNAnimation = 0;
+
 
 void LinkUserMessages();

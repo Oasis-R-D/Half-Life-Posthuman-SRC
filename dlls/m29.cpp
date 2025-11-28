@@ -300,7 +300,7 @@ void CM29::Reload()
 	if (m_pPlayer->ammo_357 <= 0)
 		return;
 	m_bFirstShot = true;
-	DefaultReload(12, PYTHON_RELOAD, 2.0, 0);
+	DefaultReload(12, PYTHON_RELOAD, 2.0, 0, true, PYTHON_RELOAD);
 }
 
 

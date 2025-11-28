@@ -677,6 +677,9 @@ public:
 	bool MsgFunc_SkyMark_W(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_DynLight(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_CreateSystem(const char* pszName, int iSize, void* pbuf);
+
+	int MsgWpnAnim(const char* pszName, int iSize, void* pbuf);
+
 	// RENDERERS END
 };
 

@@ -88,4 +88,6 @@ void LinkUserMessages()
 
 
 	gmsgTempEntities = REG_USER_MSG("TempEnt", -1);
+	
+	gmsgWPNAnimation = REG_USER_MSG("WpnAnim", -1);
 }

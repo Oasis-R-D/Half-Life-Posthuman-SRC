@@ -349,6 +349,10 @@ int __MsgFunc_TempEnt(const char* pszName, int iSize, void* pbuf)
 {
 	return static_cast<int>(gTempEntities.TempEntities(pszName, iSize, pbuf));
 }
+int __MsgFunc_WpnAnim(const char* pszName, int iSize, void* pbuf)
+{
+	return static_cast<int>(gHUD.MsgWpnAnim(pszName, iSize, pbuf));
+}
 // RENDERERS END
 
 #endif
@@ -421,6 +425,7 @@ void CHud::Init()
 	HOOK_MESSAGE(Particle);
 	HOOK_MESSAGE(WaterInfo);
 	HOOK_MESSAGE(TempEnt);
+	HOOK_MESSAGE(WpnAnim);
 
 	m_iLogo = 0;
 	m_iFOV = 0;
