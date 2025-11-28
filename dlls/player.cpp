@@ -3039,6 +3039,10 @@ pt_end:
 					{
 						gun->m_flTimeWeaponIdle = V_max(gun->m_flTimeWeaponIdle - gpGlobals->frametime, -0.001);
 					}
+					if (gun->m_flTimeAltWeaponIdle != 1000)
+					{
+						gun->m_flTimeAltWeaponIdle = V_max(gun->m_flTimeAltWeaponIdle - gpGlobals->frametime, -0.001);
+					}
 
 					if (gun->pev->fuser1 != 1000)
 					{

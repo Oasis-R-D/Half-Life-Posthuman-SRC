@@ -125,6 +125,7 @@ void CM29::Holster()
 	}
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	SendWeaponAnim(PYTHON_HOLSTER);
 	SendWeaponAnim(PYTHON_HOLSTER, 0 , true);
 }
@@ -169,7 +170,7 @@ void CM29::SecondaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
 
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM29::PrimaryAttack()
@@ -311,54 +312,56 @@ void CM29::WeaponIdle()
 		CalculateAmmo();
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
-	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
+	if (m_flTimeWeaponIdle <= UTIL_WeaponTimeBase())
+	{
+		int iAnim;
+		float flRand = RANDOM_FLOAT(0.0, 1.0);
+		if (flRand <= 0.5)
+		{
+			iAnim = PYTHON_IDLE1;
+			m_flTimeWeaponIdle = (70.0 / 30.0);
+		}
+		else if (flRand <= 0.7)
+		{
+			iAnim = PYTHON_IDLE2;
+			m_flTimeWeaponIdle = (60.0 / 30.0);
+		}
+		else if (flRand <= 0.9)
+		{
+			iAnim = PYTHON_IDLE3;
+			m_flTimeWeaponIdle = (88.0 / 30.0);
+		}
+		else
+		{
+			iAnim = PYTHON_FIDGET;
+			m_flTimeWeaponIdle = (170.0 / 30.0);
+		}
+		SendWeaponAnim(iAnim, 0);
+	}
+	if (m_flTimeAltWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
-	int iAnim;
-	float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
-	if (flRand <= 0.5)
-	{
-		iAnim = PYTHON_IDLE1;
-		m_flTimeWeaponIdle = (70.0 / 30.0);
-	}
-	else if (flRand <= 0.7)
-	{
-		iAnim = PYTHON_IDLE2;
-		m_flTimeWeaponIdle = (60.0 / 30.0);
-	}
-	else if (flRand <= 0.9)
-	{
-		iAnim = PYTHON_IDLE3;
-		m_flTimeWeaponIdle = (88.0 / 30.0);
-	}
-	else
-	{
-		iAnim = PYTHON_FIDGET;
-		m_flTimeWeaponIdle = (170.0 / 30.0);
-	}
-	SendWeaponAnim(iAnim, 0);
-
 	int iAltAnim;
-	flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
+	float flRand = RANDOM_FLOAT(0.0, 1.0);
 	if (flRand <= 0.5)
 	{
 		iAltAnim = PYTHON_IDLE1;
-		m_flTimeWeaponIdle = (70.0 / 30.0);
+		m_flTimeAltWeaponIdle = (70.0 / 30.0);
 	}
 	else if (flRand <= 0.7)
 	{
 		iAltAnim = PYTHON_IDLE2;
-		m_flTimeWeaponIdle = (60.0 / 30.0);
+		m_flTimeAltWeaponIdle = (60.0 / 30.0);
 	}
 	else if (flRand <= 0.9)
 	{
 		iAltAnim = PYTHON_IDLE3;
-		m_flTimeWeaponIdle = (88.0 / 30.0);
+		m_flTimeAltWeaponIdle = (88.0 / 30.0);
 	}
 	else
 	{
 		iAltAnim = PYTHON_FIDGET;
-		m_flTimeWeaponIdle = (170.0 / 30.0);
+		m_flTimeAltWeaponIdle = (170.0 / 30.0);
 	}
 	SendWeaponAnim(iAltAnim, 0, true);
 }

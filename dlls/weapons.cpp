@@ -899,6 +899,7 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1;
 	m_flTimeWeaponIdle = 5;
+	m_flTimeAltWeaponIdle = 5;
 	m_flLastFireTime = 0.0;
 	m_pPlayer->pev->punchangle.z += RANDOM_LONG(-5, 5);
 
