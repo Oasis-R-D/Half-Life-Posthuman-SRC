@@ -558,16 +558,6 @@ void CBaseMonster::Railed() //:troll:
 			for (int l = 0; l < 16; l++)
 				CPhysblood::BloodCreate(1, 350, Center(), -gpGlobals->v_up, 1.25, BloodColor(), true, 2.5 * CONE_60DEGREES);
 #endif
-
-			auto spr = CSprite::SpriteCreate("sprites/ballsmoke.spr", Center(), true);
-			spr->AnimateAndDie(10);
-			if (BloodColor() == BLOOD_COLOR_GREEN || BloodColor() == BLOOD_COLOR_YELLOW)
-				spr->SetTransparency(kRenderGlow, 255, 255, 0, 255, kRenderFxNoDissipation);
-			else if (BloodColor() == BLOOD_COLOR_RED)
-				spr->SetTransparency(kRenderGlow, 255, 0, 0, 255, kRenderFxNoDissipation);
-			else
-				spr->SetTransparency(kRenderGlow, 255, 255, 255, 255, kRenderFxNoDissipation);
-			spr->SetScale(2);
 		}
 	}
 }
