@@ -227,7 +227,8 @@ char glsl330_studiomdl_vert[] = R"(
 	void Vertex_NoLight()
 	{
 		vertexdiffusecolor = vec4(1.0);
-		vertexspecularcolor = vec4(1.0);
+		vertexspecularcolor = vec4(1.0); // remove for funny
+										 // ^^ Use in ICH? Maybe if the player is damaged by a noise guy it does this?
 	}
 
 	void main() {
