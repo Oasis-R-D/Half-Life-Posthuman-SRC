@@ -236,6 +236,12 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		return;
 	
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
+	if (owner == nullptr)
+	{
+		owner = this; // fixes RC crash
+		Owner = this->edict();
+	}
+
 	m_Endpos = pev->origin; // where bullet hit
 	TraceResult tr = UTIL_GetGlobalTrace();
 	
@@ -247,7 +253,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		int i = 1;
 
 		UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method)
+		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method, but still sucks ass)
 		{
 			i += 1;
 			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);

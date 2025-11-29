@@ -263,7 +263,7 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	char filename2[256];
 
 	int scale = size;
-	scale = round(scale / 2);
+	scale = round(scale / 2); // scale typically is 1 or 4, no inbetween (scales really weirdly)
 	if (scale > 4)
 		scale = 4;
 	std::string size2 = std::to_string(scale);

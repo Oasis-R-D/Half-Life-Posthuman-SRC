@@ -558,6 +558,7 @@ void CBaseMonster::Railed() //:troll:
 			for (int l = 0; l < 16; l++)
 				CPhysblood::BloodCreate(1, 350, Center(), -gpGlobals->v_up, 1.25, BloodColor(), true, 2.5 * CONE_60DEGREES);
 #endif
+			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
 		}
 	}
 }

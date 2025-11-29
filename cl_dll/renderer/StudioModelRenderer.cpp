@@ -868,7 +868,7 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 	// feel free to use the others to store info
 
 	extra_viewmodels[0].viewent.model = CL_GetModelByIndex(altviewmodel);
-	gEngfuncs.Con_Printf("altvm is: %i \n", altviewmodel);
+
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
 	// Somehow get the client data fuser1 value and figure out how to do this
 
