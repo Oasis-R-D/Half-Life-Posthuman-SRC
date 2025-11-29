@@ -623,12 +623,10 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 1; }
-	void EXPORT SwingAgain();
 	void EXPORT Smack();
 	bool GetItemInfo(ItemInfo* p) override;
 	void SecondaryAttack() override;
 	void PrimaryAttack() override;
-	bool Swing(bool fFirst);
 	bool Deploy() override;
 	void Holster() override;
 	void ItemPostFrame();
