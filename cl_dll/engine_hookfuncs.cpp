@@ -264,6 +264,8 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 
 	int scale = size;
 	scale = round(scale / 2);
+	if (scale > 4)
+		scale = 4;
 	std::string size2 = std::to_string(scale);
 	const char* charPtr = size2.c_str();
 	int R = 0, G = 0, B = 0;
@@ -317,7 +319,7 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 					break;
 			}
 		}
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), scale + gEngfuncs.pfnRandomLong(-1, 1), R, G, B), org, vec3_origin, 0);
+		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodchunks, filename2, gEngfuncs.pfnRandomLong(0, 8), scale + gEngfuncs.pfnRandomLong(-1, 1), R, G, B), org, g_vecZero, 0);
 	}
 }
 
