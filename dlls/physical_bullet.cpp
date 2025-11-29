@@ -163,7 +163,7 @@ void CPhysbullet::Spawn()
 		if (owner->IsPlayer())
 		{
 			pev->renderamt = 0;
-			if (g_iSkillLevel == SKILL_HARD)
+			if (g_iSkillLevel == SKILL_HARD && m_Flare != 44)
 			{
 				pev->velocity = pev->velocity + owner->pev->velocity;
 				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
