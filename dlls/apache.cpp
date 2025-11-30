@@ -251,14 +251,16 @@ void CApache::DyingThink()
 		// random explosions
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 		WRITE_BYTE(TE_EXPLOSION); // This just makes a dynamic light now
-		WRITE_COORD(pev->origin.x + RANDOM_FLOAT(-150, 150));
-		WRITE_COORD(pev->origin.y + RANDOM_FLOAT(-150, 150));
-		WRITE_COORD(pev->origin.z + RANDOM_FLOAT(-150, -50));
+		WRITE_COORD(pev->origin.x);
+		WRITE_COORD(pev->origin.y);
+		WRITE_COORD(pev->origin.z);
 		WRITE_SHORT(g_sModelIndexFireball);
-		WRITE_BYTE(RANDOM_LONG(0, 29) + 30); // scale * 10
+		WRITE_BYTE(0); // scale * 10
 		WRITE_BYTE(12);						 // framerate
 		WRITE_BYTE(TE_EXPLFLAG_NONE);
 		MESSAGE_END();
+		Vector vecpiss = Vector(pev->origin.x + RANDOM_FLOAT(-150, 150), pev->origin.y + RANDOM_FLOAT(-150, 150), pev->origin.z + RANDOM_FLOAT(-150, 150));
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, vecpiss, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0); // might need to be bigger
 
 		// lots of smoke
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -804,15 +806,7 @@ void CApache::FireRocket()
 		break;
 	}
 
-	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSrc);
-	WRITE_BYTE(TE_SMOKE);
-	WRITE_COORD(vecSrc.x);
-	WRITE_COORD(vecSrc.y);
-	WRITE_COORD(vecSrc.z);
-	WRITE_SHORT(g_sModelIndexSmoke);
-	WRITE_BYTE(20); // scale * 10
-	WRITE_BYTE(12); // framerate
-	MESSAGE_END();
+	UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
 
 	CBaseEntity* pRocket = CBaseEntity::Create("hvr_rocket", vecSrc, pev->angles, edict());
 	if (pRocket)
@@ -922,15 +916,8 @@ void CApache::ShowDamage()
 {
 	if (m_iDoSmokePuff > 0 || RANDOM_LONG(0, 99) > pev->health)
 	{
-		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-		WRITE_BYTE(TE_SMOKE);
-		WRITE_COORD(pev->origin.x);
-		WRITE_COORD(pev->origin.y);
-		WRITE_COORD(pev->origin.z - 32);
-		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE(RANDOM_LONG(0, 9) + 20); // scale * 10
-		WRITE_BYTE(12);						// framerate
-		MESSAGE_END();
+		Vector vecSrc = pev->origin - (gpGlobals->v_up * 32);
+		UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
 	}
 	if (m_iDoSmokePuff > 0)
 		m_iDoSmokePuff--;

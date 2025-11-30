@@ -868,12 +868,13 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 	// feel free to use the others to store info
 
 	extra_viewmodels[0].viewent.model = CL_GetModelByIndex(altviewmodel);
+	if (!extra_viewmodels[0].viewent.model || !m_pCvarDrawViewmodel->value || CL_IsThirdPerson())
+		return;
 
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
 	// Somehow get the client data fuser1 value and figure out how to do this
 
-	if (!m_pCurrentEntity->model || !m_pCvarDrawViewmodel->value || CL_IsThirdPerson())
-		return;
+	
 
 	m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
 
