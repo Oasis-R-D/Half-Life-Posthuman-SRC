@@ -668,10 +668,11 @@ void COsprey::DyingThink()
 		WRITE_COORD(vecSpot.y + RANDOM_FLOAT(-150, 150));
 		WRITE_COORD(vecSpot.z + RANDOM_FLOAT(-150, -50));
 		WRITE_SHORT(g_sModelIndexFireball);
-		WRITE_BYTE(RANDOM_LONG(0, 29) + 30); // scale * 10
+		WRITE_BYTE(0); // scale * 10
 		WRITE_BYTE(12);						 // framerate
 		WRITE_BYTE(TE_EXPLFLAG_NONE);
 		MESSAGE_END();
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0); // might need to be bigger
 
 		// lots of smoke
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSpot);
@@ -840,30 +841,14 @@ void COsprey::ShowDamage()
 	if (m_iDoLeftSmokePuff > 0 || RANDOM_LONG(0, 99) > m_flLeftHealth)
 	{
 		Vector vecSrc = pev->origin + gpGlobals->v_right * -340;
-		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSrc);
-		WRITE_BYTE(TE_SMOKE);
-		WRITE_COORD(vecSrc.x);
-		WRITE_COORD(vecSrc.y);
-		WRITE_COORD(vecSrc.z);
-		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE(RANDOM_LONG(0, 9) + 20); // scale * 10
-		WRITE_BYTE(12);						// framerate
-		MESSAGE_END();
+		UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
 		if (m_iDoLeftSmokePuff > 0)
 			m_iDoLeftSmokePuff--;
 	}
 	if (m_iDoRightSmokePuff > 0 || RANDOM_LONG(0, 99) > m_flRightHealth)
 	{
 		Vector vecSrc = pev->origin + gpGlobals->v_right * 340;
-		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSrc);
-		WRITE_BYTE(TE_SMOKE);
-		WRITE_COORD(vecSrc.x);
-		WRITE_COORD(vecSrc.y);
-		WRITE_COORD(vecSrc.z);
-		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE(RANDOM_LONG(0, 9) + 20); // scale * 10
-		WRITE_BYTE(12);						// framerate
-		MESSAGE_END();
+		UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
 		if (m_iDoRightSmokePuff > 0)
 			m_iDoRightSmokePuff--;
 	}
