@@ -46,6 +46,7 @@
 #include "../renderer/bsprenderer.h"
 #include "../renderer/particle_engine.h"
 extern engine_studio_api_t IEngineStudio;
+extern char * UTIL_VarArgs_client(const char* format, ...);
 
 static int tracerCount[MAX_PLAYERS];
 
