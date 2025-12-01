@@ -349,11 +349,6 @@ void CBasePlayer::SelectLastItem()
 		return;
 	}
 
-	auto weapon = m_pLastItem->GetWeaponPtr();
-
-	// don't switch if the weapon is out of ammo, otherwise it will break the animations.
-	if (weapon && !weapon->CanDeploy()) return;
-
 	ResetAutoaim();
 
 	// FIX, this needs to queue them up and delay
@@ -363,6 +358,8 @@ void CBasePlayer::SelectLastItem()
 	CBasePlayerItem* pTemp = m_pActiveItem;
 	m_pActiveItem = m_pLastItem;
 	m_pLastItem = pTemp;
+
+	auto weapon = m_pLastItem->GetWeaponPtr();
 
 	if (weapon)
 	{
