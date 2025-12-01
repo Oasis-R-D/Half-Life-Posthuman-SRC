@@ -36,7 +36,7 @@ CBaseEntity
 #define PE_BLOATERGASEXPL 4
 #define PE_BLDIMPACTCLUST 5
 #define PE_BLLTIMPACTGLOW 6
-#define PE_BLDGIBCLOUD	  5
+#define PE_BLDGIBCLOUD	  7
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 
