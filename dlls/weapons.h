@@ -582,8 +582,6 @@ public:
 	void WeaponIdle() override;
 	void ReloadSetAmmos() override;
 	void ItemPostFrame();
-	bool m_Training;
-	bool m_Prehuman;
 	bool m_isilenced;
 	float m_fTimer;
 	bool UseDecrement() override
@@ -709,7 +707,7 @@ enum mp5_e
 	MP5_SHOOT3,
 };
 
-class CMP5 : public CBasePlayerWeapon
+class CMP5 : public CBasePlayerWeapon // to-do: save firemode
 {
 public:
 	void Spawn() override;
@@ -729,9 +727,7 @@ public:
 	void Holster() override;
 
 	int m_iShell;
-	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
-	bool m_Training;
-	bool m_Prehuman;
+	int firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -863,8 +859,6 @@ public:
 	int m_fInReload; //TODO: not used, remove
 	float m_flNextReload;
 	int m_iShell;
-	bool m_Training;
-	bool m_Prehuman;
 	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool UseDecrement() override
 	{
@@ -1569,7 +1563,7 @@ public:
 	static CEagleLaser* CreateSpot();
 };
 
-class CM727 : public CBasePlayerWeapon
+class CM727 : public CBasePlayerWeapon // to-do: save firemode
 {
 	void ReloadSetAmmos() override;
 public:
@@ -1592,7 +1586,6 @@ public:
 
 	TraceResult m_trHit;
 	int m_iShell;
-	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool firemode;
 	bool UseDecrement() override
 	{
@@ -1651,6 +1644,11 @@ enum m29_e
 class CM29 : public CBasePlayerWeapon
 {
 public:
+#ifndef CLIENT_DLL
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+#endif
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 2; }

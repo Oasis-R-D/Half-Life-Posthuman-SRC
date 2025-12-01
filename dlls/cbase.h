@@ -27,15 +27,6 @@ CBaseEntity
 				CBaseCycler
 				CBasePlayer
 				CBaseGroup
-
-#define PE_MUZZLESMK      0
-#define PE_MUZZLESMKSG    1
-#define PE_EXPLOSIONCLUST 2
-#define PE_NPCIMPACTCLUST 3
-#define PE_BLOATERGASEXPL 4
-#define PE_BLDIMPACTCLUST 5
-#define PE_BLLTIMPACTGLOW 6
-#define PE_BLDGIBCLOUD	  7
 */
 
 enum ParticleEngine
