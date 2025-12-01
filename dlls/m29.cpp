@@ -34,6 +34,7 @@ TYPEDESCRIPTION CM29::m_SaveData[] =
 };
 
 IMPLEMENT_SAVERESTORE(CM29, CM29::BaseClass);
+LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
 
 #endif
 bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
@@ -52,7 +53,7 @@ bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
 	}
 }
 
-LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
+
 
 bool CM29::GetItemInfo(ItemInfo* p)
 {
