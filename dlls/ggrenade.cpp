@@ -53,7 +53,7 @@ void CHopWireBeam::Spawn()
 	pev->solid = SOLID_BBOX;
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	SET_MODEL(ENT(pev), "models/w_hopwire.mdl");
-	UTIL_SetOrigin(pev, spawner->pev->origin); //spawn a little bit more forward
+	UTIL_SetOrigin(pev, spawner->pev->origin);
 
 	pev->velocity = (m_direction + m_SpreadVect) * 600; // Applies spread and velocity
 	pev->velocity = pev->velocity + spawner->pev->velocity;
@@ -100,21 +100,19 @@ void CHopWireBeam::FadeThink()
 	pev->nextthink = gpGlobals->time + 0.125f;
 	if (pev->renderamt <= 0)
 	{
-		SetThink(NULL);
 		UTIL_Remove(this);
 	}
 }
 
 void CHopWireBeam::MakeBeam()
 {
+	pev->nextthink = gpGlobals->time + 0.01f;
 	CBaseEntity* that = this;
 	if (spawner->m_bHasExploded == true || spawner == nullptr)
 	{
 		pev->movetype = MOVETYPE_TOSS;
-		if (m_pSprite->pev != nullptr)
-			UTIL_Remove(m_pSprite);
-		if (m_pBeam->pev != nullptr)
-			UTIL_Remove(m_pBeam);
+		UTIL_Remove(m_pSprite);
+		UTIL_Remove(m_pBeam);
 		SetThink(&CHopWireBeam::FadeThink);
 		pev->nextthink = gpGlobals->time + 2.5f;
 		
@@ -123,16 +121,17 @@ void CHopWireBeam::MakeBeam()
 	else
 	{
 		TraceResult tr;
-		pev->nextthink = gpGlobals->time + 0.01f;
-		if (spawner == nullptr || spawner->pev == nullptr)
+		if (spawner == nullptr || this == nullptr)
 			return;
-		if (pev != nullptr && !spawner->m_bHasExploded)
+
+		if (!spawner->m_bHasExploded)
 		{
 			UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
 			CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
 			if (Hit != nullptr && !FClassnameIs(Hit->pev, "grenade") && !Hit->IsBSPModel())
 			{
-				spawner->CallDetonate();
+				spawner->SetThink(&CGrenade::CallDetonate);
+				pev->nextthink = gpGlobals->time;
 			}
 		}
 
@@ -548,14 +547,6 @@ void CGrenade::ArmHopwire()
 void CGrenade::HopwireThink()
 {
 	pev->nextthink = 0.25f;
-	
-	if (pev->health <= 0)
-	{
-		m_bHasExploded = true;
-		SetThink(&CGrenade::CallDetonate);
-		pev->nextthink = gpGlobals->time;
-	}
-
 	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
 
 	if (pev->velocity.z <= 0) // At apex, set gravity back to normal
@@ -563,7 +554,7 @@ void CGrenade::HopwireThink()
 		pev->gravity = 0.5f;
 		if (wireamnt > 0 && nextwire <= gpGlobals->time)
 		{
-			Vector RNDDIR = Vector(RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI), RANDOM_FLOAT(M_PI, -M_PI));
+			Vector RNDDIR = RANDOM_VECTOR(-M_PI, M_PI);
 			CHopWireBeam::ShootBeams(this, gpGlobals->v_up + RNDDIR);
 			pev->velocity.x += -RNDDIR.x * 10;
 			pev->velocity.y += -RNDDIR.y * 10;

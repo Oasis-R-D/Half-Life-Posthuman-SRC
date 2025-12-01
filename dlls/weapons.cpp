@@ -282,6 +282,7 @@ void W_Precache()
 	PRECACHE_MODEL("models/grenade.mdl");
 	PRECACHE_MODEL("models/w_hopwire.mdl");
 	PRECACHE_MODEL("models/w_fgrenade.mdl");
+	PRECACHE_MODEL("models/v_ohgrenade.mdl");
 	PRECACHE_MODEL("models/w_sgrenade.mdl");
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
 	PRECACHE_MODEL("sprites/blueflare1.spr");

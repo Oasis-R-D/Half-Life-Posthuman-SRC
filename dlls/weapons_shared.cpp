@@ -184,12 +184,12 @@ void CBasePlayerWeapon::ItemPostFrame()
 			m_pPlayer->m_iGrenadeAmnt--;
 
 			m_flNextGrenadeAttack = gpGlobals->time + 2;
-			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
-			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25f;
+			m_fGrenadeFireDelay = gpGlobals->time + 0.5f;
 
 			GrenadeAttack();
-
-
+			m_pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
+			SendWeaponAnim(OH_THROW, m_pPlayer->m_bPrehuman, true);
 			if (m_pPlayer->m_iGrenadeAmnt == 1)
 			{
 				switch (RANDOM_LONG(1, 3))
@@ -302,7 +302,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			maxvel = 1000;
 			break;
 	}
-	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -2;
+	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -4;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
 
 	if (angThrow.x < 0)

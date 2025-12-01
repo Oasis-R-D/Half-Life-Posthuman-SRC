@@ -1684,3 +1684,9 @@ private:
 	bool m_bFirstShot;
 
 };
+
+enum offhandgren_e
+{
+	OH_DONOTHING = 0,
+	OH_THROW
+};
