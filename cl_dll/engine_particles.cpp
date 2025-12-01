@@ -1,7 +1,7 @@
 /*
 *
 //
-/// Copyright PackMail Industries 2025-2025, no rights reserved.
+/// Copyright PackMail Industries 2025-2025, no rights reserved. (I'll sue you breh)
 //
 *
 */
@@ -9,7 +9,49 @@
 #include "engine_particles.h"
 //8========================================================D
 // ENGINE_PARTICLES.CPP: File to store code defined particles
+// WHY: Most of these are only here so they can accept inputs
 //8========================================================D
+
+char bloodgibcloud[] = R"(
+randomdir 1
+systemsize 5
+
+life 1
+lifevar 0.2
+
+fadedelay 0.1
+
+minvel 175
+maxvel 225
+
+maxofs 11
+
+texture smoke03
+rendermode 2
+
+scale 10
+scalevar 5
+scaledampdelay 0.1
+scaledampfactor -10
+
+rotationvel 80
+rotationdamp 0.02
+
+veldamp 2.3
+veldampdelay 0.01
+
+collision 4
+gravity -0.1
+mainalpha 0.25
+
+startparticles 45
+
+lightmaps 2
+
+pcolr %d
+pcolg %d
+pcolb %d
+)";
 
 char bulletholeglow[] = R"(
 life 1.5

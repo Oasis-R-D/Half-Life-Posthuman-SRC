@@ -254,8 +254,6 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	//OrigR_BloodSprite(org, colorindex, modelIndex, modelIndex2, size);
 	
 	// NEW PARTICLE BASED SYSTEM
-	auto randomfloat = gEngfuncs.pfnRandomFloat;
-	Vector dir( randomfloat(-2, 2), randomfloat(-2, 2), randomfloat(0, 2) );
 
 	std::string modelname = CL_GetModelByIndex(modelIndex)->name;
 	std::string modelname2 = CL_GetModelByIndex(modelIndex2)->name;

@@ -1787,6 +1787,7 @@ void EV_Particles(event_args_t* args)
 {
 	Vector Origin;
 	Vector Dir;
+	int R = 0, G = 0, B = 0;
 	int idx;
 	idx = args->entindex;
 
@@ -1892,6 +1893,36 @@ void EV_Particles(event_args_t* args)
 			break;
 		case 6: // glowing bullet impact 'crater'
 			gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
+			break;
+		case 7:
+			switch (args->iparam2)
+			{
+				case BLOOD_COLOR_RED:
+					R = 160;
+					break;
+				case BLOOD_COLOR_YELLOW:
+					R = 199;
+					G = 195;
+					B = 55;
+					break;
+				case BLOOD_COLOR_GREEN:
+					R = 185;
+					G = 235;
+					B = 85;
+					break;
+				case BLOOD_COLOR_CYAN:
+					G = 255;
+					B = 140;
+					break;
+				default:
+					if (gEngfuncs.pfnRandomLong(0, 1) == 1)
+					{
+						B = 255;
+						R = 255;
+					}
+					break;
+			}
+			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodgibcloud, R, G, B), args->origin, g_vecZero, 0);
 			break;
 	}
 }

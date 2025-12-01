@@ -588,6 +588,7 @@ void CBaseMonster::CallGibMonster()
 	{
 		pev->effects = EF_NODRAW; // make the model invisible.
 		GibMonster();
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLDGIBCLOUD, BloodColor(), 0, 0);
 	}
 
 	pev->deadflag = DEAD_DEAD;

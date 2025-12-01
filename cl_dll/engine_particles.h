@@ -1,7 +1,7 @@
 /*
 *
 //
-/// Copyright PackMail Industries 2025-2025, no rights reserved.
+/// Copyright PackMail Industries 2025-2025, no rights reserved. (I'll sue you breh)
 //
 *
 */
@@ -23,3 +23,5 @@ extern char particle_bulletimpact[];
 extern char particle_muzzleflash[];
 
 extern char particle_explosion[];
+
+extern char bloodgibcloud[];
