@@ -1644,11 +1644,14 @@ enum m29_e
 class CM29 : public CBasePlayerWeapon
 {
 public:
+	using BaseClass = CBasePlayerWeapon;
+
 #ifndef CLIENT_DLL
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
 	static TYPEDESCRIPTION m_SaveData[];
 #endif
+
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 2; }
