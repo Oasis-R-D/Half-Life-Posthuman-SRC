@@ -27,7 +27,6 @@ CBaseEntity
 				CBaseCycler
 				CBasePlayer
 				CBaseGroup
-*/
 
 #define PE_MUZZLESMK      0
 #define PE_MUZZLESMKSG    1
@@ -37,6 +36,19 @@ CBaseEntity
 #define PE_BLDIMPACTCLUST 5
 #define PE_BLLTIMPACTGLOW 6
 #define PE_BLDGIBCLOUD	  7
+*/
+
+enum ParticleEngine
+{
+	PE_MUZZLESMK = 0,
+	PE_MUZZLESMKSG,
+	PE_EXPLOSIONCLUST,
+	PE_NPCIMPACTCLUST,
+	PE_BLOATERGASEXPL,
+	PE_BLDIMPACTCLUST,
+	PE_BLLTIMPACTGLOW,
+	PE_BLDGIBCLOUD,
+};
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 
