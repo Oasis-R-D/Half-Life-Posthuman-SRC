@@ -93,6 +93,7 @@ void CCrowbar::Holster()
 
 void CCrowbar::PrimaryAttack()
 {
+	m_pPlayer->CrowbarFlinch = 0;
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 1.18;
 	pev->armortype = gpGlobals->time + 0.31;
 	pev->armorvalue = gpGlobals->time + 0.71;
@@ -102,6 +103,7 @@ void CCrowbar::PrimaryAttack()
 
 void CCrowbar::SecondaryAttack()
 {
+	m_pPlayer->CrowbarFlinch = 0;
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 1.66;
 	pev->health = gpGlobals->time + 0.34;
 	SendWeaponAnim(CROWBAR_ATTACK2);
@@ -136,6 +138,7 @@ void CCrowbar::ItemPostFrame()
 
 	if (m_pPlayer->CrowbarFlinch > 0 && pev->armortype == 0 && pev->armorvalue == 0 && pev->health == 0)
 	{
+		m_pPlayer->CrowbarFlinch = 0;
 		if (m_pPlayer->CrowbarFlinch == 1)
 		{
 			SendWeaponAnim(CROWBAR_FLINCH_SMALL);
@@ -146,7 +149,6 @@ void CCrowbar::ItemPostFrame()
 			SendWeaponAnim(CROWBAR_FLINCH_BIG);
 			m_flTimeWeaponIdle = 0.5;
 		}
-		m_pPlayer->CrowbarFlinch = 0;
 	}
 
 	CBasePlayerWeapon::ItemPostFrame();
@@ -173,9 +175,16 @@ void CCrowbar::Hit(bool type)
 		auto pHit = CBaseEntity::Instance(tr.pHit);
 		ClearMultiDamage();
 		if (false)
+		{
 			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
+			#ifndef CLIENT_DLL
+			CBasePlayerWeapon::Recoil(0, 2); // TO-DO: make it go the direction of the hand
+			#endif
+		}
 		else
+		{
 			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar * 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+		}
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 
 		if (pHit->pev->deadflag != DEAD_NO)
@@ -244,7 +253,6 @@ void CCrowbar::Hit(bool type)
 	}
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
-	m_pPlayer->pev->punchangle.z = RANDOM_LONG(-5, 5);
 }
 
 void CCrowbar::WeaponIdle()

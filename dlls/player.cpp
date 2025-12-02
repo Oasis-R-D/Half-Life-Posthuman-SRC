@@ -530,7 +530,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 	if (fmajor)
 		CrowbarFlinch = 2;
 	else
-		CrowbarFlinch = 1;
+		CrowbarFlinch = RANDOM_LONG(0, 1);
 
 	// handle all bits set in this damage message,
 	// let the suit give player the diagnosis
