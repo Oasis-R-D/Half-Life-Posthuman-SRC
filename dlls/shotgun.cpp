@@ -96,11 +96,7 @@ bool CShotgun::Deploy()
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(pev->armorvalue ? 3 : 4);
 	MESSAGE_END();
-	if (m_Prehuman == true)
-	{
-		// set bodygroup
-	}
-	if (m_Training == true)
+	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
 		if (!NotFirstDraw)
 			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
@@ -378,7 +374,6 @@ void CShotgun::WeaponIdle()
 		}
 		else
 		{
-			NotFirstDraw = true;
 			switch (RANDOM_LONG(1, 3))
 			{
 			case 1: SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_IDLE1_SEMI : SHOTGUN_IDLE1), m_flTimeWeaponIdle = 1.93; break;

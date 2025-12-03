@@ -184,6 +184,12 @@ public:
 	bool m_bNoSprint;
 	bool m_bLightOn;
 	int m_iWeaponStatus; // Bullet or rubber bullet or prehuman or prehuman and rubber
+	////////////////////
+	//	0 == POST - Live
+	//	1 == POST - Train
+	//	2 == PRE - Live
+	//	3 == PRE - Train
+	////////////////////
 
 	float m_tSneaking;
 	float m_fRadImmuneTime;
