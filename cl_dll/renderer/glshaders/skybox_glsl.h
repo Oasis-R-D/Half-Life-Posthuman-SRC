@@ -1,7 +1,7 @@
 #pragma once
 
 //simple shader for rendering the skybox cube
-
+// To-do: skybox should be fullbright
 char glsl_skybox_vp[] = R"(
 
 	uniform mat4 projviewmatrix;
