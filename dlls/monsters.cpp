@@ -555,8 +555,9 @@ void CBaseMonster::Railed() //:troll:
 					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_CYAN, 255);
 			}
 #ifndef CLIENT_DLL
-			for (int l = 0; l < 16; l++)
+			for (int l = 0; l < 16; l++) // TO-DO: OPTIMIZE THIS. (make a new particle type that makes the blood spawn particles repeat 16 times)
 				CPhysblood::BloodCreate(1, 350, Center(), -gpGlobals->v_up, 1.25, BloodColor(), true, 2.5 * CONE_60DEGREES);
+				// ^^ only used for the spawn particles
 #endif
 			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
 		}

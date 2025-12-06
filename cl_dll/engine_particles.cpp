@@ -11,7 +11,7 @@
 // ENGINE_PARTICLES.CPP: File to store code defined particles
 // WHY: Most of these are only here so they can accept inputs
 //8========================================================D
-
+// vvv could use a animated tex to make the drops fly outwards
 char bloodgibcloud[] = R"(
 randomdir 1
 systemsize 5
@@ -26,7 +26,7 @@ maxvel 225
 
 maxofs 11
 
-texture smoke03
+texture splash1
 rendermode 2
 
 scale 10
@@ -35,7 +35,7 @@ scaledampdelay 0.1
 scaledampfactor -10
 
 rotationvel 80
-rotationdamp 0.02
+rotationdamp 0.01
 
 veldamp 2.3
 veldampdelay 0.01
