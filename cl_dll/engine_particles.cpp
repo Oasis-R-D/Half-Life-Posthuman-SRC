@@ -154,11 +154,14 @@ fadedelay 1.3
 
 minvel 50
 maxvel 200
+rotationvel 90
+rotationvar 30
 
 sprite _particletexture
 rendermode 2
 
 scale 1.5
+scalevar 0.25
 
 pcolr 47
 pcolg 47
@@ -167,10 +170,10 @@ pcolb 47
 
 gravity 1
 
-startparticles 20
+startparticles 15
 
 collision 2
-
+impactdamp 0.25
 lightmaps 1
 
 )";
