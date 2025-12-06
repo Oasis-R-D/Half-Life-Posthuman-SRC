@@ -515,6 +515,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				pev->health = 2;
 				SetBodygroup(TORSO_GROUP, TORSO_ENGI); // make exploded variant
 				pev->dmg = 0;
+				// TO-DO: use railcannon explosion vfx
 				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 				WRITE_BYTE(TE_EXPLOSION);
 				WRITE_COORD(ptr->vecEndPos.x);

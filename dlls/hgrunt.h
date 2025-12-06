@@ -146,7 +146,7 @@ public:
 	bool m_fuel = false;
 	bool m_bHeavyGrunt = false;
 	int m_cClipSize;
-	int m_tankhealth = 30;
+	int m_tankhealth = 20;
 	int m_voicePitch;
 
 	int m_iBrassShell;
