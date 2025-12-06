@@ -320,8 +320,6 @@ void CMP5::WeaponIdle()
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
-	NotFirstDraw = true;
-
 	if (pev->weapons == 0)
 	{
 		if (RANDOM_LONG(0, 1))
@@ -785,8 +783,6 @@ void CM727::WeaponIdle()
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
-
-	NotFirstDraw = true;
 
 	if (RANDOM_LONG(0, 1))
 		SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = 2.5;

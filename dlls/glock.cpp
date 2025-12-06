@@ -304,8 +304,6 @@ void CGlock::WeaponIdle()
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
-	NotFirstDraw = true;
-
 	// only idle if the slide isn't back
 	if (m_iClip != 0)
 	{
