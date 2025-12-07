@@ -511,7 +511,7 @@ CSound* CBaseMonster::PBestScent()
 
 void CBaseMonster::Railed() //:troll:
 {
-	if (m_flMaxDistTooFar != m_flDistTooFar)
+	if (m_flMaxDistTooFar != m_flDistTooFar) // flashbang/blindness recovery
 	{
 		m_flDistTooFar += 4;
 		if (m_flDistTooFar > m_flMaxDistTooFar)
@@ -523,16 +523,19 @@ void CBaseMonster::Railed() //:troll:
 		if (m_flDistLook > m_flMaxDistLook)
 			m_flDistLook = m_flMaxDistLook;
 	}
+
 	if (m_bRailed)
 	{
 		TraceResult tr;
 		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
 		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
+
 		if (RANDOM_LONG(0, 1) == 1 && BloodColor() != DONT_BLEED)
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
 
 		pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
-		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
+
+		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0) // Explode
 		{
 			RadiusDamage(pev, pev, 30, CLASS_NONE, DMG_BLAST);
 			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
@@ -542,23 +545,8 @@ void CBaseMonster::Railed() //:troll:
 			m_bRailed = false;
 			pev->velocity = g_vecZero;
 
-			for (int i = 0; i < 255; i++)
-			{
-				//UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BloodColor(), 255);
-				if (BloodColor() == BLOOD_COLOR_YELLOW)
-					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_YELLOW, 255);
-				else if (BloodColor() == BLOOD_COLOR_RED)
-					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), 70, 255); //fuck whoever thought a pallete for this was a good idea
-				else if (BloodColor() == BLOOD_COLOR_GREEN)
-					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_GREEN, 255);
-				else
-					UTIL_BloodStream(Center(), gpGlobals->v_forward * RANDOM_LONG(-512, 512) + gpGlobals->v_right * RANDOM_LONG(-512, 512) + gpGlobals->v_up * RANDOM_LONG(512, 1024), BLOOD_COLOR_CYAN, 255);
-			}
-#ifndef CLIENT_DLL
-			for (int l = 0; l < 16; l++) // TO-DO: OPTIMIZE THIS. (make a new particle type that makes the blood spawn particles repeat 16 times)
-				CPhysblood::BloodCreate(1, 350, Center(), -gpGlobals->v_up, 1.25, BloodColor(), true, 2.5 * CONE_60DEGREES);
-				// ^^ only used for the spawn particles
-#endif
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam1)
+			
 			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
 		}
 	}
