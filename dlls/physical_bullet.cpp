@@ -131,9 +131,8 @@ void CPhysbullet::Spawn()
 	else if (m_Flare == 69) // Training weapons
 	{
 		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-		m_distpenetrate = 2;
+		m_distpenetrate = 0;
 		pev->rendermode = kRenderNormal;
-		pev->scale = 1;
 	}
 	else if (m_Flare == 420) // HC Deagle
 	{
@@ -150,6 +149,7 @@ void CPhysbullet::Spawn()
 		pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
 		m_distpenetrate = 16;
 	}
+
 	if (m_bsubsonic)
 		m_distpenetrate = round(m_distpenetrate * 0.75f);
 
