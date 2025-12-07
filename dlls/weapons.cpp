@@ -1484,6 +1484,7 @@ TYPEDESCRIPTION CShotgun::m_SaveData[] =
 	{
 		DEFINE_FIELD(CShotgun, m_flNextReload, FIELD_TIME),
 		DEFINE_FIELD(CShotgun, m_fInSpecialReload, FIELD_INTEGER),
+		DEFINE_FIELD(CShotgun,  m_iFiremode, FIELD_INTEGER),
 		DEFINE_FIELD(CShotgun, m_flNextReload, FIELD_TIME),
 		// DEFINE_FIELD( CShotgun, m_iShell, FIELD_INTEGER ),
 		DEFINE_FIELD(CShotgun, m_flPumpTime, FIELD_TIME),
@@ -1525,10 +1526,31 @@ TYPEDESCRIPTION CSatchel::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE(CSatchel, CBasePlayerWeapon);
 
-LINK_ENTITY_TO_CLASS(eagle_laser, CEagleLaser);
+TYPEDESCRIPTION CM249::m_SaveData[] =
+	{
+		DEFINE_FIELD(CM249, m_flReloadStartTime, FIELD_FLOAT),
+		DEFINE_FIELD(CM249, m_flReloadStart, FIELD_FLOAT),
+		DEFINE_FIELD(CM249, m_bReloading, FIELD_BOOLEAN),
+		DEFINE_FIELD(CM249, m_iFire, FIELD_INTEGER),
+		DEFINE_FIELD(CM249, m_iSmoke, FIELD_INTEGER),
+		DEFINE_FIELD(CM249, m_iLink, FIELD_INTEGER),
+		DEFINE_FIELD(CM249, m_iShell, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CM249, CM249::BaseClass);
+
+TYPEDESCRIPTION CM29::m_SaveData[] =
+	{
+		DEFINE_FIELD(CM29, slowmo, FIELD_BOOLEAN),
+		DEFINE_FIELD(CM29, m_iCylL_ammo, FIELD_INTEGER),
+		DEFINE_FIELD(CM29, m_iCylR_ammo, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CM29, CM29::BaseClass);
+
 
 //=========================================================
 //=========================================================
+LINK_ENTITY_TO_CLASS(eagle_laser, CEagleLaser);
+
 CEagleLaser* CEagleLaser::CreateSpot()
 {
 	auto pSpot = GetClassPtr(reinterpret_cast<CEagleLaser*>(VARS(CREATE_NAMED_ENTITY(MAKE_STRING("eagle_laser")))));

@@ -22,21 +22,6 @@
 #include "monsters.h"
 #include "physical_bullet.h"
 
-#ifndef CLIENT_DLL
-TYPEDESCRIPTION CM249::m_SaveData[] =
-	{
-		DEFINE_FIELD(CM249, m_flReloadStartTime, FIELD_FLOAT),
-		DEFINE_FIELD(CM249, m_flReloadStart, FIELD_FLOAT),
-		DEFINE_FIELD(CM249, m_bReloading, FIELD_BOOLEAN),
-		DEFINE_FIELD(CM249, m_iFire, FIELD_INTEGER),
-		DEFINE_FIELD(CM249, m_iSmoke, FIELD_INTEGER),
-		DEFINE_FIELD(CM249, m_iLink, FIELD_INTEGER),
-		DEFINE_FIELD(CM249, m_iShell, FIELD_INTEGER),
-};
-
-IMPLEMENT_SAVERESTORE(CM249, CM249::BaseClass);
-#endif
-
 LINK_ENTITY_TO_CLASS(weapon_m249, CM249);
 
 void CM249::Precache()

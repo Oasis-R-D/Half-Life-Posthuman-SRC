@@ -66,10 +66,6 @@ void CShotgun::Precache()
 	PRECACHE_SOUND("weapons/reload3.wav"); // shotgun reload
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
-
-	m_usSingleFire = PRECACHE_EVENT(1, "events/shotgun1.sc");
-	m_usDoubleFire = PRECACHE_EVENT(1, "events/shotgun2.sc");
-	
 }
 
 bool CShotgun::GetItemInfo(ItemInfo* p)
@@ -94,19 +90,19 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 bool CShotgun::Deploy()
 {
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(pev->armorvalue ? 3 : 4);
+	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	MESSAGE_END();
 	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
 		if (!NotFirstDraw)
 			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", pev->armorvalue ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
+		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
 	}
 	else
 	{
 		if (!NotFirstDraw)
 			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", pev->armorvalue ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
 	}
 }
 
@@ -139,9 +135,9 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	//Vector spread = pev->armorvalue == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	float spread = pev->armorvalue == 0 ? CONE_5DEGREES : 0.17432;
-	float spreadvert = pev->armorvalue == 0 ? CONE_5DEGREES : 0.01746;
+	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
+	float spread = m_iFiremode == 0 ? CONE_5DEGREES : 0.17432;
+	float spreadvert = m_iFiremode == 0 ? CONE_5DEGREES : 0.01746;
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
@@ -160,7 +156,7 @@ void CShotgun::PrimaryAttack()
 		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
-	if (pev->armorvalue == 0)
+	if (m_iFiremode == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT1_PUMP_EMPTY : SHOTGUN_SHOOT1_PUMP);
 		m_flPumpTime = gpGlobals->time + 0.5;
@@ -177,8 +173,8 @@ void CShotgun::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = pev->armorvalue == 1 ? 0.2 : 0.9;
-	m_flNextTertiaryAttack = gpGlobals->time + pev->armorvalue == 1 ? 0.2 : 0.9;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_iFiremode == 1 ? 0.2 : 0.9;
+	m_flNextTertiaryAttack = gpGlobals->time + m_iFiremode == 1 ? 0.2 : 0.9;
 	m_flTimeWeaponIdle = 1;
 	m_fInSpecialReload = 0;
 	
@@ -233,8 +229,8 @@ void CShotgun::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();// + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	float spread = pev->armorvalue == 0 ? CONE_15DEGREES : 0.25;
-	float spreadvert = pev->armorvalue == 0 ? CONE_15DEGREES : 0.02;
+	float spread = m_iFiremode == 0 ? CONE_15DEGREES : 0.25;
+	float spreadvert = m_iFiremode == 0 ? CONE_15DEGREES : 0.02;
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
@@ -249,7 +245,7 @@ void CShotgun::SecondaryAttack()
 	
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, Vector(0.25, 0.02, 0.25), 2048, BULLET_PLAYER_BUCKSHOT, 1);
 
-	if (pev->armorvalue == 0)
+	if (m_iFiremode == 0)
 		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT2_PUMP_EMPTY : SHOTGUN_SHOOT2_PUMP);
 	else
 		SendWeaponAnim(SHOTGUN_SHOOT2_SEMI);
@@ -259,12 +255,12 @@ void CShotgun::SecondaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(pev->armorvalue == 1 ? 1.5 : 1.2);
-	m_flNextTertiaryAttack = gpGlobals->time + pev->armorvalue == 1 ? 1.5 : 1.2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(m_iFiremode == 1 ? 1.5 : 1.2);
+	m_flNextTertiaryAttack = gpGlobals->time + m_iFiremode == 1 ? 1.5 : 1.2;
 	m_flTimeWeaponIdle = 2;
 	m_fInSpecialReload = 0;
 
-	if (pev->armorvalue == 1)
+	if (m_iFiremode == 1)
 		m_flPumpTime = gpGlobals->time + 1;
 	else
 		m_flPumpTime = gpGlobals->time + 0.6;
@@ -278,13 +274,13 @@ void CShotgun::TertiaryAttack()
 {
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 2;
 	m_flNextTertiaryAttack = gpGlobals->time + 2;
-	SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
-	if (pev->armorvalue == 0)
-		pev->armorvalue = 1;
+	SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
+	if (m_iFiremode == 0)
+		m_iFiremode = 1;
 	else
-		pev->armorvalue = 0;
+		m_iFiremode = 0;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(pev->armorvalue ? 3 : 4);
+	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	MESSAGE_END();
 }
 
@@ -302,7 +298,7 @@ void CShotgun::Reload()
 	{
 		if (m_iClip == 0)
 		{
-			SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_RELOAD_START_EMPTY_SEMI : SHOTGUN_RELOAD_START_EMPTY);
+			SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_START_EMPTY_SEMI : SHOTGUN_RELOAD_START_EMPTY);
 			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.6;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.6;
 			m_flNextPrimaryAttack = GetNextAttackDelay(1.6);
@@ -311,7 +307,7 @@ void CShotgun::Reload()
 		}
 		else
 		{
-			SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_RELOAD_START_SEMI : SHOTGUN_RELOAD_START);
+			SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_START_SEMI : SHOTGUN_RELOAD_START);
 			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.37;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.37;
 			m_flNextPrimaryAttack = GetNextAttackDelay(0.37);
@@ -332,7 +328,7 @@ void CShotgun::Reload()
 		else
 			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload3.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f));
 
-		SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_RELOAD_INSERT_SEMI : SHOTGUN_RELOAD_INSERT);
+		SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_INSERT_SEMI : SHOTGUN_RELOAD_INSERT);
 
 		m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
@@ -367,7 +363,7 @@ void CShotgun::WeaponIdle()
 			}
 			else
 			{
-				SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_RELOAD_END_SEMI : SHOTGUN_RELOAD_END);
+				SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_END_SEMI : SHOTGUN_RELOAD_END);
 				m_fInSpecialReload = 0;
 				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
 			}
@@ -376,9 +372,9 @@ void CShotgun::WeaponIdle()
 		{
 			switch (RANDOM_LONG(1, 3))
 			{
-			case 1: SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_IDLE1_SEMI : SHOTGUN_IDLE1), m_flTimeWeaponIdle = 1.93; break;
-			case 2: SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_IDLE2_SEMI : SHOTGUN_IDLE2), m_flTimeWeaponIdle = 3.43; break;
-			case 3: SendWeaponAnim(pev->armorvalue == 1 ? SHOTGUN_IDLE3_SEMI : SHOTGUN_IDLE3), m_flTimeWeaponIdle = 3.23; break;
+			case 1: SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_IDLE1_SEMI : SHOTGUN_IDLE1), m_flTimeWeaponIdle = 1.93; break;
+			case 2: SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_IDLE2_SEMI : SHOTGUN_IDLE2), m_flTimeWeaponIdle = 3.43; break;
+			case 3: SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_IDLE3_SEMI : SHOTGUN_IDLE3), m_flTimeWeaponIdle = 3.23; break;
 			}
 		}
 	}

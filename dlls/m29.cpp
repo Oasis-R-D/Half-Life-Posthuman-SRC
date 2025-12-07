@@ -25,18 +25,7 @@
 
 #define firerate 0.25
 
-#ifndef CLIENT_DLL
-TYPEDESCRIPTION CM29::m_SaveData[] =
-	{
-		DEFINE_FIELD(CM29, slowmo, FIELD_BOOLEAN),
-		DEFINE_FIELD(CM29, m_iCylL_ammo, FIELD_INTEGER),
-		DEFINE_FIELD(CM29, m_iCylR_ammo, FIELD_INTEGER),
-};
-
-IMPLEMENT_SAVERESTORE(CM29, CM29::BaseClass);
 LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
-
-#endif
 bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
 {
 #if defined(CLIENT_WEAPONS)

@@ -583,6 +583,7 @@ public:
 	void ReloadSetAmmos() override;
 	void ItemPostFrame();
 	bool m_isilenced;
+	bool m_bHasSilencer;
 	float m_fTimer;
 	bool UseDecrement() override
 	{
@@ -680,6 +681,11 @@ public:
 		return false;
 #endif
 	}
+	// So the laser spot is always updated.
+	
+	bool m_bHasLaser;
+	bool m_bHasScope;
+	bool ShouldWeaponIdle() override { return m_bHasLaser ? true : false; }
 
 private:
 	float m_fTimeSincePrimary;
@@ -736,10 +742,6 @@ public:
 		return false;
 #endif
 	}
-
-private:
-	unsigned short m_usMP5;
-	unsigned short m_usMP52;
 };
 
 enum m727_e
@@ -856,10 +858,10 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void ItemPostFrame() override;
-	int m_fInReload; //TODO: not used, remove
+	int m_fInReload; //TO-DO: not used, remove
 	float m_flNextReload;
 	int m_iShell;
-	int m_firemode; //TO-DO: implement this instead of armortype (since this can be saved)
+	int m_iFiremode; //TO-DO: implement this instead of armortype (since this can be saved)
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
@@ -868,10 +870,6 @@ public:
 		return false;
 #endif
 	}
-
-private:
-	unsigned short m_usDoubleFire;
-	unsigned short m_usSingleFire;
 };
 
 class CLaserSpot : public CBaseEntity
