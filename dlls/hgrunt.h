@@ -33,8 +33,8 @@
 #define ARMOR_DEF 0
 #define ARMOR_ENGI 1
 
-#define HEAD_GRUNT 0
-#define HEAD_GRUNT_BLACK 1
+#define HEAD_GASMASK 0
+#define HEAD_GASMASK_BLACK 1
 #define HEAD_HELM_1 2
 #define HEAD_HELM_2 3
 #define HEAD_HELM_3 4

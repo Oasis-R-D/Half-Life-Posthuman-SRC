@@ -1107,7 +1107,7 @@ void CHGrunt::Spawn()
 		switch (RANDOM_LONG(0, 1))
 		{
 		case 0:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GASMASK, HEAD_HELM_7)));
 			break;
 		case 1:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
@@ -1133,7 +1133,7 @@ void CHGrunt::Spawn()
 		switch (RANDOM_LONG(0, 1))
 		{
 		case 0:
-			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
+			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GASMASK, HEAD_HELM_7)));
 			break;
 		case 1:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));

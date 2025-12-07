@@ -336,7 +336,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				switch (RANDOM_LONG(0, 1))
 				{
 				case 0:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GASMASK, HEAD_HELM_7)));
 					break;
 				case 1:
 					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
@@ -388,7 +388,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				switch (RANDOM_LONG(0, 1))
 				{
 				case 0:
-					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
+					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GASMASK, HEAD_HELM_7)));
 					break;
 				case 1:
 					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));

@@ -215,7 +215,7 @@ void CHGruntHeavy::Spawn()
 {
 	Precache();
 	
-	SET_MODEL(ENT(pev), "models/hgrunt_opfor.mdl");
+	SET_MODEL(ENT(pev), "models/hgrunt_heavy.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
@@ -252,6 +252,7 @@ void CHGruntHeavy::Spawn()
 
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
+		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
 		if (g_iSkillLevel != SKILL_HARD)
@@ -284,25 +285,14 @@ void CHGruntHeavy::Spawn()
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
-		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_cClipSize = 30;
 		m_flDistTooFar = 2048+192;
 		m_flDistLook = 2048+192; //idk if this is needed
 	}
+	pev->skin = RANDOM_LONG(0, 1);
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
-
-	switch (RANDOM_LONG(0, 1))
-	{
-	case 0:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_GRUNT, HEAD_HELM_7)));
-		break;
-	case 1:
-		SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
-		break;
-	}
-	SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 	
 	MonsterInit();
 }
@@ -312,7 +302,7 @@ void CHGruntHeavy::Spawn()
 void CHGruntHeavy::Precache()
 {
 	const char* pGibName;
-	PRECACHE_MODEL("models/hgrunt_opfor.mdl");
+	PRECACHE_MODEL("models/hgrunt_heavy.mdl");
 	PRECACHE_MODEL("models/h_mp5.mdl");
 	PRECACHE_MODEL("models/h_spas.mdl");
 	PRECACHE_MODEL("models/h_m249.mdl");
@@ -551,7 +541,7 @@ void CHGruntHeavy::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, HGRUNT_9MMAR) || FBitSet(pev->weapons, HGRUNT_M727) || FBitSet(pev->weapons, HGRUNT_M249))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_mp5");
