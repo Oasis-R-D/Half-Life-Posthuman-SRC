@@ -72,12 +72,14 @@ void DiscordMan_Update(void)
 		skilllevel = "Realism Mode";
 		break;
 	}
+	// Menu detections, these don't seem to work very well.
 	if (engine_cl->paused)
 	{
 		skilllevel = "In Menus";
 	}
 	if (engine_cl->intermission)
 	{
+		map = 0;
 		skilllevel = "Intermission";
 	}
 	if (engine_cls->state == ca_disconnected)
@@ -85,6 +87,7 @@ void DiscordMan_Update(void)
 		map = 0;
 		skilllevel = "In Main Menus";
 	}
+
 	discordPresence.details = map;	// Chapter name doesn't matter; if it's blank, Discord shows map name
 	discordPresence.state = skilllevel;
 	discordPresence.largeImageKey = curImage;

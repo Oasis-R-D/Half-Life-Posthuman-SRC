@@ -971,7 +971,7 @@ void InitInput()
 	cl_yawspeed = gEngfuncs.pfnRegisterVariable("cl_yawspeed", "128", 0);
 	cl_pitchspeed = gEngfuncs.pfnRegisterVariable("cl_pitchspeed", "128", 0);
 	cl_upspeed = gEngfuncs.pfnRegisterVariable("cl_upspeed", "128", 0);
-	cl_forwardspeed = gEngfuncs.pfnRegisterVariable("cl_forwardspeed", "128", 0);
+	cl_forwardspeed = gEngfuncs.pfnRegisterVariable("cl_forwardspeed", "192", 0);
 	cl_backspeed = gEngfuncs.pfnRegisterVariable("cl_backspeed", "128", 0);
 	cl_sidespeed = gEngfuncs.pfnRegisterVariable("cl_sidespeed", "128", 0);
 	cl_movespeedkey = gEngfuncs.pfnRegisterVariable("cl_movespeedkey", "2", 0);
@@ -1000,7 +1000,7 @@ void InitInput()
 	V_Init();
 
 	// jay - discord rpc
-	gEngfuncs.Con_Printf("Starting up Discord RPC\n");
+	gEngfuncs.Con_Printf("DRPC initializing\n");
 	DiscordMan_Startup();
 }
 

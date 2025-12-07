@@ -823,8 +823,8 @@ void CWorld::Precache()
 	{
 		CVAR_SET_FLOAT("mp_defaultteam", 0);
 	}
-	// jay - discord rpc
 
+	// jay - discord rpc
 	CVAR_SET_STRING("rpc_chapter", m_iszChapter ? STRING(m_iszChapter) : "");
 	CVAR_SET_STRING("rpc_image", m_iszImage ? STRING(m_iszImage) : "");
 }
@@ -899,8 +899,7 @@ bool CWorld::KeyValue(KeyValueData* pkvd)
 		}
 		return true;
 	}
-	// jay - discord rpc
-	else if (FStrEq(pkvd->szKeyName, "rpc_chapter"))
+	else if (FStrEq(pkvd->szKeyName, "rpc_chapter")) // jay - discord rpc
 	{
 		m_iszChapter = ALLOC_STRING(pkvd->szValue);
 		pkvd->fHandled = true;
