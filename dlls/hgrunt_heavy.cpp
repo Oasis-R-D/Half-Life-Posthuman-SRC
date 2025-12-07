@@ -1957,6 +1957,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_helmDUR > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_helmDUR -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -1966,9 +1967,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_helmDUR <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
+		}
+		else
+		{
+			m_bloodColor = BLOOD_COLOR_RED;
 		}
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
@@ -1977,6 +1983,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_helmvisorDUR > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_helmvisorDUR -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -1986,9 +1993,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_helmvisorDUR <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
+		}
+		else
+		{
+			m_bloodColor = BLOOD_COLOR_RED;
 		}
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
@@ -1997,6 +2009,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_iarmor_health_chest > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_iarmor_health_chest -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -2006,12 +2019,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_chest <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}
@@ -2019,6 +2034,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_iarmor_health_stomach > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_iarmor_health_stomach -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -2028,12 +2044,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_stomach <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}
@@ -2041,6 +2059,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_iarmor_health_leftarm > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_iarmor_health_leftarm -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -2050,17 +2069,20 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_leftarm <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}
 	if (ptr->iHitgroup == HITGROUP_RIGHTARM)
 	{
+		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_rightarm > 0)
 		{
 			m_iarmor_health_rightarm -= 1;
@@ -2072,17 +2094,20 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_rightarm <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}
 	if (ptr->iHitgroup == HITGROUP_LEFTLEG)
 	{
+		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_leftleg > 0)
 		{
 			m_iarmor_health_leftleg -= 1;
@@ -2094,12 +2119,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_leftleg <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}
@@ -2107,6 +2134,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if (m_iarmor_health_rightleg > 0)
 		{
+			m_bloodColor = DONT_BLEED;
 			m_iarmor_health_rightleg -= 1;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -2116,12 +2144,14 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 
 			if (m_iarmor_health_rightleg <= 0)
 			{
+				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
 				ArmorGibs(ptr, vecVelocity);
 			}
 		}
 		else
 		{
+			m_bloodColor = BLOOD_COLOR_RED;
 			flDamage = round(flDamage * 0.75);
 		}
 	}

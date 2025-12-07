@@ -459,7 +459,7 @@ void ChgruntRobo::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		WRITE_COORD(vecTracerDir.z);
 		MESSAGE_END();
 	}
-		CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 }
 
 //=========================================================
@@ -770,7 +770,7 @@ void ChgruntRobo::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = DONT_BLEED;
 	pev->effects = 0;
-	pev->health = 40;
+	pev->health = 6;
 	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;

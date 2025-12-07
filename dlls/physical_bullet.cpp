@@ -23,7 +23,6 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 #include "soundent.h"
-#ifndef CLIENT_DLL
 
 /*
 * 9MM MV: 6000 // REALISM: 10.0-15.0k
@@ -168,6 +167,8 @@ void CPhysbullet::Spawn()
 				pev->velocity = pev->velocity + owner->pev->velocity;
 				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
 			}
+			if (m_Flare == 69)
+				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 4 + gpGlobals->v_up * -4); //spawn a little bit more forward
 		}
 	}
 
@@ -230,6 +231,7 @@ void CPhysbullet::Stay()
 	SetThink(&CPhysbullet::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
+
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
 	if (pOther->IsBullet())
@@ -244,7 +246,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 	m_Endpos = pev->origin; // where bullet hit
 	TraceResult tr = UTIL_GetGlobalTrace();
-	
+
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
 		TraceResult beam_tr;
@@ -411,8 +413,6 @@ int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 
 	return 1;
 }
-
-#endif
 
 float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 {
