@@ -18,11 +18,6 @@ static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
 		{"models/agibs.mdl", "3", "1"},
 };
 
-struct DefaultGibs
-{
-	const int MaxGibs;
-};
-
 // HACKHACK -- The gib velocity equations don't work
 void CoolerGib::LimitVelocity()
 {
@@ -152,7 +147,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char (*GibData)[dataamnt], int rows)
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char (*GibData)[][3])
 {
 	int i;
 	for (i = 0; i < atoi(GibData[3][1]); i++)
@@ -212,7 +207,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 
 void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 {
-	SpawnRandomGibs(pevVictim, coolerGibs, human ? human_gibmap : xenian_gibmap, 60);
+	SpawnRandomGibs(pevVictim, coolerGibs, human ? human_gibmap : xenian_gibmap);
 }
 
 //=========================================================
