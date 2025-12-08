@@ -16,7 +16,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim)
 {
 	int i;
 
-	for (i = 0; i < coolerGibs; i++)
+	for (i = 0; i < 69; i++)
 	{
 		CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
 
@@ -324,6 +324,9 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 void CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 {
 	switch (pevVictim->classname)
-	case FStringNull():
+	{
+	case NULL:
+	case nullptr:
 		break;
+	}
 }
