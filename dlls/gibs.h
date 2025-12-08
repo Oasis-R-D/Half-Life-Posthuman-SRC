@@ -6,6 +6,7 @@
 #include "soundent.h"
 #include "decals.h"
 #include "Blooddrops.h"
+#include <string>
 
 struct CoolerGibData
 {
