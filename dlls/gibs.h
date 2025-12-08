@@ -28,11 +28,32 @@ public:
 
 	int ObjectCaps() override { return (CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
 	static void SpawnHeadGib(entvars_t* pevVictim);
-	static void SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* (&GibData)[3]);
-	static void SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human);
-	static void SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int coolerGibs);
+	static void SpawnRandomGibs(entvars_t* pevVictim);
+	static void SpawnHL1Gibs(entvars_t* pevVictim);
+	static void SpawnStickyGibs(entvars_t* pevVictim);
+	static void GetNPCgibs(entvars_t* pevVictim);	
 
 	int m_bloodColor;
 	int m_cBloodDecals = 4; // how many blood decals this gib can place (1 per bounce until none remain).
 	float m_lifeTime;
+};
+
+// START NPC GIB LISTS (FORK YOU C++)
+
+static const char* human_gibmap[][3] = // MDL, BG, AMNT
+{
+		{"models/hgibs.mdl", "0", "1"},
+		{"models/hgibs.mdl", "1", "1"},
+		{"models/hgibs.mdl", "2", "1"},
+		{"models/hgibs.mdl", "3", "1"},
+		{"models/hgibs.mdl", "4", "1"},
+		{"models/hgibs.mdl", "5", "1"},
+};
+
+static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
+{
+		{"models/agibs.mdl", "0", "1"},
+		{"models/agibs.mdl", "1", "1"},
+		{"models/agibs.mdl", "2", "1"},
+		{"models/agibs.mdl", "3", "1"},
 };

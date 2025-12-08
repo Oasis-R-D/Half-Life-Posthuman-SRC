@@ -1,23 +1,5 @@
 #include "gibs.h"
 
-static const char* human_gibmap[][3] = // MDL, BG, AMNT
-{
-		{"models/hgibs.mdl", "0", "1"},
-		{"models/hgibs.mdl", "1", "1"},
-		{"models/hgibs.mdl", "2", "1"},
-		{"models/hgibs.mdl", "3", "1"},
-		{"models/hgibs.mdl", "4", "1"},
-		{"models/hgibs.mdl", "5", "1"},
-};
-
-static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
-{
-		{"models/agibs.mdl", "0", "1"},
-		{"models/agibs.mdl", "1", "1"},
-		{"models/agibs.mdl", "2", "1"},
-		{"models/agibs.mdl", "3", "1"},
-};
-
 // HACKHACK -- The gib velocity equations don't work
 void CoolerGib::LimitVelocity()
 {
@@ -30,7 +12,7 @@ void CoolerGib::LimitVelocity()
 }
 
 
-void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int coolerGibs)
+void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim)
 {
 	int i;
 
@@ -147,13 +129,14 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* (&GibData)[3])
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 {
 	int i;
-	for (i = 0; i < atoi(GibData[3][1]); i++)
+	GetNPCgibs(pevVictim);
+	for (i = 0; i < 69; i++)
 	{
 		CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-		pGib->Spawn(GibData[1][1], atoi(GibData[2][1]));
+		//pGib->Spawn(GibData[1][1], atoi(GibData[2][1]));
 		if (pevVictim)
 		{
 			// spawn the gib somewhere in the monster's bounding volume
@@ -205,18 +188,9 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 //const CoolerGibData HumanGibs = {"models/hgibs.mdl", 1, HUMAN_GIB_COUNT};
 //const CoolerGibData AlienGibs = {"models/agibs.mdl", 0, ALIEN_GIB_COUNT};
 
-void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
+void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim)
 {
-	switch((CBaseEntity::Instance(pevVictim))->BloodColor())
-	{
-		case BLOOD_COLOR_RED:
-		SpawnRandomGibs(pevVictim, coolerGibs, human_gibmap);
-		break;
-		case BLOOD_COLOR_YELLOW:
-		case BLOOD_COLOR_GREEN:
-		SpawnRandomGibs(pevVictim, coolerGibs, xenian_gibmap);
-		break;
-	}
+
 }
 
 //=========================================================
@@ -345,4 +319,11 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	SetTouch(&CoolerGib::BounceGibTouch);
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
+}
+
+void CoolerGib::GetNPCgibs(entvars_t* pevVictim)
+{
+	switch (pevVictim->classname)
+	case FStringNull():
+		break;
 }
