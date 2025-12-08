@@ -210,11 +210,11 @@ void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 	switch((CBaseEntity::Instance(pevVictim))->BloodColor())
 	{
 		case BLOOD_COLOR_RED:
-		SpawnRandomGibs(pevVictim, coolerGibs, &human_gibmap);
+		SpawnRandomGibs(pevVictim, coolerGibs, human_gibmap);
 		break;
 		case BLOOD_COLOR_YELLOW:
 		case BLOOD_COLOR_GREEN:
-		SpawnRandomGibs(pevVictim, coolerGibs, &xenian_gibmap);
+		SpawnRandomGibs(pevVictim, coolerGibs, xenian_gibmap);
 		break;
 	}
 }
