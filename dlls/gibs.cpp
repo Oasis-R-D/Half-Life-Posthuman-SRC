@@ -1,6 +1,6 @@
 #include "gibs.h"
 
-static const char* human_gibmap[0][3] = // MDL, BG, AMNT
+static const char* human_gibmap[][3] = // MDL, BG, AMNT
 {
 		{"models/hgibs.mdl", "0", "1"},
 		{"models/hgibs.mdl", "1", "1"},
@@ -10,7 +10,7 @@ static const char* human_gibmap[0][3] = // MDL, BG, AMNT
 		{"models/hgibs.mdl", "5", "1"},
 };
 
-static const char* xenian_gibmap[0][3] = // MDL, BG, AMNT
+static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
 {
 		{"models/agibs.mdl", "0", "1"},
 		{"models/agibs.mdl", "1", "1"},
@@ -210,11 +210,11 @@ void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 	switch((CBaseEntity::Instance(pevVictim))->BloodColor())
 	{
 		case BLOOD_COLOR_RED:
-		SpawnRandomGibs(pevVictim, coolerGibs, &human_gibmap);
+		SpawnRandomGibs(pevVictim, coolerGibs, human_gibmap);
 		break;
 		case BLOOD_COLOR_YELLOW:
 		case BLOOD_COLOR_GREEN:
-		SpawnRandomGibs(pevVictim, coolerGibs, &xenian_gibmap);
+		SpawnRandomGibs(pevVictim, coolerGibs, xenian_gibmap);
 		break;
 	}
 }
