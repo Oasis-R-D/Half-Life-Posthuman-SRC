@@ -32,37 +32,29 @@ public:
 	static void SpawnRandomGibs(entvars_t* pevVictim);
 	static void SpawnHL1Gibs(entvars_t* pevVictim);
 	static void SpawnStickyGibs(entvars_t* pevVictim);
-	static void GetNPCgibs(entvars_t* pevVictim);	
+	static std::vector<std::vector<std::string>> GetNPCgibs(entvars_t* pevVictim);	
 
 	int m_bloodColor;
 	int m_cBloodDecals = 4; // how many blood decals this gib can place (1 per bounce until none remain).
 	float m_lifeTime;
 };
 
-// START NPC GIB LISTS (FORK YOU C++)
+// START NPC GIB LISTS (FORK YOU C++) // MDL, BG, AMNT
 
-static const char* human_gibmap[][3] = // MDL, BG, AMNT
+std::vector<std::vector<std::string>> xenian_gibmap = 
+{
+		{"models/agibs.mdl", "0", "1"},
+		{"models/agibs.mdl", "1", "1"},
+		{"models/agibs.mdl", "2", "1"},
+		{"models/agibs.mdl", "3", "1"}
+};
+
+std::vector<std::vector<std::string>> human_gibmap = 
 {
 		{"models/hgibs.mdl", "0", "1"},
 		{"models/hgibs.mdl", "1", "1"},
 		{"models/hgibs.mdl", "2", "1"},
 		{"models/hgibs.mdl", "3", "1"},
 		{"models/hgibs.mdl", "4", "1"},
-		{"models/hgibs.mdl", "5", "1"},
-};
-
-static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
-{
-		{"models/agibs.mdl", "0", "1"},
-		{"models/agibs.mdl", "1", "1"},
-		{"models/agibs.mdl", "2", "1"},
-		{"models/agibs.mdl", "3", "1"},
-};
-
-std::vector<std::vector<std::string>> test = 
-{
-		{"models/agibs.mdl", "0", "1"},
-		{"models/agibs.mdl", "1", "1"},
-		{"models/agibs.mdl", "2", "1"},
-		{"models/agibs.mdl", "3", "1"}
+		{"models/hgibs.mdl", "5", "1"}
 };

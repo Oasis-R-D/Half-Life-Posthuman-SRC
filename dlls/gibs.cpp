@@ -321,11 +321,26 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
 
-void CoolerGib::GetNPCgibs(entvars_t* pevVictim)
+std::vector<std::vector<std::string>> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 {
-	switch (pevVictim->classname)
+	/*
+	if (FClassnameIs(pevVictim, "monster_turret"))
+		return human_gibmap;
+	else if (FClassnameIs(pevVictim, "monster_turret"))
+		return human_gibmap;
+	else 
 	{
-	case NULL:
-		break;
+		switch ((CBaseEntity::Instance(pevVictim))->BloodColor())
+		{
+			case BLOOD_COLOR_RED:
+				return human_gibmap;
+				break;
+			case BLOOD_COLOR_YELLOW:
+			case BLOOD_COLOR_GREEN:
+				return xenian_gibmap;
+				break;
+		}
 	}
+	*/
+	return xenian_gibmap;
 }
