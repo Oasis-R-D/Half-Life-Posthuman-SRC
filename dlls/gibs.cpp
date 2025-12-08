@@ -147,7 +147,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* (&GibData)[][3])
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* (&GibData)[][])
 {
 	int i;
 	for (i = 0; i < atoi(GibData[3][1]); i++)
