@@ -323,11 +323,10 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 std::vector<std::vector<std::string>> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 {
-	/*
 	if (FClassnameIs(pevVictim, "monster_turret"))
 		return human_gibmap;
-	else if (FClassnameIs(pevVictim, "monster_turret"))
-		return human_gibmap;
+	else if (FClassnameIs(pevVictim, "monster_pitdrone"))
+		return pitdrone_gibmap;
 	else 
 	{
 		switch ((CBaseEntity::Instance(pevVictim))->BloodColor())
@@ -341,6 +340,5 @@ std::vector<std::vector<std::string>> CoolerGib::GetNPCgibs(entvars_t* pevVictim
 				break;
 		}
 	}
-	*/
 	return xenian_gibmap;
 }

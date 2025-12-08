@@ -58,3 +58,13 @@ std::vector<std::vector<std::string>> human_gibmap =
 		{"models/hgibs.mdl", "4", "1"},
 		{"models/hgibs.mdl", "5", "1"}
 };
+
+std::vector<std::vector<std::string>> pitdrone_gibmap = 
+{
+		{"models/pit_drone_gibs.mdl", "0", "1"},
+		{"models/pit_drone_gibs.mdl", "1", "1"},
+		{"models/pit_drone_gibs.mdl", "2", "1"},
+		{"models/pit_drone_gibs.mdl", "3", "1"},
+		{"models/pit_drone_gibs.mdl", "4", "1"},
+		{"models/pit_drone_gibs.mdl", "5", "1"}
+};
