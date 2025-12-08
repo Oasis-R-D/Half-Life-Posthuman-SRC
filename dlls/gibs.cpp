@@ -138,8 +138,8 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 		for (p = 0; p < atoi(gibdata[i][3].c_str()); p++) // spawns amount dictated in the row's third collumn
 		{
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-			pGib->Spawn(gibdata[i][1].c_str(), atoi(gibdata[i][2].c_str()));
-			if (pevVictim)
+			pGib->Spawn(gibdata[i][1].c_str(), atoi(gibdata[i][2].c_str())); // spawns gib with model at collumn 1 and body at collumn 2
+			if (pevVictim) // probably uneeded
 			{
 				// spawn the gib somewhere in the monster's bounding volume
 				pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
