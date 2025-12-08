@@ -2,20 +2,20 @@
 
 static const char* human_gibmap[][3] = // MDL, BG, AMNT
 {
-		{"models/hgibs.mdl", 0, 1},
-		{"models/hgibs.mdl", 1, 1},
-		{"models/hgibs.mdl", 2, 1},
-		{"models/hgibs.mdl", 3, 1},
-		{"models/hgibs.mdl", 4, 1},
-		{"models/hgibs.mdl", 5, 1},
+		{"models/hgibs.mdl", "0", "1"},
+		{"models/hgibs.mdl", "1", "1"},
+		{"models/hgibs.mdl", "2", "1"},
+		{"models/hgibs.mdl", "3", "1"},
+		{"models/hgibs.mdl", "4", "1"},
+		{"models/hgibs.mdl", "5", "1"},
 };
 
 static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
 {
-		{"models/agibs.mdl", 0, 1},
-		{"models/agibs.mdl", 1, 1},
-		{"models/agibs.mdl", 2, 1},
-		{"models/agibs.mdl", 3, 1},
+		{"models/agibs.mdl", "0", "1"},
+		{"models/agibs.mdl", "1", "1"},
+		{"models/agibs.mdl", "2", "1"},
+		{"models/agibs.mdl", "3", "1"},
 };
 
 struct DefaultGibs
@@ -155,10 +155,10 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* GibData)
 {
 	int i;
-	for (i = 0; i < coolerGibs; i++)
+	for (i = 0; i < atoi(GibData[3][1]); i++)
 	{
 		CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-		pGib->Spawn(coolerGibData.ModelName);
+		pGib->Spawn(GibData[1][1], atoi(GibData[2][1]));
 		if (pevVictim)
 		{
 			// spawn the gib somewhere in the monster's bounding volume
