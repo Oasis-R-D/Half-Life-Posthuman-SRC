@@ -212,7 +212,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 
 void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 {
-	SpawnRandomGibs(pevVictim, coolerGibs, human ? human_gibmap : xenian_gibmap);
+	SpawnRandomGibs(pevVictim, coolerGibs, human ? human_gibmap : xenian_gibmap, 60);
 }
 
 //=========================================================
@@ -339,6 +339,6 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	m_lifeTime = 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
-}SetThink(&CoolerGib::WaitTillLand);
+	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
