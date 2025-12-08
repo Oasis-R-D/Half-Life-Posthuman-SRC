@@ -133,12 +133,12 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 {
 	int i, p;
 	std::vector<std::vector<std::string>> gibdata(GetNPCgibs(pevVictim));
-	for (i = 0; i < gibdata.size(); i++) 
+	for (i = 0; i < static_cast<int>(gibdata.size()); i++) // loops through rows
 	{
-		for (p = 0; p < atoi(c_str(gibdata[i][3])); p++)
+		for (p = 0; p < atoi(gibdata[i][3].c_str()); p++) // spawns amount dictated in the row's third collumn
 		{
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-			pGib->Spawn(c_str(gibdata[i][1]), atoi(c_str(gibdata[i][2])));
+			pGib->Spawn(gibdata[i][1].c_str(), atoi(gibdata[i][2].c_str()));
 			if (pevVictim)
 			{
 				// spawn the gib somewhere in the monster's bounding volume
