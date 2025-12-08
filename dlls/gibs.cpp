@@ -27,7 +27,7 @@ struct DefaultGibs
 void CoolerGib::LimitVelocity()
 {
 	float length = pev->velocity.Length();
-	    
+
 	// ceiling at 1500.  The gib velocity equation is not bounded properly.  Rather than tune it
 	// in 3 separate places again, I'll just limit it here.
 	if (length > 1500.0)
@@ -152,7 +152,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* GibData)
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char (*GibData)[dataamnt], int rows)
 {
 	int i;
 	for (i = 0; i < atoi(GibData[3][1]); i++)
@@ -204,8 +204,6 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 		#endif
 		pGib->LimitVelocity();
 	}
-
-	stackfree(pLimitTracking);
 }
 
 // start at one to avoid throwing random amounts of skulls (0th gib)
@@ -340,5 +338,7 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	pev->nextthink = gpGlobals->time + 0.1;
 	m_lifeTime = 25;
 	SetThink(&CoolerGib::WaitTillLand);
+	SetTouch(&CoolerGib::BounceGibTouch);
+}SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
