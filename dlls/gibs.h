@@ -57,3 +57,11 @@ static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
 		{"models/agibs.mdl", "2", "1"},
 		{"models/agibs.mdl", "3", "1"},
 };
+
+std::vector<std::vector<std::string>> test = 
+{
+		{"models/agibs.mdl", "0", "1"},
+		{"models/agibs.mdl", "1", "1"},
+		{"models/agibs.mdl", "2", "1"},
+		{"models/agibs.mdl", "3", "1"}
+};
