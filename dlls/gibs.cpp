@@ -131,56 +131,59 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 {
-	int i;
-	GetNPCgibs(pevVictim);
-	for (i = 0; i < 69; i++)
+	int i, p;
+	std::vector<std::vector<std::string>> gibdata(GetNPCgibs(pevVictim));
+	for (i = 0; i < gibdata.size(); i++) 
 	{
-		CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-		//pGib->Spawn(GibData[1][1], atoi(GibData[2][1]));
-		if (pevVictim)
+		for (p = 0; p < atoi(c_str(gibdata[i][3])); p++)
 		{
-			// spawn the gib somewhere in the monster's bounding volume
-			pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
-			pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
-			pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
-
-			// make the gib fly away from the attack vector
-			pGib->pev->velocity = g_vecAttackDir * -1;
-
-			// mix in some noise
-			pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
-			pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
-			pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
-
-			pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
-
-			pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
-			pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
-
-			// copy owner's blood color
-			pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
-
-			if (pevVictim->health > -50)
+			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
+			pGib->Spawn(c_str(gibdata[i][1]), atoi(c_str(gibdata[i][2])));
+			if (pevVictim)
 			{
-				pGib->pev->velocity = pGib->pev->velocity * 0.7;
-			}
-			else if (pevVictim->health > -200)
-			{
-				pGib->pev->velocity = pGib->pev->velocity * 2;
-			}
-			else
-			{
-				pGib->pev->velocity = pGib->pev->velocity * 4;
-			}
+				// spawn the gib somewhere in the monster's bounding volume
+				pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
+				pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
+				pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
 
-			pGib->pev->solid = SOLID_BBOX;
-			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
+				// make the gib fly away from the attack vector
+				pGib->pev->velocity = g_vecAttackDir * -1;
+
+				// mix in some noise
+				pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
+				pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
+				pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
+
+				pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
+
+				pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
+				pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
+
+				// copy owner's blood color
+				pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
+
+				if (pevVictim->health > -50)
+				{
+					pGib->pev->velocity = pGib->pev->velocity * 0.7;
+				}
+				else if (pevVictim->health > -200)
+				{
+					pGib->pev->velocity = pGib->pev->velocity * 2;
+				}
+				else
+				{
+					pGib->pev->velocity = pGib->pev->velocity * 4;
+				}
+
+				pGib->pev->solid = SOLID_BBOX;
+				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
+			}
+			UTIL_VecToAngles(pGib->pev->velocity);
+			#ifndef CLIENT_DLL
+			CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+			#endif
+			pGib->LimitVelocity();
 		}
-		UTIL_VecToAngles(pGib->pev->velocity);
-		#ifndef CLIENT_DLL
-		CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-		#endif
-		pGib->LimitVelocity();
 	}
 }
 
