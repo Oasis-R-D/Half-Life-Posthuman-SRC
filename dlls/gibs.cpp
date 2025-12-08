@@ -1,9 +1,26 @@
 #include "gibs.h"
 
-int gibmap[][3] =
+static const char* human_gibmap[][3] = // MDL, BG, AMNT
 {
-		{ALLOC_STRING("models/skull.mdl"),		1, 1},
-		{ALLOC_STRING("models/realgibmodel.mdl"), 1, 4},
+		{"models/hgibs.mdl", 0, 1},
+		{"models/hgibs.mdl", 1, 1},
+		{"models/hgibs.mdl", 2, 1},
+		{"models/hgibs.mdl", 3, 1},
+		{"models/hgibs.mdl", 4, 1},
+		{"models/hgibs.mdl", 5, 1},
+};
+
+static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
+{
+		{"models/agibs.mdl", 0, 1},
+		{"models/agibs.mdl", 1, 1},
+		{"models/agibs.mdl", 2, 1},
+		{"models/agibs.mdl", 3, 1},
+};
+
+struct DefaultGibs
+{
+	const int MaxGibs;
 };
 
 // HACKHACK -- The gib velocity equations don't work
@@ -31,28 +48,23 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int cool
 
 		if (pevVictim)
 		{
-			pGib->pev->origin.x = vecOrigin.x + RANDOM_FLOAT(-3, 3);
-			pGib->pev->origin.y = vecOrigin.y + RANDOM_FLOAT(-3, 3);
-			pGib->pev->origin.z = vecOrigin.z + RANDOM_FLOAT(-3, 3);
-
-			/*
-			pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT ( 0 , 1 ) );
-			pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT ( 0 , 1 ) );
-			pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT ( 0 , 1 ) );
-			*/
+			// spawn the gib somewhere in the monster's bounding volume
+			pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
+			pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
+			pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
 
 			// make the gib fly away from the attack vector
 			pGib->pev->velocity = g_vecAttackDir * -1;
 
 			// mix in some noise
-			pGib->pev->velocity.x += RANDOM_FLOAT(-0.15, 0.15);
-			pGib->pev->velocity.y += RANDOM_FLOAT(-0.15, 0.15);
-			pGib->pev->velocity.z += RANDOM_FLOAT(-0.15, 0.15);
+			pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
+			pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
+			pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
 
-			pGib->pev->velocity = pGib->pev->velocity * 900;
+			pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
 
-			pGib->pev->avelocity.x = RANDOM_FLOAT(250, 400);
-			pGib->pev->avelocity.y = RANDOM_FLOAT(250, 400);
+			pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
+			pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
 
 			// copy owner's blood color
 			pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
@@ -140,7 +152,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const CoolerGibData& coolerGibData)
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* GibData)
 {
 	int i;
 	for (i = 0; i < coolerGibs; i++)
@@ -202,7 +214,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const Cool
 
 void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 {
-	//SpawnRandomGibs(pevVictim, coolerGibs, human ? HumanGibs : AlienGibs);
+	SpawnRandomGibs(pevVictim, coolerGibs, human ? human_gibmap : xenian_gibmap);
 }
 
 //=========================================================
