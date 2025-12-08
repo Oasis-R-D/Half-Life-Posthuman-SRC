@@ -12,7 +12,7 @@
 *   use or distribution of this code by or to any unlicensed person is illegal.
 *
 ****/
-
+#include <string>
 #pragma once
 
 //
@@ -159,6 +159,7 @@ public:
 	void EXPORT MonsterInitThink();
 	void Railed();
 
+	virtual std::vector<std::vector<std::string>> GetGibs() { return NULL; }
 	virtual void StartMonster();
 	virtual CBaseEntity* BestVisibleEnemy();		// finds best visible enemy for attack
 	virtual bool FInViewCone(CBaseEntity* pEntity); // see if pEntity is in monster's view cone
