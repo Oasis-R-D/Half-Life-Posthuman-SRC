@@ -147,7 +147,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char (&GibData)[][3])
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char* (&GibData)[][3])
 {
 	int i;
 	for (i = 0; i < atoi(GibData[3][1]); i++)
@@ -207,7 +207,16 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 
 void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 {
-	SpawnRandomGibs(pevVictim, coolerGibs, human ? &human_gibmap : &xenian_gibmap);
+	switch((CBaseEntity::Instance(pevVictim))->BloodColor())
+	{
+		case BLOOD_COLOR_RED:
+		SpawnRandomGibs(pevVictim, coolerGibs, &human_gibmap);
+		break;
+		case BLOOD_COLOR_YELLOW:
+		case BLOOD_COLOR_GREEN:
+		SpawnRandomGibs(pevVictim, coolerGibs, &xenian_gibmap);
+		break;
+	}
 }
 
 //=========================================================
