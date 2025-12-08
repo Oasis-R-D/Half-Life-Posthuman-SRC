@@ -159,7 +159,6 @@ public:
 #define SATCHEL_MAX_CLIP WEAPON_NOCLIP
 #define TRIPMINE_MAX_CLIP WEAPON_NOCLIP
 #define SNARK_MAX_CLIP WEAPON_NOCLIP
-#define CRYST_MAX_CLIP WEAPON_NOCLIP
 
 // the default amount of ammo that comes with each gun when it spawns
 #define GLOCK_DEFAULT_GIVE 17
@@ -645,6 +644,94 @@ public:
 
 private:
 	unsigned short m_usCrowbar;
+};
+
+enum melee_e
+{
+	MELEE_IDLE = 0,
+	MELEE_DRAW,
+	MELEE_HOLSTER,
+	MELEE_ATTACK1HIT,
+	MELEE_ATTACK1MISS,
+	MELEE_ATTACK2MISS,
+	MELEE_ATTACK2HIT,
+	MELEE_ATTACK3MISS,
+	MELEE_ATTACK3HIT,
+	MELEE_IDLE2,
+	MELEE_IDLE3,
+	MELEE_DRAWFIRST,
+	MELEE_CHARGE,
+	MELEE_CHARGEIDLE,
+	MELEE_CHARGEHIT,
+	MELEE_CHARGEMISS,
+	MELEE_HEAVYHIT1,
+	MELEE_HEAVYHIT2,
+	MELEE_HEAVYHIT3,
+	MELEE_HEAVYMISS1,
+	MELEE_HEAVYMISS2,
+	MELEE_HEAVYMISS3
+};
+
+class CMelee : public CBasePlayerWeapon
+{
+private:
+	enum SwingMode
+	{
+		SWING_NONE = 0,
+		SWING_START_BIG,
+		SWING_DOING_BIG,
+	};
+
+public:
+#ifndef CLIENT_DLL
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+
+	static TYPEDESCRIPTION m_SaveData[];
+#endif
+
+	void Spawn() override;
+	void Precache() override;
+	void EXPORT SwingAgain();
+	void EXPORT SwingAgainHeavy();
+	void EXPORT Smack();
+	void EXPORT SmackHeavy();
+
+	void PrimaryAttack() override;
+	void SecondaryAttack() override;
+	void TertiaryAttack() override;
+	bool Swing(const bool bFirst);
+	bool SwingHeavy(const bool bFirst);
+	void EXPORT BigSwing();
+	bool Deploy() override;
+	void Holster() override;
+	void WeaponIdle() override;
+
+	void GetWeaponData(weapon_data_t& data) override;
+
+	void SetWeaponData(const weapon_data_t& data) override;
+
+	int iItemSlot() override;
+
+	bool GetItemInfo(ItemInfo* p) override;
+
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+
+	float m_flBigSwingStart;
+	int m_iSwingMode;
+	int m_iSwing;
+	TraceResult m_trHit;
+
+
+private:
+	unsigned short m_usMelee;
 };
 
 enum python_e

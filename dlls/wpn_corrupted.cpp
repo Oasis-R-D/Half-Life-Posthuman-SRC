@@ -95,7 +95,7 @@ bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = 200;
 	p->iSlot = 0;
-	p->iPosition = 4;
+	p->iPosition = 2;
 	p->iFlags = 0;
 	p->iId = m_iId = WEAPON_CORRUPT;
 	p->iWeight = CRYST_WEIGHT;

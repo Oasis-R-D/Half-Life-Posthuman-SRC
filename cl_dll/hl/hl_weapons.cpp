@@ -73,6 +73,7 @@ CEagle g_Eagle;
 CM727 g_M727;
 CCorruptedWPN g_Corrupt;
 CM29 g_M29;
+CMelee g_Melee;
 
 /*
 ======================
@@ -488,6 +489,7 @@ void HUD_InitClientWeapons()
 	HUD_PrepEntity(&g_M727, &player);
 	HUD_PrepEntity(&g_Corrupt, &player);
 	HUD_PrepEntity(&g_M29, &player);
+	HUD_PrepEntity(&g_Melee, &player);
 }
 
 /*
@@ -636,6 +638,9 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		break;
 	case WEAPON_M29: 
 		pWeapon = &g_M29;
+		break;
+	case WEAPON_MELEE: 
+		pWeapon = &g_Melee;
 		break;
 	}
 

@@ -304,6 +304,9 @@ void W_Precache()
 	// crowbar
 	UTIL_PrecacheOtherWeapon("weapon_crowbar");
 
+	// prehuman melee
+	UTIL_PrecacheOtherWeapon("weapon_melee");
+
 	// glock
 	UTIL_PrecacheOtherWeapon("weapon_9mmhandgun");
 	UTIL_PrecacheOther("ammo_9mmclip");
@@ -1465,6 +1468,13 @@ void CBasePlayerWeapon::PrintState()
 	ALERT(at_console, "m_iclip:  %i\n", m_iClip);
 }
 
+TYPEDESCRIPTION CMelee::m_SaveData[] =
+	{
+		DEFINE_FIELD(CMelee, m_flBigSwingStart, FIELD_TIME),
+		DEFINE_FIELD(CMelee, m_iSwing, FIELD_INTEGER),
+		DEFINE_FIELD(CMelee, m_iSwingMode, FIELD_INTEGER),
+};
+IMPLEMENT_SAVERESTORE(CMelee, CBasePlayerWeapon);
 
 TYPEDESCRIPTION CRpg::m_SaveData[] =
 	{

@@ -638,8 +638,8 @@ bool CHeadcrabGrenade::GetItemInfo(ItemInfo* p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
-	p->iSlot = 0;
-	p->iPosition = 1;
+	p->iSlot = 4;
+	p->iPosition = 0;
 	p->iId = m_iId = WEAPON_GRENADE_HEADCRAB;
 	p->iWeight = SNARK_WEIGHT;
 	p->iFlags = ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;
@@ -854,8 +854,8 @@ bool CHeadcrabGrenadeFast::GetItemInfo(ItemInfo* p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
-	p->iSlot = 0;
-	p->iPosition = 2;
+	p->iSlot = 4;
+	p->iPosition = 1;
 	p->iId = m_iId = WEAPON_GRENADE_HEADCRAB_FAST;
 	p->iWeight = SNARK_WEIGHT;
 	p->iFlags = ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;
@@ -953,8 +953,8 @@ bool CHeadcrabGrenadePoison::GetItemInfo(ItemInfo* p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
-	p->iSlot = 0;
-	p->iPosition = 3;
+	p->iSlot = 4;
+	p->iPosition = 2;
 	p->iId = m_iId = WEAPON_GRENADE_HEADCRAB_POISON;
 	p->iWeight = SNARK_WEIGHT;
 	p->iFlags = ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;

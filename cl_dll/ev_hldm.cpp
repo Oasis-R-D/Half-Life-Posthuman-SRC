@@ -1135,40 +1135,127 @@ void EV_FireGauss(event_args_t* args)
 //======================
 //	   CROWBAR START
 //======================
+
+// unused now
+void EV_Crowbar(event_args_t* args)
+{
+
+}
+//======================
+//	   CROWBAR END
+//======================
+//======================
+//	   MELEE START
+//======================
 int g_iSwing;
 
 //Only predicts the miss sounds, hit sounds are still played
 //server side, so players don't get the wrong idea.
-void EV_Crowbar(event_args_t* args)
+void EV_Melee(event_args_t* args)
 {
-	int idx;
-	Vector origin;
+	const int idx = args->entindex;
+	Vector origin = args->origin;
+	int iBigSwing = args->iparam2;
+	const bool hitSomething = 0 != args->bparam2;
 
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
+	if (!EV_IsLocal(idx))
+	{
+		return;
+	}
 
 	//Play Swing sound
-	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-	/*
-	if (EV_IsLocal(idx))
+	if (iBigSwing == 1)
 	{
-		switch ((g_iSwing++) % 3)
+		if (hitSomething)
 		{
-		case 0:
-			EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 0);
-			break;
-		case 1:
-			EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 0);
-			break;
-		case 2:
-			EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 0);
-			break;
+			EV_WeaponAnimation(MELEE_CHARGEHIT, 0, false);
 		}
+		else
+		{
+			EV_WeaponAnimation(MELEE_CHARGEMISS, 0, false);
+		}
+
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/pwrench_big_miss.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 	}
-	*/
+	else if (iBigSwing == 0)
+	{
+		if (hitSomething)
+		{
+			switch (g_iSwing % 3)
+			{
+			case 0:
+				EV_WeaponAnimation(MELEE_ATTACK1HIT, 0, false);
+				break;
+			case 1:
+				EV_WeaponAnimation(MELEE_ATTACK2HIT, 0, false);
+				break;
+			case 2:
+				EV_WeaponAnimation(MELEE_ATTACK3HIT, 0, false);
+				break;
+			}
+		}
+		else
+		{
+			switch (g_iSwing % 3)
+			{
+			case 0:
+				EV_WeaponAnimation(MELEE_ATTACK1MISS, 0, false);
+				break;
+			case 1:
+				EV_WeaponAnimation(MELEE_ATTACK2MISS, 0, false);
+				break;
+			case 2:
+				EV_WeaponAnimation(MELEE_ATTACK3MISS, 0, false);
+				break;
+			}
+
+			//Play Swing sound
+			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);\
+		}
+
+		++g_iSwing;
+	}
+	else
+	{
+		if (hitSomething)
+		{
+			switch (g_iSwing % 3)
+			{
+			case 0:
+				EV_WeaponAnimation(MELEE_HEAVYHIT1, 0, false);
+				break;
+			case 1:
+				EV_WeaponAnimation(MELEE_HEAVYHIT2, 0, false);
+				break;
+			case 2:
+				EV_WeaponAnimation(MELEE_HEAVYHIT3, 0, false);
+				break;
+			}
+		}
+		else
+		{
+			switch (g_iSwing % 3)
+			{
+			case 0:
+				EV_WeaponAnimation(MELEE_HEAVYMISS1, 0, false);
+				break;
+			case 1:
+				EV_WeaponAnimation(MELEE_HEAVYMISS2, 0, false);
+				break;
+			case 2:
+				EV_WeaponAnimation(MELEE_HEAVYMISS3, 0, false);
+				break;
+			}
+
+			//Play Swing sound
+			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);\
+		}
+
+		++g_iSwing;
+	}
 }
 //======================
-//	   CROWBAR END
+//	   MELEE END
 //======================
 
 //======================

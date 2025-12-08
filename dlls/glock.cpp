@@ -180,7 +180,7 @@ void CGlock::PrimaryAttack()
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
-		return;
+		return; // move this to PrimaryAttack()?
 
 	if (m_iClip <= 0)
 	{
