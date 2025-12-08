@@ -326,7 +326,6 @@ void CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 	switch (pevVictim->classname)
 	{
 	case NULL:
-	case nullptr:
 		break;
 	}
 }
