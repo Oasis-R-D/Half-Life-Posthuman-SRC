@@ -1,6 +1,6 @@
 #include "gibs.h"
 
-static const char* human_gibmap[][3] = // MDL, BG, AMNT
+static const char human_gibmap[][3] = // MDL, BG, AMNT
 {
 		{"models/hgibs.mdl", "0", "1"},
 		{"models/hgibs.mdl", "1", "1"},
@@ -10,7 +10,7 @@ static const char* human_gibmap[][3] = // MDL, BG, AMNT
 		{"models/hgibs.mdl", "5", "1"},
 };
 
-static const char* xenian_gibmap[][3] = // MDL, BG, AMNT
+static const char xenian_gibmap[][3] = // MDL, BG, AMNT
 {
 		{"models/agibs.mdl", "0", "1"},
 		{"models/agibs.mdl", "1", "1"},
@@ -207,7 +207,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, int coolerGibs, const char
 
 void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim, int coolerGibs, bool human)
 {
-	SpawnRandomGibs(pevVictim, coolerGibs, &human ? &human_gibmap : xenian_gibmap);
+	SpawnRandomGibs(pevVictim, coolerGibs, human ? &human_gibmap : &xenian_gibmap);
 }
 
 //=========================================================
