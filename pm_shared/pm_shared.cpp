@@ -2506,10 +2506,10 @@ void PM_NoClip(float factor, float maxacceleration) // HL2: GoldSource noclip
 
 	AngleVectors(pmove->cmd.viewangles, &forward, &right, &up); // Determine movement angles
 
-	if (pmove->cmd.buttons & IN_SPEED)
-	{
-		factor /= 2.0f;
-	}
+	//if (pmove->cmd.buttons & IN_SPEED)
+	//{
+	//	factor /= 2.0f;
+	//}
 
 	// Copy movement amounts
 	float fmove = pmove->cmd.forwardmove * factor;
@@ -2539,7 +2539,7 @@ void PM_NoClip(float factor, float maxacceleration) // HL2: GoldSource noclip
 		// Set pmove velocity
 		PM_Accelerate(wishdir, wishspeed, maxacceleration);
 
-		float spd = VectorLength(pmove->velocity);
+		float spd = pmove->velocity.Length();
 		if (spd < 1.0f)
 		{
 			pmove->velocity = vec3_origin;
