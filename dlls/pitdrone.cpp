@@ -27,7 +27,7 @@
 #include "decals.h"
 #include "soundent.h"
 #include "game.h"
-
+#include "gibs.h"
 #define SQUID_SPRINT_DIST 256 // how close the squid has to get before starting to sprint and refusing to swerve
 
 int iSpikeTrail;
@@ -261,7 +261,6 @@ public:
 	int IgnoreConditions() override;
 
 	void CheckAmmo() override;
-	void GibMonster() override;
 	bool KeyValue(KeyValueData* pkvd) override;
 
 	bool Save(CSave& save) override;
@@ -1263,23 +1262,6 @@ void CPitdrone::CheckAmmo()
 	{
 		SetConditions(bits_COND_NO_AMMO_LOADED);
 	}
-}
-
-const GibData PitDroneGibs = {"models/pit_drone_gibs.mdl", 0, 7};
-
-void CPitdrone::GibMonster()
-{
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
-
-	if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
-	{
-		//Note: the original doesn't check for German censorship
-		CGib::SpawnRandomGibs(pev, 6, PitDroneGibs); // Throw alien gibs
-	}
-
-	// don't remove players!
-	SetThink(&CBaseMonster::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
 }
 
 bool CPitdrone::KeyValue(KeyValueData* pkvd)

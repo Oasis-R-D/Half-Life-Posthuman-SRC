@@ -31,6 +31,7 @@
 #include "func_break.h"
 #include "Blooddrops.h"
 #include "physical_bullet.h"
+#include "gibs.h"
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
 #define GERMAN_GIB_COUNT 4
@@ -324,18 +325,16 @@ void CBaseMonster::FadeMonster()
 //=========================================================
 void CBaseMonster::GibMonster()
 {
-	TraceResult tr;
 	bool gibbed = false;
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
 
-	// only humans throw skulls
 	if (HasHumanGibs())
 	{
 		if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 		{
-			CGib::SpawnHeadGib(pev);
-			CGib::SpawnRandomGibs(pev, 4, true); // throw some human gibs.
+			//CGib::SpawnHeadGib(pev);
+			CoolerGib::SpawnRandomGibs(pev); // throw some human gibs.
 		}
 		gibbed = true;
 	}
@@ -343,7 +342,7 @@ void CBaseMonster::GibMonster()
 	{
 		if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
 		{
-			CGib::SpawnRandomGibs(pev, 4, false); // Throw alien gibs
+			CoolerGib::SpawnRandomGibs(pev); // Throw alien gibs
 		}
 		gibbed = true;
 	}
