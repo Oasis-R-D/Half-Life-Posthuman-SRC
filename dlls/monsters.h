@@ -183,7 +183,6 @@ public:
 	static void SpawnHeadGib(entvars_t* pevVictim);
 	static void SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibData);
 	static void SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human);
-	static void SpawnStickyGibs(entvars_t* pevVictim, Vector vecOrigin, int cGibs);
 
 	int m_bloodColor;
 	int m_cBloodDecals;

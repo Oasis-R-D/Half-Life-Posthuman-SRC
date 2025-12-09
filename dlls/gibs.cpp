@@ -1,5 +1,40 @@
 #include "gibs.h"
 
+LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
+// START NPC GIB LISTS (FORK YOU C++) // MDL, BG, AMNT, TYPE
+// TYPES: 1 - head, 2 - sticky
+
+std::vector<gib_data_t> xenian_gibmap =
+{
+		gib_data_t{"models/agibs.mdl", 0, 1}, // skull
+		gib_data_t{"models/agibs.mdl", 1, 1},
+		gib_data_t{"models/agibs.mdl", 2, 1},
+		gib_data_t{"models/agibs.mdl", 3, 1},
+		gib_data_t{"models/agibs.mdl", 4, 1},
+		gib_data_t{"models/agibs.mdl", 5, 1},
+};
+
+std::vector<gib_data_t> human_gibmap =
+{
+		gib_data_t{"models/hgibs.mdl", 0, 1, 1}, // skull
+		gib_data_t{"models/hgibs.mdl", 1, 1},
+		gib_data_t{"models/hgibs.mdl", 2, 1},
+		gib_data_t{"models/hgibs.mdl", 3, 1},
+		gib_data_t{"models/hgibs.mdl", 4, 1},
+		gib_data_t{"models/hgibs.mdl", 5, 1},
+};
+
+std::vector<gib_data_t> pitdrone_gibmap =
+{
+		gib_data_t{"models/pit_drone_gibs.mdl", 0, 2},  // claws
+		gib_data_t{"models/pit_drone_gibs.mdl", 1, 1},  // tentacle 1
+		gib_data_t{"models/pit_drone_gibs.mdl", 2, 1},  // tentacle 2
+		gib_data_t{"models/pit_drone_gibs.mdl", 3, 2},  // knee?
+		gib_data_t{"models/pit_drone_gibs.mdl", 4, 1},  // tail
+		gib_data_t{"models/pit_drone_gibs.mdl", 5, 1},  // generic?
+		gib_data_t{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
+};													    
+
 // HACKHACK -- The gib velocity equations don't work
 void CoolerGib::LimitVelocity()
 {
@@ -12,75 +47,61 @@ void CoolerGib::LimitVelocity()
 }
 
 
-void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim)
+void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 {
-	int i;
-
-	for (i = 0; i < 69; i++)
+	if (pevVictim)
 	{
-		CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
+		// spawn the gib somewhere in the monster's bounding volume
+		pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
+		pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
+		pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
 
-		pGib->Spawn("models/stickygib.mdl");
-		pGib->pev->body = RANDOM_LONG(0, 2);
+		// make the gib fly away from the attack vector
+		pGib->pev->velocity = g_vecAttackDir * -1;
 
-		if (pevVictim)
+		// mix in some noise
+		pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
+		pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
+		pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
+
+		pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
+
+		pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
+		pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
+
+		// copy owner's blood color
+		pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
+
+		if (pevVictim->health > -50)
 		{
-			// spawn the gib somewhere in the monster's bounding volume
-			pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
-			pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
-			pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
-
-			// make the gib fly away from the attack vector
-			pGib->pev->velocity = g_vecAttackDir * -1;
-
-			// mix in some noise
-			pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
-			pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
-			pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
-
-			pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
-
-			pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
-			pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
-
-			// copy owner's blood color
-			pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
-
-			if (pevVictim->health > -50)
-			{
-				pGib->pev->velocity = pGib->pev->velocity * 0.7;
-			}
-			else if (pevVictim->health > -200)
-			{
-				pGib->pev->velocity = pGib->pev->velocity * 2;
-			}
-			else
-			{
-				pGib->pev->velocity = pGib->pev->velocity * 4;
-			}
-
-
-			pGib->pev->movetype = MOVETYPE_TOSS;
-			pGib->pev->solid = SOLID_BBOX;
-			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
-			pGib->SetTouch(&CoolerGib::StickyGibTouch);
-			pGib->SetThink(NULL);
-
+			pGib->pev->velocity = pGib->pev->velocity * 0.7;
 		}
-		UTIL_VecToAngles(pGib->pev->velocity);
-		#ifndef CLIENT_DLL
-		CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-		#endif
-		pGib->LimitVelocity();
+		else if (pevVictim->health > -200)
+		{
+			pGib->pev->velocity = pGib->pev->velocity * 2;
+		}
+		else
+		{
+			pGib->pev->velocity = pGib->pev->velocity * 4;
+		}
+
+
+		pGib->pev->movetype = MOVETYPE_TOSS;
+		pGib->pev->solid = SOLID_BBOX;
+		UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
+		pGib->SetTouch(&CoolerGib::StickyGibTouch);
+		pGib->SetThink(NULL);
+
 	}
+	UTIL_VecToAngles(pGib->pev->velocity);
+	#ifndef CLIENT_DLL
+	CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+	#endif
+	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
+void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 {
-	CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-
-	pGib->Spawn("models/hgibs.mdl", 0); // throw one head
-
 	if (pevVictim)
 	{
 		pGib->pev->origin = pevVictim->origin + pevVictim->view_ofs;
@@ -131,14 +152,36 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim)
 
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 {
-	int i, p;
-	std::vector<std::vector<std::string>> gibdata(GetNPCgibs(pevVictim));
-	for (i = 0; i < static_cast<int>(gibdata.size()); i++) // loops through rows
+	int i, p, amnt, body;
+	int type = 0;
+	std::vector<gib_data_t> gibmap = GetNPCgibs(pevVictim);
+	int size = gibmap.size();
+	
+	for (i = 0; i < size; i++) // loops through rows
 	{
-		for (p = 0; p < atoi(gibdata[i][3].c_str()); p++) // spawns amount dictated in the row's third collumn
+		amnt = gibmap[i].amount;
+		body = gibmap[i].body;
+		if (gibmap[i].type != 0)
+			type = gibmap[i].type;
+
+		for (p = 0; p < amnt; p++) // spawns amount dictated in the row's third collumn
 		{
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-			pGib->Spawn(gibdata[i][1].c_str(), atoi(gibdata[i][2].c_str())); // spawns gib with model at collumn 1 and body at collumn 2
+			pGib->Spawn(gibmap[i].gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
+
+			switch (type)
+			{
+				case 1:
+					SpawnHeadGib(pevVictim, pGib);
+					break;
+				case 2:
+					SpawnStickyGibs(pevVictim, pGib);
+					break;
+			}
+			if (type != 0)
+				continue; // loop back if it uses diff spawn type
+			
+
 			if (pevVictim) // probably uneeded
 			{
 				// spawn the gib somewhere in the monster's bounding volume
@@ -185,15 +228,6 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 			pGib->LimitVelocity();
 		}
 	}
-}
-
-// start at one to avoid throwing random amounts of skulls (0th gib)
-//const CoolerGibData HumanGibs = {"models/hgibs.mdl", 1, HUMAN_GIB_COUNT};
-//const CoolerGibData AlienGibs = {"models/agibs.mdl", 0, ALIEN_GIB_COUNT};
-
-void CoolerGib::SpawnHL1Gibs(entvars_t* pevVictim)
-{
-
 }
 
 //=========================================================
@@ -276,7 +310,7 @@ void CoolerGib::StickyGibTouch(CBaseEntity* pOther)
 	Vector vecSpot;
 	TraceResult tr;
 
-	SetThink(&CoolerGib::SUB_Remove);
+	SetThink(&CoolerGib::SUB_Remove); // TO-DO: make fall off the wall after a bit)
 	pev->nextthink = gpGlobals->time + 10;
 
 	if (!FClassnameIs(pOther->pev, "worldspawn"))
@@ -310,7 +344,7 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	pev->rendermode = kRenderNormal;
 	pev->renderfx = kRenderFxNone;
 	pev->solid = SOLID_SLIDEBOX; /// hopefully this will fix the VELOCITY TOO LOW crap
-	pev->classname = MAKE_STRING("gib");
+	pev->classname = MAKE_STRING("cool_gib");
 
 	SET_MODEL(ENT(pev), szGibModel);
 	pev->body = body;
@@ -324,7 +358,7 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
 
-std::vector<std::vector<std::string>> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
+std::vector<gib_data_t> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 {
 	if (FClassnameIs(pevVictim, "monster_turret"))
 		return human_gibmap;
@@ -343,5 +377,14 @@ std::vector<std::vector<std::string>> CoolerGib::GetNPCgibs(entvars_t* pevVictim
 				break;
 		}
 	}
-	return xenian_gibmap;
+}
+
+int CoolerGib::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (FClassnameIs(pentTouched->pev, "cool_gib"))
+	{
+		return 0;
+	}
+
+	return 1;
 }

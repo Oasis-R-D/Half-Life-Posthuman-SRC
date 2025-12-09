@@ -99,7 +99,7 @@ void AlertMessage(ALERT_TYPE atype, const char* szFmt, ...)
 //Mostly used by the client side weapons.
 bool bIsMultiplayer()
 {
-	return gEngfuncs.GetMaxClients() != 1;
+	return engine_cl->maxclients != 1;
 }
 //Just loads a v_ model.
 void LoadVModel(const char* szViewModel, CBasePlayer* m_pPlayer)
@@ -441,7 +441,7 @@ void HUD_InitClientWeapons()
 	gpGlobals = &Globals;
 
 	// Fill in current time ( probably not needed )
-	gpGlobals->time = gEngfuncs.GetClientTime();
+	gpGlobals->time = engine_cl->time;
 
 	// Fake functions
 	g_engfuncs.pfnPrecacheModel = stub_PrecacheModel;
@@ -548,7 +548,7 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 
 	// Get current clock
 	//Use actual time instead of prediction frame time because that time value breaks anything that uses absolute time values.
-	gpGlobals->time = gEngfuncs.GetClientTime(); //time;
+	gpGlobals->time = engine_cl->time; //time;
 
 	//Lets weapons code use frametime to decrement timers and stuff.
 	gpGlobals->frametime = cmd->msec / 1000.0f;
