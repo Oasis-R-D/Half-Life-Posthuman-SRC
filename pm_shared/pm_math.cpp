@@ -113,9 +113,6 @@ void AngleVectorsTranspose(const Vector& angles, Vector* forward, Vector* right,
 
 void AngleMatrix(const float* angles, matrix3x4_t &matrix)
 {
-	float angle;
-	float sr, sp, sy, cr, cp, cy;
-
 	__m128 angles_ = _mm_mul_ps(_mm_loadu_ps(angles), _mm_set_ps1(M_PI2 / 360));
 	__m128 cosines;
 

@@ -299,8 +299,6 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 
 void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 {
-	float flRndSound; // sound randomizer
-
 	pev->model = iStringNull; //invisible
 	SET_MODEL(ENT(pev), "sprites/flashbangflash.spr");
 	pev->rendermode = kRenderGlow;
