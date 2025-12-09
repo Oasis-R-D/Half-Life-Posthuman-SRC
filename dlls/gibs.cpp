@@ -153,7 +153,6 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 {
 	int i, p, amnt, body;
-	
 	std::vector<gib_data_t> gibmap = GetNPCgibs(pevVictim);
 	int size = gibmap.size();
 	

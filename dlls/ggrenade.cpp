@@ -238,7 +238,6 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	origin.z -= 1;
 
 	RadiusDamage(origin, pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType);
-
 	if (RANDOM_FLOAT(0, 1) < 0.5)
 	{
 		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
