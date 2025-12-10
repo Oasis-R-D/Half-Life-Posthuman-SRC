@@ -636,7 +636,6 @@ class CHeadcrabSuper : public CHeadCrab
 	void GibMonster()
 	{
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
-		RadiusDamage(pev->origin, pev, pev, -10, CLASS_NONE, DMG_GENERIC);
 		int cSplat;
 
 		for (cSplat = 0; cSplat < 6; cSplat++)
