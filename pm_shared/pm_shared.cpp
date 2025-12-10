@@ -2582,7 +2582,7 @@ void PM_NoClip(float factor, float maxacceleration) // HL2: GoldSource noclip
 }
 
 // Only allow bunny jumping up to 1.7x server / player maxspeed setting
-#define BUNNYJUMP_MAX_SPEED_FACTOR 1.7f
+#define BUNNYJUMP_MAX_SPEED_FACTOR 1.33f
 
 //-----------------------------------------------------------------------------
 // Purpose: Corrects bunny jumping ( where player initiates a bunny jump before other
@@ -2634,15 +2634,6 @@ void PM_Jump()
 	if (0 != pmove->dead)
 	{
 		pmove->oldbuttons |= IN_JUMP; // don't jump again until released
-		return;
-	}
-
-	const bool tfc = atoi(pmove->PM_Info_ValueForKey(pmove->physinfo, "tfc")) == 1;
-
-	// Spy that's feigning death cannot jump
-	if (tfc &&
-		(pmove->deadflag == (DEAD_DISCARDBODY + 1)))
-	{
 		return;
 	}
 
@@ -2863,13 +2854,6 @@ void PM_CheckFalling()
 		}
 		else if (pmove->flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED / 2)
 		{
-			const bool tfc = atoi(pmove->PM_Info_ValueForKey(pmove->physinfo, "tfc")) == 1;
-
-			if (tfc)
-			{
-				pmove->PM_PlaySound(CHAN_VOICE, "player/pl_fallpain3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-			}
-
 			fvol = 0.85;
 		}
 		else if (pmove->flFallVelocity < PLAYER_MIN_BOUNCE_SPEED)
@@ -2909,7 +2893,7 @@ PM_PlayWaterSounds
 
 =================
 */
-void PM_PlayWaterSounds()
+void PM_PlayWaterSounds() // to-do: port to all ents (engine no longer does this)
 {
 	// Did we enter or leave water?
 	if ((pmove->oldwaterlevel == 0 && pmove->waterlevel != 0) ||
@@ -3286,9 +3270,7 @@ void PM_PlayerMove(qboolean server)
 			// Get a final position
 			PM_CatagorizePosition();
 		}
-		else
-
-		// Not underwater
+		else // Not underwater
 		{
 			// Was jump button pressed?
 			if ((pmove->cmd.buttons & IN_JUMP) != 0)
@@ -3304,7 +3286,7 @@ void PM_PlayerMove(qboolean server)
 			}
 
 			// Fricion is handled before we add in any base velocity. That way, if we are on a conveyor,
-			//  we don't slow when standing still, relative to the conveyor.
+			// we don't slow when standing still, relative to the conveyor.
 			if (pmove->onground != -1)
 			{
 				pmove->velocity[2] = 0.0;
@@ -3469,10 +3451,10 @@ void PM_CreateStuckTable()
 
 
 /*
-This modume implements the shared player physics code between any particular game and 
-the engine.  The same PM_Move routine is built into the game .dll and the client .dll and is
-invoked by each side as appropriate.  There should be no distinction, internally, between server
-and client.  This will ensure that prediction behaves appropriately.
+This module implements the shared player physics code between any particular game and 
+the engine. The same PM_Move routine is built into the game .dll and the client .dll and is
+invoked by each side as appropriate. There should be no distinction, internally, between server
+and client. This will ensure that prediction behaves appropriately.
 */
 
 void PM_Move(struct playermove_s* ppmove, qboolean server)
