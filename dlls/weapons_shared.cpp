@@ -297,7 +297,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			flMultiplier = 9;
 			maxvel = 1400;
 			break;
-		case 3: // HOPWIRE
+		case 3: // LANDMINE
 			flMultiplier = 6.5f;
 			maxvel = 1000;
 			break;
@@ -330,8 +330,8 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 		case 2: // FLASH
 			time = 2;
 			break;
-		case 3: // HOPWIRE
-			time = 2;
+		case 3: // LANDMINE
+			time = 2; // doesn't matter
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);

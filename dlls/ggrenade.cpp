@@ -696,7 +696,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->dmg = 10;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
-		case 3: // HopWire
+		case 3: // LandMine
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetTouch(&CGrenade::SlideTouch);
