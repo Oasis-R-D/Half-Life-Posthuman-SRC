@@ -107,7 +107,7 @@ enum WeaponId
 #define DMG_SLOWFREEZE (1 << 22)   // in a subzero freezer
 #define DMG_MORTAR (1 << 23)	   // Hit by air raid (done to distinguish grenade from mortar)
 
-//PH ADDITIONS
+//PH/TFC ADDITIONS
 #define DMG_IGNITE (1 << 24)	   // Players hit by this begin to burn
 #define DMG_IGNOREARMOR (1 << 25)  // Damage ignores target's armor
 #define DMG_WALLPIERCING (1 << 26) // Blast Damages ents through walls

@@ -857,7 +857,7 @@ void CStudioModelRenderer::StudioSetupViewmodel()
 	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 }
 
-void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually render
+void CStudioModelRenderer::StudioSetupExtraViewmodel()
 {
 	// salsatobias obs: engine gets viewmodel from server player 
 	// pev->viewmodel and stores it in engine_cl->stats[2].
@@ -872,9 +872,6 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel() // TO-DO: make actually r
 		return;
 
 	m_pCurrentEntity = &extra_viewmodels[0].viewent;
-	// Somehow get the client data fuser1 value and figure out how to do this
-
-	
 
 	m_pStudioHeader = (studiohdr_t*)m_pCurrentEntity->model->cache.data;
 

@@ -357,7 +357,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					pTask->flData = 3.75f;
 					pMonster->StartTask(pTask);
 					pMonster->m_flDistLook = 32;
-					pMonster->m_flDistTooFar = 128; // TO-DO: make this reset after a bit
+					pMonster->m_flDistTooFar = 128;
 					pMonster->m_flNextAttack = 1.0f;
 					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
 

@@ -492,7 +492,6 @@ inline MULTIDAMAGE gMultiDamage;
 #define VECTOR_CONE_15DEGREES Vector(0.13053, 0.13053, 0.13053)
 #define VECTOR_CONE_20DEGREES Vector(0.17365, 0.17365, 0.17365)
 
-// TO-DO: a function to just convert degrees to radians/2 would be nice
 #define CONE_1DEGREES UTIL_DegreesToRadCone(1)
 #define CONE_2DEGREES UTIL_DegreesToRadCone(2)
 #define CONE_3DEGREES UTIL_DegreesToRadCone(3)
@@ -945,7 +944,6 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void ItemPostFrame() override;
-	int m_fInReload; //TO-DO: not used, remove
 	float m_flNextReload;
 	int m_iShell;
 	int m_iFiremode; //TO-DO: implement this instead of armortype (since this can be saved)
