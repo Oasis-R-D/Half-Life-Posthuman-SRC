@@ -453,7 +453,6 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 	if ((pev->flags & FL_ONGROUND) != 0)
 	{
 		// add a bit of static friction
-		if (m_hGrenType)
 		pev->velocity = pev->velocity * 0.8;
 		pev->sequence = RANDOM_LONG(1, 1);
 		ResetSequenceInfo();
