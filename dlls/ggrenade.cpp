@@ -29,9 +29,6 @@
 #include "player.h"
 #include "shake.h"
 
-
-#ifndef CLIENT_DLL
-
 //===================grenade
 
 LINK_ENTITY_TO_CLASS(grenade, CGrenade);
@@ -389,7 +386,7 @@ void CGrenade::ArmHopwire()
 
 	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
 
-	pev->gravity = 0.75f
+	pev->gravity = 0.75f;
 	pev->velocity = gpGlobals->v_up * 200;
 	pev->avelocity.z = RANDOM_LONG(-100, -400);
 
