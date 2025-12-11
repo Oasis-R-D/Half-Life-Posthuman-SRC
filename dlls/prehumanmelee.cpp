@@ -200,7 +200,9 @@ bool CMelee::Swing(const bool bFirst)
 	bool bDidHit = false;
 
 	TraceResult tr;
-
+	#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil(RANDOM_LONG(1, -1), 0.9);
+	#endif
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecEnd = vecSrc + gpGlobals->v_forward * 32;
@@ -371,7 +373,9 @@ bool CMelee::SwingHeavy(const bool bFirst)
 	bool bDidHit = false;
 
 	TraceResult tr;
-
+	#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil(-2, 1.5);
+	#endif
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecEnd = vecSrc + gpGlobals->v_forward * 32;
@@ -520,7 +524,9 @@ bool CMelee::SwingHeavy(const bool bFirst)
 void CMelee::BigSwing()
 {
 	TraceResult tr;
-
+	#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil(-4, 0.7);
+	#endif
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecEnd = vecSrc + gpGlobals->v_forward * 32;
