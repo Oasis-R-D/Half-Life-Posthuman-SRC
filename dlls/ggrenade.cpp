@@ -32,141 +32,6 @@
 
 #ifndef CLIENT_DLL
 
-//===================HopWire grenade tripwires
-LINK_ENTITY_TO_CLASS(hw_beam, CHopWireBeam);
-
-void CHopWireBeam::ShootBeams(CGrenade* ownerOgrenade, Vector direction)
-{
-	// Create a new entity with CHopWireBeam private data
-	CHopWireBeam* pTrip = GetClassPtr((CHopWireBeam*)NULL);
-	pTrip->pev->classname = MAKE_STRING("hw_beam");
-	pTrip->m_Spread = CONE_20DEGREES;
-	pTrip->m_direction = direction;
-	pTrip->m_SpreadVect = Vector(RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread), RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread), RANDOM_FLOAT(pTrip->m_Spread, -pTrip->m_Spread));
-	pTrip->spawner = ownerOgrenade;
-	pTrip->Spawn();	
-}
-
-void CHopWireBeam::Spawn()
-{
-	pev->movetype = MOVETYPE_TOSS;
-	pev->solid = SOLID_BBOX;
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	SET_MODEL(ENT(pev), "models/w_hopwire.mdl");
-	UTIL_SetOrigin(pev, spawner->pev->origin);
-
-	pev->velocity = (m_direction + m_SpreadVect) * 600; // Applies spread and velocity
-	pev->velocity = pev->velocity + spawner->pev->velocity;
-	pev->angles = pev->velocity;
-
-	SetTouch(&CHopWireBeam::BoltTouch);
-}
-
-void CHopWireBeam::BoltTouch(CBaseEntity* pOther)
-{
-	TraceResult tr;
-	UTIL_MakeVectors(pev->velocity);
-	tr = UTIL_GetGlobalTrace();
-	if (pOther->IsBSPModel() && (!FClassnameIs(pOther->pev, "hw_beam") && !FClassnameIs(pOther->pev, "grenade")))
-	{
-		if (pev->movetype != MOVETYPE_NONE)
-		{
-			SetThink(&CHopWireBeam::MakeBeam);
-			pev->nextthink = gpGlobals->time;
-
-			TEXTURETYPE_PlaySound(&tr, pev->origin, pev->origin, BULLET_PLAYER_9MM);
-			MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, tr.vecEndPos);
-			WRITE_BYTE(TE_GUNSHOTDECAL);
-			WRITE_COORD(tr.vecEndPos.x);
-			WRITE_COORD(tr.vecEndPos.y);
-			WRITE_COORD(tr.vecEndPos.z);
-			WRITE_SHORT((short)ENTINDEX(tr.pHit));
-			WRITE_BYTE(-1); // no decals, just the effect
-			MESSAGE_END();
-
-			pev->renderamt = 255;
-			pev->rendermode = kRenderTransAlpha;
-		}
-		pev->movetype = MOVETYPE_NONE;
-		pev->velocity = Vector(0, 0, 0);
-		pev->avelocity.z = 0;		
-	}
-}
-
-void CHopWireBeam::FadeThink()
-{
-	pev->angles = pev->velocity;
-	pev->renderamt -= 15;
-	pev->nextthink = gpGlobals->time + 0.125f;
-	if (pev->renderamt <= 0)
-	{
-		UTIL_Remove(this);
-	}
-}
-
-void CHopWireBeam::MakeBeam()
-{
-	pev->nextthink = gpGlobals->time + 0.01f;
-	CBaseEntity* that = this;
-	if (spawner->m_bHasExploded == true || spawner == nullptr)
-	{
-		pev->movetype = MOVETYPE_TOSS;
-		UTIL_Remove(m_pSprite);
-		UTIL_Remove(m_pBeam);
-		SetThink(&CHopWireBeam::FadeThink);
-		pev->nextthink = gpGlobals->time + 2.5f;
-		
-		return;
-	}
-	else
-	{
-		TraceResult tr;
-		if (spawner == nullptr || this == nullptr)
-			return;
-
-		if (!spawner->m_bHasExploded)
-		{
-			UTIL_TraceLine(pev->origin, spawner->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
-			CBaseEntity* Hit = CBaseEntity::Instance(tr.pHit);
-			if (Hit != nullptr && !FClassnameIs(Hit->pev, "grenade") && !Hit->IsBSPModel())
-			{
-				spawner->SetThink(&CGrenade::CallDetonate);
-				pev->nextthink = gpGlobals->time;
-			}
-		}
-
-		// VFX START
-		if (!m_pBeam)
-		{
-			m_pBeam = CBeam::BeamCreate(g_pModelNameLgtng, 6);
-			// Mark as temporary so the beam will be recreated on save game load and level transitions.
-			m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
-			m_pBeam->EntsInit(that->entindex(), spawner->entindex());
-			m_pBeam->SetColor(255, 225, 0);
-			m_pBeam->SetScrollRate(25);
-			m_pBeam->SetBrightness(128);
-			m_pBeam->SetNoise(0.5f);
-		}
-
-		if (!m_pSprite)
-		{
-			m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
-			m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
-			m_pSprite->SetScale(0.5f);
-			m_pSprite->SetAttachment(edict(), 0);
-		}
-	}
-}
-
-int CHopWireBeam::ShouldCollide(CBaseEntity* pentTouched)
-{
-	if (FClassnameIs(pentTouched->pev, "hw_beam") || FClassnameIs(pentTouched->pev, "grenade"))
-		return 0;
-	else
-		return 1;
-}
-#endif
-
 //===================grenade
 
 LINK_ENTITY_TO_CLASS(grenade, CGrenade);
@@ -185,8 +50,7 @@ void CGrenade::Explode(Vector vecSrc, Vector vecAim)
 { 
 	TraceResult tr;
 	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -32), ignore_monsters, ENT(pev), &tr);
-	if (m_iGrenType == 0)
-		ExplodeHE(&tr, DMG_BLAST);
+	ExplodeHE(&tr, DMG_BLAST);
 }
 
 void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
@@ -512,7 +376,6 @@ void CGrenade::ArmHopwire()
 	pev->health = 5;
 	pev->takedamage = DAMAGE_YES;
 
-	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
 
 	if (pev->owner)
@@ -526,39 +389,21 @@ void CGrenade::ArmHopwire()
 
 	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
 
-	pev->gravity = 0.25f;
+	pev->gravity = 0.75f
 	pev->velocity = gpGlobals->v_up * 200;
-	pev->avelocity.x = RANDOM_LONG(-100, -400);
 	pev->avelocity.z = RANDOM_LONG(-100, -400);
-	pev->avelocity.y = RANDOM_LONG(-100, -400);
-
-	m_pSprite = CSprite::SpriteCreate("sprites/blueflare1.spr", pev->origin, false);
-	m_pSprite->SetTransparency(kRenderTransAdd, 255, 200, 0, 128, kRenderFxNone);
-	m_pSprite->SetScale(0.6f);
-	m_pSprite->SetAttachment(edict(), 0);
 
 	pev->nextthink = 0.125f;
-	SetThink(&CGrenade::HopwireThink);
 }
 
 void CGrenade::HopwireThink()
 {
 	pev->nextthink = 0.25f;
-	// PHYSICSPHYSICS - Shoot entities out that stick to surfaces + tied to hopwire by rope constraints
-
+	
 	if (pev->velocity.z <= 0) // At apex, set gravity back to normal
 	{
-		pev->gravity = 0.5f;
-		if (wireamnt > 0 && nextwire <= gpGlobals->time)
-		{
-			Vector RNDDIR = RANDOM_VECTOR(-M_PI, M_PI);
-			CHopWireBeam::ShootBeams(this, gpGlobals->v_up + RNDDIR);
-			pev->velocity.x += -RNDDIR.x * 10;
-			pev->velocity.y += -RNDDIR.y * 10;
-			pev->velocity.z += -RNDDIR.z * 10;
-			wireamnt -= 1;
-			nextwire = gpGlobals->time + RANDOM_FLOAT(0.1f, 0.3f);
-		}
+		pev->gravity = 1;
+		SetThink(&CGrenade::Detonate);
 	}
 }
 
@@ -569,14 +414,15 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 		return;
 
 	// only do damage if we're moving fairly fast
-	if (m_flNextAttack < gpGlobals->time && pev->velocity.Length() > 100)
+	if (m_flNextAttack < gpGlobals->time && pev->velocity.Length() > 50)
 	{
 		entvars_t* pevOwner = VARS(pev->owner);
 		if (pevOwner)
 		{
 			TraceResult tr = UTIL_GetGlobalTrace();
 			ClearMultiDamage();
-			pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
+			if (m_iGrenType != 4)
+				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
@@ -678,16 +524,10 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::DetonateFlash);
 			break;
 		case 3: // HopWire
-			if (wireamnt == 8)
-				SetThink(&CGrenade::ArmHopwire);
-			else
-			{
-				m_bHasExploded = true;
-				if (m_pSprite->pev != nullptr)
-					UTIL_Remove(m_pSprite);
-				SetThink(&CGrenade::Detonate);
-				
-			}
+			SetThink(&CGrenade::ArmHopwire);
+			break;
+		case 4:
+			UTIL_Remove(this);
 			break;
 	}
 
@@ -860,11 +700,15 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			// Tumble through the air
-			pGrenade->pev->avelocity.x = RANDOM_LONG(-100, -400);
 			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
-			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
-			pGrenade->wireamnt = 8;
-			pGrenade->nextwire = gpGlobals->time;
+			break;
+		case 4:
+			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
+			pGrenade->SetThink(&CGrenade::TumbleThink);
+			// Tumble through the air
+			pGrenade->pev->avelocity.x = RANDOM_LONG(200, -200);
+			pGrenade->pev->avelocity.z = RANDOM_LONG(200, -200);
+			pGrenade->pev->avelocity.y = RANDOM_LONG(200, -200);
 			break;
 	}
 

@@ -82,24 +82,6 @@ public:
 
 };
 
-class CHopWireBeam : public CBaseEntity
-{
-public:
-	void Spawn() override;
-	int ShouldCollide(CBaseEntity* pentTouched) override;
-	void EXPORT BoltTouch(CBaseEntity* pOther);
-	void EXPORT MakeBeam();
-	void EXPORT FadeThink();
-	void KillBeam();
-	static void ShootBeams(CGrenade* ownerOgrenade, Vector direction);
-	Vector m_SpreadVect;
-	Vector m_direction;
-	CGrenade* spawner;
-	CBeam* m_pBeam;
-	CSprite* m_pSprite;
-	float m_Spread;
-};
-
 // constant items
 #define ITEM_HEALTHKIT 1
 #define ITEM_ANTIDOTE 2
