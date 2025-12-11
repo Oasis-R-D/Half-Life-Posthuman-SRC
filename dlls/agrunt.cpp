@@ -224,7 +224,7 @@ int CAGrunt::ISoundMask()
 //=========================================================
 void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if (ptr->iHitgroup == 10 && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
+	if (ptr->iHitgroup == 10 && (bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
 	{
 		// hit armor
 		if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))

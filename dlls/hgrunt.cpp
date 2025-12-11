@@ -457,7 +457,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	// check for helmet shot
 	if (ptr->iHitgroup == 69)
 	{
-		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB)) != 0)
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
 		{
 			if (M_HasHelm == true)
 			{

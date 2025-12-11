@@ -978,7 +978,7 @@ void CApache::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	// ALERT( at_console, "%d %.0f\n", ptr->iHitgroup, flDamage );
 
 	// ignore blades
-	if (ptr->iHitgroup == 6 && (bitsDamageType & (DMG_ENERGYBEAM | DMG_BULLET | DMG_CLUB)) != 0)
+	if (ptr->iHitgroup == 6 && (bitsDamageType & (DMG_ENERGYBEAM | DMG_BULLET | DMG_CLUB | DMG_SLASH)) != 0)
 		return;
 
 	//	hit hard,			hits cockpit,			hits engines
