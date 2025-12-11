@@ -3825,8 +3825,8 @@ void CBasePlayer::FlashlightTurnOn()
 				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
-				pEntity->pev->renderfx = kRenderFxLightMultiplier; // TO-DO: fix stripping NPC render modes (verify if true)
-				pEntity->pev->rendercolor = Vector(128, 0, 0);
+				pEntity->pev->renderfx = kRenderFxLightMultiplier;
+				pEntity->pev->rendercolor = Vector(255, 0, 0);
 			}
 			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
 			{

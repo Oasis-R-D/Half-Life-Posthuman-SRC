@@ -143,7 +143,7 @@ float CStudioModelRenderer::m_flLastFov, CStudioModelRenderer::m_flLastVMFov;
 double CStudioModelRenderer::m_fStudioMDLRenderTime;
 
 bool CStudioModelRenderer::m_bExternalEntity = false;
-bool CStudioModelRenderer::m_bChromeShell = false;
+int CStudioModelRenderer::m_bChromeShell = 0;
 bool CStudioModelRenderer::m_bShadowMapOn = false;
 
 GL_BufferHandler* CStudioModelRenderer::m_Model_PerEntityBuffer;
@@ -2466,15 +2466,29 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	{
 		int oldfx = m_pCurrentEntity->curstate.renderfx;
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
-		m_bChromeShell = false;
+		m_bChromeShell = 0;
 		StudioRenderFinal();
 
-		m_bChromeShell = true;
+		m_bChromeShell = 1;
 
 		m_pCurrentEntity->curstate.renderfx = oldfx;
 		StudioRenderFinal();
 
-		m_bChromeShell = false;
+		m_bChromeShell = 0;
+	}
+	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
+	{
+		int oldfx = m_pCurrentEntity->curstate.renderfx;
+		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
+		m_bChromeShell = 0;
+		StudioRenderFinal();
+
+		m_bChromeShell = 2;
+
+		m_pCurrentEntity->curstate.renderfx = oldfx;
+		StudioRenderFinal();
+
+		m_bChromeShell = 0;
 	}
 	else
 	{
@@ -2700,7 +2714,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_dModelPerEntityData.rendervalues = glm::vec4(colors.r / 255.f, colors.g / 255.f, colors.b / 255.f, m_pCurrentEntity->curstate.renderamt / 255.f);
 
-	if (!m_bChromeShell) // dont bother with light data if doing chrome shell
+	if (m_bChromeShell == 0) // dont bother with light data if doing chrome shell
 	{
 		// lightmap light
 		m_dModelPerEntityData.lightdir = glm::vec4(m_pLighting.lightdir.x, m_pLighting.lightdir.y, m_pLighting.lightdir.z, 0);
@@ -3160,7 +3174,7 @@ void CStudioModelRenderer::StudioDrawMesh(StudioMDL_Mesh* pmesh, StudioMDL_Textu
 
 	m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_texture_flags], ptex->GetTextureFlags());
 
-	if (!m_bChromeShell)
+	if (m_bChromeShell == 0)
 	{
 		gBSPRenderer.BindGLTexture(GL_TEXTURE0, texinfo.iIndex);
 	}

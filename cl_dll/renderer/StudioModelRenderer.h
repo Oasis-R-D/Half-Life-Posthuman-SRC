@@ -284,7 +284,7 @@ public:
 	static double m_fStudioMDLRenderTime;
 
 	static bool m_bExternalEntity;
-	static bool m_bChromeShell;
+	static int m_bChromeShell;
 	static bool m_bShadowMapOn;
 
 	// glsl start

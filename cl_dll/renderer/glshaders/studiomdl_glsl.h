@@ -247,7 +247,7 @@ char glsl330_studiomdl_vert[] = R"(
 			translated_normal = normalize( transpose(inverse(mat3(modelmatrix))) * aNormal );
 		}
 
-		if( (texture_flags & STUDIO_NF_FULLBRIGHT) > 0 || int_values[_CHROMESHELL_BOOL] != 0 )
+		if ( (texture_flags & STUDIO_NF_FULLBRIGHT) > 0 || int_values[_CHROMESHELL_BOOL] != 0 )
 			Vertex_NoLight();
 		else if(!wireframe)
 			NormalVertexLight();
@@ -376,9 +376,14 @@ char glsl330_studiomdl_frag[] = R"(
 			else
 				gl_FragColor = texcolor;
 		}
-
-		gl_FragColor.a = rendervalues.a;
 		
+		gl_FragColor.a = rendervalues.a;
+
+		if (int_values.y == 2)
+		{
+			gl_FragColor = vec4(rendervalues.x, rendervalues.y, rendervalues.z, rendervalues.a);
+			gl_FragColor = vec4(rendervalues.x, rendervalues.y, rendervalues.z, rendervalues.a);
+		}
 	}
 
 )";
