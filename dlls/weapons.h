@@ -54,7 +54,7 @@ public:
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void Precache();
 
-	void EXPORT HopwireThink();
+	void EXPORT LandmineHopThink();
 	void EXPORT Smoke();
 
 	void EXPORT BounceTouch(CBaseEntity* pOther);
@@ -64,7 +64,7 @@ public:
 	void EXPORT PreDetonate();
 	void EXPORT Detonate();
 	void EXPORT DetonateFlash();
-	void EXPORT ArmHopwire();
+	void EXPORT LandmineThink();
 	void EXPORT CallDetonate();
 	void EXPORT DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void EXPORT TumbleThink();

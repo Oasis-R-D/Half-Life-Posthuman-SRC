@@ -368,11 +368,24 @@ void CGrenade::DangerSoundThink()
 	}
 }
 
-void CGrenade::ArmHopwire()
+void CGrenade::LandmineThink()
 {
+	TraceResult tr;
 	pev->health = 5;
 	pev->takedamage = DAMAGE_YES;
-
+	if ((pev->flags & FL_ONGROUND) != 0)
+	{
+		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_up * 8, dont_ignore_monsters, ENT(pev), &tr);
+		if (tr.flFraction != 1.0f)
+		{
+			pev->velocity = gpGlobals->v_up * 200;
+			pev->avelocity.z = RANDOM_LONG(-100, -400);
+			pev->nextthink = 0.125f;
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
+			SetThink(&CGrenade::LandmineHopThink);
+		}
+	}
+	
 	entvars_t* pevOwner;
 
 	if (pev->owner)
@@ -382,24 +395,15 @@ void CGrenade::ArmHopwire()
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
-	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
-
-	EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
-
-	pev->gravity = 0.75f;
-	pev->velocity = gpGlobals->v_up * 200;
-	pev->avelocity.z = RANDOM_LONG(-100, -400);
-
 	pev->nextthink = 0.125f;
 }
 
-void CGrenade::HopwireThink()
+void CGrenade::LandmineHopThink()
 {
 	pev->nextthink = 0.25f;
-	
+	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
 	if (pev->velocity.z <= 0) // At apex, set gravity back to normal
 	{
-		pev->gravity = 1;
 		SetThink(&CGrenade::Detonate);
 	}
 }
@@ -449,8 +453,8 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 	if ((pev->flags & FL_ONGROUND) != 0)
 	{
 		// add a bit of static friction
+		if (m_hGrenType)
 		pev->velocity = pev->velocity * 0.8;
-
 		pev->sequence = RANDOM_LONG(1, 1);
 		ResetSequenceInfo();
 	}
@@ -520,8 +524,8 @@ void CGrenade::CallDetonate()
 		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
 			break;
-		case 3: // HopWire
-			SetThink(&CGrenade::ArmHopwire);
+		case 3: // LandMine
+			SetThink(&CGrenade::LandmineThink);
 			break;
 		case 4:
 			UTIL_Remove(this);
@@ -673,7 +677,8 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		pGrenade->pev->nextthink = gpGlobals->time;
 		pGrenade->pev->velocity = Vector(0, 0, 0);
 	}
-
+	pGrenade->pev->gravity = 0.5;
+	pGrenade->pev->friction = 0.8;
 	switch (type)
 	{
 		case 0: // High Explosive
@@ -695,9 +700,12 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		case 3: // HopWire
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
-			pGrenade->SetThink(&CGrenade::TumbleThink);
+			pGrenade->SetTouch(&CGrenade::SlideTouch);
+			pGrenade->SetThink(&CGrenade::SUB_DoNothing);
 			// Tumble through the air
 			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
+			pGrenade->pev->gravity = 0.75f;
+			pGrenade->pev->friction = 1;
 			break;
 		case 4:
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
@@ -727,11 +735,6 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
 	pGrenade->pev->framerate = 1.0;
 	pGrenade->ResetSequenceInfo();
-
-
-
-	pGrenade->pev->gravity = 0.5;
-	pGrenade->pev->friction = 0.8;
 	
 	return pGrenade;
 }
@@ -806,7 +809,7 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 #ifndef CLIENT_DLL
 int CGrenade::ShouldCollide(CBaseEntity* pentTouched)
 {
-	if (FClassnameIs(pentTouched->pev, "hw_beam") || FClassnameIs(pentTouched->pev, "grenade"))
+	if (FClassnameIs(pentTouched->pev, "grenade"))
 		return 0;
 	else
 		return 1;
