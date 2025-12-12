@@ -792,8 +792,6 @@ public:
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
-	void ReloadSetAmmos() override;
-	void ItemPostFrame() override;
 
 	bool Deploy() override;
 	void Reload() override;
@@ -1535,6 +1533,7 @@ class CSpitThrower : public CBasePlayerWeapon
 	void Spawn() override;
 	bool Deploy() override;
 	void Holster() override;
+	void Reload() override;
 	void WeaponIdle() override;
 	void PrimaryAttack() override;
 	int iItemSlot() { return 4; }
@@ -1630,7 +1629,6 @@ public:
 
 class CM727 : public CBasePlayerWeapon // to-do: save firemode
 {
-	void ReloadSetAmmos() override;
 public:
 	void Spawn() override;
 	void Precache() override;
@@ -1641,7 +1639,6 @@ public:
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
 	
-	void ItemPostFrame() override;
 	bool Deploy() override;
 	void Reload() override;
 	void WeaponIdle() override;

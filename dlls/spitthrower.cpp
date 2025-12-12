@@ -69,15 +69,17 @@ void CSpitThrower::WeaponIdle()
 
 void CSpitThrower::PrimaryAttack()
 {
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+	if (m_iClip <= 0)
 	{
 		PlayEmptySound();
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(0.2);
 		return;
 	}
 
+	m_iClip--;
+
 	m_flNextPrimaryAttack = 0.1;
 	m_flTimeWeaponIdle = 1;
-	m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 
 	if (pev->armortype < gpGlobals->time)
 	{
@@ -99,7 +101,7 @@ bool CSpitThrower::GetItemInfo(ItemInfo* p)
 	p->pszAmmo1 = "spit";
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-	p->iMaxAmmo1 = 125;
+	p->iMaxAmmo1 = 75;
 	}
 	else
 	{
@@ -108,7 +110,7 @@ bool CSpitThrower::GetItemInfo(ItemInfo* p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = nullptr;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
-	p->iMaxClip = WEAPON_NOCLIP;
+	p->iMaxClip = 25;
 	p->iSlot = 3;
 	p->iPosition = 2;
 	p->iFlags = 0;
@@ -121,6 +123,11 @@ bool CSpitThrower::GetItemInfo(ItemInfo* p)
 void CSpitThrower::Holster()
 {
 	CBasePlayerWeapon::Holster();
+}
+
+void CSpitThrower::Reload()
+{
+	DefaultReload(25, EGON_DRAW, 1.5);
 }
 
 class CSpitAmmo : public CBasePlayerAmmo

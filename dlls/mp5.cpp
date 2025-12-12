@@ -345,42 +345,7 @@ void CMP5::WeaponIdle()
 		}
 	}
 }
-void CMP5::ItemPostFrame()
-{
-	CBasePlayerWeapon::ItemPostFrame();
-}
-void CMP5::ReloadSetAmmos()
-{
-	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
-	{
-		// complete the reload.
-		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
 
-		// Add them to the clip
-		if (m_iClip == 0)
-		{
-			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
-			{
-				m_iClip += 1;
-				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
-			}
-			else
-			{
-				m_iClip += j - 1;
-				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
-			}
-		}
-		else
-		{
-			m_iClip += j;
-			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
-		}
-
-		m_pPlayer->TabulateAmmo();
-
-		m_fInReload = false;
-	}
-}
 class CMP5AmmoClip : public CBasePlayerAmmo
 {
 	void Spawn() override
@@ -696,8 +661,9 @@ void CM727::PrimaryAttack()
 	m_flTimeWeaponIdle = 5;
 
 #ifndef CLIENT_DLL
-	TestSprayPat(iMaxClip() - m_iClip);
 	/*
+	TestSprayPat(iMaxClip() - m_iClip); // breaks the camera sometimes
+	*/
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
 		CBasePlayerWeapon::Recoil(0.8, 1);
@@ -706,7 +672,6 @@ void CM727::PrimaryAttack()
 	{
 		CBasePlayerWeapon::Recoil(0.9, 1);
 	}
-	*/
 #endif
 }
 
@@ -791,43 +756,6 @@ void CM727::WeaponIdle()
 		
 }
 
-void CM727::ItemPostFrame()
-{
-	CBasePlayerWeapon::ItemPostFrame();
-}
-
-void CM727::ReloadSetAmmos()
-{
-	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
-	{
-		// complete the reload.
-		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
-
-		// Add them to the clip
-		if (m_iClip == 0)
-		{
-			if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == 1)
-			{
-				m_iClip += 1;
-				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
-			}
-			else
-			{
-				m_iClip += j - 1;
-				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j - 1;
-			}
-		}
-		else
-		{
-			m_iClip += j;
-			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
-		}
-
-		m_pPlayer->TabulateAmmo();
-
-		m_fInReload = false;
-	}
-}
 class CM727AmmoClip : public CBasePlayerAmmo
 {
 	void Spawn() override
