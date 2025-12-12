@@ -1,4 +1,4 @@
-/***
+  /***
 *
 *	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
 *	
@@ -371,41 +371,30 @@ void CGrenade::DangerSoundThink()
 void CGrenade::LandmineThink()
 {
 	TraceResult tr;
-	pev->health = 5;
-	pev->takedamage = DAMAGE_YES;
+	
+	pev->nextthink = 0.1f;
 	if ((pev->flags & FL_ONGROUND) != 0)
-	{
-		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_up * 8, dont_ignore_monsters, ENT(pev), &tr);
-		if (tr.flFraction != 1.0f)
+	{	
+		CBaseEntity* thisdih = NULL;
+		while ((thisdih = UTIL_FindEntityInSphere(thisdih, pev->origin, 16)) != NULL)
 		{
-			pev->velocity = gpGlobals->v_up * 200;
-			pev->avelocity.z = RANDOM_LONG(-100, -400);
-			pev->nextthink = 0.125f;
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
-			SetThink(&CGrenade::LandmineHopThink);
+			if (!thisdih->IsBSPModel() && thisdih->IsAlive() && thisdih != this)
+			{
+				pev->nextthink = 0.125f;
+				EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
+
+				CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
+				SetThink(&CGrenade::LandmineHopThink);
+			}
 		}
 	}
 	
-	entvars_t* pevOwner;
-
-	if (pev->owner)
-		pevOwner = VARS(pev->owner);
-	else
-		pevOwner = NULL;
-
-	pev->owner = NULL; // can't traceline attack owner if this is set
-
-	pev->nextthink = 0.125f;
 }
 
 void CGrenade::LandmineHopThink()
 {
 	pev->nextthink = 0.25f;
-	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
-	if (pev->velocity.z <= 0) // At apex, set gravity back to normal
-	{
-		SetThink(&CGrenade::Detonate);
-	}
+	SetThink(&CGrenade::Detonate);
 }
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
@@ -523,8 +512,7 @@ void CGrenade::CallDetonate()
 		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
 			break;
-		case 3: // LandMine
-			SetThink(&CGrenade::LandmineThink);
+		case 3: // LandMine (shouldn't be called)
 			break;
 		case 4:
 			UTIL_Remove(this);
@@ -698,9 +686,12 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			break;
 		case 3: // LandMine
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
+			pGrenade->pev->health = 5;
+			pGrenade->pev->takedamage = DAMAGE_YES;
+			UTIL_SetSize(pGrenade->pev, Vector(4, 4, 0), Vector(4, 4, 0));
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetTouch(&CGrenade::SlideTouch);
-			pGrenade->SetThink(&CGrenade::SUB_DoNothing);
+			pGrenade->SetThink(&CGrenade::LandmineThink);
 			// Tumble through the air
 			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
 			pGrenade->pev->gravity = 0.75f;
