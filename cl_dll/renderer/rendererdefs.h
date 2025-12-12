@@ -451,6 +451,8 @@ typedef struct customdecal_s
 
 	Vector normal;
 	Vector position;
+	float angle;
+	float radius;
 	float life;
 } customdecal_t;
 
@@ -462,6 +464,7 @@ struct decal_msg_cache
 	int persistent;
 	int fromwad;
 	float angle;
+	float radius;
 };
 
 struct clientsurfdata_t

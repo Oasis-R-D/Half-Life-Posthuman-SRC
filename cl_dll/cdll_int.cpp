@@ -986,8 +986,9 @@ typedef struct decal_load
 {
 	Vector position;
 	Vector normal;
+	float angle;
+	float radius;
 	int fromwad;
-	// float angle; havent implemented these yet
 	char name[64];
 };
 
@@ -1023,7 +1024,7 @@ void RestoreDecals(const char* savefile)
 	for (int i = 0; i < numdecals; i++)
 	{
 		size_t r1 = fread(&decal, sizeof(decal_load), 1, pFile);
-		gBSPRenderer.CreateDecal(decal.position, decal.normal, decal.name, 1, decal.fromwad);
+		gBSPRenderer.CreateDecal(decal.position, decal.normal, decal.name, 0, decal.fromwad, decal.angle, decal.radius);
 		gEngfuncs.Con_DPrintf("%f, %f, %f, %i\n", decal.position.x, decal.position.y, decal.position.z, ftell(pFile));
 		gEngfuncs.Con_DPrintf("%i\n", r1);
 	}
@@ -1076,7 +1077,8 @@ void SaveDecals(const char* savefile)
 	{
 		fwrite(&gBSPRenderer.m_pDecals[i]->position, sizeof(float), 3, pFile);
 		fwrite(&gBSPRenderer.m_pDecals[i]->normal, sizeof(float), 3, pFile);
-
+		fwrite(&gBSPRenderer.m_pDecals[i]->angle, sizeof(float), 1, pFile);
+		fwrite(&gBSPRenderer.m_pDecals[i]->radius, sizeof(float), 1, pFile);
 		int fromwad = gBSPRenderer.m_pDecals[i]->texinfo->szName[0] == '{' ? 1 : 0;
 		fwrite(&fromwad, sizeof(int), 1, pFile);
 

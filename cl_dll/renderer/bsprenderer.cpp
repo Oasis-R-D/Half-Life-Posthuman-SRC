@@ -3393,7 +3393,7 @@ CreateDecal
 
 ====================
 */
-void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, int persistent, bool fromwad, float angle)
+void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, int persistent, bool fromwad, float angle, float customradius)
 {
 	Vector mins, maxs;
 	Vector decalpos, decalnormal;
@@ -3412,6 +3412,7 @@ void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, 
 		msgcache->persistent = persistent;
 		msgcache->fromwad = fromwad;
 		msgcache->angle = angle;
+		msgcache->radius = customradius;
 		m_pMsgCache.push_back(std::move(msgcache));
 		return;
 	}
@@ -3439,6 +3440,9 @@ void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, 
 				m_vDecalMaxs[0] = endpos[0] + radius;
 				m_vDecalMaxs[1] = endpos[1] + radius;
 				m_vDecalMaxs[2] = endpos[2] + radius;
+
+				pDecal->angle = angle;
+				pDecal->radius = radius;
 
 				RecursiveCreateDecal(engine_cl->worldmodel->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
 
@@ -3527,7 +3531,7 @@ void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, 
 							if (DotProduct(normal, decalnormal) < 0.01)
 								continue;
 
-							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal);
+							DecalSurface(surf, gTextureLoader.m_pWAD_Decals[i].texinfo, pEntity, pDecal, decalpos, decalnormal, angle);
 						}
 					}
 				}
@@ -3728,7 +3732,8 @@ void CBSPRenderer::RecursiveCreateDecal(mnode_t* node, decalgroupentry_t* texptr
 	int ysize = texptr->ysize;
 
 	float radius = (xsize > ysize) ? xsize : ysize;
-
+	if (pDecal->radius)
+		radius = pDecal->radius;
 	int side;
 	float dot;
 	mplane_t* plane = node->plane;
@@ -3958,7 +3963,7 @@ void CBSPRenderer::CreateCachedDecals(void)
 
 	for (int i = 0; i < m_pMsgCache.size(); i++)
 	{
-		CreateDecal(m_pMsgCache[i]->pos, m_pMsgCache[i]->normal, m_pMsgCache[i]->name, m_pMsgCache[i]->persistent, m_pMsgCache[i]->fromwad);
+		CreateDecal(m_pMsgCache[i]->pos, m_pMsgCache[i]->normal, m_pMsgCache[i]->name, m_pMsgCache[i]->persistent, m_pMsgCache[i]->fromwad, m_pMsgCache[i]->angle, m_pMsgCache[i]->radius);
 	}
 
 	m_pMsgCache.clear();
@@ -4179,7 +4184,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 	g_GlobalGLState.SetDepthWrite(true);
 
-	g_GlobalGLState.SetBlend(false);;
+	g_GlobalGLState.SetBlend(false);
 	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 	g_GlobalGLState.SetPolygonOffsetFill(false);
 
@@ -4208,8 +4213,9 @@ int CBSPRenderer::MsgCustomDecal(const char* pszName, int iSize, void* pbuf)
 	int persistent = READ_BYTE();
 	int fromwad = READ_BYTE();
 	float angle = READ_COORD();
+	float radius = READ_COORD();
 
-	CreateDecal(pos, normal, decalname, persistent, fromwad, angle);
+	CreateDecal(pos, normal, decalname, persistent, fromwad, angle, radius);
 	return 1;
 }
 
