@@ -60,11 +60,16 @@ void CSpitThrower::WeaponIdle()
 {
 	ResetEmptySound();
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) == 0)
+	{
+		STOP_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sptthrwr_loop.wav");
+		pev->armortype = 0;
+	}
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 	SendWeaponAnim(EGON_IDLE1);
 	m_flTimeWeaponIdle = 2;
-	STOP_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sptthrwr_loop.wav");
+	
 }
 
 void CSpitThrower::PrimaryAttack()
@@ -84,7 +89,7 @@ void CSpitThrower::PrimaryAttack()
 	if (pev->armortype < gpGlobals->time)
 	{
 		EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sptthrwr_loop.wav", 1, ATTN_NORM);
-		pev->armortype = gpGlobals->time + 2;
+		pev->armortype = gpGlobals->time + 2.5;
 	}
 
 	SendWeaponAnim(EGON_FIRE1);
