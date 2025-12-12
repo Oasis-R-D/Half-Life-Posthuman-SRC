@@ -278,15 +278,15 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
 
+	// grenades
 	PRECACHE_MODEL("models/w_grenade.mdl");
 	PRECACHE_MODEL("models/grenade.mdl");
 	PRECACHE_MODEL("models/w_hopwire.mdl");
 	PRECACHE_MODEL("models/w_fgrenade.mdl");
+	PRECACHE_MODEL("models/w_landmine.mdl");
 	PRECACHE_MODEL("models/v_ohgrenade.mdl");
 	PRECACHE_MODEL("models/w_sgrenade.mdl");
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
-	PRECACHE_MODEL("sprites/blueflare1.spr");
-
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
 	PRECACHE_SOUND("weapons/hopwire_fly.wav");
 

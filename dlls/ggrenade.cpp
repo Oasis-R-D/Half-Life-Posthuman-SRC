@@ -378,7 +378,7 @@ void CGrenade::LandmineThink()
 		CBaseEntity* thisdih = NULL;
 		while ((thisdih = UTIL_FindEntityInSphere(thisdih, pev->origin, 16)) != NULL)
 		{
-			if (!thisdih->IsBSPModel() && thisdih->IsAlive() && thisdih != this)
+			if (!thisdih->IsBSPModel() && thisdih != this)
 			{
 				pev->nextthink = 0.125f;
 				EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
@@ -512,7 +512,8 @@ void CGrenade::CallDetonate()
 		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
 			break;
-		case 3: // LandMine (shouldn't be called)
+		case 3: // LandMine (only called on kill)
+			SetThink(&CGrenade::Detonate);
 			break;
 		case 4:
 			UTIL_Remove(this);
@@ -685,7 +686,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 3: // LandMine
-			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
+			SET_MODEL(ENT(pGrenade->pev), "models/w_landmine.mdl");
 			pGrenade->pev->health = 5;
 			pGrenade->pev->takedamage = DAMAGE_YES;
 			UTIL_SetSize(pGrenade->pev, Vector(4, 4, 0), Vector(4, 4, 0));
@@ -693,9 +694,10 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetTouch(&CGrenade::SlideTouch);
 			pGrenade->SetThink(&CGrenade::LandmineThink);
 			// Tumble through the air
-			pGrenade->pev->avelocity.z = RANDOM_LONG(-100, -400);
+			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			pGrenade->pev->gravity = 0.75f;
 			pGrenade->pev->friction = 1;
+			pGrenade->pev->angles = g_vecZero;
 			break;
 		case 4:
 			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
