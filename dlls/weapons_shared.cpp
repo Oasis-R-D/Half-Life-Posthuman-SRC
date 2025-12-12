@@ -163,7 +163,6 @@ void CBasePlayerWeapon::ItemPostFrame()
 	else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
 	{
 		TertiaryAttack();
-		//m_pPlayer->pev->button &= ~IN_ALT1;
 	}
 	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time)
 	{
@@ -205,7 +204,6 @@ void CBasePlayerWeapon::ItemPostFrame()
 				}
 			}
 		}
-		m_pPlayer->pev->button &= ~IN_SCORE;
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{
