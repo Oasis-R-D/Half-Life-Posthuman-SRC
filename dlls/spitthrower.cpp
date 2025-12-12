@@ -94,11 +94,14 @@ void CSpitThrower::PrimaryAttack()
 
 	SendWeaponAnim(EGON_FIRE1);
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < RANDOM_LONG(2, 3); i++)
 	{
 		Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 32 + gpGlobals->v_right * 4;
 		Create("env_spit", vecSrc, pev->angles, m_pPlayer->edict());
 	}
+#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil(0.6, 0.6);
+#endif
 }
 
 bool CSpitThrower::GetItemInfo(ItemInfo* p)
@@ -132,7 +135,7 @@ void CSpitThrower::Holster()
 
 void CSpitThrower::Reload()
 {
-	DefaultReload(25, EGON_DRAW, 1.5);
+	DefaultReload(25, EGON_DRAW, 1);
 }
 
 class CSpitAmmo : public CBasePlayerAmmo
@@ -172,7 +175,7 @@ class CEnvSpit : public CBaseEntity
 		pev->solid = SOLID_BBOX;
 		pev->movetype = MOVETYPE_BOUNCE;
 		//pev->velocity = gpGlobals->v_forward * 1000 + gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
-		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES), RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES), RANDOM_FLOAT(CONE_6DEGREES, -CONE_6DEGREES));
+		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES));
 		pev->velocity = (gpGlobals->v_forward + m_SpreadVect) * 1750; // Applies spread and velocity
 		pev->framerate = 1;
 		pev->dmgtime = gpGlobals->time + 2;
@@ -199,7 +202,7 @@ class CEnvSpit : public CBaseEntity
 			int damage = 0;
 			switch (g_iSkillLevel)
 			{
-			case SKILL_EASY: damage = 6; break;
+			case SKILL_EASY: damage = 5; break;
 			case SKILL_MEDIUM: damage = 5; break;
 			case SKILL_HARD: damage = 20; break;
 			}

@@ -229,6 +229,11 @@ char glsl330_studiomdl_vert[] = R"(
 		vertexdiffusecolor = vec4(1.0);
 		vertexspecularcolor = vec4(1.0); // remove for funny
 										 // ^^ Use in ICH? Maybe if the player is damaged by a noise guy it does this?
+		if (int_values[_CHROMESHELL_BOOL] == 2)
+		{
+			vertexdiffusecolor = vec4(10);
+			vertexspecularcolor = vec4(10);
+		}
 	}
 
 	void main() {
@@ -381,8 +386,8 @@ char glsl330_studiomdl_frag[] = R"(
 
 		if (int_values.y == 2)
 		{
-			gl_FragColor = vec4(rendervalues.x, rendervalues.y, rendervalues.z, rendervalues.a);
-			gl_FragColor = vec4(rendervalues.x, rendervalues.y, rendervalues.z, rendervalues.a);
+			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
+			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
 		}
 	}
 
