@@ -49,8 +49,7 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 bool CBasePlayerWeapon::CanDeploy()
 {
 	bool bHasAmmo = false;
-	if (m_pPlayer->m_bInGrenade)
-		return false;
+
 	if (!pszAmmo1())
 	{
 		// this weapon doesn't use ammo, can always deploy.
@@ -359,7 +358,7 @@ void CBasePlayer::SelectLastItem()
 	m_pActiveItem = m_pLastItem;
 	m_pLastItem = pTemp;
 
-	auto weapon = m_pLastItem->GetWeaponPtr();
+	auto weapon = m_pActiveItem->GetWeaponPtr();
 
 	if (weapon)
 	{

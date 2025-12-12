@@ -5484,10 +5484,6 @@ bool CBasePlayer::SwitchWeapon(CBasePlayerItem* pWeapon)
 	{
 		return false;
 	}
-	if (m_bInGrenade)
-	{
-		return false;
-	}
 
 	ResetAutoaim();
 

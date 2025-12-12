@@ -879,7 +879,7 @@ bool CBasePlayerWeapon::IsUseable()
 	}
 
 	// clip is empty (or nonexistant) and the player has no more ammo of this type.
-	return false;
+	return CanDeploy();
 }
 
 bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWeaponModel, int iAnim, const char* szAnimExt, int body, const char* szAltViewModel, int iAltAnim)
