@@ -3433,7 +3433,8 @@ void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, 
 				VectorCopy(endpos, pDecal->position);
 				VectorCopy(pnormal, pDecal->normal);
 				float radius = (pDecal->texinfo->xsize > pDecal->texinfo->ysize) ? pDecal->texinfo->xsize : pDecal->texinfo->ysize;
-
+				if (customradius != 0)
+					radius = customradius;
 				m_vDecalMins[0] = endpos[0] - radius;
 				m_vDecalMins[1] = endpos[1] - radius;
 				m_vDecalMins[2] = endpos[2] - radius;
