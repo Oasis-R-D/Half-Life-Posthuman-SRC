@@ -4184,7 +4184,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 	g_GlobalGLState.SetDepthWrite(true);
 
-	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetBlend(false);;
 	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 	g_GlobalGLState.SetPolygonOffsetFill(false);
 
