@@ -224,31 +224,25 @@ bool CMelee::Swing(const bool bFirst)
 		PLAYBACK_EVENT_FULL(FEV_NOTHOST, m_pPlayer->edict(), m_usMelee,
 			0.0, g_vecZero, g_vecZero, 0, 0, 0,
 			0, 0, static_cast<int>(tr.flFraction < 1));
+		// player "shoot" animation
+		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	}
 
+	
 
-	if (tr.flFraction >= 1.0)
+	if (tr.flFraction >= 1.0) // miss
 	{
 		if (bFirst)
 		{
-			// miss
 			m_flNextPrimaryAttack = GetNextAttackDelay(0.75f);
 			m_flNextSecondaryAttack = GetNextAttackDelay(0.75f);
 			m_flNextTertiaryAttack = GetNextAttackDelay(0.75f);
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
-
-			// player "shoot" animation
-			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 		}
 	}
-	else
+	else // hit
 	{
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
 #ifndef CLIENT_DLL
-
-		// hit
 		bDidHit = true;
 		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 
@@ -311,8 +305,6 @@ bool CMelee::Swing(const bool bFirst)
 		}
 
 		// play texture hit sound
-		// UNDONE: Calculate the correct point of intersection when we hit with the hull instead of the line
-
 		if (bHitWorld)
 		{
 			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
@@ -343,7 +335,7 @@ bool CMelee::Swing(const bool bFirst)
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 
 		SetThink(&CMelee::Smack);
-		pev->nextthink = gpGlobals->time + 0.2;
+		pev->nextthink = gpGlobals->time + 0.1;
 #endif
 	}
 	return bDidHit;
@@ -384,32 +376,24 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		PLAYBACK_EVENT_FULL(FEV_NOTHOST, m_pPlayer->edict(), m_usMelee,
 			0.0, g_vecZero, g_vecZero, 0, 0, 0,
 			2, 0, static_cast<int>(tr.flFraction < 1));
+			// player "shoot" animation
+			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	}
 
 
-	if (tr.flFraction >= 1.0)
+	if (tr.flFraction >= 1.0) // miss
 	{
 		if (bFirst)
 		{
-			// miss
 			m_flNextPrimaryAttack = GetNextAttackDelay(1.5f);
 			m_flNextSecondaryAttack = GetNextAttackDelay(1.5f);
 			m_flNextTertiaryAttack = GetNextAttackDelay(1.5f);
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
-
-			// player "shoot" animation
-			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 		}
 	}
-	else
+	else // hit
 	{
-
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
 #ifndef CLIENT_DLL
-
-		// hit
 		bDidHit = true;
 		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 
@@ -461,8 +445,6 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		}
 
 		// play texture hit sound
-		// UNDONE: Calculate the correct point of intersection when we hit with the hull instead of the line
-
 		if (bHitWorld)
 		{
 			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
@@ -484,7 +466,7 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 
 		SetThink(&CMelee::SmackHeavy);
-		pev->nextthink = gpGlobals->time + 0.15;
+		pev->nextthink = gpGlobals->time + 0.12;
 #endif
 	}
 	return bDidHit;
@@ -522,28 +504,20 @@ void CMelee::BigSwing()
 		0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0,
 		1, 0, static_cast<int>(tr.flFraction < 1));
 
-	EMIT_SOUND_DYN(edict(), CHAN_WEAPON, "weapons/pwrench_big_miss.wav", VOL_NORM, ATTN_NORM, 0, 94 + RANDOM_LONG(0, 15));
+	// player "shoot" animation
+	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-	if (tr.flFraction >= 1.0)
+	if (tr.flFraction >= 1.0) // miss
 	{
-		// miss
+		
 		m_flNextPrimaryAttack = GetNextAttackDelay(1.75f);
 		m_flNextSecondaryAttack = GetNextAttackDelay(1.75f);
 		m_flNextTertiaryAttack = GetNextAttackDelay(1.75f);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1;
-
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	}
-	else
+	else // hit
 	{
-
-		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
 #ifndef CLIENT_DLL
-
-		// hit
 		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
 
 		if (pEntity)
@@ -585,8 +559,6 @@ void CMelee::BigSwing()
 		}
 
 		// play texture hit sound
-		// UNDONE: Calculate the correct point of intersection when we hit with the hull instead of the line
-
 		if (bHitWorld)
 		{
 			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
