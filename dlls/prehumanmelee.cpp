@@ -139,10 +139,7 @@ void CMelee::PrimaryAttack()
 		return;
 	if (m_iSwingMode == SWING_NONE && !Swing(true))
 	{
-#ifndef CLIENT_DLL
-		SetThink(&CMelee::SwingAgain);
-		pev->nextthink = gpGlobals->time + 0.1;
-#endif
+		SwingAgain();
 	}
 }
 
@@ -152,10 +149,7 @@ void CMelee::SecondaryAttack()
 		return;
 	if (m_iSwingMode == SWING_NONE && !SwingHeavy(true))
 	{
-#ifndef CLIENT_DLL
-		SetThink(&CMelee::SwingAgainHeavy);
-		pev->nextthink = gpGlobals->time + 0.1;
-#endif
+		SwingAgainHeavy();
 	}
 }
 
@@ -238,9 +232,9 @@ bool CMelee::Swing(const bool bFirst)
 		if (bFirst)
 		{
 			// miss
-			m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
-			m_flNextSecondaryAttack = GetNextAttackDelay(0.5);
-			m_flNextTertiaryAttack = GetNextAttackDelay(0.5);
+			m_flNextPrimaryAttack = GetNextAttackDelay(0.75f);
+			m_flNextSecondaryAttack = GetNextAttackDelay(0.75f);
+			m_flNextTertiaryAttack = GetNextAttackDelay(0.75f);
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 
 			// player "shoot" animation
@@ -249,19 +243,6 @@ bool CMelee::Swing(const bool bFirst)
 	}
 	else
 	{
-		switch (((m_iSwing++) % 2) + 1)
-		{
-		case 0:
-			SendWeaponAnim(MELEE_ATTACK1HIT);
-			break;
-		case 1:
-			SendWeaponAnim(MELEE_ATTACK2HIT);
-			break;
-		case 2:
-			SendWeaponAnim(MELEE_ATTACK3HIT);
-			break;
-		}
-
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
@@ -278,12 +259,12 @@ bool CMelee::Swing(const bool bFirst)
 			if ((m_flNextPrimaryAttack + 1 < UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 			{
 				// first swing does full damage
-				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
+				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSledge, gpGlobals->v_forward, &tr, DMG_CLUB);
 			}
 			else
 			{
 				// subsequent swings do half
-				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSledge / 1.5, gpGlobals->v_forward, &tr, DMG_CLUB);
 			}
 
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
@@ -291,9 +272,9 @@ bool CMelee::Swing(const bool bFirst)
 
 #endif
 
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.25);
-		m_flNextSecondaryAttack = GetNextAttackDelay(0.25);
-		m_flNextTertiaryAttack = GetNextAttackDelay(0.25);
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
+		m_flNextSecondaryAttack = GetNextAttackDelay(0.5);
+		m_flNextTertiaryAttack = GetNextAttackDelay(0.5);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 
 #ifndef CLIENT_DLL
@@ -411,9 +392,9 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		if (bFirst)
 		{
 			// miss
-			m_flNextPrimaryAttack = GetNextAttackDelay(1);
-			m_flNextSecondaryAttack = GetNextAttackDelay(1);
-			m_flNextTertiaryAttack = GetNextAttackDelay(1);
+			m_flNextPrimaryAttack = GetNextAttackDelay(1.5f);
+			m_flNextSecondaryAttack = GetNextAttackDelay(1.5f);
+			m_flNextTertiaryAttack = GetNextAttackDelay(1.5f);
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 
 			// player "shoot" animation
@@ -422,18 +403,6 @@ bool CMelee::SwingHeavy(const bool bFirst)
 	}
 	else
 	{
-		switch (((m_iSwing++) % 2) + 1)
-		{
-		case 0:
-			SendWeaponAnim(MELEE_HEAVYHIT1);
-			break;
-		case 1:
-			SendWeaponAnim(MELEE_HEAVYHIT2);
-			break;
-		case 2:
-			SendWeaponAnim(MELEE_HEAVYHIT3);
-			break;
-		}
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
@@ -451,12 +420,12 @@ bool CMelee::SwingHeavy(const bool bFirst)
 			if ((m_flNextPrimaryAttack + 1 < UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 			{
 				// first swing does full damage
-				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar * 1.5, gpGlobals->v_forward, &tr, DMG_CLUB);
+				pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSledge * 1.5, gpGlobals->v_forward, &tr, DMG_CLUB);
 			}
 			else
 			{
 				// subsequent swings do half
-				pEntity->TraceAttack(m_pPlayer->pev, (gSkillData.plrDmgCrowbar / 2) * 1.5, gpGlobals->v_forward, &tr, DMG_CLUB);
+				pEntity->TraceAttack(m_pPlayer->pev, (gSkillData.plrDmgSledge / 1.5) * 1.5, gpGlobals->v_forward, &tr, DMG_CLUB);
 			}
 
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
@@ -464,9 +433,9 @@ bool CMelee::SwingHeavy(const bool bFirst)
 
 #endif
 
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.75);
-		m_flNextSecondaryAttack = GetNextAttackDelay(0.75);
-		m_flNextTertiaryAttack = GetNextAttackDelay(0.75);
+		m_flNextPrimaryAttack = GetNextAttackDelay(1.25);
+		m_flNextSecondaryAttack = GetNextAttackDelay(1.25);
+		m_flNextTertiaryAttack = GetNextAttackDelay(1.25);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 
 #ifndef CLIENT_DLL
@@ -558,19 +527,16 @@ void CMelee::BigSwing()
 	if (tr.flFraction >= 1.0)
 	{
 		// miss
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.25f);
-		m_flNextSecondaryAttack = GetNextAttackDelay(1.25f);
-		m_flNextTertiaryAttack = GetNextAttackDelay(1.25f);
+		m_flNextPrimaryAttack = GetNextAttackDelay(1.75f);
+		m_flNextSecondaryAttack = GetNextAttackDelay(1.75f);
+		m_flNextTertiaryAttack = GetNextAttackDelay(1.75f);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1;
-
-		SendWeaponAnim(MELEE_CHARGEMISS);
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	}
 	else
 	{
-		SendWeaponAnim(MELEE_CHARGEHIT);
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
@@ -584,7 +550,7 @@ void CMelee::BigSwing()
 		{
 			ClearMultiDamage();
 
-			float flDamage = (gpGlobals->time - m_flBigSwingStart) * gSkillData.plrDmgCrowbar + 25.0f;
+			float flDamage = (gpGlobals->time - m_flBigSwingStart) * gSkillData.plrDmgSledge + 25.0f;
 			if ((m_flNextPrimaryAttack + 1 < UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 			{
 				// first swing does full damage
@@ -644,9 +610,9 @@ void CMelee::BigSwing()
 		SetThink(&CMelee::SmackHeavy);
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;
 #endif
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.0);
-		m_flNextSecondaryAttack = GetNextAttackDelay(1.0);
-		m_flNextTertiaryAttack = GetNextAttackDelay(1.0);
+		m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
+		m_flNextSecondaryAttack = GetNextAttackDelay(1.5);
+		m_flNextTertiaryAttack = GetNextAttackDelay(1.5);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 	}
 }

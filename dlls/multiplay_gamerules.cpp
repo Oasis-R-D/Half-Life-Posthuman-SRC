@@ -110,7 +110,7 @@ void CHalfLifeMultiplay::ClientUserInfoChanged(CBasePlayer* pPlayer, char* infob
 
 //=========================================================
 //=========================================================
-void CHalfLifeMultiplay::RefreshSkillData()
+void CHalfLifeMultiplay::RefreshSkillData() // TO-DO: probably remove this or rebalance
 {
 	// load all default values
 	CGameRules::RefreshSkillData();
@@ -141,24 +141,8 @@ void CHalfLifeMultiplay::RefreshSkillData()
 	// Crossbow
 	gSkillData.plrDmgCrossbowClient = 20;
 
-	// RPG
-	gSkillData.plrDmgRPG = 120;
-
-	// Egon
-	gSkillData.plrDmgEgonWide = 20;
-	gSkillData.plrDmgEgonNarrow = 10;
-
-	// Hand Grendade
+	// Hand Grenade
 	gSkillData.plrDmgHandGrenade = 100;
-
-	// Satchel Charge
-	gSkillData.plrDmgSatchel = 120;
-
-	// Tripmine
-	gSkillData.plrDmgTripmine = 150;
-
-	// hornet
-	gSkillData.plrDmgHornet = 10;
 }
 
 // longest the intermission can last, in seconds

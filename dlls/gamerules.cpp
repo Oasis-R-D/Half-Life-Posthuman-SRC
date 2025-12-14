@@ -330,6 +330,9 @@ void CGameRules::RefreshSkillData()
 	
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = GetSkillCvar("sk_plr_crowbar");
+	
+	// Sledgehammer bonk
+	gSkillData.plrDmgSledge = GetSkillCvar("sk_plr_sledge");
 
 	// Glock Round
 	gSkillData.plrDmg9MM = GetSkillCvar("sk_plr_9mm_bullet");
