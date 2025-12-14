@@ -2106,7 +2106,34 @@ void CBasePlayer::PreThink()
 	Railed();
 	UpdateShockEffect();
 
+
 	UTIL_MakeVectors(pev->v_angle); // is this still used?
+
+	if (CVAR_GET_FLOAT("cl_muzzlelight") >= 1)
+	{
+		if (m_iWeaponFlash != 0)
+		{
+			Vector Origin = GetGunPosition() + gpGlobals->v_forward * 16;
+			MESSAGE_BEGIN(MSG_ONE_UNRELIABLE, gmsgCreateDLight, GetGunPosition(), edict());
+			WRITE_COORD(Origin.x); // X
+			WRITE_COORD(Origin.y); // Y
+			WRITE_COORD(Origin.z); // Z
+			WRITE_BYTE(m_iWeaponFlash / 100); // radius * 0.1
+			WRITE_BYTE(RANDOM_LONG(128, 112));// r
+			WRITE_BYTE(RANDOM_LONG(64, 48));// g
+			WRITE_BYTE(0);	 // b
+			WRITE_LONG(0.1); // TIME
+			WRITE_BYTE(0);					 // decay * 0.1
+			MESSAGE_END();
+			m_iWeaponFlash = 0;
+		}
+	}
+	else // what is this for
+	{
+		m_iWeaponFlash -= 256 * gpGlobals->frametime;
+		if (m_iWeaponFlash < 0)
+			m_iWeaponFlash = 0;
+	}
 
 	ItemPreFrame();
 	WaterMove();
@@ -2885,32 +2912,6 @@ void CBasePlayer::UpdatePlayerSound()
 		pSound->m_vecOrigin = pev->origin;
 		pSound->m_iType |= (bits_SOUND_PLAYER | m_iExtraSoundTypes);
 		pSound->m_iVolume = iVolume;
-	}
-
-	if (CVAR_GET_FLOAT("cl_muzzlelight") == 1)
-	{
-		if (m_iWeaponFlash != 0)
-		{
-			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, GetGunPosition());
-			WRITE_BYTE(TE_DLIGHT);
-			WRITE_COORD(GetGunPosition().x); // X
-			WRITE_COORD(GetGunPosition().y); // Y
-			WRITE_COORD(GetGunPosition().z); // Z
-			WRITE_BYTE(m_iWeaponFlash / 10); // radius * 0.1
-			WRITE_BYTE(RANDOM_LONG(255, 235));// r
-			WRITE_BYTE(RANDOM_LONG(128, 108));// g
-			WRITE_BYTE(RANDOM_LONG(0, 10));	 // b
-			WRITE_BYTE(1);					 // time * 10
-			WRITE_BYTE(0);					 // decay * 0.1
-			MESSAGE_END();
-			m_iWeaponFlash = 0;
-		}
-	}
-	else
-	{
-		m_iWeaponFlash -= 256 * gpGlobals->frametime;
-		if (m_iWeaponFlash < 0)
-			m_iWeaponFlash = 0;
 	}
 
 	//UTIL_MakeVectors ( pev->angles );
