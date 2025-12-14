@@ -4017,6 +4017,11 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 #endif
 		break;
 	}
+	case 69:
+	{
+		m_bPrehuman = !m_bPrehuman;
+		break;
+	}
 	case 30:
 	{
 		m_iGrenadeType = 0;
