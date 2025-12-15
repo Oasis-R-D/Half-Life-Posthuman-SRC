@@ -3470,6 +3470,7 @@ void CBasePlayer::Spawn()
 	}
 
 	m_lastx = m_lasty = 0;
+	m_bIsClimbing = false; // ROPEUPD
 	m_flNextChatTime = gpGlobals->time;
 	Hunger = 100;
 	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
