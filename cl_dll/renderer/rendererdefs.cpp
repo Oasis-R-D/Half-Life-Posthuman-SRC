@@ -961,7 +961,7 @@ void SetupNightVision(Vector origin, Vector angles, float time, float frametime)
 void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 {
 	pmtrace_t tr;
-	Vector fwd, right, up;
+	Vector fwd, right, up, realfwd;
 
 	static float add = 0;
 	float addideal = 0;
@@ -973,7 +973,7 @@ void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 		return;
 
 	AngleVectors(angles, &fwd, &right, &up);
-
+	realfwd = fwd;
 	fwd = origin + (fwd * 150);
 
 	EV_SetTraceHull(2);
@@ -1003,7 +1003,7 @@ void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 	}
 
 	cl_dlight_t* flashlight = gBSPRenderer.CL_AllocDLight(-666);
-	flashlight->origin = origin + (up * 8) + (right * 10);
+	flashlight->origin = origin + (up * 6) + (right * 10) + (realfwd * 16);
 	flashlight->radius = 700;
 	flashlight->die = time + 0.01;
 	flashlight->cone_size = 50 + add;

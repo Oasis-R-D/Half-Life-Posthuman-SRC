@@ -587,6 +587,11 @@ void CMelee::BigSwing()
 		m_flNextTertiaryAttack = GetNextAttackDelay(1.5);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 	}
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+
+	Vector addedvel = gpGlobals->v_forward * 100;
+	m_pPlayer->pev->velocity.x += addedvel.x;
+	m_pPlayer->pev->velocity.y += addedvel.y;
 }
 
 void CMelee::WeaponIdle()
