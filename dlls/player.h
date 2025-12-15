@@ -17,6 +17,7 @@
 
 #include "pm_materials.h"
 
+class CRope;
 
 #define PLAYER_FATAL_FALL_SPEED 1024															  // approx 60 feet
 #define PLAYER_MAX_SAFE_FALL_SPEED 580															  // approx 20 feet
@@ -34,7 +35,7 @@
 #define PFLAG_DUCKING (1 << 3)	// In the process of ducking, but totally squatted yet
 #define PFLAG_USING (1 << 4)	// Using a continuous entity
 #define PFLAG_OBSERVER (1 << 5) // player is locked in stationary cam mode. Spectators can move, observers can't.
-
+#define PFLAG_ONROPE (1 << 6) // ROPEUPD
 //
 // generic player
 //
@@ -382,15 +383,43 @@ public:
 	void SetPrefsFromUserinfo(char* infobuffer);
 
 	int m_iAutoWepSwitch;
-	bool m_bRestored;
+
+	bool IsOnRope() const { return (m_afPhysicsFlags & PFLAG_ONROPE) != 0; }
+	
+	void SetOnRopeState(bool bOnRope)
+	{
+		if (bOnRope)
+			m_afPhysicsFlags |= PFLAG_ONROPE;
+		else
+			m_afPhysicsFlags &= ~PFLAG_ONROPE;
+	}
+
+	CRope* GetRope() { return m_pRope; }
+
+	void SetRope(CRope* pRope)
+	{
+		m_pRope = pRope;
+	}
+
+	// TO-DO: cut this
 	int BabyHeadcrabCount;
 	float BabyHeadcrabDelay;
+
+	// Post-Human
 	int CrowbarFlinch;
 	float FlashingHUDDelay;
 	int Hunger;
 	float HungerTime;
 	float HungerDamageTime;
 
+private:
+	CRope* m_pRope;
+	float m_flLastClimbTime = 0;
+	bool m_bIsClimbing = false;
+
+	bool m_bRestored;
+
+public:
 	//True if the player is currently spawning.
 	bool m_bIsSpawning = false;
 };
