@@ -226,7 +226,7 @@ void CPhysblood::AirThink()
 		pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
 		if (pObject)
 		{
-			if (!pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true)
+			if (!pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true && !FClassnameIs(pObject, "monster_super_headcrab")
 			{
 				ALERT(at_console, "attempt heal\n");
 				m_hashealed = true;
