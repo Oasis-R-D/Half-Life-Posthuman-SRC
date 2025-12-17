@@ -41,6 +41,7 @@
 class CZombie : public CTalkMonster
 {
 public:
+	int m_iHeadCrabHealth;
 	void Spawn() override;
 	void Precache() override;
 	void SetYawSpeed() override;
@@ -79,7 +80,7 @@ public:
 				pev->body = 1;
 				flDamage = 200;
 				//spawn the headcrab gibs
-				CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68))
+				CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
 			}
 		}
 		else

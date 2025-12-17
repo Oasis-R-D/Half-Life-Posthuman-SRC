@@ -31,7 +31,7 @@ public:
 
 	int ObjectCaps() override { return (CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
 	static void SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib);
-	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = NULL);
+	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = nullptr);
 	static void SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib);
 	static std::vector<gib_data_t> GetNPCgibs(entvars_t* pevVictim);	
 	int ShouldCollide(CBaseEntity* pentTouched) override;

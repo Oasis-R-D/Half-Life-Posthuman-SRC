@@ -111,8 +111,6 @@ public:
 	static const char* pAttackSounds[];
 	static const char* pDeathSounds[];
 	static const char* pBiteSounds[];
-
-	int m_iHeadCrabHealth;
 };
 
 class CBabyCrab : public CHeadCrab
