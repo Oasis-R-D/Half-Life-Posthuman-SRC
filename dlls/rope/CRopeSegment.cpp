@@ -84,8 +84,8 @@ void CRopeSegment::Touch(CBaseEntity* pOther)
 			if (m_LastDamageTime < gpGlobals->time)
 			{
 				// 1 damage per tick is 30 damage per second at 30 FPS.
-				const float damagePerHalfSecond = 30.f / 2;
-				pOther->TakeDamage(pev, pev, damagePerHalfSecond, DMG_SHOCK);
+				//const float damagePerHalfSecond = 30.f / 2;
+				pOther->TakeDamage(pev, pev, 2, DMG_SHOCK);
 				m_LastDamageTime = gpGlobals->time + 0.5f;
 			}
 		}
@@ -104,13 +104,10 @@ void CRopeSegment::Touch(CBaseEntity* pOther)
 
 				const Vector& vecVelocity = pOther->pev->velocity;
 
-				if (vecVelocity.Length() > 0.5)
-				{
-					//Apply some external force to move the rope. - Solokiller
-					data.mApplyExternalForce = true;
-
-					data.mExternalForce = data.mExternalForce + vecVelocity * 750;
-				}
+				//Apply some external force to move the rope. - Solokiller
+				data.mApplyExternalForce = true;
+				
+				data.mExternalForce = data.mExternalForce + vecVelocity * 1250;
 
 				if (m_pSample->GetMasterRope()->IsSoundAllowed())
 				{
