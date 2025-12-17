@@ -150,7 +150,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
+void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 {
 	int i, p, amnt, body;
 	std::vector<gib_data_t> gibmap = GetNPCgibs(pevVictim);
@@ -185,9 +185,18 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim)
 			if (pevVictim) // probably uneeded
 			{
 				// spawn the gib somewhere in the monster's bounding volume
-				pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
-				pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
-				pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
+				if (spawnposOVRDE == NULL)
+				{
+					pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
+					pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
+					pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
+				}
+				else
+				{
+					pGib->pev->origin.x = spawnposOVRDE.x + RANDOM_FLOAT(-4, 4);
+					pGib->pev->origin.y = spawnposOVRDE.y + RANDOM_FLOAT(-4, 4);
+					pGib->pev->origin.z = spawnposOVRDE.z + RANDOM_FLOAT(-4, 4);
+				}
 
 				// make the gib fly away from the attack vector
 				pGib->pev->velocity = g_vecAttackDir * -1;

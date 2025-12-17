@@ -28,6 +28,7 @@
 #include "soundent.h"
 #include "game.h"
 #include "headercrab.h"
+#include "gibs.h"
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================
@@ -66,33 +67,31 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 	{
-		if (ptr->iHitgroup == HITGROUP_HEAD || RANDOM_LONG(0, 2) == 1)
+		if (ptr->iHitgroup == HITGROUP_HEAD)
 		{
-			pev->armortype = 1;
 			m_bloodColor = BLOOD_COLOR_YELLOW;
+			m_iHeadCrabHealth -= flDamage;
+			flDamage = flDamage*0.7;
+			if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
+				flDamage = 200;
+			else if (m_iHeadCrabHealth < -15 && pev->body != 1)
+			{
+				pev->body = 1;
+				flDamage = 200;
+				//spawn the headcrab gibs
+				CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68))
+			}
 		}
 		else
 		{
 			m_bloodColor = BLOOD_COLOR_RED;
 		}
+
 		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 		{
 			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
-				if (FClassnameIs(pev, "monster_zombie_barney"))
-				{
-					if (g_iSkillLevel != SKILL_HARD)
-					{
-						flDamage = round(flDamage * 0.8);
-					}
-					else
-					{
-						flDamage = round(flDamage * 0.7);
-					}
-					if (RANDOM_LONG(0, 1) == 1)
-						UTIL_Sparks(ptr->vecEndPos);
-				}
-				if (FClassnameIs(pev, "monster_zombie_soldier"))
+				if (FClassnameIs(pev, "monster_zombie_barney") || FClassnameIs(pev, "monster_zombie_soldier"))
 				{
 					if (g_iSkillLevel != SKILL_HARD)
 					{
@@ -112,13 +111,10 @@ public:
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{
-		if (pev->armortype == 0)
+		if (m_LastHitGroup != HITGROUP_HEAD && m_iHeadCrabHealth > 2)
 		{
-			switch (RANDOM_LONG(0, 2)) //33% of unlatching occuring
+			if (RANDOM_LONG(0, 2) == 0) //33% of unlatching occuring
 			{
-			case 0:
-			{
-				pev->armortype = 1;
 				pev->body = 1;
 				UTIL_MakeVectors(pev->angles);
 				char* monster;
@@ -133,15 +129,10 @@ public:
 					CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab);
 					ActualHeadcrab->pev->armorvalue = 1;
 					ActualHeadcrab->m_bPrehuman = 1;
+					ActualHeadcrab->pev->health = round(m_iHeadCrabHealth/3);
 					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
-
-			}
-			break;
-			case 1:
-			case 2:
-			break;
 			}
 		}
 		CTalkMonster::Killed(pevAttacker, iGib);
@@ -598,7 +589,7 @@ void CZombie::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CZombie::Spawn()
 {
 	Precache();
-	
+	m_iHeadCrabHealth = 30;
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");
