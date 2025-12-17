@@ -65,6 +65,7 @@ public:
 	void EXPORT Detonate();
 	void EXPORT DetonateFlash();
 	void EXPORT LandmineThink();
+	void EXPORT SmokeSpray();
 	void EXPORT CallDetonate();
 	void EXPORT DetonateUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void EXPORT TumbleThink();

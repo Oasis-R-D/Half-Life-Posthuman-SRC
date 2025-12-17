@@ -370,8 +370,6 @@ void CGrenade::DangerSoundThink()
 
 void CGrenade::LandmineThink()
 {
-	TraceResult tr;
-	
 	pev->nextthink = 0.1f;
 	if ((pev->flags & FL_ONGROUND) != 0)
 	{	
@@ -388,13 +386,24 @@ void CGrenade::LandmineThink()
 			}
 		}
 	}
-	
 }
 
-void CGrenade::LandmineHopThink()
+void CGrenade::LandmineHopThink() // should probably remove this?
 {
 	pev->nextthink = 0.25f;
 	SetThink(&CGrenade::Detonate);
+}
+
+void CGrenade::SmokeSpray()
+{
+	pev->nextthink = 0.1f;
+	if ((pev->flags & FL_ONGROUND) != 0)
+	{	
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+		pev->nextthink = gpGlobals->time + 0.125f;
+		SetThink(&CGrenade::SUB_Remove);
+		
+	}
 }
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
@@ -515,8 +524,8 @@ void CGrenade::CallDetonate()
 		case 3: // LandMine (only called on kill)
 			SetThink(&CGrenade::Detonate);
 			break;
-		case 4:
-			UTIL_Remove(this);
+		case 4: // Smoke
+			SetThink(&CGrenade::SmokeSpray);
 			break;
 	}
 
@@ -699,13 +708,10 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->friction = 1;
 			pGrenade->pev->angles = g_vecZero;
 			break;
-		case 4:
-			SET_MODEL(ENT(pGrenade->pev), "models/w_hopwire.mdl");
+		case 4: // Smoke
+			SET_MODEL(ENT(pGrenade->pev), "models/w_sgrenade.mdl");
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			// Tumble through the air
-			pGrenade->pev->avelocity.x = RANDOM_LONG(200, -200);
-			pGrenade->pev->avelocity.z = RANDOM_LONG(200, -200);
-			pGrenade->pev->avelocity.y = RANDOM_LONG(200, -200);
 			break;
 	}
 

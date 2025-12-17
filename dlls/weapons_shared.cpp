@@ -298,6 +298,10 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			flMultiplier = 6.5f;
 			maxvel = 1000;
 			break;
+		case 4: // SMOKE
+			flMultiplier = 6.5f;
+			maxvel = 1000;
+			break;
 	}
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -4;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
@@ -328,6 +332,9 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			time = 2;
 			break;
 		case 3: // LANDMINE
+			time = 2; // doesn't matter
+			break;
+		case 4: // SMOKE
 			time = 2; // doesn't matter
 			break;
 	}

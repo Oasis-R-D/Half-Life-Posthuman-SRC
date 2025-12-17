@@ -4170,7 +4170,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	}
 	case 30:
 	{
-		m_iGrenadeType = 0;
+		m_iGrenadeType = 0; // HE
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);
 		WRITE_BYTE(m_iGrenadeAmnt);
@@ -4179,7 +4179,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	}
 	case 31:
 	{
-		m_iGrenadeType = 1;
+		m_iGrenadeType = 1; // IMPACT
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);
 		WRITE_BYTE(m_iGrenadeAmnt);
@@ -4188,7 +4188,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	}
 	case 32:
 	{
-		m_iGrenadeType = 2;
+		m_iGrenadeType = 2; // FLASH
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);
 		WRITE_BYTE(m_iGrenadeAmnt);
@@ -4197,7 +4197,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	}	
 	case 33:
 	{
-		m_iGrenadeType = 3;
+		m_iGrenadeType = 3; // LANDMINE
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);
 		WRITE_BYTE(m_iGrenadeAmnt);
@@ -4206,7 +4206,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	}
 	case 34:
 	{
-		m_iGrenadeType = 4;
+		m_iGrenadeType = 4; // SMOKE
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);
 		WRITE_BYTE(m_iGrenadeAmnt);

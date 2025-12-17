@@ -1962,7 +1962,7 @@ void EV_Particles(event_args_t* args)
 			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
 			gEngfuncs.pfnCenterPrint("neurotoxin created");
 			break;
-		case 5: // blood hit the ground
+		case 5: // phys blood hit the ground
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
@@ -1982,7 +1982,7 @@ void EV_Particles(event_args_t* args)
 		case 6: // glowing bullet impact 'crater'
 			gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
 			break;
-		case 7:
+		case 7: // enemy gib cloud
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
@@ -2011,6 +2011,10 @@ void EV_Particles(event_args_t* args)
 					break;
 			}
 			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodgibcloud, R, G, B), args->origin, g_vecZero, 0);
+			break;
+		case 8: // smoke gren expl
+			gEngfuncs.pfnCenterPrint("smoke created");
+			gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0);
 			break;
 	}
 }
