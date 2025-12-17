@@ -371,7 +371,7 @@ void CGrenade::DangerSoundThink()
 void CGrenade::LandmineThink()
 {
 	pev->nextthink = 0.1f;
-	if ((pev->flags & FL_ONGROUND) != 0)
+	if ((pev->flags & FL_ONGROUND) != 0) // activate on the ground
 	{	
 		CBaseEntity* thisdih = NULL;
 		while ((thisdih = UTIL_FindEntityInSphere(thisdih, pev->origin, 16)) != NULL)
@@ -397,9 +397,10 @@ void CGrenade::LandmineHopThink() // should probably remove this?
 void CGrenade::SmokeSpray()
 {
 	pev->nextthink = 0.1f;
-	if ((pev->flags & FL_ONGROUND) != 0)
+	if ((pev->flags & FL_ONGROUND) != 0) // Only spawn smoke once on the ground
 	{	
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+		EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM); // TO-DO: sfx
 		pev->nextthink = gpGlobals->time + 0.125f;
 		SetThink(&CGrenade::SUB_Remove);
 		
@@ -702,7 +703,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
 			pGrenade->SetTouch(&CGrenade::SlideTouch);
 			pGrenade->SetThink(&CGrenade::LandmineThink);
-			// Tumble through the air
+			// spin through the air
 			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			pGrenade->pev->gravity = 0.75f;
 			pGrenade->pev->friction = 1;
@@ -711,7 +712,6 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		case 4: // Smoke
 			SET_MODEL(ENT(pGrenade->pev), "models/w_sgrenade.mdl");
 			pGrenade->SetThink(&CGrenade::TumbleThink);
-			// Tumble through the air
 			break;
 	}
 
