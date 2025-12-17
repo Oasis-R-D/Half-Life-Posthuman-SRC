@@ -508,27 +508,6 @@ Schedule_t* CHeadCrab::GetScheduleOfType(int Type)
 }
 
 
-class CBabyCrab : public CHeadCrab
-{
-public:
-	void Spawn() override;
-	void Precache() override;
-	void SetYawSpeed() override;
-	float GetDamageAmount() override
-	{
-		return gSkillData.headcrabDmgBite * 0.3;
-	}
-	bool CheckRangeAttack1(float flDot, float flDist) override;
-	Schedule_t* GetScheduleOfType(int Type) override;
-	int GetVoicePitch() override { return PITCH_NORM + RANDOM_LONG(40, 50); }
-	float GetSoundVolue() override { return 0.8; }
-	void MonsterThink()
-	{
-		if (pev->dmgtime < gpGlobals->time)
-			Killed(pev, GIB_NORMAL);
-		CHeadCrab::MonsterThink();
-	}
-};
 LINK_ENTITY_TO_CLASS(monster_babycrab, CBabyCrab);
 
 void CBabyCrab::Spawn()

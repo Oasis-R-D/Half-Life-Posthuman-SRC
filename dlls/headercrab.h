@@ -10,7 +10,7 @@
 #include "UserMessages.h"
 #include "decals.h"
 
-class CHeadCrab : public CBaseMonster
+class CHeadCrab : public CBaseMonster // TO-DO: probably needs to be talk monster to add the "don't shoot me or me get mad" code
 {
 public:
 	void Spawn() override;
@@ -111,4 +111,26 @@ public:
 	static const char* pAttackSounds[];
 	static const char* pDeathSounds[];
 	static const char* pBiteSounds[];
+};
+
+class CBabyCrab : public CHeadCrab
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	void SetYawSpeed() override;
+	float GetDamageAmount() override
+	{
+		return gSkillData.headcrabDmgBite * 0.3;
+	}
+	bool CheckRangeAttack1(float flDot, float flDist) override;
+	Schedule_t* GetScheduleOfType(int Type) override;
+	int GetVoicePitch() override { return PITCH_NORM + RANDOM_LONG(40, 50); }
+	float GetSoundVolue() override { return 0.8; }
+	void MonsterThink()
+	{
+		if (pev->dmgtime < gpGlobals->time)
+			Killed(pev, GIB_NORMAL);
+		CHeadCrab::MonsterThink();
+	}
 };
