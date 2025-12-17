@@ -421,7 +421,7 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 		{
 			TraceResult tr = UTIL_GetGlobalTrace();
 			ClearMultiDamage();
-			if (m_iGrenType != 4)
+			if (m_iGrenType != 5)
 				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
