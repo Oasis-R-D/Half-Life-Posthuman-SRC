@@ -253,13 +253,14 @@ void CBaseMonster::GibMonster()
 	bool gibbed = false;
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
+	
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLDGIBCLOUD, BloodColor(), 0, 0);
 
 	if (HasHumanGibs())
 	{
 		if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 		{
-			//CGib::SpawnHeadGib(pev);
-			CoolerGib::SpawnRandomGibs(pev); // throw some human gibs.
+			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
 		}
 		gibbed = true;
 	}
@@ -267,7 +268,7 @@ void CBaseMonster::GibMonster()
 	{
 		if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
 		{
-			CoolerGib::SpawnRandomGibs(pev); // Throw alien gibs
+			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
 		}
 		gibbed = true;
 	}
@@ -276,7 +277,6 @@ void CBaseMonster::GibMonster()
 	{
 		if (gibbed)
 		{
-			// don't remove players!
 			SetThink(&CBaseMonster::SUB_Remove);
 			pev->nextthink = gpGlobals->time;
 		}
@@ -512,7 +512,6 @@ void CBaseMonster::CallGibMonster()
 	{
 		pev->effects = EF_NODRAW; // make the model invisible.
 		GibMonster();
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLDGIBCLOUD, BloodColor(), 0, 0);
 	}
 
 	pev->deadflag = DEAD_DEAD;

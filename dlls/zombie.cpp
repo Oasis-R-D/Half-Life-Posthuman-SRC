@@ -77,12 +77,17 @@ public:
 				m_iHeadCrabHealth -= flDamage;
 				flDamage = flDamage * 0.7;
 				if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
-					flDamage = 200;
+				{
+					pev->health = 5;
+					flDamage = 25;
+				}
 				else if (m_iHeadCrabHealth < -15 && pev->body != 1)
 				{
 					pev->body = 1;
-					flDamage = 200;
+					pev->health = 5;
+					flDamage = 25;
 					// spawn the headcrab gibs
+					EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 0.85f, 0.9f);
 					CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
 				}
 			}

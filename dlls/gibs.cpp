@@ -185,7 +185,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 			if (pevVictim) // probably uneeded
 			{
 				// spawn the gib somewhere in the monster's bounding volume
-				if (!spawnposOVRDE)
+				if (spawnposOVRDE == g_vecZero)
 				{
 					pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
 					pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
@@ -390,7 +390,9 @@ std::vector<gib_data_t> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
 
 int CoolerGib::ShouldCollide(CBaseEntity* pentTouched)
 {
-	if (FClassnameIs(pentTouched->pev, "cool_gib"))
+	if (pentTouched->IsPlayer())
+		return 1;
+	if (!pentTouched->IsBSPModel())
 	{
 		return 0;
 	}
