@@ -288,6 +288,7 @@ void W_Precache()
 	PRECACHE_MODEL("models/w_sgrenade.mdl");
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
+	PRECACHE_SOUND("weapons/smokegrenade-1.wav");
 	PRECACHE_SOUND("weapons/hopwire_fly.wav");
 
 	// common world objects
