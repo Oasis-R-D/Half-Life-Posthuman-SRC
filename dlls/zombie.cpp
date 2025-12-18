@@ -70,7 +70,6 @@ public:
 	{
 		if (ptr->iHitgroup == HITGROUP_HEAD)
 		{
-			
 			if (pev->body != 1)
 			{
 				m_bloodColor = BLOOD_COLOR_YELLOW;
@@ -119,7 +118,7 @@ public:
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{
-		if (m_LastHitGroup != HITGROUP_HEAD && m_iHeadCrabHealth > 2)
+		if (m_iHeadCrabHealth > 2 && pev->body == 0)
 		{
 			if (RANDOM_LONG(0, 2) == 0) //33% of unlatching occuring
 			{

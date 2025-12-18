@@ -163,7 +163,8 @@ void CMelee::TertiaryAttack()
 
 	m_iSwingMode = SWING_START_BIG;
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flNextTertiaryAttack = GetNextAttackDelay(0.1);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(0.1);
+	m_flNextTertiaryAttack = gpGlobals->time + 0.1;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 }
 
@@ -236,8 +237,8 @@ bool CMelee::Swing(const bool bFirst)
 		{
 			m_flNextPrimaryAttack = GetNextAttackDelay(0.75f);
 			m_flNextSecondaryAttack = GetNextAttackDelay(0.75f);
-			m_flNextTertiaryAttack = GetNextAttackDelay(0.75f);
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+			m_flNextTertiaryAttack = gpGlobals->time + 1.25;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75f;
 		}
 	}
 	else // hit
@@ -266,10 +267,10 @@ bool CMelee::Swing(const bool bFirst)
 
 #endif
 
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
-		m_flNextSecondaryAttack = GetNextAttackDelay(0.5);
-		m_flNextTertiaryAttack = GetNextAttackDelay(0.5);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.5f);
+		m_flNextSecondaryAttack = GetNextAttackDelay(0.5f);
+		m_flNextTertiaryAttack = gpGlobals->time + 1;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5f;
 
 #ifndef CLIENT_DLL
 
@@ -387,8 +388,8 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		{
 			m_flNextPrimaryAttack = GetNextAttackDelay(1.5f);
 			m_flNextSecondaryAttack = GetNextAttackDelay(1.5f);
-			m_flNextTertiaryAttack = GetNextAttackDelay(1.5f);
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+			m_flNextTertiaryAttack = gpGlobals->time + 2;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
 		}
 	}
 	else // hit
@@ -417,10 +418,10 @@ bool CMelee::SwingHeavy(const bool bFirst)
 
 #endif
 
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.25);
-		m_flNextSecondaryAttack = GetNextAttackDelay(1.25);
-		m_flNextTertiaryAttack = GetNextAttackDelay(1.25);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+		m_flNextPrimaryAttack = GetNextAttackDelay(1.25f);
+		m_flNextSecondaryAttack = GetNextAttackDelay(1.25f);
+		m_flNextTertiaryAttack = gpGlobals->time + 1.75f;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.25f;
 
 #ifndef CLIENT_DLL
 
@@ -512,8 +513,8 @@ void CMelee::BigSwing()
 		
 		m_flNextPrimaryAttack = GetNextAttackDelay(1.75f);
 		m_flNextSecondaryAttack = GetNextAttackDelay(1.75f);
-		m_flNextTertiaryAttack = GetNextAttackDelay(1.75f);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1;
+		m_flNextTertiaryAttack = gpGlobals->time + 2.25f;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.75f;
 	}
 	else // hit
 	{
@@ -582,10 +583,10 @@ void CMelee::BigSwing()
 		SetThink(&CMelee::SmackHeavy);
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;
 #endif
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
-		m_flNextSecondaryAttack = GetNextAttackDelay(1.5);
-		m_flNextTertiaryAttack = GetNextAttackDelay(1.5);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+		m_flNextPrimaryAttack = GetNextAttackDelay(1.5f);
+		m_flNextSecondaryAttack = GetNextAttackDelay(1.5f);
+		m_flNextTertiaryAttack = gpGlobals->time + 2;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5f;
 	}
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
@@ -605,9 +606,9 @@ void CMelee::WeaponIdle()
 		{
 			m_iSwingMode = SWING_DOING_BIG;
 
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.2;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2;
 			SetThink(&CMelee::BigSwing);
-			pev->nextthink = gpGlobals->time + 0.1;
+			pev->nextthink = gpGlobals->time + 0.025;
 		}
 	}
 	else
