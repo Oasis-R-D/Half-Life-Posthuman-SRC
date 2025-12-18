@@ -836,7 +836,7 @@ void CHGruntHeavy::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
-		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_7DEGREES, 0.75, 12, edict());
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
 		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());

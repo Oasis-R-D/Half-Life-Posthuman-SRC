@@ -910,7 +910,7 @@ void CAdvSec::Shotgun()
 	//FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0); // shoot +-7.5 degrees
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
-		CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_7DEGREES, 0.75, 12, edict());
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
 		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());

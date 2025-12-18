@@ -136,15 +136,15 @@ void CShotgun::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	float spread = m_iFiremode == 0 ? CONE_5DEGREES : 0.17432;
-	float spreadvert = m_iFiremode == 0 ? CONE_5DEGREES : 0.01746;
+	float spread = m_iFiremode == 0 ? CONE_5DEGREES : CONE_10DEGREES;
+	float spreadvert = m_iFiremode == 0 ? CONE_5DEGREES : CONE_2DEGREES;
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(9, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
 		}
 		else
 		{
@@ -229,17 +229,17 @@ void CShotgun::SecondaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();// + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	float spread = m_iFiremode == 0 ? CONE_15DEGREES : 0.25;
-	float spreadvert = m_iFiremode == 0 ? CONE_15DEGREES : 0.02;
+	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
+	float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		CPhysbullet::BulletCreate(18, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, spread - CONE_3DEGREES, spreadvert - CONE_10DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	
