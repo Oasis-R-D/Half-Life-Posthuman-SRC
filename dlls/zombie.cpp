@@ -70,22 +70,24 @@ public:
 	{
 		if (ptr->iHitgroup == HITGROUP_HEAD)
 		{
-			m_bloodColor = BLOOD_COLOR_YELLOW;
-			m_iHeadCrabHealth -= flDamage;
-			flDamage = flDamage*0.7;
-			if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
-				flDamage = 200;
-			else if (m_iHeadCrabHealth < -15 && pev->body != 1)
+			
+			if (pev->body != 1)
 			{
-				pev->body = 1;
-				flDamage = 200;
-				//spawn the headcrab gibs
-				CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
+				m_bloodColor = BLOOD_COLOR_YELLOW;
+				m_iHeadCrabHealth -= flDamage;
+				flDamage = flDamage * 0.7;
+				if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
+					flDamage = 200;
+				else if (m_iHeadCrabHealth < -15 && pev->body != 1)
+				{
+					pev->body = 1;
+					flDamage = 200;
+					// spawn the headcrab gibs
+					CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
+				}
 			}
-		}
-		else
-		{
-			m_bloodColor = BLOOD_COLOR_RED;
+			else
+				m_bloodColor = BLOOD_COLOR_RED;
 		}
 
 		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
