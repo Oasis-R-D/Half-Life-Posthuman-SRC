@@ -219,7 +219,10 @@ bool CHudHealth::Draw(float flTime)
 		a = 255;
 
 	if (gHUD.FlashingHUD > 0)
+	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		m_iHealth = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
+	}
 
 	GetPainColor(r, g, b);
 	ScaleColors(r, g, b, a);

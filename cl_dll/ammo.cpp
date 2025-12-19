@@ -901,9 +901,12 @@ bool CHudAmmo::Draw(float flTime)
 
 	if (m_fFade > 0)
 		m_fFade -= (gHUD.m_flTimeDelta * 20);
-
+	int clipsize = pw->iClip;
 	if (gHUD.FlashingHUD > 0)
+	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		clipsize = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 200); // make the values go haywire
+	}
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 
@@ -917,12 +920,12 @@ bool CHudAmmo::Draw(float flTime)
 	{
 		int iIconWidth = m_pWeapon->rcAmmo.right - m_pWeapon->rcAmmo.left;
 
-		if (pw->iClip >= 0)
+		if (clipsize >= 0)
 		{
 			// room for the number and the '|' and the current ammo
 
 			x = ScreenWidth - (8 * AmmoWidth) - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, pw->iClip, r, g, b);
+			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, clipsize, r, g, b);
 
 			Rect rc;
 			rc.top = 0;
@@ -1025,6 +1028,8 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 			return;
 
 		float f = (float)gWR.CountAmmo(p->iAmmoType) / (float)p->iMax1;
+		if (gHUD.FlashingHUD > 0)
+			f = (sin(flTime * gEngfuncs.pfnRandomLong(10, 20)) * 1); // make the values go haywire
 
 		x = DrawBar(x, y, width, height, f);
 
@@ -1034,7 +1039,8 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 		if (p->iAmmo2Type != -1)
 		{
 			f = (float)gWR.CountAmmo(p->iAmmo2Type) / (float)p->iMax2;
-
+			if (gHUD.FlashingHUD > 0)
+				f = (sin(flTime * gEngfuncs.pfnRandomLong(10, 20)) * 1); // make the values go haywire
 			x += 5; //!!!
 
 			DrawBar(x, y, width, height, f);

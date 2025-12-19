@@ -184,7 +184,10 @@ bool CHudBattery::Draw(float flTime)
 	}
 
 	if (gHUD.FlashingHUD > 0)
+	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		m_iBat = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
+	}
 
 	ScaleColors(r, g, b, a);
 
