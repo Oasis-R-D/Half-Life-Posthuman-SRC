@@ -1029,7 +1029,7 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 
 		float f = (float)gWR.CountAmmo(p->iAmmoType) / (float)p->iMax1;
 		if (gHUD.FlashingHUD > 0)
-			f = (sin(flTime * gEngfuncs.pfnRandomLong(10, 20)) * 1); // make the values go haywire
+			f = (sin(gEngfuncs.pfnRandomLong(1, 50)) * 1); // make the values go haywire
 
 		x = DrawBar(x, y, width, height, f);
 
@@ -1040,7 +1040,7 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 		{
 			f = (float)gWR.CountAmmo(p->iAmmo2Type) / (float)p->iMax2;
 			if (gHUD.FlashingHUD > 0)
-				f = (sin(flTime * gEngfuncs.pfnRandomLong(10, 20)) * 1); // make the values go haywire
+				f = (sin(gEngfuncs.pfnRandomLong(1, 50)) * 1); // make the values go haywire
 			x += 5; //!!!
 
 			DrawBar(x, y, width, height, f);
