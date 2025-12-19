@@ -62,6 +62,12 @@ bool CHudAmmoSecondary::Draw(float flTime)
 	int a, x, y, r, g, b, AmmoWidth;
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 	a = (int)V_max(MIN_ALPHA, m_fFade);
+
+	if (gHUD.FlashingHUD > 0)
+	{
+		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+	}
+
 	if (m_fFade > 0)
 		m_fFade -= (gHUD.m_flTimeDelta * 20); // slowly lower alpha to fade out icons
 	ScaleColors(r, g, b, a);
@@ -89,15 +95,21 @@ bool CHudAmmoSecondary::Draw(float flTime)
 	// draw the ammo counts, in reverse order, from right to left
 	for (int i = MAX_SEC_AMMO_VALUES - 1; i >= 0; i--)
 	{
-		if (m_iAmmoAmounts[i] < 0)
-			continue; // negative ammo amounts imply that they shouldn't be drawn
+		float ammoamnts = m_iAmmoAmounts[i];
 
+		if (gHUD.FlashingHUD > 0)
+		{
+			ammoamnts = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 99); // make the values go haywire
+		}
+
+		if (ammoamnts < 0)
+			continue; // negative ammo amounts imply that they shouldn't be drawn
 		// half a char gap between the ammo number and the previous pic
 		x -= (AmmoWidth / 2);
 
 		// draw the number, right-aligned
-		x -= (gHUD.GetNumWidth(m_iAmmoAmounts[i], DHN_DRAWZERO) * AmmoWidth);
-		gHUD.DrawHudNumber(x, y, DHN_DRAWZERO, m_iAmmoAmounts[i], r, g, b);
+		x -= (gHUD.GetNumWidth(m_iAmmoAmounts[i], DHN_DRAWZERO_SM) * AmmoWidth);
+		gHUD.DrawHudNumberSm(x, y, DHN_DRAWZERO_SM, m_iAmmoAmounts[i], r, g, b);
 
 		if (i != 0)
 		{
