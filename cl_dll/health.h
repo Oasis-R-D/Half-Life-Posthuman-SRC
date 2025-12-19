@@ -61,11 +61,14 @@ public:
 	int m_iHealth;
 	int m_HUD_dmg_bio;
 	int m_HUD_cross;
+	int m_HUD_realcross;
+	int m_HUD_healthtext;
 	float m_fAttackFront, m_fAttackRear, m_fAttackLeft, m_fAttackRight;
 	float m_fFade;
 	int HeadcrabCount;
 
 private:
+	HSPRITE_GOLDSRC  m_hHealthtext;
 	HSPRITE_GOLDSRC  m_hSprite;
 	HSPRITE_GOLDSRC  m_hDamage;
 

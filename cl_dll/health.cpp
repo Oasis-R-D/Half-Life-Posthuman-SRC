@@ -93,7 +93,18 @@ bool CHudHealth::VidInit()
 	m_hSprite = 0;
 
 	m_HUD_dmg_bio = gHUD.GetSpriteIndex("dmg_bio") + 1;
-	m_HUD_cross = gHUD.GetSpriteIndex("cross");
+	m_HUD_cross = gHUD.GetSpriteIndex("healthtext");
+	m_HUD_realcross = gHUD.GetSpriteIndex("realcross");
+	m_HUD_healthtext = gHUD.GetSpriteIndex("healthtext");
+
+	m_HUD_DigitsBG1 = gHUD.GetSpriteIndex( "number_dull1" );
+	m_HUD_DigitsBG2 = gHUD.GetSpriteIndex( "number_dull2" );
+	
+	int HUD_DigitsBG1 = gHUD.GetSpriteIndex( "number_dull1" );
+	int HUD_DigitsBG2 = gHUD.GetSpriteIndex( "number_dull2" );
+
+	m_prcDigitsBG1 = &gHUD.GetSpriteRect(HUD_DigitsBG1);
+	m_prcDigitsBG2 = &gHUD.GetSpriteRect(HUD_DigitsBG2);
 
 	giDmgHeight = gHUD.GetSpriteRect(m_HUD_dmg_bio).right - gHUD.GetSpriteRect(m_HUD_dmg_bio).left;
 	giDmgWidth = gHUD.GetSpriteRect(m_HUD_dmg_bio).bottom - gHUD.GetSpriteRect(m_HUD_dmg_bio).top;
@@ -213,7 +224,7 @@ bool CHudHealth::Draw(float flTime)
 	GetPainColor(r, g, b);
 	ScaleColors(r, g, b, a);
 	
-	int CrossWidth = gHUD.GetSpriteRect(m_HUD_cross).right - gHUD.GetSpriteRect(m_HUD_cross).left;
+	int CrossWidth = gHUD.GetSpriteRect(m_HUD_realcross).right - gHUD.GetSpriteRect(m_HUD_realcross).left;
 	HealthWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
 
 	// Only draw health if we have the suit.
@@ -221,13 +232,23 @@ bool CHudHealth::Draw(float flTime)
 	{
 		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
 		x = CrossWidth / 2;
+		int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
 
-		SPR_Set(gHUD.GetSprite(m_HUD_cross), r, g, b);
-		SPR_DrawAdditive(0, x, y, &gHUD.GetSpriteRect(m_HUD_cross));
+		SPR_Set(gHUD.GetSprite(m_HUD_realcross), r, g, b);
+		SPR_DrawAdditive(0, x, y, &gHUD.GetSpriteRect(m_HUD_realcross));
 
 		x = CrossWidth + HealthWidth / 2;
 
+		SPR_Set(gHUD.GetSprite(m_HUD_healthtext), r, g, b );
+		SPR_DrawAdditive( 0,  x, y + 0.5 * (m_prcDigitsBG1->top - m_prcDigitsBG1->bottom), &gHUD.GetSpriteRect(m_HUD_healthtext));
+
 		//Reserve space for 3 digits by default, but allow it to expand
+		SPR_Set(m_hDigitsBG1, r, g, b );
+		SPR_DrawAdditive( 0,  x, y, m_prcDigitsBG1 );
+		SPR_Set(m_hDigitsBG2, r, g, b );
+		SPR_DrawAdditive( 0,  x+fontsize, y, m_prcDigitsBG2 );
+		SPR_Set(m_hDigitsBG1, r, g, b );
+		SPR_DrawAdditive( 0,  x+(2*fontsize), y, m_prcDigitsBG1 );
 		x += gHUD.GetHudNumberWidth(m_iHealth, 3, DHN_DRAWZERO);
 
 		gHUD.DrawHudNumberReverse(x, y, m_iHealth, DHN_DRAWZERO, r, g, b);
@@ -240,15 +261,6 @@ bool CHudHealth::Draw(float flTime)
 		int iWidth = HealthWidth / 10;
 		UnpackRGB(r, g, b, RGB_YELLOWISH);
 		//FillRGBA(x, y, iWidth, iHeight, r, g, b, a);
-
-		if (HeadcrabCount > 0)
-		{
-			x = CrossWidth / 2;
-			y -= gHUD.m_iFontHeight;
-			gHUD.DrawHudString(x, y, 0, "Headcrab", r, g, b);
-			x = 128;
-			gHUD.DrawHudNumberString(x, y, x, HeadcrabCount, r, g, b);
-		}
 	}
 
 	DrawDamage(flTime);
