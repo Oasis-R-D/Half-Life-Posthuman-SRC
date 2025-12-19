@@ -581,15 +581,6 @@ void CItemHealthCharger::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 			player->health_chest = 0;
 		if (player->health_stomach < 0)
 			player->health_stomach = 0;
-		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, player->pev);
-		WRITE_BYTE(player->health_head);
-		WRITE_BYTE(player->health_chest);
-		WRITE_BYTE(player->health_stomach);
-		WRITE_BYTE(player->health_armL);
-		WRITE_BYTE(player->health_armR);
-		WRITE_BYTE(player->health_legL);
-		WRITE_BYTE(player->health_legR);
-		MESSAGE_END();
 	}
 
 	// govern the rate of charge

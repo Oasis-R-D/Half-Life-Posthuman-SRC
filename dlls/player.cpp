@@ -385,15 +385,6 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
-		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-		WRITE_BYTE(health_head);
-		WRITE_BYTE(health_chest);
-		WRITE_BYTE(health_stomach);
-		WRITE_BYTE(health_armL);
-		WRITE_BYTE(health_armR);
-		WRITE_BYTE(health_legL);
-		WRITE_BYTE(health_legR);
-		MESSAGE_END();
 	}
 }
 
@@ -718,15 +709,6 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			SetSuitUpdate("!HEV_HLTH1", false, SUIT_NEXT_IN_10MIN); // health dropping
 	}
 
-	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-	WRITE_BYTE(health_head);
-	WRITE_BYTE(health_chest);
-	WRITE_BYTE(health_stomach);
-	WRITE_BYTE(health_armL);
-	WRITE_BYTE(health_armR);
-	WRITE_BYTE(health_legL);
-	WRITE_BYTE(health_legR);
-	MESSAGE_END();
 	return fTookDamage;
 }
 
@@ -3473,15 +3455,6 @@ void CBasePlayer::Spawn()
 	m_bIsClimbing = false; // ROPEUPD
 	m_flNextChatTime = gpGlobals->time;
 	Hunger = 100;
-	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-	WRITE_BYTE(health_head);
-	WRITE_BYTE(health_chest);
-	WRITE_BYTE(health_stomach);
-	WRITE_BYTE(health_armL);
-	WRITE_BYTE(health_armR);
-	WRITE_BYTE(health_legL);
-	WRITE_BYTE(health_legR);
-	MESSAGE_END();
 	g_pGameRules->PlayerSpawn(this);
 }
 
@@ -3609,15 +3582,6 @@ bool CBasePlayer::Restore(CRestore& restore)
 	m_bResetViewEntity = true;
 
 	m_bRestored = true;
-	MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-	WRITE_BYTE(health_head);
-	WRITE_BYTE(health_chest);
-	WRITE_BYTE(health_stomach);
-	WRITE_BYTE(health_armL);
-	WRITE_BYTE(health_armR);
-	WRITE_BYTE(health_legL);
-	WRITE_BYTE(health_legR);
-	MESSAGE_END();
 	return status;
 }
 
@@ -4057,7 +4021,7 @@ void CBasePlayer::ForceClientDllUpdate()
 	m_fInitHUD = true;	   // Force HUD gmsgResetHUD message
 
 	// Now force all the necessary messages
-	//  to be sent.
+	// to be sent.
 	UpdateClientData();
 }
 
@@ -4808,6 +4772,15 @@ void CBasePlayer::UpdateClientData()
 					}
 			};
 		}
+		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
+		WRITE_BYTE(health_head);
+		WRITE_BYTE(health_chest);
+		WRITE_BYTE(health_stomach);
+		WRITE_BYTE(health_armL);
+		WRITE_BYTE(health_armR);
+		WRITE_BYTE(health_legL);
+		WRITE_BYTE(health_legR);
+		MESSAGE_END();
 	}
 
 		// RENDERERS START

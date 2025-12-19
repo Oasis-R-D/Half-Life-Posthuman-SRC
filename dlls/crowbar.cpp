@@ -219,16 +219,6 @@ void CCrowbar::Hit(bool type)
 						m_pPlayer->health_chest = 0;
 					if (m_pPlayer->health_stomach < 0)
 						m_pPlayer->health_stomach = 0;
-					
-					MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, m_pPlayer->pev);
-					WRITE_BYTE(m_pPlayer->health_head);
-					WRITE_BYTE(m_pPlayer->health_chest);
-					WRITE_BYTE(m_pPlayer->health_stomach);
-					WRITE_BYTE(m_pPlayer->health_armL);
-					WRITE_BYTE(m_pPlayer->health_armR);
-					WRITE_BYTE(m_pPlayer->health_legL);
-					WRITE_BYTE(m_pPlayer->health_legR);
-					MESSAGE_END();
 				}
 				else if (pHit->BloodColor() == BLOOD_COLOR_RED)
 				{

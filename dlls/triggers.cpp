@@ -3121,15 +3121,6 @@ void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 		case 6: //Rleg
 			break;
 	}
-		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, player->pev);
-		WRITE_BYTE(player->health_head);
-		WRITE_BYTE(player->health_chest);
-		WRITE_BYTE(player->health_stomach);
-		WRITE_BYTE(player->health_armL);
-		WRITE_BYTE(player->health_armR);
-		WRITE_BYTE(player->health_legL);
-		WRITE_BYTE(player->health_legR);
-		MESSAGE_END();
 }
 bool CTriggerLimbDMG::KeyValue(KeyValueData* pkvd)
 {
