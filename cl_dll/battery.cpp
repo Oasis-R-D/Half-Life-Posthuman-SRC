@@ -286,6 +286,7 @@ bool CHudBattery::Draw(float flTime)
 	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iBat, r, g, b);
 
 	// Fire Mode
+	/*
 	if (m_iFireMode > 0)
 	{
 		int iIconWidth = 160;
@@ -304,7 +305,7 @@ bool CHudBattery::Draw(float flTime)
 		else if (m_iFireMode == 4) // pump
 			SPR_DrawAdditive(3, x, y - iOffset, m_rFireMode);
 	}
-
+	*/
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);
 	DrawDMGSTMCH(flTime);
@@ -314,8 +315,8 @@ bool CHudBattery::Draw(float flTime)
 	DrawDMGRLEG(flTime);
 	if (m_iGrenAmnt > 0)
 	{
-		DrawGrenAmnt(flTime);
-		DrawGrenType(flTime);
+		//DrawGrenAmnt(flTime);
+		//DrawGrenType(flTime);
 	}
 	return true;
 }

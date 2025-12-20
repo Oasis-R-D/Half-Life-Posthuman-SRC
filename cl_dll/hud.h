@@ -163,7 +163,9 @@ private:
 	WEAPON* m_pWeapon;
 	int m_HUD_bucket0;
 	int m_HUD_selection;
+	Rect *m_prcDivider;
 
+	Rect* m_prcAmmoText;
 	HSPRITE_GOLDSRC m_hDivider;
 	HSPRITE_GOLDSRC m_hAmmoText;
 	int m_HUD_divider;
