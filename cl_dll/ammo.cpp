@@ -1016,9 +1016,10 @@ bool CHudAmmo::Draw(float flTime)
 		}
 
 		// Draw the ammo Icon
-		//int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
-		//SPR_Set(m_pWeapon->hAmmo, r, g, b);
-		//SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
+		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+		int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
+		SPR_Set(m_pWeapon->hAmmo, r, g, b);
+		SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
 	}
 
 	// Does weapon have secondary ammo?
@@ -1036,6 +1037,11 @@ bool CHudAmmo::Draw(float flTime)
 			SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
 			SPR_Set(m_hDigitsBG2, r, g, b );
 			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsSmBG2 );
+			
+			// Draw the ammo Icon
+			SPR_Set(m_pWeapon->hAmmo2, r, g, b);
+			int iOffset = (m_pWeapon->rcAmmo2.bottom - m_pWeapon->rcAmmo2.top) / 8;
+			SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo2);
 		}
 	}
 	return true;

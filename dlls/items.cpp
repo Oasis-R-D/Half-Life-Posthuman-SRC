@@ -193,7 +193,7 @@ class CItemSuit : public CItem
 
 		pPlayer->SetHasSuit(true);
 		if (!pPlayer->m_bPrehuman) // Suit ain't broke
-			pPlayer->FlashingHUDDelay = gpGlobals->time + 15;
+			pPlayer->FlashingHUDDelay = gpGlobals->time + 7.5;
 
 		return true;
 	}
