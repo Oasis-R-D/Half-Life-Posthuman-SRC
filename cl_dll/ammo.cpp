@@ -891,7 +891,7 @@ void CHudAmmo::UserCmd_PrevWeapon()
 
 bool CHudAmmo::Draw(float flTime)
 {
-	int a, x, y, r, g, b;
+	int a, x, y, r, g, b, clipsize;
 	int AmmoWidth;
 
 	if (!gHUD.HasSuit())
@@ -927,11 +927,15 @@ bool CHudAmmo::Draw(float flTime)
 
 	if (m_fFade > 0)
 		m_fFade -= (gHUD.m_flTimeDelta * 20);
-	int clipsize = pw->iClip;
+
 	if (gHUD.FlashingHUD > 0)
 	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
 		clipsize = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 200); // make the values go haywire
+	}
+	else
+	{
+		clipsize = pw->iClip;
 	}
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);

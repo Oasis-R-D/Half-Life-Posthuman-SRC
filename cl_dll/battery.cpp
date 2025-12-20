@@ -167,7 +167,7 @@ bool CHudBattery::Draw(float flTime)
 	if (!gHUD.HasSuit())
 		return true;
 
-	int r, g, b, x, y, a;
+	int r, g, b, x, y, a, batattery;
 	Rect rc;
 
 	if (m_iHunger > 10)
@@ -186,8 +186,10 @@ bool CHudBattery::Draw(float flTime)
 	if (gHUD.FlashingHUD > 0)
 	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
-		m_iBat = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
+		batattery = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
 	}
+	else
+		batattery = m_iBat;
 
 	ScaleColors(r, g, b, a);
 
@@ -216,7 +218,7 @@ bool CHudBattery::Draw(float flTime)
 	}
 
 	rc = *m_prc2;
-	rc.top += m_iHeight * ((float)(100 - (V_min(100, m_iBat))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1
+	rc.top += m_iHeight * ((float)(100 - (V_min(100, batattery))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 
@@ -283,7 +285,7 @@ bool CHudBattery::Draw(float flTime)
 	SPR_DrawAdditive( 0,  x+fontsize, y, m_prcDigitsBG2 );
 	SPR_Set(m_hDigitsBG1, r, g, b );
 	SPR_DrawAdditive( 0,  x+(2*fontsize), y, m_prcDigitsBG1 );
-	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iBat, r, g, b);
+	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, batattery, r, g, b);
 
 	// Fire Mode
 	/*

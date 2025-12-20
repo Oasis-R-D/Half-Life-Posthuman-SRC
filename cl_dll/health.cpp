@@ -189,7 +189,7 @@ void CHudHealth::GetPainColor(int& r, int& g, int& b)
 bool CHudHealth::Draw(float flTime)
 {
 	int r, g, b;
-	int a = 0, x, y;
+	int a = 0, x, y , health;
 	int HealthWidth;
 
 	if ((gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH) != 0 || 0 != gEngfuncs.IsSpectateOnly())
@@ -221,7 +221,11 @@ bool CHudHealth::Draw(float flTime)
 	if (gHUD.FlashingHUD > 0)
 	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
-		m_iHealth = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
+		health = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100.0); // make the values go haywire
+	}
+	else
+	{
+		health = m_iHealth;
 	}
 
 	GetPainColor(r, g, b);
@@ -252,11 +256,11 @@ bool CHudHealth::Draw(float flTime)
 		SPR_DrawAdditive( 0,  x+fontsize, y, m_prcDigitsBG2 );
 		SPR_Set(m_hDigitsBG1, r, g, b );
 		SPR_DrawAdditive( 0,  x+(2*fontsize), y, m_prcDigitsBG1 );
-		x += gHUD.GetHudNumberWidth(m_iHealth, 3, DHN_DRAWZERO);
+		x += gHUD.GetHudNumberWidth(health, 3, DHN_DRAWZERO);
 
-		gHUD.DrawHudNumberReverse(x, y, m_iHealth, DHN_DRAWZERO, r, g, b);
+		gHUD.DrawHudNumberReverse(x, y, health, DHN_DRAWZERO, r, g, b);
 
-		//x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHealth, r, g, b);
+		//x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, health, r, g, b);
 
 		x += HealthWidth / 2;
 
