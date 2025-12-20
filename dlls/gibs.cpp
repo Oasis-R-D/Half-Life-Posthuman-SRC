@@ -94,9 +94,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 
 	}
 	UTIL_VecToAngles(pGib->pev->velocity);
-	#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-	#endif
+	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
 	pGib->LimitVelocity();
 }
 
@@ -145,7 +143,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 	}
 	UTIL_VecToAngles(pGib->pev->velocity);
 	#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
+	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
 	#endif
 	pGib->LimitVelocity();
 }
@@ -231,9 +229,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 			}
 			UTIL_VecToAngles(pGib->pev->velocity);
-			#ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-			#endif
+			PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
 			pGib->LimitVelocity();
 		}
 	}
