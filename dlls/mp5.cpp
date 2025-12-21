@@ -148,6 +148,10 @@ void CMP5::PrimaryAttack()
 
 		SendWeaponAnim(MP5_SHOOT_M203);
 
+		#ifndef CLIENT_DLL
+		CBasePlayerWeapon::Recoil(2.75, 0.85);
+		#endif
+
 		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 2.3;
 		m_flTimeWeaponIdle = 0.57;
 		m_flNextTertiaryAttack = gpGlobals->time + 2.3;
