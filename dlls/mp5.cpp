@@ -630,11 +630,11 @@ void CM727::PrimaryAttack()
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.66, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 0.66, 556, m_pPlayer->edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 1, 556, m_pPlayer->edict());
 		}
 	}
 	else
@@ -670,11 +670,11 @@ void CM727::PrimaryAttack()
 	*/
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
-		CBasePlayerWeapon::Recoil(0.8, 1);
+		CBasePlayerWeapon::Recoil(0.75, 1);
 	}
 	else
 	{
-		CBasePlayerWeapon::Recoil(0.9, 1);
+		CBasePlayerWeapon::Recoil(0.8, 1);
 	}
 #endif
 }
