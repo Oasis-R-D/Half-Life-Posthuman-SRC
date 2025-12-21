@@ -90,7 +90,6 @@ void CPhysbullet::Spawn()
 
 	m_haswizzed = false;
 
-
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
 
@@ -258,7 +257,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method, but still sucks ass)
 		{
 			i += 1;
-			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + gpGlobals->v_forward * i, dont_ignore_monsters, NULL, &beam_tr2);
+			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
 			if (i > m_distpenetrate)
 				break;
 		}
@@ -270,7 +269,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 			// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-			p = i * TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + gpGlobals->v_forward * i); // m_direction seems to be innacurate
+			p = i * TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i); // m_direction seems to be innacurate
 			p *= 1000;
 			p = round(p);
 			p /= 1000;
@@ -291,8 +290,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					m_BulletDamage = 2;
 
 				// Fire penetrated bullet
-				Vector spawnpos = tr.vecEndPos + (gpGlobals->v_forward * (i+1)); // use beam_tr2?
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, gpGlobals->v_forward, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
+				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1)); // use beam_tr2?
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
 
 				// Damage
 				ClearMultiDamage();
@@ -374,7 +373,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	UTIL_VecToAngles(pev->velocity);
 	pev->angles = m_direction;
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
 	CBaseEntity* m_ent = NULL;
