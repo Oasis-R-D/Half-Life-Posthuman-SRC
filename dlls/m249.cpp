@@ -37,8 +37,6 @@ void CM249::Precache()
 	PRECACHE_SOUND("weapons/saw_reload2.wav");
 	PRECACHE_SOUND("weapons/saw_fire1.wav");
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
-	PRECACHE_SOUND("weapons/saw_fire3.wav");
-	
 }
 
 void CM249::Spawn()
@@ -178,7 +176,7 @@ void CM249::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 0.75, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 0.75, 556, m_pPlayer->edict());
 	}
 	else
 	{
@@ -187,11 +185,10 @@ void CM249::PrimaryAttack()
 	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
 	const char* sound;
-	switch (RANDOM_LONG(0, 2))
+	switch (RANDOM_LONG(0, 1))
 	{
 	case 0: sound = "weapons/saw_fire1.wav"; break;
 	case 1: sound = "weapons/saw_fire2.wav"; break;
-	case 2: sound = "weapons/saw_fire3.wav"; break;
 	}
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
 
@@ -208,7 +205,7 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.06;
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_HARD ? 0.085 : 0.06);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 #ifndef CLIENT_DLL

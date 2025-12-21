@@ -852,7 +852,9 @@ void CHGrunt::M249()
 	Vector angDir = UTIL_VecToAngles(vecShootDir);
 	SetBlending(0, angDir.x);
 
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_fire1.wav", 1, ATTN_GUN);
+	char wpnsnd2[256];
+	sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
 }
 
 void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
