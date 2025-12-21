@@ -176,7 +176,7 @@ void CM249::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread, 0.75, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread * 0.8, 0.75, 556, m_pPlayer->edict());
 	}
 	else
 	{
@@ -192,8 +192,8 @@ void CM249::PrimaryAttack()
 	}
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
 
-	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4;
-	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(100, 200) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
+	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 12 + gpGlobals->v_right * 4;
+	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(100, 200) + gpGlobals->v_up * RANDOM_FLOAT(15, 45) + gpGlobals->v_forward * 25;
 	EjectBrass(ori, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	EjectBrass(ori, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_NULL);
 
