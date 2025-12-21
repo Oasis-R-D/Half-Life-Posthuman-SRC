@@ -2324,6 +2324,20 @@ Schedule_t* CAdvSec::GetSchedule()
 	}
 	}
 
+	if (HasConditions(bits_COND_HEAR_SOUND))
+	{
+		CSound* pSound;
+		pSound = PBestSound();
+		ASSERT(pSound != NULL);
+		if (pSound)
+		{
+			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
+			{
+				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			}
+		}
+	}
+
 	// no special cases here, call the base class
 	return CSquadMonster::GetSchedule();
 }
