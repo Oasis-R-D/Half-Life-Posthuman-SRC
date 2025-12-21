@@ -288,26 +288,18 @@ bool CHudBattery::Draw(float flTime)
 	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, batattery, r, g, b);
 
 	// Fire Mode
-	/*
 	if (m_iFireMode > 0)
 	{
 		int iIconWidth = 160;
 		int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
-		y -= gHUD.m_iFontHeight; //+ gHUD.m_iFontHeight / 15;
-		x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
+		y -= fontsize;
+		x = ScreenWidth - (5 * AmmoWidth);
 
 		m_hFireMode = gHUD.GetSprite(gHUD.GetSpriteIndex("firemode"));
 		SPR_Set(m_hFireMode, r, g, b);
-		if (m_iFireMode == 1)	   // full
-			SPR_DrawAdditive(0, x, y - iOffset, m_rFireMode);
-		else if (m_iFireMode == 2) // burst
-			SPR_DrawAdditive(1, x, y - iOffset, m_rFireMode);
-		else if (m_iFireMode == 3) // semi
-			SPR_DrawAdditive(2, x, y - iOffset, m_rFireMode);
-		else if (m_iFireMode == 4) // pump
-			SPR_DrawAdditive(3, x, y - iOffset, m_rFireMode);
+		SPR_DrawAdditive(m_iFireMode-1, x, y - iOffset, m_rFireMode);
 	}
-	*/
+
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);
 	DrawDMGSTMCH(flTime);
@@ -317,16 +309,17 @@ bool CHudBattery::Draw(float flTime)
 	DrawDMGRLEG(flTime);
 	if (m_iGrenAmnt > 0)
 	{
-		//DrawGrenAmnt(flTime);
-		//DrawGrenType(flTime);
+		DrawGrenAmnt(flTime);
+		DrawGrenType(flTime);
 	}
 	return true;
 }
 bool CHudBattery::DrawGrenType(float flTime)
 {
 	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
-	int iIconWidth = 160;
 	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+	int fontheight = m_prcDigitsBG1->top - m_prcDigitsBG1->bottom;
+	int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
 	int r, g, b, x, y, a;
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
@@ -334,9 +327,11 @@ bool CHudBattery::DrawGrenType(float flTime)
 	ScaleColors(r, g, b, a);
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	x = ScreenWidth - 2 * AmmoWidth - iIconWidth;
-	y = ScreenHeight - (gHUD.m_iFontHeight * 4); // this is one font height higher than the weapon 2nd ammo values
-	
+
+	x = ScreenWidth - (5 * AmmoWidth);
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	y -= 1.25 * fontsize;
+
 
 	// Draw
 	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
@@ -346,19 +341,22 @@ bool CHudBattery::DrawGrenType(float flTime)
 }
 bool CHudBattery::DrawGrenAmnt(float flTime)
 {
-	int iIconWidth = 160;
 	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
 	int r, g, b, x, y, a;
+	int fontheight = m_prcDigitsBG1->top - m_prcDigitsBG1->bottom;
+	int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 	a = 128;
 	ScaleColors(r, g, b, a);
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	x = ScreenWidth - (4 * AmmoWidth);
-	y = ScreenHeight - (gHUD.m_iFontHeight * 4); // this is one font height higher than the weapon 2nd ammo values
-	
-	x = gHUD.DrawHudNumber(x, y, DHN_2DIGITS | DHN_DRAWZERO, m_iGrenAmnt, r, g, b);
+	x = ScreenWidth - (3 * AmmoWidth);
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	y += (0.125 * fontheight);
+	y -= fontsize;
+
+	x = gHUD.DrawHudNumberSm(x, y, DHN_2DIGITS_SM | DHN_DRAWZERO_SM, m_iGrenAmnt, r, g, b);
 	return true;
 }
 bool CHudBattery::DrawDMGHEAD(float flTime)
