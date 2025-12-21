@@ -54,10 +54,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_isgib = isgib;
 			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
-			if (i == 0)
-				PLAYBACK_EVENT_FULL(0, pBlood->edict(), g_sParticleEvent, 0.0, VecSpawnPos, -vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodType, 0, 0);
-		}
-		
+		}	
 	}
 }
 

@@ -1593,6 +1593,8 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 
 	if ((bitsDamageType & (DMG_CRUSH | DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB | DMG_MORTAR)) == 0)
 		return;
+	
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
 
 	if (!IsAlive())
 	{
