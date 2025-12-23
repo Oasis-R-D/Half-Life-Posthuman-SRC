@@ -193,7 +193,7 @@ bool CHudBattery::Draw(float flTime)
 
 	ScaleColors(r, g, b, a);
 
-	if (m_iHunger < 1000)
+	if (m_iHunger < 1000) // this is broken
 	{
 		/*
 		x = (m_prc1->right - m_prc1->left) * 6;
@@ -250,7 +250,7 @@ bool CHudBattery::Draw(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 	
 	// make sure we have the right sprite handles
 	if (0 == m_hSprite1)
@@ -370,7 +370,7 @@ bool CHudBattery::DrawDMGHEAD(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 
@@ -389,7 +389,7 @@ bool CHudBattery::DrawDMGCHST(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
@@ -407,7 +407,7 @@ bool CHudBattery::DrawDMGSTMCH(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
@@ -425,7 +425,7 @@ bool CHudBattery::DrawDMGRARM(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
@@ -443,7 +443,7 @@ bool CHudBattery::DrawDMGLARM(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
@@ -461,7 +461,7 @@ bool CHudBattery::DrawDMGRLEG(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
@@ -479,7 +479,7 @@ bool CHudBattery::DrawDMGLLEG(float flTime)
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	x = (m_prc1->right - m_prc1->left) * 6;
+	x = (m_prc1->right - m_prc1->left) * 4;
 
 	// Body dmg sprite
 	SPR_Set(m_hLimbDMG, r, g, b);
