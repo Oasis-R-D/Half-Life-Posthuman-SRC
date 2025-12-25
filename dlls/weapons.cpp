@@ -129,19 +129,12 @@ void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage)
 		UTIL_BloodDrips(vecSpot, g_vecAttackDir, bloodColor, ((int)flDamage)/3);
 }
 
-
-int DamageDecal(CBaseEntity* pEntity, int bitsDamageType)
+int DamageDecal(CBaseEntity* pEntity, int bitsDamageType, TraceResult* hit, bool heavy)
 {
+	if (heavy)
+		return (DECAL_BIGSHOT1 + RANDOM_LONG(0, 4));
 	if (!pEntity)
 		return (DECAL_GUNSHOT1 + RANDOM_LONG(0, 4));
-
-	return pEntity->DamageDecal(bitsDamageType);
-}
-
-int DamageDecalHeavy(CBaseEntity* pEntity, int bitsDamageType)
-{
-	if (!pEntity)
-		return (DECAL_BIGSHOT1 + RANDOM_LONG(0, 4));
 
 	return pEntity->DamageDecal(bitsDamageType);
 }
@@ -169,11 +162,11 @@ void DecalGunshot(TraceResult* pTrace, int iBulletType)
 		case BULLET_PLAYER_357:
 		default:
 			// smoke and decal
-			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET));
+			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET, pTrace));
 			break;
 		case BULLET_MONSTER_12MM:
 			// smoke and decal
-			UTIL_GunshotDecalTrace(pTrace, DamageDecalHeavy(pEntity, DMG_BULLET));
+			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET, pTrace, true));
 			break;
 		case BULLET_PLAYER_CROWBAR:
 			// wall decal

@@ -312,9 +312,17 @@ void CHudAmmo::Reset()
 
 bool CHudAmmo::VidInit()
 {
+	int HUD_divider = gHUD.GetSpriteIndex( "divider" );
+	int HUD_AmmoText = gHUD.GetSpriteIndex( "ammotext" );
+
 	// Load sprites for buckets (top row of weapon menu)
 	m_HUD_bucket0 = gHUD.GetSpriteIndex("bucket1");
 	m_HUD_selection = gHUD.GetSpriteIndex("selection");
+	m_HUD_divider = gHUD.GetSpriteIndex( "divider" );
+	m_HUD_AmmoText = gHUD.GetSpriteIndex( "ammotext" );
+
+	m_prcDivider = &gHUD.GetSpriteRect(HUD_divider);
+	m_prcAmmoText = &gHUD.GetSpriteRect(HUD_AmmoText);
 
 	ghsprBuckets = gHUD.GetSprite(m_HUD_bucket0);
 	giBucketWidth = gHUD.GetSpriteRect(m_HUD_bucket0).right - gHUD.GetSpriteRect(m_HUD_bucket0).left;
@@ -340,6 +348,24 @@ bool CHudAmmo::VidInit()
 		giABWidth = 10;
 		giABHeight = 2;
 	}
+
+	m_HUD_DigitsBG1 = gHUD.GetSpriteIndex( "number_dull1" );
+	m_HUD_DigitsBG2 = gHUD.GetSpriteIndex( "number_dull2" );
+
+	int HUD_DigitsBG1 = gHUD.GetSpriteIndex( "number_dull1" );
+	int HUD_DigitsBG2 = gHUD.GetSpriteIndex( "number_dull2" );
+
+	m_prcDigitsBG1 = &gHUD.GetSpriteRect(HUD_DigitsBG1);
+	m_prcDigitsBG2 = &gHUD.GetSpriteRect(HUD_DigitsBG2);
+
+	m_HUD_DigitsSmBG1 = gHUD.GetSpriteIndex( "number_sm_dull1" );
+	m_HUD_DigitsSmBG2 = gHUD.GetSpriteIndex( "number_sm_dull2" );
+
+	int HUD_DigitsSmBG1 = gHUD.GetSpriteIndex( "number_sm_dull1" );
+	int HUD_DigitsSmBG2 = gHUD.GetSpriteIndex( "number_sm_dull2" );
+
+	m_prcDigitsSmBG1 = &gHUD.GetSpriteRect(HUD_DigitsSmBG1);
+	m_prcDigitsSmBG2 = &gHUD.GetSpriteRect(HUD_DigitsSmBG2);
 
 	return true;
 }
@@ -865,7 +891,7 @@ void CHudAmmo::UserCmd_PrevWeapon()
 
 bool CHudAmmo::Draw(float flTime)
 {
-	int a, x, y, r, g, b;
+	int a, x, y, r, g, b, clipsize;
 	int AmmoWidth;
 
 	if (!gHUD.HasSuit())
@@ -903,7 +929,14 @@ bool CHudAmmo::Draw(float flTime)
 		m_fFade -= (gHUD.m_flTimeDelta * 20);
 
 	if (gHUD.FlashingHUD > 0)
+	{
 		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		clipsize = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 200); // make the values go haywire
+	}
+	else
+	{
+		clipsize = pw->iClip;
+	}
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 
@@ -911,24 +944,36 @@ bool CHudAmmo::Draw(float flTime)
 
 	// Does this weapon have a clip?
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-
+	int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
 	// Does weapon have any ammo at all?
 	if (m_pWeapon->iAmmoType > 0)
 	{
 		int iIconWidth = m_pWeapon->rcAmmo.right - m_pWeapon->rcAmmo.left;
-
-		if (pw->iClip >= 0)
+		
+		if (clipsize >= 0)
 		{
 			// room for the number and the '|' and the current ammo
-
+		
+			int fontheight = (m_prcDigitsBG1->top - m_prcDigitsBG1->bottom)/2;
 			x = ScreenWidth - (8 * AmmoWidth) - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, pw->iClip, r, g, b);
+			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, clipsize, r, g, b);
 
 			Rect rc;
 			rc.top = 0;
 			rc.left = 0;
 			rc.right = AmmoWidth;
 			rc.bottom = 100;
+
+
+			SPR_Set(m_hAmmoText, r, g, b );
+			SPR_DrawAdditive( 0,  x-(3*fontsize), y + 0.5 * (m_prcDigitsBG1->top - m_prcDigitsBG1->bottom), &gHUD.GetSpriteRect(m_HUD_AmmoText));
+			
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x-(3*fontsize), y, m_prcDigitsBG1 );
+			SPR_Set(m_hDigitsBG2, r, g, b );
+			SPR_DrawAdditive( 0,  x-(2*fontsize), y, m_prcDigitsBG2 );
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsBG1 );
 
 			int iBarWidth = AmmoWidth / 10;
 
@@ -937,28 +982,47 @@ bool CHudAmmo::Draw(float flTime)
 			UnpackRGB(r, g, b, RGB_YELLOWISH);
 
 			// draw the | bar
-			FillRGBA(x, y, iBarWidth, gHUD.m_iFontHeight, r, g, b, a);
+			SPR_Set(m_hDivider, r, g, b );
+			SPR_DrawAdditive( 0,  x-(0.25*fontsize), y, m_prcDivider );
 
 			x += iBarWidth + AmmoWidth / 2;
 
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x, y-(0.5 * fontheight), m_prcDigitsSmBG1 );
+			SPR_Set(m_hDigitsBG2, r, g, b );
+			SPR_DrawAdditive( 0,  x+(0.5*fontsize), y-(0.5 * fontheight), m_prcDigitsSmBG2 );
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x+fontsize, y-(0.5 * fontheight), m_prcDigitsSmBG1 );
+
 			// GL Seems to need this
 			ScaleColors(r, g, b, a);
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlags | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmoType), r, g, b);
 		}
 		else
 		{
 			// SPR_Draw a bullets only line
 			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
 			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+			
+			SPR_Set(gHUD.GetSprite(m_HUD_AmmoText), r, g, b );
+			SPR_DrawAdditive( 0,  x-(3*fontsize), y-(0.5 * fontsize), m_prcAmmoText );
+			
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x-(3*fontsize), y, m_prcDigitsBG1 );
+			SPR_Set(m_hDigitsBG2, r, g, b );
+			SPR_DrawAdditive( 0,  x-(2*fontsize), y, m_prcDigitsBG2 );
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsBG1 );
 		}
 
 		// Draw the ammo Icon
+		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
 		int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
 		SPR_Set(m_pWeapon->hAmmo, r, g, b);
 		SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
 	}
 
-	// Does weapon have seconday ammo?
+	// Does weapon have secondary ammo?
 	if (pw->iAmmo2Type > 0)
 	{
 		int iIconWidth = m_pWeapon->rcAmmo2.right - m_pWeapon->rcAmmo2.left;
@@ -966,10 +1030,14 @@ bool CHudAmmo::Draw(float flTime)
 		// Do we have secondary ammo?
 		if ((pw->iAmmo2Type != 0) && (gWR.CountAmmo(pw->iAmmo2Type) > 0))
 		{
-			y -= gHUD.m_iFontHeight + gHUD.m_iFontHeight / 4;
-			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
-
+			y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+			x = ScreenWidth - 3 * AmmoWidth;
+			x = gHUD.DrawHudNumberSm(x, y, iFlags | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
+			SPR_Set(m_hDigitsBG1, r, g, b );
+			SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
+			SPR_Set(m_hDigitsBG2, r, g, b );
+			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsSmBG2 );
+			
 			// Draw the ammo Icon
 			SPR_Set(m_pWeapon->hAmmo2, r, g, b);
 			int iOffset = (m_pWeapon->rcAmmo2.bottom - m_pWeapon->rcAmmo2.top) / 8;
@@ -1025,6 +1093,8 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 			return;
 
 		float f = (float)gWR.CountAmmo(p->iAmmoType) / (float)p->iMax1;
+		if (gHUD.FlashingHUD > 0)
+			f = (sin(gEngfuncs.pfnRandomLong(1, 50)) * 1); // make the values go haywire
 
 		x = DrawBar(x, y, width, height, f);
 
@@ -1034,7 +1104,8 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 		if (p->iAmmo2Type != -1)
 		{
 			f = (float)gWR.CountAmmo(p->iAmmo2Type) / (float)p->iMax2;
-
+			if (gHUD.FlashingHUD > 0)
+				f = (sin(gEngfuncs.pfnRandomLong(1, 50)) * 1); // make the values go haywire
 			x += 5; //!!!
 
 			DrawBar(x, y, width, height, f);

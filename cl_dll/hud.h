@@ -45,10 +45,13 @@ struct fog_settings_t
 };
 // RENDERERS END
 
-#define DHN_DRAWZERO 1
-#define DHN_2DIGITS 2
-#define DHN_3DIGITS 4
-#define MIN_ALPHA 100
+#define DHN_DRAWZERO	1
+#define DHN_2DIGITS		2
+#define DHN_3DIGITS		4
+#define DHN_DRAWZERO_SM 1
+#define DHN_2DIGITS_SM  2
+#define DHN_3DIGITS_SM  4
+#define MIN_ALPHA		100
 
 #define HUDELEM_ACTIVE 1
 
@@ -90,6 +93,18 @@ public:
 	virtual void Think() {}
 	virtual void Reset() {}
 	virtual void InitHUDData() {} // called every time a server is connected to
+	int m_HUD_DigitsBG1;
+	int m_HUD_DigitsBG2;
+	int m_HUD_DigitsSmBG1;
+	int m_HUD_DigitsSmBG2;
+	HSPRITE_GOLDSRC m_hDigitsBG1;
+	Rect* m_prcDigitsBG1;
+	HSPRITE_GOLDSRC m_hDigitsBG2;
+	Rect* m_prcDigitsBG2;
+	HSPRITE_GOLDSRC m_hDigitsSmBG1;
+	Rect* m_prcDigitsSmBG1;
+	HSPRITE_GOLDSRC m_hDigitsSmBG2;
+	Rect* m_prcDigitsSmBG2;
 };
 
 struct HUDLIST
@@ -148,6 +163,13 @@ private:
 	WEAPON* m_pWeapon;
 	int m_HUD_bucket0;
 	int m_HUD_selection;
+	Rect *m_prcDivider;
+
+	Rect* m_prcAmmoText;
+	HSPRITE_GOLDSRC m_hDivider;
+	HSPRITE_GOLDSRC m_hAmmoText;
+	int m_HUD_divider;
+	int m_HUD_AmmoText;
 };
 
 //
@@ -358,14 +380,9 @@ public:
 
 private:
 	HSPRITE_GOLDSRC  m_hSprite1;
+	HSPRITE_GOLDSRC  m_hPowertext;
 	HSPRITE_GOLDSRC  m_hSprite2;
-	HSPRITE_GOLDSRC  m_hHeadDMG;
-	HSPRITE_GOLDSRC  m_hChstDMG;
-	HSPRITE_GOLDSRC  m_hStmchDMG;
-	HSPRITE_GOLDSRC  m_hLarmDMG;
-	HSPRITE_GOLDSRC  m_hRarmDMG;
-	HSPRITE_GOLDSRC  m_hLlegDMG;
-	HSPRITE_GOLDSRC  m_hRlegDMG;
+	HSPRITE_GOLDSRC  m_hLimbDMG;
 	HSPRITE_GOLDSRC  m_hGrenType;
 	Rect* m_prc1;
 	Rect* m_prc2;
@@ -387,7 +404,7 @@ private:
 	int m_iHealth_Rleg;
 	HSPRITE_GOLDSRC  m_hFireMode;
 	Rect* m_rFireMode;
-	HSPRITE_GOLDSRC  m_hHunger;
+	HSPRITE_GOLDSRC m_hHunger;
 	Rect* m_rHunger;
 	Rect* m_rGrenType;
 };
@@ -564,6 +581,7 @@ public:
 
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b);
+	int DrawHudNumberSm(int x, int y, int iFlags, int iNumber, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, const char* szString, int r, int g, int b);
 	int DrawHudStringReverse(int xpos, int ypos, int iMinX, const char* szString, int r, int g, int b);
 	int DrawHudNumberString(int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b);
@@ -656,6 +674,7 @@ public:
 
 	// sprite indexes
 	int m_HUD_number_0;
+	int m_HUD_number_sm_0;
 	int FlashingHUD;
 
 	void AddHudElem(CHudBase* p);

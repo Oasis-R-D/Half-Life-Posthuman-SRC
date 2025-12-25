@@ -73,7 +73,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = _9MM_MAX_CARRY;
 	p->pszAmmo2 = "ARgrenades";
 	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
-	p->iMaxClip = 31;
+	p->iMaxClip = MP5_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 0;
 	p->iFlags = 0;
@@ -147,6 +147,10 @@ void CMP5::PrimaryAttack()
 			gpGlobals->v_forward * 2000);
 
 		SendWeaponAnim(MP5_SHOOT_M203);
+
+		#ifndef CLIENT_DLL
+		CBasePlayerWeapon::Recoil(2.75, 0.85);
+		#endif
 
 		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 2.3;
 		m_flTimeWeaponIdle = 0.57;
@@ -519,7 +523,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = 200;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
-	p->iMaxClip = 31;
+	p->iMaxClip = MP5_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 3;
 	p->iFlags = 0;
@@ -626,11 +630,11 @@ void CM727::PrimaryAttack()
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.66, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 0.66, 556, m_pPlayer->edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 1, 556, m_pPlayer->edict());
 		}
 	}
 	else
@@ -644,7 +648,7 @@ void CM727::PrimaryAttack()
 	EMIT_SOUND(edict(), CHAN_WEAPON, wpnsnd2, 1, ATTN_NORM);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
-	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 9 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
+	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 11 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 	{
@@ -666,11 +670,11 @@ void CM727::PrimaryAttack()
 	*/
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
-		CBasePlayerWeapon::Recoil(0.8, 1);
+		CBasePlayerWeapon::Recoil(0.75, 1);
 	}
 	else
 	{
-		CBasePlayerWeapon::Recoil(0.9, 1);
+		CBasePlayerWeapon::Recoil(0.8, 1);
 	}
 #endif
 }

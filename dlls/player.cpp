@@ -316,7 +316,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 			health_head = 100;
 			}
-			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
+			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.25, 5);
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
@@ -325,6 +325,8 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			{
 			health_chest = 100;
 			}
+			if (RANDOM_LONG(0, 2) == 2)
+				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.1, 0.25);
 			break;
 		case HITGROUP_STOMACH:
 			flDamage *= gSkillData.plrStomach;
@@ -620,7 +622,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			if (fmajor)
 			{
 				SetSuitUpdate("!HEV_DMG2", false, SUIT_NEXT_IN_1MIN); // internal bleeding
-				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
+				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.25, 0.55);
 			}
 			bitsDamage &= ~DMG_SONIC;
 			ffound = true;
@@ -658,7 +660,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 		if ((bitsDamage & DMG_SHOCK) != 0)
 		{
 			SetSuitUpdate("!HEV_SHOCK", false, SUIT_NEXT_IN_1MIN); // shock detected
-			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 2);
+			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.5, 0.75);
 			bitsDamage &= ~DMG_SHOCK;
 			ffound = true;
 		}

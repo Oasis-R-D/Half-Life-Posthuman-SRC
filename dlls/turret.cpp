@@ -615,7 +615,7 @@ void CBaseTurret::ActiveThink()
 
 void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
-	FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
+	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{

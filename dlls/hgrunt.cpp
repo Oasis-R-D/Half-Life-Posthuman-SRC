@@ -852,7 +852,9 @@ void CHGrunt::M249()
 	Vector angDir = UTIL_VecToAngles(vecShootDir);
 	SetBlending(0, angDir.x);
 
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_fire1.wav", 1, ATTN_GUN);
+	char wpnsnd2[256];
+	sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
 }
 
 void CHGrunt::Killed(entvars_t* pevAttacker, int iGib)
@@ -2084,11 +2086,6 @@ Schedule_t* CHGrunt::GetSchedule()
 				}
 				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
 			}
-			// TOP ELSE IS THE SOUND INVESTIGATION // TO-DO: figure out if this won't break shit
-			else if (pSound && (pSound->m_iType & bits_SOUND_COMBAT) != 0)
-			{
-				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
-			}
 			/*
 			if (!HasConditions( bits_COND_SEE_ENEMY ) && ( pSound->m_iType & (bits_SOUND_PLAYER | bits_SOUND_COMBAT) ))
 			{
@@ -2278,6 +2275,21 @@ Schedule_t* CHGrunt::GetSchedule()
 			return GetScheduleOfType(SCHED_GRUNT_ESTABLISH_LINE_OF_FIRE);
 		}
 	}
+	}
+
+	if (HasConditions(bits_COND_HEAR_SOUND))
+	{
+		CSound* pSound;
+		pSound = PBestSound();
+		ASSERT(pSound != NULL);
+		if (pSound)
+		{
+			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
+			{
+				ALERT(at_console, "heard");
+				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			}
+		}
 	}
 
 	// no special cases here, call the base class

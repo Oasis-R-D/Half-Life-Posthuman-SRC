@@ -54,10 +54,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 			pBlood->m_isgib = isgib;
 			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
-			if (i == 0)
-				PLAYBACK_EVENT_FULL(0, pBlood->edict(), g_sParticleEvent, 0.0, VecSpawnPos, -vecDir, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodType, 0, 0);
-		}
-		
+		}	
 	}
 }
 
@@ -187,27 +184,27 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6), 6);
 	}
 	else if (m_BloodType == BLOOD_COLOR_YELLOW)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_ABLOODSPRAY1, DECAL_YBLOOD6_2));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_ABLOODSPRAY1, DECAL_YBLOOD6_2), 6);
 	}
 	else if (m_BloodType == BLOOD_COLOR_GREEN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_XBLOODSPRAY1, DECAL_XBLOODSPRAY7));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_XBLOODSPRAY1, DECAL_XBLOODSPRAY7), 6);
 	}
 	else if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3), 6);
 	}
 	else if (m_BloodType == NULL) // add decal?
 	{
-		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3));
+		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3), 6);
 	}
 	else
 	{
-		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6));
+		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6), 6);
 	}
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));

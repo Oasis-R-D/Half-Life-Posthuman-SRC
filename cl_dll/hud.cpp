@@ -614,6 +614,7 @@ void CHud::VidInit()
 
 	// assumption: number_1, number_2, etc, are all listed and loaded sequentially
 	m_HUD_number_0 = GetSpriteIndex("number_0");
+	m_HUD_number_sm_0 = GetSpriteIndex( "number_sm_0" );
 
 	m_iFontHeight = m_rgrcRects[m_HUD_number_0].bottom - m_rgrcRects[m_HUD_number_0].top;
 

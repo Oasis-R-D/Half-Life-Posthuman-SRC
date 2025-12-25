@@ -108,7 +108,7 @@ bool CHudFlashlight::Draw(float flTime)
 	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 		return true;
 
-	if (!gHUD.HasSuit() || !prehuman)
+	if (!gHUD.HasSuit())
 		return true;
 
 	int r, g, b, x, y, a;
@@ -118,6 +118,17 @@ bool CHudFlashlight::Draw(float flTime)
 		a = 225;
 	else
 		a = MIN_ALPHA;
+
+	if (gHUD.FlashingHUD > 0)
+	{
+		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		m_flBat = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 1); // make the values go haywire
+	}
+	else // not flashing
+	{
+		if (!prehuman) // no flashlight in post-human
+			return true;
+	}
 
 	if (m_flBat < 0.20)
 		UnpackRGB(r, g, b, RGB_REDISH);

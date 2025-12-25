@@ -90,7 +90,6 @@ void CPhysbullet::Spawn()
 
 	m_haswizzed = false;
 
-
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
 
@@ -270,7 +269,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 			// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-			p = i * TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i);
+			p = i * TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i); // m_direction seems to be innacurate
 			p *= 1000;
 			p = round(p);
 			p /= 1000;
@@ -374,7 +373,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	m_direction = UTIL_VecToAngles(pev->velocity);
 	pev->angles = m_direction;
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
 	CBaseEntity* m_ent = NULL;

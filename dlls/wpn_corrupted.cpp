@@ -68,7 +68,6 @@ void CCorruptedWPN::Precache()
 
 	PRECACHE_SOUND("weapons/saw_fire1.wav"); // M249
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
-	PRECACHE_SOUND("weapons/saw_fire3.wav");
 
 	PRECACHE_SOUND("weapons/727_hks1.wav"); // H to the K 727 times
 	PRECACHE_SOUND("weapons/727_hks2.wav"); // H to the K 727 times
@@ -246,7 +245,7 @@ void CCorruptedWPN::PrimaryAttack()
 				}
 				spreadhorz = spreadvert = vecSpread;
 			}
-			sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 3));
+			sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
 			break;
 	}
 
