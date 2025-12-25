@@ -284,6 +284,8 @@ void CBSPRenderer::Init(void)
 	//m_WorldShader_locs[world_renderforward] = m_WorldShader->GetUniformLoc("renderforward");
 	m_WorldShader_locs[world_renderright] = m_WorldShader->GetUniformLoc("renderright");
 
+	m_WorldShader_locs[world_nightvision] = m_WorldShader->GetUniformLoc("nightvision");
+
 	m_WorldShader_locs[world_fog_active] = m_WorldShader->GetUniformLoc("fog_active");
 	m_WorldShader_locs[world_fogcolor] = m_WorldShader->GetUniformLoc("fogcolor");
 	m_WorldShader_locs[world_fogstart] = m_WorldShader->GetUniformLoc("fogstart");
@@ -299,7 +301,6 @@ void CBSPRenderer::Init(void)
 	m_WorldShader_locs[world_detailtexture] = m_WorldShader->GetUniformLoc("detailtexture");
 	m_WorldShader_locs[world_dt_opacity] = m_WorldShader->GetUniformLoc("dt_opacity");
 	m_WorldShader_locs[world_alphatest] = m_WorldShader->GetUniformLoc("alphatest");
-
 
 	m_WorldSolidShader_locs[worldsolid_projviewmatrix] = m_WorldSolidShader->GetUniformLoc("projviewmatrix");
 	m_WorldSolidShader_locs[worldsolid_modelmatrix] = m_WorldSolidShader->GetUniformLoc("modelmatrix");
@@ -1897,7 +1898,7 @@ void CBSPRenderer::RenderFirstPass()
 {
 	if (r_fullbright->value)
 		return;
-
+	m_WorldShader->Uniform1i(m_WorldShader_locs[world_nightvision], (int)g_iNightVision);
 	BindGLTexture(LIGHTMAP_TEXUNIT, m_iEngineLightmapIndex);
 
 	m_WorldShader->Uniform1i(m_WorldShader_locs[world_detailtexture], 0);

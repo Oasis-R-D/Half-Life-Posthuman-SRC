@@ -477,8 +477,15 @@ const char glsl330_world_fp[] = R"(
 		{
 			basetex_pixel.rgb = mix( basetex_pixel.rgb, fogcolor, 1.0 - GetFogFactor() );
 		}
+		
+		//MOD SPECIFIC: nightvision
+		if(nightvision)
+		{
+			basetex_pixel.rgb *= vec3(1.1, 0.1, 0.1);
+		}
 
 		gl_FragColor = basetex_pixel;
+		
 		gl_FragColor.a = basetex_pixel.a;
 
 	}
@@ -510,11 +517,12 @@ const char glsl330_world_fp[] = R"(
 		if(detailtexture)
 			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));
 
+		gl_FragColor = vec4(lightmap_pixel.rgb, lightmap_pixel.a * float(renderamt) / 255);
 		//MOD SPECIFIC: nightvision
 		if(nightvision)
-			lightmap_pixel = clamp(lightmap_pixel, vec4(0.3, 0.3, 0.3, 1), vec4(0.8, 0.8, 0.8, 1) );
-
-		gl_FragColor = vec4(lightmap_pixel.rgb, lightmap_pixel.a * float(renderamt) / 255);
+		{
+			gl_FragColor = vec4(lightmap_pixel.rgb * vec3(1.1, 0.1, 0.1), lightmap_pixel.a * float(renderamt) / 255);
+		}
 	}
 
 	void main()
