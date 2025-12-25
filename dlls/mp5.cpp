@@ -73,7 +73,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = _9MM_MAX_CARRY;
 	p->pszAmmo2 = "ARgrenades";
 	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
-	p->iMaxClip = 31;
+	p->iMaxClip = MP5_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 0;
 	p->iFlags = 0;
@@ -523,7 +523,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = 200;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
-	p->iMaxClip = 31;
+	p->iMaxClip = MP5_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 3;
 	p->iFlags = 0;
