@@ -228,7 +228,12 @@ class CEnvSpit : public CBaseEntity
 		WRITE_BYTE(30);				   // speed
 		WRITE_BYTE(80);				   // noise ( client will divide by 100 )
 		MESSAGE_END();
+		
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos, tr.vecPlaneNormal, 0.0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
+
 		UTIL_Remove(this);
+
+		
 	}
 	void Think()
 	{
