@@ -1950,7 +1950,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			VectorCopy(pParticle->origin, pParticle->lastspawn);
 		}
 	}
-
+	// to-do: all code below probably needs updated for the new variants
 	//
 	// Calculate texcoords
 	//

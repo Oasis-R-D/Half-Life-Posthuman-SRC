@@ -375,6 +375,7 @@ void CPhysbullet::AirThink()
 {
 	pev->angles = m_direction;
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
+	
 	CBaseEntity* m_ent = NULL;
 	if (!m_haswizzed && !m_bsubsonic)
 	{
@@ -382,7 +383,7 @@ void CPhysbullet::AirThink()
 		{
 			if (m_ent->IsPlayer())
 			{
-				if (!m_haswizzed && Owner != m_ent->edict() && !m_bsubsonic) // TO-DO: make m_haswizzed per player (or ignore this, not too noticeable anyways)
+				if (Owner != m_ent->edict()) // TO-DO: make m_haswizzed per player (or ignore, not too noticeable anyways)
 				{
 					char dripsnd[256];
 					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
@@ -392,13 +393,27 @@ void CPhysbullet::AirThink()
 			}
 		}
 	}
+
 	if (pev->renderamt < 225 && !m_bsubsonic) // fade in
 	{
 		pev->renderamt += 75;
 	}
 
+	// WIND
+	float WINDxvel, flwindmult;
+
+	for (int i = 0; i < 3; i++)
+	{
+		WINDxvel = 10;
+
+		flwindmult = 8;
+		pev->velocity[i] += sin((gpGlobals->time * flwindmult)) * WINDxvel;
+	}
+	// WIND END
+
 	if (pev->waterlevel == 0)
 		return;
+
 	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 }
 
