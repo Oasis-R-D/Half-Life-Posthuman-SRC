@@ -939,131 +939,91 @@ void CTextureLoader::LoadTextureScript(void)
 		m_pTextureEntries.clear();
 	}
 
-	int iSize = NULL;
-	char* pFile = (char*)gEngfuncs.COM_LoadFile("gfx/textures/texture_flags.txt", 5, &iSize);
+	std::vector<std::byte> bufferdata = FileSystem_LoadFileIntoBuffer("gfx/textures/texture_flags.txt", FileContentFormat::Text);
+	int iSize = bufferdata.size();
 
-	if (!pFile)
+	if (bufferdata.empty())
 	{
 		gEngfuncs.Con_Printf("Could not load gfx/textures/texture_flags.txt!\n");
 		return;
 	}
 
+	char* pFile = (char*)bufferdata.data();
+
 	int i = NULL;
+
+	auto ReadToken = [&](char* dest, int maxlen) -> bool
+	{
+		int j = 0;
+
+		if (i >= iSize || pFile[i] == '\n' || pFile[i] == '\r')
+			return false;
+
+		while (i < iSize && (pFile[i] == ' ' || pFile[i] == '\t'))
+			i++;
+
+		if (i >= iSize || pFile[i] == '\n' || pFile[i] == '\r')
+			return false;
+
+		bool quoted = false;
+
+		if (pFile[i] == '"')
+		{
+			quoted = true;
+			i++;
+		}
+
+		while (i < iSize)
+		{
+			if (quoted)
+			{
+				if (pFile[i] == '"')
+				{
+					i++;
+					break;
+				}
+			}
+			else
+			{
+				if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
+					break;
+			}
+
+			if (j < maxlen - 1)
+				dest[j++] = pFile[i];
+			i++;
+		}
+
+		dest[j] = 0;
+
+		// while (i < iSize && (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r'))
+		//	i++;
+
+		return true;
+	};
+
 	while (1)
 	{
 		// Reset
 		iFlags = 0;
 
-		// Reached EOF
 		if (i >= iSize)
 			break;
 
-		// Skip to next token
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] != ' ' && pFile[i] != '\n' && pFile[i] != '\r')
-				break;
-
-			i++;
-		}
-
-		if (i >= iSize)
+		if (!ReadToken(szModel, sizeof(szModel)))
 			break;
 
-		// Read token in
-		int j = NULL;
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-				break;
-
-			szModel[j] = pFile[i];
-			j++;
-			i++;
-		}
-
-		// Terminator
-		szModel[j] = 0;
-
-		if (i >= iSize)
-			break;
-
-		// Skip to next token
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] != ' ' && pFile[i] != '\n' && pFile[i] != '\r')
-				break;
-
-			i++;
-		}
-
-		if (i >= iSize)
-			break;
-
-		// Read token in
-		j = NULL;
-		while (1)
-		{
-			if (i >= iSize)
-				break;
-
-			if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-				break;
-
-			szTexture[j] = pFile[i];
-			j++;
-			i++;
-		}
-
-		// Terminator
-		szTexture[j] = 0;
-
-		if (i >= iSize)
+		if (!ReadToken(szTexture, sizeof(szTexture)))
 			break;
 
 		while (1)
 		{
-			// Skip to next token
-			while (1)
+			if (!ReadToken(szFlag, sizeof(szFlag)))
 			{
-				if (i >= iSize)
-					break;
-
-				if (pFile[i] != ' ' && pFile[i] != '\n' && pFile[i] != '\r')
-					break;
-
-				i++;
-			}
-
-			if (i >= iSize)
+				while (i < iSize && (pFile[i] == '\n' || pFile[i] == '\r'))
+					i++;
 				break;
-
-			// Read token in
-			j = NULL;
-			while (1)
-			{
-				if (i >= iSize)
-					break;
-
-				if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-					break;
-
-				szFlag[j] = pFile[i];
-				j++;
-				i++;
 			}
-
-			// Terminator
-			szFlag[j] = 0;
 			strLower(szFlag);
 
 			// Only this flag for now
@@ -1071,25 +1031,14 @@ void CTextureLoader::LoadTextureScript(void)
 				iFlags |= TEXFLAG_ALTERNATE;
 			else if (!strcmp(szFlag, "fullbright"))
 				iFlags |= TEXFLAG_FULLBRIGHT;
+			//else if (!strcmp(szFlag, "alpha_fullbright"))
+			//	iFlags |= TEXFLAG_ALPHAFULLBRIGHT;
 			else if (!strcmp(szFlag, "none"))
 				iFlags |= TEXFLAG_NONE;
 			else if (!strcmp(szFlag, "nomipmap"))
 				iFlags |= TEXFLAG_NOMIPMAP;
 			else if (!strcmp(szFlag, "eraseflags"))
 				iFlags |= TEXFLAG_ERASE;
-
-			// See if there's anything else ahead
-			while (1)
-			{
-				if (i >= iSize)
-					break;
-
-				if (pFile[i] == ' ' || pFile[i] == '\n' || pFile[i] == '\r')
-					break;
-			}
-
-			if (pFile[i] == '\n' || pFile[i] == '\r' || i >= iSize)
-				break; // End of entry
 		}
 
 		if (iFlags)
@@ -1104,8 +1053,6 @@ void CTextureLoader::LoadTextureScript(void)
 			m_pTextureEntries.push_back(pEntry);
 		}
 	}
-
-	gEngfuncs.COM_FreeFile(pFile);
 }
 
 /*
@@ -1117,7 +1064,10 @@ TextureHasFlag
 bool CTextureLoader::TextureHasFlag(const char* szModel, char* szTexture, int iFlag)
 {
 	if (m_pTextureEntries.empty())
+	{
+		gEngfuncs.Con_Printf("fuck you\n");
 		return false;
+	}
 
 	for (int i = 0; i < m_pTextureEntries.size(); i++)
 	{
