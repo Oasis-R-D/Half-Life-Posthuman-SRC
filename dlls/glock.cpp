@@ -237,7 +237,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 				CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
 			}
 		}
-		else // realism diff (hardcoded damages to prevent cheaters)
+		else // realism diff
 		{
 	
 			if (m_isilenced == 0)
