@@ -193,7 +193,7 @@ bool CHudBattery::Draw(float flTime)
 
 	ScaleColors(r, g, b, a);
 
-	if (m_iHunger < 1000) // this is broken
+	if (m_iHunger <= 100) // this is broken
 	{
 		/*
 		x = (m_prc1->right - m_prc1->left) * 6;
