@@ -113,12 +113,13 @@ enum WeaponId
 #define DMG_WALLPIERCING (1 << 26) // Blast Damages ents through walls
 #define DMG_HALLUC (1 << 27) // TO-DO: add FX for this
 #define DMG_CONCUSS (1 << 28) // TO-DO: add FX for this
+#define DMG_HUNGER (1 << 29) // TO-DO: add FX for this
 
 // these are the damage types that are allowed to gib corpses
 #define DMG_GIB_CORPSE (DMG_CRUSH | DMG_FALL | DMG_BLAST | DMG_SONIC | DMG_CLUB)
 
 // these are the damage types that have client hud art
-#define DMG_SHOWNHUD (DMG_POISON | DMG_ACID | DMG_FREEZE | DMG_SLOWFREEZE | DMG_DROWN | DMG_BURN | DMG_SLOWBURN | DMG_NERVEGAS | DMG_RADIATION | DMG_ENERGYBEAM | DMG_SHOCK | DMG_BULLET | DMG_FALL)
+#define DMG_SHOWNHUD (DMG_POISON | DMG_ACID | DMG_FREEZE | DMG_SLOWFREEZE | DMG_DROWN | DMG_BURN | DMG_SLOWBURN | DMG_NERVEGAS | DMG_RADIATION | DMG_ENERGYBEAM | DMG_SHOCK | DMG_BULLET | DMG_FALL | DMG_HUNGER)
 
 // NOTE: tweak these values based on gameplay feedback:
 

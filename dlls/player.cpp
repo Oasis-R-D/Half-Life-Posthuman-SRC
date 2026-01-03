@@ -4668,12 +4668,12 @@ void CBasePlayer::UpdateClientData()
 		{
 			if (Hunger <= 0 && HungerDamageTime < gpGlobals->time)
 			{
-					TakeDamage(pev, pev, 2, DMG_GENERIC | DMG_IGNOREARMOR);
+					TakeDamage(pev, pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
 					HungerDamageTime = gpGlobals->time + 9;
 			}
 			else if (Hunger <= 10 && HungerDamageTime < gpGlobals->time)
 			{
-				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
+				TakeDamage(pev, pev, 1, DMG_HUNGER | DMG_IGNOREARMOR);
 				HungerDamageTime = gpGlobals->time + 9;
 			}
 
@@ -4717,6 +4717,7 @@ void CBasePlayer::UpdateClientData()
 			WRITE_SHORT(Hunger);
 			MESSAGE_END();
 		}
+
 		if (FlashlightIsOn() && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL;
@@ -4776,7 +4777,7 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_END();
 	}
 
-		// RENDERERS START
+	// RENDERERS START
 	if (m_bUpdateEffects)
 	{
 		ClearEffects();
@@ -4792,7 +4793,7 @@ void CBasePlayer::UpdateClientData()
 		WRITE_BYTE(1);
 		MESSAGE_END();
 	}
-	else
+	else // could save a value here to prevent this rerunning
 	{
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashHUD, NULL, pev);
 		WRITE_BYTE(0);
