@@ -29,7 +29,6 @@
 
 DECLARE_MESSAGE(m_Health, Health)
 DECLARE_MESSAGE(m_Health, Damage)
-DECLARE_MESSAGE(m_Health, Headcrab)
 
 #define PAIN_NAME "sprites/%d_pain.spr"
 #define DAMAGE_NAME "sprites/%d_dmg.spr"
@@ -55,7 +54,6 @@ bool CHudHealth::Init()
 {
 	HOOK_MESSAGE(Health);
 	HOOK_MESSAGE(Damage);
-	HOOK_MESSAGE(Headcrab);
 
 	m_iHealth = 100;
 	m_fFade = 0;
@@ -67,8 +65,6 @@ bool CHudHealth::Init()
 	giDmgWidth = 0;
 
 	memset(m_dmg, 0, sizeof(DAMAGE_IMAGE) * NUM_DMG_TYPES);
-
-	HeadcrabCount = 0;
 
 	gHUD.AddHudElem(this);
 	return true;
@@ -108,8 +104,6 @@ bool CHudHealth::VidInit()
 
 	giDmgHeight = gHUD.GetSpriteRect(m_HUD_dmg_bio).right - gHUD.GetSpriteRect(m_HUD_dmg_bio).left;
 	giDmgWidth = gHUD.GetSpriteRect(m_HUD_dmg_bio).bottom - gHUD.GetSpriteRect(m_HUD_dmg_bio).top;
-
-	HeadcrabCount = 0;
 
 	return true;
 }
@@ -152,13 +146,6 @@ bool CHudHealth::MsgFunc_Damage(const char* pszName, int iSize, void* pbuf)
 	if (damageTaken > 0 || armor > 0)
 		CalcDamageDirection(vecFrom);
 
-	return true;
-}
-
-bool CHudHealth::MsgFunc_Headcrab(const char* pszName, int iSize, void* pbuf)
-{
-	BEGIN_READ(pbuf, iSize);
-	HeadcrabCount = READ_BYTE();
 	return true;
 }
 

@@ -401,10 +401,6 @@ public:
 		m_pRope = pRope;
 	}
 
-	// TO-DO: cut this
-	int BabyHeadcrabCount;
-	float BabyHeadcrabDelay;
-
 	// Post-Human
 	int CrowbarFlinch;
 	float FlashingHUDDelay;

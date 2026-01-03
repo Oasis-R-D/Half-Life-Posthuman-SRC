@@ -67,7 +67,6 @@ void LinkUserMessages()
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3);
 
 	gmsgWeapons = REG_USER_MSG("Weapons", 8);
-	gmsgHeadcrab = REG_USER_MSG("Headcrab", -1);
 
 	gmsgFlashHUD = REG_USER_MSG("FlashHUD", -1);
 	gmsgHunger = REG_USER_MSG("Hunger", -1);

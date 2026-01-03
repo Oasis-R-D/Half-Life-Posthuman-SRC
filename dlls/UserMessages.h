@@ -56,7 +56,6 @@ inline int gmsgStatusText = 0;
 inline int gmsgStatusValue = 0;
 
 inline int gmsgWeapons = 0;
-inline int gmsgHeadcrab = 0;
 
 inline int gmsgFlashHUD = 0;
 inline int gmsgHunger = 0;

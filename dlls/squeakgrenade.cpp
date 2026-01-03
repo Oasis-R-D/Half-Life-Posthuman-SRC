@@ -536,7 +536,6 @@ void CSqueak::PrimaryAttack()
 
 			m_flNextPrimaryAttack = GetNextAttackDelay(0.3);
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
-			m_pPlayer->BabyHeadcrabCount--;
 		}
 	}
 }
@@ -589,9 +588,6 @@ void CSqueak::WeaponIdle()
 
 void CSqueak::ItemPostFrame()
 {
-	if (m_iId == WEAPON_SNARK)
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = m_pPlayer->BabyHeadcrabCount;
-
 	CBasePlayerWeapon::ItemPostFrame();
 }
 

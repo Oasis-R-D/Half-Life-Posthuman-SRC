@@ -56,7 +56,6 @@ public:
 
 	bool MsgFunc_Health(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_Damage(const char* pszName, int iSize, void* pbuf);
-	bool MsgFunc_Headcrab(const char* pszName, int iSize, void* pbuf);
 
 	int m_iHealth;
 	int m_HUD_dmg_bio;
@@ -65,7 +64,6 @@ public:
 	int m_HUD_healthtext;
 	float m_fAttackFront, m_fAttackRear, m_fAttackLeft, m_fAttackRight;
 	float m_fFade;
-	int HeadcrabCount;
 
 private:
 	HSPRITE_GOLDSRC  m_hHealthtext;

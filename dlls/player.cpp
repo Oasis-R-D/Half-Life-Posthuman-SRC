@@ -123,8 +123,6 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_flLastClimbTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bIsClimbing, FIELD_BOOLEAN),
 
-		DEFINE_FIELD(CBasePlayer, BabyHeadcrabCount, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, BabyHeadcrabDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bleedtime, FIELD_TIME),
@@ -4806,15 +4804,6 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashHUD, NULL, pev);
 		WRITE_BYTE(0);
 		MESSAGE_END();
-	}
-
-	if (BabyHeadcrabCount < 10 && BabyHeadcrabDelay < gpGlobals->time && HasNamedPlayerItem("weapon_snark") && !m_bPrehuman)
-	{
-		BabyHeadcrabCount += 3;
-		if (BabyHeadcrabCount > 10)
-			BabyHeadcrabCount = 10;
-		BabyHeadcrabDelay = gpGlobals->time + 5;
-		GiveNamedItem("weapon_snark");
 	}
 
 	const bool fullHUDInitRequired = m_fInitHUD != false;
