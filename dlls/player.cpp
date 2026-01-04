@@ -1029,23 +1029,22 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-	// add FFADE_PERMANENT so they don't get removed after a while
 	if (0 == m_rgItems[ITEM_ANTIDOTE])
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
 			if (!g_pGameRules->IsMultiplayer())
-				UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT);
+				UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT | FFADE_STAYOUT);
 		}
 		else
 		{
 			if (!g_pGameRules->IsMultiplayer())
-				UTIL_ScreenFade(this, Vector(48, 0, 0), 0.001f, 0, 255, FFADE_OUT);
+				UTIL_ScreenFade(this, Vector(48, 0, 0), 0.001f, 0, 255, FFADE_OUT | FFADE_STAYOUT);
 		}
 	}
 	else
 	{
-		UTIL_ScreenFade(this, Vector(0, 0, 0), 1.0f, 0, 255, FFADE_OUT);
+		UTIL_ScreenFade(this, Vector(0, 0, 0), 1.0f, 0, 255, FFADE_OUT | FFADE_STAYOUT);
 	}
 	pev->maxspeed = 350;
 	m_bleedAMNT = 0;

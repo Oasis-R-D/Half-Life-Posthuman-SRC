@@ -920,6 +920,7 @@ bool CHudAmmo::Draw(float flTime)
 
 
 	int iFlags = DHN_DRAWZERO; // draw 0 values
+	int iFlagsSM = DHN_DRAWZERO_SM; // draw 0 values
 
 	AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
 
@@ -996,7 +997,9 @@ bool CHudAmmo::Draw(float flTime)
 
 			// GL Seems to need this
 			ScaleColors(r, g, b, a);
-			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlags | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlagsSM | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+			if (gWR.CountAmmo(pw->iAmmoType) == 0)
+				x += (0.5 * fontsize);
 		}
 		else
 		{
@@ -1032,7 +1035,7 @@ bool CHudAmmo::Draw(float flTime)
 		{
 			y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
 			x = ScreenWidth - 3 * AmmoWidth;
-			x = gHUD.DrawHudNumberSm(x, y, iFlags | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
+			x = gHUD.DrawHudNumberSm(x, y, iFlagsSM | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
 			SPR_Set(m_hDigitsBG1, r, g, b );
 			SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
 			SPR_Set(m_hDigitsBG2, r, g, b );
