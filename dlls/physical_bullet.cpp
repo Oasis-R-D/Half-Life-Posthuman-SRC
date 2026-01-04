@@ -31,6 +31,7 @@
 * 12G MV: 5750 // REALISM: 14.4-19.2k
 * 44M MV: 6000 // REALISM: 14.4-21.6k
 * RUB MV: ???? // REALISM: 4k
+* NOTE: The game MOST DEFINITELY cannot handle realistic muzzle velocities. // TO-DO: Verify ^
 * NOTE: Realism values calculated by multiplying FPS by 12 (IPS) (assuming Inches = HU)
 */
 
@@ -173,7 +174,7 @@ void CPhysbullet::Spawn()
 	if (m_bsubsonic)
 		pev->renderamt = 5;
 	else if (pev->renderamt != 0)
-		pev->renderamt = g_iSkillLevel == SKILL_HARD ? 225 : 150;
+		pev->renderamt = 150;
 
 	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 

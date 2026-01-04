@@ -180,7 +180,7 @@ void CM249::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 36000, vecSrc, vecAiming, vecSpread * 0.75, vecSpread * 0.75, 1, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, vecSpread * 0.75, vecSpread * 0.75, 1, 556, m_pPlayer->edict());
 	}
 	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));

@@ -802,17 +802,17 @@ bool CBaseEntity::IsInWorld()
 	// speed
 	if (IsBullet()) // bullets are exempt
 	{
-		if (pev->velocity.x >= 40256)
+		if (pev->velocity.x >= 32768)
 			return false;
-		if (pev->velocity.y >= 40256)
+		if (pev->velocity.y >= 32768)
 			return false;
-		if (pev->velocity.z >= 40256)
+		if (pev->velocity.z >= 32768)
 			return false;
-		if (pev->velocity.x <= -40256)
+		if (pev->velocity.x <= -32768)
 			return false;
-		if (pev->velocity.y <= -40256)
+		if (pev->velocity.y <= -32768)
 			return false;
-		if (pev->velocity.z <= -40256)
+		if (pev->velocity.z <= -32768)
 			return false;
 	}
 	else
