@@ -223,7 +223,7 @@ void CHAssassin::Shoot()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 22, 14860, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
+		CPhysbullet::BulletCreate(1, 22, 5250, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
 	}
 #endif
 	switch (RANDOM_LONG(0, 1))

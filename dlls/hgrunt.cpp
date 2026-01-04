@@ -738,7 +738,7 @@ void CHGrunt::Shoot()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 25, 11700, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 1, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 1, 9, edict());
 	}
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
@@ -774,7 +774,7 @@ void CHGrunt::ShootM727()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 35600, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 1, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 1, 556, edict());
 	}
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;
@@ -807,7 +807,7 @@ void CHGrunt::Shotgun()
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
-		CPhysbullet::BulletCreate(9, 11, 15900, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
+		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 	}
 #endif
 	pev->effects |= EF_MUZZLEFLASH;
@@ -842,7 +842,7 @@ void CHGrunt::M249()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 36000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 1, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 1, 556, edict());
 	}
 	#endif
 	pev->effects |= EF_MUZZLEFLASH;

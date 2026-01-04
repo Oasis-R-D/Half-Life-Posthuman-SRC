@@ -368,7 +368,7 @@ void CBarney::BarneyFirePistol()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 14760, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
+			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
 		}
 		#endif
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
