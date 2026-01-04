@@ -800,36 +800,19 @@ bool CBaseEntity::IsInWorld()
 	if (pev->origin.z <= -8192)
 		return false;
 	// speed
-	if (IsBullet()) // bullets are exempt
-	{
-		if (pev->velocity.x >= 32768)
-			return false;
-		if (pev->velocity.y >= 32768)
-			return false;
-		if (pev->velocity.z >= 32768)
-			return false;
-		if (pev->velocity.x <= -32768)
-			return false;
-		if (pev->velocity.y <= -32768)
-			return false;
-		if (pev->velocity.z <= -32768)
-			return false;
-	}
-	else
-	{
-		if (pev->velocity.x >= 8192)
-			return false;
-		if (pev->velocity.y >= 8192)
-			return false;
-		if (pev->velocity.z >= 8192)
-			return false;
-		if (pev->velocity.x <= -8192)
-			return false;
-		if (pev->velocity.y <= -8192)
-			return false;
-		if (pev->velocity.z <= -8192)
-			return false;
-	}
+	if (pev->velocity.x >= 8192)
+		return false;
+	if (pev->velocity.y >= 8192)
+		return false;
+	if (pev->velocity.z >= 8192)
+		return false;
+	if (pev->velocity.x <= -8192)
+		return false;
+	if (pev->velocity.y <= -8192)
+		return false;
+	if (pev->velocity.z <= -8192)
+		return false;
+
 	return true;
 }
 
