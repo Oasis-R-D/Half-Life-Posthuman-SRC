@@ -227,7 +227,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		{
 			if (m_isilenced == 0)
 			{
-			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
+				// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 
 				CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 			}
@@ -243,12 +243,12 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 			if (m_isilenced == 0)
 			{
 			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
-				CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+				CPhysbullet::BulletCreate(1, 25, 14760, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 			}
 			else
 			{
 				// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
-				CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+				CPhysbullet::BulletCreate(1, 26, 14860, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 			}
 		}
 	}
@@ -257,6 +257,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
+
 	if (m_isilenced == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);

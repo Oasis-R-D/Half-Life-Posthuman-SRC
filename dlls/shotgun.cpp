@@ -148,7 +148,7 @@ void CShotgun::PrimaryAttack()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
+			CPhysbullet::BulletCreate(9, 11, 15900, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
 		}
 	}
 	else
