@@ -623,7 +623,7 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 36000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
 	}
 	#endif
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
@@ -641,7 +641,7 @@ void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 11700, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	}
 	#endif
 	switch (RANDOM_LONG(0, 2))
@@ -1239,7 +1239,7 @@ void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 11700, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	}
 	#endif
 	switch (RANDOM_LONG(0, 2))

@@ -197,7 +197,7 @@ void CMP5::PrimaryAttack()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 11760, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 25, 11700, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 		}
 	}
 	else
@@ -634,7 +634,7 @@ void CM727::PrimaryAttack()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 34, 35640, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 1, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 34, 35600, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 1, 556, m_pPlayer->edict());
 		}
 	}
 	else

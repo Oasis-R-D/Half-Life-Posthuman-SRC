@@ -807,7 +807,7 @@ void CMOFAssassin::Shoot()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
+			CPhysbullet::BulletCreate(1, 25, 11700, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
 		}
 		#endif
 	}
@@ -821,7 +821,7 @@ void CMOFAssassin::Shoot()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 45, 6500, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
+			CPhysbullet::BulletCreate(1, 45, 30600, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
 		}
 #endif
 	}
