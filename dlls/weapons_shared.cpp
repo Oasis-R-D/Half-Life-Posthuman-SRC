@@ -341,7 +341,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			time = 2; // doesn't matter
 			break;
 		case 5: // BRICK
-			time = 2 // doesn't matter
+			time = 2; // doesn't matter
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);
