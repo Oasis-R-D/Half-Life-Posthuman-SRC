@@ -850,7 +850,7 @@ int CGrenade::ShouldCollide(CBaseEntity* pentTouched)
 // WE'RE DONE WHEN I SAY WE'RE DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class CGrenadePickup : public CBaseButton
 {
-	int m_iTracerType = 0;
+	int m_iPickUpType = 0;
 	int m_iAmnt = 3;
 	void Spawn() override
 	{
@@ -860,7 +860,7 @@ class CGrenadePickup : public CBaseButton
 		ASSERT((3 - m_iAmnt) >= 0);
 		
 		//SetBodygroup(1, 3 - m_iAmnt);
-		//SetBodygroup(0, m_iTracerType);
+		//SetBodygroup(0, m_iPickUpType);
 
 		// Set up BBox and origin
 		pev->solid = SOLID_BBOX;
@@ -885,7 +885,7 @@ class CGrenadePickup : public CBaseButton
 	{
 		if (FStrEq(pkvd->szKeyName, "grentype"))
 		{
-			m_iTracerType = atoi(pkvd->szValue); // choices (0-5)
+			m_iPickUpType = atoi(pkvd->szValue); // choices (0-5)
 			return true;
 		}
 		else if (FStrEq(pkvd->szKeyName, "amount")) // (3-1)
@@ -906,7 +906,7 @@ class CGrenadePickup : public CBaseButton
 			if (player->m_iGrenadeAmnt == 0) // if player has no grenades to exchange, remove this
 			{
 				player->m_iGrenadeAmnt = m_iAmnt;
-				player->m_iGrenadeType = m_iTracerType;
+				player->m_iGrenadeType = m_iPickUpType;
 				MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, player->pev);
 				WRITE_BYTE(player->m_iGrenadeType);
 				WRITE_BYTE(player->m_iGrenadeAmnt);
@@ -916,20 +916,20 @@ class CGrenadePickup : public CBaseButton
 			}
 				
 
-			if (m_iTracerType != player->m_iGrenadeType)
+			if (m_iPickUpType != player->m_iGrenadeType)
 			{
 				iPlayerGrenType = player->m_iGrenadeType;
 				iPlayerGrenAmnt = player->m_iGrenadeAmnt;
 
 				player->m_iGrenadeAmnt = m_iAmnt; // exchanges player grenades with pickups amnt and type
-				player->m_iGrenadeType = m_iTracerType;
+				player->m_iGrenadeType = m_iPickUpType;
 
-				m_iTracerType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
+				m_iPickUpType = iPlayerGrenType; // exchanges pickup grenades with players amnt and type
 				m_iAmnt = iPlayerGrenAmnt;
 				ALERT(at_console, "Player grenades: %i\n", player->m_iGrenadeAmnt);
 				ALERT(at_console, "Pickup grenades: %i\n", m_iAmnt);
 				ALERT(at_console, "Player type: %i\n", player->m_iGrenadeType);
-				ALERT(at_console, "Pickup type: %i\n", m_iTracerType);
+				ALERT(at_console, "Pickup type: %i\n", m_iPickUpType);
 			}
 			else
 			{
@@ -950,7 +950,7 @@ class CGrenadePickup : public CBaseButton
 
 			ASSERT((3 - m_iAmnt) >= 0);
 			//SetBodygroup(1, 3 - m_iAmnt);
-			//SetBodygroup(0, m_iTracerType);
+			//SetBodygroup(0, m_iPickUpType);
 		}
 	}
 };
