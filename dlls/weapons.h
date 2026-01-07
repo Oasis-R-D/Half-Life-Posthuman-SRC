@@ -77,9 +77,8 @@ public:
 	bool m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
 	bool m_bHasExploded = false;
 	int m_iGrenType; // type of grenade thrown
-	int wireamnt;
-	float nextwire;
-	CSprite* m_pSprite;
+	bool m_bNotExploding = false;
+	//CSprite* m_pSprite; might use later
 
 };
 

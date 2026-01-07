@@ -713,6 +713,12 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			SET_MODEL(ENT(pGrenade->pev), "models/w_sgrenade.mdl");
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
+		case 5: // B R I C K
+			SET_MODEL(ENT(pGrenade->pev), "models/w_sgrenade.mdl");
+			pGrenade->SetThink(&CGrenade::TumbleThink);
+			pGrenade->m_bNotExploding = true;
+			pGrenade->pev->friction = 1;
+			break;	
 	}
 
 	pGrenade->m_iGrenType = type;
