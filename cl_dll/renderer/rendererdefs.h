@@ -228,7 +228,8 @@ struct particle_system_t
 	unsigned short framevar5;
 	unsigned short numvarframes5;
 	int variants; // easier than checking which ones are defined
-
+	int selected_variant;
+	bool framevarhandled = false;
 	char create[64];
 	char deathcreate[64];
 	char watercreate[64];

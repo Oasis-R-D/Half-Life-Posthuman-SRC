@@ -1951,28 +1951,35 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			VectorCopy(pParticle->origin, pParticle->lastspawn);
 		}
 	}
-	// to-do: all code below probably needs updated for the new variants
-	//
+
+	// to-do: check if the issue is the randomness (this runs every frame after all)
+	// to-do: variation needs to be per particle not per system
 	// Calculate texcoords
-	//
 	if (pSystem->numframes)
 	{
 		// Get desired frame
 		
 		int iFrame = ((int)((flTime - pParticle->spawntime) * pSystem->framerate));
-		if (pSystem->variants == 0) // if it's defined will randomize between startframe and framevar1 (ifndef the others)
+		if (pSystem->variants == 0)
 		{
 			iFrame = (iFrame % pSystem->numframes) + pSystem->startframe;
 			if (iFrame > pSystem->numframes)
 				iFrame = pSystem->numframes;
 		}
-		else
+		else // Has variance
 		{
 			unsigned short varstartingframe;
 			unsigned short varnumframe;
 
-			switch (gEngfuncs.pfnRandomLong(0, pSystem->variants))
+			if (!pSystem->framevarhandled) // TO-DO: make per particle
 			{
+				pSystem->selected_variant = gEngfuncs.pfnRandomLong(0, pSystem->variants);
+				pSystem->framevarhandled = true;
+			}
+
+			switch (pSystem->selected_variant)
+			{
+				default:
 				case 0:
 					varnumframe = pSystem->numframes;
 					varstartingframe = pSystem->startframe;
@@ -1998,10 +2005,12 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					varstartingframe = pSystem->framevar5;
 					break;
 			}
+
 			iFrame = (iFrame % varnumframe) + varstartingframe;
 			if (iFrame > varnumframe)
 				iFrame = varnumframe;
 		}
+
 		// Check if we actually have to set the frame
 		if (iFrame != pParticle->frame)
 		{
@@ -2253,7 +2262,6 @@ void CParticleEngine::DrawParticles()
 		cl_particle_t* pparticle = psystem->particleheader;
 		while (pparticle)
 		{
-
 			GetParticleQuad(pparticle, flUp, flRight, quadlist);
 			cl_particle_t* pnext = pparticle->next;
 			pparticle = pnext;
@@ -2319,21 +2327,21 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 			currendermode = batch.first.second;
 			switch (batch.first.second)
 			{
-			case SYSTEM_RENDERMODE_ADDITIVE:
-			{
-				g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				break;
-			}
-			case SYSTEM_RENDERMODE_ALPHABLEND:
-			{
-				g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
-				break;
-			}
-			default:
-			{
-				g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			}
+				case SYSTEM_RENDERMODE_ADDITIVE:
+				{
+					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					break;
+				}
+				case SYSTEM_RENDERMODE_ALPHABLEND:
+				{
+					g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
+					break;
+				}
+				default:
+				{
+					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				}
 			}
 		}
 
