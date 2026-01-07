@@ -411,7 +411,19 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 {
 	// don't hit the guy that launched this grenade
 	if (pOther->edict() == pev->owner)
+	{
+		if (m_iGrenType == 5 && pev->velocity.Length() < 50 && pOther->IsPlayer())
+		{
+			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pOther);
+			if (pPlayer->m_iGrenadeType == m_iGrenType && pPlayer->m_iGrenadeAmnt < 3)
+			{
+				pPlayer->m_iGrenadeAmnt += 1;
+				UTIL_Remove(this);
+			}	
+		}
+		
 		return;
+	}
 
 	// only do damage if we're moving fairly fast
 	if (m_flNextAttack < gpGlobals->time && pev->velocity.Length() > 50)
@@ -437,7 +449,7 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 	vecTestVelocity = pev->velocity;
 	vecTestVelocity.z *= 0.45;
 
-	if (!m_fRegisteredSound && vecTestVelocity.Length() <= 60)
+	if (!m_fRegisteredSound && vecTestVelocity.Length() <= 60 && m_bNotExploding == false)
 	{
 		//ALERT( at_console, "Grenade Registered!: %f\n", vecTestVelocity.Length() );
 
@@ -499,15 +511,15 @@ void CGrenade::BounceSound()
 {
 	switch (RANDOM_LONG(0, 2))
 	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit1.wav", 0.25, ATTN_NORM);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit2.wav", 0.25, ATTN_NORM);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit3.wav", 0.25, ATTN_NORM);
-		break;
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit1.wav", 0.25, ATTN_NORM);
+			break;
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit2.wav", 0.25, ATTN_NORM);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit3.wav", 0.25, ATTN_NORM);
+			break;
 	}
 }
 void CGrenade::CallDetonate()
@@ -518,6 +530,7 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::Detonate);
 			break;
 		case 1: // Impact (shouldn't be called)
+			ALERT(at_warning, "Impact Grenade calling CGrenade::CallDetonate()!")
 			break;
 		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
@@ -527,6 +540,9 @@ void CGrenade::CallDetonate()
 			break;
 		case 4: // Smoke
 			SetThink(&CGrenade::SmokeSpray);
+			break;
+		case 5: // Brick
+			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!")
 			break;
 	}
 
@@ -543,12 +559,12 @@ void CGrenade::TumbleThink()
 	StudioFrameAdvance();
 	pev->nextthink = gpGlobals->time + 0.1;
 
-	if (pev->dmgtime - 1 < gpGlobals->time)
+	if (pev->dmgtime - 1 < gpGlobals->time && m_bNotExploding == false)
 	{
 		CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin + pev->velocity * (pev->dmgtime - gpGlobals->time), 400, 0.1);
 	}
 
-	if (pev->dmgtime <= gpGlobals->time)
+	if (pev->dmgtime <= gpGlobals->time && m_bNotExploding == false)
 	{
 		CallDetonate();
 	}
@@ -718,6 +734,10 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			pGrenade->m_bNotExploding = true;
 			pGrenade->pev->friction = 1;
+			for (int i; i < 3; i++)
+			{
+				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
+			}
 			break;	
 	}
 
