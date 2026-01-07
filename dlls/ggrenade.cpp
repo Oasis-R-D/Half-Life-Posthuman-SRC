@@ -885,10 +885,10 @@ class CGrenadePickup : public CBaseButton
 	{
 		if (FStrEq(pkvd->szKeyName, "grentype"))
 		{
-			m_iTracerType = atoi(pkvd->szValue); // choices (0 and 1 rn)
+			m_iTracerType = atoi(pkvd->szValue); // choices (0-5)
 			return true;
 		}
-		else if (FStrEq(pkvd->szKeyName, "amount")) // value between max grenades and 1
+		else if (FStrEq(pkvd->szKeyName, "amount")) // (3-1)
 		{
 			m_iAmnt = (atoi(pkvd->szValue));
 			return true;
