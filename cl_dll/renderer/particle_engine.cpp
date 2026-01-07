@@ -170,6 +170,7 @@ void R_InitParticleTexture(GLuint &particle_id)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// 										^^ is this filtering?
 }
 
 /*
@@ -1053,7 +1054,7 @@ EnvironmentCreateFirst
 
 ====================
 */
-void CParticleEngine::EnvironmentCreateFirst(particle_system_t* pSystem)
+void CParticleEngine::EnvironmentCreateFirst(particle_system_t* pSystem) // TO-DO: seems to have been broken somehow (all spawn slightly above ground [SLIGHTLY])
 {
 	Vector vOrigin;
 	int iNumParticles = pSystem->particlefreq * 4;
@@ -1786,7 +1787,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_DECAL)
 			{
-				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create);
+				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0); // TO-DO: add wad decal, angle and custom radius
 				return false;
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_NEW_SYSTEM)
