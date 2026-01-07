@@ -530,7 +530,7 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::Detonate);
 			break;
 		case 1: // Impact (shouldn't be called)
-			ALERT(at_warning, "Impact Grenade calling CGrenade::CallDetonate()!")
+			ALERT(at_warning, "Impact Grenade calling CGrenade::CallDetonate()!");
 			break;
 		case 2: // Flashbang
 			SetThink(&CGrenade::DetonateFlash);
@@ -542,7 +542,7 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::SmokeSpray);
 			break;
 		case 5: // Brick
-			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!")
+			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!");
 			break;
 	}
 
