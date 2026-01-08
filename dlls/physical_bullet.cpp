@@ -48,14 +48,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			pBullet->m_muzzlevelocity = BLLTSpeed;
-		}
-		else
-		{
-			pBullet->m_muzzlevelocity = BLLTSpeed * 1.25f;
-		}
+		pBullet->m_muzzlevelocity = (g_iSkillLevel != SKILL_HARD) ? BLLTSpeed : BLLTSpeed * 1.25f;
 		pBullet->m_BulletDamage = BLLTDamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_direction = vecDir;
@@ -66,16 +59,23 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
-		if (shooter != nullptr)
-			pBullet->Owner = shooter;
-		else
-			pBullet->Owner = pBullet->edict();
+		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
 		pBullet->pev->owner = NULL;
 
 		pBullet->Spawn();
 		
 	}
 }
+
+const char* CPhysbullet::pNearMissSounds[] =
+	{
+		"weapons/nearmiss1.wav",
+		"weapons/nearmiss2.wav",
+		"weapons/nearmiss3.wav",
+		"weapons/nearmiss4.wav",
+		"weapons/nearmiss5.wav",
+		"weapons/nearmiss6.wav",
+};
 
 void CPhysbullet::Spawn()
 {
@@ -207,14 +207,11 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_357magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_44magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
-	PRECACHE_SOUND("weapons/nearmiss1.wav");
-	PRECACHE_SOUND("weapons/nearmiss2.wav");
-	PRECACHE_SOUND("weapons/nearmiss3.wav");
-	PRECACHE_SOUND("weapons/nearmiss4.wav");
-	PRECACHE_SOUND("weapons/nearmiss5.wav");
-	PRECACHE_SOUND("weapons/nearmiss6.wav");
 	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
 	
+	PRECACHE_SOUND_ARRAY(pNearMissSounds);
+
+	PRECACHE_SOUND("bullet/imp_metal01.wav")
 }
 
 
@@ -296,6 +293,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// Damage
 				ClearMultiDamage();
 				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(pev, owner->pev);
+				
 				/*
 				if (pOther->BloodColor() != DONT_BLEED && !g_pGameRules->IsMultiplayer())
 				{
@@ -304,13 +303,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 					BLDAMNT = round(m_BulletDamage / 2);
 					SpawnBlood(vecOrigin, pOther->BloodColor(), m_BulletDamage/2); // a little surface blood.
 					TraceBleed(m_BulletDamage/2, -m_direction, &beam_tr, DMG_BULLET);
-
 				}
 				*/
-				ApplyMultiDamage(pev, owner->pev);
+
+				
 
 				// VFX
-				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal 12 - mm is the heavy decal
+				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
 				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
 				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
 
@@ -385,9 +384,10 @@ void CPhysbullet::AirThink()
 			{
 				if (Owner != m_ent->edict()) // TO-DO: make m_haswizzed per player (or ignore, not too noticeable anyways)
 				{
-					char dripsnd[256];
-					sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
-					EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
+					//char dripsnd[256];
+					//sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
+					//EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
+					EMIT_SOUND_DYN(edict(), CHAN_AUTO, RANDOM_SOUND_ARRAY(pNearMissSounds), 1.0, 1, 0, 100 + RANDOM_LONG(-5, 5));
 					m_haswizzed = true;
 				}
 			}

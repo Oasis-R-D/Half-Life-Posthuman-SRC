@@ -28,6 +28,8 @@ public:
 	bool IsBullet() override { return true; }
 	int Classify() override;
 	
+	static const char* pNearMissSounds[];
+
 	edict_t* Owner;
 
 	int m_Flare;

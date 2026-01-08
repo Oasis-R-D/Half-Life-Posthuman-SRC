@@ -1879,7 +1879,7 @@ void EV_Particles(event_args_t* args)
 	int idx;
 	idx = args->entindex;
 
-	switch (args->iparam1)
+	switch (args->iparam1) // particle type
 	{
 		case 0: // muzzle smoke
 			if (EV_IsLocal(idx))
