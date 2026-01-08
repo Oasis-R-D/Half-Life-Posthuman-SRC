@@ -394,7 +394,7 @@ void CGrenade::LandmineHopThink() // should probably remove this?
 	SetThink(&CGrenade::Detonate);
 }
 
-void CGrenade::SmokeSpray()
+void CGrenade::ExplSpray()
 {
 	if (m_iGrenType == 4) // Smoke
 	{
@@ -420,7 +420,8 @@ void CGrenade::SmokeSpray()
 				m_bGeneralBool = true;
 
 			int brightness_offset = RANDOM_LONG(-4, 4);
-			MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin); // To-do: make flicker
+
+			MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
 			WRITE_COORD(pev->origin.x);
 			WRITE_COORD(pev->origin.y);
 			WRITE_COORD(pev->origin.z + 2);
@@ -579,13 +580,13 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::Detonate);
 			break;
 		case 4: // Smoke
-			SetThink(&CGrenade::SmokeSpray);
+			SetThink(&CGrenade::ExplSpray);
 			break;
 		case 5: // Brick (shouldn't be called)
 			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!");
 			break;
 		case 6: // Signal flare?
-			SetThink(&CGrenade::SmokeSpray);
+			SetThink(&CGrenade::ExplSpray);
 			break;
 	}
 
