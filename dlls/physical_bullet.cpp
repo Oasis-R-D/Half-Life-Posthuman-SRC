@@ -211,7 +211,7 @@ void CPhysbullet::Precache()
 	
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 
-	PRECACHE_SOUND("bullet/imp_metal01.wav")
+	PRECACHE_SOUND("bullet/imp_metal01.wav");
 }
 
 
@@ -311,7 +311,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// VFX
 				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
 				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
-				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
+				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_12MM);
 
 				// Remove original bullet
 				UTIL_Remove(this);
