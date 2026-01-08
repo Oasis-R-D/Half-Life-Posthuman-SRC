@@ -274,7 +274,6 @@ void W_Precache()
 	// grenades
 	PRECACHE_MODEL("models/w_grenade.mdl"); // HE
 	PRECACHE_MODEL("models/grenade.mdl"); // IMPACT/M203
-	PRECACHE_MODEL("models/w_hopwire.mdl"); // null
 	PRECACHE_MODEL("models/w_fgrenade.mdl"); // FLASHBANG
 	PRECACHE_MODEL("models/w_landmine.mdl"); // LANDMINE
 	PRECACHE_MODEL("models/v_ohgrenade.mdl"); // Throw VM
@@ -377,7 +376,7 @@ void W_Precache()
 	PRECACHE_SOUND("weapons/bullet_hit2.wav"); // hit by bullet
 
 	PRECACHE_SOUND("items/weapondrop1.wav"); // weapon falls to the ground
-	PRECACHE_SOUND("fvox/Lowammo1.wav");
+	PRECACHE_SOUND("fvox/Lowammo1.wav"); // TO-DO: Move to ammo hud?
 	PRECACHE_SOUND("fvox/Lowammo2.wav");
 	PRECACHE_SOUND("fvox/Lowammo3.wav");
 }
@@ -432,7 +431,7 @@ void CBasePlayerItem::SetObjectCollisionBox()
 //=========================================================
 void CBasePlayerItem::FallInit()
 {
-// PS2HL - advanced weapon positioning from PS2 version
+	// PS2HL - advanced weapon positioning from PS2 version
 	if (pev->spawnflags & 1)
 	{
 		pev->movetype = MOVETYPE_NONE;
@@ -446,7 +445,7 @@ void CBasePlayerItem::FallInit()
 	pev->solid = SOLID_BBOX;
 
 	UTIL_SetOrigin( pev, pev->origin );
-	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0) );//pointsize until it lands on the ground.
+	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0) );	//pointsize until it lands on the ground.
 	
 	SetTouch( &CBasePlayerItem::DefaultTouch );
 	SetThink( &CBasePlayerItem::FallThink );
@@ -471,7 +470,7 @@ void CBasePlayerItem::FallThink()
 		// don't clatter if the gun is waiting to respawn (if it's waiting, it is invisible!)
 		if (!FNullEnt(pev->owner))
 		{
-			int pitch = 95 + RANDOM_LONG(0, 29);
+			int pitch = 95 + RANDOM_LONG(-5, 29);
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "items/weapondrop1.wav", 1, ATTN_NORM, 0, pitch);
 		}
 
@@ -501,8 +500,8 @@ void CBasePlayerItem::Materialize()
 	}
 
 	pev->solid = SOLID_TRIGGER;
-
 	UTIL_SetOrigin(pev, pev->origin); // link into world.
+
 	SetTouch(&CBasePlayerItem::DefaultTouch);
 	SetThink(NULL);
 }

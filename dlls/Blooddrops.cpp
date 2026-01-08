@@ -23,7 +23,6 @@
 #include "UserMessages.h"
 #include "Blooddrops.h"
 #include "decals.h"
-#include "hgrunt.h" //.h...grunt file :D
 #ifndef CLIENT_DLL
 
 // UNDONE: Save/restore this?
@@ -231,8 +230,10 @@ void CPhysblood::AirThink()
 			}
 		}
 	}
+
 	if (pev->waterlevel == 0)
 		return;
+	
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
