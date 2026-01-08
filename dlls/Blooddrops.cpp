@@ -206,7 +206,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
- 	UTIL_remove(this);
+	UTIL_Remove(this);
 }
 
 void CPhysblood::AirThink()
