@@ -18,7 +18,6 @@ public:
 	void Precache() override;
 	int Classify() override;
 	int ShouldCollide(CBaseEntity* pentTouched) override;
-	void Stay();
 	void EXPORT AirThink();
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 	static void BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib = false, float spread = RANDOM_FLOAT(CONE_60DEGREES, CONE_20DEGREES), bool speedRNG = true); // add damage, spread and owner so entities calling this can give it the proper stuff

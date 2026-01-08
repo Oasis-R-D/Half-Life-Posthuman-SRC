@@ -61,7 +61,6 @@ void CPhysblood::Spawn()
 {
 	Precache();
 	
-
 	switch (RANDOM_LONG(1, 3))
 	{
 	case 1:
@@ -75,7 +74,9 @@ void CPhysblood::Spawn()
 			m_opposite = 1;
 		break;
 	}
+
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
+
 	if (m_opposite == 1)
 	{
 		pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
@@ -98,10 +99,12 @@ void CPhysblood::Spawn()
 			pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
 		}
 	}
+
 	if (m_isgib == true)
 	{
 		pev->scale = RANDOM_FLOAT(0.30f, 0.40f);
 	}
+
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos);
@@ -144,6 +147,7 @@ void CPhysblood::Spawn()
 		pev->rendermode = kRenderTransAlpha;
 		pev->renderamt = 225;
 	}
+
 	pev->frame = RANDOM_LONG(0, 8);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	SetTouch(&CPhysblood::BoltTouch);
@@ -162,7 +166,6 @@ void CPhysblood::Precache()
 	PRECACHE_SOUND("common/drip_05.wav");
 	PRECACHE_SOUND("common/drip_06.wav");
 	PRECACHE_SOUND("common/drip_07.wav");
-	
 }
 
 
@@ -170,11 +173,7 @@ int CPhysblood::Classify()
 {
 	return CLASS_NONE;
 }
-void CPhysblood::Stay()
-{
-	SetThink(&CPhysblood::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
-}
+
 void CPhysblood::BoltTouch(CBaseEntity* pOther)
 {
 	SetTouch(NULL);
@@ -208,8 +207,7 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
-	Stay();
-
+ 	UTIL_remove(this);
 }
 
 void CPhysblood::AirThink()
@@ -233,7 +231,7 @@ void CPhysblood::AirThink()
 
 	if (pev->waterlevel == 0)
 		return;
-	
+
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
