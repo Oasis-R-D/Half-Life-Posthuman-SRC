@@ -272,14 +272,14 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_bullet");
 
 	// grenades
-	PRECACHE_MODEL("models/w_grenade.mdl");
-	PRECACHE_MODEL("models/grenade.mdl");
-	PRECACHE_MODEL("models/w_hopwire.mdl");
-	PRECACHE_MODEL("models/w_fgrenade.mdl");
-	PRECACHE_MODEL("models/w_landmine.mdl");
-	PRECACHE_MODEL("models/v_ohgrenade.mdl");
-	PRECACHE_MODEL("models/w_sgrenade.mdl");
-	PRECACHE_MODEL("models/cindergibs.mdl");
+	PRECACHE_MODEL("models/w_grenade.mdl"); // HE
+	PRECACHE_MODEL("models/grenade.mdl"); // IMPACT/M203
+	PRECACHE_MODEL("models/w_hopwire.mdl"); // null
+	PRECACHE_MODEL("models/w_fgrenade.mdl"); // FLASHBANG
+	PRECACHE_MODEL("models/w_landmine.mdl"); // LANDMINE
+	PRECACHE_MODEL("models/v_ohgrenade.mdl"); // Throw VM
+	PRECACHE_MODEL("models/w_sgrenade.mdl"); // SMOKE
+	PRECACHE_MODEL("models/cindergibs.mdl"); // BRICK placeholder
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
 	PRECACHE_SOUND("weapons/smokegrenade-1.wav");
