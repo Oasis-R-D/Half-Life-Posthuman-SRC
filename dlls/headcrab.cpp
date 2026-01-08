@@ -368,7 +368,7 @@ void CHeadCrab::LeapTouch(CBaseEntity* pOther)
 		else
 			realismdmg = 40;
 
-		if (!pOther->isPlayer())
+		if (!pOther->IsPlayer())
 			realismdmg = 40;
 
 		if (FClassnameIs(pev, "monster_headcrab_poison"))

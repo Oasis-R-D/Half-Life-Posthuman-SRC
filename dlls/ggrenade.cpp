@@ -411,25 +411,27 @@ void CGrenade::ExplSpray()
 	{	
 		if (!m_bGeneralBool)
 		{
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM); // make a 1 second looping sound
+			//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+			//EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM); // make a 1 second looping sound
 
-			pev->nextthink = 1;
-			m_iGeneralInt -= 1;
+			pev->nextthink = gpGlobals->time + 0.25;
+			m_iGeneralInt -= 0.25;
 			if (m_iGeneralInt == 0)
 				m_bGeneralBool = true;
 
 			int brightness_offset = RANDOM_LONG(-4, 4);
+			UTIL_MakeVectors(pev->angles);
+			Vector Origin = pev->origin + gpGlobals->v_up * 6;
 
 			MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
-			WRITE_COORD(pev->origin.x);
-			WRITE_COORD(pev->origin.y);
-			WRITE_COORD(pev->origin.z + 2);
-			WRITE_BYTE(20 + RANDOM_LONG(-1, 1)); // Radius/10
+			WRITE_COORD(Origin.x);
+			WRITE_COORD(Origin.y);
+			WRITE_COORD(Origin.z);
+			WRITE_BYTE(4); // Radius/64
 			WRITE_BYTE(128 + brightness_offset); // R
 			WRITE_BYTE(32 + brightness_offset); // G
 			WRITE_BYTE(32 + brightness_offset); // B
-			WRITE_LONG(1); // TIME
+			WRITE_FLOAT(0.26); // TIME
 			WRITE_BYTE(0); // Decay
 			MESSAGE_END();
 		}

@@ -5307,7 +5307,9 @@ int CBSPRenderer::MsgDynLight(const char* pszName, int iSize, void* pbuf)
 	dl->color.z = (float)READ_BYTE() / 255;
 	dl->die = READ_FLOAT() + engine_cl->time;
 	dl->decay = READ_BYTE() * 10;
+	//dl->attach = READ_SHORT(); // TO-DO: add attaching to ents
 	dl->flags |= LIGHT_CASTSHADOWS;
+	
 	return 1;
 }
 
