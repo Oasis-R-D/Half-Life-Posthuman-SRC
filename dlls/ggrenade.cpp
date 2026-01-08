@@ -780,7 +780,6 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 5: // B R I C K
-			ALERT(at_console, "FUCKFUCKFUCK");
 			UTIL_SetSize(pGrenade->pev, Vector(-8, -8, -8), Vector(8, 8, 8));
 			SET_MODEL(ENT(pGrenade->pev), "models/cindergibs.mdl");
 			pGrenade->pev->body = RANDOM_LONG(5, 7);

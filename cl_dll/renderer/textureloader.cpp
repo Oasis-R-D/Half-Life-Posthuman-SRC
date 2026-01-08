@@ -1065,7 +1065,6 @@ bool CTextureLoader::TextureHasFlag(const char* szModel, char* szTexture, int iF
 {
 	if (m_pTextureEntries.empty())
 	{
-		gEngfuncs.Con_Printf("fuck you\n");
 		return false;
 	}
 
