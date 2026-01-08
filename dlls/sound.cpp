@@ -1619,7 +1619,7 @@ void TEXTURETYPE_Init()
 // NOTE: this routine should ONLY be called if the
 // current texture under the player changes!
 
-char TEXTURETYPE_Find(char* name)
+char TEXTURETYPE_Find(char* name) // TO-DO: would probably be better to have a .TXT for every material type so that the max is higher
 {
 	// CONSIDER: pre-sort texture names and perform faster binary search here
 
@@ -1712,11 +1712,11 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		cnt = 2;
 		break;
 	case CHAR_TEX_METAL:
-		fvol = 0.9;
+		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 1.0 : 0.85;
 		fvolbar = 0.3;
-		rgsz[0] = "player/pl_metal1.wav";
-		rgsz[1] = "player/pl_metal2.wav";
-		cnt = 2;
+		rgsz[0] = "bullet/imp_metal01.wav";
+		cnt = 1;
+		fattn = 1.0;
 		break;
 	case CHAR_TEX_DIRT:
 		fvol = 0.9;
