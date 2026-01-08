@@ -23,7 +23,6 @@
 #include "UserMessages.h"
 #include "Blooddrops.h"
 #include "decals.h"
-#ifndef CLIENT_DLL
 
 // UNDONE: Save/restore this?
 
@@ -246,4 +245,3 @@ int CPhysblood::ShouldCollide(CBaseEntity* pentTouched)
 	else
 		return 0;
 }
-#endif
