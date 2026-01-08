@@ -793,7 +793,18 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			}
 			break;
 		case 6: // Signal flare?
-			m_iGeneralInt = 10;
+			pGrenade->m_iGeneralInt = 10;
+			SET_MODEL(ENT(pGrenade->pev), "models/w_landmine.mdl");
+			pGrenade->SetTouch(&CGrenade::SlideTouch);
+			pGrenade->SetThink(&CGrenade::TumbleThink);
+			// spin through the air
+			for (int i = 0; i < 3; i++)
+			{
+				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
+				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
+			}
+			pGrenade->pev->gravity = 0.75f;
+			pGrenade->pev->friction = 1;
 	}
 
 	pGrenade->m_iGrenType = type;
