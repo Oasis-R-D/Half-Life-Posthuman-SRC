@@ -358,19 +358,19 @@ void CHeadCrab::LeapTouch(CBaseEntity* pOther)
 	if (0 == pOther->pev->takedamage || pOther->Classify() == Classify())
 		return;
 
-	int realismdmg;
-	
-	if (RANDOM_LONG(0, 2) == 1)
-		realismdmg = 1000;
-	else
-		realismdmg = 40;
-
-	if (!pOther->isPlayer())
-		realismdmg = 40;
-
 	// Don't hit if back on ground
 	if (!FBitSet(pev->flags, FL_ONGROUND))
 	{
+		int realismdmg;
+
+		if (RANDOM_LONG(0, 2) == 1)
+			realismdmg = 1000;
+		else
+			realismdmg = 40;
+
+		if (!pOther->isPlayer())
+			realismdmg = 40;
+
 		if (FClassnameIs(pev, "monster_headcrab_poison"))
 		{
 			EMIT_SOUND_DYN(edict(), CHAN_WEAPON, UTIL_VarArgs("headcrab_poison/poisonbite%d.wav", RANDOM_LONG(1, 3)), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch());
@@ -382,6 +382,7 @@ void CHeadCrab::LeapTouch(CBaseEntity* pOther)
 			pOther->TakeDamage(pev, pev, (g_iSkillLevel != SKILL_HARD) ? GetDamageAmount() : realismdmg, DMG_SLASH | DMG_NEVERGIB);
 		}
 	}
+
 	SetTouch(NULL);
 }
 
