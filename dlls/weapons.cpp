@@ -279,6 +279,7 @@ void W_Precache()
 	PRECACHE_MODEL("models/w_landmine.mdl");
 	PRECACHE_MODEL("models/v_ohgrenade.mdl");
 	PRECACHE_MODEL("models/w_sgrenade.mdl");
+	PRECACHE_MODEL("models/cindergibs.mdl");
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
 	PRECACHE_SOUND("weapons/smokegrenade-1.wav");

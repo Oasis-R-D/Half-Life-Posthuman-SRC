@@ -29,10 +29,6 @@ void DeactivateSatchels(CBasePlayer* pOwner);
 // Contact Grenade / Timed grenade / Satchel Charge / flashbang / hopwire(maybe)
 class CGrenade : public CBaseMonster
 {
-#ifndef CLIENT_DLL
-	int ShouldCollide(CBaseEntity* pentTouched) override;	
-#endif
-	
 public:
 	void Spawn() override;
 	

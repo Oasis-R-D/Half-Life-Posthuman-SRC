@@ -409,24 +409,29 @@ void CGrenade::SmokeSpray()
 
 void CGrenade::BounceTouch(CBaseEntity* pOther)
 {
-	// don't hit the guy that launched this grenade
-	if (pOther->edict() == pev->owner)
+	if (pOther->IsPlayer() && m_iGrenType == 5 && pev->velocity.Length() < 10)
 	{
-		if (m_iGrenType == 5 && pev->velocity.Length() < 50 && pOther->IsPlayer())
+		ALERT(at_console, "hi");
+		CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pOther);
+		if (pPlayer->m_iGrenadeType == m_iGrenType && pPlayer->m_iGrenadeAmnt < 3)
 		{
-			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pOther);
-			if (pPlayer->m_iGrenadeType == m_iGrenType && pPlayer->m_iGrenadeAmnt < 3)
-			{
-				pPlayer->m_iGrenadeAmnt += 1;
-				UTIL_Remove(this);
-			}	
+			pPlayer->m_iGrenadeAmnt += 1;
+			MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pPlayer->pev);
+			WRITE_BYTE(pPlayer->m_iGrenadeType);
+			WRITE_BYTE(pPlayer->m_iGrenadeAmnt);
+			MESSAGE_END();
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+			UTIL_Remove(this);
+			return;
 		}
-		
-		return;
 	}
 
+	// don't hit the guy that launched this grenade
+	if (pOther->edict() == pev->owner)
+		return;
+
 	// only do damage if we're moving fairly fast
-	if (m_flNextAttack < gpGlobals->time && pev->velocity.Length() > 50)
+	if (m_flNextAttack < gpGlobals->time && pev->velocity.Length() >= 50)
 	{
 		entvars_t* pevOwner = VARS(pev->owner);
 		if (pevOwner)
@@ -435,6 +440,8 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 			ClearMultiDamage();
 			if (m_iGrenType != 5)
 				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
+			else
+				pOther->TraceAttack(pevOwner, 20, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
@@ -554,6 +561,12 @@ void CGrenade::TumbleThink()
 	{
 		UTIL_Remove(this);
 		return;
+	}
+
+	if (pev->velocity.Length() < 10 && m_iGrenType == 5)
+	{
+		pev->solid = SOLID_TRIGGER; // required to make brick retrieveable
+		UTIL_SetOrigin(pev, pev->origin);
 	}
 
 	StudioFrameAdvance();
@@ -730,13 +743,16 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 5: // B R I C K
-			SET_MODEL(ENT(pGrenade->pev), "models/w_sgrenade.mdl");
+			ALERT(at_console, "FUCKFUCKFUCK");
+			UTIL_SetSize(pGrenade->pev, Vector(-8, -8, -8), Vector(8, 8, 8));
+			SET_MODEL(ENT(pGrenade->pev), "models/cindergibs.mdl");
+			pGrenade->pev->body = RANDOM_LONG(5, 7);
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			pGrenade->m_bNotExploding = true;
-			pGrenade->pev->friction = 1;
-			for (int i; i < 3; i++)
+			for (int i = 0; i < 3; i++)
 			{
 				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
+				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
 			}
 			break;	
 	}
@@ -829,16 +845,6 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 		pentFind = FIND_ENTITY_BY_CLASSNAME(pentFind, "grenade");
 	}
 }
-
-#ifndef CLIENT_DLL
-int CGrenade::ShouldCollide(CBaseEntity* pentTouched)
-{
-	if (FClassnameIs(pentTouched->pev, "grenade"))
-		return 0;
-	else
-		return 1;
-}
-#endif
 //======================end grenade
 
 

@@ -333,6 +333,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 	pSystem->id = iId;
 	pSystem->mainalpha = 1;
 	pSystem->spawntime = engine_cl->time;
+	pSystem->framevarhandled = false;
 	VectorCopy(dir, pSystem->dir);
 
 	char* pToken = pFile;
@@ -495,35 +496,17 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 		else if (!strcmp(szField, "framerate"))
 			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframe"))
-		{
-			pSystem->variants = 0;
 			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevara"))
-		{
-			pSystem->variants = 1;
 			pSystem->framevar1 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevarb"))
-		{
-			pSystem->variants = 2;
 			pSystem->framevar2 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevarc"))
-		{
-			pSystem->variants = 3;
 			pSystem->framevar3 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevard"))
-		{
-			pSystem->variants = 4;
 			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevare"))
-		{
-			pSystem->variants = 5;
 			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -596,6 +579,19 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 		}
 		else
 			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
+
+		if (pSystem->framevar5)
+			pSystem->variants = 5;
+		else if (pSystem->framevar4)
+			pSystem->variants = 4;
+		else if (pSystem->framevar3)
+			pSystem->variants = 3;
+		else if (pSystem->framevar2)
+			pSystem->variants = 2;
+		else if (pSystem->framevar1)
+			pSystem->variants = 1;
+		else
+			pSystem->variants = 0;
 	}
 	gEngfuncs.COM_FreeFile(pFile);
 
@@ -702,6 +698,7 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 	pSystem->id = iId;
 	pSystem->mainalpha = 1;
 	pSystem->spawntime = engine_cl->time;
+	pSystem->framevarhandled = false;
 	VectorCopy(dir, pSystem->dir);
 
 	char* pToken = pFile;
@@ -864,35 +861,17 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 		else if (!strcmp(szField, "framerate"))
 			pSystem->framerate = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframe"))
-		{
-			pSystem->variants = 0;
 			pSystem->startframe = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevara"))
-		{
-			pSystem->variants = 1;
 			pSystem->framevar1 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevarb"))
-		{
-			pSystem->variants = 2;
 			pSystem->framevar2 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevarc"))
-		{
-			pSystem->variants = 3;
 			pSystem->framevar3 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevard"))
-		{
-			pSystem->variants = 4;
 			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "startframevare"))
-		{
-			pSystem->variants = 5;
 			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
-		}
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -968,6 +947,19 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 		}
 		else
 			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
+
+		if (pSystem->framevar5)
+			pSystem->variants = 5;
+		else if (pSystem->framevar4)
+			pSystem->variants = 4;
+		else if (pSystem->framevar3)
+			pSystem->variants = 3;
+		else if (pSystem->framevar2)
+			pSystem->variants = 2;
+		else if (pSystem->framevar1)
+			pSystem->variants = 1;
+		else
+			pSystem->variants = 0;
 	}
 
 	if (pSystem->shapetype != SYSTEM_SHAPE_PLANE_ABOVE_PLAYER)
@@ -1971,15 +1963,15 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			unsigned short varstartingframe;
 			unsigned short varnumframe;
 
-			if (!pSystem->framevarhandled) // TO-DO: make per particle
+			if (pSystem->framevarhandled == false) // TO-DO: make per particle
 			{
 				pSystem->selected_variant = gEngfuncs.pfnRandomLong(0, pSystem->variants);
+				gEngfuncs.Con_DPrintf("Particle var: %d \n", pSystem->selected_variant);
 				pSystem->framevarhandled = true;
 			}
 
 			switch (pSystem->selected_variant)
 			{
-				default:
 				case 0:
 					varnumframe = pSystem->numframes;
 					varstartingframe = pSystem->startframe;
@@ -2006,6 +1998,9 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					break;
 			}
 
+			varnumframe += varstartingframe;
+			gEngfuncs.Con_DPrintf("Particle var start frame: %d \n", varstartingframe);
+			gEngfuncs.Con_DPrintf("Particle var num frame: %d \n", varnumframe);
 			iFrame = (iFrame % varnumframe) + varstartingframe;
 			if (iFrame > varnumframe)
 				iFrame = varnumframe;
