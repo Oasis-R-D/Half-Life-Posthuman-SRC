@@ -74,6 +74,8 @@ public:
 	bool m_bHasExploded = false;
 	int m_iGrenType; // type of grenade thrown
 	bool m_bNotExploding = false;
+	bool m_bGeneralBool = false;
+	int m_iGeneralInt;
 	//CSprite* m_pSprite; might use later
 
 };

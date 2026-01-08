@@ -396,14 +396,47 @@ void CGrenade::LandmineHopThink() // should probably remove this?
 
 void CGrenade::SmokeSpray()
 {
-	pev->nextthink = 0.1f;
-	if ((pev->flags & FL_ONGROUND) != 0) // Only spawn smoke once on the ground
+	if (m_iGrenType == 4) // Smoke
+	{
+		pev->nextthink = 0.1f;
+		if ((pev->flags & FL_ONGROUND) != 0) // Only spawn smoke once on the ground
+		{	
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM);
+			pev->nextthink = gpGlobals->time + 0.125f;
+			SetThink(&CGrenade::SUB_Remove);	
+		}
+	}
+	else if (m_iGrenType == 6) // Signal flare?
 	{	
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
-		EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM);
-		pev->nextthink = gpGlobals->time + 0.125f;
-		SetThink(&CGrenade::SUB_Remove);
-		
+		if (!m_bGeneralBool)
+		{
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM); // make a 1 second looping sound
+
+			pev->nextthink = 1;
+			m_iGeneralInt -= 1;
+			if (m_iGeneralInt == 0)
+				m_bGeneralBool = true;
+
+			int brightness_offset = RANDOM_LONG(-4, 4);
+			MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin); // To-do: make flicker
+			WRITE_COORD(pev->origin.x);
+			WRITE_COORD(pev->origin.y);
+			WRITE_COORD(pev->origin.z + 2);
+			WRITE_BYTE(20 + RANDOM_LONG(-1, 1)); // Radius/10
+			WRITE_BYTE(128 + brightness_offset); // R
+			WRITE_BYTE(32 + brightness_offset); // G
+			WRITE_BYTE(32 + brightness_offset); // B
+			WRITE_LONG(1); // TIME
+			WRITE_BYTE(0); // Decay
+			MESSAGE_END();
+		}
+		else
+		{
+			SetThink(&CGrenade::SUB_Remove);
+			pev->nextthink = gpGlobals->time;
+		}
 	}
 }
 
@@ -548,8 +581,11 @@ void CGrenade::CallDetonate()
 		case 4: // Smoke
 			SetThink(&CGrenade::SmokeSpray);
 			break;
-		case 5: // Brick
+		case 5: // Brick (shouldn't be called)
 			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!");
+			break;
+		case 6: // Signal flare?
+			SetThink(&CGrenade::SmokeSpray);
 			break;
 	}
 
@@ -754,7 +790,9 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
 				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
 			}
-			break;	
+			break;
+		case 6: // Signal flare?
+			m_iGeneralInt = 10;
 	}
 
 	pGrenade->m_iGrenType = type;
