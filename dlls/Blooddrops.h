@@ -10,7 +10,6 @@
 #include "UserMessages.h"
 
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
-#ifndef CLIENT_DLL
 class CPhysblood : public CBaseEntity
 {
 public:
@@ -35,4 +34,3 @@ private:
 	bool m_randomspeed = false;
 
 };
-#endif
