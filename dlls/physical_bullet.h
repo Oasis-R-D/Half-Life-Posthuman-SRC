@@ -14,7 +14,6 @@
 
 // OVERLOADS SOME ENTVARS:
 // speed - the ideal magnitude of my velocity
-#ifndef CLIENT_DLL
 class CPhysbullet : public CBaseEntity
 {
 	int m_iTrail;
@@ -53,4 +52,3 @@ private:
 	double m_fPenoverride;
 	Vector m_Endpos;
 };
-#endif

@@ -712,9 +712,6 @@ void CZombie::Precache()
 //=========================================================
 // AI Schedules Specific to this monster
 //=========================================================
-
-
-
 int CZombie::IgnoreConditions()
 {
 	int iIgnore = CBaseMonster::IgnoreConditions();

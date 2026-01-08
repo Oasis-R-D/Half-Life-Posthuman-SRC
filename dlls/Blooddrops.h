@@ -23,7 +23,7 @@ public:
 
 private:
 	int m_BloodDropVel;
-	int m_BloodType; // Always B positive guys!
+	int m_BloodType; // Always B positive!!!
 	int m_opposite;
 	Vector m_SpawnPos;
 	Vector m_direction;
