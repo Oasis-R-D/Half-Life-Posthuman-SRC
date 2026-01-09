@@ -1789,7 +1789,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_DECAL) // TO-DO: find a way to have create able to do a decal and particle system at the same time
 			{														 // Add a : to separate them? (IE. create decal : system) OR decalsystem (special one for PARTICLE_COLLISION_DECAL)
-				if (pSystem->decalfromwad && !pSystem->waddecalhandled)
+				if (pSystem->decalfromwad && !pSystem->waddecalhandled) // add the '{', can't do this in the txt for whatever reason
 				{
 					std::string tmp = "{";
 					tmp.append(pSystem->create);
@@ -1798,37 +1798,44 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				}
 
 				int colonpos = -1;
-				for (int i = 0; i < sizeof(pSystem->create); i++ )
+				for (int i = 0; i < sizeof(pSystem->create); i++ ) // iterate through and find the separator
 				{
 					if (pSystem->create[i] == ':')
 					{
-						colonpos = i;
+						colonpos = i; // found
 						break;
 					}
 				}
-				
+
 				std::string decal;
 				std::string system;
-				if (colonpos != -1)
+				if (colonpos != -1) // if it is a combined decal and system
 				{
 					for (int i = 0; i < colonpos; i++ )
 						decal.append(pSystem->create[i]);
 					for (int i = colonpos+1; i < sizeof(pSystem->create); i++ )
 						system.append(pSystem->create[i]);
 				}
-				else
+				else // not combined, just take the entire thing
 					decal.append(pSystem->create);
 
-				gEngfuncs.Con_Printf("Decal: %s FromWad: %d DecalAng %d\n", pSystem->create, pSystem->decalfromwad, pSystem->decalangle);
-				if (pSystem->decalangle == -1)
+				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d DecalAng %d\n", decal, system, pSystem->decalfromwad, pSystem->decalangle);
+				
+				if (pSystem->decalangle == -1) // randomize angle
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
 				
 				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle);
 				
-				if (colonpos != -1)
+				if (colonpos != -1) // if it is a combined decal and system
 				{
 					if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && system[0] != 0)
 					{
+						if (system[0] != 0) // what?
+							pSystem->createsystem = CreateSystem(system, pSystem->origin, pSystem->dir, 0, pSystem);
+
+						if (!pSystem->createsystem)
+							memset(system, 0, sizeof(system)); // no idea
+
 						for (int i = 0; i < pSystem->createsystem->startparticles; i++)
 							CreateParticle(system.c_str(), pmtrace.endpos, pmtrace.plane.normal);
 					}
