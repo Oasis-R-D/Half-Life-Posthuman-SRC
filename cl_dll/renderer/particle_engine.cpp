@@ -1819,7 +1819,17 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				if (pSystem->decalangle == -1)
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
 				
-				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle); // TO-DO: add wad decal, angle and custom radius
+				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle);
+				
+				if (colonpos != -1)
+				{
+					if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && system[0] != 0)
+					{
+						for (int i = 0; i < pSystem->createsystem->startparticles; i++)
+							CreateParticle(system.c_str(), pmtrace.endpos, pmtrace.plane.normal);
+					}
+				}
+				
 				return false;
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_NEW_SYSTEM)
