@@ -215,7 +215,8 @@ struct particle_system_t
 	unsigned short framerate;
 	unsigned short startframe;
 	unsigned short randomframe;
-
+	int decalangle;
+	unsigned short decalfromwad;
 	// particle randomly chooses are var ifdef. Will also use the associated numvar
 	unsigned short framevar1; // startframe
 	unsigned short numvarframes1; // how many frames
@@ -230,6 +231,7 @@ struct particle_system_t
 	int variants; // easier than checking which ones are defined
 	int selected_variant;
 	bool framevarhandled;
+	bool waddecalhandled;
 	char create[64];
 	char deathcreate[64];
 	char watercreate[64];

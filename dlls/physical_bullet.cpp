@@ -220,14 +220,6 @@ int CPhysbullet::Classify() // Why is this here?
 	return CLASS_NONE;
 }
 
-void CPhysbullet::Stay()
-{
-	pev->velocity = Vector(0, 0, 0);
-	pev->avelocity.z = 0;
-	SetThink(&CPhysbullet::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
-}
-
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
 	if (pOther->IsBullet())
@@ -334,28 +326,13 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
 	SetThink(NULL);
-
+	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, tr.vecEndPos, BULLET_PLAYER_9MM);
 	if (0 != pOther->pev->takedamage)
 	{
 		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
 		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 		ApplyMultiDamage(pev, owner->pev);
-
-		if (!pOther->IsBSPModel())
-		{
-			// play NPC hit sound
-			switch (RANDOM_LONG(0, 1))
-			{
-			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit1.wav", 1, ATTN_NORM);
-				break;
-			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/bullet_hit2.wav", 1, ATTN_NORM);
-				break;
-			}
-			UTIL_Remove(this);
-		}
 	}
 	else
 	{
@@ -366,8 +343,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		}
 	}
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);
-	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_PLAYER_9MM);
-	Stay();
+	
+	UTIL_Remove(this);
 }
 
 void CPhysbullet::AirThink()

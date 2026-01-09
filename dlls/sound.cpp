@@ -1682,6 +1682,8 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		else
 			pTextureName = TRACE_TEXTURE(CWorld::World->edict(), rgfl1, rgfl2);
 
+		ALERT(at_console, "TexName: %c\n", pTextureName);
+
 		if (pTextureName)
 		{
 			// strip leading '-0' or '+0~' or '{' or '!'
@@ -1700,7 +1702,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
 	}
-
+	ALERT(at_console, "TexType: %c\n", chTextureType);
 	switch (chTextureType)
 	{
 	default:
@@ -1712,11 +1714,11 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		cnt = 2;
 		break;
 	case CHAR_TEX_METAL:
-		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 1.0 : 0.85;
+		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 1.0 : 0.9;
 		fvolbar = 0.3;
 		rgsz[0] = "bullet/imp_metal01.wav";
 		cnt = 1;
-		fattn = 1.0;
+		fattn = 1.25;
 		break;
 	case CHAR_TEX_DIRT:
 		fvol = 0.9;
@@ -1761,10 +1763,8 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	case CHAR_TEX_WOOD:
 		fvol = 0.9;
 		fvolbar = 0.2;
-		rgsz[0] = "debris/wood1.wav";
-		rgsz[1] = "debris/wood2.wav";
-		rgsz[2] = "debris/wood3.wav";
-		cnt = 3;
+		rgsz[0] = "bullet/imp_wood01.wav";
+		cnt = 1;
 		break;
 	case CHAR_TEX_GLASS:
 	case CHAR_TEX_COMPUTER:

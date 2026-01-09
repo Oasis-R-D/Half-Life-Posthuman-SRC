@@ -142,6 +142,43 @@ startparticles 1
 lightmaps 0
 )";
 
+char bloodspray[] = R"(
+life 30
+
+randomdir %d
+
+minvel 100
+maxvel 350
+maxofs 90
+
+sprite blooddrop
+framerate 0
+rendermode 2
+startframe %d
+
+scale 2
+scalevar 1
+
+collision 3
+
+create %s
+fromwad  1
+decalang -1
+
+rotationvel 10
+rotationvar 10
+
+pcolr %d
+pcolg %d
+pcolb %d
+
+gravity 1
+
+startparticles 1
+
+lightmaps 0
+)";
+
 char particle_bulletimpact[] = R"(
 life 1.5
 lifevar 0.1

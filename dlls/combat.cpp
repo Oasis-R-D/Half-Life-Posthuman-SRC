@@ -1238,7 +1238,7 @@ void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* 
 			Vector Dir = -BULLET->m_direction;
 			Vector spawnpos = ptr->vecEndPos + Dir * -12;
 			CPhysbullet::BulletCreate(1, round(BULLET->m_BulletDamage/2), BULLET->m_muzzlevelocity, spawnpos, Dir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), false, 0);
-			BULLET->Stay();
+			UTIL_Remove(BULLET);
 		}
 	}
 #endif

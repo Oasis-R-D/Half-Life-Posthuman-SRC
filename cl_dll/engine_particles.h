@@ -18,6 +18,8 @@ extern char bloodsprite[];
 
 extern char bloodchunks[];
 
+extern char bloodspray[];
+
 extern char particle_bulletimpact[];
 
 extern char particle_muzzleflash[];

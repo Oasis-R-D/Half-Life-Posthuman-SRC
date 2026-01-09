@@ -334,6 +334,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 	pSystem->mainalpha = 1;
 	pSystem->spawntime = engine_cl->time;
 	pSystem->framevarhandled = false;
+	pSystem->waddecalhandled = false;
 	VectorCopy(dir, pSystem->dir);
 
 	char* pToken = pFile;
@@ -451,6 +452,10 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			pSystem->randomdir = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "create"))
 			strcpy(pSystem->create, szValue);
+		else if (!strcmp(szField, "decalang"))
+			pSystem->decalangle = atoi(szValue);
+		else if (!strcmp(szField, "fromwad"))
+			pSystem->decalfromwad = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "deathcreate"))
 			strcpy(pSystem->deathcreate, szValue);
 		else if (!strcmp(szField, "watercreate"))
@@ -699,6 +704,7 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 	pSystem->mainalpha = 1;
 	pSystem->spawntime = engine_cl->time;
 	pSystem->framevarhandled = false;
+	pSystem->waddecalhandled = false;
 	VectorCopy(dir, pSystem->dir);
 
 	char* pToken = pFile;
@@ -816,6 +822,10 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 			pSystem->randomdir = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "create"))
 			strcpy(pSystem->create, szValue);
+		else if (!strcmp(szField, "decalang"))
+			pSystem->decalangle = atoi(szValue);
+		else if (!strcmp(szField, "fromwad"))
+			pSystem->decalfromwad = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "deathcreate"))
 			strcpy(pSystem->deathcreate, szValue);
 		else if (!strcmp(szField, "watercreate"))
@@ -1779,7 +1789,19 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_DECAL)
 			{
-				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0); // TO-DO: add wad decal, angle and custom radius
+				if (pSystem->decalfromwad && !pSystem->waddecalhandled)
+				{
+					std::string tmp = "{";
+					tmp.append(pSystem->create);
+					strcpy(pSystem->create, tmp.c_str());
+					pSystem->waddecalhandled = true;
+				}
+				
+				gEngfuncs.Con_Printf("Decal: %s FromWad: %d DecalAng %d\n", pSystem->create, pSystem->decalfromwad, pSystem->decalangle);
+				if (pSystem->decalangle == -1)
+					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
+				
+				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0, pSystem->decalfromwad, pSystem->decalangle); // TO-DO: add wad decal, angle and custom radius
 				return false;
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_NEW_SYSTEM)
@@ -1966,7 +1988,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			if (pSystem->framevarhandled == false) // TO-DO: make per particle
 			{
 				pSystem->selected_variant = gEngfuncs.pfnRandomLong(0, pSystem->variants);
-				gEngfuncs.Con_DPrintf("Particle var: %d \n", pSystem->selected_variant);
+				//gEngfuncs.Con_DPrintf("Particle var: %d \n", pSystem->selected_variant);
 				pSystem->framevarhandled = true;
 			}
 
@@ -1999,8 +2021,8 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			}
 
 			varnumframe += varstartingframe;
-			gEngfuncs.Con_DPrintf("Particle var start frame: %d \n", varstartingframe);
-			gEngfuncs.Con_DPrintf("Particle var num frame: %d \n", varnumframe);
+			//gEngfuncs.Con_DPrintf("Particle var start frame: %d \n", varstartingframe);
+			//gEngfuncs.Con_DPrintf("Particle var num frame: %d \n", varnumframe);
 			iFrame = (iFrame % varnumframe) + varstartingframe;
 			if (iFrame > varnumframe)
 				iFrame = varnumframe;

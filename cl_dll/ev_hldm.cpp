@@ -1878,7 +1878,7 @@ void EV_Particles(event_args_t* args)
 	int R = 0, G = 0, B = 0;
 	int idx;
 	idx = args->entindex;
-
+	const char* constchar;
 	switch (args->iparam1) // particle type
 	{
 		case 0: // muzzle smoke
@@ -1945,17 +1945,42 @@ void EV_Particles(event_args_t* args)
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
+					R = 160;
+					constchar = "bloodspot";
 					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_YELLOW:
+					R = 199;
+					G = 195;
+					B = 55;
+					constchar = "abloodspot";
 					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_GREEN:
+					R = 185;
+					G = 235;
+					B = 85;
+					constchar = "xbloodspot";
 					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_CYAN:
+					G = 255;
+					B = 140;
+					constchar = "Bbloodspot";
 					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles, 0);
 					break;
+			}
+
+			switch (gEngfuncs.pfnRandomLong(1, 3))
+			{
+				case 1:
+				case 2: idx = -1; break;
+				case 3: idx = 1; break;
+			}
+
+			for (int i = 0; i < 10; i++) // TO-DO: make respect damage value
+			{
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, R, G, B), args->origin, args->angles * idx, 0);
 			}
 			break;
 		case 4: // neurotoxin expl
@@ -1987,20 +2012,24 @@ void EV_Particles(event_args_t* args)
 			{
 				case BLOOD_COLOR_RED:
 					R = 160;
+					constchar = "bloodspot";
 					break;
 				case BLOOD_COLOR_YELLOW:
 					R = 199;
 					G = 195;
 					B = 55;
+					constchar = "abloodspot";
 					break;
 				case BLOOD_COLOR_GREEN:
 					R = 185;
 					G = 235;
 					B = 85;
+					constchar = "xbloodspot";
 					break;
 				case BLOOD_COLOR_CYAN:
 					G = 255;
 					B = 140;
+					constchar = "Bbloodspot";
 					break;
 				default:
 					if (gEngfuncs.pfnRandomLong(0, 1) == 1)
@@ -2008,9 +2037,14 @@ void EV_Particles(event_args_t* args)
 						B = 255;
 						R = 255;
 					}
+					constchar = "Bbloodspot";
 					break;
 			}
 			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodgibcloud, R, G, B), args->origin, g_vecZero, 0);
+			for (int i = 0; i < 16; i++)
+			{
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 1, gEngfuncs.pfnRandomLong(0, 1), constchar, R, G, B), args->origin, g_vecZero, 0);
+			}
 			break;
 		case 8: // smoke gren expl
 			gEngfuncs.pfnCenterPrint("smoke created");
