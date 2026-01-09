@@ -1796,11 +1796,14 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					strcpy(pSystem->create, tmp.c_str());
 					pSystem->waddecalhandled = true;
 				}
+				
+				std:string create;
+				create.append(pSystem->create);
 
 				int colonpos = -1;
-				for (int i = 0; i < sizeof(pSystem->create); i++ ) // iterate through and find the separator
+				for (int i = 0; i < create.Length(); i++ ) // iterate through and find the separator
 				{
-					if (pSystem->create[i] == ':')
+					if (create[i] == ':')
 					{
 						colonpos = i; // found
 						break;
@@ -1812,12 +1815,12 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				if (colonpos != -1) // if it is a combined decal and system
 				{
 					for (int i = 0; i < colonpos; i++ )
-						decal.append(pSystem->create[i]);
-					for (int i = colonpos+1; i < sizeof(pSystem->create); i++ )
-						system.append(pSystem->create[i]);
+						decal.append(create[i]);
+					for (int i = colonpos+1; i < create.Length(); i++ )
+						system.append(create[i]);
 				}
 				else // not combined, just take the entire thing
-					decal.append(pSystem->create);
+					decal.append(create);
 
 				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d DecalAng %d\n", decal, system, pSystem->decalfromwad, pSystem->decalangle);
 				
