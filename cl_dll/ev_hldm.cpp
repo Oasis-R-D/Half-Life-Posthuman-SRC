@@ -1942,41 +1942,42 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case 3: //NPC impact
-			switch (args->iparam2)
-			{
-				case BLOOD_COLOR_RED:
-					R = 160;
-					constchar = "bloodspot";
-					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles, 0);
-					break;
-				case BLOOD_COLOR_YELLOW:
-					R = 199;
-					G = 195;
-					B = 55;
-					constchar = "abloodspot";
-					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
-					break;
-				case BLOOD_COLOR_GREEN:
-					R = 185;
-					G = 235;
-					B = 85;
-					constchar = "xbloodspot";
-					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles, 0);
-					break;
-				case BLOOD_COLOR_CYAN:
-					G = 255;
-					B = 140;
-					constchar = "Bbloodspot";
-					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles, 0);
-					break;
-			}
-
 			switch (gEngfuncs.pfnRandomLong(1, 3))
 			{
 				case 1:
 				case 2: idx = -1; break;
 				case 3: idx = 1; break;
 			}
+			switch (args->iparam2)
+			{
+				case BLOOD_COLOR_RED:
+					R = 160;
+					constchar = "bloodspot";
+					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles * idx, 0);
+					break;
+				case BLOOD_COLOR_YELLOW:
+					R = 199;
+					G = 195;
+					B = 55;
+					constchar = "abloodspot";
+					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles * idx, 0);
+					break;
+				case BLOOD_COLOR_GREEN:
+					R = 185;
+					G = 235;
+					B = 85;
+					constchar = "xbloodspot";
+					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles * idx, 0);
+					break;
+				case BLOOD_COLOR_CYAN:
+					G = 255;
+					B = 140;
+					constchar = "Bbloodspot";
+					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles * idx, 0);
+					break;
+			}
+
+
 
 			for (int i = 0; i < 10; i++) // TO-DO: make respect damage value
 			{

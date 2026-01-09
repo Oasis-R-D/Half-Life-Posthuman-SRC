@@ -1787,8 +1787,8 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				if (pParticle->rotyvel)
 					pParticle->rotyvel *= -fProj * 2 * pSystem->impactdamp * m_flFrameTime;
 			}
-			else if (pSystem->collision == PARTICLE_COLLISION_DECAL)
-			{
+			else if (pSystem->collision == PARTICLE_COLLISION_DECAL) // TO-DO: find a way to have create able to do a decal and particle system at the same time
+			{														 // Add a : to separate them? (IE. create decal : system) OR decalsystem (special one for PARTICLE_COLLISION_DECAL)
 				if (pSystem->decalfromwad && !pSystem->waddecalhandled)
 				{
 					std::string tmp = "{";
@@ -1796,12 +1796,30 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					strcpy(pSystem->create, tmp.c_str());
 					pSystem->waddecalhandled = true;
 				}
+
+				int colonpos = -1;
+				for (int i = 0; i < sizeof(pSystem->create); i++ )
+					if (pSystem->create[i] == ':')
+						colonpos = i;
+						break;
 				
+				std::string decal;
+				std::string system;
+				if (colonpos != -1)
+				{
+					for (int i = 0; i < colonpos; i++ )
+						decal.append(pSystem->create[i])
+					for (int i = colonpos+1; i < sizeof(pSystem->create); i++ )
+						system.append(pSystem->create[i])
+				}
+				else
+					decal.append(pSystem->create)
+
 				gEngfuncs.Con_Printf("Decal: %s FromWad: %d DecalAng %d\n", pSystem->create, pSystem->decalfromwad, pSystem->decalangle);
 				if (pSystem->decalangle == -1)
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
 				
-				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0, pSystem->decalfromwad, pSystem->decalangle); // TO-DO: add wad decal, angle and custom radius
+				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle); // TO-DO: add wad decal, angle and custom radius
 				return false;
 			}
 			else if (pSystem->collision == PARTICLE_COLLISION_NEW_SYSTEM)
