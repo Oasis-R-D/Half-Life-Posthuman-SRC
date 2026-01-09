@@ -1836,7 +1836,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 							return false;
 
 						for (int i = 0; i < pSystem->createsystem->startparticles; i++)
-							CreateParticle(system.c_str(), pmtrace.endpos, pmtrace.plane.normal);
+							CreateParticle(pSystem->createsystem, pmtrace.endpos, pmtrace.plane.normal);
 					}
 				}
 				
