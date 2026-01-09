@@ -1797,6 +1797,9 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					pSystem->waddecalhandled = true;
 				}
 				
+				std::string decal; // decal half of create
+				std::string system;// system half of create
+
 				std:string create;
 				create.append(pSystem->create);
 
@@ -1810,8 +1813,6 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					}
 				}
 
-				std::string decal;
-				std::string system;
 				if (colonpos != -1) // if it is a combined decal and system
 				{
 					for (int i = 0; i < colonpos; i++ )
@@ -1822,11 +1823,10 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				else // not combined, just take the entire thing
 					decal.append(create);
 
-				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d DecalAng %d\n", decal, system, pSystem->decalfromwad, pSystem->decalangle);
-				
 				if (pSystem->decalangle == -1) // randomize angle
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
-				
+
+				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d DecalAng %d\n", decal, system, pSystem->decalfromwad, pSystem->decalangle);
 				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle);
 				
 				if (colonpos != -1) // if it is a combined decal and system
