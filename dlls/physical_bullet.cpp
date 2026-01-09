@@ -212,14 +212,14 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 
 	PRECACHE_SOUND("bullet/imp_metal01.wav");
-	PRECACHE_SOUND("bullet/imp_wood01.wav");
+	PRECACHE_SOUND("bullet/imp_wood01.wav"); // TO-DO: better sound
 }
 
 
-int CPhysbullet::Classify() // Why is this here?
+/*int CPhysbullet::Classify() // Why is this here? // could be used to make npcs fear bullets?
 {
 	return CLASS_NONE;
-}
+}*/
 
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	

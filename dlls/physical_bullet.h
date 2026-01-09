@@ -25,7 +25,6 @@ public:
 	void EXPORT BoltTouch(CBaseEntity* pOther);
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	bool IsBullet() override { return true; }
-	int Classify() override;
 	
 	static const char* pNearMissSounds[];
 
