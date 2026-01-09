@@ -212,6 +212,7 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 
 	PRECACHE_SOUND("bullet/imp_metal01.wav");
+	PRECACHE_SOUND("bullet/imp_wood01.wav");
 }
 
 
