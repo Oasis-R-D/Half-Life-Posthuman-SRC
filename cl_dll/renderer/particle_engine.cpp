@@ -1830,11 +1830,10 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				{
 					if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && system[0] != 0)
 					{
-						if (system[0] != 0) // what?
-							pSystem->createsystem = CreateSystem(system, pSystem->origin, pSystem->dir, 0, pSystem);
-
-						if (!pSystem->createsystem)
-							memset(system, 0, sizeof(system)); // no idea
+						pSystem->createsystem = CreateSystem(system.c_str(), pSystem->origin, pSystem->dir, 0, pSystem);
+						
+						if (pSystem->createsystem == nullptr)
+							return false;
 
 						for (int i = 0; i < pSystem->createsystem->startparticles; i++)
 							CreateParticle(system.c_str(), pmtrace.endpos, pmtrace.plane.normal);
