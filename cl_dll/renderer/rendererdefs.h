@@ -233,6 +233,7 @@ struct particle_system_t
 	bool framevarhandled;
 	bool waddecalhandled;
 	char create[64];
+	char decalcreate[64];
 	char deathcreate[64];
 	char watercreate[64];
 

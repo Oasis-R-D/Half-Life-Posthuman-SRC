@@ -452,6 +452,8 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			pSystem->randomdir = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "create"))
 			strcpy(pSystem->create, szValue);
+		else if (!strcmp(szField, "decalparticlecreate"))
+			strcpy(pSystem->decalcreate, szValue);
 		else if (!strcmp(szField, "decalang"))
 			pSystem->decalangle = atoi(szValue);
 		else if (!strcmp(szField, "fromwad"))
@@ -583,7 +585,7 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			}
 		}
 		else
-			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
+			gEngfuncs.Con_Printf("Warning! Unknown field: %s in: %s\n", szField, szPath);
 
 		if (pSystem->framevar5)
 			pSystem->variants = 5;
@@ -645,6 +647,14 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 
 		if (!pSystem->createsystem)
 			memset(pSystem->create, 0, sizeof(pSystem->create));
+	}
+	else
+	{
+		if (pSystem->decalcreate[0] != 0)
+			pSystem->createsystem = CreateSystem(pSystem->decalcreate, pSystem->origin, pSystem->dir, 0, pSystem);
+
+		if (!pSystem->createsystem)
+			memset(pSystem->decalcreate, 0, sizeof(pSystem->decalcreate));
 	}
 
 	if (pSystem->watercreate[0] != 0)
@@ -822,6 +832,8 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 			pSystem->randomdir = static_cast<bool>(atoi(szValue));
 		else if (!strcmp(szField, "create"))
 			strcpy(pSystem->create, szValue);
+		else if (!strcmp(szField, "decalparticlecreate"))
+			strcpy(pSystem->decalcreate, szValue);
 		else if (!strcmp(szField, "decalang"))
 			pSystem->decalangle = atoi(szValue);
 		else if (!strcmp(szField, "fromwad"))
@@ -956,7 +968,7 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 			}
 		}
 		else
-			gEngfuncs.Con_Printf("Warning! Unknown field: %s\n", szField);
+			gEngfuncs.Con_Printf("Warning! Unknown field: %s in: %s\n", szField, szSystem);
 
 		if (pSystem->framevar5)
 			pSystem->variants = 5;
@@ -1017,6 +1029,14 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 
 		if (!pSystem->createsystem)
 			memset(pSystem->create, 0, sizeof(pSystem->create));
+	}
+	else
+	{
+		if (pSystem->decalcreate[0] != 0)
+			pSystem->createsystem = CreateSystem(pSystem->decalcreate, pSystem->origin, pSystem->dir, 0, pSystem);
+
+		if (!pSystem->createsystem)
+			memset(pSystem->decalcreate, 0, sizeof(pSystem->decalcreate));
 	}
 
 	if (pSystem->watercreate[0] != 0)
@@ -1796,51 +1816,17 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 					strcpy(pSystem->create, tmp.c_str());
 					pSystem->waddecalhandled = true;
 				}
-				
-				std::string decal; // decal half of create
-				std::string system;// system half of create
-
-				std:string create;
-				create.append(pSystem->create);
-
-				int colonpos = -1;
-				for (int i = 0; i < create.Length(); i++ ) // iterate through and find the separator
-				{
-					if (create[i] == ':')
-					{
-						colonpos = i; // found
-						break;
-					}
-				}
-
-				if (colonpos != -1) // if it is a combined decal and system
-				{
-					for (int i = 0; i < colonpos; i++ )
-						decal.append(create[i]);
-					for (int i = colonpos+1; i < create.Length(); i++ )
-						system.append(create[i]);
-				}
-				else // not combined, just take the entire thing
-					decal.append(create);
 
 				if (pSystem->decalangle == -1) // randomize angle
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
-
-				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d DecalAng %d\n", decal, system, pSystem->decalfromwad, pSystem->decalangle);
-				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, decal.c_str(), 0, pSystem->decalfromwad, pSystem->decalangle);
 				
-				if (colonpos != -1) // if it is a combined decal and system
+				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d\n", pSystem->create, pSystem->decalcreate, pSystem->decalfromwad);
+				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0, pSystem->decalfromwad, pSystem->decalangle);
+				
+				if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && pSystem->decalcreate[0] != 0)
 				{
-					if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && system[0] != 0)
-					{
-						pSystem->createsystem = CreateSystem(system.c_str(), pSystem->origin, pSystem->dir, 0, pSystem);
-						
-						if (pSystem->createsystem == nullptr)
-							return false;
-
-						for (int i = 0; i < pSystem->createsystem->startparticles; i++)
-							CreateParticle(pSystem->createsystem, pmtrace.endpos, pmtrace.plane.normal);
-					}
+					for (int i = 0; i < pSystem->createsystem->startparticles; i++)
+						CreateParticle(pSystem->createsystem, pmtrace.endpos, pmtrace.plane.normal);
 				}
 				
 				return false;

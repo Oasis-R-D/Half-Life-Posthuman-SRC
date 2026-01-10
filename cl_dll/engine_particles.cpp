@@ -162,6 +162,8 @@ scalevar 1
 collision 3
 
 create %s
+decalparticlecreate %s
+
 fromwad  1
 decalang -1
 
