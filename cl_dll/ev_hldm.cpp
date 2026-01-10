@@ -1880,6 +1880,7 @@ void EV_Particles(event_args_t* args)
 	idx = args->entindex;
 	const char* constchar;
 	const char* constchar2;
+	const char* constchar3;
 	int BLDAMNT;
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 
@@ -1957,7 +1958,7 @@ void EV_Particles(event_args_t* args)
 					R = 160;
 					constchar = "bloodspot";
 					constchar2 = "engine_blood_impact.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles, 0);
+					constchar3 = "blood_effects_cluster.txt";
 					break;
 				case BLOOD_COLOR_YELLOW:
 					R = 199;
@@ -1965,7 +1966,7 @@ void EV_Particles(event_args_t* args)
 					B = 55;
 					constchar = "abloodspot";
 					constchar2 = "engine_blood_impact_alien.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
+					constchar3 = "blood_effects_cluster_alien.txt";
 					break;
 				case BLOOD_COLOR_GREEN:
 					R = 185;
@@ -1973,19 +1974,22 @@ void EV_Particles(event_args_t* args)
 					B = 85;
 					constchar = "xbloodspot";
 					constchar2 = "engine_blood_impact_rx.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles, 0);
+					constchar3 = "blood_effects_cluster_rx.txt";
 					break;
 				case BLOOD_COLOR_CYAN:
 					G = 255;
 					B = 140;
 					constchar = "Bbloodspot";
 					constchar2 = "engine_blood_impact_healing.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles, 0);
-					break;
-				default:
-					return;
+					constchar3 = "blood_effects_cluster_healing.txt";
 					break;
 			}
+
+			if (!args->bparam1)
+				gParticleEngine.CreateCluster(constchar3, args->origin, args->angles, 0);
+
+			if (args->bparam1) // bleeding
+				BLDAMNT = gEngfuncs.pfnRandomLong(2,3);
 
 			for (int i = 0; i < BLDAMNT; i++) // TO-DO: make respect damage value
 			{
@@ -1995,6 +1999,10 @@ void EV_Particles(event_args_t* args)
 					case 2: idx = -1; break;
 					case 3: idx = 1; break;
 				}
+
+				if (args->bparam1) // bleeding
+					idx = 1;
+
 				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 			}
 			break;

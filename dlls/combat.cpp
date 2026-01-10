@@ -107,9 +107,7 @@ void CGib::SpawnHeadGib(entvars_t* pevVictim)
 
 	}
 	UTIL_VecToAngles(pGib->pev->velocity);
-	#ifndef CLIENT_DLL
 	CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-	#endif
 	pGib->LimitVelocity();
 }
 
@@ -197,9 +195,7 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibDa
 			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 		}
 		UTIL_VecToAngles(pGib->pev->velocity);
-		#ifndef CLIENT_DLL
 		CPhysblood::BloodCreate(2, 350, pGib->pev->origin, gpGlobals->v_forward, 1, pGib->m_bloodColor);
-		#endif
 		pGib->LimitVelocity();
 	}
 
@@ -1227,7 +1223,6 @@ Bullet Armor Hit
 */
 void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType, CBaseEntity* Attacked) // easier way to handle ricochet
 {
-#ifndef CLIENT_DLL
 	if ((bitsDamageType & (DMG_BULLET | DMG_BLAST)) != 0)
 	{
 		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
@@ -1241,7 +1236,6 @@ void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* 
 			UTIL_Remove(BULLET);
 		}
 	}
-#endif
 }
 /*
 ================
@@ -1266,9 +1260,7 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 			//Spawn blud dwops UwU
-			#ifndef CLIENT_DLL
 			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
-			#endif
 
 			//RENDERERS START
 			//UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_alien", ENTINDEX(ptr->pHit));
@@ -1350,9 +1342,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 			//Spawn blud dwops UwU
-			#ifndef CLIENT_DLL
 			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
-			#endif
 		}
 
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);

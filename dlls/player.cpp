@@ -380,9 +380,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		{
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-		#ifndef CLIENT_DLL
 		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
-		#endif
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 	}
@@ -2094,14 +2092,17 @@ void CBasePlayer::PreThink()
 			{
 				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
 			}
-#ifndef CLIENT_DLL
-			CPhysblood::BloodCreate(1, 0, pev->origin, VECTOR_CONE_20DEGREES, 1, BloodColor());
-#endif
+			if (RANDOM_LONG(0, 1) == 1)
+			{
+				CPhysblood::BloodCreate(1, 100, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(15), false);
+			}
+			else
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 0.0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_RED, 1, 0);
 		}
 	}
+
 	Railed();
 	UpdateShockEffect();
-
 
 	UTIL_MakeVectors(pev->v_angle); // is this still used?
 
@@ -4121,9 +4122,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	{
 	case 67:
 	{
-#ifndef CLIENT_DLL
 		CPhysblood::BloodCreate(2, RANDOM_LONG(275, 325), GetGunPosition() - gpGlobals->v_up * 24, gpGlobals->v_forward, 1, BLOOD_COLOR_YELLOW, true, CONE_4DEGREES, false);
-#endif
 		break;
 	}
 	case 69:

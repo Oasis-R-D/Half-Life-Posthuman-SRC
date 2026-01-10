@@ -245,9 +245,7 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		BLDAMNT = round(flDamage / 2);
 		SpawnBlood(ptr->vecEndPos, m_bloodColor, flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-#ifndef CLIENT_DLL
 		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, m_bloodColor);
-#endif
 	}
 
 	AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);

@@ -36,8 +36,10 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		{
 			BLDamnt = 16;
 		}
-		if (g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer())
+
+		if ((g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)
 			BLDamnt /= 2;
+
 		for (i = 0; i < BLDamnt; i++) // Allows multishot
 		{
 			// Create a new entity with CPhysblood private data
@@ -59,7 +61,6 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 void CPhysblood::Spawn()
 {
 	Precache();
-	
 	switch (RANDOM_LONG(1, 3))
 	{
 	case 1:
@@ -105,7 +106,7 @@ void CPhysblood::Spawn()
 	}
 
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
-	pev->solid = SOLID_BBOX;
+	pev->solid = SOLID_TRIGGER;
 	UTIL_SetOrigin(pev, m_SpawnPos);
 	pev->velocity = ((m_direction + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
 	pev->gravity = m_Gravity;
