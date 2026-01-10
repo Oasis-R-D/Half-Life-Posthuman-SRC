@@ -1882,8 +1882,11 @@ void EV_Particles(event_args_t* args)
 	const char* constchar2;
 	int BLDAMNT;
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
+
 	BLDAMNT = args->fparam1 / ((skill != 3) ? 1.5 : 4);
 	BLDAMNT *= 1.25;
+	if (BLDAMNT > 35)
+		BLDAMNT = 35;
 
 	switch (args->iparam1) // particle type
 	{
@@ -1948,19 +1951,13 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case 3: //NPC impact
-			switch (gEngfuncs.pfnRandomLong(1, 3))
-			{
-				case 1:
-				case 2: idx = -1; break;
-				case 3: idx = 1; break;
-			}
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
 					R = 160;
 					constchar = "bloodspot";
 					constchar2 = "engine_blood_impact.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles * idx, 0);
+					gParticleEngine.CreateCluster("blood_effects_cluster.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_YELLOW:
 					R = 199;
@@ -1968,7 +1965,7 @@ void EV_Particles(event_args_t* args)
 					B = 55;
 					constchar = "abloodspot";
 					constchar2 = "engine_blood_impact_alien.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles * idx, 0);
+					gParticleEngine.CreateCluster("blood_effects_cluster_alien.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_GREEN:
 					R = 185;
@@ -1976,14 +1973,14 @@ void EV_Particles(event_args_t* args)
 					B = 85;
 					constchar = "xbloodspot";
 					constchar2 = "engine_blood_impact_rx.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles * idx, 0);
+					gParticleEngine.CreateCluster("blood_effects_cluster_rx.txt", args->origin, args->angles, 0);
 					break;
 				case BLOOD_COLOR_CYAN:
 					G = 255;
 					B = 140;
 					constchar = "Bbloodspot";
 					constchar2 = "engine_blood_impact_healing.txt";
-					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles * idx, 0);
+					gParticleEngine.CreateCluster("blood_effects_cluster_healing.txt", args->origin, args->angles, 0);
 					break;
 				default:
 					return;
@@ -1992,6 +1989,12 @@ void EV_Particles(event_args_t* args)
 
 			for (int i = 0; i < BLDAMNT; i++) // TO-DO: make respect damage value
 			{
+				switch (gEngfuncs.pfnRandomLong(1, 3))
+				{
+					case 1:
+					case 2: idx = -1; break;
+					case 3: idx = 1; break;
+				}
 				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 			}
 			break;
