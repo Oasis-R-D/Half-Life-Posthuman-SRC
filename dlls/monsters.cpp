@@ -545,7 +545,7 @@ void CBaseMonster::Railed() //:troll:
 			m_bRailed = false;
 			pev->velocity = g_vecZero;
 
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam1)
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam2)
 			
 			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
 		}

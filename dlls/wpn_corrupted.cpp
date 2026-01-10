@@ -107,7 +107,6 @@ bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 bool CCorruptedWPN::Deploy()
 {
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
-//	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, RANDOM_LONG(0, 1), 0, 0, 0); // TO-DO: update random long with current skin amnts
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
 }
 
@@ -350,8 +349,6 @@ void CCorruptedWPN::ItemPostFrame()
 {
 	int iReloadAMNT;
 
-//	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_stainevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_corrskin, 0, 0, 0); // repurposed for skin changing
-
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{	
 		m_iCurrWPN += RANDOM_LONG(1, 4);
@@ -401,7 +398,7 @@ void CCorruptedWPN::ItemPostFrame()
 		MESSAGE_END();
 		ShootGrenade(m_pPlayer->m_iGrenadeType);
 		m_pPlayer->m_bInGrenadeDelay = false;
-		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon  grenade anims since this is for the animations
+		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon grenade anims since this is for the animations
 	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{

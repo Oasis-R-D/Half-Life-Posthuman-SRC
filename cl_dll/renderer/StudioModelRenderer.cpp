@@ -2855,7 +2855,7 @@ void CStudioModelRenderer::StudioSetupLighting(void)
 
 	m_pLighting.lightdir.x = 0;
 	m_pLighting.lightdir.y = 0;
-	m_pLighting.lightdir.z = -0.5f; // TO-DO: is this what causes the blue lighting for particles?
+	m_pLighting.lightdir.z = -0.5f;
 
 	if (pInfo)
 	{

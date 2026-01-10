@@ -131,7 +131,7 @@ const Vector& CMP5::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_6DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_5DEGREES, ramp, cone );
 
 	return cone;
 }
@@ -285,7 +285,7 @@ void CMP5::PrimaryAttack()
 	m_flTimeWeaponIdle = 5;
 
 	#ifndef CLIENT_DLL
-	CBasePlayerWeapon::Recoil(0.95, 1);
+	CBasePlayerWeapon::Recoil(0.85, 1.25);
 	#endif
 }
 

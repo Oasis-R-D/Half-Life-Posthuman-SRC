@@ -1991,7 +1991,7 @@ void EV_Particles(event_args_t* args)
 			if (args->bparam1) // bleeding
 				BLDAMNT = gEngfuncs.pfnRandomLong(2,3);
 
-			for (int i = 0; i < BLDAMNT; i++) // TO-DO: make respect damage value
+			for (int i = 0; i < BLDAMNT; i++)
 			{
 				switch (gEngfuncs.pfnRandomLong(1, 3))
 				{

@@ -1807,8 +1807,8 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 				if (pParticle->rotyvel)
 					pParticle->rotyvel *= -fProj * 2 * pSystem->impactdamp * m_flFrameTime;
 			}
-			else if (pSystem->collision == PARTICLE_COLLISION_DECAL) // TO-DO: find a way to have create able to do a decal and particle system at the same time
-			{														 // Add a : to separate them? (IE. create decal : system) OR decalsystem (special one for PARTICLE_COLLISION_DECAL)
+			else if (pSystem->collision == PARTICLE_COLLISION_DECAL)
+			{
 				if (pSystem->decalfromwad && !pSystem->waddecalhandled) // add the '{', can't do this in the txt for whatever reason
 				{
 					std::string tmp = "{";
@@ -1993,7 +1993,6 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 		}
 	}
 
-	// to-do: check if the issue is the randomness (this runs every frame after all)
 	// to-do: variation needs to be per particle not per system
 	// Calculate texcoords
 	if (pSystem->numframes)

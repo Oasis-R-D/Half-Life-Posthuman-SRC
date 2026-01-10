@@ -31,7 +31,7 @@
 * 12G MV: 5750 // REALISM: 14.4-19.2k
 * 44M MV: 6000 // REALISM: 14.4-21.6k
 * RUB MV: ???? // REALISM: 4k
-* NOTE: The game MOST DEFINITELY cannot handle realistic muzzle velocities. // TO-DO: Verify ^
+* NOTE: The game CAN handle realistic values but they aren't very fun (practically just hitscan)
 * NOTE: Realism values calculated by multiplying FPS by 12 (IPS) (assuming Inches = HU)
 */
 
@@ -80,10 +80,11 @@ const char* CPhysbullet::pNearMissSounds[] =
 void CPhysbullet::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
-	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4); //spawn a little bit more forward
 
+	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
+
+	pev->solid = SOLID_BBOX;
+	UTIL_SetOrigin(pev, m_SpawnPos); // TO-DO: now that there's no +4 in direction, will need to delay the trail starting somehow
 	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = m_direction + m_SpreadVect;
@@ -223,9 +224,6 @@ void CPhysbullet::Precache()
 
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
-	if (pOther->IsBullet())
-		return;
-	
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner == nullptr)
 	{
@@ -360,7 +358,7 @@ void CPhysbullet::AirThink()
 		{
 			if (m_ent->IsPlayer())
 			{
-				if (Owner != m_ent->edict()) // TO-DO: make m_haswizzed per player (or ignore, not too noticeable anyways)
+				if (Owner != m_ent->edict()) // not per player but whatevs
 				{
 					//char dripsnd[256];
 					//sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));

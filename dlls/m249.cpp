@@ -132,7 +132,7 @@ const Vector& CM249::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M249_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( g_vecZero, VECTOR_CONE_4DEGREES, ramp, cone );
+	VectorLerp( g_vecZero, VECTOR_CONE_6DEGREES, ramp, cone );
 
 	return cone;
 }
