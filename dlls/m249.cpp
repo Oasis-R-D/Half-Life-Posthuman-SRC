@@ -58,6 +58,7 @@ bool CM249::Deploy()
 
 void CM249::Holster()
 {
+	m_flAccuracyPenalty = 0.0;
 	SetThink(nullptr);
 	SendWeaponAnim(M249_HOLSTER);
 	m_bReloading = false;
@@ -110,6 +111,32 @@ void CM249::WeaponIdle()
 	}
 }
 
+#define	M249_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	M249_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f	// Maximum penalty to deal out
+
+void CM249::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M249_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CM249::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M249_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( g_vecZero, VECTOR_CONE_4DEGREES, ramp, cone );
+
+	return cone;
+}
+
 void CM249::PrimaryAttack()
 {
 	if (m_pPlayer->pev->waterlevel == 3)
@@ -131,6 +158,9 @@ void CM249::PrimaryAttack()
 
 		return;
 	}
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
 
 	--m_iClip;
 
@@ -171,6 +201,8 @@ void CM249::PrimaryAttack()
 	{
 		vecSpread = CONE_4DEGREES;
 	}
+
+	vecSpread += GetBulletSpread().x;
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL

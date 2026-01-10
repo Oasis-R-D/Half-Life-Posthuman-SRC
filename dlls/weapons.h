@@ -344,11 +344,12 @@ public:
 	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0, bool altvm = false, int iAltAnim = -1);
 	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink
+	virtual const Vector& GetBulletSpread() { return Vector(0.13053, 0.13053, 0.13053); } // 15 degrees
 	void ShootGrenade(int type);// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"
 	virtual void TertiaryAttack() {}					  // do "+ALT1"
-	virtual void GrenadeAttack() {ALERT(at_error, "Grenade not supported!");}	// do "+SCORE_UP //smth like that idk the real name
+	virtual void GrenadeAttack() { ALERT(at_error, "Grenade not supported!"); }	// do "+SCORE_UP //smth like that idk the real name
 	virtual void Reload() {}							  // do "+RELOAD"
 	virtual void WeaponIdle() {}						  // called when no buttons pressed
 	bool UpdateClientData(CBasePlayer* pPlayer) override; // sends hud info to client dll, if things have changed
@@ -390,6 +391,7 @@ public:
 	int m_iDefaultAmmo; // how much ammo you get when you pick up this weapon as placed by a level designer.
 	bool NotFirstDraw;
 	bool m_hasbeeped;
+	double m_flTimeSincePrimary;
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
@@ -558,6 +560,8 @@ public:
 	void Reload() override;
 	void WeaponIdle() override;
 	void ReloadSetAmmos() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 	void ItemPostFrame();
 	bool m_isilenced;
 	bool m_bHasSilencer;
@@ -572,9 +576,8 @@ public:
 	}
 
 private:
+	float m_flAccuracyPenalty = 0.0;
 	int m_iShell;
-	float m_fTimeSincePrimary;
-	bool m_bFirstShot;
 
 	unsigned short m_usFireGlock1;
 	unsigned short m_usFireGlock2;
@@ -737,6 +740,8 @@ public:
 	void Holster() override;
 	void Reload() override;
 	void WeaponIdle() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 	void ItemPostFrame() override;
 	bool UseDecrement() override
 	{
@@ -753,8 +758,7 @@ public:
 	bool ShouldWeaponIdle() override { return m_bHasLaser ? true : false; }
 
 private:
-	float m_fTimeSincePrimary;
-	bool m_bFirstShot;
+	float m_flAccuracyPenalty = 0.0;
 	unsigned short m_usFirePython;
 };
 
@@ -790,6 +794,9 @@ public:
 	void SecondaryAttack() override;
 	void TertiaryAttack() override;
 
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
+
 	bool Deploy() override;
 	void Reload() override;
 	void WeaponIdle() override;
@@ -805,6 +812,9 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	float m_flAccuracyPenalty = 0.0;
 };
 
 enum m727_e
@@ -1454,13 +1464,16 @@ public:
 #endif
 	}
 
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
+
 	void GetWeaponData(weapon_data_t& data) override;
 	void SetWeaponData(const weapon_data_t& data) override;
 
 private:
 	static int RecalculateBody(int iClip);
-
-private:
+	
+	float m_flAccuracyPenalty = 0.0;
 	unsigned short m_usFireM249;
 	float m_flNextAnimTime;
 	int m_iShell;
@@ -1642,6 +1655,8 @@ public:
 	void Holster() override;
 
 	void TestSprayPat(int bulletnum);
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 
 	TraceResult m_trHit;
 	int m_iShell;
@@ -1654,6 +1669,9 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	float m_flAccuracyPenalty = 0.0;
 };
 
 class CCorruptedWPN : public CBasePlayerWeapon
@@ -1724,6 +1742,8 @@ public:
 	void Holster() override;
 	void Reload() override;
 	void WeaponIdle() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 	void ItemPostFrame() override;
 	void CalculateAmmo();
 	bool UseDecrement() override
@@ -1737,12 +1757,11 @@ public:
 	bool slowmo = false;
 
 private:
+	bool m_bFirstShot;
 	unsigned short m_usFireM29;
 	int m_iCylR_ammo;
 	int m_iCylL_ammo;
-	float m_fTimeSincePrimary;
-	bool m_bFirstShot;
-
+	float m_flAccuracyPenalty = 0.0;
 };
 
 enum offhandgren_e

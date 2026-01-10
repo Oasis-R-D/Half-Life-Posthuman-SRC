@@ -74,8 +74,6 @@ void CPython::Precache()
 
 bool CPython::Deploy()
 {
-	m_bFirstShot = true;
-
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
 
@@ -83,7 +81,7 @@ bool CPython::Deploy()
 void CPython::Holster()
 {
 	m_fInReload = false; // cancel any reload in progress.
-
+	m_flAccuracyPenalty = 0.0;
 	if (m_pPlayer->m_iFOV != 0)
 	{
 		SecondaryAttack();
@@ -106,6 +104,32 @@ void CPython::SecondaryAttack()
 	}
 
 	m_flNextSecondaryAttack = 0.5;
+}
+
+#define	PYTHON_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME	0.75	// Maximum penalty to deal out
+
+void CPython::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CPython::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( g_vecZero, VECTOR_CONE_6DEGREES, ramp, cone );
+
+	return cone;
 }
 
 void CPython::PrimaryAttack()
@@ -135,6 +159,9 @@ void CPython::PrimaryAttack()
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
+	
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 
 	m_iClip--;
 
@@ -153,25 +180,7 @@ void CPython::PrimaryAttack()
 	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 
-	double spread = 0;
-	if (m_bFirstShot)
-	{
-		m_bFirstShot = false;
-	}
-	else
-	{
-		float timesince = gpGlobals->time - m_fTimeSincePrimary;
-
-		if (timesince > 0.75f)
-			timesince = 0.75f;
-		if (timesince < 0.125f)
-			timesince = 0.125f;
-
-		spread = 0.18 * (pow(0.003, timesince)); // both are rounded up a little so it's not exactly going from 10 deg to 0.001
-		m_fTimeSincePrimary = gpGlobals->time;
-		ALERT(at_console, "Time since fire = %f\n", timesince);
-		ALERT(at_console, "spread = %f\n", spread);
-	}
+	float spread = GetBulletSpread().x;
 
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
@@ -221,7 +230,6 @@ void CPython::Reload()
 #else
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
-	m_bFirstShot = true;
 	DefaultReload(6, PYTHON_RELOAD, 2.0, bUseScope ? 1 : 0);
 }
 

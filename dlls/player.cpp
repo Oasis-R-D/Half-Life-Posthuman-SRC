@@ -4549,15 +4549,6 @@ Called every frame by the player PreThink
 */
 void CBasePlayer::ItemPreFrame()
 {
-#if defined(CLIENT_WEAPONS)
-	if (m_flNextAttack > 0)
-#else
-	if (gpGlobals->time < m_flNextAttack)
-#endif
-	{
-		return;
-	}
-
 	if (!m_pActiveItem)
 		return;
 

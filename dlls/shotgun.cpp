@@ -227,6 +227,8 @@ void CShotgun::SecondaryAttack()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
+	m_flTimeSincePrimary = gpGlobals->time;
+
 	Vector vecSrc = m_pPlayer->GetGunPosition();// + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;

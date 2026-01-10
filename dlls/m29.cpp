@@ -117,6 +117,7 @@ bool CM29::Deploy()
 
 void CM29::Holster()
 {
+	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->altviewmodel = 0; // ALTVM CODE
 	m_fInReload = false; // cancel any reload in progress.
 	if (slowmo)
@@ -241,26 +242,39 @@ void CM29::TertiaryAttack()
 	}
 }
 
+#define	M29_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
+
+void CM29::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M29_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CM29::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M29_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( g_vecZero, VECTOR_CONE_5DEGREES, ramp, cone );
+
+	return cone;
+}
+
 void CM29::Shoot(int gunnumb)
 {
-	float spread = CONE_1DEGREES;
-	if (m_bFirstShot)
-	{
-		m_bFirstShot = false;
-	}
-	else
-	{
-		float timesince = gpGlobals->time - m_fTimeSincePrimary;
+	float spread = GetBulletSpread().x;
 
-		if (timesince >= 0.5f)
-			timesince = 0.5f;
-		if (timesince < 0.125f)
-			timesince = 0.125f;
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M29_ACCURACY_SHOT_PENALTY_TIME;
 
-		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
-
-	}
-	m_fTimeSincePrimary = gpGlobals->time;
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
 	int flags;

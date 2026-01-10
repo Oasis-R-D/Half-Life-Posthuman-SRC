@@ -106,7 +106,7 @@ void CPhysblood::Spawn()
 	}
 
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
-	pev->solid = SOLID_TRIGGER;
+	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos);
 	pev->velocity = ((m_direction + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
 	pev->gravity = m_Gravity;

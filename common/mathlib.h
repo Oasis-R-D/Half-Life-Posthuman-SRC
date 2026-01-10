@@ -122,6 +122,20 @@ inline void VectorClear(float* a)
 	a[2] = 0.0;
 }
 
+inline void VectorLerp(const Vector& src1, const Vector& src2, vec_t t, Vector& dest )
+{
+	dest.x = src1.x + (src2.x - src1.x) * t;
+	dest.y = src1.y + (src2.y - src1.y) * t;
+	dest.z = src1.z + (src2.z - src1.z) * t;
+}
+
+inline Vector VectorLerp(const Vector& src1, const Vector& src2, vec_t t )
+{
+	Vector result;
+	VectorLerp( src1, src2, t, result );
+	return result;
+}
+
 void VectorMA(const float* veca, float scale, const float* vecb, float* vecc);
 
 bool VectorCompare(const float* v1, const float* v2);
@@ -160,7 +174,26 @@ int InvertMatrix(const float* m, float* out);
 
 float anglemod(float a);
 
+inline float clamp( float val, float minVal, float maxVal )
+{
+	if ( maxVal < minVal )
+		return maxVal;
+	else if( val < minVal )
+		return minVal;
+	else if( val > maxVal )
+		return maxVal;
+	else
+		return val;
+}
 
+inline float RemapValClamped( float val, float A, float B, float C, float D)
+{
+	if ( A == B )
+		return val >= B ? D : C;
+	float cVal = (val - A) / (B - A);
+	cVal = clamp( cVal, 0.0f, 1.0f );
+	return C + (D - C) * cVal;
+}
 
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p)                                                                 \
 	(((p)->type < 3) ? (                                                                                   \

@@ -75,7 +75,6 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
-	m_bFirstShot = true;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW_FIRST, "onehanded", pev->body);
@@ -84,7 +83,7 @@ bool CGlock::Deploy()
 
 void CGlock::Holster()
 {
-	m_bFirstShot = true;
+	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
@@ -137,7 +136,6 @@ void CGlock::ReloadSetAmmos()
 		m_pPlayer->TabulateAmmo();
 
 		m_fInReload = false;
-		m_bFirstShot = true;
 	}
 }
 
@@ -154,27 +152,35 @@ void CGlock::ItemPostFrame()
 	CBasePlayerWeapon::ItemPostFrame();
 }
 
+#define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
+
+void CGlock::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CGlock::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
+
+	return cone;
+}
+
 void CGlock::PrimaryAttack()
 {
-	float spread = CONE_1DEGREES;
-	if (m_bFirstShot)
-	{
-		m_bFirstShot = false;
-	}
-	else
-	{
-		float timesince = gpGlobals->time - m_fTimeSincePrimary;
-
-		if (timesince >= 0.5f)
-			timesince = 0.5f;
-		if (timesince < 0.125f)
-			timesince = 0.125f;
-
-		spread = 0.5f * ( spread / (2 * ( timesince/2 ) ) );
-
-	}
-	GlockFire(spread, 0.125f, true);
-	m_fTimeSincePrimary = gpGlobals->time;
+	GlockFire(GetBulletSpread().x, 0.125f, true);
 }
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
@@ -188,6 +194,9 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(0.2);
 		return;
 	}
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PISTOL_ACCURACY_SHOT_PENALTY_TIME;
 
 	m_iClip--;
 

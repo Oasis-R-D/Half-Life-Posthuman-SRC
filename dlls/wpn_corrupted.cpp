@@ -255,13 +255,14 @@ void CCorruptedWPN::PrimaryAttack()
 
 	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 0.95), ATTN_GUN, 0, RANDOM_LONG(50, 250));
 
+	m_flTimeSincePrimary = gpGlobals->time;
+
 	m_iClip--;
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 

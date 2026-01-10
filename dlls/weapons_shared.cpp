@@ -545,6 +545,8 @@ void CEagle::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = 2048;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
+	m_flTimeSincePrimary = gpGlobals->time;
+
 	--m_iClip;
 
 	m_pPlayer->pev->effects |= EF_MUZZLEFLASH;

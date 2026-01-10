@@ -102,11 +102,38 @@ bool CMP5::Deploy()
 
 void CMP5::Holster()
 {
+	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(0);
 	MESSAGE_END();
+}
+
+#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+
+void CMP5::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CMP5::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_6DEGREES, ramp, cone );
+
+	return cone;
 }
 
 void CMP5::PrimaryAttack()
@@ -126,6 +153,8 @@ void CMP5::PrimaryAttack()
 			PlayEmptySound();
 			return;
 		}
+
+		m_flTimeSincePrimary = gpGlobals->time;
 
 		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
@@ -166,6 +195,9 @@ void CMP5::PrimaryAttack()
 
 		return;
 	}
+	
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0 && pev->armortype == 2 && pev->armorvalue == 0)
+		return;
 
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater
 	{
@@ -173,6 +205,9 @@ void CMP5::PrimaryAttack()
 		m_flNextPrimaryAttack = 0.15;
 		return;
 	}
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
 
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
@@ -188,21 +223,22 @@ void CMP5::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
+	Vector spread = GetBulletSpread();
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 0.66f, 9, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, spread.x, spread.y, 0.66f, 9, m_pPlayer->edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, spread.x, spread.y, 1, 9, m_pPlayer->edict());
 		}
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, spread.x, spread.y, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
@@ -247,15 +283,9 @@ void CMP5::PrimaryAttack()
 		}
 	}
 	m_flTimeWeaponIdle = 5;
+
 	#ifndef CLIENT_DLL
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(0.8, 1);
-	}
-	else
-	{
-		CBasePlayerWeapon::Recoil(1, 1);
-	}
+	CBasePlayerWeapon::Recoil(0.95, 1);
 	#endif
 }
 
@@ -595,6 +625,7 @@ void CM727::TestSprayPat(int bulletnum)
 
 void CM727::Holster()
 {
+	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
@@ -602,19 +633,52 @@ void CM727::Holster()
 	MESSAGE_END();
 }
 
+#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+
+void CM727::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CM727::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
+
+	return cone;
+}
+
 void CM727::PrimaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0 && firemode == true)
 		return;
+
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater or if emptied
 	{
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
 		return;
 	}
+
+
 	m_flNextSecondaryAttack = 0.15;
 
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
+
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 	m_iClip--;
@@ -624,17 +688,18 @@ void CM727::PrimaryAttack()
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
+	Vector spread = GetBulletSpread();
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 0.66, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, CONE_3DEGREES, CONE_3DEGREES, 1, 556, m_pPlayer->edict());
+			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
 		}
 	}
 	else
@@ -668,14 +733,7 @@ void CM727::PrimaryAttack()
 	/*
 	TestSprayPat(iMaxClip() - m_iClip); // breaks the camera sometimes
 	*/
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(0.75, 1);
-	}
-	else
-	{
-		CBasePlayerWeapon::Recoil(0.8, 1);
-	}
+	CBasePlayerWeapon::Recoil(0.8, 1);
 #endif
 }
 

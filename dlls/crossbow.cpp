@@ -107,6 +107,8 @@ void CCrossbow::FireBolt()
 	}
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
+	
+	m_flTimeSincePrimary = gpGlobals->time;
 
 	m_iClip--;
 
