@@ -4548,8 +4548,9 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &fuck);
 
 	if (CVAR_GET_FLOAT("cl_innacuracydebug") > 0)
-	{
-		ALERT(at_console, "spread: %f \n", spread);
+	{	
+		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 1)
+			ALERT(at_console, "spread: %f \n", spread);
 
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, fuck.vecEndPos + fuck.vecPlaneNormal * 0.1f, fuck.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 

@@ -283,6 +283,7 @@ void CM29::Shoot(int gunnumb)
 	flags = 0;
 #endif
 	Vector vecDir;
+	//ALERT(at_console, "gun numb: %d \n", gunnumb);
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, gunnumb, 0, 0, 0);
 
 	Vector vecSrc;
