@@ -1043,7 +1043,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	{
 		UTIL_ScreenFade(this, Vector(0, 0, 0), 1.0f, 0, 255, FFADE_OUT | FFADE_STAYOUT);
 	}
-	pev->maxspeed = 350;
+	pev->maxspeed = 384;
 	m_bleedAMNT = 0;
 
 	FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
@@ -3374,7 +3374,7 @@ void CBasePlayer::Spawn()
 	pev->dmg_save = 0;
 	pev->friction = 1.0;
 	pev->gravity = 1.0;
-	pev->maxspeed = 350;
+	pev->maxspeed = 384;
 	m_bitsHUDDamage = -1;
 	m_bitsDamageType = 0;
 	m_afPhysicsFlags = 0;
