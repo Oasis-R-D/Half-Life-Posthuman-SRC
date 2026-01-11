@@ -1819,8 +1819,8 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 
 				if (pSystem->decalangle == -1) // randomize angle
 					pSystem->decalangle = gEngfuncs.pfnRandomLong(-180, 180);
-				
-				gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d\n", pSystem->create, pSystem->decalcreate, pSystem->decalfromwad);
+				if (CVAR_GET_FLOAT("r_particles_debug") > 0)
+					gEngfuncs.Con_Printf("Decal: %s System: %s FromWad: %d\n", pSystem->create, pSystem->decalcreate, pSystem->decalfromwad);
 				gBSPRenderer.CreateDecal(pmtrace.endpos, pmtrace.plane.normal, pSystem->create, 0, pSystem->decalfromwad, pSystem->decalangle);
 				
 				if (gEngfuncs.PM_PointContents(pmtrace.endpos, nullptr) != CONTENTS_SKY && pSystem->decalcreate[0] != 0)
