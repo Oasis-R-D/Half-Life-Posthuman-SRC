@@ -134,6 +134,29 @@ const Vector& CM249::GetBulletSpread()
 	// We lerp from very accurate to inaccurate over time
 	VectorLerp( g_vecZero, VECTOR_CONE_6DEGREES, ramp, cone );
 
+	float vecSpread;
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		vecSpread = CONE_2DEGREES;
+	}
+	else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
+										IN_MOVELEFT |
+										IN_FORWARD |
+										IN_BACK)) != 0)
+	{
+		vecSpread = CONE_10DEGREES;
+	}
+	else
+	{
+		vecSpread = CONE_4DEGREES;
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		cone[i] += vecSpread;
+	}
+
 	return cone;
 }
 
@@ -186,23 +209,7 @@ void CM249::PrimaryAttack()
 
 	float vecSpread;
 
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		vecSpread = CONE_2DEGREES;
-	}
-	else if ((m_pPlayer->pev->button & (IN_MOVERIGHT |
-											IN_MOVELEFT |
-											IN_FORWARD |
-											IN_BACK)) != 0)
-	{
-		vecSpread = CONE_10DEGREES;
-	}
-	else
-	{
-		vecSpread = CONE_4DEGREES;
-	}
-
-	vecSpread += GetBulletSpread().x;
+	vecSpread = GetBulletSpread().x;
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
@@ -216,6 +223,7 @@ void CM249::PrimaryAttack()
 	}
 	#endif
 	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
+	
 	const char* sound;
 	switch (RANDOM_LONG(0, 1))
 	{
