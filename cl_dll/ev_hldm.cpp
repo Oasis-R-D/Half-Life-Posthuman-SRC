@@ -1987,23 +1987,26 @@ void EV_Particles(event_args_t* args)
 
 			if (!args->bparam1)
 				gParticleEngine.CreateCluster(constchar3, args->origin, args->angles, 0);
-
-			if (args->bparam1) // bleeding
-				BLDAMNT = gEngfuncs.pfnRandomLong(2,3);
-
-			for (int i = 0; i < BLDAMNT; i++)
+			
+			if (EV_IsLocal(idx))
 			{
-				switch (gEngfuncs.pfnRandomLong(1, 3))
+				if (args->bparam1) // bleeding
+					BLDAMNT = gEngfuncs.pfnRandomLong(2, 3);
+
+				for (int i = 0; i < BLDAMNT; i++)
 				{
+					switch (gEngfuncs.pfnRandomLong(1, 3))
+					{
 					case 1:
 					case 2: idx = -1; break;
 					case 3: idx = 1; break;
+					}
+
+					if (args->bparam1) // bleeding
+						idx = 1;
+
+					gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 				}
-
-				if (args->bparam1) // bleeding
-					idx = 1;
-
-				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 			}
 			break;
 		case 4: // neurotoxin expl
