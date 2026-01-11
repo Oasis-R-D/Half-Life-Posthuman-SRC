@@ -27,7 +27,7 @@
 #define VECTOR_CONE_DM_DOUBLESHOTGUN Vector(0.17365, 0.04362, 0.00) // 20 degrees by 5 degrees
 
 #define	SG_ACCURACY_SHOT_PENALTY_TIME		0.5f	// Applied amount of time each shot adds to the time we must recover from
-#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	10	// Maximum penalty to deal out
+#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	10		// Maximum penalty to deal out
 
 // TO-DO: fix shell coming out of weapon on draw if holstered before pumped (play pumping animation)
 LINK_ENTITY_TO_CLASS(weapon_shotgun, CShotgun);
