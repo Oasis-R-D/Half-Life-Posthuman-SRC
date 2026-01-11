@@ -1988,26 +1988,24 @@ void EV_Particles(event_args_t* args)
 			if (!args->bparam1)
 				gParticleEngine.CreateCluster(constchar3, args->origin, args->angles, 0);
 			
-			if (EV_IsLocal(idx))
+			if (args->bparam1) // bleeding
+				BLDAMNT = gEngfuncs.pfnRandomLong(2, 3);
+
+			for (int i = 0; i < BLDAMNT; i++)
 			{
-				if (args->bparam1) // bleeding
-					BLDAMNT = gEngfuncs.pfnRandomLong(2, 3);
-
-				for (int i = 0; i < BLDAMNT; i++)
+				switch (gEngfuncs.pfnRandomLong(1, 3))
 				{
-					switch (gEngfuncs.pfnRandomLong(1, 3))
-					{
-					case 1:
-					case 2: idx = -1; break;
-					case 3: idx = 1; break;
-					}
-
-					if (args->bparam1) // bleeding
-						idx = 1;
-
-					gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
+				case 1:
+				case 2: idx = -1; break;
+				case 3: idx = 1; break;
 				}
+
+				if (args->bparam1) // bleeding
+					idx = 1;
+
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 			}
+
 			break;
 		case 4: // neurotoxin expl
 			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
@@ -2033,7 +2031,7 @@ void EV_Particles(event_args_t* args)
 		case 6: // glowing bullet impact 'crater'
 			if (args->bparam2 != 1)
 				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
-			else
+			else if (EV_IsLocal(idx))
 				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
 			break;
 		case 7: // enemy gib cloud
