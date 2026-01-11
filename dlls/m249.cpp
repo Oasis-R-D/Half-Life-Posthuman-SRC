@@ -136,7 +136,7 @@ const Vector& CM249::GetBulletSpread()
 
 	float vecSpread;
 
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	if (FBitSet(m_pPlayer->pev->flags, FL_DUCKING) && FBitSet(m_pPlayer->pev->flags, FL_ONGROUND))
 	{
 		vecSpread = CONE_2DEGREES;
 	}
