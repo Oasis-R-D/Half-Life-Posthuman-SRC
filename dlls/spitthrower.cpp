@@ -20,6 +20,9 @@
 #include "decals.h"
 #include "skill.h"
 
+#define	SPTH_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	SPTH_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+
 LINK_ENTITY_TO_CLASS(weapon_spitthrower, CSpitThrower);
 
 void CSpitThrower::Precache()
@@ -53,6 +56,7 @@ void CSpitThrower::Spawn()
 
 bool CSpitThrower::Deploy()
 {
+	m_flAccuracyPenalty =  4 * SPTH_ACCURACY_SHOT_PENALTY_TIME;
 	return DefaultDeploy("models/v_spitthrower.mdl", "models/p_9mmhandgun.mdl", EGON_DRAW, "bow");
 }
 
@@ -72,6 +76,29 @@ void CSpitThrower::WeaponIdle()
 	
 }
 
+void CSpitThrower::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SPTH_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CSpitThrower::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, SPTH_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( VECTOR_CONE_4DEGREES, VECTOR_CONE_7DEGREES, ramp, cone );
+
+	return cone;
+}
+
 void CSpitThrower::PrimaryAttack()
 {
 	if (m_iClip <= 0)
@@ -82,6 +109,8 @@ void CSpitThrower::PrimaryAttack()
 	}
 
 	m_iClip--;
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += SPTH_ACCURACY_SHOT_PENALTY_TIME;
 
 	m_flNextPrimaryAttack = 0.1;
 	m_flTimeWeaponIdle = 1;
@@ -168,6 +197,7 @@ class CEnvSpit : public CBaseEntity
 {	
 	Vector m_SpreadVect;
 	int iSquidSpitSprite;
+	bool oddthink;
 	void Spawn()
 	{
 		iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
@@ -175,16 +205,30 @@ class CEnvSpit : public CBaseEntity
 		pev->solid = SOLID_BBOX;
 		pev->movetype = MOVETYPE_BOUNCE;
 		//pev->velocity = gpGlobals->v_forward * 1000 + gpGlobals->v_right * RANDOM_LONG(-8, 8) + gpGlobals->v_up * RANDOM_LONG(-8, 8);
-		m_SpreadVect = Vector(RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES));
+		CBaseEntity* owner = CBaseEntity::Instance(ENT(pev->owner));
+		if (owner->IsPlayer())
+		{
+			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(owner);
+			CBasePlayerWeapon* weapon = pPlayer->m_pActiveItem->GetWeaponPtr();
+			float spread = weapon->GetBulletSpread().x;
+			m_SpreadVect = Vector(RANDOM_FLOAT(spread, -spread), RANDOM_FLOAT(spread, -spread), RANDOM_FLOAT(spread, -spread));
+		}
+		else
+			m_SpreadVect = Vector(RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES), RANDOM_FLOAT(CONE_5DEGREES, -CONE_5DEGREES));
 		pev->velocity = (gpGlobals->v_forward + m_SpreadVect) * 1750; // Applies spread and velocity
 		pev->framerate = 1;
 		pev->dmgtime = gpGlobals->time + 2;
 		pev->nextthink = gpGlobals->time + 0.1;
 		pev->renderamt = 255;
 		pev->rendermode = kRenderTransAdd;
+		oddthink = RANDOM_LONG(0, 1);
 	}
 	void Touch(CBaseEntity* pOther)
 	{
+		TraceResult tr;
+		UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 10, dont_ignore_monsters, ENT(pev), &tr);
+		UTIL_MakeVectors(pev->velocity);
+
 		float iPitch = RANDOM_FLOAT(90, 110);
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "bullchicken/bc_acid1.wav", .5, ATTN_NORM, 0, iPitch);
 		switch (RANDOM_LONG(0, 1))
@@ -206,14 +250,15 @@ class CEnvSpit : public CBaseEntity
 			case SKILL_MEDIUM: damage = 5; break;
 			case SKILL_HARD: damage = 20; break;
 			}
-			pOther->TakeDamage(VARS(pev->owner), VARS(pev->owner), damage, DMG_ACID);
+
+			ClearMultiDamage();
+			pOther->TraceAttack(VARS(pev->owner), damage, pev->velocity.Normalize(), &tr, (DMG_ACID | DMG_ALWAYSGIB));
+			ApplyMultiDamage(pev, VARS(pev->owner));
 		}
 
-		TraceResult tr;
 		// make a splat on the wall
-		UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 10, dont_ignore_monsters, ENT(pev), &tr);
 		UTIL_DecalTrace(&tr, DECAL_SPIT1 + RANDOM_LONG(0, 1));
-		UTIL_MakeVectors(pev->velocity);
+
 		// make some flecks
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, tr.vecEndPos);
 		WRITE_BYTE(TE_SPRITE_SPRAY);
@@ -235,8 +280,11 @@ class CEnvSpit : public CBaseEntity
 	}
 	void Think()
 	{
+		oddthink = !oddthink;
 		pev->angles = UTIL_VecToAngles(pev->velocity);
 		pev->nextthink = gpGlobals->time + 0.1;
+		if (oddthink)
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
 		if (pev->dmgtime < gpGlobals->time)
 			UTIL_Remove(this);
 	}

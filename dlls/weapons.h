@@ -1555,6 +1555,8 @@ class CSpitThrower : public CBasePlayerWeapon
 		return false;
 #endif
 	}
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 };
 
 class CEagleLaser;
