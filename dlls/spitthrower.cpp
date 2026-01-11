@@ -213,7 +213,7 @@ class CEnvSpit : public CBaseEntity
 		// make a splat on the wall
 		UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 10, dont_ignore_monsters, ENT(pev), &tr);
 		UTIL_DecalTrace(&tr, DECAL_SPIT1 + RANDOM_LONG(0, 1));
-
+		UTIL_MakeVectors(pev->velocity);
 		// make some flecks
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, tr.vecEndPos);
 		WRITE_BYTE(TE_SPRITE_SPRAY);
@@ -229,11 +229,9 @@ class CEnvSpit : public CBaseEntity
 		WRITE_BYTE(80);				   // noise ( client will divide by 100 )
 		MESSAGE_END();
 		
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos, tr.vecPlaneNormal, 0.0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_forward * -24, -gpGlobals->v_forward, 4, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
 
 		UTIL_Remove(this);
-
-		
 	}
 	void Think()
 	{
