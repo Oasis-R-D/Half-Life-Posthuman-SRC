@@ -395,7 +395,10 @@ public:
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
+
+	// POST-HUMAN
 	float m_fGrenadeFireDelay;
+	float m_flAccuracyPenalty;
 };
 
 
@@ -576,7 +579,6 @@ public:
 	}
 
 private:
-	float m_flAccuracyPenalty = 0.0;
 	int m_iShell;
 
 	unsigned short m_usFireGlock1;
@@ -758,7 +760,6 @@ public:
 	bool ShouldWeaponIdle() override { return m_bHasLaser ? true : false; }
 
 private:
-	float m_flAccuracyPenalty = 0.0;
 	unsigned short m_usFirePython;
 };
 
@@ -812,9 +813,6 @@ public:
 		return false;
 #endif
 	}
-
-private:
-	float m_flAccuracyPenalty = 0.0;
 };
 
 enum m727_e
@@ -944,9 +942,6 @@ public:
 		return false;
 #endif
 	}
-
-private:
-	float m_flAccuracyPenalty = 0.0;
 };
 
 class CLaserSpot : public CBaseEntity
@@ -1478,7 +1473,6 @@ public:
 private:
 	static int RecalculateBody(int iClip);
 	
-	float m_flAccuracyPenalty = 0.0;
 	unsigned short m_usFireM249;
 	float m_flNextAnimTime;
 	int m_iShell;
@@ -1674,9 +1668,6 @@ public:
 		return false;
 #endif
 	}
-
-private:
-	float m_flAccuracyPenalty = 0.0;
 };
 
 class CCorruptedWPN : public CBasePlayerWeapon
@@ -1762,11 +1753,9 @@ public:
 	bool slowmo = false;
 
 private:
-	bool m_bFirstShot;
 	unsigned short m_usFireM29;
 	int m_iCylR_ammo;
 	int m_iCylL_ammo;
-	float m_flAccuracyPenalty = 0.0;
 };
 
 enum offhandgren_e

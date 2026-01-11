@@ -23,6 +23,9 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
+#define	PYTHON_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME	0.75	// Maximum penalty to deal out
+
 LINK_ENTITY_TO_CLASS(weapon_python, CPython);
 LINK_ENTITY_TO_CLASS(weapon_357, CPython);
 
@@ -74,6 +77,7 @@ void CPython::Precache()
 
 bool CPython::Deploy()
 {
+	m_flAccuracyPenalty = PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }
 
@@ -105,9 +109,6 @@ void CPython::SecondaryAttack()
 
 	m_flNextSecondaryAttack = 0.5;
 }
-
-#define	PYTHON_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME	0.75	// Maximum penalty to deal out
 
 void CPython::ItemPreFrame()
 {

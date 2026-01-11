@@ -23,6 +23,8 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
+#define	M29_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
 #define firerate 0.25
 
 LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
@@ -108,7 +110,7 @@ void CM29::CalculateAmmo()
 }
 bool CM29::Deploy()
 {
-	m_bFirstShot = true;
+	m_flAccuracyPenalty = 2 * M29_ACCURACY_SHOT_PENALTY_TIME;
 	CalculateAmmo();
 
 	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body, "models/v_m29L.mdl", PYTHON_DRAW);
@@ -242,9 +244,6 @@ void CM29::TertiaryAttack()
 	}
 }
 
-#define	M29_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
-
 void CM29::ItemPreFrame()
 {
 	// Check our penalty time decay
@@ -315,7 +314,6 @@ void CM29::Reload()
 {
 	if (m_pPlayer->ammo_357 <= 0)
 		return;
-	m_bFirstShot = true;
 	DefaultReload(12, PYTHON_RELOAD, 2.0, 0, true, PYTHON_RELOAD);
 }
 

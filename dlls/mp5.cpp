@@ -29,7 +29,11 @@ LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 #define CROWBAR_BODYHIT_VOLUME 128
 #define CROWBAR_WALLHIT_VOLUME 512
 //=========================================================
+//						   MP5EOD
 //=========================================================
+#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+
 void CMP5::Spawn()
 {
 	pev->classname = MAKE_STRING("weapon_9mmAR"); // hack to allow for old names
@@ -85,6 +89,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 
 bool CMP5::Deploy()
 {
+	m_flAccuracyPenalty =  4 * MP5_ACCURACY_SHOT_PENALTY_TIME;
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
@@ -109,9 +114,6 @@ void CMP5::Holster()
 	WRITE_SHORT(0);
 	MESSAGE_END();
 }
-
-#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
 
 void CMP5::ItemPreFrame()
 {
@@ -464,6 +466,9 @@ LINK_ENTITY_TO_CLASS(ammo_ARgrenades, CMP5AmmoGrenade);
 //=========================================================
 // M727
 //=========================================================
+#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+
 static void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
 {
 	int i, j, k;
@@ -565,6 +570,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 
 bool CM727::Deploy()
 {
+	m_flAccuracyPenalty =  4 * M727_ACCURACY_SHOT_PENALTY_TIME;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(firemode ? 3 : 1);
 	MESSAGE_END();
@@ -632,9 +638,6 @@ void CM727::Holster()
 	WRITE_SHORT(0);
 	MESSAGE_END();
 }
-
-#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
 
 void CM727::ItemPreFrame()
 {

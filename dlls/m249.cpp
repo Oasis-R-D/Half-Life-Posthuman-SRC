@@ -22,6 +22,9 @@
 #include "monsters.h"
 #include "physical_bullet.h"
 
+#define	M249_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
+#define	M249_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f	// Maximum penalty to deal out
+
 LINK_ENTITY_TO_CLASS(weapon_m249, CM249);
 
 void CM249::Precache()
@@ -52,6 +55,7 @@ void CM249::Spawn()
 
 bool CM249::Deploy()
 {
+	m_flAccuracyPenalty = 20 * M249_ACCURACY_SHOT_PENALTY_TIME;
 	m_pPlayer->pev->maxspeed = 192;
 	return DefaultDeploy("models/v_saw.mdl", "models/p_saw.mdl", M249_DRAW, "mp5");
 }
@@ -110,9 +114,6 @@ void CM249::WeaponIdle()
 		SendWeaponAnim(iAnim, pev->body);
 	}
 }
-
-#define	M249_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	M249_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f	// Maximum penalty to deal out
 
 void CM249::ItemPreFrame()
 {

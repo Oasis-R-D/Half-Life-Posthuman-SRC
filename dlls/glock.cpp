@@ -20,6 +20,10 @@
 #include "weapons.h"
 #include "player.h"
 #include "physical_bullet.h"
+
+#define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
+#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
+
 LINK_ENTITY_TO_CLASS(weapon_glock, CGlock);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CGlock);
 
@@ -75,6 +79,7 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
+	m_flAccuracyPenalty = 3 * PISTOL_ACCURACY_SHOT_PENALTY_TIME;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW_FIRST, "onehanded", pev->body);
@@ -151,9 +156,6 @@ void CGlock::ItemPostFrame()
 	}
 	CBasePlayerWeapon::ItemPostFrame();
 }
-
-#define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
 
 void CGlock::ItemPreFrame()
 {
