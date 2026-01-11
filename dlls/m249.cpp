@@ -84,7 +84,7 @@ void CM249::WeaponIdle()
 	ResetEmptySound();
 
 	// Update auto-aim
-	m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	if (m_bReloading && gpGlobals->time > m_flReloadStart)
 	{
@@ -122,7 +122,7 @@ void CM249::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M249_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
 }
 
 const Vector& CM249::GetBulletSpread()
@@ -182,7 +182,7 @@ void CM249::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	float vecSpread;
 

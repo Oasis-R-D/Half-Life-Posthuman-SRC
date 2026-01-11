@@ -323,7 +323,7 @@ void CCorruptedWPN::TertiaryAttack()
 void CCorruptedWPN::WeaponIdle()
 {
 
-	m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{

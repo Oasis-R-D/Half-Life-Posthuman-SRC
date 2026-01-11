@@ -131,7 +131,7 @@ void CCrossbow::FireBolt()
 
 	anglesAim.x = -anglesAim.x;
 	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 6 + gpGlobals->v_up * -5;
-	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 #ifndef CLIENT_DLL
 

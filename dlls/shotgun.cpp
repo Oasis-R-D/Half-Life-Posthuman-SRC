@@ -106,6 +106,39 @@ bool CShotgun::Deploy()
 	}
 }
 
+#define	SG_ACCURACY_SHOT_PENALTY_TIME		0.5f	// Applied amount of time each shot adds to the time we must recover from
+#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	10	// Maximum penalty to deal out
+
+void CShotgun::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CShotgun::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f);
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		// We lerp from very accurate to inaccurate over time
+		VectorLerp(m_iFiremode == 0 ? VECTOR_CONE_4DEGREES : VECTOR_CONE_10DEGREES, m_iFiremode == 0 ? VECTOR_CONE_20DEGREES : VECTOR_CONE_15DEGREES, ramp, cone);
+	}
+	else
+	{
+		// We lerp from very accurate to inaccurate over time
+		VectorLerp(0.013095, VECTOR_CONE_10DEGREES, ramp, cone);
+	}
+		return cone;
+}
+
+
 void CShotgun::PrimaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
@@ -130,14 +163,17 @@ void CShotgun::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
+
 	m_iClip--;
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
-	float spread = m_iFiremode == 0 ? CONE_5DEGREES : CONE_10DEGREES;
-	float spreadvert = m_iFiremode == 0 ? CONE_5DEGREES : CONE_2DEGREES;
+	float spread = GetBulletSpread().x;
+	float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
@@ -148,12 +184,12 @@ void CShotgun::PrimaryAttack()
 		}
 		else
 		{
-			CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, 0.013095, 0.013095, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
+			CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
 		}
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	if (m_iFiremode == 0)
@@ -220,6 +256,9 @@ void CShotgun::SecondaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
+
 	m_iClip -= 2;
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
@@ -230,7 +269,7 @@ void CShotgun::SecondaryAttack()
 	m_flTimeSincePrimary = gpGlobals->time;
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();// + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
 	float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
@@ -349,7 +388,7 @@ void CShotgun::WeaponIdle()
 {
 	ResetEmptySound();
 
-	m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{

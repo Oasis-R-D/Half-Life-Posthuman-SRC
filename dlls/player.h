@@ -402,6 +402,7 @@ public:
 	}
 
 	// Post-Human
+	void UpdateCrosshair(float spread, int crosshairtype = 0);
 	int CrowbarFlinch;
 	float FlashingHUDDelay;
 	int Hunger;

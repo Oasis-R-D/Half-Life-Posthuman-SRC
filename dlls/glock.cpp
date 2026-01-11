@@ -163,7 +163,7 @@ void CGlock::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
 }
 
 const Vector& CGlock::GetBulletSpread()

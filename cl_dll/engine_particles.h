@@ -14,6 +14,8 @@
 
 extern char bulletholeglow[];
 
+extern char innacuracydebug[];
+
 extern char bloodsprite[];
 
 extern char bloodchunks[];

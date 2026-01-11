@@ -80,6 +80,30 @@ lightmaps 0
 mainalpha 0.33
 )";
 
+char innacuracydebug[] = R"(
+life 0.05
+
+fadedelay 0.01
+
+display 2
+
+texture gloworg
+rendermode 0
+
+scale 5
+
+pcolr 0
+pcolg 255
+pcolb 0
+
+gravity 0
+
+startparticles 1
+
+lightmaps 0
+mainalpha 1.0
+)";
+
 char bloodsprite[] = R"(
 life 0.33
 

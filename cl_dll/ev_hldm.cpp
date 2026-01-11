@@ -2028,7 +2028,10 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case 6: // glowing bullet impact 'crater'
-			gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
+			if (args->bparam2 != 1)
+				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
+			else
+				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
 			break;
 		case 7: // enemy gib cloud
 			switch (args->iparam2)

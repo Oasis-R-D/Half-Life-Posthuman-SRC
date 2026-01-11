@@ -165,10 +165,8 @@ void CPhysbullet::Spawn()
 			if (g_iSkillLevel == SKILL_HARD && m_Flare != 44)
 			{
 				pev->velocity = pev->velocity + owner->pev->velocity;
-				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
+				//UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
 			}
-			if (m_Flare == 69)
-				UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 6 + gpGlobals->v_right * 4 + gpGlobals->v_up * -4); //spawn a little bit more forward
 		}
 	}
 
