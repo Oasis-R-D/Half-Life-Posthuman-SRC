@@ -161,8 +161,7 @@ void CPython::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 	
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
+
 
 	m_iClip--;
 
@@ -182,6 +181,8 @@ void CPython::PrimaryAttack()
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 
 	float spread = GetBulletSpread().x;
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)

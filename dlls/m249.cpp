@@ -183,8 +183,6 @@ void CM249::PrimaryAttack()
 		return;
 	}
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
 
 	--m_iClip;
 
@@ -211,6 +209,8 @@ void CM249::PrimaryAttack()
 	float vecSpread;
 
 	vecSpread = GetBulletSpread().x;
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL

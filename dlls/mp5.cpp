@@ -208,8 +208,7 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
+
 
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
@@ -226,6 +225,9 @@ void CMP5::PrimaryAttack()
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
 	Vector spread = GetBulletSpread();
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
+
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
@@ -677,8 +679,7 @@ void CM727::PrimaryAttack()
 
 	m_flNextSecondaryAttack = 0.15;
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
+	
 
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 
@@ -692,6 +693,9 @@ void CM727::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	Vector spread = GetBulletSpread();
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
+
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)

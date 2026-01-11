@@ -164,8 +164,7 @@ void CShotgun::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
+
 
 	m_iClip--;
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
@@ -175,6 +174,10 @@ void CShotgun::PrimaryAttack()
 	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
 	float spread = GetBulletSpread().x;
 	float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
+
 	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
@@ -257,8 +260,7 @@ void CShotgun::SecondaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
+
 
 	m_iClip -= 2;
 
@@ -273,6 +275,9 @@ void CShotgun::SecondaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
 	float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
+
 	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
