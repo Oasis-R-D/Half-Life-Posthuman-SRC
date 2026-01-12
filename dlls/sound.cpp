@@ -1718,7 +1718,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		fvolbar = 0.3;
 		rgsz[0] = "bullet/imp_metal01.wav";
 		cnt = 1;
-		fattn = 1.25;
+		fattn = 0.5;
 		break;
 	case CHAR_TEX_DIRT:
 		fvol = 0.9;
@@ -1729,11 +1729,11 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		cnt = 3;
 		break;
 	case CHAR_TEX_VENT:
-		fvol = 0.5;
+		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 0.8 : 0.7;
 		fvolbar = 0.3;
-		rgsz[0] = "player/pl_duct1.wav";
-		rgsz[1] = "player/pl_duct1.wav";
-		cnt = 2;
+		rgsz[0] = "bullet/imp_metal01.wav";
+		cnt = 1;
+		fattn = 0.7;
 		break;
 	case CHAR_TEX_GRATE:
 		fvol = 0.9;
