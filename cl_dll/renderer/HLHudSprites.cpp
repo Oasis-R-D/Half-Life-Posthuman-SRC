@@ -414,7 +414,7 @@ void DrawCrosshair()
 		*/
 	// END SPR_SET
 	// START SPR_DRAWADDITIVE
-	const Rect* WHYCPLUSPLUS = gCrosshairRc;
+	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
 	SPR_DrawHoles(0, center[0], center[1], WHYCPLUSPLUS);
 	/*
 	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
