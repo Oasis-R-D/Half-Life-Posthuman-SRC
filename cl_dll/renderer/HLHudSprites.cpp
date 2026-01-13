@@ -394,6 +394,9 @@ void DrawCrosshair()
 	if (!ghCrosshair)
 		return;
 
+	// START SPR_SET
+	SPR_SET(ghCrosshair, gCrosshairR, gCrosshairG, gCrosshairB);
+	/*
 	int enIndex = ghCrosshair - 1;
 
 	if (enIndex >= 0 && enIndex < gSpriteCount)
@@ -408,7 +411,9 @@ void DrawCrosshair()
 			}
 		}
 	}
-
+		*/
+	// END SPR_SET
+	// START SPR_DRAWADDITIVE
 	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
 		return;
 
@@ -418,9 +423,10 @@ void DrawCrosshair()
 
 	mspriteframe_t* spriteframe = g_LegacySpriteRenderer.GetSpriteFrame(&dummy, 0, 0);
 	if (spriteframe)
-		Draw_SpriteFrameHoles(spriteframe, center[0], center[1], &gCrosshairRc);
+		Draw_SpriteFrameHoles(spriteframe, center[0], center[1], &gCrosshairRc); // different than spr_drawadditive
 	else
 		gEngfuncs.Con_DPrintf("Client.dll SPR_DrawHoles error:  invalid frame\n");
+	// END SPR_DRAWADDITIVE
 }
 
 void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a)
