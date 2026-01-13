@@ -4541,24 +4541,24 @@ int CBasePlayer::GiveAmmo(int iCount, const char* szName, int iMax)
 void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 {
 	GetAutoaimVector(AUTOAIM_10DEGREES); // All guns use 10 degwees now
-	TraceResult fuck;
+	TraceResult spread;
 	Vector bulletorg;
 	bulletorg = GetGunPosition();
 	Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spread);
-	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &fuck);
+	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spread);
 
 	if (CVAR_GET_FLOAT("cl_innacuracydebug") > 0)
 	{	
 		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 1)
 			ALERT(at_console, "spread: %f \n", spread);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, fuck.vecEndPos + fuck.vecPlaneNormal * 0.1f, fuck.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spread.vecEndPos + spread.vecPlaneNormal * 0.1f, spread.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 
 		// Draw bottom notch too
 		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spread);
-		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &fuck);
+		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spread);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, fuck.vecEndPos + fuck.vecPlaneNormal * 0.1f, fuck.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spread.vecEndPos + spread.vecPlaneNormal * 0.1f, spread.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 	}
 }
 

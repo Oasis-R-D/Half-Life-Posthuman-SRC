@@ -57,6 +57,7 @@ inline int gmsgStatusValue = 0;
 
 inline int gmsgWeapons = 0;
 
+// POST-HUMAN
 inline int gmsgFlashHUD = 0;
 inline int gmsgHunger = 0;
 inline int gmsgFireMode = 0;
