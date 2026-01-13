@@ -339,7 +339,7 @@ void Draw_SpriteFrameHoles(mspriteframe_t* pFrame, int x, int y, const Rect* prc
 	glDisable(GL_BLEND);
 }
 
-const Rect* gCrosshairRc;
+Rect gCrosshairRc;
 int gCrosshairR;
 int gCrosshairG;
 int gCrosshairB;
@@ -414,7 +414,8 @@ void DrawCrosshair()
 		*/
 	// END SPR_SET
 	// START SPR_DRAWADDITIVE
-	SPR_DrawHoles(0, center[0], center[1], gCrosshairRc);
+	const Rect* WHYCPLUSPLUS = gCrosshairRc;
+	SPR_DrawHoles(0, center[0], center[1], WHYCPLUSPLUS);
 	/*
 	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
 		return;
