@@ -339,7 +339,7 @@ void Draw_SpriteFrameHoles(mspriteframe_t* pFrame, int x, int y, const Rect* prc
 	glDisable(GL_BLEND);
 }
 
-Rect gCrosshairRc;
+const Rect* gCrosshairRc;
 int gCrosshairR;
 int gCrosshairG;
 int gCrosshairB;
