@@ -365,7 +365,7 @@ void DrawCrosshair()
 	const auto& global_refdef = gBSPRenderer.m_RefParams;
 	angles = global_refdef.viewangles + (engine_cl->crosshairangle * Vector(1.0, 1.0, 1.0) );
 	AngleVectors(angles, &forward, nullptr, nullptr);
-	point = global_refdef.vieworg + forward * 50;
+	point = global_refdef.vieworg + forward * 50; // TO-DO: does TriWorldToScreen allow you to project a point onto the screen? if so, will be needed for the dynamic crosshair
 
 	screen = gBSPRenderer.TriWorldToScreen(point);
 

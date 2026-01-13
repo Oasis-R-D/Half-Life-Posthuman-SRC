@@ -122,31 +122,12 @@ void WeaponsResource::LoadWeaponSprites(WEAPON* pWeapon)
 	else
 		pWeapon->hAutoaim = 0;
 
-	p = GetSpriteList(pList, "zoom", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hZoomedCrosshair = SPR_Load(sz);
-		pWeapon->rcZoomedCrosshair = p->rc;
-	}
-	else
-	{
-		pWeapon->hZoomedCrosshair = pWeapon->hCrosshair; //default to non-zoomed crosshair
-		pWeapon->rcZoomedCrosshair = pWeapon->rcCrosshair;
-	}
+	// No zoomed crosshairs, zooming is model based or RT
+	pWeapon->hZoomedCrosshair = pWeapon->hCrosshair;
+	pWeapon->rcZoomedCrosshair = pWeapon->rcCrosshair;
 
-	p = GetSpriteList(pList, "zoom_autoaim", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hZoomedAutoaim = SPR_Load(sz);
-		pWeapon->rcZoomedAutoaim = p->rc;
-	}
-	else
-	{
-		pWeapon->hZoomedAutoaim = pWeapon->hZoomedCrosshair; //default to zoomed crosshair
-		pWeapon->rcZoomedAutoaim = pWeapon->rcZoomedCrosshair;
-	}
+	pWeapon->hZoomedAutoaim = pWeapon->hAutoaim; //default to zoomed crosshair
+	pWeapon->rcZoomedAutoaim = pWeapon->pWeapon->rcAutoaim;
 
 	p = GetSpriteList(pList, "weapon", iRes, i);
 	if (p)
@@ -652,7 +633,7 @@ bool CHudAmmo::MsgFunc_CurWeapon(const char* pszName, int iSize, void* pbuf)
 
 	m_pWeapon = pWeapon;
 
-	if (gHUD.m_iFOV >= 90)
+	if (gHUD.m_iFOV >= 90) // TO-DO: would this not break if some minecraft player shows up with their godawful 60 FOV?
 	{ // normal crosshairs
 		if (fOnTarget && 0 != m_pWeapon->hAutoaim)
 			SetCrosshair(m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255);
