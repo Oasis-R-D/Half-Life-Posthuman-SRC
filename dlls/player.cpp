@@ -4548,7 +4548,9 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
-	WRITE_COORD(spreadTR.vecEndPos);
+	WRITE_COORD(spreadTR.vecEndPos.x);
+	WRITE_COORD(spreadTR.vecEndPos.y);
+	WRITE_COORD(spreadTR.vecEndPos.z);
 	WRITE_BYTE(crosshairtype);				  
 	MESSAGE_END();
 
