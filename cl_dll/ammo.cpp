@@ -127,7 +127,7 @@ void WeaponsResource::LoadWeaponSprites(WEAPON* pWeapon)
 	pWeapon->rcZoomedCrosshair = pWeapon->rcCrosshair;
 
 	pWeapon->hZoomedAutoaim = pWeapon->hAutoaim; //default to zoomed crosshair
-	pWeapon->rcZoomedAutoaim = pWeapon->pWeapon->rcAutoaim;
+	pWeapon->rcZoomedAutoaim = pWeapon->rcAutoaim;
 
 	p = GetSpriteList(pList, "weapon", iRes, i);
 	if (p)
