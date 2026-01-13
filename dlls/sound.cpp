@@ -1768,7 +1768,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		break;
 	case CHAR_TEX_GLASS:
 	case CHAR_TEX_COMPUTER:
-		fvol = 0.8;
+		fvol = 1.0;
 		fvolbar = 0.2;
 		rgsz[0] = "debris/glass1.wav";
 		rgsz[1] = "debris/glass2.wav";
