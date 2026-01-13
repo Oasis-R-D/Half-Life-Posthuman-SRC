@@ -395,7 +395,7 @@ void DrawCrosshair()
 		return;
 
 	// START SPR_SET
-	SPR_SET(ghCrosshair, gCrosshairR, gCrosshairG, gCrosshairB);
+	SPR_Set(ghCrosshair, gCrosshairR, gCrosshairG, gCrosshairB);
 	/*
 	int enIndex = ghCrosshair - 1;
 
