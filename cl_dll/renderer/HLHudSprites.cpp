@@ -414,6 +414,8 @@ void DrawCrosshair()
 		*/
 	// END SPR_SET
 	// START SPR_DRAWADDITIVE
+	SPR_DrawHoles(0, center[0], center[1], gCrosshairRc);
+	/*
 	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
 		return;
 
@@ -423,9 +425,10 @@ void DrawCrosshair()
 
 	mspriteframe_t* spriteframe = g_LegacySpriteRenderer.GetSpriteFrame(&dummy, 0, 0);
 	if (spriteframe)
-		Draw_SpriteFrameHoles(spriteframe, center[0], center[1], &gCrosshairRc); // different than spr_drawadditive
+		Draw_SpriteFrameHoles(spriteframe, center[0], center[1], &gCrosshairRc); // different than spr_drawadditive, used for ALPHA_TEST
 	else
 		gEngfuncs.Con_DPrintf("Client.dll SPR_DrawHoles error:  invalid frame\n");
+	*/
 	// END SPR_DRAWADDITIVE
 }
 
