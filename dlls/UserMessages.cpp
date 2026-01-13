@@ -68,10 +68,12 @@ void LinkUserMessages()
 
 	gmsgWeapons = REG_USER_MSG("Weapons", 8);
 
+	// POST-HUMAN
 	gmsgFlashHUD = REG_USER_MSG("FlashHUD", -1);
 	gmsgHunger = REG_USER_MSG("Hunger", -1);
 	gmsgFireMode = REG_USER_MSG("FireMode", -1);
-
+	gmsgCrossHair = REG_USER_MSG("CrossHair", -1);
+	
 	// RENDERERS START
 	gmsgSetFog = REG_USER_MSG("SetFog", -1);
 	gmsgLightStyle = REG_USER_MSG("LightStyle", -1);

@@ -4547,6 +4547,11 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spread);
 	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spread);
 
+	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
+	WRITE_COORD(spread.vecEndPos);
+	WRITE_BYTE(crosshairtype);				  
+	MESSAGE_END();
+
 	if (CVAR_GET_FLOAT("cl_innacuracydebug") > 0)
 	{	
 		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 1)
