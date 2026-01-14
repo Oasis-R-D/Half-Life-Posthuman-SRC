@@ -343,7 +343,8 @@ Rect gCrosshairRc;
 int gCrosshairR;
 int gCrosshairG;
 int gCrosshairB;
-
+int gCrosshairType;
+Vector gCrosshairSpreadPos;
 
 
 void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
@@ -355,12 +356,20 @@ void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
 	gCrosshairB = b;
 }
 
+void CHud::MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+	for (int i = 0; i < 3; i++)
+		gCrosshairSpreadPos[i] = READ_COORD();
+	gCrosshairType = READ_BYTE();
+}
+
 void DrawCrosshair()
 {
 	Vector angles;
 	Vector crosshairangles;
 	Vector forward;
-	Vector point, screen(0, 0, 0);
+	Vector point, screen(0, 0, 0), spreadvec;
 
 	const auto& global_refdef = gBSPRenderer.m_RefParams;
 	angles = global_refdef.viewangles + (engine_cl->crosshairangle * Vector(1.0, 1.0, 1.0) );
@@ -368,6 +377,13 @@ void DrawCrosshair()
 	point = global_refdef.vieworg + forward * 50; // TO-DO: does TriWorldToScreen allow you to project a point onto the screen? if so, will be needed for the dynamic crosshair
 
 	screen = gBSPRenderer.TriWorldToScreen(point);
+	spreadvec = gBSPRenderer.TriWorldToScreen(gCrosshairSpreadPos);
+	if (spreadvec.y < 0.505)
+		spreadvec.y = 0.505f;
+
+	//spreadvec.x = spreadvec.y;
+
+	gEngfuncs.Con_Printf("spread: %f, %f, %f \n", spreadvec.x, spreadvec.y, spreadvec.z);
 
 	float flHeight = abs(gCrosshairRc.bottom - gCrosshairRc.top);
 	float flWidth = abs(gCrosshairRc.right - gCrosshairRc.left);
@@ -385,6 +401,10 @@ void DrawCrosshair()
 
 	screen.x *= ScreenWidth;
 	screen.y *= ScreenHeight;
+	spreadvec.x *= ScreenWidth;
+	spreadvec.y *= ScreenHeight;
+	spreadvec.x -= 0.5*ScreenWidth;
+	spreadvec.y -= 0.5*ScreenHeight;
 
 	center[0] -= center[0] - screen.x;
 	center[1] -= center[1] - screen.y;
@@ -393,9 +413,21 @@ void DrawCrosshair()
 
 	if (!ghCrosshair)
 		return;
+	
+	int r, g, b, a;
 
-	// START SPR_SET
-	SPR_Set(ghCrosshair, gCrosshairR, gCrosshairG, gCrosshairB);
+	if (gHUD.FlashingHUD > 0)
+	{
+		a = (int)(fabs(sin(engine_cl->time * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+	}
+	else
+		a = 255;
+
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	ScaleColors(r, g, b, a);
+	SPR_Set(ghCrosshair, r, g, b);
+
+	// vv SPR_Set 
 	/*
 	int enIndex = ghCrosshair - 1;
 
@@ -411,11 +443,15 @@ void DrawCrosshair()
 			}
 		}
 	}
-		*/
-	// END SPR_SET
-	// START SPR_DRAWADDITIVE
+	*/
+
 	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
-	SPR_DrawHoles(0, center[0], center[1], WHYCPLUSPLUS);
+	SPR_DrawAdditive(8, center[0], center[1] + spreadvec.y, WHYCPLUSPLUS); // use additive? // UP
+	SPR_DrawAdditive(11, center[0], center[1] - spreadvec.y, WHYCPLUSPLUS); // use additive? // DOWN
+	SPR_DrawAdditive(10, center[0] + spreadvec.x, center[1], WHYCPLUSPLUS); // use additive? // RIGHT
+	SPR_DrawAdditive(9, center[0] - spreadvec.x, center[1], WHYCPLUSPLUS); // use additive? // LEFT
+
+	// vv SPR_DrawHoles
 	/*
 	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
 		return;
@@ -430,7 +466,6 @@ void DrawCrosshair()
 	else
 		gEngfuncs.Con_DPrintf("Client.dll SPR_DrawHoles error:  invalid frame\n");
 	*/
-	// END SPR_DRAWADDITIVE
 }
 
 void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a)

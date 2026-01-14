@@ -4544,7 +4544,12 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	TraceResult spreadTR;
 	Vector bulletorg;
 	bulletorg = GetGunPosition();
-	Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spread);
+
+	double spreadfixed = spread;
+	if (spreadfixed < CONE_4DEGREES)
+		spreadfixed = CONE_4DEGREES;
+
+	Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spreadfixed) + (gpGlobals->v_right * spreadfixed);
 	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
@@ -4556,13 +4561,13 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 
 	if (CVAR_GET_FLOAT("cl_innacuracydebug") > 0)
 	{	
-		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 1)
+		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 2)
 			ALERT(at_console, "spread: %f \n", spread);
 
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 
 		// Draw bottom notch too
-		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spread);
+		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spread) - (gpGlobals->v_right * spread);
 		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);

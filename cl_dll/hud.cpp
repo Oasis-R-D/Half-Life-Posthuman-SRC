@@ -130,6 +130,12 @@ int __MsgFunc_ViewMode(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
+int __MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
+{
+	gHUD.MsgFunc_CrossHair(pszName, iSize, pbuf);
+	return 1;
+}
+
 int __MsgFunc_SetFOV(const char* pszName, int iSize, void* pbuf)
 {
 	return static_cast<int>(gHUD.MsgFunc_SetFOV(pszName, iSize, pbuf));
@@ -378,6 +384,7 @@ void CHud::Init()
 	HOOK_MESSAGE(ViewMode);
 	HOOK_MESSAGE(SetFOV);
 	HOOK_MESSAGE(Concuss);
+	HOOK_MESSAGE(CrossHair);
 	HOOK_MESSAGE(Weapons);
 	HOOK_MESSAGE(FlashHUD);
 
