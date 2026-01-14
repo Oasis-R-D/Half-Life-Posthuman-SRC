@@ -195,9 +195,6 @@ void CHordeMaker::MakeMonster()
 		}
 	}
 
-	// set altitude. Now that I'm activated, any breakables, etc should be out from under me.
-	TraceResult tr;
-
 	Vector mins = tryspawn - Vector(256, 256, 0);
 	Vector maxs = tryspawn + Vector(256, 256, 0);
 	maxs.z = tryspawn + Vector(0, 0, 72);
