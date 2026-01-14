@@ -431,6 +431,7 @@ void CEagle::Spawn()
 
 bool CEagle::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_bSpotVisible = true;
 
 	return DefaultDeploy(

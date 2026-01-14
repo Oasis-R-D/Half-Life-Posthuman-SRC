@@ -232,6 +232,7 @@ void CM249::PrimaryAttack()
 	case 0: sound = "weapons/saw_fire1.wav"; break;
 	case 1: sound = "weapons/saw_fire2.wav"; break;
 	}
+
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
 
 	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 12 + gpGlobals->v_right * 4;

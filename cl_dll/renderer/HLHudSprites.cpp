@@ -419,25 +419,7 @@ void DrawCrosshair()
 
 	UnpackRGB(r, g, b, RGB_YELLOWISH);
 	ScaleColors(r, g, b, a);
-	SPR_Set(ghCrosshair, r, g, b);
 
-	// vv SPR_Set 
-	/*
-	int enIndex = ghCrosshair - 1;
-
-	if (enIndex >= 0 && enIndex < gSpriteCount)
-	{
-		spritelist_s* entry = &gSpriteList[enIndex];
-		if (entry)
-		{
-			gpSprite = (msprite_t*)entry->pSprite->cache.data;
-			if (gpSprite)
-			{
-				glColor4f(gCrosshairR / 255.f, gCrosshairG / 255.f, gCrosshairB / 255.f, 1.0);
-			}
-		}
-	}
-	*/
 	
 	bool DRAW_MIDDLE = true;
 	int MOVE_UP, MOVE_DOWN, MOVE_RIGHT, MOVE_LEFT;
@@ -459,6 +441,8 @@ void DrawCrosshair()
 		}
 	}
 
+	SPR_Set(ghCrosshair, r, g, b);
+	
 	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
 	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), WHYCPLUSPLUS); // UP
 	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN), WHYCPLUSPLUS); // DOWN
@@ -466,22 +450,6 @@ void DrawCrosshair()
 	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT), center[1], WHYCPLUSPLUS); // LEFT
 	if (DRAW_MIDDLE)
 		SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // CENTER
-
-	// vv SPR_DrawHoles
-	/*
-	if (!gpSprite || ScreenWidth <= flWidth || ScreenHeight <= flHeight)
-		return;
-
-	model_t dummy;
-	dummy.type = mod_sprite;
-	dummy.cache.data = gpSprite;
-
-	mspriteframe_t* spriteframe = g_LegacySpriteRenderer.GetSpriteFrame(&dummy, 0, 0);
-	if (spriteframe)
-		Draw_SpriteFrameHoles(spriteframe, center[0], center[1], &gCrosshairRc); // different than spr_drawadditive, used for ALPHA_TEST
-	else
-		gEngfuncs.Con_DPrintf("Client.dll SPR_DrawHoles error:  invalid frame\n");
-	*/
 }
 
 void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a)

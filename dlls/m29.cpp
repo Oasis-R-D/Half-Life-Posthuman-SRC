@@ -110,7 +110,7 @@ void CM29::CalculateAmmo()
 }
 bool CM29::Deploy()
 {
-	m_iCrossHairType = CROSSHAIR_NOCENTER;
+	m_iCrossHairType = CROSSHAIR_NOCENTER; // TO-DO: make a new type for the m29 that takes the dual weapons in account
 	m_flAccuracyPenalty = 2 * M29_ACCURACY_SHOT_PENALTY_TIME;
 	CalculateAmmo();
 
