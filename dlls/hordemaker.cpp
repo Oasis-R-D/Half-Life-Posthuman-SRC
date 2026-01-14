@@ -32,6 +32,7 @@
 
 extern CGraph WorldGraph;
 
+int lastspawnednode;
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
 //=========================================================
@@ -181,6 +182,9 @@ void CHordeMaker::MakeMonster()
 	while (!nodevalid)
 	{
 		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1)
+		if (selectednode == lastspawnednode) // make sure there is some space, could make an array of ones not to use.
+			continue
+		lastspawnednode = selectednode;
 		if ((WorldGraph.m_pNodes[selectednode].m_afNodeInfo & bits_NODE_LAND) != 0)
 		{
 			Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
