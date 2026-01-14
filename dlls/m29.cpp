@@ -110,6 +110,7 @@ void CM29::CalculateAmmo()
 }
 bool CM29::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_NOCENTER;
 	m_flAccuracyPenalty = 2 * M29_ACCURACY_SHOT_PENALTY_TIME;
 	CalculateAmmo();
 

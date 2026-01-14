@@ -307,6 +307,9 @@ public:
 	bool m_ForceSendAnimations = false;
 };
 
+#define CROSSHAIR_DEFAULT 0 // 4 bars, center dot
+#define CROSSHAIR_NOCENTER 1 // no center dot
+#define CROSSHAIR_DUCKBILL 2 // Top and bottom don't move
 
 // inventory items that go bang/boom/alien noises/metal noises
 class CBasePlayerWeapon : public CBasePlayerItem
@@ -399,7 +402,7 @@ public:
 	// POST-HUMAN
 	float m_fGrenadeFireDelay;
 	float m_flAccuracyPenalty;
-	int m_iCrossHairType = 0;
+	int m_iCrossHairType   = 0;
 };
 
 

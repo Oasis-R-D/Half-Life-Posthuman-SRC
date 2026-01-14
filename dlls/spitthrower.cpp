@@ -56,6 +56,7 @@ void CSpitThrower::Spawn()
 
 bool CSpitThrower::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_NOCENTER;
 	m_flAccuracyPenalty =  4 * SPTH_ACCURACY_SHOT_PENALTY_TIME;
 	return DefaultDeploy("models/v_spitthrower.mdl", "models/p_9mmhandgun.mdl", EGON_DRAW, "bow");
 }

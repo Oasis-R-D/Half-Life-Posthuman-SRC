@@ -95,6 +95,10 @@ bool CShotgun::Deploy()
 	m_flAccuracyPenalty = 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
+	if (g_iSkillLevel == SKILL_HARD)
+		m_iCrossHairType = CROSSHAIR_NOCENTER;
+	else
+		m_iCrossHairType = m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
 	MESSAGE_END();
 	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
@@ -329,6 +333,10 @@ void CShotgun::TertiaryAttack()
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	MESSAGE_END();
+	if (g_iSkillLevel == SKILL_HARD)
+		m_iCrossHairType = CROSSHAIR_NOCENTER;
+	else
+		m_iCrossHairType = m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
 }
 
 void CShotgun::Reload()

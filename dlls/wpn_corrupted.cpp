@@ -106,6 +106,7 @@ bool CCorruptedWPN::GetItemInfo(ItemInfo* p)
 
 bool CCorruptedWPN::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iCurrWPN, 0, 0, 0);
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_SEMI, "shotgun");
 }

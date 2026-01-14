@@ -77,6 +77,7 @@ void CPython::Precache()
 
 bool CPython::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body);
 }

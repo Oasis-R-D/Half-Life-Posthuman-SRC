@@ -387,7 +387,6 @@ void DrawCrosshair()
 		{ScreenWidth / 2.f },
 		{ScreenHeight / 2.f},
 	};
-
 	
 	if ( (screen.x < 0.5001 && screen.y < 0.5001) && (screen.x > 0.4999 && screen.y > 0.4999) )
 	{

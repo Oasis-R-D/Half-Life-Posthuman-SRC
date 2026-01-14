@@ -79,6 +79,7 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = 3 * PISTOL_ACCURACY_SHOT_PENALTY_TIME;
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
 	if (!NotFirstDraw)
