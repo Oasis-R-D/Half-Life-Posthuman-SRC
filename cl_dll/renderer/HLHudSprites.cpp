@@ -344,7 +344,6 @@ int gCrosshairR;
 int gCrosshairG;
 int gCrosshairB;
 int gCrosshairType;
-Vector gCrosshairSpreadPos;
 double gCrosshairSpreadNum;
 
 void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
@@ -365,6 +364,7 @@ void CHud::MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
 
 void DrawCrosshair()
 {
+	
 	Vector angles;
 	Vector crosshairangles;
 	Vector forward, right, up;
@@ -379,8 +379,6 @@ void DrawCrosshair()
 	Vector direction = forward + (up * gCrosshairSpreadNum) + (right * gCrosshairSpreadNum);
 	spreadvec = gBSPRenderer.TriWorldToScreen(global_refdef.vieworg + direction * 3072);
 	gEngfuncs.Con_Printf("spread: %f\n", gCrosshairSpreadNum);
-
-	//gEngfuncs.Con_Printf("spread: %f, %f, %f \n", spreadvec.x, spreadvec.y, spreadvec.z);
 
 	float flHeight = abs(gCrosshairRc.bottom - gCrosshairRc.top);
 	float flWidth = abs(gCrosshairRc.right - gCrosshairRc.left);
@@ -441,12 +439,33 @@ void DrawCrosshair()
 		}
 	}
 	*/
+	int MOVE_UP, MOVE_DOWN, MOVE_RIGHT, MOVE_LEFT;
+	MOVE_UP = MOVE_DOWN = MOVE_RIGHT = MOVE_LEFT = 1;
+
+	switch(gCrosshairType)
+	{
+		case 0: // Def reticle
+		{
+			SPR_DrawHoles(0, center[0], center[1], WHYCPLUSPLUS); // use additive? // UP
+			return;
+			break; // is this needed?
+		}
+		case 1: // Crossiest hair
+		{
+			SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // LEFT
+			break;
+		}
+		case 2: // Clump circle (m249, shotgun)
+		{
+			break;
+		}
+	}
 
 	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
-	SPR_DrawAdditive(8, center[0], center[1] + spreadvec.y, WHYCPLUSPLUS); // use additive? // UP
-	SPR_DrawAdditive(11, center[0], center[1] - spreadvec.y, WHYCPLUSPLUS); // use additive? // DOWN
-	SPR_DrawAdditive(10, center[0] + spreadvec.x, center[1], WHYCPLUSPLUS); // use additive? // RIGHT
-	SPR_DrawAdditive(9, center[0] - spreadvec.x, center[1], WHYCPLUSPLUS); // use additive? // LEFT
+	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), WHYCPLUSPLUS); // UP
+	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN), WHYCPLUSPLUS); // DOWN
+	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], WHYCPLUSPLUS); // RIGHT
+	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT), center[1], WHYCPLUSPLUS); // LEFT
 
 	// vv SPR_DrawHoles
 	/*
