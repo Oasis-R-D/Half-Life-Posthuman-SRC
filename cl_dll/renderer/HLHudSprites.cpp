@@ -439,24 +439,23 @@ void DrawCrosshair()
 		}
 	}
 	*/
+	
+	bool DRAW_MIDDLE = true;
 	int MOVE_UP, MOVE_DOWN, MOVE_RIGHT, MOVE_LEFT;
 	MOVE_UP = MOVE_DOWN = MOVE_RIGHT = MOVE_LEFT = 1;
 
 	switch(gCrosshairType)
 	{
-		case 0: // Def reticle
+		case 0: break;
+		case 1: // Clump circle (m249, shotgun)
 		{
-			SPR_DrawHoles(0, center[0], center[1], WHYCPLUSPLUS); // use additive? // UP
-			return;
-			break; // is this needed?
-		}
-		case 1: // Crossiest hair
-		{
-			SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // LEFT
+			DRAW_MIDDLE = false;
 			break;
 		}
-		case 2: // Clump circle (m249, shotgun)
+		case 2: // Duckbill clump (shotgun)
 		{
+			DRAW_MIDDLE = false
+			spreadvec.y *= 0.25
 			break;
 		}
 	}
@@ -466,6 +465,8 @@ void DrawCrosshair()
 	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN), WHYCPLUSPLUS); // DOWN
 	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], WHYCPLUSPLUS); // RIGHT
 	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT), center[1], WHYCPLUSPLUS); // LEFT
+	if (DRAW_MIDDLE)
+		SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // CENTER
 
 	// vv SPR_DrawHoles
 	/*
