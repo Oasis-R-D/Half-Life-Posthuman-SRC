@@ -4587,7 +4587,7 @@ void CBasePlayer::ItemPreFrame()
 
 	m_pActiveItem->ItemPreFrame();
 	if (m_pActiveItem->GetWeaponPtr())
-		UpdateCrosshair(m_pActiveItem->GetWeaponPtr()->GetBulletSpread().x, 1);
+		UpdateCrosshair(m_pActiveItem->GetWeaponPtr()->GetBulletSpread().x, m_pActiveItem->GetWeaponPtr()->m_iCrossHairType);
 }
 
 

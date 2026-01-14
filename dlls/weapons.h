@@ -399,6 +399,7 @@ public:
 	// POST-HUMAN
 	float m_fGrenadeFireDelay;
 	float m_flAccuracyPenalty;
+	int m_iCrossHairType = 0;
 };
 
 
