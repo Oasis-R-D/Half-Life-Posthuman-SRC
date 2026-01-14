@@ -345,7 +345,7 @@ int gCrosshairG;
 int gCrosshairB;
 int gCrosshairType;
 Vector gCrosshairSpreadPos;
-
+double gCrosshairSpreadNum;
 
 void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
 {
@@ -359,8 +359,7 @@ void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
 void CHud::MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
-	for (int i = 0; i < 3; i++)
-		gCrosshairSpreadPos[i] = READ_COORD();
+	gCrosshairSpreadNum = READ_FLOAT();
 	gCrosshairType = READ_BYTE();
 }
 
@@ -368,22 +367,20 @@ void DrawCrosshair()
 {
 	Vector angles;
 	Vector crosshairangles;
-	Vector forward;
+	Vector forward, right, up;
 	Vector point, screen(0, 0, 0), spreadvec;
 
 	const auto& global_refdef = gBSPRenderer.m_RefParams;
 	angles = global_refdef.viewangles + (engine_cl->crosshairangle * Vector(1.0, 1.0, 1.0) );
-	AngleVectors(angles, &forward, nullptr, nullptr);
-	point = global_refdef.vieworg + forward * 50; // TO-DO: does TriWorldToScreen allow you to project a point onto the screen? if so, will be needed for the dynamic crosshair
-
+	AngleVectors(angles, &forward, &right, &up);
+	point = global_refdef.vieworg + forward * 50;
 	screen = gBSPRenderer.TriWorldToScreen(point);
-	spreadvec = gBSPRenderer.TriWorldToScreen(gCrosshairSpreadPos);
-	if (spreadvec.y < 0.505)
-		spreadvec.y = 0.505f;
 
-	//spreadvec.x = spreadvec.y;
+	Vector direction = forward + (up * gCrosshairSpreadNum) + (right * gCrosshairSpreadNum);
+	spreadvec = gBSPRenderer.TriWorldToScreen(global_refdef.vieworg + direction * 3072);
+	gEngfuncs.Con_Printf("spread: %f\n", gCrosshairSpreadNum);
 
-	gEngfuncs.Con_Printf("spread: %f, %f, %f \n", spreadvec.x, spreadvec.y, spreadvec.z);
+	//gEngfuncs.Con_Printf("spread: %f, %f, %f \n", spreadvec.x, spreadvec.y, spreadvec.z);
 
 	float flHeight = abs(gCrosshairRc.bottom - gCrosshairRc.top);
 	float flWidth = abs(gCrosshairRc.right - gCrosshairRc.left);

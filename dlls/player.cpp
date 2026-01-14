@@ -4549,13 +4549,8 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	if (spreadfixed < CONE_4DEGREES)
 		spreadfixed = CONE_4DEGREES;
 
-	Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spreadfixed) + (gpGlobals->v_right * spreadfixed);
-	UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
-
 	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
-	WRITE_COORD(spreadTR.vecEndPos.x);
-	WRITE_COORD(spreadTR.vecEndPos.y);
-	WRITE_COORD(spreadTR.vecEndPos.z);
+	WRITE_FLOAT(spreadfixed);
 	WRITE_BYTE(crosshairtype);				  
 	MESSAGE_END();
 
@@ -4563,10 +4558,14 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	{	
 		if (CVAR_GET_FLOAT("cl_innacuracydebug") > 2)
 			ALERT(at_console, "spread: %f \n", spread);
+		
+		// Draw top notch
+		Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spreadfixed) + (gpGlobals->v_right * spreadfixed);
+		UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 
-		// Draw bottom notch too
+		// Draw bottom notch
 		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spread) - (gpGlobals->v_right * spread);
 		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
