@@ -14,8 +14,8 @@
 ****/
 
 //=========================================================
-// Monster Maker - this is an entity that creates monsters
-// in the game.
+// Horde Maker - this is an entity that loops through nodes
+// and spawns enemies if there are no players near the node
 //=========================================================
 
 #include "extdll.h"
@@ -25,12 +25,12 @@
 #include "saverestore.h"
 
 // Monstermaker spawnflags
-#define SF_MONSTERMAKER_START_ON 1	  // start active ( if has targetname )
-#define SF_MONSTERMAKER_CYCLIC 4	  // drop one monster every time fired.
-#define SF_MONSTERMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
+#define SF_HOARDMAKER_START_ON 1	  // start active ( if has targetname )
+#define SF_HORDEMAKER_CYCLIC 4	  // drop one monster every time fired.
+#define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 
 //=========================================================
-// MonsterMaker - this ent creates monsters during the game.
+// HordeMaker - this ent creates monsters during the game.
 //=========================================================
 class CMonsterMaker : public CBaseMonster
 {
@@ -110,7 +110,7 @@ void CMonsterMaker::Spawn()
 	Precache();
 	if (!FStringNull(pev->targetname))
 	{
-		if ((pev->spawnflags & SF_MONSTERMAKER_CYCLIC) != 0)
+		if ((pev->spawnflags & SF_HORDEMAKER_CYCLIC) != 0)
 		{
 			SetUse(&CMonsterMaker::CyclicUse); // drop one monster each time we fire
 		}
@@ -119,7 +119,7 @@ void CMonsterMaker::Spawn()
 			SetUse(&CMonsterMaker::ToggleUse); // so can be turned on/off
 		}
 
-		if (FBitSet(pev->spawnflags, SF_MONSTERMAKER_START_ON))
+		if (FBitSet(pev->spawnflags, SF_HOARDMAKER_START_ON))
 		{ // start making monsters as soon as monstermaker spawns
 			m_fActive = true;
 			SetThink(&CMonsterMaker::MakerThink);
@@ -212,7 +212,7 @@ void CMonsterMaker::MakeMonster()
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 
 	// Children hit monsterclip brushes
-	if ((pev->spawnflags & SF_MONSTERMAKER_MONSTERCLIP) != 0)
+	if ((pev->spawnflags & SF_HORDEMAKER_MONSTERCLIP) != 0)
 		SetBits(pevCreate->spawnflags, SF_MONSTER_HITMONSTERCLIP);
 
 	DispatchSpawn(ENT(pevCreate));
