@@ -26,7 +26,7 @@
 #include "nodes.h"
 
 // Monstermaker spawnflags
-#define SF_HOARDMAKER_START_ON 1	  // start active ( if has targetname )
+#define SF_HORDEMAKER_START_ON 1	  // start active ( if has targetname )
 #define SF_HORDEMAKER_CYCLIC 4	  // drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 
@@ -126,7 +126,7 @@ void CHordeMaker::Spawn()
 			SetUse(&CHordeMaker::ToggleUse); // so can be turned on/off
 		}
 
-		if (FBitSet(pev->spawnflags, SF_HOARDMAKER_START_ON))
+		if (FBitSet(pev->spawnflags, SF_HORDEMAKER_START_ON))
 		{ // start making monsters as soon as monstermaker spawns
 			m_fActive = true;
 			SetThink(&CHordeMaker::MakerThink);
