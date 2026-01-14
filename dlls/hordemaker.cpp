@@ -60,13 +60,11 @@ public:
 	int m_cLiveChildren;	// how many monsters made by this monster maker that are currently alive
 	int m_iMaxLiveChildren; // max number of monsters that this maker may have out at one time.
 
-	float m_flGround; // z coord of the ground under me, used to make sure no monsters are under the maker when it drops a new child
-
 	bool m_fActive;
 	bool m_fFadeChildren; // should we make the children fadeout?
 };
 
-LINK_ENTITY_TO_CLASS(monstermaker, CHordeMaker);
+LINK_ENTITY_TO_CLASS(hordemaker, CHordeMaker);
 
 TYPEDESCRIPTION CHordeMaker::m_SaveData[] =
 	{
@@ -175,26 +173,35 @@ void CHordeMaker::MakeMonster()
 	{ // not allowed to make a new one yet. Too many live ones out right now.
 		return;
 	}
+
 	int selectednode;
-	bool nodevalid
+	bool nodevalid;
+	Vector tryspawn;
+
 	while (!nodevalid)
 	{
 		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1)
 		if ((WorldGraph.m_pNodes[selectednode].m_afNodeInfo & bits_NODE_LAND) != 0)
-			nodevalid = true;
+		{
+			Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+
+			TraceResult Height;
+			Util_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, dont_ignore_glass, NULL, &Height)
+			tryspawn = Height.vecEndPos; // floor
+
+			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 128, dont_ignore_glass, NULL, &Height)
+			if (Height.Length() > 72) // is ceiling tall enough?
+				nodevalid = true; // found our spot
+		}
 	}
-	
-	Vector tryspawn = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek; // TO-DO: check if it's not air/water and if the NPC can fit
+
 	// set altitude. Now that I'm activated, any breakables, etc should be out from under me.
 	TraceResult tr;
 
-	UTIL_TraceLine(pev->origin, pev->origin - Vector(0, 0, 2048), ignore_monsters, ENT(pev), &tr);
-	m_flGround = tr.vecEndPos.z;
-
-	Vector mins = pev->origin - Vector(34, 34, 0);
-	Vector maxs = pev->origin + Vector(34, 34, 0);
-	maxs.z = pev->origin.z;
-	mins.z = m_flGround;
+	Vector mins = tryspawn - Vector(256, 256, 0);
+	Vector maxs = tryspawn + Vector(256, 256, 0);
+	maxs.z = tryspawn + Vector(0, 0, 72);
+	mins.z = tryspawn;
 
 	CBaseEntity* pList[2];
 	int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
@@ -220,8 +227,8 @@ void CHordeMaker::MakeMonster()
 	}
 
 	pevCreate = VARS(pent);
-	pevCreate->origin = pev->origin;
-	pevCreate->angles = pev->angles;
+	pevCreate->origin = tryspawn;
+	pevCreate->angles = pev->angles; // TO-DO: make random
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 
 	// Children hit monsterclip brushes
