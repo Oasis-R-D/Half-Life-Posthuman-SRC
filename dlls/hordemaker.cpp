@@ -23,16 +23,19 @@
 #include "cbase.h"
 #include "monsters.h"
 #include "saverestore.h"
+#include "nodes.h"
 
 // Monstermaker spawnflags
 #define SF_HOARDMAKER_START_ON 1	  // start active ( if has targetname )
 #define SF_HORDEMAKER_CYCLIC 4	  // drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 
+extern CGraph WorldGraph;
+
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
 //=========================================================
-class CMonsterMaker : public CBaseMonster
+class CHordeMaker : public CBaseMonster
 {
 public:
 	void Spawn() override;
@@ -63,23 +66,22 @@ public:
 	bool m_fFadeChildren; // should we make the children fadeout?
 };
 
-LINK_ENTITY_TO_CLASS(monstermaker, CMonsterMaker);
+LINK_ENTITY_TO_CLASS(monstermaker, CHordeMaker);
 
-TYPEDESCRIPTION CMonsterMaker::m_SaveData[] =
+TYPEDESCRIPTION CHordeMaker::m_SaveData[] =
 	{
-		DEFINE_FIELD(CMonsterMaker, m_iszMonsterClassname, FIELD_STRING),
-		DEFINE_FIELD(CMonsterMaker, m_cNumMonsters, FIELD_INTEGER),
-		DEFINE_FIELD(CMonsterMaker, m_cLiveChildren, FIELD_INTEGER),
-		DEFINE_FIELD(CMonsterMaker, m_flGround, FIELD_FLOAT),
-		DEFINE_FIELD(CMonsterMaker, m_iMaxLiveChildren, FIELD_INTEGER),
-		DEFINE_FIELD(CMonsterMaker, m_fActive, FIELD_BOOLEAN),
-		DEFINE_FIELD(CMonsterMaker, m_fFadeChildren, FIELD_BOOLEAN),
+		DEFINE_FIELD(CHordeMaker, m_iszMonsterClassname, FIELD_STRING),
+		DEFINE_FIELD(CHordeMaker, m_cNumMonsters, FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_cLiveChildren, FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_iMaxLiveChildren, FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_fActive, FIELD_BOOLEAN),
+		DEFINE_FIELD(CHordeMaker, m_fFadeChildren, FIELD_BOOLEAN),
 };
 
 
-IMPLEMENT_SAVERESTORE(CMonsterMaker, CBaseMonster);
+IMPLEMENT_SAVERESTORE(CHordeMaker, CBaseMonster);
 
-bool CMonsterMaker::KeyValue(KeyValueData* pkvd)
+bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 {
 
 	if (FStrEq(pkvd->szKeyName, "monstercount"))
@@ -102,8 +104,15 @@ bool CMonsterMaker::KeyValue(KeyValueData* pkvd)
 }
 
 
-void CMonsterMaker::Spawn()
+void CHordeMaker::Spawn()
 {
+	if (0 == WorldGraph.m_fGraphPresent)
+	{
+		ALERT(at_warning, "CHordeMaker: No nodegraph present")
+		REMOVE_ENTITY(edict());
+		return;
+	}
+
 	pev->solid = SOLID_NOT;
 
 	m_cLiveChildren = 0;
@@ -112,29 +121,29 @@ void CMonsterMaker::Spawn()
 	{
 		if ((pev->spawnflags & SF_HORDEMAKER_CYCLIC) != 0)
 		{
-			SetUse(&CMonsterMaker::CyclicUse); // drop one monster each time we fire
+			SetUse(&CHordeMaker::CyclicUse); // drop one monster each time we fire
 		}
 		else
 		{
-			SetUse(&CMonsterMaker::ToggleUse); // so can be turned on/off
+			SetUse(&CHordeMaker::ToggleUse); // so can be turned on/off
 		}
 
 		if (FBitSet(pev->spawnflags, SF_HOARDMAKER_START_ON))
 		{ // start making monsters as soon as monstermaker spawns
 			m_fActive = true;
-			SetThink(&CMonsterMaker::MakerThink);
+			SetThink(&CHordeMaker::MakerThink);
 		}
 		else
 		{ // wait to be activated.
 			m_fActive = false;
-			SetThink(&CMonsterMaker::SUB_DoNothing);
+			SetThink(&CHordeMaker::SUB_DoNothing);
 		}
 	}
 	else
 	{ // no targetname, just start.
 		pev->nextthink = gpGlobals->time + m_flDelay;
 		m_fActive = true;
-		SetThink(&CMonsterMaker::MakerThink);
+		SetThink(&CHordeMaker::MakerThink);
 	}
 
 	if (m_cNumMonsters == 1)
@@ -145,11 +154,9 @@ void CMonsterMaker::Spawn()
 	{
 		m_fFadeChildren = true;
 	}
-
-	m_flGround = 0;
 }
 
-void CMonsterMaker::Precache()
+void CHordeMaker::Precache()
 {
 	CBaseMonster::Precache();
 
@@ -159,7 +166,7 @@ void CMonsterMaker::Precache()
 //=========================================================
 // MakeMonster-  this is the code that drops the monster
 //=========================================================
-void CMonsterMaker::MakeMonster()
+void CHordeMaker::MakeMonster()
 {
 	edict_t* pent;
 	entvars_t* pevCreate;
@@ -168,15 +175,21 @@ void CMonsterMaker::MakeMonster()
 	{ // not allowed to make a new one yet. Too many live ones out right now.
 		return;
 	}
-
-	if (0 == m_flGround)
+	int selectednode;
+	bool nodevalid
+	while (!nodevalid)
 	{
-		// set altitude. Now that I'm activated, any breakables, etc should be out from under me.
-		TraceResult tr;
-
-		UTIL_TraceLine(pev->origin, pev->origin - Vector(0, 0, 2048), ignore_monsters, ENT(pev), &tr);
-		m_flGround = tr.vecEndPos.z;
+		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1)
+		if ((WorldGraph.m_pNodes[selectednode].m_afNodeInfo & bits_NODE_LAND) != 0)
+			nodevalid = true;
 	}
+	
+	Vector tryspawn = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek; // TO-DO: check if it's not air/water and if the NPC can fit
+	// set altitude. Now that I'm activated, any breakables, etc should be out from under me.
+	TraceResult tr;
+
+	UTIL_TraceLine(pev->origin, pev->origin - Vector(0, 0, 2048), ignore_monsters, ENT(pev), &tr);
+	m_flGround = tr.vecEndPos.z;
 
 	Vector mins = pev->origin - Vector(34, 34, 0);
 	Vector maxs = pev->origin + Vector(34, 34, 0);
@@ -239,7 +252,7 @@ void CMonsterMaker::MakeMonster()
 // CyclicUse - drops one monster from the monstermaker
 // each time we call this.
 //=========================================================
-void CMonsterMaker::CyclicUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+void CHordeMaker::CyclicUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	MakeMonster();
 }
@@ -247,7 +260,7 @@ void CMonsterMaker::CyclicUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE
 //=========================================================
 // ToggleUse - activates/deactivates the monster maker
 //=========================================================
-void CMonsterMaker::ToggleUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+void CHordeMaker::ToggleUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!ShouldToggle(useType, m_fActive))
 		return;
@@ -260,7 +273,7 @@ void CMonsterMaker::ToggleUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE
 	else
 	{
 		m_fActive = true;
-		SetThink(&CMonsterMaker::MakerThink);
+		SetThink(&CHordeMaker::MakerThink);
 	}
 
 	pev->nextthink = gpGlobals->time;
@@ -269,7 +282,7 @@ void CMonsterMaker::ToggleUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE
 //=========================================================
 // MakerThink - creates a new monster every so often
 //=========================================================
-void CMonsterMaker::MakerThink()
+void CHordeMaker::MakerThink()
 {
 	pev->nextthink = gpGlobals->time + m_flDelay;
 
@@ -279,7 +292,7 @@ void CMonsterMaker::MakerThink()
 
 //=========================================================
 //=========================================================
-void CMonsterMaker::DeathNotice(entvars_t* pevChild)
+void CHordeMaker::DeathNotice(entvars_t* pevChild)
 {
 	// ok, we've gotten the deathnotice from our child, now clear out its owner if we don't want it to fade.
 	m_cLiveChildren--;
