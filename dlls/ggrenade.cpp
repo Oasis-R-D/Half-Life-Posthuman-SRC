@@ -265,11 +265,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 	WRITE_COORD(pev->origin.x);
 	WRITE_COORD(pev->origin.y);
 	WRITE_COORD(pev->origin.z + 8);
-	WRITE_BYTE(40); // Radius/10
+	WRITE_BYTE(7); // * 64
 	WRITE_BYTE(255); // R
 	WRITE_BYTE(255); // G
 	WRITE_BYTE(255); // B
-	WRITE_LONG(0.25); // TIME
+	WRITE_FLOAT(0.125); // TIME
 	WRITE_BYTE(0); // Decay
 	MESSAGE_END();
 
