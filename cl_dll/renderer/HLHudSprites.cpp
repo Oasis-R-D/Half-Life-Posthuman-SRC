@@ -477,13 +477,15 @@ void DrawCrosshair()
 		SPR_DrawAdditive(4, center[0], center[1], &gCrosshairRc); // CENTER
 
 	//salsatobias: debug
-	
-	//DrawPoint(ScreenWidth / 2, ScreenHeight / 2, {255, 0, 0});
+	if (CVAR_GET_FLOAT("cl_innacuracydebug") > 0)
+	{
+		DrawPoint(ScreenWidth / 2, ScreenHeight / 2, {255, 255, 255}); // CENTER : white
 
-	//DrawPoint(center[0], center[1] + (spreadvec.y * MOVE_UP) + 1, {255, 0, 0}); // UP : red
-	//DrawPoint(center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, {255, 255, 0}); // DOWN : yellow
-	//DrawPoint(center[0] + (spreadvec.x * MOVE_RIGHT) + 1, center[1] - 1, {0, 255, 0}); // RIGHT : green 
-	//DrawPoint(center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1] -1, {0, 255, 255}); // LEFT : blue
+		DrawPoint(center[0], center[1] + (spreadvec.y * MOVE_UP) + 1, {255, 0, 0}); // UP : red
+		DrawPoint(center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, {255, 255, 0}); // DOWN : yellow
+		DrawPoint(center[0] + (spreadvec.x * MOVE_RIGHT) + 1, center[1] - 1, {0, 255, 0}); // RIGHT : green 
+		DrawPoint(center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1] -1, {0, 255, 255}); // LEFT : blue
+	}
 }
 
 void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a)
