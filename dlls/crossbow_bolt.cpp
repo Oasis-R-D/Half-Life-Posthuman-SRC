@@ -106,8 +106,6 @@ void CCrossbowBolt::Stay()
 	pev->avelocity.z = 0;
 	pev->angles.z = RANDOM_LONG(0, 360);
 	pev->nextthink = gpGlobals->time + 1.5;
-	//pev->renderfx = kRenderFxGlowShell;
-	//pev->rendercolor = Vector(0, 128, 128);
 
 	SetThink(&CCrossbowBolt::ExplodeThink);
 

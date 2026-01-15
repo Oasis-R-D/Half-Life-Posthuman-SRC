@@ -450,6 +450,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
 			
 			//ALERT ( at_console, "texture hit: %s\n", szbuffer);
+			
 			if (!strcmp(szbuffer, "mat_impen")) // HACKHACK: can't get the material type to work so just gonna do this instead
 			{
 				return penmodifier = 512;
@@ -460,6 +461,7 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 				return penmodifier = 1.66f;
 				ALERT(at_console, "penetration mult: %f\n", penmodifier);
 			}
+
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
 	}
