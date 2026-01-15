@@ -40,6 +40,7 @@ void CGrenade::Precache()
 {
 	
 }
+
 //
 // Grenade Explode
 //
@@ -565,6 +566,7 @@ void CGrenade::BounceSound()
 			break;
 	}
 }
+
 void CGrenade::CallDetonate()
 {
 	switch (m_iGrenType)
@@ -896,6 +898,7 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 		pentFind = FIND_ENTITY_BY_CLASSNAME(pentFind, "grenade");
 	}
 }
+
 //======================end grenade
 
 

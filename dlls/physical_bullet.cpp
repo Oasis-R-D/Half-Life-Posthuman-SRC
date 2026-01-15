@@ -326,7 +326,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, tr.vecEndPos, BULLET_PLAYER_9MM);
 	if (0 != pOther->pev->takedamage)
 	{
-		// UNDONE: this needs to call TraceAttack instead
 		ClearMultiDamage();
 		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 		ApplyMultiDamage(pev, owner->pev);
@@ -358,9 +357,6 @@ void CPhysbullet::AirThink()
 			{
 				if (Owner != m_ent->edict()) // not per player but whatevs
 				{
-					//char dripsnd[256];
-					//sprintf(dripsnd, "weapons/nearmiss%d.wav", RANDOM_LONG(1, 6));
-					//EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 1);
 					EMIT_SOUND_DYN(edict(), CHAN_AUTO, RANDOM_SOUND_ARRAY(pNearMissSounds), 1.0, 1, 0, 100 + RANDOM_LONG(-5, 5));
 					m_haswizzed = true;
 				}

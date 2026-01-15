@@ -331,21 +331,21 @@ void CHeadCrab::RunTask(Task_t* pTask)
 {
 	switch (pTask->iTask)
 	{
-	case TASK_RANGE_ATTACK1:
-	case TASK_RANGE_ATTACK2:
-	{
-		if (m_fSequenceFinished)
+		case TASK_RANGE_ATTACK1:
+		case TASK_RANGE_ATTACK2:
 		{
-			TaskComplete();
-			SetTouch(NULL);
-			m_IdealActivity = ACT_IDLE;
+			if (m_fSequenceFinished)
+			{
+				TaskComplete();
+				SetTouch(NULL);
+				m_IdealActivity = ACT_IDLE;
+			}
+			break;
 		}
-		break;
-	}
-	default:
-	{
-		CBaseMonster::RunTask(pTask);
-	}
+		default:
+		{
+			CBaseMonster::RunTask(pTask);
+		}
 	}
 }
 
@@ -669,11 +669,13 @@ class CHeadcrabSuper : public CHeadCrab
 				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 			}
 		}
+
 		CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
 		if (pOwner)
 		{
 			pOwner->DeathNotice(pev);
 		}
+		
 		SetThink(&CBaseMonster::SUB_Remove);
 		pev->nextthink = gpGlobals->time;
 	}
