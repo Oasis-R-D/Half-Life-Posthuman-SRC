@@ -4546,8 +4546,10 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 	bulletorg = GetGunPosition();
 
 	double spreadfixed = spread;
-	if (spreadfixed < CONE_4DEGREES)
+	if (crosshairtype > 0 && spreadfixed < CONE_4DEGREES)
 		spreadfixed = CONE_4DEGREES;
+	else if (crosshairtype == 0 && spreadfixed < CONE_1DEGREES)
+		spreadfixed = CONE_1DEGREES;
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
 	WRITE_FLOAT(spreadfixed);
@@ -4566,7 +4568,7 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
 
 		// Draw bottom notch
-		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spread) - (gpGlobals->v_right * spread);
+		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spreadfixed) - (gpGlobals->v_right * spreadfixed);
 		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
