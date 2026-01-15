@@ -444,10 +444,10 @@ void DrawCrosshair()
 	SPR_Set(ghCrosshair, r, g, b);
 	
 	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
-	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), WHYCPLUSPLUS); // UP
-	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN), WHYCPLUSPLUS); // DOWN
-	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], WHYCPLUSPLUS); // RIGHT
-	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT), center[1], WHYCPLUSPLUS); // LEFT
+	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP) + 1, WHYCPLUSPLUS); // UP
+	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, WHYCPLUSPLUS); // DOWN
+	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT) + 1, center[1] -1, WHYCPLUSPLUS); // RIGHT
+	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1] -1, WHYCPLUSPLUS); // LEFT
 	if (DRAW_MIDDLE)
 		SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // CENTER
 }
