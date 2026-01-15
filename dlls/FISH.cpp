@@ -391,8 +391,6 @@ void CFish::SetYawSpeed()
 	pev->yaw_speed = 100;
 }
 
-
-
 //=========================================================
 // Killed - overrides CFlyingMonster.
 //=========================================================
@@ -557,7 +555,7 @@ Schedule_t* CFish::GetSchedule()
 		// chase them down and eat them
 		if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
 		{
-			return GetScheduleOfType(SCHED_CHASE_ENEMY);
+			return GetScheduleOfType(SCHED_RANGE_ATTACK1);
 		}
 		if (HasConditions(bits_COND_HEAVY_DAMAGE))
 		{
@@ -596,8 +594,6 @@ Schedule_t* CFish::GetScheduleOfType(int Type)
 		}
 
 		return slTwitchDie;
-	case SCHED_CHASE_ENEMY:
-		AttackSound();
 	}
 
 	return CBaseMonster::GetScheduleOfType(Type);
