@@ -206,7 +206,7 @@ void CHordeMaker::MakeMonster()
 	Vector maxs = tryspawn + Vector(256, 256, 0);
 	maxs.z = tryspawn.z + 72;
 	mins.z = tryspawn.z;
-	FIND_CLIENT_BY_PVS
+
 	CBaseEntity* pList[2];
 	int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
 	if (0 != count) // don't spawn monsters near players or other monsters
