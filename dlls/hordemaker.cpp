@@ -105,13 +105,6 @@ bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 
 void CHordeMaker::Spawn()
 {
-	if (0 == WorldGraph.m_fGraphPresent)
-	{
-		ALERT(at_warning, "CHordeMaker: No nodegraph present")
-		REMOVE_ENTITY(edict());
-		return;
-	}
-
 	pev->solid = SOLID_NOT;
 
 	m_cLiveChildren = 0;
@@ -166,7 +159,13 @@ void CHordeMaker::Precache()
 // MakeMonster-  this is the code that drops the monster
 //=========================================================
 void CHordeMaker::MakeMonster()
-{
+{	
+	if (0 == WorldGraph.m_fGraphPresent)
+	{
+		ALERT(at_warning, "HordeMaker: No nodegraph present");
+		return;
+	}
+
 	edict_t* pent;
 	entvars_t* pevCreate;
 
@@ -176,38 +175,41 @@ void CHordeMaker::MakeMonster()
 	}
 
 	int selectednode;
-	bool nodevalid;
+	bool nodevalid = false;
 	Vector tryspawn;
 
 	while (!nodevalid)
 	{
-		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1)
+		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1);
 		if (selectednode == lastspawnednode) // make sure there is some space, could make an array of ones not to use.
-			continue
+		{
+			continue;
+		}
 		lastspawnednode = selectednode;
 		if ((WorldGraph.m_pNodes[selectednode].m_afNodeInfo & bits_NODE_LAND) != 0)
 		{
 			Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
 
 			TraceResult Height;
-			Util_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, dont_ignore_glass, NULL, &Height)
+			UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, dont_ignore_monsters, dont_ignore_glass, NULL, &Height);
 			tryspawn = Height.vecEndPos; // floor
 
-			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 128, dont_ignore_glass, NULL, &Height)
-			if (Height.Length() > 72) // is ceiling tall enough?
+			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, dont_ignore_monsters, dont_ignore_glass, NULL, &Height);
+			if (Height.flFraction == 1.0) // is ceiling tall enough?
 				nodevalid = true; // found our spot
 		}
 	}
 
 	Vector mins = tryspawn - Vector(256, 256, 0);
 	Vector maxs = tryspawn + Vector(256, 256, 0);
-	maxs.z = tryspawn + Vector(0, 0, 72);
-	mins.z = tryspawn;
+	maxs.z = tryspawn.z + 72;
+	mins.z = tryspawn.z;
 
 	CBaseEntity* pList[2];
 	int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
 	if (0 != count)
 	{
+		ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
 		// don't build a stack of monsters!
 		return;
 	}
@@ -231,7 +233,7 @@ void CHordeMaker::MakeMonster()
 	pevCreate->origin = tryspawn;
 	pevCreate->angles = pev->angles; // TO-DO: make random
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
-
+	ALERT(at_aiconsole, "SPAWNED %u AT: (%f, %f, %f)\n", m_iszMonsterClassname, pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
 	// Children hit monsterclip brushes
 	if ((pev->spawnflags & SF_HORDEMAKER_MONSTERCLIP) != 0)
 		SetBits(pevCreate->spawnflags, SF_MONSTER_HITMONSTERCLIP);

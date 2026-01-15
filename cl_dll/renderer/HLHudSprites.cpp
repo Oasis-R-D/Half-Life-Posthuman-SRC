@@ -378,7 +378,7 @@ void DrawCrosshair()
 
 	Vector direction = forward + (up * gCrosshairSpreadNum) + (right * gCrosshairSpreadNum);
 	spreadvec = gBSPRenderer.TriWorldToScreen(global_refdef.vieworg + direction * 3072);
-	gEngfuncs.Con_Printf("spread: %f\n", gCrosshairSpreadNum);
+	//gEngfuncs.Con_Printf("spread: %f\n", gCrosshairSpreadNum);
 
 	float flHeight = abs(gCrosshairRc.bottom - gCrosshairRc.top);
 	float flWidth = abs(gCrosshairRc.right - gCrosshairRc.left);

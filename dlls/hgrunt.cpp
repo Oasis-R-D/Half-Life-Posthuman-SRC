@@ -2286,7 +2286,6 @@ Schedule_t* CHGrunt::GetSchedule()
 		{
 			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 			{
-				ALERT(at_console, "heard");
 				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 			}
 		}
