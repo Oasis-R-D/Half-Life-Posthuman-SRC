@@ -57,6 +57,21 @@ void SPR_ShutDown()
 	//whatevs
 }
 
+
+void DrawPoint(int x, int y, color24 color)
+{
+	const float pointsize = 4;
+
+	glScissor(x - (pointsize * 0.5f), ScreenHeight - y - (pointsize * 0.5f), pointsize, pointsize);
+	glEnable(GL_SCISSOR_TEST);
+
+	glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, 1.0);
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glDisable(GL_SCISSOR_TEST);
+}
+
 HSPRITE_GOLDSRC SPR_Load(const char* szPicName)
 {
 	if (!szPicName)
@@ -270,11 +285,18 @@ void Draw_SpriteFrame(mspriteframe_t* pFrame, int ix, int iy, const Rect* prcSub
 		width = prcSubrect->right - prcSubrect->left;
 		height = prcSubrect->bottom - prcSubrect->top;
 
-		fLeft = (prcSubrect->left + 0.5) * 1.0 / pFrame->width;
-		fRight = (prcSubrect->right - 0.5) * 1.0 / pFrame->width;
+		//salsatobias: old method
+		//fLeft = (prcSubrect->left + 0.5) * 1.0 / pFrame->width;
+		//fRight = (prcSubrect->right - 0.5) * 1.0 / pFrame->width;
 
-		fTop = (prcSubrect->top + 0.5) * 1.0 / pFrame->height;
-		fBottom = (prcSubrect->bottom - 0.5) * 1.0 / pFrame->height;
+		//fTop = (prcSubrect->top + 0.5) * 1.0 / pFrame->height;
+		//fBottom = (prcSubrect->bottom - 0.5) * 1.0 / pFrame->height;
+
+		fLeft = (float)(prcSubrect->left) / (float)pFrame->width;
+		fRight = (float)(prcSubrect->right) / (float)pFrame->width;
+
+		fTop = (float)(prcSubrect->top) / (float)pFrame->height;
+		fBottom = (float)(prcSubrect->bottom) / (float)pFrame->height;
 	}
 
 	glDepthMask(GL_FALSE);
@@ -309,6 +331,11 @@ void Draw_SpriteFrame(mspriteframe_t* pFrame, int ix, int iy, const Rect* prcSub
 		glTexCoord2f(texcoords[3][0], texcoords[3][1]);
 		glVertex2f(verts[3][0], verts[3][1]);
 	glEnd();
+
+	//DrawPoint(verts[0][0], verts[0][1], {255, 0, 0});
+	//DrawPoint(verts[1][0], verts[1][1], {255, 255, 0});
+	//DrawPoint(verts[2][0], verts[2][1], {0, 255, 0});
+	//DrawPoint(verts[3][0], verts[3][1], {0, 255, 255});
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_SCISSOR_TEST);
@@ -422,8 +449,7 @@ void DrawCrosshair()
 
 	
 	bool DRAW_MIDDLE = true;
-	int MOVE_UP, MOVE_DOWN, MOVE_RIGHT, MOVE_LEFT;
-	MOVE_UP = MOVE_DOWN = MOVE_RIGHT = MOVE_LEFT = 1;
+	int MOVE_UP = 1, MOVE_DOWN = 1, MOVE_RIGHT = 1, MOVE_LEFT = 1;
 
 	switch(gCrosshairType)
 	{
@@ -443,13 +469,21 @@ void DrawCrosshair()
 
 	SPR_Set(ghCrosshair, r, g, b);
 	
-	const Rect* WHYCPLUSPLUS = &gCrosshairRc;
-	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP) + 1, WHYCPLUSPLUS); // UP
-	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, WHYCPLUSPLUS); // DOWN
-	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT) + 1, center[1] -1, WHYCPLUSPLUS); // RIGHT
-	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1] -1, WHYCPLUSPLUS); // LEFT
+	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), &gCrosshairRc);		  // upper bar
+	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, &gCrosshairRc);		// lower bar
+	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], &gCrosshairRc);	  // right bar
+	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1], &gCrosshairRc);		// left bar
 	if (DRAW_MIDDLE)
-		SPR_DrawAdditive(4, center[0], center[1], WHYCPLUSPLUS); // CENTER
+		SPR_DrawAdditive(4, center[0], center[1], &gCrosshairRc); // CENTER
+
+	//salsatobias: debug
+	
+	//DrawPoint(ScreenWidth / 2, ScreenHeight / 2, {255, 0, 0});
+
+	//DrawPoint(center[0], center[1] + (spreadvec.y * MOVE_UP) + 1, {255, 0, 0}); // UP : red
+	//DrawPoint(center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, {255, 255, 0}); // DOWN : yellow
+	//DrawPoint(center[0] + (spreadvec.x * MOVE_RIGHT) + 1, center[1] - 1, {0, 255, 0}); // RIGHT : green 
+	//DrawPoint(center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1] -1, {0, 255, 255}); // LEFT : blue
 }
 
 void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a)
