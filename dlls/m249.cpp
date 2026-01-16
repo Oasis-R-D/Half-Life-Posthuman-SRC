@@ -55,7 +55,7 @@ void CM249::Spawn()
 
 bool CM249::Deploy()
 {
-	m_iCrossHairType = CROSSHAIR_NOCENTER;
+	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = 20 * M249_ACCURACY_SHOT_PENALTY_TIME;
 	m_pPlayer->pev->maxspeed = 192;
 	return DefaultDeploy("models/v_saw.mdl", "models/p_saw.mdl", M249_DRAW, "mp5");
