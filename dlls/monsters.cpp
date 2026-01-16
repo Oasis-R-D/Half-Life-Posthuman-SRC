@@ -2791,7 +2791,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 		Vector vecSrc = Center();
 		Vector vecEnd = Center() - Vector(0, 0, 128);
 		UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, edict(), &tr);
-		TEXTURETYPE_PlaySound(&tr, vecSrc, vecEnd, BULLET_NONE);
+		TEXTURETYPE_PlayMatSound(&tr, vecSrc, vecEnd, BULLET_NONE);
 
 		const char* pTextureName;
 		float rgfl1[3];
@@ -2863,7 +2863,7 @@ void CBaseMonster::HandleAnimEvent(MonsterEvent_t* pEvent)
 		Vector vecSrc = Center();
 		Vector vecEnd = Center() - Vector(0, 0, 128);
 		UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, edict(), &tr);
-		TEXTURETYPE_PlaySound(&tr, vecSrc, vecEnd, BULLET_NONE);
+		TEXTURETYPE_PlayMatSound(&tr, vecSrc, vecEnd, BULLET_NONE);
 
 		const char* pTextureName;
 		float rgfl1[3];
