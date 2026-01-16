@@ -1614,17 +1614,17 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 		if (flDamage < 10)
 		{
 			flNoise = 0.1;
-			cCount = 1;
+			cCount = RANDOM_LONG (0, 1);
 		}
 		else if (flDamage < 25)
 		{
 			flNoise = 0.2;
-			cCount = 2;
+			cCount = 1;
 		}
 		else
 		{
 			flNoise = 0.3;
-			cCount = 4;
+			cCount = 2;
 		}
 	}
 	else
@@ -1632,17 +1632,17 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 		if (flDamage < 30)
 		{
 			flNoise = 0.1;
-			cCount = 1;
+			cCount = RANDOM_LONG (0, 1);
 		}
 		else if (flDamage < 40)
 		{
 			flNoise = 0.2;
-			cCount = 2;
+			cCount = 1;
 		}
 		else
 		{
 			flNoise = 0.3;
-			cCount = 4;
+			cCount = 2;
 		}
 	}
 	for (i = 0; i < cCount; i++)
