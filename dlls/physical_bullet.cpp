@@ -94,60 +94,55 @@ void CPhysbullet::Spawn()
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
 
-	// make a switch?
-	if (m_Flare == 556) // probably 556
+	switch(m_Flare)
 	{
-		SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
-		pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
-		m_distpenetrate = 24;
-	}
-	if (m_Flare == 762) // probably 762
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
-		m_distpenetrate = 32;
-		m_bHeavyDecal = true;
-	}
-	else if (m_Flare == 12) // 12 gauge
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
-		pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
-		m_distpenetrate = 10;
-	}
-	else if (m_Flare == 357) // 357 magnum
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
-		m_distpenetrate = 18;
-		m_bHeavyDecal = true;
-	}
-	else if (m_Flare == 44) // 44 magnum
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-		pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
-		m_distpenetrate = 16;
-		m_bHeavyDecal = true;
-	}
-	else if (m_Flare == 69) // Training weapons
-	{
-		SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-		m_distpenetrate = 0;
-		pev->rendermode = kRenderNormal;
-	}
-	else if (m_Flare == 420) // HC Deagle
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-		pev->scale = 2;
-		m_distpenetrate = 128;
-		pev->rendercolor = Vector(255, 70, 170);
-		pev->rendermode = kRenderTransAdd;
-		m_bHeavyDecal = true;
-	}
-	else //	9MM
-	{
-		SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
-		pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
-		m_distpenetrate = 16;
+		case 556:
+			SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
+			pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
+			m_distpenetrate = 24;
+			break;
+		case 762:
+			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
+			pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
+			m_distpenetrate = 32;
+			m_bHeavyDecal = true;
+			break;
+		case 12:
+			SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
+			pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
+			m_distpenetrate = 10;
+			break;
+		case 357:
+			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
+			pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
+			m_distpenetrate = 18;
+			m_bHeavyDecal = true;
+			break;
+		case 44:
+			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
+			pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
+			m_distpenetrate = 16;
+			m_bHeavyDecal = true;
+			break;
+		case 69:
+			SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
+			m_distpenetrate = 0;
+			pev->rendermode = kRenderNormal;
+			break;
+		case 420:
+			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
+			pev->scale = 2;
+			m_distpenetrate = 128;
+			pev->rendercolor = Vector(255, 70, 170);
+			pev->rendermode = kRenderTransAdd;
+			m_bHeavyDecal = true;
+			break;
+		default:
+		case 9:
+			SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
+			pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
+			m_distpenetrate = 16;
+			break;
 	}
 
 	if (m_bsubsonic)

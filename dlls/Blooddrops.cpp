@@ -111,30 +111,15 @@ void CPhysblood::Spawn()
 	pev->velocity = ((m_direction + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
 	pev->gravity = m_Gravity;
 	pev->owner = NULL;
-
-	if (m_BloodType == BLOOD_COLOR_RED)
+	
+	switch(m_BloodType)
 	{
-		pev->rendercolor = Vector(RANDOM_LONG(102, 200), 0, 0);
-	}
-	else if (m_BloodType == BLOOD_COLOR_YELLOW)
-	{
-		pev->rendercolor = Vector(199, 195, 55);
-	}
-	else if (m_BloodType == BLOOD_COLOR_GREEN)
-	{
-		pev->rendercolor = Vector(185, 235, 85);
-	}	
-	else if (m_BloodType == BLOOD_COLOR_CYAN)
-	{
-		pev->rendercolor = Vector(RANDOM_LONG(16, 18), RANDOM_LONG(253, 255), RANDOM_LONG(190, 192));
-	}
-	else if (m_BloodType == NULL) // water drop
-	{
-		pev->rendercolor = Vector(115, 205, 255);
-	}
-	else // corruption
-	{
-		pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255));
+		case BLOOD_COLOR_RED: pev->rendercolor = Vector(RANDOM_LONG(102, 200), 0, 0); break;
+		case BLOOD_COLOR_YELLOW: pev->rendercolor = Vector(199, 195, 55); break;
+		case BLOOD_COLOR_GREEN: pev->rendercolor = Vector(185, 235, 85); break;
+		case BLOOD_COLOR_CYAN: pev->rendercolor = Vector(RANDOM_LONG(16, 18), RANDOM_LONG(253, 255), RANDOM_LONG(190, 192)); break;
+		case NULL: pev->rendercolor = Vector(115, 205, 255); break; // water
+		default: pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255)); break; // corruption
 	}
 	
 	if (m_BloodType == NULL) // water drop
