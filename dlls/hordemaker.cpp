@@ -212,6 +212,7 @@ void CHordeMaker::MakeMonster()
 	if (0 != count) // don't spawn monsters near players or other monsters
 	{
 		ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
+		pev->nextthink = gpGlobals->time;
 		return;
 	}
 
@@ -220,6 +221,8 @@ void CHordeMaker::MakeMonster()
 	if (FNullEnt(pent))
 	{
 		ALERT(at_console, "NULL Ent in MonsterMaker!\n");
+		SetThink(NULL);
+		SetUse(NULL);
 		return;
 	}
 
