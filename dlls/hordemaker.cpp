@@ -232,7 +232,7 @@ void CHordeMaker::MakeMonster()
 
 	pevCreate = VARS(pent);
 	pevCreate->origin = tryspawn;
-	pevCreate->angles = Vector(0, 0 RANDOM_LONG(0, 360));
+	pevCreate->angles = Vector(0, RANDOM_LONG(0, 360), 0);
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 	
 	ALERT(at_aiconsole, "SPAWNED %u AT: (%f, %f, %f)\n", m_iszMonsterClassname, pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
