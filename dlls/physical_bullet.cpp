@@ -57,7 +57,6 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_Gravity = BLLTGravity;
 		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->m_bsubsonic = subsonic;
-		pBullet->m_SpreadVect = Vector(RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_Spread, -pBullet->m_Spread), RANDOM_FLOAT(pBullet->m_SpreadVert, -pBullet->m_SpreadVert));
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
 		pBullet->pev->owner = NULL;
@@ -85,9 +84,20 @@ void CPhysbullet::Spawn()
 
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos); // TO-DO: now that there's no +4 in direction, will need to delay the trail starting somehow
-	pev->velocity = (m_direction + m_SpreadVect) * m_muzzlevelocity; // Applies spread and velocity
+
+	float x, y, z;
+	do
+	{
+		x = RANDOM_FLOAT(-0.5, 0.5) + RANDOM_FLOAT(-0.5, 0.5);
+		y = RANDOM_FLOAT(-0.5, 0.5) + RANDOM_FLOAT(-0.5, 0.5);
+		z = x * x + y * y;
+	} while (z > 1);
+
+	m_direction = m_direction + x * m_Spread * gpGlobals->v_right + y * m_SpreadVert * gpGlobals->v_up;
+					
+	pev->velocity = m_direction * m_muzzlevelocity; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	pev->angles = m_direction + m_SpreadVect;
+	pev->angles = m_direction;
 
 	m_haswizzed = false;
 

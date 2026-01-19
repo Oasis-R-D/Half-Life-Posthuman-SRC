@@ -36,7 +36,6 @@ public:
 
 	Vector m_SpawnPos;
 	Vector m_direction;
-	Vector m_SpreadVect;
 
 	double m_Spread;
 	double m_SpreadVert;
