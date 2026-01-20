@@ -1634,8 +1634,7 @@ char TEXTURETYPE_Find(char* name) // TO-DO: would probably be better to have a .
 
 float TEXTURETYPE_PlayMatSound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int iBulletType)
 {
-	// hit the world, try to play sound based on texture material type
-
+	// NPC STEP SOUNDS
 	char chTextureType;
 	float fvol;
 	float fvolbar;
@@ -1954,9 +1953,9 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	case CHAR_TEX_COMPUTER:
 		fvol = 1.0;
 		fvolbar = 0.2;
-		rgsz[0] = "debris/glass1.wav";
-		rgsz[1] = "debris/glass2.wav";
-		rgsz[2] = "debris/glass3.wav";
+		rgsz[0] = "debris/glassshatter1.wav";
+		rgsz[1] = "debris/glassshatter2.wav";
+		rgsz[2] = "debris/glassshatter3.wav";
 		cnt = 3;
 		break;
 	case CHAR_TEX_FLESH:
