@@ -2114,7 +2114,7 @@ void CBasePlayer::PreThink()
 			WRITE_COORD(Origin.x); // X
 			WRITE_COORD(Origin.y); // Y
 			WRITE_COORD(Origin.z); // Z
-			WRITE_BYTE(m_iWeaponFlash / 100); // radius * 0.1
+			WRITE_BYTE(round(m_iWeaponFlash / 64)); // radius * 0.1
 			WRITE_BYTE(RANDOM_LONG(128, 112));// r
 			WRITE_BYTE(RANDOM_LONG(64, 48));// g
 			WRITE_BYTE(0);	 // b
