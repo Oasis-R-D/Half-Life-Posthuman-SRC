@@ -7,10 +7,50 @@
 */
 
 #include "engine_particles.h"
+
 //8========================================================D
 // ENGINE_PARTICLES.CPP: File to store code defined particles
 // WHY: Most of these are only here so they can accept inputs
 //8========================================================D
+
+// vv based on flames_smoke.txt
+char impactsmoke[] = R"(
+life 1
+lifevar 0.25
+
+fadedelay 0.25
+
+minvel 8
+maxvel 64
+
+maxofs 15
+
+texture smoke03
+rendermode 2
+
+scale 16
+scalevar 4
+scaledampdelay 0.1
+scaledampfactor -15
+
+rotationvel 80
+rotationdamp 0.04
+
+veldamp 0.1
+
+collision 4
+gravity -0.05
+mainalpha 0.125
+
+startparticles 1
+
+lightmaps 2
+
+pcolr %d
+pcolg %d
+pcolb %d
+)";
+
 // vvv could use a animated tex to make the drops fly outwards
 char bloodgibcloud[] = R"(
 randomdir 1
