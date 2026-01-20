@@ -459,7 +459,7 @@ void DrawCrosshair()
 			DRAW_MIDDLE = false;
 			break;
 		}
-		case 2: // Duckbill clump (shotgun)
+		case 2: // Duckbill(shotgun)
 		{
 			DRAW_MIDDLE = false;
 			spreadvec.y *= 0.25;

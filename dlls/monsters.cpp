@@ -1357,7 +1357,7 @@ int CBaseMonster::CheckLocalMove(const Vector& vecStart, const Vector& vecEnd, C
 	iReturn = LOCALMOVE_VALID;				  // assume everything will be ok.
 
 	// move the monster to the start of the local move that's to be checked.
-	UTIL_SetOrigin(pev, vecStart); // !!!BUGBUG - won't this fire triggers? - nope, SetOrigin doesn't fire
+	UTIL_SetOrigin(pev, vecStart);
 
 	if ((pev->flags & (FL_FLY | FL_SWIM)) == 0)
 	{
@@ -2264,8 +2264,6 @@ int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NO,	R_NM,	R_NM, R_NM,	R_NM, R_NM}, //info_monstarget
 	/*HALLUCINATION*/			{R_NO,   R_NO,   R_NM,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO}	  //Lucigast and friends
 
-
-
 /*
 R_AL(ALLY) pals. Good alternative to R_NO when applicable.
 R_FR(FEAR) will run from
@@ -2318,7 +2316,7 @@ bool CBaseMonster::FindCover(Vector vecThreat, Vector vecViewOffset, float flMin
 
 	if (0 == WorldGraph.m_fGraphPresent || 0 == WorldGraph.m_fGraphPointersSet)
 	{
-		ALERT(at_aiconsole, "Graph not ready for findcover!\n");
+		ALERT(at_aiconsole, "Graph not ready/existant for FindCover()!\n");
 		return false;
 	}
 
@@ -2357,30 +2355,29 @@ bool CBaseMonster::FindCover(Vector vecThreat, Vector vecViewOffset, float flMin
 		{
 			UTIL_TraceLine(node.m_vecOrigin + vecViewOffset, vecLookersOffset, ignore_monsters, ignore_glass, ENT(pev), &tr);
 
-			// if this node will block the threat's line of sight to me...
-			if (tr.flFraction != 1.0)
+			// if this node will not block the threat's line of sight to me...
+			if (tr.flFraction == 1.0)
+				return false;
+
+			// ..and is also closer to me than the threat, or the same distance from myself and the threat the node is good.
+			if ((iMyNode == iThreatNode) || WorldGraph.PathLength(iMyNode, nodeNumber, iMyHullIndex, m_afCapability) <= WorldGraph.PathLength(iThreatNode, nodeNumber, iMyHullIndex, m_afCapability))
 			{
-				// ..and is also closer to me than the threat, or the same distance from myself and the threat the node is good.
-				if ((iMyNode == iThreatNode) || WorldGraph.PathLength(iMyNode, nodeNumber, iMyHullIndex, m_afCapability) <= WorldGraph.PathLength(iThreatNode, nodeNumber, iMyHullIndex, m_afCapability))
+				if (FValidateCover(node.m_vecOrigin) && MoveToLocation(ACT_RUN, 0, node.m_vecOrigin))
 				{
-					if (FValidateCover(node.m_vecOrigin) && MoveToLocation(ACT_RUN, 0, node.m_vecOrigin))
-					{
-						/*
-						MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
-							WRITE_BYTE( TE_SHOWLINE);
-							
-							WRITE_COORD( node.m_vecOrigin.x );
-							WRITE_COORD( node.m_vecOrigin.y );
-							WRITE_COORD( node.m_vecOrigin.z );
+					/*
+					MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+						WRITE_BYTE( TE_SHOWLINE);
+						
+						WRITE_COORD( node.m_vecOrigin.x );
+						WRITE_COORD( node.m_vecOrigin.y );
+						WRITE_COORD( node.m_vecOrigin.z );
 
-							WRITE_COORD( vecLookersOffset.x );
-							WRITE_COORD( vecLookersOffset.y );
-							WRITE_COORD( vecLookersOffset.z );
-						MESSAGE_END();
-						*/
-
-						return true;
-					}
+						WRITE_COORD( vecLookersOffset.x );
+						WRITE_COORD( vecLookersOffset.y );
+						WRITE_COORD( vecLookersOffset.z );
+					MESSAGE_END();
+					*/
+					return true;
 				}
 			}
 		}
