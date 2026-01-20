@@ -1975,7 +1975,6 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	}
 
 	// did we hit a breakable?
-
 	if (pEntity && FClassnameIs(pEntity->pev, "func_breakable"))
 	{
 		// drop volumes, the object will already play a damaged sound
@@ -1986,7 +1985,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	{
 		// play random spark if computer
 
-		if (ptr->flFraction != 1.0 && RANDOM_LONG(0, 1))
+		if (/*ptr->flFraction != 1.0 &&*/ RANDOM_LONG(0, 1))
 		{
 			UTIL_Sparks(ptr->vecEndPos);
 
