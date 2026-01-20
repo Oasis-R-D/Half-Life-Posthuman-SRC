@@ -508,26 +508,26 @@ CSound* CBaseMonster::PBestScent()
 #endif
 	return NULL;
 }
-#define BURNAMNT 2 // placeholder
+
 void CBaseMonster::Railed() //:troll:
 {
 	if (m_fBurnTimer != 0)
 	{
-		m_fBurnTimer -= 0.1; // TO-DO: particles
-
-		iBurnAmnt = max(m_fBurnTimer * 2);
-		if (iBurnAmnt > 10) iBurnAmnt = 10;
-
-		for (int i = 0; i < iBurnAmnt; i++)
+		int iBurnAmnt = max(m_fBurnTimer * 2);
+		if (iBurnAmnt > 5) iBurnAmnt = 5;
+		
+		for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 8
 		{
 			// spawn particulates
 		}
 
-		if (static_cast<int>(m_fBurnTimer) == m_fBurnTimer)
+		if (round(m_fBurnTimer) == m_fBurnTimer)
 		{
-			::TakeDamage(pev, pev, 5, DMG_FIRE);
+			TakeDamage(pev, pev, 5, DMG_BURN);
 		}
-	}	
+		
+		m_fBurnTimer -= 0.1;
+	}
 
 	if (m_flMaxDistTooFar != m_flDistTooFar) // flashbang/blindness recovery
 	{
