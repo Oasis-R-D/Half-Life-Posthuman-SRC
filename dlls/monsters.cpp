@@ -35,6 +35,7 @@
 #include "gamerules.h"
 #include "pm_materials.h"
 #include "Blooddrops.h"
+#include <cmath>
 
 #define MONSTER_CUT_CORNER_DIST 8 // 8 means the monster's bounding box is contained without the box of the node in WC
 
@@ -513,13 +514,13 @@ void CBaseMonster::Railed() //:troll:
 {
 	if (m_fBurnTimer != 0)
 	{
-		int iBurnAmnt = max(m_fBurnTimer * 2);
+		int iBurnAmnt = ceil(m_fBurnTimer * 2);
 		if (iBurnAmnt > 6) iBurnAmnt = 6;
 		
 		for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
 		{
 			// spawn particulates
-			UTIL_Particle("flames.txt", pev->origin, g_vecZero, 0) // TO-DO: make it spawn flames in BBox, figure out what type is, add a amount to the message instead to save message amounts
+			UTIL_Particle("flames.txt", pev->origin, g_vecZero, 0); // TO-DO: make it spawn flames in BBox, figure out what type is, add a amount to the message instead to save message amounts
 		}
 
 		if (round(m_fBurnTimer) == m_fBurnTimer)
