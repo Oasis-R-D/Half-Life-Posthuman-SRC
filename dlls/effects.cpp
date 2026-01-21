@@ -3062,7 +3062,12 @@ void CFire::BurnThink()
 	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime)
 	{	
 		// radius damage here
-		//if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
+		if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
+		{
+			//UTIL_TraceLine(VecFireSpread, VecFireSpread +)
+			Vector VecFireSpread = pev->origin;
+			VecFireSpread.z = pev->absmin.z +1;
+		}
 	}
 
 	m_iActiveTime--;
