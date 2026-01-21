@@ -2989,7 +2989,7 @@ LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
 //  Fire entity
 //=======================
 
-CFire* CFire::FireCreate(float activetime, int startsize, CBaseEntity* dontburn)
+CFire* CFire::FireCreate(Vector origin, float activetime, int startsize, CBaseEntity* dontburn)
 {
 	CFire* pFire = GetClassPtr((CFire*)NULL);
 	pFire->pev->classname = MAKE_STRING("env_fire");
@@ -2998,7 +2998,8 @@ CFire* CFire::FireCreate(float activetime, int startsize, CBaseEntity* dontburn)
 	pFire->m_iAmount = startsize;
 	pFire->m_iActiveTime = activetime * 10;
 	pFire->m_pIgnore = dontburn;
-
+	UTIL_SetOrigin(pFire->pev, origin);
+	
 	return pFire;
 }
 
@@ -3046,7 +3047,7 @@ void CFire::BurnThink()
 	{
 		m_bActive = false;
 	}
-	
+
 	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
 	{
 		Vector VecflameOrg;

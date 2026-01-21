@@ -541,7 +541,11 @@ void CBaseMonster::Railed() //:troll:
 		{
 			TakeDamage(pev, pev, 10, DMG_BURN);
 			if (RANDOM_LONG(0, 4) == 4)
-				CFire::FireCreate(5, max - 1, this); // spread fire around, causes chaos
+			{
+				Vector VecSpreadOrg = pev->origin;
+				VecSpreadrOrg.z = pev->absmin.z + 1;
+				CFire::FireCreate(VecSpreadrOrg, 5, max - 1, this); // spread fire around, causes chaos
+			}
 		}
 
 		ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
