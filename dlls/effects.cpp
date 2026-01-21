@@ -3042,6 +3042,11 @@ void CFire::BurnThink()
 	if (iBurnAmnt > m_iAmount) 
 		iBurnAmnt = m_iAmount;
 	
+	if (iBurnAmnt <= 0)
+	{
+		m_bActive = false;
+	}
+	
 	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
 	{
 		Vector VecflameOrg;
@@ -3056,8 +3061,7 @@ void CFire::BurnThink()
 	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime)
 	{	
 		// radius damage here
-		//TakeDamage(pev, pev, 10, DMG_BURN);
-		//if (RANDOM_LONG(0, 4) == 4)
+		//if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
 	}
 
 	m_iActiveTime--;
