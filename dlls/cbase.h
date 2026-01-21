@@ -407,8 +407,10 @@ public:
 	int m_fInAttack;
 
 	int m_fireState;
-	float m_fBurnTimer;
+
+	int m_iBurnTimer;
 	bool m_bPrehuman; // Required for some NPCs and player (here because headcrab unlatching uses base entity and not base monster
+
 	int m_iMaxDeathBleed = 6; // How much can the monster bleed after dead (helps avoid mass decal spam on the ground)
 
 	int altviewmodel;

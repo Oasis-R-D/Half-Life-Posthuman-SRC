@@ -313,7 +313,7 @@ extern float UTIL_Approach(float target, float value, float speed);
 extern float UTIL_ApproachAngle(float target, float value, float speed);
 extern float UTIL_AngleDistance(float next, float cur);
 
-extern int UTIL_Round(float roundee, int roundto);
+extern double UTIL_Round(double roundee, int roundto);
 extern char* UTIL_VarArgs(const char* format, ...);
 extern void UTIL_Remove(CBaseEntity* pEntity);
 extern bool UTIL_IsValidEntity(edict_t* pent);

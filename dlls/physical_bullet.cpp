@@ -234,7 +234,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		Owner = this->edict();
 	}
 
-	pOther->m_fBurnTimer = 15; // TO-DO: remove (used to debug fire)
+	pOther->m_iBurnTimer = 150; // TO-DO: remove (used to debug fire)
 
 	m_Endpos = pev->origin; // where bullet hit
 	TraceResult tr = UTIL_GetGlobalTrace();

@@ -1719,7 +1719,7 @@ void UTIL_StripToken(const char* pKey, char* pDest, int nLen)
 //=========================================================
 // UTIL_Round - rounds to specified decimal
 //=========================================================
-int UTIL_Round(float roundee, int roundto)
+double UTIL_Round(double roundee, int roundto)
 {
 	int roundto2 = roundto;
 	int power = 1;

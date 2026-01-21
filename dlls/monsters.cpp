@@ -512,23 +512,37 @@ CSound* CBaseMonster::PBestScent()
 
 void CBaseMonster::Railed() //:troll:
 {
-	if (m_fBurnTimer != 0)
+	if (m_iBurnTimer > 0)
 	{
-		int iBurnAmnt = ceil(m_fBurnTimer * 2);
-		if (iBurnAmnt > 6) iBurnAmnt = 6;
+		int max;
+		int iMyHullIndex = WorldGraph.HullIndex(this);
+		switch (iMyHullIndex)
+		{
+			case NODE_SMALL_HULL: max = 2; break;
+			case NODE_HUMAN_HULL: max = 4; break;
+			case NODE_LARGE_HULL: max = 6; break;
+		}
+		int iBurnAmnt = ceil(m_iBurnTimer/10);
+		if (iBurnAmnt > max) 
+			iBurnAmnt = max;
 		
 		for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
 		{
-			// spawn particulates
-			UTIL_Particle("flames.txt", pev->origin, g_vecZero, 0); // TO-DO: make it spawn flames in BBox, figure out what type is, add a amount to the message instead to save message amounts
+			Vector VecflameOrg;
+			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+
+			UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
 		}
 
-		if (round(m_fBurnTimer) == m_fBurnTimer)
+		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 		{
-			TakeDamage(pev, pev, 5, DMG_BURN);
+			TakeDamage(pev, pev, 10, DMG_BURN);
 		}
-		
-		m_fBurnTimer -= 0.1;
+
+		ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+		m_iBurnTimer--;
 	}
 
 	if (m_flMaxDistTooFar != m_flDistTooFar) // flashbang/blindness recovery
