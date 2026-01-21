@@ -219,6 +219,33 @@ public:
 	Vector m_firePosition;
 };
 
+//=======================
+//  Fire entity
+//=======================
+class CFire : public CBaseEntity
+{
+public:
+	void Spawn();
+	bool KeyValue(KeyValueData* pkvd);
+
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+	void BurnThink();
+	int m_iAmount;
+	bool m_bActive;
+
+	int m_iActiveTime;
+	float m_fSpreadTime;
+
+	CBaseEntity* m_pIgnore;
+
+	virtual bool Save(CSave& save);
+	virtual bool Restore(CRestore& restore);
+	static TYPEDESCRIPTION m_SaveData[];
+
+public:
+	static CFire* FireCreate(float activetime, int startsize, CBaseEntity* dontburn);
+};
+
 // RENDERERS START
 //=======================
 //  ClientFog

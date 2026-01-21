@@ -35,6 +35,7 @@
 #include "gamerules.h"
 #include "pm_materials.h"
 #include "Blooddrops.h"
+#include "effects.h"
 #include <cmath>
 
 #define MONSTER_CUT_CORNER_DIST 8 // 8 means the monster's bounding box is contained without the box of the node in WC
@@ -539,6 +540,8 @@ void CBaseMonster::Railed() //:troll:
 		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 		{
 			TakeDamage(pev, pev, 10, DMG_BURN);
+			if (RANDOM_LONG(0, 4) == 4)
+				CFire::FireCreate(5, max - 1, this); // spread fire around, causes chaos
 		}
 
 		ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);

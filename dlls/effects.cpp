@@ -2982,7 +2982,111 @@ class CEnvBarrel : public CGrenade
 		ExplodeHE(&tr, DMG_BLAST);
 	}
 };
+
 LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
+
+//=======================
+//  Fire entity
+//=======================
+
+CFire* CFire::FireCreate(float activetime, int startsize, CBaseEntity* dontburn)
+{
+	CFire* pFire = GetClassPtr((CFire*)NULL);
+	pFire->pev->classname = MAKE_STRING("env_fire");
+	pFire->Spawn();
+
+	pFire->m_iAmount = startsize;
+	pFire->m_iActiveTime = activetime * 10;
+	pFire->m_pIgnore = dontburn;
+
+	return pFire;
+}
+
+bool CFire::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "size"))
+	{
+		m_iAmount = atoi(pkvd->szValue);
+		pkvd->fHandled = true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "activetime"))
+	{
+		m_iActiveTime = 10 * atoi(pkvd->szValue);
+		pkvd->fHandled = true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "spreadtime"))
+	{
+		m_fSpreadTime = gpGlobals->time + atoi(pkvd->szValue);
+		pkvd->fHandled = true;
+	}
+	//TO-DO: see if possible to add a KV for ignoring a entity by targetname
+
+	return CBaseEntity::KeyValue(pkvd);
+}
+
+void CFire::Spawn()
+{
+	pev->effects |= EF_NODRAW;
+	SetThink(&CFire::BurnThink);
+	pev->nextthink = gpGlobals->time;
+}
+
+void CFire::BurnThink()
+{
+	pev->nextthink = gpGlobals->time + 0.1;
+	
+	if (!m_bActive)
+		return;
+
+	int iBurnAmnt = ceil(m_iActiveTime/10);
+	if (iBurnAmnt > m_iAmount) 
+		iBurnAmnt = m_iAmount;
+	
+	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
+	{
+		Vector VecflameOrg;
+		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
+		VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
+		VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+		// TO-DO: figure out how to make a proper bounding box
+		// TO-DO: fire spreading (use volume size)
+		UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
+	}
+
+	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime)
+	{	
+		// radius damage here
+		//TakeDamage(pev, pev, 10, DMG_BURN);
+		//if (RANDOM_LONG(0, 4) == 4)
+	}
+
+	m_iActiveTime--;
+}
+
+void CFire::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	switch (useType)
+	{
+	case USE_OFF:
+		m_bActive = false;
+		break;
+	case USE_ON:
+		m_bActive = true;
+		break;
+	default:
+		m_bActive = !m_bActive;
+		break;
+	}
+};
+
+LINK_ENTITY_TO_CLASS(env_fire, CFire);
+
+TYPEDESCRIPTION CFire::m_SaveData[] =
+	{
+		DEFINE_FIELD(CFire, m_bActive, FIELD_BOOLEAN),
+};
+
+IMPLEMENT_SAVERESTORE(CFire, CBaseEntity);
 
 // RENDERERS START
 //=======================
