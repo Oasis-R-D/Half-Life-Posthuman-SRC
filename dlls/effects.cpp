@@ -3032,6 +3032,71 @@ void CFire::Spawn()
 	pev->nextthink = gpGlobals->time;
 }
 
+void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, CBaseEntity* pEntIgnore)
+{
+	CBaseEntity* pEntity = NULL;
+	TraceResult tr;
+	float flAdjustedDamage, falloff;
+	Vector vecSpot;
+
+	if (0 != flRadius)
+		falloff = flDamage / flRadius;
+	else
+		falloff = 1.0;
+
+	const bool bInWater = (UTIL_PointContents(vecSrc) == CONTENTS_WATER);
+
+	if (!pevAttacker)
+		pevAttacker = pevInflictor;
+
+	// iterate on all entities in the vicinity.
+	while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecSrc, flRadius)) != NULL)
+	{
+		if (pEntity = pEntIgnore && pEntIgnore->m_iBurnTimer > 0)
+			continue;
+
+		if (pEntity->pev->takedamage != DAMAGE_NO)
+		{
+			// UNDONE: this should check a damage mask, not an ignore
+			if (iClassIgnore != CLASS_NONE && pEntity->Classify() == iClassIgnore)
+			{ // houndeyes don't hurt other houndeyes with their attack
+				continue;
+			}
+
+			// blast's don't travel into or out of water
+			if (bInWater && pEntity->pev->waterlevel == 0)
+				continue;
+			if (!bInWater && pEntity->pev->waterlevel == 3)
+				continue;
+
+			vecSpot = pEntity->BodyTarget(vecSrc);
+
+			UTIL_TraceLine(vecSrc, vecSpot, dont_ignore_monsters, ENT(pevInflictor), &tr);
+
+			// decrease damage for an ent that's farther from the bomb.
+			flAdjustedDamage = (vecSrc - tr.vecEndPos).Length() * falloff;
+			flAdjustedDamage = flDamage - flAdjustedDamage;
+
+			if (flAdjustedDamage < 0)
+			{
+				flAdjustedDamage = 0;
+			}
+
+			// ALERT( at_console, "hit %s\n", STRING( pEntity->pev->classname ) );
+			if (tr.flFraction != 1.0)
+			{
+				ClearMultiDamage();
+				pEntity->TraceAttack(pevInflictor, flAdjustedDamage, (tr.vecEndPos - vecSrc).Normalize(), &tr, DMG_BURN);
+				ApplyMultiDamage(pevInflictor, pevAttacker);
+			}
+			else
+			{
+				pEntity->TakeDamage(pevInflictor, pevAttacker, flAdjustedDamage, DMG_BURN);
+			}
+		}
+	}
+}
+
 void CFire::BurnThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1;
@@ -3061,10 +3126,13 @@ void CFire::BurnThink()
 
 	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime)
 	{	
-		// radius damage here
+		Vector DamageVec = pev->absmin + pev->size * 0.5;
+		DamageVec.z += 1;
+	
+		FireRadiusDamage(DamageVec, pev, pev, 10, 48, CLASS_NONE, m_pIgnore);
 		if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
 		{
-			//UTIL_TraceLine(VecFireSpread, VecFireSpread +)
+			//UTIL_TraceLine(VecFireSpread, VecFireSpread + gpGlobals->v_right)
 			Vector VecFireSpread = pev->origin;
 			VecFireSpread.z = pev->absmin.z +1;
 		}

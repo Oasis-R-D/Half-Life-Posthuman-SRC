@@ -544,7 +544,7 @@ void CBaseMonster::Railed() //:troll:
 			{
 				Vector VecSpreadOrg = pev->origin;
 				VecSpreadOrg.z = pev->absmin.z + 1;
-				CFire::FireCreate(VecSpreadOrg, 5, max - 1, this); // spread fire around, causes chaos
+				CFire::FireCreate(VecSpreadOrg, 5, max - 1, this); // spread fire around, cause chaos
 			}
 		}
 
