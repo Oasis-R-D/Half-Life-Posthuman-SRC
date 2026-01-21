@@ -3027,6 +3027,7 @@ bool CFire::KeyValue(KeyValueData* pkvd)
 
 void CFire::Spawn()
 {
+	m_fSFXloopdur = 0;
 	pev->effects |= EF_NODRAW;
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3111,6 +3112,29 @@ void CFire::BurnThink()
 	if (iBurnAmnt <= 0)
 	{
 		m_bActive = false;
+		return;
+	}
+
+	if (m_fSFXloopdur <= gpGlobals->time)
+	{
+		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
+			m_iSFXlooptype = 1;
+		else if (iBurnAmnt >= 2 && iBurnAmnt < 4)
+			m_iSFXlooptype = 2;
+		else if (iBurnAmnt >= 4)
+			m_iSFXlooptype = 3;
+
+		switch(m_iSFXlooptype)
+		{
+			case 1: m_fSFXloopdur = gpGlobals->time + 15.9;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/ember_loop.wav", 1, ATTN_NORM); break;
+
+			default: case 2: m_fSFXloopdur = gpGlobals->time + 7.5;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav", 1, ATTN_NORM); break;
+
+			case 3: m_fSFXloopdur = gpGlobals->time + 6.8;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav", 1, ATTN_NORM); break;
+		}
 	}
 
 	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
