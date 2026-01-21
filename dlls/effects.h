@@ -236,7 +236,7 @@ public:
 	int m_iActiveTime;
 	float m_fSpreadTime;
 	int m_iSFXlooptype;
-	float m_fSFXloopdur;
+	double m_fSFXloopdur;
 	
 	CBaseEntity* m_pIgnore;
 
