@@ -3053,7 +3053,7 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 	// iterate on all entities in the vicinity.
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecSrc, flRadius)) != NULL)
 	{
-		if (pEntity = pEntIgnore && pEntIgnore->m_iBurnTimer > 0)
+		if (pEntity == pEntIgnore && pEntIgnore->m_iBurnTimer > 0)
 			continue;
 
 		if (pEntity->pev->takedamage != DAMAGE_NO)
@@ -3156,9 +3156,9 @@ void CFire::BurnThink()
 		FireRadiusDamage(DamageVec, pev, pev, 10, 48, CLASS_NONE, m_pIgnore);
 		if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
 		{
-			//UTIL_TraceLine(VecFireSpread, VecFireSpread + gpGlobals->v_right)
-			Vector VecFireSpread = pev->origin;
-			VecFireSpread.z = pev->absmin.z +1;
+			//UTIL_TraceLine(VecFireSpread, VecFireSpread +)
+			Vector VecFireSpread = Center();
+			VecFireSpread.z = pev->absmin.z +1; // does this need to be the center too?
 		}
 	}
 
