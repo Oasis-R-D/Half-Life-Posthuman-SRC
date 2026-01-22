@@ -3029,10 +3029,19 @@ bool CFire::KeyValue(KeyValueData* pkvd)
 	return CBaseEntity::KeyValue(pkvd);
 }
 
+void CFire::Precache()
+{
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav");
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/ember_loop.wav");
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/carfire_loop.wav");
+}
+
 void CFire::Spawn()
 {
+	Precache();
+
 	ALERT(at_console, "response\n");
-	m_fSFXloopdur = 0;
+	m_fSFXloopdur = gpGlobals->time;
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
 	pev->effects |= EF_NODRAW;

@@ -226,6 +226,7 @@ class CFire : public CBaseEntity
 {
 public:
 	void Spawn();
+	void Precache() override;
 	bool KeyValue(KeyValueData* pkvd);
 
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
