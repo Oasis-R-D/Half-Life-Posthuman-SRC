@@ -3122,7 +3122,7 @@ void CFire::BurnThink()
 	
 	if (!m_bActive)
 		return;
-	
+
 	if (pev->waterlevel > 0)
 		UTIL_Remove(this);
 
@@ -3161,8 +3161,8 @@ void CFire::BurnThink()
 	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
 	{
 		Vector VecflameOrg;
-		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
-		VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
+		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0, 1));
+		VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0, 1));
 		VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
 		// TO-DO: figure out how to make a proper bounding box
 		// TO-DO: fire spreading (use volume size)
