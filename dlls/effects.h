@@ -246,7 +246,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 public:
-	static CFire* FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn);
+	static CFire* FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride = NULL);
 };
 
 // RENDERERS START

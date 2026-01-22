@@ -2989,7 +2989,7 @@ LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
 //  Fire entity
 //=======================
 
-CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn)
+CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride)
 {
 	CFire* pFire = GetClassPtr((CFire*)NULL);
 
@@ -2999,6 +2999,9 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 	pFire->m_pIgnore = dontburn;
 	pFire->m_bActive = true;
 	UTIL_SetOrigin(pFire->pev, origin);
+	
+	if (heightoverride != NULL)
+		size.z = heightoverride;
 	UTIL_SetSize(pFire->pev, Vector(-size), Vector(size));
 
 	pFire->Spawn();

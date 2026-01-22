@@ -195,7 +195,7 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
-	CFire::FireCreate(pev->origin, 48, 200, 4, this);
+	CFire::FireCreate(pev->origin, 48, 200, 3, this, 16);
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -214,7 +214,7 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 			Spawn.y += (RANDOM_LONG(-160, 160));
 		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
 
-		CFire::FireCreate(Spawn, 32, 195, 3, this);
+		CFire::FireCreate(Spawn, 32, 195, 2, this, 12);
 	}
 
 	// TO-DO: create fire ents in a radius around. How? No idea.
