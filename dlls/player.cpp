@@ -2073,7 +2073,7 @@ void CBasePlayer::PreThink()
 	if (m_dbFireCheckTimer <= gpGlobals->time && m_iBurnTimer > 0)
 	{
 		int max = 3; // max particles / 4
-		if (isCrouching())
+		if (FBitSet(pev->flags, FL_DUCKING))
 			max = 2;
 
 		int iBurnAmnt = ceil(m_iBurnTimer/10);
