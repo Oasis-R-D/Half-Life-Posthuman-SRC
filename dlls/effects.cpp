@@ -3040,7 +3040,6 @@ void CFire::Spawn()
 {
 	Precache();
 
-	ALERT(at_console, "response\n");
 	m_fSFXloopdur = gpGlobals->time;
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
@@ -3080,7 +3079,7 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 				continue;
 			}
 
-			if (pEntity->pev->deadflag == DEAD_NO);
+			if (pEntity->pev->deadflag == DEAD_NO && pEntity->pev->waterlevel == 0);
 				pEntity->m_iBurnTimer += 25;
 
 			// blast's don't travel into or out of water
@@ -3123,6 +3122,9 @@ void CFire::BurnThink()
 	
 	if (!m_bActive)
 		return;
+	
+	if (pev->waterlevel > 0)
+		UTIL_Remove(this);
 
 	int iBurnAmnt = ceil(m_iActiveTime/10);
 	if (iBurnAmnt > m_iAmount) 

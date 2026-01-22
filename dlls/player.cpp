@@ -2099,7 +2099,6 @@ void CBasePlayer::PreThink()
 				TakeDamage(pev, pev, 10, DMG_BURN);
 				if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
 				{
-					ALERT(at_console, "template\n");
 					Vector VecSpreadOrg = Center();
 					VecSpreadOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
 					CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
