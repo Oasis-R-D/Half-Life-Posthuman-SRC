@@ -548,7 +548,7 @@ void CBaseMonster::Railed() //:troll:
 				if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
 				{
 					Vector VecSpreadOrg = Center();
-					VecSpreadOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+					VecSpreadOrg.z = pev->absmin.z + 5;
 					CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
 				}
 			}

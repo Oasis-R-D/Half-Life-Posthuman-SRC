@@ -3182,7 +3182,9 @@ void CFire::BurnThink()
 			VecFireSpread.z = pev->absmin.z +1; // does this need to be the center too?
 		}
 	}
-	ALERT(at_console, "burn: %d particleamnt: %i dmgvol: %f\n", m_iActiveTime, iBurnAmnt, pev->size.x * 1.25);
+	ALERT(at_console, "burn: %d particleamnt: %i dmgvol: %f\n firevol", m_iActiveTime, iBurnAmnt, pev->size.x * 1.25, pev->size.x);
+	ALERT(at_console, "env_fire: origin(%f, %f, %f)\n", pev->origin.x, pev->origin.y, pev->origin.z);
+	ALERT(at_console, "---------------------------------------------------------\n");
 	m_iActiveTime--;
 }
 
