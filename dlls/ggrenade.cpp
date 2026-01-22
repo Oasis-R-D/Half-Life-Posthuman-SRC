@@ -199,17 +199,19 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	for (int i = 0; i < 10; i++)
 	{
-		Vector Spawn = pev->origin;
+		Vector Spawn;
 		int times = 0;
 
 		do {
+			
 			times += 1;
 			if (times >= 100)
 			{
 				ALERT(at_warning, "Incendiary grenade couldn't spawn fire!\n");
 				break;
 			}
-
+			
+			Spawn = pev->origin;
 			Spawn.x += (RANDOM_LONG(-160, 160));
 			Spawn.y += (RANDOM_LONG(-160, 160));
 		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
