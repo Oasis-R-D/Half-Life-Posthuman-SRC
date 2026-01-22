@@ -28,6 +28,7 @@
 #include "physical_bullet.h"
 #include "player.h"
 #include "shake.h"
+#include "effects.h"
 
 //===================grenade
 
@@ -158,6 +159,83 @@ void CGrenade::ExplodeHE(TraceResult* pTrace, int bitsDamageType)
 	WRITE_BYTE(BREAK_SMOKE); // flags
 	MESSAGE_END();
 }
+
+void CGrenade::ExplodeIncen(TraceResult* pTrace)
+{
+	if	(pev->waterlevel > 0)
+	{
+		SetThink(&CGrenade::SUB_Remove);
+		pev->nextthink = gpGlobals->time;
+		return;
+	}
+	pev->model = iStringNull; //invisible
+	pev->solid = SOLID_NOT;	  // intangible
+
+	pev->takedamage = DAMAGE_NO;
+
+	// Pull out of the wall a bit
+	if (pTrace->flFraction != 1.0)
+	{
+		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
+	}
+
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
+
+	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+
+	entvars_t* pevOwner;
+	if (pev->owner)
+		pevOwner = VARS(pev->owner);
+	else
+		pevOwner = NULL;
+
+	pev->owner = NULL; // can't traceline attack owner if this is set
+
+	// Counteract the + 1 in RadiusDamage.
+	Vector origin = pev->origin;
+	origin.z -= 1;
+
+	CFire::FireCreate(pev->origin, 48, 200, 4, this);
+
+	for (int i = 0; i < 10; i++)
+	{
+		Vector Spawn = pev->origin;
+		int times = 0;
+
+		do {
+			times += 1;
+			if (times >= 100)
+			{
+				ALERT(at_warning, "Incendiary grenade couldn't spawn fire!\n");
+				break;
+			}
+
+			Spawn.x += (RANDOM_LONG(-160, 160));
+			Spawn.y += (RANDOM_LONG(-160, 160));
+		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
+
+		CFire::FireCreate(Spawn, 32, 195, 3, this);
+	}
+
+	// TO-DO: create fire ents in a radius around. How? No idea.
+	if (RANDOM_FLOAT(0, 1) < 0.5)
+	{
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
+	}
+	else
+	{
+		UTIL_DecalTrace(pTrace, DECAL_SCORCH2);
+	}
+
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
+
+	pev->effects |= EF_NODRAW;
+	pev->velocity = g_vecZero;
+
+	SetThink(&CGrenade::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
+}
+
 
 void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 {
@@ -349,7 +427,14 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
-	ExplodeHE(&tr, DMG_SONIC);
+	
+	if (m_iGrenType == 7)
+	{
+		ExplodeIncen(&tr);
+		return;
+	}
+	
+	ExplodeHE(&tr, DMG_SONIC); // TO-DO: call detonate instead?
 }
 
 void CGrenade::DangerSoundThink()
@@ -596,10 +681,14 @@ void CGrenade::CallDetonate()
 		case 6: // Signal flare?
 			SetThink(&CGrenade::ExplSpray);
 			break;
+		case 7: // Incendiary? (shouldn't be called)
+			ALERT(at_warning, "Incendiary Grenade calling CGrenade::CallDetonate()!");
+			break;
 	}
 
 	pev->nextthink = gpGlobals->time;
 }
+
 void CGrenade::TumbleThink()
 {
 	if (!IsInWorld())
@@ -626,6 +715,7 @@ void CGrenade::TumbleThink()
 	{
 		CallDetonate();
 	}
+
 	if (pev->waterlevel != 0)
 	{
 		pev->velocity = pev->velocity * 0.5;
@@ -812,6 +902,16 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			}
 			pGrenade->pev->gravity = 0.75f;
 			pGrenade->pev->friction = 1;
+			break;
+		case 7: // incendiary
+			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+			// Tumble through the air
+			for (int i = 0; i < 3; i++)
+			{
+				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
+				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
+			}
+			break;
 	}
 
 	pGrenade->m_iGrenType = type;
@@ -829,6 +929,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 	{
 		pGrenade->pev->nextthink = gpGlobals->time + 0.1;
 	}
+
 	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
 	pGrenade->pev->framerate = 1.0;
 	pGrenade->ResetSequenceInfo();

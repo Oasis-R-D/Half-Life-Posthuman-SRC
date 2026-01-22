@@ -47,6 +47,7 @@ public:
 
 	void Explode(Vector vecSrc, Vector vecAim);
 	void ExplodeHE(TraceResult* pTrace, int bitsDamageType);
+	void ExplodeIncen(TraceResult* pTrace);
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void Precache();
 

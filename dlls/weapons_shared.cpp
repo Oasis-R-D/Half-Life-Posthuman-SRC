@@ -309,6 +309,10 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			flMultiplier = 6.5f;
 			maxvel = 1000;
 			break;
+		case 7: // INCENDIARY
+			flMultiplier = 10;
+			maxvel = 1500;
+			break;
 	}
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -4;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
@@ -349,6 +353,9 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 			break;
 		case 6: // Signal Flare?
 			time = RANDOM_FLOAT(0.45, 0.55);
+			break;
+		case 7: // INCENDIARY
+			time = -1;
 			break;
 	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);

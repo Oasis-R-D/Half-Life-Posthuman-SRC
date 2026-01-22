@@ -4233,6 +4233,15 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		WRITE_BYTE(m_iGrenadeAmnt);
 		MESSAGE_END();
 		break;
+	}
+	case 37:
+	{
+		m_iGrenadeType = 7; // INCENDIARY
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
+		WRITE_BYTE(m_iGrenadeType);
+		WRITE_BYTE(m_iGrenadeAmnt);
+		MESSAGE_END();
+		break;
 	}	
 	case 76:
 	{
