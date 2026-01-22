@@ -515,7 +515,7 @@ void CBaseMonster::Railed() //:troll:
 {
 	if (m_iBurnTimer > 0)
 	{
-		int max;
+		int max; // max particles / 4
 		int iMyHullIndex = WorldGraph.HullIndex(this);
 		switch (iMyHullIndex)
 		{
@@ -523,11 +523,12 @@ void CBaseMonster::Railed() //:troll:
 			case NODE_HUMAN_HULL: max = 4; break;
 			case NODE_LARGE_HULL: max = 6; break;
 		}
+
 		int iBurnAmnt = ceil(m_iBurnTimer/10);
 		if (iBurnAmnt > max) 
 			iBurnAmnt = max;
 		
-		for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
+		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
 		{
 			Vector VecflameOrg;
 			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
@@ -540,15 +541,15 @@ void CBaseMonster::Railed() //:troll:
 		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 		{
 			TakeDamage(pev, pev, 10, DMG_BURN);
-			if (RANDOM_LONG(0, 4) == 4)
+			if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
 			{
-				Vector VecSpreadOrg = pev->origin;
-				VecSpreadOrg.z = pev->absmin.z + 1;
-				CFire::FireCreate(VecSpreadOrg, 5, max - 1, this); // spread fire around, cause chaos
+				ALERT(at_console, "template\n");
+				Vector VecSpreadOrg = Center();
+				VecSpreadOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+				CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
 			}
 		}
-
-		ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
 		m_iBurnTimer--;
 	}
 

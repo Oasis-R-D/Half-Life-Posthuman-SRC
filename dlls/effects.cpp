@@ -2989,16 +2989,20 @@ LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
 //  Fire entity
 //=======================
 
-CFire* CFire::FireCreate(Vector origin, float activetime, int startsize, CBaseEntity* dontburn)
+CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn)
 {
 	CFire* pFire = GetClassPtr((CFire*)NULL);
-	pFire->pev->classname = MAKE_STRING("env_fire");
-	pFire->Spawn();
 
-	pFire->m_iAmount = startsize;
+	pFire->pev->classname = MAKE_STRING("env_fire");
+	pFire->m_iAmount = maxsize;
 	pFire->m_iActiveTime = activetime * 10;
 	pFire->m_pIgnore = dontburn;
+	pFire->m_bActive = true;
 	UTIL_SetOrigin(pFire->pev, origin);
+	UTIL_SetSize(pFire->pev, Vector(-size), Vector(size));
+
+	pFire->Spawn();
+
 	
 	return pFire;
 }
@@ -3027,7 +3031,10 @@ bool CFire::KeyValue(KeyValueData* pkvd)
 
 void CFire::Spawn()
 {
+	ALERT(at_console, "response\n");
 	m_fSFXloopdur = 0;
+	pev->movetype = MOVETYPE_TOSS;
+	pev->solid = SOLID_BBOX;
 	pev->effects |= EF_NODRAW;
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3063,6 +3070,9 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 			{ // houndeyes don't hurt other houndeyes with their attack
 				continue;
 			}
+
+			if (pEntity->pev->deadflag == DEAD_NO);
+				pEntity->m_iBurnTimer += 25;
 
 			// blast's don't travel into or out of water
 			if (bInWater && pEntity->pev->waterlevel == 0)
@@ -3153,7 +3163,7 @@ void CFire::BurnThink()
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
 	
-		FireRadiusDamage(DamageVec, pev, pev, 10, 48, CLASS_NONE, m_pIgnore);
+		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
 		if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
 		{
 			//UTIL_TraceLine(VecFireSpread, VecFireSpread +)
@@ -3161,7 +3171,7 @@ void CFire::BurnThink()
 			VecFireSpread.z = pev->absmin.z +1; // does this need to be the center too?
 		}
 	}
-
+	ALERT(at_console, "burn: %d particleamnt: %i dmgvol: %f\n", m_iActiveTime, iBurnAmnt, pev->size.x * 1.25);
 	m_iActiveTime--;
 }
 
