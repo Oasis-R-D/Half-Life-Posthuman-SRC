@@ -11,7 +11,7 @@
 *   Valve LLC.  All other use, distribution, or modification is prohibited
 *   without written permission from Valve LLC.
 *
-****/
+***/
 /*
 
 ===== generic grenade.cpp ========================================================
@@ -475,12 +475,16 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 		{
 			TraceResult tr = UTIL_GetGlobalTrace();
 			ClearMultiDamage();
-			if (m_iGrenType != 5)
-				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
-			else
+			if (m_iGrenType == 5)
 				pOther->TraceAttack(pevOwner, 20, gpGlobals->v_forward, &tr, DMG_CLUB);
+			else
+				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
+		
+		if (m_iGrenType == 6)
+			pOther->m_iBurnTimer += 25;
+
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
 	}
 

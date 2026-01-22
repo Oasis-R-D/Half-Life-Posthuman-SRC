@@ -42,6 +42,7 @@
 #include "UserMessages.h"
 #include "client.h"
 #include "Blooddrops.h"
+#include "effects.h"
 
 #include "rope/CRope.h" // ROPEUPD
 
@@ -2069,6 +2070,42 @@ void CBasePlayer::Railed() //:troll:
 
 void CBasePlayer::PreThink()
 {
+	if (m_dbFireCheckTimer <= gpGlobals->time && m_iBurnTimer > 0)
+	{
+		int max = 3; // max particles / 4
+		if (isCrouching())
+			max = 2;
+
+		int iBurnAmnt = ceil(m_iBurnTimer/10);
+		if (iBurnAmnt > max) 
+			iBurnAmnt = max;
+		
+		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
+		{
+			Vector VecflameOrg;
+			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+
+			UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
+		}
+
+		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
+		{
+			TakeDamage(pev, pev, 10, DMG_BURN);
+			if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
+			{
+				ALERT(at_console, "template\n");
+				Vector VecSpreadOrg = Center();
+				VecSpreadOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+				CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
+			}
+		}
+		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+		m_iBurnTimer--;
+		m_dbFireCheckTimer = gpGlobals->time + 0.1; 
+	}
+
 	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
 
 	// Debounced button codes for pressed/released

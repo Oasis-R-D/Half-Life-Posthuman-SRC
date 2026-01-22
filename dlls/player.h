@@ -408,7 +408,7 @@ public:
 	int Hunger;
 	float HungerTime;
 	float HungerDamageTime;
-
+	double m_dbFireCheckTimer;
 private:
 	CRope* m_pRope;
 	float m_flLastClimbTime = 0;
