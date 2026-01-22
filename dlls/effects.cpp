@@ -2999,10 +2999,12 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 	pFire->m_pIgnore = dontburn;
 	pFire->m_bActive = true;
 	UTIL_SetOrigin(pFire->pev, origin);
-	
+
+	double height = size;
 	if (heightoverride != NULL)
-		size.z = heightoverride;
-	UTIL_SetSize(pFire->pev, Vector(-size), Vector(size));
+		height = heightoverride;
+	
+	UTIL_SetSize(pFire->pev, Vector(-size, -size, 0), Vector(size, size, height));
 
 	pFire->Spawn();
 
