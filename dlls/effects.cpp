@@ -3014,7 +3014,7 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 
 bool CFire::KeyValue(KeyValueData* pkvd)
 {
-	if (FStrEq(pkvd->szKeyName, "size"))
+	if (FStrEq(pkvd->szKeyName, "particles"))
 	{
 		m_iAmount = atoi(pkvd->szValue);
 		pkvd->fHandled = true;
