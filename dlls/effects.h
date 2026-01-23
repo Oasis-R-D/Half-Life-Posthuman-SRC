@@ -232,16 +232,20 @@ public:
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void BurnThink();
 	int ShouldCollide(CBaseEntity* pentTouched) override;
-	int m_iAmount;
-	bool m_bActive;
-
+	
 	int m_iActiveTime;
-	float m_fSpreadTime;
-	int m_iSFXlooptype;
+	int m_iAmount;
+	
+	bool m_bActive;
 	bool m_bSoundPlaying;
 	bool m_bCodeSpawned;
+
+	float m_fSpreadTime;
+
 	CBaseEntity* m_pIgnore;
+
 	char m_caSound[80];
+
 	virtual bool Save(CSave& save);
 	virtual bool Restore(CRestore& restore);
 	static TYPEDESCRIPTION m_SaveData[];

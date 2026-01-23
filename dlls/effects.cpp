@@ -3047,7 +3047,7 @@ void CFire::Spawn()
 	Precache();
 
 	m_iBurnTimer = -16;
-	m_iSFXlooptype = false;
+	m_bSoundPlaying = false;
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_TRIGGER;
 	pev->effects |= EF_NODRAW;
@@ -3146,28 +3146,15 @@ void CFire::BurnThink()
 		return;
 	}
 
-	if (!C)
+	if (!m_bSoundPlaying)
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
-			m_iSFXlooptype = 1;
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n");
 		else if (iBurnAmnt >= 2 && iBurnAmnt < 4)
-			m_iSFXlooptype = 2;
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav\n");
 		else if (iBurnAmnt >= 4)
-			m_iSFXlooptype = 3;
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav\n");
 
-		switch(m_iSFXlooptype) // to-do: make better
-		{
-			case 1: 
-				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n");
-				break;
-			default:
-			case 2:
-				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav\n");
-				break;
-			case 3:
-				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav\n");
-				break;
-		}
 		UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0.33, ATTN_STATIC, 0, 95 + RANDOM_LONG(-5, 10));
 		m_bSoundPlaying = true;
 	}
