@@ -179,9 +179,8 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
 	}
 
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
-
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 140, 18);
 
 	entvars_t* pevOwner;
 	if (pev->owner)
@@ -216,7 +215,7 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 			Spawn.y += (RANDOM_LONG(-160, 160));
 		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
 
-		CFire::FireCreate(Spawn, 32, 19.5 + RANDOM_FLOAT(-1.0, 0.5), 2, this, 12);
+		CFire::FireCreate(Spawn, 32, 19.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
 	}
 
 	// TO-DO: create fire ents in a radius around. How? No idea.
@@ -570,7 +569,7 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 		}
 
 		if (m_iGrenType == 6 && pev->waterlevel == 0 && pOther->pev->waterlevel == 0)
-			pOther->m_iBurnTimer += 25;
+			pOther->m_iBurnTimer += 50;
 
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
 	}
@@ -894,14 +893,9 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		case 6: // Signal flare?
 			pGrenade->m_iGeneralInt = RANDOM_LONG(15, 20);
 			SET_MODEL(ENT(pGrenade->pev), "models/w_flare.mdl");
-			pGrenade->SetTouch(&CGrenade::SlideTouch);
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			// spin through the air
-			for (int i = 0; i < 3; i++)
-			{
-				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
-				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
-			}
+			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
 			pGrenade->pev->gravity = 0.75f;
 			pGrenade->pev->friction = 1;
 			break;

@@ -528,8 +528,8 @@ void CBaseMonster::Railed() //:troll:
 			switch (iMyHullIndex)
 			{
 				case NODE_SMALL_HULL: max = 1; break;
-				case NODE_HUMAN_HULL: max = 3; break;
-				case NODE_LARGE_HULL: max = 5; break;
+				case NODE_HUMAN_HULL: max = 2; break;
+				case NODE_LARGE_HULL: max = 4; break;
 			}
 
 			int iBurnAmnt = ceil(m_iBurnTimer/10);
@@ -549,11 +549,11 @@ void CBaseMonster::Railed() //:troll:
 			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 			{
 				TakeDamage(pev, pev, 10, DMG_BURN);
-				if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
+				if (RANDOM_LONG(0, 4) == 4)
 				{
 					Vector VecSpreadOrg = Center();
 					VecSpreadOrg.z = pev->absmin.z + 5;
-					CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
+					CFire::FireCreate(VecSpreadOrg, 24, 10, max, this); // spread fire around, cause chaos
 				}
 			}
 			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);

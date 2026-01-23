@@ -2078,33 +2078,28 @@ void CBasePlayer::PreThink()
 		if (m_iBurnTimer > 100)
 			m_iBurnTimer = 100;
 
-		else
-		{
-			int max = 2; // max particles / 4
-			if (FBitSet(pev->flags, FL_DUCKING))
-				max = 1;
+		int max = 1; // max particles / 4
 
-			int iBurnAmnt = ceil(m_iBurnTimer/10);
-			if (iBurnAmnt > max) 
-				iBurnAmnt = max;
+		int iBurnAmnt = ceil(m_iBurnTimer/10);
+		if (iBurnAmnt > 1) 
+			iBurnAmnt = 1;
 			
-			for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
-			{
-				Vector VecflameOrg;
-				VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
-				VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
-				VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
+		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
+		{
+			Vector VecflameOrg;
+			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
 
-				UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
-			}
-
-			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
-			{
-				TakeDamage(pev, pev, 10, DMG_BURN);
-			}
-			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
-			m_iBurnTimer--;
+			UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
 		}
+
+		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
+		{
+			TakeDamage(pev, pev, 10, DMG_BURN);
+		}
+		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+		m_iBurnTimer--;
 
 		m_dbFireCheckTimer = gpGlobals->time + 0.1;
 	}
