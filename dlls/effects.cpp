@@ -3185,7 +3185,7 @@ void CFire::BurnThink()
 		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
 		if (m_fSpreadTime != -1 && m_fSpreadTime <= gpGlobals->time && RANDOM_LONG(0, 4) == 4)
 		{
-			Vector VecFireSpread = pev->origin;
+			Vector VecFireSpread;
 			int times = 0;
 			int opp1, opp2;
 			
@@ -3205,6 +3205,7 @@ void CFire::BurnThink()
 				if (opp2 == 0)
 					opp2 = 1;
 				
+				VecFireSpread = pev->origin;
 				VecFireSpread.x += pev->size.x * opp1;
 				VecFireSpread.y += pev->size.y * opp2;
 			} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
