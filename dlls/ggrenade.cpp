@@ -196,7 +196,7 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	CFire::FireCreate(pev->origin, 48, 20, 3, this, 16);
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		Vector Spawn;
 		int times = 0;
@@ -211,8 +211,8 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 			}
 			
 			Spawn = pev->origin;
-			Spawn.x += (RANDOM_LONG(-160, 160));
-			Spawn.y += (RANDOM_LONG(-160, 160));
+			Spawn.x += (RANDOM_LONG(-128, 128));
+			Spawn.y += (RANDOM_LONG(-128, 128));
 		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
 
 		CFire::FireCreate(Spawn, 32, 19.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);

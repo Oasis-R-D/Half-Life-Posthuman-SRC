@@ -249,28 +249,6 @@ void CoolerGib::WaitTillLand()
 		return;
 	}
 
-	if (m_iBurnTimer > 0)
-	{
-		if(pev->waterlevel > 0) 
-			m_iBurnTimer = 0;
-
-		int iBurnAmnt = ceil(m_iBurnTimer/10);
-		if (iBurnAmnt > 1) 
-			iBurnAmnt = 1;
-			
-		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
-		{
-			Vector VecflameOrg;
-			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
-
-			UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
-		}
-
-		m_iBurnTimer--;
-	}
-
 	if (pev->velocity == g_vecZero)
 	{
 		if (pev->armortype == 0)
