@@ -3146,7 +3146,7 @@ void CFire::BurnThink()
 		return;
 	}
 
-	if (!m_bSoundPlaying)
+	if (!m_bSoundPlaying) // start the sound loop
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
 			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n");
@@ -3159,7 +3159,7 @@ void CFire::BurnThink()
 		m_bSoundPlaying = true;
 	}
 
-	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4
+	for (int i = 0; i < iBurnAmnt; i++) // Spawn particles
 	{
 		Vector VecflameOrg;
 		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0, 1));
@@ -3170,41 +3170,42 @@ void CFire::BurnThink()
 		UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
 	}
 
-	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime)
+	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime) // damage stuff
 	{	
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
 	
 		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
-		if (m_fSpreadTime != -1 && m_fSpreadTime <= gpGlobals->time && RANDOM_LONG(0, 4) == 4)
-		{
-			Vector VecFireSpread;
-			int times = 0;
-			int opp1, opp2;
-			
-			do {
-				times += 1;
-				if (times >= 100)
-				{
-					ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
-					break;
-				}
+	}
 
-				opp1 = RANDOM_LONG(-1, 0);
-				opp2 = RANDOM_LONG(-1, 0);
-			
-				if (opp1 == 0)
-					opp1 = 1;
-				if (opp2 == 0)
-					opp2 = 1;
-				
-				VecFireSpread = pev->origin;
-				VecFireSpread.x += pev->size.x * opp1;
-				VecFireSpread.y += pev->size.y * opp2;
-			} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
+	if (m_fSpreadTime != -1 && m_fSpreadTime <= gpGlobals->time && RANDOM_LONG(0, 4) == 4) // spread
+	{
+		Vector VecFireSpread;
+		int times = 0;
+		int opp1, opp2;
+		
+		do {
+			times += 1;
+			if (times >= 100)
+			{
+				ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
+				break;
+			}
 
-			CFire::FireCreate(VecFireSpread, pev->absmin.x + pev->size.x, m_iActiveTime + RANDOM_FLOAT(-1.0, 2.5), iBurnAmnt + RANDOM_LONG(0, 1), this, pev->absmin.z + pev->size.z);
-		}
+			opp1 = RANDOM_LONG(-1, 0);
+			opp2 = RANDOM_LONG(-1, 0);
+		
+			if (opp1 == 0)
+				opp1 = 1;
+			if (opp2 == 0)
+				opp2 = 1;
+			
+			VecFireSpread = pev->origin;
+			VecFireSpread.x += pev->size.x * opp1;
+			VecFireSpread.y += pev->size.y * opp2;
+		} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
+
+		CFire::FireCreate(VecFireSpread, pev->absmin.x + pev->size.x, m_iActiveTime + RANDOM_FLOAT(-1.0, 2.5), iBurnAmnt + RANDOM_LONG(0, 1), this, pev->absmin.z + pev->size.z);
 	}
 
 	m_iActiveTime--;
