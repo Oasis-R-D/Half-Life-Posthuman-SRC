@@ -508,7 +508,7 @@ void CGrenade::ExplSpray()
 
 			int brightness_offset = RANDOM_LONG(-4, 4);
 			UTIL_MakeVectors(pev->angles);
-			Vector Origin = pev->origin + gpGlobals->v_up * 6;
+			Vector Origin = pev->origin/* + gpGlobals->v_up * 6*/;
 
 			MESSAGE_BEGIN(MSG_PVS, gmsgCreateDLight, pev->origin);
 			WRITE_COORD(Origin.x);
@@ -896,8 +896,8 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			// spin through the air
 			pGrenade->pev->avelocity.y = RANDOM_LONG(-100, -400);
+			pGrenade->pev->angles.x = 90; // to-do: find out how to make sideways
 			pGrenade->pev->gravity = 0.75f;
-			pGrenade->pev->friction = 1;
 			break;
 		case 7: // incendiary
 			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
