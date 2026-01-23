@@ -3001,11 +3001,13 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 	pFire->m_bCodeSpawned = true;
 	UTIL_SetOrigin(pFire->pev, origin);
 
-	double height = size;
+	pFire->m_fHeight = size;
 	if (heightoverride != NULL)
-		height = heightoverride;
-	
-	UTIL_SetSize(pFire->pev, Vector(-size, -size, 0), Vector(size, size, height));
+		pFire->m_fHeight = heightoverride;
+
+	pFire->m_fRadius = size;
+
+	UTIL_SetSize(pFire->pev, Vector(-size, -size, 0), Vector(size, size, pFire->m_fHeight));
 
 	pFire->Spawn();
 
@@ -3055,7 +3057,6 @@ void CFire::Spawn()
 	pev->friction = 1;
 	m_fSpreadDelay = 10;
 	m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
-	strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n"); // placeholder
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
 }
@@ -3151,11 +3152,11 @@ void CFire::BurnThink()
 	if (!m_bSoundPlaying) // start the sound loop
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
-			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n");
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav");
 		else if (iBurnAmnt >= 2 && iBurnAmnt < 4)
-			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav\n");
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav");
 		else if (iBurnAmnt >= 4)
-			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav\n");
+			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav");
 
 		UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0.33, ATTN_STATIC, 0, 95 + RANDOM_LONG(-5, 10));
 		m_bSoundPlaying = true;
@@ -3206,11 +3207,12 @@ void CFire::BurnThink()
 				opp2 = 1;
 			
 			VecFireSpread = pev->origin;
-			VecFireSpread.x += pev->size.x * opp1;
-			VecFireSpread.y += pev->size.y * opp2;
+			VecFireSpread.x += m_fRadius * opp1;
+			VecFireSpread.y += m_fRadius * opp2;
+			ALERT(at_console, "SpreadVec(%f, %f, %f)\n", VecFireSpread.x, VecFireSpread.x, VecFireSpread.x);
 		} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
 
-		CFire::FireCreate(VecFireSpread, pev->absmin.x + pev->size.x, m_iActiveTime + RANDOM_FLOAT(-1.0, 2.5), iBurnAmnt + RANDOM_LONG(0, 1), this, pev->absmin.z + pev->size.z);
+		CFire::FireCreate(VecFireSpread, m_fRadius, (m_iActiveTime / 10) * RANDOM_FLOAT(0.75, 1.5), iBurnAmnt + RANDOM_LONG(-1, 0), this, m_fHeight);
 	}
 
 	
@@ -3220,15 +3222,15 @@ void CFire::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType,
 {
 	switch (useType)
 	{
-	case USE_OFF:
-		m_bActive = false;
-		break;
-	case USE_ON:
-		m_bActive = true;
-		break;
-	default:
-		m_bActive = !m_bActive;
-		break;
+		case USE_OFF:
+			m_bActive = false;
+			break;
+		case USE_ON:
+			m_bActive = true;
+			break;
+		default:
+			m_bActive = !m_bActive;
+			break;
 	}
 };
 

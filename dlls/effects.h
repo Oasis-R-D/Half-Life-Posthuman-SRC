@@ -242,6 +242,8 @@ public:
 
 	float m_fSpreadDelay;
 	float m_fSpreadTimer;
+	float m_fRadius;
+	float m_fHeight;
 
 	CBaseEntity* m_pIgnore;
 

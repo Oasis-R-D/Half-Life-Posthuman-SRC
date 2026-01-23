@@ -271,6 +271,7 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
 	UTIL_PrecacheOther("env_fire");
+
 	// grenades
 	PRECACHE_MODEL("models/w_grenade.mdl"); // HE
 	PRECACHE_MODEL("models/grenade.mdl"); // IMPACT/M203
