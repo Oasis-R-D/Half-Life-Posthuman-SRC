@@ -3183,11 +3183,33 @@ void CFire::BurnThink()
 		DamageVec.z += 1;
 	
 		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
-		if (m_fSpreadTime != -1 && RANDOM_LONG(0, 4) == 4)
+		if (m_fSpreadTime != -1 && m_fSpreadTime <= gpGlobals->time && RANDOM_LONG(0, 4) == 4)
 		{
-			//UTIL_TraceLine(VecFireSpread, VecFireSpread +)
-			Vector VecFireSpread = Center();
-			VecFireSpread.z = pev->absmin.z +1; // does this need to be the center too?
+			Vector VecFireSpread = pev->origin;
+			int times = 0;
+
+			do {
+				times += 1;
+				if (times >= 100)
+				{
+					ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
+					break;
+				}
+
+				int opp1, opp2;
+				opp1 = RANDOM_LONG(-1, 0);
+				opp2 = RANDOM_LONG(-1, 0);
+			
+				if (opp1 == 0)
+					opp1 = 1;
+				if (opp2 == 0)
+					opp2 = 1;
+				
+				VecFireSpread.x += pev->size.x * opp1;
+				VecFireSpread.y += pev->size.y * opp2;
+			} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
+
+			CFire::FireCreate(VecFireSpread, pev->absmin.x + pev->size.x, m_iActiveTime + RANDOM_FLOAT(-1.0, 2.5), iBurnAmnt + RANDOM_LONG(0, 1), this, pev->absmin.z + pev->size.z);
 		}
 	}
 
