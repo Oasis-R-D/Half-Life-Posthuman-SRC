@@ -2998,6 +2998,7 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 	pFire->m_iActiveTime = activetime * 10;
 	pFire->m_pIgnore = dontburn;
 	pFire->m_bActive = true;
+	pFire->m_bCodeSpawned = true;
 	UTIL_SetOrigin(pFire->pev, origin);
 
 	double height = size;
@@ -3045,9 +3046,10 @@ void CFire::Spawn()
 {
 	Precache();
 
+	m_iBurnTimer = -16;
 	m_fSFXloopdur = gpGlobals->time;
 	pev->movetype = MOVETYPE_TOSS;
-	pev->solid = SOLID_BBOX;
+	pev->solid = SOLID_TRIGGER;
 	pev->effects |= EF_NODRAW;
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3067,13 +3069,10 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 
 	const bool bInWater = (UTIL_PointContents(vecSrc) == CONTENTS_WATER);
 
-	if (!pevAttacker)
-		pevAttacker = pevInflictor;
-
 	// iterate on all entities in the vicinity.
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecSrc, flRadius)) != NULL)
 	{
-		if (pEntity == pEntIgnore && pEntIgnore->m_iBurnTimer > 0)
+		if ((pEntity == pEntIgnore && pEntIgnore->m_iBurnTimer > 0) || pEntity->m_iBurnTimer == -16)
 			continue;
 
 		if (pEntity->pev->takedamage != DAMAGE_NO)
@@ -3137,11 +3136,13 @@ void CFire::BurnThink()
 	
 	if (iBurnAmnt <= 0)
 	{
+		if (m_bCodeSpawned)
+			UTIL_Remove(this);
 		m_bActive = false;
 		return;
 	}
 
-	if (m_fSFXloopdur <= gpGlobals->time)
+	if (m_fSFXloopdur <= gpGlobals->time && m_fSFXloopdur != -1)
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
 			m_iSFXlooptype = 1;
@@ -3150,16 +3151,16 @@ void CFire::BurnThink()
 		else if (iBurnAmnt >= 4)
 			m_iSFXlooptype = 3;
 
-		switch(m_iSFXlooptype)
+		switch(m_iSFXlooptype) // to-do: make better
 		{
 			case 1: m_fSFXloopdur = gpGlobals->time + 15.9;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/ember_loop.wav", 1, ATTN_NORM); break;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/ember_loop.wav", 0.33, ATTN_STATIC); break;
 
 			default: case 2: m_fSFXloopdur = gpGlobals->time + 7.5;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav", 1, ATTN_NORM); break;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav", 0.33, ATTN_STATIC); break;
 
 			case 3: m_fSFXloopdur = gpGlobals->time + 6.8;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav", 1, ATTN_NORM); break;
+			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav", 0.33, ATTN_STATIC); break;
 		}
 	}
 
@@ -3189,7 +3190,6 @@ void CFire::BurnThink()
 	}
 	ALERT(at_console, "burn: %d particleamnt: %i dmgvol: %f\n firevol", m_iActiveTime, iBurnAmnt, pev->size.x * 1.25, pev->size.x);
 	ALERT(at_console, "env_fire: origin(%f, %f, %f)\n", pev->origin.x, pev->origin.y, pev->origin.z);
-	ALERT(at_console, "---------------------------------------------------------\n");
 	m_iActiveTime--;
 }
 
@@ -3208,6 +3208,16 @@ void CFire::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType,
 		break;
 	}
 };
+
+int CFire::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (!pentTouched->IsBSPModel())
+	{
+		return 0;
+	}
+
+	return 1;
+}
 
 LINK_ENTITY_TO_CLASS(env_fire, CFire);
 

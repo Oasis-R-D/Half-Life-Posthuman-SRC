@@ -2074,11 +2074,15 @@ void CBasePlayer::PreThink()
 	{
 		if(pev->waterlevel > 0) 
 			m_iBurnTimer = 0;
+
+		if (m_iBurnTimer > 100)
+			m_iBurnTimer = 100;
+
 		else
 		{
-			int max = 3; // max particles / 4
+			int max = 2; // max particles / 4
 			if (FBitSet(pev->flags, FL_DUCKING))
-				max = 2;
+				max = 1;
 
 			int iBurnAmnt = ceil(m_iBurnTimer/10);
 			if (iBurnAmnt > max) 
@@ -2097,12 +2101,6 @@ void CBasePlayer::PreThink()
 			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 			{
 				TakeDamage(pev, pev, 10, DMG_BURN);
-				if ((max - 1) >= 1 && RANDOM_LONG(0, 4) == 4)
-				{
-					Vector VecSpreadOrg = Center();
-					VecSpreadOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
-					CFire::FireCreate(VecSpreadOrg, 24, 5, max - 1, this); // spread fire around, cause chaos
-				}
 			}
 			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
 			m_iBurnTimer--;

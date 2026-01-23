@@ -231,6 +231,7 @@ public:
 
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
 	void BurnThink();
+	int ShouldCollide(CBaseEntity* pentTouched) override;
 	int m_iAmount;
 	bool m_bActive;
 
@@ -238,7 +239,7 @@ public:
 	float m_fSpreadTime;
 	int m_iSFXlooptype;
 	double m_fSFXloopdur;
-	
+	bool m_bCodeSpawned;
 	CBaseEntity* m_pIgnore;
 
 	virtual bool Save(CSave& save);

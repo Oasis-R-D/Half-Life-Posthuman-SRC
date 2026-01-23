@@ -517,15 +517,19 @@ void CBaseMonster::Railed() //:troll:
 	{
 		if(pev->waterlevel > 0) 
 			m_iBurnTimer = 0;
+
+		if (m_iBurnTimer > 200)
+			m_iBurnTimer = 200;
+
 		else
 		{
 			int max; // max particles / 4
 			int iMyHullIndex = WorldGraph.HullIndex(this);
 			switch (iMyHullIndex)
 			{
-				case NODE_SMALL_HULL: max = 2; break;
-				case NODE_HUMAN_HULL: max = 4; break;
-				case NODE_LARGE_HULL: max = 6; break;
+				case NODE_SMALL_HULL: max = 1; break;
+				case NODE_HUMAN_HULL: max = 3; break;
+				case NODE_LARGE_HULL: max = 5; break;
 			}
 
 			int iBurnAmnt = ceil(m_iBurnTimer/10);
