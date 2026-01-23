@@ -3047,7 +3047,7 @@ void CFire::Spawn()
 	Precache();
 
 	m_iBurnTimer = -16;
-	m_fSFXloopdur = gpGlobals->time;
+	m_iSFXlooptype = false;
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_TRIGGER;
 	pev->effects |= EF_NODRAW;
@@ -3146,7 +3146,7 @@ void CFire::BurnThink()
 		return;
 	}
 
-	if (!m_bSoundPlaying)
+	if (!C)
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
 			m_iSFXlooptype = 1;

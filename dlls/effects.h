@@ -241,7 +241,7 @@ public:
 	bool m_bSoundPlaying;
 	bool m_bCodeSpawned;
 	CBaseEntity* m_pIgnore;
-	char m_caSound[100];
+	char m_caSound[80];
 	virtual bool Save(CSave& save);
 	virtual bool Restore(CRestore& restore);
 	static TYPEDESCRIPTION m_SaveData[];
