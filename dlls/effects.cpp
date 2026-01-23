@@ -3025,9 +3025,9 @@ bool CFire::KeyValue(KeyValueData* pkvd)
 		m_iActiveTime = 10 * atoi(pkvd->szValue);
 		pkvd->fHandled = true;
 	}
-	else if (FStrEq(pkvd->szKeyName, "spreadtime"))
+	else if (FStrEq(pkvd->szKeyName, "spreaddelay"))
 	{
-		m_fSpreadTime = gpGlobals->time + atoi(pkvd->szValue);
+		m_fSpreadDelay = gpGlobals->time + atoi(pkvd->szValue);
 		pkvd->fHandled = true;
 	}
 	//TO-DO: see if possible to add a KV for ignoring a entity by targetname
@@ -3054,7 +3054,7 @@ void CFire::Spawn()
 	pev->gravity = 0.5;
 	pev->friction = 1;
 	m_fSpreadDelay = 10;
-	m_fSpreadTimer = gpGlobal->time + m_fSpreadDelay;
+	m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
 	strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n"); // placeholder
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
