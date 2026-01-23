@@ -240,7 +240,8 @@ public:
 	bool m_bSoundPlaying;
 	bool m_bCodeSpawned;
 
-	float m_fSpreadTime;
+	float m_fSpreadDelay;
+	float m_fSpreadTimer;
 
 	CBaseEntity* m_pIgnore;
 

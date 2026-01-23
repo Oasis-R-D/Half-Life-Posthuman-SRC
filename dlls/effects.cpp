@@ -3053,6 +3053,8 @@ void CFire::Spawn()
 	pev->effects |= EF_NODRAW;
 	pev->gravity = 0.5;
 	pev->friction = 1;
+	m_fSpreadDelay = 10;
+	m_fSpreadTimer = gpGlobal->time + m_fSpreadDelay;
 	strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n"); // placeholder
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3178,8 +3180,11 @@ void CFire::BurnThink()
 		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
 	}
 
-	if (m_fSpreadTime != -1 && m_fSpreadTime <= gpGlobals->time && RANDOM_LONG(0, 4) == 4) // spread
+	m_iActiveTime--;
+
+	if (m_fSpreadDelay != -1 && m_fSpreadTimer <= gpGlobals->time && RANDOM_LONG(0, 4) == 4) // spread
 	{
+		m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
 		Vector VecFireSpread;
 		int times = 0;
 		int opp1, opp2;
@@ -3189,7 +3194,7 @@ void CFire::BurnThink()
 			if (times >= 100)
 			{
 				ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
-				break;
+				return;
 			}
 
 			opp1 = RANDOM_LONG(-1, 0);
@@ -3208,7 +3213,7 @@ void CFire::BurnThink()
 		CFire::FireCreate(VecFireSpread, pev->absmin.x + pev->size.x, m_iActiveTime + RANDOM_FLOAT(-1.0, 2.5), iBurnAmnt + RANDOM_LONG(0, 1), this, pev->absmin.z + pev->size.z);
 	}
 
-	m_iActiveTime--;
+	
 }
 
 void CFire::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
