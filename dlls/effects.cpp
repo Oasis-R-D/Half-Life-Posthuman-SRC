@@ -3187,7 +3187,8 @@ void CFire::BurnThink()
 		{
 			Vector VecFireSpread = pev->origin;
 			int times = 0;
-
+			int opp1, opp2;
+			
 			do {
 				times += 1;
 				if (times >= 100)
@@ -3196,7 +3197,6 @@ void CFire::BurnThink()
 					break;
 				}
 
-				int opp1, opp2;
 				opp1 = RANDOM_LONG(-1, 0);
 				opp2 = RANDOM_LONG(-1, 0);
 			
