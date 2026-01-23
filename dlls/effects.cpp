@@ -3053,6 +3053,7 @@ void CFire::Spawn()
 	pev->effects |= EF_NODRAW;
 	pev->gravity = 0.5;
 	pev->friction = 1;
+	strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n"); // placeholder
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
 }
@@ -3138,13 +3139,14 @@ void CFire::BurnThink()
 	
 	if (iBurnAmnt <= 0)
 	{
+		UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0, 0, SND_STOP, 0);
 		if (m_bCodeSpawned)
 			UTIL_Remove(this);
 		m_bActive = false;
 		return;
 	}
 
-	if (m_fSFXloopdur <= gpGlobals->time && m_fSFXloopdur != -1)
+	if (!m_bSoundPlaying)
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
 			m_iSFXlooptype = 1;
@@ -3155,15 +3157,19 @@ void CFire::BurnThink()
 
 		switch(m_iSFXlooptype) // to-do: make better
 		{
-			case 1: m_fSFXloopdur = gpGlobals->time + 15.9;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/ember_loop.wav", 0.33, ATTN_STATIC); break;
-
-			default: case 2: m_fSFXloopdur = gpGlobals->time + 7.5;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav", 0.33, ATTN_STATIC); break;
-
-			case 3: m_fSFXloopdur = gpGlobals->time + 6.8;
-			EMIT_SOUND(edict(), CHAN_AUTO, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav", 0.33, ATTN_STATIC); break;
+			case 1: 
+				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav\n");
+				break;
+			default:
+			case 2:
+				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav\n");
+				break;
+			case 3:
+				strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/carfire_loop.wav\n");
+				break;
 		}
+		UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0.33, ATTN_STATIC, 0, 95 + RANDOM_LONG(-5, 10));
+		m_bSoundPlaying = true;
 	}
 
 	for (int i = 0; i < iBurnAmnt; i++) // EACH SPAWNS 4

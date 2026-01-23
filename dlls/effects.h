@@ -238,10 +238,10 @@ public:
 	int m_iActiveTime;
 	float m_fSpreadTime;
 	int m_iSFXlooptype;
-	double m_fSFXloopdur;
+	bool m_bSoundPlaying;
 	bool m_bCodeSpawned;
 	CBaseEntity* m_pIgnore;
-
+	char m_caSound[100];
 	virtual bool Save(CSave& save);
 	virtual bool Restore(CRestore& restore);
 	static TYPEDESCRIPTION m_SaveData[];
