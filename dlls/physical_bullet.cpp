@@ -216,6 +216,9 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 
 	PRECACHE_SOUND("bullet/imp_metal01.wav");
+	PRECACHE_SOUND("debris/glassshatter1.wav");
+	PRECACHE_SOUND("debris/glassshatter2.wav");
+	PRECACHE_SOUND("debris/glassshatter3.wav");
 	PRECACHE_SOUND("bullet/imp_wood01.wav"); // TO-DO: better sound
 }
 
