@@ -548,7 +548,7 @@ void CBaseMonster::Railed() //:troll:
 
 			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 			{
-				TakeDamage(pev, pev, 10, DMG_BURN);
+				TakeDamage(pev, pev, 5, DMG_BURN);
 				if (RANDOM_LONG(0, 4) == 4)
 				{
 					Vector VecSpreadOrg = Center();

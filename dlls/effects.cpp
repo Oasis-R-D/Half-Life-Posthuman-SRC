@@ -3050,12 +3050,14 @@ void CFire::Spawn()
 
 	m_iBurnTimer = -16;
 	m_bSoundPlaying = false;
+	strcpy(m_caSound, "");
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_TRIGGER;
 	pev->effects |= EF_NODRAW;
+	pev->flags |= FL_FIRE;
 	pev->gravity = 0.5;
 	pev->friction = 1;
-	m_fSpreadDelay = 10;
+	m_fSpreadDelay = 8;
 	m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3089,7 +3091,7 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 				continue;
 			}
 
-			if (pEntity->pev->deadflag == DEAD_NO && pEntity->pev->waterlevel == 0);
+			if (pEntity->pev->deadflag == DEAD_NO && pEntity->pev->waterlevel == 0)
 				pEntity->m_iBurnTimer += 25;
 
 			// blast's don't travel into or out of water
@@ -3142,7 +3144,8 @@ void CFire::BurnThink()
 	
 	if (iBurnAmnt <= 0)
 	{
-		UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0, 0, SND_STOP, 0);
+		if (m_caSound[0] != '\0')
+			UTIL_EmitAmbientSound(ENT(pev), pev->origin, m_caSound, 0, 0, SND_STOP, 0);
 		if (m_bCodeSpawned)
 			UTIL_Remove(this);
 		m_bActive = false;
@@ -3168,9 +3171,7 @@ void CFire::BurnThink()
 		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0, 1));
 		VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0, 1));
 		VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
-		// TO-DO: figure out how to make a proper bounding box
-		// TO-DO: fire spreading (use volume size)
-		UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
+		UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0); // TO-DO: do not use messages for this
 	}
 
 	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime) // damage stuff
@@ -3178,7 +3179,7 @@ void CFire::BurnThink()
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
 	
-		FireRadiusDamage(DamageVec, pev, pev, 10, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
+		FireRadiusDamage(DamageVec, pev, pev, 5, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
 	}
 
 	m_iActiveTime--;
@@ -3188,11 +3189,12 @@ void CFire::BurnThink()
 		m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
 		Vector VecFireSpread;
 		int times = 0;
-		int opp1, opp2;
+		int opp1, opp2, count;
 		
 		do {
+			// make sure this doesn't loop forever when spreading
 			times += 1;
-			if (times >= 100)
+			if (times >= 50)
 			{
 				ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
 				return;
@@ -3206,16 +3208,23 @@ void CFire::BurnThink()
 			if (opp2 == 0)
 				opp2 = 1;
 			
+			// spreads in 8 directions
 			VecFireSpread = pev->origin;
-			VecFireSpread.x += m_fRadius * opp1;
-			VecFireSpread.y += m_fRadius * opp2;
-			ALERT(at_console, "SpreadVec(%f, %f, %f)\n", VecFireSpread.x, VecFireSpread.x, VecFireSpread.x);
+			VecFireSpread.x += (m_fRadius * 2) * opp1;
+			VecFireSpread.y += (m_fRadius * 2) * opp2;
+
+			// make sure there isn't already fire there
+			CBaseEntity* pList[2];
+			count = UTIL_EntitiesInBox(pList, 2, VecFireSpread - Vector(m_fRadius, m_fRadius, 0), VecFireSpread + Vector(m_fRadius, m_fRadius, m_fHeight), FL_FIRE);
+			if (0 != count) // don't spawn monsters near players or other monsters
+			{
+				continue;
+			}
+
 		} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
 
-		CFire::FireCreate(VecFireSpread, m_fRadius, (m_iActiveTime / 10) * RANDOM_FLOAT(0.75, 1.5), iBurnAmnt + RANDOM_LONG(-1, 0), this, m_fHeight);
+		CFire::FireCreate(VecFireSpread, m_fRadius, (m_iActiveTime / 10) * RANDOM_FLOAT(0.75, 1.5), iBurnAmnt + RANDOM_LONG(-2, -1), this, m_fHeight);
 	}
-
-	
 }
 
 void CFire::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)

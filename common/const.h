@@ -54,6 +54,7 @@
 #define FL_CUSTOMENTITY (1 << 29) // This is a custom entity
 #define FL_KILLME (1 << 30)		  // This entity is marked for death -- This allows the engine to kill ents at the appropriate time
 #define FL_DORMANT (1 << 31)	  // Entity is dormant, no updates to client
+#define FL_FIRE (1 << 27)		  // Entity is env_fire
 
 
 // Goes into globalvars_t.trace_flags
