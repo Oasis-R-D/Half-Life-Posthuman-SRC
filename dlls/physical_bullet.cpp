@@ -32,7 +32,7 @@
 * 44M MV: 6000 // REALISM: 14.4-21.6k
 * RUB MV: ???? // REALISM: 4k
 * NOTE: The game CAN handle realistic values but they aren't very fun (practically just hitscan)
-* NOTE: Realism values calculated by multiplying FPS by 12 (IPS) (assuming Inches = HU)
+* NOTE: Realism values calculated by multiplying IRL FeetPS by 12 (IPS) (assuming Inches = HU)
 */
 
 // UNDONE: Save/restore this?

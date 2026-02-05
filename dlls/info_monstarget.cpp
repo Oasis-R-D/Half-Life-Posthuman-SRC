@@ -110,7 +110,7 @@ void CTarget::Spawn()
 	pev->movetype = MOVETYPE_NONE;
 	m_bloodColor = DONT_BLEED;
 	pev->health = 9999;
-	m_flFieldOfView = 0;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
+	m_flFieldOfView = 0; // no view
 	m_MonsterState = MONSTERSTATE_NONE;
 
 	MonsterInit();
@@ -122,7 +122,6 @@ void CTarget::Spawn()
 void CTarget::Precache()
 {
 	PRECACHE_MODEL("models/target.mdl");
-
 }
 void CTarget::StartMonster()
 {
