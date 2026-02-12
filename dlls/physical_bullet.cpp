@@ -62,7 +62,6 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->pev->owner = NULL;
 
 		pBullet->Spawn();
-		
 	}
 }
 
@@ -170,7 +169,6 @@ void CPhysbullet::Spawn()
 			if (g_iSkillLevel == SKILL_HARD && m_Flare != 44)
 			{
 				pev->velocity = pev->velocity + owner->pev->velocity;
-				//UTIL_SetOrigin(pev, m_SpawnPos + m_direction * 4 + gpGlobals->v_right * 5 + gpGlobals->v_up * -4); //spawn a little bit more forward
 			}
 		}
 	}
@@ -346,6 +344,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			PLAYBACK_EVENT_FULL(0, Owner, g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
 		}
 	}
+
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);
 	
 	UTIL_Remove(this);
@@ -361,13 +360,10 @@ void CPhysbullet::AirThink()
 	{
 		while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 		{
-			if (m_ent->IsPlayer())
+			if (m_ent->IsPlayer() && Owner != m_ent->edict())
 			{
-				if (Owner != m_ent->edict()) // not per player but whatevs
-				{
-					EMIT_SOUND_DYN(edict(), CHAN_AUTO, RANDOM_SOUND_ARRAY(pNearMissSounds), 1.0, 1, 0, 100 + RANDOM_LONG(-5, 5));
-					m_haswizzed = true;
-				}
+				EMIT_SOUND_DYN(edict(), CHAN_AUTO, RANDOM_SOUND_ARRAY(pNearMissSounds), 1.0, 1, 0, 100 + RANDOM_LONG(-5, 5));
+				m_haswizzed = true; // will not play twice if it passes 2 players, fix?
 			}
 		}
 	}
