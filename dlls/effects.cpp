@@ -3192,13 +3192,12 @@ void CFire::BurnThink()
 		int opp1, opp2, count;
 		
 		do {
-			// make sure this doesn't loop forever when spreading
-			times += 1;
-			if (times >= 50)
+			if (times >= 50) // don't spawn if it isn't finding any good spots
 			{
 				ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
 				return;
 			}
+			times += 1;
 
 			opp1 = RANDOM_LONG(-1, 0);
 			opp2 = RANDOM_LONG(-1, 0);

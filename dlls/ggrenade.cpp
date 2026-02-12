@@ -196,26 +196,41 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	CFire::FireCreate(pev->origin, 48, 20, 3, this, 16);
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		Vector Spawn;
 		int times = 0;
+		bool shouldspawn = true; 
 
 		do {
-			
-			times += 1;
-			if (times >= 100)
+			if (times >= 50) // don't spawn if it isn't finding any good spots
 			{
 				ALERT(at_warning, "Incendiary grenade couldn't spawn fire!\n");
+				shouldspawn = false;
 				break;
 			}
+
+			times += 1;
 			
 			Spawn = pev->origin;
-			Spawn.x += (RANDOM_LONG(-128, 128));
-			Spawn.y += (RANDOM_LONG(-128, 128));
-		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID);
+			Spawn.x += 32 * RANDOM_LONG(-3, 3);
+			Spawn.y += 32 * RANDOM_LONG(-3, 3);
+			
+			CBaseEntity* pList[2];
+			int count;
 
-		CFire::FireCreate(Spawn, 32, 18.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
+			count = UTIL_EntitiesInBox(pList, 2, Spawn - Vector(32, 32, 0), Spawn + Vector(32, 32, 32), FL_FIRE);
+			if (0 != count) // don't spawn monsters near players or other monsters
+			{
+				continue;
+			}
+
+		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID || UTIL_PointContents(Spawn) == CONTENTS_WATER);
+
+		if (shouldspawn)
+		{
+			CFire::FireCreate(Spawn, 32, 18.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
+		}
 	}
 
 	// TO-DO: create fire ents in a radius around. How? No idea.
