@@ -80,7 +80,9 @@ rotationdamp 0.01
 veldamp 2.3
 veldampdelay 0.01
 
-collision 4
+collision 2
+impactdamp 0.75
+
 gravity -0.1
 mainalpha 0.25
 
