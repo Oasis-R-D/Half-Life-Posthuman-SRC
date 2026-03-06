@@ -5772,8 +5772,8 @@ LINK_ENTITY_TO_CLASS(monster_hevsuit_dead, CDeadHEV);
 //=========================================================
 void CDeadHEV::Spawn()
 {
-	PRECACHE_MODEL("models/player.mdl");
-	SET_MODEL(ENT(pev), "models/player.mdl");
+	PRECACHE_MODEL("models/survey.mdl");
+	SET_MODEL(ENT(pev), "models/survey.mdl");
 
 	pev->effects = 0;
 	pev->yaw_speed = 8;
