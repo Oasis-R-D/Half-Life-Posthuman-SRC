@@ -918,6 +918,9 @@ void CHGruntHeavy::Killed(entvars_t* pevAttacker, int iGib)
 
 		m_hasdroppedwpn = true;
 	}
+
+	if (ShouldGibMonster(iGib))
+		m_bloodColor = BLOOD_COLOR_RED;
 	CSquadMonster::Killed(pevAttacker, iGib);
 }
 
