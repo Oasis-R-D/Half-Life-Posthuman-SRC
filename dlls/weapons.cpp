@@ -279,6 +279,7 @@ void W_Precache()
 	PRECACHE_MODEL("models/w_landmine.mdl"); // LANDMINE
 	PRECACHE_MODEL("models/v_ohgrenade.mdl"); // Throw VM
 	PRECACHE_MODEL("models/w_sgrenade.mdl"); // SMOKE
+	PRECACHE_MODEL("models/w_igrenade.mdl"); // INCENDIARY
 	PRECACHE_MODEL("models/cindergibs.mdl"); // BRICK placeholder
 	PRECACHE_MODEL("models/w_flare.mdl"); // SIGNAL FLARE?
 	PRECACHE_MODEL("sprites/flashbangflash.spr");

@@ -532,6 +532,8 @@ cvar_t sk_player_leg1 = {"sk_player_leg1", "1"};
 cvar_t sk_player_leg2 = {"sk_player_leg2", "1"};
 cvar_t sk_player_leg3 = {"sk_player_leg3", "1"};
 
+DECLARE_SKILL_CVARS(player_fire);
+
 // END Cvars for Skill Level settings
 
 cvar_t sv_pushable_fixed_tick_fudge = {"sv_pushable_fixed_tick_fudge", "15"};
@@ -1078,6 +1080,10 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_player_leg1);
 	CVAR_REGISTER(&sk_player_leg2);
 	CVAR_REGISTER(&sk_player_leg3);
+
+	CVAR_REGISTER(&sk_player_fire1);
+	CVAR_REGISTER(&sk_player_fire2);
+	CVAR_REGISTER(&sk_player_fire3);
 	// END REGISTER CVARS FOR SKILL LEVEL STUFF
 	
 	CVAR_REGISTER(&sv_pushable_fixed_tick_fudge);

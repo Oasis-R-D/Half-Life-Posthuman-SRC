@@ -553,7 +553,14 @@ void CBaseMonster::Railed() //:troll:
 				{
 					Vector VecSpreadOrg = Center();
 					VecSpreadOrg.z = pev->absmin.z + 5;
-					CFire::FireCreate(VecSpreadOrg, 24, 10, max, this); // spread fire around, cause chaos
+
+					// make sure there isn't already fire there
+					CBaseEntity* pList[2];
+					int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
+					if (0 == count) // don't spawn monsters near players or other monsters
+					{
+						CFire::FireCreate(VecSpreadOrg, 24, 10, max, this); // spread fire around, cause chaos
+					}
 				}
 			}
 			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);

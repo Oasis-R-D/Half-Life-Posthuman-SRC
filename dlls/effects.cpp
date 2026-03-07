@@ -25,6 +25,7 @@
 #include "player.h"
 #include "Blooddrops.h"
 #include "Physical_bullet.h"
+#include "soundent.h"
 #define SF_GIBSHOOTER_REPEATABLE 1 // allows a gibshooter to be refired
 #define SF_FUNNEL_REVERSE 1 // funnel effect repels particles instead of attracting them.
 
@@ -3178,8 +3179,8 @@ void CFire::BurnThink()
 	{	
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
-	
-		FireRadiusDamage(DamageVec, pev, pev, 5, pev->size.x * 1.25, CLASS_NONE, m_pIgnore);
+		CSoundEnt::InsertSound(bits_SOUND_DANGER, DamageVec, 96, 0.5);
+		FireRadiusDamage(DamageVec, pev, pev, 5, pev->size.x * 0.5, CLASS_NONE, m_pIgnore);
 	}
 
 	m_iActiveTime--;

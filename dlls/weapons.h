@@ -61,6 +61,7 @@ public:
 	void EXPORT PreDetonate();
 	void EXPORT Detonate();
 	void EXPORT DetonateFlash();
+	void EXPORT DetonateIncen();
 	void EXPORT LandmineThink();
 	void EXPORT ExplSpray();
 	void EXPORT CallDetonate();

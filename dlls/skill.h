@@ -168,6 +168,8 @@ struct skilldata_t
 	float plrStomach;
 	float plrLeg;
 	float plrArm;
+
+	float plrFire;
 };
 
 inline DLL_GLOBAL skilldata_t gSkillData;

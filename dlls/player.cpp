@@ -2096,7 +2096,13 @@ void CBasePlayer::PreThink()
 
 		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
 		{
-			TakeDamage(pev, pev, 10, DMG_BURN);
+			if (pev->velocity.Length() > 200) // Deplete faster if you are moving
+			{
+				m_iBurnTimer -= 3; 
+				if (m_iBurnTimer < 0)
+					m_iBurnTimer = 1;
+			}
+			TakeDamage(pev, pev, gSkillData.plrFire, DMG_BURN);
 		}
 		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
 		m_iBurnTimer--;

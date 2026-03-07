@@ -404,6 +404,8 @@ void CGameRules::RefreshSkillData()
 	gSkillData.plrStomach = GetSkillCvar("sk_player_stomach");
 	gSkillData.plrLeg = GetSkillCvar("sk_player_leg");
 	gSkillData.plrArm = GetSkillCvar("sk_player_arm");
+
+	gSkillData.plrFire = GetSkillCvar("sk_player_fire");
 }
 
 //=========================================================

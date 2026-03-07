@@ -418,6 +418,17 @@ void CGrenade::Detonate()
 	ExplodeHE(&tr, DMG_BLAST);
 }
 
+void CGrenade::DetonateIncen()
+{
+	TraceResult tr;
+	Vector vecSpot; // trace starts here!
+
+	vecSpot = pev->origin + Vector(0, 0, 8);
+	UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -40), ignore_monsters, ENT(pev), &tr);
+	
+	ExplodeIncen(&tr);
+}
+
 void CGrenade::DetonateFlash()
 {
 	TraceResult tr;
@@ -579,10 +590,6 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
-
-		if (m_iGrenType == 6 && pev->waterlevel == 0 && pOther->pev->waterlevel == 0)
-			pOther->m_iBurnTimer += 50;
-
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
 	}
 
@@ -695,7 +702,7 @@ void CGrenade::CallDetonate()
 			SetThink(&CGrenade::ExplSpray);
 			break;
 		case 7: // Incendiary? (shouldn't be called)
-			ALERT(at_warning, "Incendiary Grenade calling CGrenade::CallDetonate()!");
+			SetThink(&CGrenade::DetonateIncen);
 			break;
 	}
 
@@ -909,13 +916,8 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->gravity = 0.75f;
 			break;
 		case 7: // incendiary
-			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
-			// Tumble through the air
-			for (int i = 0; i < 3; i++)
-			{
-				pGrenade->pev->avelocity[i] = RANDOM_LONG(-100, -400);
-				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
-			}
+			SET_MODEL(ENT(pGrenade->pev), "models/w_igrenade.mdl");
+			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 	}
 
