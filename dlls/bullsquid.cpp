@@ -582,7 +582,7 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			WRITE_BYTE(25);				   // noise ( client will divide by 100 )
 			MESSAGE_END();
 			constexpr float bull_spits = 10;
-			for (int i = 0; i < bull_spits; i++) // 25 is the amount of projectiles
+			for (int i = 0; i < bull_spits; i++)
 				{
 					CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
 				}

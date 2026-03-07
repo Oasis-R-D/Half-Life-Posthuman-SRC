@@ -196,25 +196,23 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	CFire::FireCreate(pev->origin, 48, 20, 3, this, 16);
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		Vector Spawn;
 		int times = 0;
-		bool shouldspawn = true; 
 
 		do {
 			if (times >= 50) // don't spawn if it isn't finding any good spots
 			{
 				ALERT(at_warning, "Incendiary grenade couldn't spawn fire!\n");
-				shouldspawn = false;
 				break;
 			}
 
 			times += 1;
 			
 			Spawn = pev->origin;
-			Spawn.x += 32 * RANDOM_LONG(-3, 3);
-			Spawn.y += 32 * RANDOM_LONG(-3, 3);
+			Spawn.x += 32 * RANDOM_LONG(-2, 2);
+			Spawn.y += 32 * RANDOM_LONG(-2, 2);
 			
 			CBaseEntity* pList[2];
 			int count;
@@ -227,13 +225,12 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID || UTIL_PointContents(Spawn) == CONTENTS_WATER);
 
-		if (shouldspawn)
+		if (times < 50)
 		{
 			CFire::FireCreate(Spawn, 32, 18.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
 		}
 	}
 
-	// TO-DO: create fire ents in a radius around. How? No idea.
 	if (RANDOM_FLOAT(0, 1) < 0.5)
 	{
 		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
@@ -815,9 +812,6 @@ CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecV
 	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
 	pGrenade->pev->framerate = 1.0;
 	pGrenade->ResetSequenceInfo();
-
-	// Tumble through the air
-	// pGrenade->pev->avelocity.x = -400;
 
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;

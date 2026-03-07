@@ -4162,6 +4162,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	case 69:
 	{
 		m_bPrehuman = !m_bPrehuman;
+		ALERT(at_notice, "bPrehuman Toggled!\n");
 		break;
 	}
 	case 30:

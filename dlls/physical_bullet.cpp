@@ -301,8 +301,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				}
 				*/
 
-				
-
 				// VFX
 				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
 				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
