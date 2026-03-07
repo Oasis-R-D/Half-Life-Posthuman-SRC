@@ -2022,7 +2022,7 @@ Schedule_t* CMOFAssassin::GetSchedule()
 				// try to take an available ENGAGE slot
 				return GetScheduleOfType(SCHED_RANGE_ATTACK1);
 			}
-			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && RANDOM_LONG(0, 2) == 1 && OccupySlot(bits_SLOTS_HGRUNT_GRENADE) )
+			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE) )
 			{
 				// throw a grenade if can and no engage slots are available
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
@@ -2036,7 +2036,7 @@ Schedule_t* CMOFAssassin::GetSchedule()
 		// can't see enemy
 		else if (HasConditions(bits_COND_ENEMY_OCCLUDED))
 		{
-			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && RANDOM_LONG(0, 2) == 1 && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
 			}
@@ -2093,41 +2093,13 @@ Schedule_t* CMOFAssassin::GetScheduleOfType(int Type)
 	{
 	case SCHED_TAKE_COVER_FROM_ENEMY:
 	{
-		if (InSquad())
+		if (RANDOM_LONG(0, 1))
 		{
-			if (g_iSkillLevel == SKILL_HARD && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
-			{
-				if (RANDOM_LONG(0, 2) > 0)
-				{
-					return &slOFMAssassinTakeCover[0];
-				}
-				else
-				{
-					return &slOFMAssassinTossGrenadeCover[0];
-				}
-			}
-			else
-			{
-				if (RANDOM_LONG(0, 1))
-				{
-					return &slOFMAssassinTakeCover[0];
-				}
-				else
-				{
-					return &slOFMAssassinGrenadeCover[0];
-				}
-			}
+			return &slOFMAssassinTakeCover[0];
 		}
 		else
 		{
-			if (RANDOM_LONG(0, 1))
-			{
-				return &slOFMAssassinTakeCover[0];
-			}
-			else
-			{
-				return &slOFMAssassinGrenadeCover[0];
-			}
+			return &slOFMAssassinGrenadeCover[0];
 		}
 	}
 	case SCHED_TAKE_COVER_FROM_BEST_SOUND:
