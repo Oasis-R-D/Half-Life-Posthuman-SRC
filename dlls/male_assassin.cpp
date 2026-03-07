@@ -880,7 +880,10 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case MASSASSIN_AE_GREN_TOSS:
 	{
 		UTIL_MakeVectors(pev->angles);
-		CGrenade::ShootOffhand(pev, GetGunPosition(), m_vecTossVelocity, 2, 3.5);
+		if (RANDOM_LONG(0, 4) <= 3)
+			CGrenade::ShootOffhand(pev, GetGunPosition(), m_vecTossVelocity, 2, 3.5);
+		else
+			CGrenade::ShootOffhand(pev, GetGunPosition(), m_vecTossVelocity, 4, 3.5);
 		//CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
 
 		m_fThrowGrenade = false;
