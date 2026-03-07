@@ -828,12 +828,12 @@ void CBasePlayerWeapon::Recoil(float RecoilUp, float RecoilHorz, bool patterned)
 		else
 			m_pPlayer->pev->punchangle.y += RecoilHorz;
 
-		if (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25)
+		if (m_pPlayer->health_armR == 0 || (m_pPlayer->health_armR < 100 && RANDOM_LONG(0, m_pPlayer->health_armR) / m_pPlayer->health_armR > 0.25))
 		{
 			m_pPlayer->pev->punchangle.x -= 0.75;
 		}
 
-		if (m_pPlayer->health_armL < 100 && RANDOM_LONG(0, m_pPlayer->health_armL) / m_pPlayer->health_armL > 0.1)
+		if (m_pPlayer->health_armL == 0 || (m_pPlayer->health_armL < 100 && RANDOM_LONG(0, m_pPlayer->health_armL) / m_pPlayer->health_armL > 0.1))
 		{
 			m_pPlayer->pev->punchangle.y += RANDOM_LONG(-2, 2);
 		}

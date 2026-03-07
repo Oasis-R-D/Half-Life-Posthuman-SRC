@@ -880,8 +880,8 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case MASSASSIN_AE_GREN_TOSS:
 	{
 		UTIL_MakeVectors(pev->angles);
-		// CGrenade::ShootTimed( pev, pev->origin + gpGlobals->v_forward * 34 + Vector (0, 0, 32), m_vecTossVelocity, 3.5 );
-		CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
+		CGrenade::ShootOffhand(pev, GetGunPosition(), m_vecTossVelocity, 2, 3.5);
+		//CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
 
 		m_fThrowGrenade = false;
 		m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
@@ -904,7 +904,8 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case MASSASSIN_AE_GREN_DROP:
 	{
 		UTIL_MakeVectors(pev->angles);
-		CGrenade::ShootTimed(pev, pev->origin + gpGlobals->v_forward * 17 - gpGlobals->v_right * 27 + gpGlobals->v_up * 6, g_vecZero, 3);
+		//CGrenade::ShootTimed(pev, pev->origin + gpGlobals->v_forward * 17 - gpGlobals->v_right * 27 + gpGlobals->v_up * 6, g_vecZero, 3);
+		CGrenade::ShootOffhand(pev, pev->origin + gpGlobals->v_forward * 17 - gpGlobals->v_right * 27 + gpGlobals->v_up * 6, g_vecZero, 4, 0.5);
 	}
 	break;
 
@@ -2021,7 +2022,7 @@ Schedule_t* CMOFAssassin::GetSchedule()
 				// try to take an available ENGAGE slot
 				return GetScheduleOfType(SCHED_RANGE_ATTACK1);
 			}
-			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+			else if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && RANDOM_LONG(0, 2) == 1 && OccupySlot(bits_SLOTS_HGRUNT_GRENADE) )
 			{
 				// throw a grenade if can and no engage slots are available
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
@@ -2035,7 +2036,7 @@ Schedule_t* CMOFAssassin::GetSchedule()
 		// can't see enemy
 		else if (HasConditions(bits_COND_ENEMY_OCCLUDED))
 		{
-			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+			if (HasConditions(bits_COND_CAN_RANGE_ATTACK2) && RANDOM_LONG(0, 2) == 1 && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
 			}
@@ -2096,11 +2097,25 @@ Schedule_t* CMOFAssassin::GetScheduleOfType(int Type)
 		{
 			if (g_iSkillLevel == SKILL_HARD && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
-				return slOFMAssassinTossGrenadeCover;
+				if (RANDOM_LONG(0, 2) > 0)
+				{
+					return &slOFMAssassinTakeCover[0];
+				}
+				else
+				{
+					return &slOFMAssassinTossGrenadeCover[0];
+				}
 			}
 			else
 			{
-				return &slOFMAssassinTakeCover[0];
+				if (RANDOM_LONG(0, 1))
+				{
+					return &slOFMAssassinTakeCover[0];
+				}
+				else
+				{
+					return &slOFMAssassinGrenadeCover[0];
+				}
 			}
 		}
 		else
