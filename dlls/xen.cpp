@@ -175,7 +175,7 @@ void CXenPLight::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
 	int BLDAMNT;
 
-	BLDAMNT = round(flDamage / 2);
+	BLDAMNT = round(flDamage / 2.5);
 	SpawnBlood(ptr->vecEndPos, BLOOD_COLOR_YELLOW, flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 	#ifndef CLIENT_DLL
@@ -451,7 +451,7 @@ void CXenTree::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
 	int BLDAMNT;
 
-	BLDAMNT = round(flDamage / 2);
+	BLDAMNT = round(flDamage / 2.5);
 	SpawnBlood(ptr->vecEndPos, BLOOD_COLOR_YELLOW, flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
 	#ifndef CLIENT_DLL

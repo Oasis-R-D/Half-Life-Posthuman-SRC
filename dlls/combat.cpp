@@ -1247,7 +1247,7 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
 	int BLDAMNT;
 
-	BLDAMNT = round(flDamage / 2);
+	BLDAMNT = round(flDamage / 2.5);
 
 	if (0 != pev->takedamage)
 	{
@@ -1277,7 +1277,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	Vector vecOrigin = ptr->vecEndPos;
 	int BLDAMNT;
 
-	BLDAMNT = round(flDamage * 0.66);
+	BLDAMNT = round(flDamage / 2.5);
 
 	if (0 != pev->takedamage)
 	{

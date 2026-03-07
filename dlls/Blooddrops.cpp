@@ -32,9 +32,9 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
 		int i;
-		if (isgib == false && BLDamnt > 16)
+		if (isgib == false && BLDamnt > 12)
 		{
-			BLDamnt = 16;
+			BLDamnt = 12;
 		}
 
 		if ((g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)

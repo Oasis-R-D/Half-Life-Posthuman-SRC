@@ -1884,10 +1884,9 @@ void EV_Particles(event_args_t* args)
 	int BLDAMNT;
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 
-	BLDAMNT = args->fparam1 / ((skill != 3) ? 1.5 : 4);
-	BLDAMNT *= 1.25;
-	if (BLDAMNT > 35)
-		BLDAMNT = 35;
+	BLDAMNT = args->fparam1 / ((skill != 3) ? 2.0 : 4);
+	if (BLDAMNT > 24)
+		BLDAMNT = 24;
 
 	switch (args->iparam1) // particle type
 	{
@@ -1908,7 +1907,6 @@ void EV_Particles(event_args_t* args)
 				{
 				default:
 				case 0: // Def muzzle smoke
-
 					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
 					break;
 				case 1: // shotgun?
@@ -1982,6 +1980,9 @@ void EV_Particles(event_args_t* args)
 					constchar = "Bbloodspot";
 					constchar2 = "engine_blood_impact_healing.txt";
 					constchar3 = "blood_effects_cluster_healing.txt";
+					break;
+				default:
+					return;
 					break;
 			}
 

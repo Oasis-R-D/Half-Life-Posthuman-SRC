@@ -483,7 +483,7 @@ void COFVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
 		int BLDAMNT;
 
-		BLDAMNT = round(flDamage / 2);
+		BLDAMNT = round(flDamage / 2.5);
 
 		if (0 != pev->takedamage)
 		{

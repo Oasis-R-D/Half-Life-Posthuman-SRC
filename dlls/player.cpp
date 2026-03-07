@@ -291,7 +291,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 	Vector hitlocation = ptr->vecEndPos;
 	int BLDAMNT;
 	float punchangle;
-	BLDAMNT = round(flDamage * 0.5);
+	BLDAMNT = round(flDamage / 2.5);
 	if (0 !=pev->armorvalue && ptr->iHitgroup != HITGROUP_HEAD)
 		if (RANDOM_LONG(0,2) == 1)
 			UTIL_Sparks(ptr->vecEndPos);

@@ -495,6 +495,8 @@ inline MULTIDAMAGE gMultiDamage;
 #define CONE_10DEGREES UTIL_DegreesToRadCone(10)
 #define CONE_15DEGREES UTIL_DegreesToRadCone(15)
 #define CONE_20DEGREES UTIL_DegreesToRadCone(20)
+#define CONE_30DEGREES UTIL_DegreesToRadCone(30)
+#define CONE_45DEGREES UTIL_DegreesToRadCone(45)
 #define CONE_60DEGREES UTIL_DegreesToRadCone(60)
 //=========================================================
 // CWeaponBox - a single entity that can store weapons
