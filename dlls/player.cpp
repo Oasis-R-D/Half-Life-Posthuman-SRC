@@ -378,9 +378,9 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		}
 		else
 		{
-		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
-		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-		CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
+			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
 		}
 		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 	}
@@ -764,7 +764,6 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 /////////////////////////
 
 	m_bleedtime = gpGlobals->time;
-	ALERT(at_console, "bleed amnt is: %d\n", m_bleedAMNT);
 }
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
@@ -2102,7 +2101,7 @@ void CBasePlayer::PreThink()
 				if (m_iBurnTimer < 0)
 					m_iBurnTimer = 1;
 			}
-			TakeDamage(pev, pev, gSkillData.plrFire, DMG_BURN);
+			TakeDamage(CWorld::World->pev, CWorld::World->pev, gSkillData.plrFire, DMG_BURN);
 		}
 		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
 		m_iBurnTimer--;
@@ -4763,12 +4762,12 @@ void CBasePlayer::UpdateClientData()
 		{
 			if (Hunger <= 0 && HungerDamageTime < gpGlobals->time)
 			{
-					TakeDamage(pev, pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
+					TakeDamage(CWorld::World->pev, CWorld::World->pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
 					HungerDamageTime = gpGlobals->time + 9;
 			}
 			else if (Hunger <= 10 && HungerDamageTime < gpGlobals->time)
 			{
-				TakeDamage(pev, pev, 1, DMG_HUNGER | DMG_IGNOREARMOR);
+				TakeDamage(CWorld::World->pev, CWorld::World->pev, 1, DMG_HUNGER | DMG_IGNOREARMOR);
 				HungerDamageTime = gpGlobals->time + 9;
 			}
 

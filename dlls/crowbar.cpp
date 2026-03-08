@@ -174,7 +174,7 @@ void CCrowbar::Hit(bool type)
 	{
 		auto pHit = CBaseEntity::Instance(tr.pHit);
 		ClearMultiDamage();
-		if (false)
+		if (type == false)
 		{
 			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
 			#ifndef CLIENT_DLL
@@ -184,17 +184,20 @@ void CCrowbar::Hit(bool type)
 		else
 		{
 			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar * 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+			#ifndef CLIENT_DLL
+			CBasePlayerWeapon::Recoil(1, 0); // TO-DO: make it go the direction of the hand
+			#endif
 		}
-		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
+		ApplyMultiDamage(pev, m_pPlayer->pev);
 
 		if (pHit->pev->deadflag != DEAD_NO)
 		{
 			if (pHit->Classify() == CLASS_ALIEN_MONSTER || pHit->Classify() == CLASS_ALIEN_MILITARY ||
 				pHit->Classify() == CLASS_HUMAN_MILITARY || pHit->Classify() == CLASS_HUMAN_PASSIVE || pHit->Classify() == CLASS_PLAYER )
 			{
-				pHit->Killed(pev, GIB_ALWAYS);
+				pHit->Killed(m_pPlayer->pev, GIB_ALWAYS);
 
-				if (FClassnameIs(pev, "monster_headcrab_super"))
+				if (FClassnameIs(pHit->pev, "monster_headcrab_super"))
 				{
 					m_pPlayer->Hunger += 5;
 					m_pPlayer->TakeHealth(20, DMG_GENERIC);
