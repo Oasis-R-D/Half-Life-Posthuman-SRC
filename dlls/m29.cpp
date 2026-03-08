@@ -170,7 +170,7 @@ void CM29::SecondaryAttack()
 	m_flNextSecondaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	Shoot(1);
+	Shoot(0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
@@ -214,7 +214,7 @@ void CM29::PrimaryAttack()
 	m_flNextPrimaryAttack = firerate;
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	Shoot(0);
+	Shoot(1);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
