@@ -2048,7 +2048,7 @@ void CBasePlayer::Railed() //:troll:
 		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
 		{
 			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
-			TakeDamage(nullptr, nullptr, 30, DMG_BLAST);
+			TakeDamage(g_pevLastInflictor, g_pevLastInflictor, 30, DMG_BLAST);
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 			
 			MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
