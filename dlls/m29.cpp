@@ -111,7 +111,7 @@ void CM29::CalculateAmmo()
 bool CM29::Deploy()
 {
 	m_iCrossHairType = CROSSHAIR_NOCENTER; // TO-DO: make a new type for the m29 that takes the dual weapons in account
-	m_flAccuracyPenalty = 2 * M29_ACCURACY_SHOT_PENALTY_TIME;
+	m_flAccuracyPenalty = M29_ACCURACY_MAXIMUM_PENALTY_TIME;
 	CalculateAmmo();
 
 	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body, "models/v_m29L.mdl", PYTHON_DRAW);

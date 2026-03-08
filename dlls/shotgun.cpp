@@ -26,8 +26,8 @@
 #define VECTOR_CONE_DM_SHOTGUN Vector(0.08716, 0.04362, 0.00)		// 10 degrees by 5 degrees
 #define VECTOR_CONE_DM_DOUBLESHOTGUN Vector(0.17365, 0.04362, 0.00) // 20 degrees by 5 degrees
 
-#define	SG_ACCURACY_SHOT_PENALTY_TIME		0.5f	// Applied amount of time each shot adds to the time we must recover from
-#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	10		// Maximum penalty to deal out
+#define	SG_ACCURACY_SHOT_PENALTY_TIME		1	// Applied amount of time each shot adds to the time we must recover from
+#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f		// Maximum penalty to deal out
 
 // TO-DO: fix shell coming out of weapon on draw if holstered before pumped (play pumping animation)
 LINK_ENTITY_TO_CLASS(weapon_shotgun, CShotgun);
@@ -92,7 +92,7 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 bool CShotgun::Deploy()
 {
-	m_flAccuracyPenalty = 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
+	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	if (g_iSkillLevel == SKILL_HARD)

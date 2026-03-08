@@ -57,7 +57,7 @@ void CSpitThrower::Spawn()
 bool CSpitThrower::Deploy()
 {
 	m_iCrossHairType = CROSSHAIR_NOCENTER;
-	m_flAccuracyPenalty =  4 * SPTH_ACCURACY_SHOT_PENALTY_TIME;
+	m_flAccuracyPenalty = SPTH_ACCURACY_MAXIMUM_PENALTY_TIME;
 	return DefaultDeploy("models/v_spitthrower.mdl", "models/p_9mmhandgun.mdl", EGON_DRAW, "bow");
 }
 
@@ -249,7 +249,7 @@ class CEnvSpit : public CBaseEntity
 			{
 			case SKILL_EASY: damage = 5; break;
 			case SKILL_MEDIUM: damage = 5; break;
-			case SKILL_HARD: damage = 20; break;
+			case SKILL_HARD: damage = 25; break;
 			}
 
 			ClearMultiDamage();

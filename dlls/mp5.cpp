@@ -90,7 +90,7 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 bool CMP5::Deploy()
 {
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
-	m_flAccuracyPenalty =  4 * MP5_ACCURACY_SHOT_PENALTY_TIME;
+	m_flAccuracyPenalty = MP5_ACCURACY_MAXIMUM_PENALTY_TIME;
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
@@ -574,7 +574,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 bool CM727::Deploy()
 {
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
-	m_flAccuracyPenalty =  4 * M727_ACCURACY_SHOT_PENALTY_TIME;
+	m_flAccuracyPenalty = M727_ACCURACY_MAXIMUM_PENALTY_TIME;
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(firemode ? 3 : 1);
 	MESSAGE_END();

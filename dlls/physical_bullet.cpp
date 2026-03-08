@@ -255,7 +255,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		}
 		if (0 == beam_tr2.fAllSolid) // Raymarch found da way // BUGBUG!! the while loop just skips and returns 1 if the player is far from the end point
 		{
-			ALERT(at_console, "est wall depth %i\n", i);
+			//ALERT(at_console, "est wall depth %i\n", i);
 
 			UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
@@ -273,8 +273,8 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				if (m_distpenetrate < 0)
 					m_distpenetrate = 0;
 
-				ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-				ALERT(at_console, "penetrated: %f units + mult\n", p);
+				//ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
+				//ALERT(at_console, "penetrated: %f units + mult\n", p);
 
 				// Damage reduction
 				m_BulletDamage -= round(0.125 * p);
@@ -310,10 +310,10 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				UTIL_Remove(this);
 				return;
 			}
-			else
+			/*else
 			{
 				ALERT(at_console, "too thick! Size: %f units + mult\n", p);
-			}
+			}*/
 		}
 	}
 	else
@@ -455,13 +455,15 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			
 			if (!strcmp(szbuffer, "mat_impen")) // HACKHACK: can't get the material type to work so just gonna do this instead
 			{
+				ALERT(at_console, "penetration mult: %f\n", 512);
 				return penmodifier = 512;
-				ALERT(at_console, "penetration mult: %f\n", penmodifier);
+				
 			}
 			else if (!strcmp(szbuffer, "mat_flesh"))
 			{
-				return penmodifier = 1.66f;
-				ALERT(at_console, "penetration mult: %f\n", penmodifier);
+				ALERT(at_console, "penetration mult: %f\n", 1.66);
+				return penmodifier = 1.75f;
+				
 			}
 
 			chTextureType = TEXTURETYPE_Find(szbuffer);
