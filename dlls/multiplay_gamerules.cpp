@@ -506,7 +506,7 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 		pPlayer->GiveNamedItem("weapon_crowbar");
 		pPlayer->GiveNamedItem("ammo_ARgrenades");
 		pPlayer->m_iGrenadeAmnt = 3;
-		pPlayer->m_iGrenadeType = RANDOM_LONG(0, 6);
+		pPlayer->m_iGrenadeType = RANDOM_LONG(0, 7);
 		//pPlayer->GiveAmmo(68, "9mm", _9MM_MAX_CARRY); // 4 full reloads
 	}
 

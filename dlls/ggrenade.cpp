@@ -590,6 +590,10 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 				pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage(pev, pevOwner);
 		}
+		
+		if (m_iGrenType == 6 && pev->waterlevel == 0 && pOther->pev->waterlevel == 0)
+			pOther->m_iBurnTimer += 50;
+
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
 	}
 
