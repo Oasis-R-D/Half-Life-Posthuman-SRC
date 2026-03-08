@@ -267,7 +267,7 @@ void CHGruntHeavy::Spawn()
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m249.mdl");
-		m_cClipSize = 200;
+		m_cClipSize = 201;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
