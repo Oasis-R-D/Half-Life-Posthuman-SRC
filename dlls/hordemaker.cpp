@@ -26,9 +26,10 @@
 #include "nodes.h"
 
 // Monstermaker spawnflags
-#define SF_HORDEMAKER_START_ON 1	  // start active ( if has targetname )
-#define SF_HORDEMAKER_CYCLIC 4	  // drop one monster every time fired.
+#define SF_HORDEMAKER_START_ON 1	// start active ( if has targetname )
+#define SF_HORDEMAKER_CYCLIC 4	 	// drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
+#define SF_HORDEMAKER_PREHUMAN 16 	// Children are spawned with PreHuman tag
 
 extern CGraph WorldGraph;
 
@@ -238,6 +239,12 @@ void CHordeMaker::MakeMonster()
 	pevCreate->angles = Vector(0, RANDOM_LONG(0, 360), 0);
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 	
+	if ((pev->spawnflags & SF_HORDEMAKER_PREHUMAN) != 0)
+	{
+		CBaseEntity* ent = CBaseEntity::Instance(pent);
+		ent->m_bPrehuman = true;
+	}
+
 	ALERT(at_aiconsole, "SPAWNED %u AT: (%f, %f, %f)\n", m_iszMonsterClassname, pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
 	
 	// Children hit monsterclip brushes
