@@ -1865,7 +1865,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		else
 			pTextureName = TRACE_TEXTURE(CWorld::World->edict(), rgfl1, rgfl2);
 
-		ALERT(at_console, "TexName: %c\n", pTextureName);
+		//ALERT(at_console, "TexName: %c\n", pTextureName);
 
 		if (pTextureName)
 		{
@@ -1885,7 +1885,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 			chTextureType = TEXTURETYPE_Find(szbuffer);
 		}
 	}
-	ALERT(at_console, "TexType: %c\n", chTextureType);
+	//ALERT(at_console, "TexType: %c\n", chTextureType);
 	switch (chTextureType)
 	{
 	default:

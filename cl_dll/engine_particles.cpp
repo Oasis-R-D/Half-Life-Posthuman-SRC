@@ -285,16 +285,13 @@ lightmaps 1
 
 // replace "sprite muzzleflash1" with a input so we can use this one
 char particle_muzzleflash[] = R"(
-life 0.1
-lifevar 0.025
+life 0.025
 
-fadedelay 0.05
+scale %lf
 
 sprite %s
-rendermode 0
 
-scale %d
-scalevar 0.1
+rendermode 0
 
 rotationvel 4
 rotationvar 4
@@ -302,7 +299,6 @@ rotationvar 4
 pcolr 255
 pcolg 255
 pcolb 255
-
 
 gravity 0
 
