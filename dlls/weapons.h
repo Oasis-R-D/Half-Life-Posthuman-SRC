@@ -1602,6 +1602,8 @@ public:
 	bool Deploy() override;
 	void Holster() override;
 	void WeaponIdle() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
 
 	// So the laser spot is always updated.
 	bool ShouldWeaponIdle() override { return true; }

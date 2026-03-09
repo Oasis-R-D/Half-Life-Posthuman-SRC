@@ -140,7 +140,7 @@ void CPhysbullet::Spawn()
 			break;
 		case 420:
 			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-			pev->scale = 2;
+			pev->scale = 1.0;
 			m_distpenetrate = 128;
 			pev->rendercolor = Vector(255, 70, 170);
 			pev->rendermode = kRenderTransAdd;
@@ -214,10 +214,14 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 
 	PRECACHE_SOUND("bullet/imp_metal01.wav");
+
 	PRECACHE_SOUND("debris/glassshatter1.wav");
 	PRECACHE_SOUND("debris/glassshatter2.wav");
 	PRECACHE_SOUND("debris/glassshatter3.wav");
+
 	PRECACHE_SOUND("bullet/imp_wood01.wav"); // TO-DO: better sound
+
+	PRECACHE_SOUND("bullet/imp_dirt01.wav");
 }
 
 

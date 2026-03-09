@@ -412,6 +412,9 @@ TYPEDESCRIPTION CEagle::m_SaveData[] =
 IMPLEMENT_SAVERESTORE(CEagle, CEagle::BaseClass);
 #endif
 
+#define	DG_ACCURACY_SHOT_PENALTY_TIME		1.0f		// Applied amount of time each shot adds to the time we must recover from
+#define	DG_ACCURACY_MAXIMUM_PENALTY_TIME	4.0f		// Maximum penalty to deal out
+
 LINK_ENTITY_TO_CLASS(weapon_eagle, CEagle);
 
 void CEagle::Precache()
@@ -419,7 +422,7 @@ void CEagle::Precache()
 	PRECACHE_MODEL("models/v_desert_eagle.mdl");
 	PRECACHE_MODEL("models/w_desert_eagle.mdl");
 	PRECACHE_MODEL("models/p_desert_eagle.mdl");
-	m_iShell = PRECACHE_MODEL("models/shell.mdl");
+	m_iShell = PRECACHE_MODEL("models/shotgunshell.mdl"); // shotgun shell
 	PRECACHE_SOUND("weapons/desert_eagle_fire.wav");
 	PRECACHE_SOUND("weapons/desert_eagle_reload.wav");
 	PRECACHE_SOUND("weapons/desert_eagle_sight.wav");
@@ -438,13 +441,32 @@ void CEagle::Spawn()
 
 bool CEagle::Deploy()
 {
-	m_iCrossHairType = CROSSHAIR_DEFAULT;
+	m_flAccuracyPenalty = DG_ACCURACY_MAXIMUM_PENALTY_TIME;
+	m_iCrossHairType = CROSSHAIR_NOCENTER;
 	m_bSpotVisible = true;
 
 	return DefaultDeploy(
 		"models/v_desert_eagle.mdl", "models/p_desert_eagle.mdl",
 		EAGLE_DRAW,
 		"onehanded");
+}
+
+const Vector& CEagle::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, DG_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f);
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		// We lerp from very accurate to inaccurate over time
+		VectorLerp(m_bLaserActive ? VECTOR_CONE_5DEGREES : VECTOR_CONE_15DEGREES, m_bLaserActive ? VECTOR_CONE_15DEGREES : 2*VECTOR_CONE_20DEGREES, ramp, cone);
+	}
+	else
+	{
+		// We lerp from very accurate to inaccurate over time
+		VectorLerp(0.013095, VECTOR_CONE_10DEGREES, ramp, cone);
+	}
+		return cone;
 }
 
 void CEagle::Holster()
@@ -553,8 +575,6 @@ void CEagle::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = 2048;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
-	m_flTimeSincePrimary = gpGlobals->time;
-
 	--m_iClip;
 
 	m_pPlayer->pev->effects |= EF_MUZZLEFLASH;
@@ -576,21 +596,23 @@ void CEagle::PrimaryAttack()
 
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
-	const float flSpread = m_bLaserActive ? 0.001 : 0.1;
-	
+	const float flSpread = GetBulletSpread().x;
 	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(1, 200, 7500, vecSrc, vecAiming, flSpread, flSpread, 0.8, 420, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(6, 48, 7000, vecSrc, vecAiming, flSpread, flSpread, 0.75, 420, m_pPlayer->edict());
 	CBasePlayerWeapon::Recoil(5, 10);
 	#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += DG_ACCURACY_SHOT_PENALTY_TIME;
 
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
 
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 15;
-	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 32 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
+	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -6 + gpGlobals->v_forward * 8 + gpGlobals->v_right * 5, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (m_bLaserActive ? 0.5 : 0.05);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (m_bLaserActive ? 0.33 : 0.05);
 
 	if (0 == m_iClip)
 	{
@@ -690,6 +712,17 @@ void CEagle::UpdateLaser()
 #endif
 }
 
+void CEagle::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, DG_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
 int CEagle::iItemSlot()
 {
 	return 2;
@@ -697,8 +730,8 @@ int CEagle::iItemSlot()
 
 bool CEagle::GetItemInfo(ItemInfo* p)
 {
-	p->pszAmmo1 = "357";
-	p->iMaxAmmo1 = _357_MAX_CARRY;
+	p->pszAmmo1 = "buckshot";
+	p->iMaxAmmo1 = BUCKSHOT_MAX_CARRY;
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = 0;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
