@@ -35,7 +35,7 @@
 
 #define ZOMBIE_FLINCH_DELAY 10 // at most one flinch every n secs
 
-class CCorrupted : public CBaseMonster
+class CLucigast : public CBaseMonster
 {
 public:
 	void Spawn() override;
@@ -70,25 +70,25 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 };
 
-LINK_ENTITY_TO_CLASS(monster_znull, CCorrupted);
+LINK_ENTITY_TO_CLASS(monster_lucigast, CLucigast);
 
-const char* CCorrupted::pAttackHitSounds[] =
+const char* CLucigast::pAttackHitSounds[] =
 	{
 		"debris/beamstart4.wav",
 };
 
-const char* CCorrupted::pAttackMissSounds[] =
+const char* CLucigast::pAttackMissSounds[] =
 	{
 		"zombie/claw_miss1.wav",
 		"zombie/claw_miss2.wav",
 };
 
-const char* CCorrupted::pAttackSounds[] =
+const char* CLucigast::pAttackSounds[] =
 	{
 		"corruption/attack.wav",
 };
 
-const char* CCorrupted::pIdleSounds[] =
+const char* CLucigast::pIdleSounds[] =
 	{
 		"corruption/idle1.wav",
 		"corruption/idle2.wav",
@@ -97,7 +97,7 @@ const char* CCorrupted::pIdleSounds[] =
 		"corruption/idle5.wav",
 };
 
-const char* CCorrupted::pAlertSounds[] =
+const char* CLucigast::pAlertSounds[] =
 	{
 		"corruption/alert1.wav",
 		"corruption/alert2.wav",
@@ -108,14 +108,14 @@ const char* CCorrupted::pAlertSounds[] =
 		"corruption/alert6.wav",
 };
 
-const char* CCorrupted::pPainSounds[] =
+const char* CLucigast::pPainSounds[] =
 	{
 		"corruption/pain1.wav",
 		"corruption/pain4.wav",
 		"corruption/pain6.wav",
 };
 
-const char* CCorrupted::pDeathSounds[] =
+const char* CLucigast::pDeathSounds[] =
 	{
 		"corruption/death.wav",
 };
@@ -123,7 +123,7 @@ const char* CCorrupted::pDeathSounds[] =
 // Classify - indicates this monster's place in the
 // relationship table.
 //=========================================================
-int CCorrupted::Classify()
+int CLucigast::Classify()
 {
 	return CLASS_HALLUCINATION;
 }
@@ -132,12 +132,12 @@ int CCorrupted::Classify()
 // SetYawSpeed - allows each sequence to have a different
 // turn rate associated with it.
 //=========================================================
-void CCorrupted::SetYawSpeed()
+void CLucigast::SetYawSpeed()
 {
 	pev->yaw_speed = 360;
 }
 
-bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
+bool CLucigast::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
 	flDamage = 5;
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);
@@ -150,7 +150,7 @@ bool CCorrupted::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 //=========================================================
 // TraceAttack
 //=========================================================
-void CCorrupted::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+void CLucigast::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	ptr->iHitgroup = HITGROUP_GENERIC;
 	Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
@@ -166,7 +166,7 @@ void CCorrupted::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 	AddMultiDamage(pevAttacker, this, 5, bitsDamageType);
 }
 
-void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
+void CLucigast::Killed(entvars_t* pevAttacker, int iGib)
 {
 	CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
 	if (pOwner)
@@ -196,7 +196,7 @@ void CCorrupted::Killed(entvars_t* pevAttacker, int iGib)
 #endif
 	UTIL_Remove(this);
 }
-void CCorrupted::PainSound()
+void CLucigast::PainSound()
 {
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);
 	int pitch = 95 + RANDOM_LONG(0, 9);
@@ -205,14 +205,14 @@ void CCorrupted::PainSound()
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pPainSounds), 1.0, ATTN_NORM, 0, pitch);
 }
 
-void CCorrupted::AlertSound()
+void CLucigast::AlertSound()
 {
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pAlertSounds), 1.0, ATTN_NORM, 0, pitch);
 }
 
-void CCorrupted::IdleSound()
+void CLucigast::IdleSound()
 {
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
@@ -220,7 +220,7 @@ void CCorrupted::IdleSound()
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY(pIdleSounds), 1.0, ATTN_NORM, 0, pitch);
 }
 
-void CCorrupted::AttackSound()
+void CLucigast::AttackSound()
 {
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
@@ -233,7 +233,7 @@ void CCorrupted::AttackSound()
 // HandleAnimEvent - catches the monster-specific messages
 // that occur when tagged animation frames are played.
 //=========================================================
-void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
+void CLucigast::HandleAnimEvent(MonsterEvent_t* pEvent)
 {
 	switch (pEvent->event)
 	{
@@ -317,7 +317,7 @@ void CCorrupted::HandleAnimEvent(MonsterEvent_t* pEvent)
 //=========================================================
 // Spawn
 //=========================================================
-void CCorrupted::Spawn()
+void CLucigast::Spawn()
 {
 	Precache();
 	m_nextchange = gpGlobals->time;
@@ -336,7 +336,7 @@ void CCorrupted::Spawn()
 	MonsterInit();
 }
 
-void CCorrupted::MonsterThink()
+void CLucigast::MonsterThink()
 {
 	CBaseMonster::MonsterThink();
 	if (gpGlobals->time = m_nextchange)
@@ -368,7 +368,7 @@ void CCorrupted::MonsterThink()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CCorrupted::Precache()
+void CLucigast::Precache()
 {
 	PRECACHE_MODEL("models/lucigast.mdl");
 
@@ -387,7 +387,7 @@ void CCorrupted::Precache()
 
 
 
-int CCorrupted::IgnoreConditions()
+int CLucigast::IgnoreConditions()
 {
 	int iIgnore = CBaseMonster::IgnoreConditions();
 
