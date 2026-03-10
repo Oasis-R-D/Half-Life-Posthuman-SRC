@@ -609,8 +609,8 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	filepath.erase(0, 8);
 	filepath.erase(filepath.end()-4, filepath.end());
 
-	gEngfuncs.Con_DPrintf("scale %f\n", scale);
-	gEngfuncs.Con_DPrintf("scale %s\n", filepath);
+	//gEngfuncs.Con_DPrintf("scale %f\n", scale);
+	//gEngfuncs.Con_DPrintf("scale %s\n", filepath);
 
 	// smelly particle vers
 	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_muzzleflash, scale * 20, filepath), pos1, Vector(0, 0, 0), 0);
@@ -677,7 +677,7 @@ FuncHook(R_PlayerSprites, void, int client, int modelIndex, int count, int size)
 	model_t* modelbyindex = CL_GetModelByIndex(modelIndex);
 	if (!modelbyindex)
 	{
-		gEngfuncs.Con_Printf("No model %d!\n", modelIndex);
+		gEngfuncs.Con_Printf("No model in R_PlayerSprites: %d!\n", modelIndex);
 		return;
 	}
 
@@ -896,7 +896,7 @@ FuncHook(R_Spray, void, float* pos, float* dir, int modelIndex, int count, int s
 	model_t* modelbyindex = CL_GetModelByIndex(modelIndex);
 	if (!modelbyindex)
 	{
-		gEngfuncs.Con_Printf("No model %d!\n", modelIndex);
+		gEngfuncs.Con_Printf("No model in R_Spray: %d!\n", modelIndex);
 		return;
 	}
 
@@ -1151,7 +1151,7 @@ FuncHook(R_TempModel, TEMPENTITY*, float* pos, float* dir, float* angles, float 
 	model_t* model = CL_GetModelByIndex(modelIndex);
 	if (!model)
 	{
-		gEngfuncs.Con_Printf("No model %d!\n", modelIndex);
+		gEngfuncs.Con_Printf("No model in R_TempModel %d!\n", modelIndex);
 		return nullptr;
 	}
 	
@@ -1207,7 +1207,7 @@ FuncHook(R_DefaultSprite, TEMPENTITY*, float* pos, int spriteIndex, float framer
 	model_t* modelbyindex = CL_GetModelByIndex(spriteIndex);
 	if (!spriteIndex || !modelbyindex || modelbyindex->type != mod_sprite)
 	{
-		gEngfuncs.Con_DPrintf("No Sprite %d!\n", spriteIndex);
+		gEngfuncs.Con_DPrintf("No Sprite in R_DefaultSprite: %d!\n", spriteIndex);
 		return 0;
 	}
 
@@ -1234,7 +1234,7 @@ FuncHook(R_TempSprite, TEMPENTITY*, float* pos, const float* dir, float scale, i
 
 	if ((pmodel = CL_GetModelByIndex(modelIndex)) == NULL)
 	{
-		gEngfuncs.Con_Printf("No model %d!\n", modelIndex);
+		gEngfuncs.Con_Printf("No model in R_TempSprite %d!\n", modelIndex);
 		return NULL;
 	}
 

@@ -247,7 +247,7 @@ void CHordeMaker::MakeMonster()
 
 	if (FNullEnt(pent))
 	{
-		ALERT(at_console, "NULL Ent in MonsterMaker!\n");
+		ALERT(at_console, "NULL Ent in HordeMaker!\n");
 		SetThink(NULL);
 		SetUse(NULL);
 		return;
@@ -271,7 +271,7 @@ void CHordeMaker::MakeMonster()
 		ent->m_bPrehuman = true;
 	}
 
-	ALERT(at_aiconsole, "SPAWNED %u AT: (%f, %f, %f)\n", m_iszMonsterClassname, pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
+	ALERT(at_aiconsole, "SPAWNED %s AT: (%f, %f, %f)\n", STRING(m_iszMonsterClassname), pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
 	
 	// Children hit monsterclip brushes
 	if ((pev->spawnflags & SF_HORDEMAKER_MONSTERCLIP) != 0)
