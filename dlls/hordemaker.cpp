@@ -24,9 +24,11 @@
 #include "monsters.h"
 #include "saverestore.h"
 #include "nodes.h"
+#include "player.h"
 
 // Monstermaker spawnflags
 #define SF_HORDEMAKER_START_ON 1	// start active ( if has targetname )
+#define SF_HORDEMAKER_EXPENSIVECHECK 2 // check if the spawn will be seen by the player
 #define SF_HORDEMAKER_CYCLIC 4	 	// drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 #define SF_HORDEMAKER_PREHUMAN 16 	// Children are spawned with PreHuman tag
@@ -215,6 +217,30 @@ void CHordeMaker::MakeMonster()
 		ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
 		pev->nextthink = gpGlobals->time;
 		return;
+	}
+
+	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
+	{
+		TraceResult sightline;
+		Vector checkspot = tryspawn + Vector(0, 0, 32);
+		CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
+
+		if (pPlayer != nullptr)
+		{
+			UTIL_TraceLine(checkspot, pPlayer->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
+			if (sightline.flFraction == 1.0)
+			{
+				Vector Grennormal = (checkspot - pPlayer->EyePosition()).Normalize();
+				UTIL_MakeVectors(pPlayer->pev->v_angle);
+				float dp = DotProduct(Grennormal, -gpGlobals->v_forward);
+				if (dp < 0)
+				{
+					ALERT(at_aiconsole, "In view, NPC not spawned!\n");
+					pev->nextthink = gpGlobals->time + 0.1;
+					return;
+				}
+			}
+		}
 	}
 
 	pent = CREATE_NAMED_ENTITY(m_iszMonsterClassname);
