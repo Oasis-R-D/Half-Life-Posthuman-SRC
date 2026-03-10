@@ -1908,6 +1908,7 @@ void EV_Particles(event_args_t* args)
 				default:
 				case 0: // Def muzzle smoke
 					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
+					//gParticleEngine.CreateSystem("engine_muzzleflash_flames.txt", Origin, Dir, 0);
 					break;
 				case 1: // shotgun?
 					// reserved for sg if we do change it
