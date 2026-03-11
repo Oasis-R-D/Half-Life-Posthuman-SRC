@@ -18,7 +18,7 @@
 // and spawns enemies if there are no players near the node
 //=========================================================
 
-#include <list>
+#include <vector>
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -38,7 +38,7 @@ extern CGraph WorldGraph;
 
 int lastspawnednode; // this is global so multiple ents can check it
 
-std::list<int> g_liValidNodes;
+std::vector<int> g_liValidNodes;
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -194,7 +194,7 @@ void CHordeMaker::MakeMonster()
 				UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 				if (Height.flFraction == 1.0) // is the ceiling tall enough?
 				{
-					g_liValidNodes.push_back(i) // valid node, add to list
+					g_liValidNodes.push_back(i); // valid node, add to list
 				}
 			}
 		}
