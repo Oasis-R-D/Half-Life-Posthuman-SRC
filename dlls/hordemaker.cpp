@@ -173,7 +173,7 @@ void CHordeMaker::MakeMonster()
 		ALERT(at_warning, "HordeMaker: No nodegraph present");
 		return;
 	}
-	
+
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
 	{ // not allowed to make a new one yet. Too many live ones out right now.
 		return;
@@ -208,6 +208,7 @@ void CHordeMaker::MakeMonster()
 
 			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, dont_ignore_monsters, dont_ignore_glass, NULL, &Height); // TO-DO: figure out how to adjust this for selected NPC's hull size
 			if (Height.flFraction == 1.0) // is the ceiling tall enough?
+			{
 				// check if there's a npc in the "radius"
 				// having this here instead of outside forces spawn but makes it more demandind
 				if (m_fCheckDist != NULL && m_fCheckDist > 0)
