@@ -192,9 +192,7 @@ void CHordeMaker::MakeMonster()
 	{
 		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1);
 		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out
-		{
 			continue;
-		}
 		
 		lastspawnednode = selectednode;
 
@@ -210,7 +208,8 @@ void CHordeMaker::MakeMonster()
 			if (Height.flFraction == 1.0) // is the ceiling tall enough?
 			{
 				// check if there's a npc in the "radius"
-				// having this here instead of outside forces spawn but makes it more demandind
+				// having this here instead of outside forces spawn but makes it more demanding
+				// this may make it crash though if none is found
 				if (m_fCheckDist != NULL && m_fCheckDist > 0)
 				{
 					Vector mins = tryspawn - Vector(m_fCheckDist, m_fCheckDist, 0);
@@ -219,9 +218,7 @@ void CHordeMaker::MakeMonster()
 					CBaseEntity* pList[2];
 					int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
 					if (0 == count) // don't spawn npcs near players or other monsters
-					{
 						nodevalid = true; // found our spot
-					}
 				}
 			}
 		}
