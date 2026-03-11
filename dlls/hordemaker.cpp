@@ -60,6 +60,7 @@ public:
 
 	int m_cNumMonsters; // max number of monsters this ent can create
 
+	float m_fCheckDist;
 
 	int m_cLiveChildren;	// how many monsters made by this monster maker that are currently alive
 	int m_iMaxLiveChildren; // max number of monsters that this maker may have out at one time.
@@ -94,6 +95,11 @@ bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 	else if (FStrEq(pkvd->szKeyName, "m_imaxlivechildren"))
 	{
 		m_iMaxLiveChildren = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "checkdist"))
+	{
+		m_fCheckDist = atof(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "monstertype"))
@@ -205,18 +211,21 @@ void CHordeMaker::MakeMonster()
 		}
 	}
 
-	Vector mins = tryspawn - Vector(256, 256, 0);
-	Vector maxs = tryspawn + Vector(256, 256, 0);
-	maxs.z = tryspawn.z + 72;
-	mins.z = tryspawn.z;
-
-	CBaseEntity* pList[2];
-	int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
-	if (0 != count) // don't spawn monsters near players or other monsters
+	if (m_fCheckDist != NULL && m_fCheckDist > 0)
 	{
-		ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
-		pev->nextthink = gpGlobals->time;
-		return;
+		Vector mins = tryspawn - Vector(m_fCheckDist, m_fCheckDist, 0);
+		Vector maxs = tryspawn + Vector(m_fCheckDist, m_fCheckDist, 0);
+		maxs.z = tryspawn.z + 72;
+		mins.z = tryspawn.z;
+
+		CBaseEntity* pList[2];
+		int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
+		if (0 != count) // don't spawn monsters near players or other monsters
+		{
+			ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
+			pev->nextthink = gpGlobals->time;
+			return;
+		}
 	}
 
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
