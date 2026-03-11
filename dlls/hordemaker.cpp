@@ -18,6 +18,7 @@
 // and spawns enemies if there are no players near the node
 //=========================================================
 
+#include <list>
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -35,7 +36,12 @@
 
 extern CGraph WorldGraph;
 
-int lastspawnednode;
+int lastspawnednode; // this is global so multiple ents can check it
+
+std::list<int> g_liValidNodes;
+// could probably just go through nodes on init to make a list of good spawns
+// would make it more performant
+
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
 //=========================================================
@@ -154,6 +160,8 @@ void CHordeMaker::Spawn()
 	{
 		m_fFadeChildren = true;
 	}
+
+	
 }
 
 void CHordeMaker::Precache()
@@ -174,53 +182,63 @@ void CHordeMaker::MakeMonster()
 		return;
 	}
 
+	if (g_liValidNodes.empty()) // generate list of spawns
+	{
+		for (int i = 0; i < WorldGraph.m_cNodes; i++)
+		{
+			if ((WorldGraph.m_pNodes[i].m_afNodeInfo & bits_NODE_LAND) != 0) // only check land nodes
+			{
+				Vector nodevec = WorldGraph.m_pNodes[i].m_vecOriginPeek;
+
+				TraceResult Height;
+				UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
+
+				UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
+				if (Height.flFraction == 1.0) // is the ceiling tall enough?
+				{
+					g_liValidNodes.push_back(i) // valid node, add to list
+				}
+			}
+		}
+	}
+
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
-	{ // not allowed to make a new one yet. Too many live ones out right now.
-		return;
+	{ 
+		return; // not allowed to make a new one yet. Too many live ones out right now.
 	}
 
 	edict_t* pent;
 	entvars_t* pevCreate;
 
-	
-
 	int selectednode;
-	bool nodevalid = false;
-	Vector tryspawn;
+	Vector VecSpawn;
 
-	while (!nodevalid)
+	while (true)
 	{
-		selectednode = RANDOM_LONG(0, WorldGraph.m_cNodes - 1);
+		selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size())];
 		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out
 			continue;
 		
 		lastspawnednode = selectednode;
 
-		if ((WorldGraph.m_pNodes[selectednode].m_afNodeInfo & bits_NODE_LAND) != 0) // only check land nodes
+		Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+
+		TraceResult Height;
+		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
+		VecSpawn = Height.vecEndPos; // floor
+
+		// check if there's a npc in the "radius"
+		// having this here instead of outside forces spawn but makes it more demanding
+		// this may make it crash though if none is found, so might want to move this back out of the while loop
+		if (m_fCheckDist != NULL && m_fCheckDist > 0)
 		{
-			Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+			Vector mins = VecSpawn - Vector(m_fCheckDist, m_fCheckDist, 0);
+			Vector maxs = VecSpawn + Vector(m_fCheckDist, m_fCheckDist, 72);
 
-			TraceResult Height;
-			UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, dont_ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
-			tryspawn = Height.vecEndPos; // floor
-
-			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, dont_ignore_monsters, dont_ignore_glass, NULL, &Height); // TO-DO: figure out how to adjust this for selected NPC's hull size
-			if (Height.flFraction == 1.0) // is the ceiling tall enough?
-			{
-				// check if there's a npc in the "radius"
-				// having this here instead of outside forces spawn but makes it more demanding
-				// this may make it crash though if none is found
-				if (m_fCheckDist != NULL && m_fCheckDist > 0)
-				{
-					Vector mins = tryspawn - Vector(m_fCheckDist, m_fCheckDist, 0);
-					Vector maxs = tryspawn + Vector(m_fCheckDist, m_fCheckDist, 72);
-
-					CBaseEntity* pList[2];
-					int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
-					if (0 == count) // don't spawn npcs near players or other monsters
-						nodevalid = true; // found our spot
-				}
-			}
+			CBaseEntity* pList[2];
+			int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
+			if (0 == count) // don't spawn npcs near players or other monsters
+				break; // found our spot
 		}
 	}
 
@@ -228,7 +246,7 @@ void CHordeMaker::MakeMonster()
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
-		Vector checkspot = tryspawn + Vector(0, 0, 32);
+		Vector checkspot = VecSpawn + Vector(0, 0, 32);
 		CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
 
 		if (pPlayer != nullptr)
@@ -267,7 +285,7 @@ void CHordeMaker::MakeMonster()
 	}
 
 	pevCreate = VARS(pent);
-	pevCreate->origin = tryspawn;
+	pevCreate->origin = VecSpawn;
 	pevCreate->angles = Vector(0, RANDOM_LONG(0, 360), 0);
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 	
