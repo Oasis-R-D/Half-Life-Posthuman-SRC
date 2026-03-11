@@ -480,27 +480,43 @@ void COFVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	//TODO: use a filter based on attacker to identify self harm
 	if ((bitsDamageType & DMG_SHOCK) == 0)
 	{
-		Vector vecOrigin = ptr->vecEndPos - vecDir * 4;
-		int BLDAMNT;
-
-		BLDAMNT = round(flDamage / 3.0);
-
-		if (0 != pev->takedamage)
+		if (ptr->iHitgroup != 69)
 		{
-			AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+			Vector vecOrigin = ptr->vecEndPos - vecDir * 2;
+			int BLDAMNT;
 
-			int blood = BloodColor();
+			BLDAMNT = round(flDamage / 3.0);
 
-			if (blood != DONT_BLEED)
+			if (0 != pev->takedamage)
 			{
-				SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
-				TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
-				#endif
+				AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
 
+				int blood = BloodColor();
+
+				if (blood != DONT_BLEED)
+				{
+					SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
+					TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
+					//Spawn blud dwops UwU
+					#ifndef CLIENT_DLL
+					CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
+					#endif
+
+				}
 			}
+		}
+		else
+		{
+			// hit armor
+			if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
+			{
+				CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+				UTIL_Sparks(ptr->vecEndPos);
+				pev->dmgtime = gpGlobals->time;
+			}
+			flDamage -= 20;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 		}
 	}
 }
