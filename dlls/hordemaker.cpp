@@ -39,8 +39,6 @@ extern CGraph WorldGraph;
 int lastspawnednode; // this is global so multiple ents can check it
 
 std::list<int> g_liValidNodes;
-// could probably just go through nodes on init to make a list of good spawns
-// would make it more performant
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -224,7 +222,7 @@ void CHordeMaker::MakeMonster()
 		Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
 
 		TraceResult Height;
-		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
+		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
 		VecSpawn = Height.vecEndPos; // floor
 
 		// check if there's a npc in the "radius"
