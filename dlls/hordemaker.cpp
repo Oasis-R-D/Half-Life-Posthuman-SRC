@@ -86,7 +86,6 @@ IMPLEMENT_SAVERESTORE(CHordeMaker, CBaseMonster);
 
 bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 {
-
 	if (FStrEq(pkvd->szKeyName, "monstercount"))
 	{
 		m_cNumMonsters = atoi(pkvd->szValue);
@@ -174,14 +173,16 @@ void CHordeMaker::MakeMonster()
 		ALERT(at_warning, "HordeMaker: No nodegraph present");
 		return;
 	}
-
-	edict_t* pent;
-	entvars_t* pevCreate;
-
+	
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
 	{ // not allowed to make a new one yet. Too many live ones out right now.
 		return;
 	}
+
+	edict_t* pent;
+	entvars_t* pevCreate;
+
+	
 
 	int selectednode;
 	bool nodevalid = false;
@@ -207,27 +208,25 @@ void CHordeMaker::MakeMonster()
 
 			UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, dont_ignore_monsters, dont_ignore_glass, NULL, &Height); // TO-DO: figure out how to adjust this for selected NPC's hull size
 			if (Height.flFraction == 1.0) // is the ceiling tall enough?
-				nodevalid = true; // found our spot
+				// check if there's a npc in the "radius"
+				// having this here instead of outside forces spawn but makes it more demandind
+				if (m_fCheckDist != NULL && m_fCheckDist > 0)
+				{
+					Vector mins = tryspawn - Vector(m_fCheckDist, m_fCheckDist, 0);
+					Vector maxs = tryspawn + Vector(m_fCheckDist, m_fCheckDist, 72);
+
+					CBaseEntity* pList[2];
+					int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
+					if (0 == count) // don't spawn npcs near players or other monsters
+					{
+						nodevalid = true; // found our spot
+					}
+				}
+			}
 		}
 	}
 
-	if (m_fCheckDist != NULL && m_fCheckDist > 0)
-	{
-		Vector mins = tryspawn - Vector(m_fCheckDist, m_fCheckDist, 0);
-		Vector maxs = tryspawn + Vector(m_fCheckDist, m_fCheckDist, 0);
-		maxs.z = tryspawn.z + 72;
-		mins.z = tryspawn.z;
-
-		CBaseEntity* pList[2];
-		int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
-		if (0 != count) // don't spawn monsters near players or other monsters
-		{
-			ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
-			pev->nextthink = gpGlobals->time;
-			return;
-		}
-	}
-
+	// move these checks to the valid node finder?
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
