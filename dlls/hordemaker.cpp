@@ -213,30 +213,33 @@ void CHordeMaker::MakeMonster()
 
 	while (true)
 	{
-		selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size())];
+		selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size()-1)];
 		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out
 			continue;
-		
-		lastspawnednode = selectednode;
+		else
+			break;
+	}
 
-		Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+	lastspawnednode = selectednode;
 
-		TraceResult Height;
-		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
-		VecSpawn = Height.vecEndPos; // floor
+	Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
 
-		// check if there's a npc in the "radius"
-		// having this here instead of outside forces spawn but makes it more demanding
-		// this may make it crash though if none is found, so might want to move this back out of the while loop
-		if (m_fCheckDist != NULL && m_fCheckDist > 0)
+	TraceResult Height;
+	UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
+	VecSpawn = Height.vecEndPos; // floor
+
+	if (m_fCheckDist != NULL && m_fCheckDist > 0)
+	{
+		Vector mins = VecSpawn - Vector(m_fCheckDist, m_fCheckDist, 0);
+		Vector maxs = VecSpawn + Vector(m_fCheckDist, m_fCheckDist, 72);
+
+		CBaseEntity* pList[2];
+		int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
+		if (count != 0) // don't spawn npcs near players or other monsters
 		{
-			Vector mins = VecSpawn - Vector(m_fCheckDist, m_fCheckDist, 0);
-			Vector maxs = VecSpawn + Vector(m_fCheckDist, m_fCheckDist, 72);
-
-			CBaseEntity* pList[2];
-			int count = UTIL_EntitiesInBox(pList, 2, mins, maxs, FL_CLIENT | FL_MONSTER);
-			if (0 == count) // don't spawn npcs near players or other monsters
-				break; // found our spot
+			ALERT(at_aiconsole, "Too close, NPC not spawned!\n");
+			pev->nextthink = gpGlobals->time + 0.1;
+			return;
 		}
 	}
 
