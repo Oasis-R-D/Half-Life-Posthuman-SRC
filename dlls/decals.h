@@ -104,6 +104,10 @@ enum decal_e
 	DECAL_NBLOODSPRAY4,
 	DECAL_NBLOODSPRAY5,
 	DECAL_NBLOODSPRAY6,
+	DECAL_TEAR1,		//84-87: For the claws, world hit
+	DECAL_TEAR2,
+	DECAL_TEAR3,
+	DECAL_TEAR4,
 };
 
 typedef struct

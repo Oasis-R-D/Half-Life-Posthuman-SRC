@@ -441,6 +441,7 @@ extern void ApplyMultiDamage(entvars_t* pevInflictor, entvars_t* pevAttacker);
 extern void AddMultiDamage(entvars_t* pevInflictor, CBaseEntity* pEntity, float flDamage, int bitsDamageType);
 
 extern void DecalGunshot(TraceResult* pTrace, int iBulletType);
+extern void DecalClaws(TraceResult* pTrace, int iBulletType, int rot);
 extern void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage);
 extern int DamageDecal(CBaseEntity* pEntity, int bitsDamageType, TraceResult* hit = nullptr, bool heavy = false);
 extern void RadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, int bitsDamageType);
@@ -613,14 +614,13 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 1; }
-	void EXPORT Smack();
 	bool GetItemInfo(ItemInfo* p) override;
 	void SecondaryAttack() override;
 	void PrimaryAttack() override;
 	bool Deploy() override;
 	void Holster() override;
 	void ItemPostFrame();
-	void Hit(bool type);
+	void Hit(bool type, int hand);
 	void WeaponIdle();
 	int m_iSwing;
 	TraceResult m_trHit;

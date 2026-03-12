@@ -176,7 +176,23 @@ void DecalGunshot(TraceResult* pTrace, int iBulletType)
 	}
 }
 
+void DecalClaws(TraceResult* pTrace, int iBulletType, int rot)
+{
+	// Is the entity valid
+	if (!UTIL_IsValidEntity(pTrace->pHit))
+		return;
 
+	if (VARS(pTrace->pHit)->solid == SOLID_BSP || VARS(pTrace->pHit)->movetype == MOVETYPE_PUSHSTEP)
+	{
+		CBaseEntity* pEntity = NULL;
+		// Decal the wall with a gunshot
+		if (!FNullEnt(pTrace->pHit))
+			pEntity = CBaseEntity::Instance(pTrace->pHit);
+
+		
+		UTIL_DecalTrace(pTrace, DECAL_TEAR1+RANDOM_LONG(0,3), 0, rot);
+	}
+}
 
 //
 // EjectBrass - tosses a brass shell from passed origin at passed velocity

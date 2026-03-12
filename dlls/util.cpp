@@ -1264,7 +1264,7 @@ void UTIL_BloodDecalTrace(TraceResult* pTrace, int bloodColor)
 }
 
 
-void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber, int applyradius)
+void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber, int applyradius, int rot)
 {
 	short entityIndex;
 	int index;
@@ -1310,10 +1310,15 @@ void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber, int applyradius)
 			index -= 256;
 		}
 	}
-	int DCrot = RANDOM_LONG(0,180);
+
+	int DCrot = rot;
+	if (rot < 0)
+	{
+		DCrot = RANDOM_LONG(0, 359);
+	}
 
 	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);
-	//TODO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
+	// TO-DO: use WRITE_STRING to overcome write_coord's 4096/-4096 limit
 	WRITE_COORD(pTrace->vecEndPos.x);
 	WRITE_COORD(pTrace->vecEndPos.y);
 	WRITE_COORD(pTrace->vecEndPos.z);

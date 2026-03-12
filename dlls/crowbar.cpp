@@ -113,26 +113,21 @@ void CCrowbar::SecondaryAttack()
 	#endif
 }
 
-void CCrowbar::Smack()
-{
-	DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR);
-}
-
 void CCrowbar::ItemPostFrame()
 {
 	if (pev->armortype < gpGlobals->time && pev->armortype != 0)
-	{
-		Hit(false);
+	{ // right
+		Hit(false, 1);
 		pev->armortype = 0;
 	}
 	if (pev->armorvalue < gpGlobals->time && pev->armorvalue != 0)
-	{
-		Hit(false);
+	{ // left
+		Hit(false, 2);
 		pev->armorvalue = 0;
 	}
 	if (pev->health < gpGlobals->time && pev->health != 0)
-	{
-		Hit(true);
+	{ // both
+		Hit(true, 3);
 		pev->health = 0;
 	}
 
@@ -154,13 +149,13 @@ void CCrowbar::ItemPostFrame()
 	CBasePlayerWeapon::ItemPostFrame();
 }
 
-void CCrowbar::Hit(bool type)
+void CCrowbar::Hit(bool type, int hand)
 {
 	TraceResult tr;
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 96, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
+	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 64, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
 	
 	const char* sound = 0;
 
@@ -242,7 +237,19 @@ void CCrowbar::Hit(bool type)
 #ifndef CLIENT_DLL
 		sound = UTIL_VarArgs("zombie/claw_strike%d.wav", RANDOM_LONG(1, 3));
 #endif
-		DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
+		int ang = 0;
+
+		switch (hand)
+		{
+			case 1: ang = 150; break; // right
+			case 2: ang = 45; break; // left
+			case 3: ang = 90; break; // both
+		}
+		
+		ang += (180 * RANDOM_LONG(0, 1)) + RANDOM_LONG(-5, 5);
+
+		DecalClaws(&tr, BULLET_PLAYER_CROWBAR, ang);
+		// TO-DO: fix not facing right direction when hitting ground (add player angle when it's on ground?)
 	}
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);

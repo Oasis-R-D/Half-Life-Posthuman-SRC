@@ -64,7 +64,7 @@ void DBG_AssertFunction(bool fExpr, const char* szExpr, const char* szFile, int 
 // UTIL_* Stubs
 void UTIL_PrecacheOther(const char* szClassname) {}
 void UTIL_BloodDrips(const Vector& origin, const Vector& direction, int color, int amount) {}
-void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber, int applyradius) {}
+void UTIL_DecalTrace(TraceResult* pTrace, int decalNumber, int applyradius, int rot) {}
 void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber) {}
 void UTIL_MakeVectors(const Vector& vecAngles) {}
 float UTIL_DegreesToRadCone(float degrees) {return 0.0;}
@@ -303,6 +303,7 @@ void AddMultiDamage(entvars_t* pevInflictor, CBaseEntity* pEntity, float flDamag
 void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage) {}
 int DamageDecal(CBaseEntity* pEntity, int bitsDamageType) { return 0; }
 void DecalGunshot(TraceResult* pTrace, int iBulletType) {}
+void DecalClaws(TraceResult* pTrace, int iBulletType, int rot) {}
 void EjectBrass(const Vector& vecOrigin, const Vector& vecVelocity, float rotation, int model, int soundtype) {}
 bool CBasePlayerItem::Restore(class CRestore&) { return true; }
 bool CBasePlayerItem::Save(class CSave&) { return true; }
