@@ -871,7 +871,7 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_train1", "FIELD DAY"},
 		{"ph_train2", "FIELD DAY"},
 		{"ph_train3", "FIELD DAY"},
-		{"ph_prologue1", "PROLOGUE"},
+		{"ph_prologue1", "OASIS POINT"},
 		{"ph_prologue2", "PROLOGUE"}, // Find a better name to make it seem like GM wasn't expecting what happened
 		{"ph_res1", "Ressurection"}, // Names no longer uppercase (like in Episode 1 to show GM's uninvolvement)
 		{"ph_res2", "Ressurection"},
@@ -915,6 +915,7 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"test", "DEV!!!!!!!!!"}, // RPC FINISHED
 		{"systemstest", "SYSTEM DEV!!!!!!!!!"},
 		{"test_range", "WPN DEV!!!!!!!!!"},
+		{"test_arena", "NPC DEV!!!!!!!!!"},
 };
 
 extern "C" void DLLEXPORT SV_SaveGameComment(char* pszBuffer, int iSizeBuffer);
