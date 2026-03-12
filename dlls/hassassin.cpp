@@ -66,6 +66,7 @@ public:
 	void SetYawSpeed() override;
 	int Classify() override;
 	int ISoundMask() override;
+	Vector ShootAtEnemyHead(const Vector& shootOrigin);
 	void Shoot();
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	Schedule_t* GetSchedule() override;
@@ -182,6 +183,18 @@ void CHAssassin::SetYawSpeed()
 }
 
 
+Vector CHAssassin::ShootAtEnemyHead(const Vector& shootOrigin)
+{
+	CBaseEntity* pEnemy = m_hEnemy;
+
+	if (pEnemy)
+	{
+		return ((Vector(0, 0, (pEnemy->pev->absmax.z + pEnemy->pev->absmin.z) * 0.8) + m_vecEnemyLKP) - shootOrigin).Normalize();
+	}
+	else
+		return gpGlobals->v_forward;
+}
+
 //=========================================================
 // Shoot
 //=========================================================
@@ -193,17 +206,17 @@ void CHAssassin::Shoot()
 	}
 
 	Vector vecShootOrigin = GetGunPosition();
-	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+	Vector vecShootDir = ShootAtEnemyHead(vecShootOrigin); // prioritize quick, clean kills
 
 	if (m_flLastShot + 2 < gpGlobals->time)
 	{
-		m_flDiviation = 0.10;
+		m_flDiviation = CONE_9DEGREES;
 	}
 	else
 	{
-		m_flDiviation -= 0.01;
-		if (m_flDiviation < 0.02)
-			m_flDiviation = 0.02;
+		m_flDiviation -= CONE_1DEGREES;
+		if (m_flDiviation < CONE_1DEGREES)
+			m_flDiviation = CONE_1DEGREES;
 	}
 	m_flLastShot = gpGlobals->time;
 
@@ -215,11 +228,11 @@ void CHAssassin::Shoot()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel == SKILL_EASY)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6333, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6333, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation/2), 0.5, 9, edict());
 	}
 	else if (g_iSkillLevel == SKILL_MEDIUM)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM-1, 5250, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM-1, 5250, vecShootOrigin, vecShootDir, m_flDiviation,(m_flDiviation/2), 0.5, 9, edict(), true);
 	}
 	else
 	{
