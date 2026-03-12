@@ -2520,10 +2520,12 @@ public:
 	bool KeyValue(KeyValueData* pkvd) override;
 
 	int m_iPose; // which sequence to display	-- temporary, don't need to save
-	static const char* m_szPoses[3];
+	int m_iTorso = 0;
+	int m_iHead = 0;
+	static const char* m_szPoses[7];
 };
 
-const char* CDeadHGrunt::m_szPoses[] = {"deadstomach", "deadside", "deadsitting"};
+const char* CDeadHGrunt::m_szPoses[] = {"deadstomach", "deadside", "hgrunt_dead_stomach", "deadsitting", "dead_canyon", "dead_on_back", "dead_headcrabbed"};
 
 bool CDeadHGrunt::KeyValue(KeyValueData* pkvd)
 {
@@ -2531,6 +2533,14 @@ bool CDeadHGrunt::KeyValue(KeyValueData* pkvd)
 	{
 		m_iPose = atoi(pkvd->szValue);
 		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "torso"))
+	{
+		m_iTorso = atoi(pkvd->szValue);
+	}
+	else if (FStrEq(pkvd->szKeyName, "head"))
+	{
+		m_iHead = atoi(pkvd->szValue);
 	}
 
 	return CBaseMonster::KeyValue(pkvd);
@@ -2562,24 +2572,31 @@ void CDeadHGrunt::Spawn()
 	pev->health = 8;
 
 	// map old bodies onto new bodies
-	switch (pev->body)
+	switch (m_iTorso)
 	{
-	case 0: // Grunt with Gun
-		pev->body = 0;
-		pev->skin = 0;
+	case 0: // Grunt
+		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		break;
-	case 1: // Commander with Gun
-		pev->body = 1;
-		pev->skin = 0;
+	case 1: // 556 belt
+		SetBodygroup(TORSO_GROUP, TORSO_M249);
 		break;
-	case 2: // Grunt no Gun
-		pev->body = 96;
-		pev->skin = 0;
+	case 2: // 12g belt
+		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		break;
-	case 3: // Commander no Gun
-		pev->body = 97;
-		pev->skin = 0;
+	case 3: // Engineer
+		SetBodygroup(ARMOR_GROUP, ARMOR_ENGI);
+		SetBodygroup(TORSO_GROUP, TORSO_ENGI);
 		break;
+	case 4: // Medic
+		SetBodygroup(TORSO_GROUP, TORSO_MED);
+		break;
+	}
+
+	SetBodygroup(HEAD_GROUP, m_iHead);
+
+	if (GetBodygroup(HEAD_GROUP) != HEAD_CIGAR)
+	{
+		pev->skin = RANDOM_LONG(0, 1);
 	}
 
 	MonsterInitDead();
