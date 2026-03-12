@@ -2525,7 +2525,7 @@ public:
 	static const char* m_szPoses[7];
 };
 
-const char* CDeadHGrunt::m_szPoses[] = {"deadstomach", "deadside", "hgrunt_dead_stomach", "deadsitting", "dead_canyon", "dead_on_back", "dead_headcrabbed"};
+const char* CDeadHGrunt::m_szPoses[] = {"deadstomach", "deadside", "hgrunt_dead_stomach", "deadsitting", "dead_canyon", "dead_on_back", "dead_headcrabed"};
 
 bool CDeadHGrunt::KeyValue(KeyValueData* pkvd)
 {
