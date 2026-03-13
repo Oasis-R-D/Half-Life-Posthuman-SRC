@@ -206,7 +206,7 @@ void CCrossbowBolt::ExplodeThink()
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
-	::RadiusDamage(pev->origin, pev, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB); // TO-DO: make full radius do full damage instead of falling off
+	::RadiusDamage(pev->origin, pevOwner, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB); // TO-DO: make full radius do full damage instead of falling off
 	
 	TraceResult tr = UTIL_GetGlobalTrace();
 	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
