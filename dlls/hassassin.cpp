@@ -189,6 +189,8 @@ Vector CHAssassin::ShootAtEnemyHead(const Vector& shootOrigin)
 
 	if (pEnemy)
 	{
+		if (pEnemy->IsPlayer())
+			return pEnemy->BodyTarget(shootOrigin);
 		return ((Vector(0, 0, (pEnemy->pev->absmax.z + pEnemy->pev->absmin.z) * 0.8) + m_vecEnemyLKP) - shootOrigin).Normalize();
 	}
 	else

@@ -182,7 +182,7 @@ void CPhysbullet::Spawn()
 
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-	if (!g_pGameRules->IsMultiplayer())
+	if (!g_pGameRules->IsMultiplayer() || true)
 	{
 		// TRAIL START
 		pev->nextthink = gpGlobals->time + 0.05f;
