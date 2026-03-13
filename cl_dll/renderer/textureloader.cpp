@@ -362,7 +362,7 @@ bool CTextureLoader::LoadTGAFile(byte* pFile, cl_texture_t* pTexture, bool bNoMi
 	if (!IsPowerOfTwo(pTexture->iWidth, pTexture->iHeight))
 	{
 		gEngfuncs.Con_Printf("Error! %s is not a power of two texture!\n", pTexture->szName);
-		return false;
+		//return false;
 	}
 
 	// Allocate data
@@ -552,7 +552,7 @@ bool CTextureLoader::LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMi
 	if (!IsPowerOfTwo(pTexture->iWidth, pTexture->iHeight))
 	{
 		gEngfuncs.Con_Printf("Error! %s is not a power of two texture!\n", pTexture->szName);
-		return false;
+		//return false;
 	}
 
 	if (iMagic != DDS_MAGIC)
