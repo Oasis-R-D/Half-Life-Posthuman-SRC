@@ -2011,7 +2011,7 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 			unsigned short varstartingframe;
 			unsigned short varnumframe;
 
-			if (pSystem->framevarhandled == false) // TO-DO: make per particle
+			if (pSystem->framevarhandled == false)
 			{
 				pSystem->selected_variant = gEngfuncs.pfnRandomLong(0, pSystem->variants);
 				//gEngfuncs.Con_DPrintf("Particle var: %d \n", pSystem->selected_variant);

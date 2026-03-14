@@ -94,7 +94,6 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(monster_barney, CBarney);
-LINK_ENTITY_TO_CLASS(monster_barney_adv, CBarney);
 
 TYPEDESCRIPTION CBarney::m_SaveData[] =
 	{
@@ -344,35 +343,25 @@ void CBarney::BarneyFirePistol()
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 
-	if (FClassnameIs(pev, "monster_barney_adv"))
+	float cone;
+	switch (g_iSkillLevel)
 	{
-		FireBullets(gSkillData.hgruntShotgunPellets, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 1024, BULLET_PLAYER_BUCKSHOT, 1);
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
-		EMIT_SOUND_DYN(ENT(pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
-		pev->framerate = 0.5;
+	case SKILL_EASY: cone = CONE_8DEGREES; break;
+	case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
+	case SKILL_HARD: cone = CONE_2DEGREES; break;
+	}
+	//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
+	#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
 	}
 	else
 	{
-		float cone;
-		switch (g_iSkillLevel)
-		{
-		case SKILL_EASY: cone = CONE_8DEGREES; break;
-		case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
-		case SKILL_HARD: cone = CONE_2DEGREES; break;
-		}
-		//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
-		#ifndef CLIENT_DLL
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
-		}
-		else
-		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
-		}
-		#endif
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
+		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
 	}
+	#endif
+	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 
@@ -438,25 +427,17 @@ void CBarney::Spawn()
 		//SetUse(&CBarney::FollowerUse); // TO-DO: add following
 	}
 	
-	if (FClassnameIs(pev, "monster_barney_adv")) // Unused (this was the early implementation of advsec)
+	SET_MODEL(ENT(pev), "models/barney.mdl");
+	if (g_iSkillLevel != SKILL_HARD)
 	{
-		SET_MODEL(ENT(pev), "models/barney_adv.mdl");
-		pev->health = 55;
-		m_cAmmoLoaded = pev->armortype = 8;
+		pev->health = gSkillData.barneyHealth;
 	}
 	else
 	{
-		SET_MODEL(ENT(pev), "models/barney.mdl");
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-			pev->health = gSkillData.barneyHealth;
-		}
-		else
-		{
-			pev->health = 100;
-		}
-		m_cAmmoLoaded = pev->armortype = 17;
+		pev->health = 100;
 	}
+	m_cAmmoLoaded = pev->armortype = 17;
+
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
@@ -506,16 +487,8 @@ void CBarney::Spawn()
 //=========================================================
 void CBarney::Precache()
 {
-	if (FClassnameIs(pev, "monster_barney_adv"))
-	{
-		PRECACHE_MODEL("models/barney_adv.mdl");
-		m_iShell = PRECACHE_MODEL("models/shotgunshell.mdl");
-	}
-	else
-	{
-		PRECACHE_MODEL("models/barney.mdl");
-		m_iShell = PRECACHE_MODEL("models/shell.mdl");
-	}
+	PRECACHE_MODEL("models/barney.mdl");
+	m_iShell = PRECACHE_MODEL("models/shell.mdl");
 
 	PRECACHE_SOUND("barney/ba_attack1.wav");
 	PRECACHE_SOUND("barney/ba_attack2.wav");
@@ -676,10 +649,7 @@ void CBarney::Killed(entvars_t* pevAttacker, int iGib)
 		SetBodygroup(2, BARNEY_BODY_GUNGONE);
 		GetAttachment(0, vecGunPos, vecGunAngles);
 
-		if (FClassnameIs(pev, "monster_barney_adv")) //tf? That still exists?
-			CBaseEntity* pGun = DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
-		else
-			CBaseEntity* pGun = DropItem("weapon_9mmhandgun", vecGunPos, vecGunAngles);
+		CBaseEntity* pGun = DropItem("weapon_9mmhandgun", vecGunPos, vecGunAngles);
 	}
 
 	SetUse(NULL);
@@ -869,34 +839,35 @@ void CDeadBarney::Spawn()
 	{
 		ALERT(at_console, "Dead barney with bad pose\n");
 	}
+
 	// Corpses have less health
 	pev->health = 8; //gSkillData.barneyHealth;
 
 	MonsterInitDead();
 	
 	if (m_iArmor == ARMOR_RANDOM)
-		{
+	{
 		SetBodygroup(0, RANDOM_LONG(0, 1));
-		}
+	}
 	else if (m_iArmor == ARMOR_VEST)
-		{
+	{
 		SetBodygroup(0, ARMOR_VEST);
-		}
+	}
 	else
-		{
+	{
 		SetBodygroup(0, ARMOR_NONE);
-		}
+	}
 
-		if (m_iHelmet == HEADWEAR_RANDOM)
-		{
+	if (m_iHelmet == HEADWEAR_RANDOM)
+	{
 		SetBodygroup(3, RANDOM_LONG(0, 1));
-		}
+	}
 	else if (m_iHelmet == HEADWEAR_HELM)
-		{
+	{
 		SetBodygroup(3, HEADWEAR_HELM);
-		}
+	}
 	else
-		{
+	{
 		SetBodygroup(3, HEADWEAR_OFF);
-		}
+	}
 }

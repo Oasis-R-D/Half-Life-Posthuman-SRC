@@ -380,6 +380,7 @@ void W_Precache()
 	g_sModelIndexLaserDot = PRECACHE_MODEL("sprites/laserdot.spr");
 	g_sModelIndexShrapnel = PRECACHE_MODEL("models/shrapnel.mdl");
 	g_sParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+
 	// used by explosions
 	PRECACHE_MODEL("sprites/explode1.spr");
 
@@ -399,9 +400,6 @@ void W_Precache()
 	PRECACHE_SOUND("fvox/Lowammo2.wav");
 	PRECACHE_SOUND("fvox/Lowammo3.wav");
 }
-
-
-
 
 TYPEDESCRIPTION CBasePlayerItem::m_SaveData[] =
 	{

@@ -129,23 +129,17 @@ void CHalfLifeMultiplay::RefreshSkillData() // TO-DO: probably remove this or re
 	// Glock Round
 	gSkillData.plrDmg9MM = 12;
 
-	// 357 Round
-	gSkillData.plrDmg357 = 40;
-
 	// MP5 Round
 	gSkillData.plrDmgMP5 = 12;
 
-	// M203 grenade
-	gSkillData.plrDmgM203Grenade = 100;
+	// M727 Round
+	gSkillData.plrDmgM727 = 16;
 
 	// Shotgun buckshot
-	gSkillData.plrDmgBuckshot = 20; // fewer pellets in deathmatch
+	gSkillData.plrDmgBuckshot = 13; // 78 dmg (80 in original)
 
 	// Crossbow
-	gSkillData.plrDmgCrossbowClient = 20;
-
-	// Hand Grenade
-	gSkillData.plrDmgHandGrenade = 100;
+	gSkillData.plrDmgCrossbowClient = 40;
 }
 
 // longest the intermission can last, in seconds
