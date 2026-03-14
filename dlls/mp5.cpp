@@ -89,14 +89,20 @@ bool CMP5::GetItemInfo(ItemInfo* p)
 
 bool CMP5::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = MP5_ACCURACY_MAXIMUM_PENALTY_TIME;
+
 	pev->armorvalue = 0;
 	if (pev->armortype == 0)
 		pev->armortype = 1;
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(pev->armortype);
 	MESSAGE_END();
+
 	if (NotFirstDraw)
 	{
 		if (pev->weapons == 0)
@@ -573,11 +579,16 @@ bool CM727::GetItemInfo(ItemInfo* p)
 
 bool CM727::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = M727_ACCURACY_MAXIMUM_PENALTY_TIME;
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(firemode ? 3 : 1);
 	MESSAGE_END();
+
 	if (NotFirstDraw)
 	{
 		if (pev->weapons == 0)

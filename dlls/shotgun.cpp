@@ -22,9 +22,6 @@
 #include "gamerules.h"
 #include "UserMessages.h"
 #include "physical_bullet.h"
-// special deathmatch shotgun spreads
-#define VECTOR_CONE_DM_SHOTGUN Vector(0.08716, 0.04362, 0.00)		// 10 degrees by 5 degrees
-#define VECTOR_CONE_DM_DOUBLESHOTGUN Vector(0.17365, 0.04362, 0.00) // 20 degrees by 5 degrees
 
 #define	SG_ACCURACY_SHOT_PENALTY_TIME		1	// Applied amount of time each shot adds to the time we must recover from
 #define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f		// Maximum penalty to deal out
@@ -92,7 +89,11 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 bool CShotgun::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME;
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	if (g_iSkillLevel == SKILL_HARD)
@@ -100,6 +101,7 @@ bool CShotgun::Deploy()
 	else
 		m_iCrossHairType = m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
 	MESSAGE_END();
+
 	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
 		if (!NotFirstDraw)
@@ -133,7 +135,7 @@ const Vector& CShotgun::GetBulletSpread()
 	if (g_iSkillLevel != SKILL_HARD)
 	{
 		// We lerp from very accurate to inaccurate over time
-		VectorLerp(m_iFiremode == 0 ? VECTOR_CONE_4DEGREES : VECTOR_CONE_10DEGREES, m_iFiremode == 0 ? VECTOR_CONE_20DEGREES : VECTOR_CONE_15DEGREES, ramp, cone);
+		VectorLerp(m_iFiremode == 0 ? VECTOR_CONE_8DEGREES : VECTOR_CONE_10DEGREES, m_iFiremode == 0 ? VECTOR_CONE_20DEGREES : VECTOR_CONE_15DEGREES, ramp, cone);
 	}
 	else
 	{
@@ -198,6 +200,7 @@ void CShotgun::PrimaryAttack()
 		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
 	}
 	#endif
+
 	if (m_iFiremode == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT1_PUMP_EMPTY : SHOTGUN_SHOOT1_PUMP);

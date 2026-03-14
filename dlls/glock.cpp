@@ -79,9 +79,14 @@ bool CGlock::GetItemInfo(ItemInfo* p)
 
 bool CGlock::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME;
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
+
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
+
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW_FIRST, "onehanded", pev->body);
 	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW, "onehanded", pev->body);
@@ -96,7 +101,7 @@ void CGlock::Holster()
 }
 void CGlock::SecondaryAttack()
 {
-	m_isilenced = !m_isilenced; // bro wtf does this even do :sob:
+	m_iSilenced = !m_iSilenced; // bro wtf does this even do :sob:
 	if (pev->body == 0)
 	{
 		SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body);
@@ -150,8 +155,8 @@ void CGlock::ItemPostFrame()
 	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
 	{
 		m_fTimer = 0;
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_isilenced, 0, 0, 0);
-		pev->body = m_isilenced;
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iSilenced, 0, 0, 0);
+		pev->body = m_iSilenced;
 		if (pev->body == 0)
 			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body);
 	}
@@ -237,7 +242,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		if (g_iSkillLevel != SKILL_HARD)
 		{
-			if (m_isilenced == 0)
+			if (m_iSilenced == 0)
 			{
 			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 
@@ -252,7 +257,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		else // realism diff (hardcoded damages to prevent cheaters)
 		{
 	
-			if (m_isilenced == 0)
+			if (m_iSilenced == 0)
 			{
 			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 				CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
@@ -269,7 +274,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
-	if (m_isilenced == 0)
+	if (m_iSilenced == 0)
 	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
 	}

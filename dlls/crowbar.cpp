@@ -75,10 +75,13 @@ bool CCrowbar::GetItemInfo(ItemInfo* p)
 
 bool CCrowbar::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_pPlayer->CrowbarFlinch = 0;
-	if (pev->weapons == 0)
+
+	if (!NotFirstDraw)
 	{
-		pev->weapons = 1;
 		return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", CROWBAR_FIRSTDRAW, "crowbar");
 	}
 	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", CROWBAR_DRAW, "crowbar");

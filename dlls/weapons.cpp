@@ -923,6 +923,7 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 	m_flLastFireTime = 0.0;
 	m_pPlayer->pev->punchangle.z += RANDOM_LONG(-5, 5);
 	NotFirstDraw = true;
+
 	return true;
 }
 

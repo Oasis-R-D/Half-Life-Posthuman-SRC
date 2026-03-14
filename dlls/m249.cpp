@@ -55,9 +55,14 @@ void CM249::Spawn()
 
 bool CM249::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = M249_ACCURACY_MAXIMUM_PENALTY_TIME;
+
 	m_pPlayer->pev->maxspeed = 192;
+
 	return DefaultDeploy("models/v_saw.mdl", "models/p_saw.mdl", M249_DRAW, "mp5");
 }
 

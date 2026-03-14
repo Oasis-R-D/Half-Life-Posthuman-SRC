@@ -75,6 +75,9 @@ bool CCrossbow::GetItemInfo(ItemInfo* p)
 
 bool CCrossbow::Deploy()
 {
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
 	return DefaultDeploy("models/v_crossbow.mdl", "models/p_crossbow.mdl", CROSSBOW_DRAW1, "bow");
 }
 

@@ -116,9 +116,12 @@ void CHalfLifeMultiplay::RefreshSkillData() // TO-DO: probably remove this or re
 	CGameRules::RefreshSkillData();
 
 	// override some values for multiplay.
-
+	
 	// suitcharger
 	gSkillData.suitchargerCapacity = 30;
+
+	if (g_iSkillLevel == SKILL_HARD)
+		return;
 
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = 25;
@@ -481,11 +484,12 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 	}
 
 	if (addDefault)
-	{
-		for (int i = 0; i < 2; i++)
-		{
-			
-			pPlayer->GiveNamedItem("weapon_9mmhandgun");
+	{	
+		pPlayer->GiveNamedItem("weapon_crowbar");
+		pPlayer->GiveNamedItem("weapon_9mmhandgun");
+
+		/*for (int i = 0; i < 2; i++)
+		{			
 			pPlayer->GiveNamedItem("weapon_shotgun");
 			pPlayer->GiveNamedItem("ammo_buckshot");
 			pPlayer->GiveNamedItem("weapon_9mmAR");
@@ -494,20 +498,21 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 			pPlayer->GiveNamedItem("ammo_357");
 			pPlayer->GiveNamedItem("weapon_crossbow");
 			pPlayer->GiveNamedItem("ammo_crossbow");
-			pPlayer->GiveNamedItem("weapon_m249");
-			pPlayer->GiveNamedItem("ammo_556");
 			pPlayer->GiveNamedItem("weapon_spitthrower");
 			pPlayer->GiveNamedItem("ammo_spit");
 			pPlayer->GiveNamedItem("weapon_m727");
 			pPlayer->GiveNamedItem("weapon_m29");
-			
 		}
-		pPlayer->GiveNamedItem("weapon_melee");
-		pPlayer->GiveNamedItem("weapon_crowbar");
-		pPlayer->GiveNamedItem("ammo_ARgrenades");
+
+		//pPlayer->GiveNamedItem("weapon_m249");
+		//pPlayer->GiveNamedItem("weapon_melee");
+		//pPlayer->GiveNamedItem("ammo_ARgrenades");
+		*/
+
 		pPlayer->m_iGrenadeAmnt = 3;
-		pPlayer->m_iGrenadeType = RANDOM_LONG(0, 7);
-		//pPlayer->GiveAmmo(68, "9mm", _9MM_MAX_CARRY); // 4 full reloads
+		do pPlayer->m_iGrenadeType = RANDOM_LONG(0, 7); while (pPlayer->m_iGrenadeType == 6); // don't give type 6 (brick is ASS)
+
+		pPlayer->GiveAmmo(68, "9mm", _9MM_MAX_CARRY); // 4 full reloads
 	}
 
 	pPlayer->m_iAutoWepSwitch = originalAutoWepSwitch;

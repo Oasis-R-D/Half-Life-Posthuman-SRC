@@ -123,6 +123,8 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_pRope, FIELD_CLASSPTR), 
 		DEFINE_FIELD(CBasePlayer, m_flLastClimbTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bIsClimbing, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_bInGrenadeDelay, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_bInGrenade, FIELD_BOOLEAN),
 
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
@@ -136,6 +138,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, health_legL, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, health_legR, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iBurnTimer, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
@@ -260,7 +263,8 @@ void CBasePlayer::DeathSound()
 	}
 
 	// play the suit death alarm
-	EMIT_GROUPNAME_SUIT(ENT(pev), "HEV_DEAD");
+	if (!g_pGameRules->IsMultiplayer())
+		EMIT_GROUPNAME_SUIT(ENT(pev), "HEV_DEAD");
 }
 
 // override takehealth
@@ -1045,7 +1049,9 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	}
 	pev->maxspeed = 384;
 	m_bleedAMNT = 0;
-
+	m_iBurnTimer = 0;
+	m_bInGrenadeDelay = false;
+	m_bInGrenade = false;
 	FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
 }
 
@@ -3996,7 +4002,8 @@ void CBasePlayer::FlashlightTurnOn()
 void CBasePlayer::FlashlightTurnOff()
 {
 	m_bLightOn = false;
-	FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
+	if (g_pGameRules->FAllowFlashlight() && HasSuit())
+		FireTargets("NVtrig", this, this, USE_TOGGLE, 0);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 	WRITE_BYTE(0);
 	WRITE_BYTE(m_iFlashBattery);
@@ -4006,8 +4013,11 @@ void CBasePlayer::FlashlightTurnOff()
 
 	if (!m_bPrehuman)
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_NVG_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
-		UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE);
+		if (g_pGameRules->FAllowFlashlight() && HasSuit())
+		{
+			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_NVG_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+			UTIL_ScreenFade(this, Vector(255, 0, 0), 1, 0, 255, FFADE_MODULATE);
+		}
 		ClearBits(pev->effects, EF_BRIGHTLIGHT);
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
@@ -4026,7 +4036,8 @@ void CBasePlayer::FlashlightTurnOff()
 	}
 	else
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		if (g_pGameRules->FAllowFlashlight() && HasSuit())
+			EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT, 1.0, ATTN_NORM, 0, PITCH_NORM );
 		ClearBits(pev->effects, EF_DIMLIGHT);
 	}
 }

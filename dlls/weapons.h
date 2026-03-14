@@ -576,7 +576,7 @@ public:
 	const Vector& GetBulletSpread() override;
 	void ItemPreFrame() override;
 	void ItemPostFrame();
-	bool m_isilenced;
+	bool m_iSilenced;
 	bool m_bHasSilencer;
 	float m_fTimer;
 	bool UseDecrement() override
