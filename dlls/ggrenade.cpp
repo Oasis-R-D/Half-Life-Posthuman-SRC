@@ -452,12 +452,6 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
 	
-	if (m_iGrenType == 7)
-	{
-		ExplodeIncen(&tr);
-		return;
-	}
-	
 	ExplodeHE(&tr, DMG_SONIC); // TO-DO: call detonate instead?
 }
 
@@ -483,10 +477,10 @@ void CGrenade::LandmineThink()
 	pev->nextthink = 0.1f;
 	if ((pev->flags & FL_ONGROUND) != 0) // activate on the ground
 	{	
-		CBaseEntity* thisdih = NULL;
-		while ((thisdih = UTIL_FindEntityInSphere(thisdih, pev->origin, 16)) != NULL)
+		CBaseEntity* pStepping = NULL;
+		while ((pStepping = UTIL_FindEntityInSphere(pStepping, pev->origin, 16)) != NULL)
 		{
-			if (!thisdih->IsBSPModel() && thisdih != this)
+			if (pStepping->Classify() != CLASS_NONE)
 			{
 				pev->nextthink = 0.125f;
 				EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
