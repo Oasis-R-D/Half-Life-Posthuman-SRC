@@ -48,6 +48,7 @@ int giDmgFlags[NUM_DMG_TYPES] =
 		DMG_SHOCK,
 		DMG_BULLET,
 		DMG_FALL,
+		DMG_PARALYZE,
 		DMG_HUNGER,
 };
 

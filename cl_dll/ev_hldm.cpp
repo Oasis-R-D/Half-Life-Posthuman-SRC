@@ -2011,7 +2011,6 @@ void EV_Particles(event_args_t* args)
 			break;
 		case 4: // neurotoxin expl
 			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
-			gEngfuncs.pfnCenterPrint("neurotoxin created");
 			break;
 		case 5: // phys blood hit the ground
 			switch (args->iparam2)
@@ -2075,7 +2074,6 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case 8: // smoke gren expl
-			gEngfuncs.pfnCenterPrint("smoke created");
 			gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0);
 			break;
 	}
