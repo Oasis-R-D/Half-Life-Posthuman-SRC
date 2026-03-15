@@ -482,20 +482,22 @@ void CGrenade::LandmineThink()
 		{
 			if (pStepping->Classify() != CLASS_NONE)
 			{
-				pev->nextthink = 0.125f;
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM);
-
+				//EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/hopwire_fly.wav", 0.8f, ATTN_NORM); // TO-DO: use satchel activate sound?
 				CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin, 400, 0.5);
-				SetThink(&CGrenade::LandmineHopThink);
+				
+				pev->nextthink = 0.25;
+				if (pStepping->IsPlayer())
+				{
+					CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pStepping);
+					pPlayer->health_legL += RANDOM_LONG(30, 45);
+					pPlayer->health_legR += RANDOM_LONG(30, 45);
+					if (pPlayer->health_legL > 100) {pPlayer->health_legL = 100;}
+					if (pPlayer->health_legR > 100) {pPlayer->health_legR = 100;}	
+				}
+				SetThink(&CGrenade::Detonate);
 			}
 		}
 	}
-}
-
-void CGrenade::LandmineHopThink() // should probably remove this?
-{
-	pev->nextthink = 0.25f;
-	SetThink(&CGrenade::Detonate);
 }
 
 void CGrenade::ExplSpray()

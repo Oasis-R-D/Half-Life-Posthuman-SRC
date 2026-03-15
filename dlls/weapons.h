@@ -51,7 +51,6 @@ public:
 	void ExplodeFlash(TraceResult* pTrace, int bitsDamageType);
 	void Precache();
 
-	void EXPORT LandmineHopThink();
 	void EXPORT Smoke();
 
 	void EXPORT BounceTouch(CBaseEntity* pOther);
