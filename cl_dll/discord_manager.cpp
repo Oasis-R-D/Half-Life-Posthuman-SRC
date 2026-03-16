@@ -58,20 +58,26 @@ void DiscordMan_Update(void)
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 	const char* skilllevel;
 	const char* map = curArea;
-	switch (skill)
+	if (engine_cl->maxclients > 1)
+		skilllevel = "MultiPlayer";
+	else
 	{
-	default:
-		skilllevel = "In Menus";
-	case 1:
-		skilllevel = "Easy Mode";
-		break;
-	case 2:
-		skilllevel = "Hard Mode";
-		break;
-	case 3:
-		skilllevel = "Realism Mode";
-		break;
+		switch (skill)
+		{
+		default:
+			skilllevel = "In Menus";
+		case 1:
+			skilllevel = "Easy Mode";
+			break;
+		case 2:
+			skilllevel = "Hard Mode";
+			break;
+		case 3:
+			skilllevel = "Realism Mode";
+			break;
+		}
 	}
+	
 	// Menu detections, these don't seem to work very well.
 	if (engine_cl->paused)
 	{
