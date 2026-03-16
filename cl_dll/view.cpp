@@ -755,13 +755,13 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	view->origin[2] -= 1;
 
 	// VIEW PUNCH BEGIN
-
+	// TO-DO: MP5 looks better at 2.5, will need to make this per weapon model
 	Vector newpunch = pparams->punchangle * -1;
-	newpunch.x *= 2.5; // up
+	newpunch.x *= 2.0; // up
 	newpunch.y *= -2.0; // left/right (was originally inverted for some reason)
 
 	Vector newCLpunch = Vector((float*)&ev_punchangle) * -1;
-	newCLpunch.x *= 2.5; // up
+	newCLpunch.x *= 2.0; // up
 	newCLpunch.y *= -2.0; // left/right (was originally inverted for some reason)
 
 	// Add server side punch

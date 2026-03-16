@@ -132,7 +132,18 @@ void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage)
 int DamageDecal(CBaseEntity* pEntity, int bitsDamageType, TraceResult* hit, bool heavy)
 {
 	if (heavy)
+	{
+		if (pEntity)
+		{
+			if (pEntity->pev->rendermode == kRenderTransAlpha)
+				return -1;
+			else if(pEntity->pev->rendermode != kRenderNormal || ((pEntity->pev->effects & FL_MIRROR) != 0))
+				return DECAL_BPROOF1;
+		}
+
 		return (DECAL_BIGSHOT1 + RANDOM_LONG(0, 4));
+	}
+
 	if (!pEntity)
 		return (DECAL_GUNSHOT1 + RANDOM_LONG(0, 4));
 

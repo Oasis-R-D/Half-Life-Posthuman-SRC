@@ -1394,7 +1394,7 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_BYTE(index);
 	MESSAGE_END();
 */
-
+	/* // DISABLED, NOW USING A MATERIAL BASED SYSTEM
 	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos);
 	WRITE_BYTE(TE_GUNSHOTDECAL);
 	WRITE_COORD(pTrace->vecEndPos.x);
@@ -1403,7 +1403,8 @@ void UTIL_GunshotDecalTrace(TraceResult* pTrace, int decalNumber)
 	WRITE_SHORT((short)ENTINDEX(pTrace->pHit));
 	WRITE_BYTE(-1); //no decals, just the effect
 	MESSAGE_END();
-	
+	*/
+
 	int DCrot = RANDOM_LONG(0, 360);
 
 	MESSAGE_BEGIN(MSG_BROADCAST, gmsgCreateDecal);

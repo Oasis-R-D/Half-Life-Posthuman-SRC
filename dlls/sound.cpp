@@ -1819,13 +1819,12 @@ float TEXTURETYPE_PlayMatSound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, i
 // original traceline endpoints used by the attacker, iBulletType is the type of bullet that hit the texture.
 // returns volume of strike instrument (crowbar) to play
 
-float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int iBulletType)
+float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int iBulletType) // DOESN'T RETURN SOUND VOL ANYMORE, USE PLAYMATSOUND
 {
 	// hit the world, try to play sound based on texture material type
 
 	char chTextureType;
 	float fvol;
-	float fvolbar;
 	char szbuffer[64];
 	const char* pTextureName;
 	float rgfl1[3];
@@ -1891,41 +1890,35 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	default:
 	case CHAR_TEX_CONCRETE:
 		fvol = 0.9;
-		fvolbar = 0.6;
 		rgsz[0] = "player/pl_step1.wav";
 		rgsz[1] = "player/pl_step2.wav";
 		cnt = 2;
 		break;
 	case CHAR_TEX_METAL:
 		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 1.0 : 0.9;
-		fvolbar = 0.3;
 		rgsz[0] = "bullet/imp_metal01.wav";
 		cnt = 1;
 		fattn = 0.5;
 		break;
 	case CHAR_TEX_DIRT:
 		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 1.0 : 0.9;
-		fvolbar = 0.1;
 		rgsz[0] = "bullet/imp_dirt01.wav";
 		cnt = 1;
 		break;
 	case CHAR_TEX_VENT:
 		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 0.8 : 0.7;
-		fvolbar = 0.3;
 		rgsz[0] = "bullet/imp_metal01.wav";
 		cnt = 1;
 		fattn = 0.7;
 		break;
 	case CHAR_TEX_GRATE:
 		fvol = 0.9;
-		fvolbar = 0.5;
 		rgsz[0] = "player/pl_grate1.wav";
 		rgsz[1] = "player/pl_grate4.wav";
 		cnt = 2;
 		break;
 	case CHAR_TEX_TILE:
 		fvol = 0.8;
-		fvolbar = 0.2;
 		rgsz[0] = "player/pl_tile1.wav";
 		rgsz[1] = "player/pl_tile3.wav";
 		rgsz[2] = "player/pl_tile2.wav";
@@ -1934,7 +1927,6 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		break;
 	case CHAR_TEX_SLOSH:
 		fvol = 0.9;
-		fvolbar = 0.0;
 		rgsz[0] = "player/pl_slosh1.wav";
 		rgsz[1] = "player/pl_slosh3.wav";
 		rgsz[2] = "player/pl_slosh2.wav";
@@ -1943,14 +1935,12 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		break;
 	case CHAR_TEX_WOOD:
 		fvol = 0.9;
-		fvolbar = 0.2;
 		rgsz[0] = "bullet/imp_wood01.wav";
 		cnt = 1;
 		break;
 	case CHAR_TEX_GLASS:
 	case CHAR_TEX_COMPUTER:
 		fvol = 1.0;
-		fvolbar = 0.2;
 		rgsz[0] = "debris/glassshatter1.wav";
 		rgsz[1] = "debris/glassshatter2.wav";
 		rgsz[2] = "debris/glassshatter3.wav";
@@ -1960,7 +1950,6 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		if (iBulletType == BULLET_PLAYER_CROWBAR)
 			return 0.0; // crowbar already makes this sound
 		fvol = 1.0;
-		fvolbar = 0.2;
 		rgsz[0] = "weapons/bullet_hit1.wav";
 		rgsz[1] = "weapons/bullet_hit2.wav";
 		fattn = 1.0;
@@ -1976,7 +1965,6 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	{
 		// drop volumes, the object will already play a damaged sound
 		fvol /= 1.5;
-		fvolbar /= 2.0;
 	}
 	else if (chTextureType == CHAR_TEX_COMPUTER)
 	{
@@ -2005,7 +1993,7 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 	UTIL_EmitAmbientSound(CWorld::World->edict(), ptr->vecEndPos, rgsz[RANDOM_LONG(0, cnt - 1)], fvol, fattn, 0, 96 + RANDOM_LONG(0, 0xf));
 	//EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_WEAPON, rgsz[RANDOM_LONG(0,cnt-1)], fvol, ATTN_NORM, 0, 96 + RANDOM_LONG(0,0xf));
 
-	return fvolbar;
+	return chTextureType;
 }
 
 // ===================================================================================

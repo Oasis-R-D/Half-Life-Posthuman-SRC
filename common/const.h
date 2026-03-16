@@ -546,7 +546,7 @@
 #define TE_KILLPLAYERATTACHMENTS 125 // will expire all TENTS attached to a player.
 // byte (entity index of player)
 
-#define TE_MULTIGUNSHOT 126 // much more compact shotgun message
+#define TE_IMPACTVFX 126 // much more compact shotgun message
 // This message is used to make a client approximate a 'spray' of gunfire.
 // Any weapon that fires more than one bullet per frame and fires in a bit of a spread is
 // a good candidate for MULTIGUNSHOT use. (shotguns)

@@ -331,7 +331,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);
 	SetThink(NULL);
-	TEXTURETYPE_PlaySound(&tr, m_SpawnPos, tr.vecEndPos, BULLET_PLAYER_9MM);
+	char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * 2, BULLET_PLAYER_9MM);
 	if (0 != pOther->pev->takedamage)
 	{
 		ClearMultiDamage();
@@ -340,10 +340,25 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (pOther->IsBSPModel() && pev->waterlevel == 0)
+		if (pOther->IsBSPModel())
 		{
-			pev->angles = tr.vecPlaneNormal;
-			PLAYBACK_EVENT_FULL(0, Owner, g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.1f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+			//ALERT(at_console, "char is %c \0", material);
+
+			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+			WRITE_BYTE(TE_IMPACTVFX);
+			WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
+			WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
+			WRITE_COORD(0);
+			WRITE_COORD(0);
+			WRITE_BYTE(material); // (count) (use as mat type?)
+			WRITE_BYTE(0); // (bullethole decal texture index)
+			MESSAGE_END();
+			
+			if (pev->waterlevel == 0)
+			{
+				pev->angles = tr.vecPlaneNormal;
+				PLAYBACK_EVENT_FULL(0, Owner, g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+			}
 		}
 	}
 

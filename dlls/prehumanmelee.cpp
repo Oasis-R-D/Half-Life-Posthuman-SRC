@@ -308,7 +308,7 @@ bool CMelee::Swing(const bool bFirst)
 		// play texture hit sound
 		if (bHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
+			float fvolbar = TEXTURETYPE_PlayMatSound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
 
 			if (g_pGameRules->IsMultiplayer())
 			{
@@ -448,7 +448,7 @@ bool CMelee::SwingHeavy(const bool bFirst)
 		// play texture hit sound
 		if (bHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
+			float fvolbar = TEXTURETYPE_PlayMatSound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
 
 			if (g_pGameRules->IsMultiplayer())
 			{
@@ -562,7 +562,7 @@ void CMelee::BigSwing()
 		// play texture hit sound
 		if (bHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
+			float fvolbar = TEXTURETYPE_PlayMatSound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
 
 			if (g_pGameRules->IsMultiplayer())
 			{

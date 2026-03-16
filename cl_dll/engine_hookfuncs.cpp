@@ -41,10 +41,26 @@ extern model_t* cl_sprite_muzzleflash[3];
 extern model_t* cl_sprite_ricochet;
 extern model_t* cl_sprite_shell;
 
+// blood types
 #define BLOOD_COLOR_RED (byte)247
 #define BLOOD_COLOR_YELLOW (byte)195
 #define BLOOD_COLOR_GREEN (byte)176
 #define BLOOD_COLOR_CYAN (byte)43
+
+// texture types
+#define CHAR_TEX_CONCRETE 'C' 
+#define CHAR_TEX_METAL 'M'
+#define CHAR_TEX_DIRT 'D'
+#define CHAR_TEX_VENT 'V'
+#define CHAR_TEX_GRATE 'G'
+#define CHAR_TEX_TILE 'T'
+#define CHAR_TEX_SLOSH 'S'
+#define CHAR_TEX_WOOD 'W'
+#define CHAR_TEX_COMPUTER 'P'
+#define CHAR_TEX_GLASS 'Y'
+#define CHAR_TEX_FLESH 'F'
+#define CHAR_TEX_SNOW 'N'
+#define CHAR_TEX_IMPEN 'X'
 
 std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
@@ -585,8 +601,16 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
-	// TO-DO: hook this shit for impact vfx? (TE_MULTIGUNSHOT message is unused)
-	OrigR_MultiGunshot(org, dir, noise, count, decalCount, decalIndices);
+	gEngfuncs.Con_DPrintf("char is equal to %d\n", count);
+
+	switch ((char)count)
+	{
+		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); break;
+		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); break;
+	}
+
+	// UNUSED
+	//OrigR_MultiGunshot(org, dir, noise, count, decalCount, decalIndices);
 }
 
 extern int CL_AddVisibleEntity(cl_entity_t* pEntity);

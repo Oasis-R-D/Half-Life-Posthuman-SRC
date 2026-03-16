@@ -832,7 +832,7 @@ int CBaseEntity::DamageDecal(int bitsDamageType)
 	if (pev->rendermode == kRenderTransAlpha)
 		return -1;
 
-	if (pev->rendermode != kRenderNormal)
+	if (pev->rendermode != kRenderNormal || ((pev->effects & FL_MIRROR) != 0))
 		return DECAL_BPROOF1;
 
 	return DECAL_GUNSHOT1 + RANDOM_LONG(0, 4);
