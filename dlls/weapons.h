@@ -859,7 +859,7 @@ class CCrossbow : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
-	int iItemSlot() override { return 3; }
+	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void FireBolt();
 	void PrimaryAttack() override;
@@ -926,7 +926,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
-	int iItemSlot() override { return 3; }
+	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void Holster() override;
 	void PrimaryAttack() override;

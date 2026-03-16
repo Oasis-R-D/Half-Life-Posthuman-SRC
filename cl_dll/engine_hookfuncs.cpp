@@ -601,7 +601,7 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
-	gEngfuncs.Con_DPrintf("char is equal to %d\n", count);
+	//gEngfuncs.Con_DPrintf("char is equal to %d\n", count);
 
 	switch ((char)count)
 	{

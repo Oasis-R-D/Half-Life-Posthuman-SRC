@@ -316,7 +316,7 @@ int CM249::RecalculateBody(int iClip)
 
 int CM249::iItemSlot()
 {
-	return 4;
+	return 3;
 }
 
 bool CM249::GetItemInfo(ItemInfo* p)
@@ -327,8 +327,8 @@ bool CM249::GetItemInfo(ItemInfo* p)
 	p->pszAmmo2 = nullptr;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
 	p->iMaxClip = 200;
-	p->iSlot = 3;
-	p->iPosition = 1;
+	p->iSlot = 2;
+	p->iPosition = 2;
 	p->iFlags = 0;
 	p->iId = m_iId = WEAPON_CHAINGUN;
 	p->iWeight = GAUSS_WEIGHT;

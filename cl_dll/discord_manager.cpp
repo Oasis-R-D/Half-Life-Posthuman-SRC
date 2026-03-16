@@ -58,40 +58,42 @@ void DiscordMan_Update(void)
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 	const char* skilllevel;
 	const char* map = curArea;
-	if (engine_cl->maxclients > 1)
-		skilllevel = "MultiPlayer";
-	else
+	
+	switch (skill)
 	{
-		switch (skill)
-		{
-		default:
-			skilllevel = "In Menus";
-		case 1:
-			skilllevel = "Easy Mode";
-			break;
-		case 2:
-			skilllevel = "Hard Mode";
-			break;
-		case 3:
-			skilllevel = "Realism Mode";
-			break;
-		}
+	default:
+		skilllevel = "In Menus\n";
+	case 1:
+		skilllevel = "Easy Mode\n";
+		break;
+	case 2:
+		skilllevel = "Hard Mode\n";
+		break;
+	case 3:
+		skilllevel = "Realism Mode\n";
+		break;
 	}
 	
 	// Menu detections, these don't seem to work very well.
+	if (engine_cl->maxclients > 1)
+	{
+		char buffer[64];
+		sprintf(buffer, "MultiPlayer (%d / %d)\n", engine_cl->playernum + 1, engine_cl->maxclients);
+		skilllevel = buffer;
+	}
 	if (engine_cl->paused)
 	{
-		skilllevel = "In Menus";
+		skilllevel = "In Menus\n";
 	}
 	if (engine_cl->intermission)
 	{
 		map = 0;
-		skilllevel = "Intermission";
+		skilllevel = "Intermission\n";
 	}
 	if (engine_cls->state == ca_disconnected)
 	{
 		map = 0;
-		skilllevel = "In Main Menus";
+		skilllevel = "In Main Menus\n";
 	}
 
 	discordPresence.details = map;	// Chapter name doesn't matter; if it's blank, Discord shows map name

@@ -65,7 +65,7 @@ bool CCrossbow::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = 1;
 	p->iSlot = 3;
-	p->iPosition = 0;
+	p->iPosition = 1;
 	p->iId = WEAPON_CROSSBOW;
 	p->iFlags = 0;
 	p->iWeight = CROSSBOW_WEIGHT;
