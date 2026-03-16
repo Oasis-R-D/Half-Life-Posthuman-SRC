@@ -554,10 +554,10 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 	}
 	else
 	{
-		// FIXME: These are the old settings that caused too many exposed polys on some models
-		origin = origin + forward * (-pitch * 0.035f);
-		origin = origin + right * (-pitch * 0.03f);
-		origin = origin + up * (-pitch * 0.02f);
+		// TO-DO: adjust values to make the gun not look bad
+		//origin = origin + forward * (-pitch * 0.035f);
+		//origin = origin + right * (-pitch * 0.03f);
+		//origin = origin + up * (-pitch * 0.02f);
 	}
 }
 extern extra_viewmodel_t extra_viewmodels[4];
@@ -628,6 +628,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 		Vector point;
 		waterDist = cl_waterdist->value;
 
+		/* // trinity water doesn't have waves
 		if (0 != pparams->hardware)
 		{
 			waterEntity = gEngfuncs.PM_WaterEntity(pparams->simorg);
@@ -644,6 +645,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 		{
 			waterEntity = 0; // Don't need this in software
 		}
+		*/
 
 		VectorCopy(pparams->vieworg, point);
 
@@ -736,8 +738,6 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	}
 	view->origin[2] += bob;
 
-
-
 	V_CalcViewModelLag(pparams, view->origin, view->angles, Vector(pparams->cl_viewangles));
 
 	if (0 != cl_bobtilt->value)
@@ -754,31 +754,26 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	// with view model distortion, this may be a cause. (SJB).
 	view->origin[2] -= 1;
 
-	// fudge position around to keep amount of weapon visible
-	// roughly equal with different FOV
-	/* Use VM fov instead
-	if (pparams->viewsize == 110)
-	{
-		view->origin[2] += 1;
-	}
-	else if (pparams->viewsize == 100)
-	{
-		view->origin[2] += 2;
-	}
-	else if (pparams->viewsize == 90)
-	{
-		view->origin[2] += 1;
-	}
-	else if (pparams->viewsize == 80)
-	{
-		view->origin[2] += 0.5;
-	}
-	*/
-	// Add in the punchangle, if any
+	// VIEW PUNCH BEGIN
+
+	Vector newpunch = pparams->punchangle * -1;
+	newpunch.x *= 2.5; // up
+	newpunch.y *= -2.0; // left/right (was originally inverted for some reason)
+
+	Vector newCLpunch = Vector((float*)&ev_punchangle) * -1;
+	newCLpunch.x *= 2.5; // up
+	newCLpunch.y *= -2.0; // left/right (was originally inverted for some reason)
+
+	// Add server side punch
 	VectorAdd(pparams->viewangles, pparams->punchangle, pparams->viewangles);
+	VectorAdd(view->angles, newpunch, view->angles);
 
 	// Include client side punch, too
 	VectorAdd(pparams->viewangles, (float*)&ev_punchangle, pparams->viewangles);
+	VectorAdd(view->angles, (float*)&newCLpunch, view->angles);
+
+	VectorCopy(view->angles, view->curstate.angles);
+	// VIEW PUNCH END
 
 	V_DropPunchAngle(pparams->frametime, (float*)&ev_punchangle);
 

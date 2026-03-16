@@ -609,7 +609,8 @@ void CHGruntHeavy::SetActivity(Activity NewActivity)
 		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 			iSequence = LookupSequence("reload_shotgun");
 		else
-			iSequence = LookupSequence("reload_saw");
+			iSequence = LookupSequence("reload_mp5");
+			//iSequence = LookupSequence("reload_saw"); // doesn't exist yet TO-DO: hHgrunt saw reload anim
 	}
 	break;
 	default:
