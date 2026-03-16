@@ -264,8 +264,7 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	scale = round(scale / 2); // scale typically is 1 or 4, no inbetween (scales really weirdly)
 	if (scale > 4)
 		scale = 4;
-	std::string size2 = std::to_string(scale);
-	const char* charPtr = size2.c_str();
+
 	int R = 0, G = 0, B = 0;
 
 	bool missing = false;
@@ -301,7 +300,7 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 	FilenameFromPath(modelname2.c_str(), filename2);
 
 	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodsprite, filename, R, G, B), org, vec3_origin, 0);
-	gEngfuncs.pfnConsolePrint(charPtr);
+
 	for (int i = 0; i < 24; i++)
 	{
 		if (missing)
@@ -586,6 +585,7 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
+	// TO-DO: hook this shit for impact vfx? (TE_MULTIGUNSHOT message is unused)
 	OrigR_MultiGunshot(org, dir, noise, count, decalCount, decalIndices);
 }
 

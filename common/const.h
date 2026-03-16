@@ -438,7 +438,7 @@
 // short (entity index???)
 // byte (decal???)
 
-#define TE_SPRITE_SPRAY 110 // spay of alpha sprites
+#define TE_SPRITE_SPRAY 110 // spray of alpha sprites
 // coord, coord, coord (position)
 // coord, coord, coord (velocity)
 // short (sprite index)
