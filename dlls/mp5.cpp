@@ -55,7 +55,7 @@ void CMP5::Precache()
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 
-	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
+	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 
 	PRECACHE_SOUND("items/9mmclip1.wav");
 	PRECACHE_SOUND("items/clipinsert1.wav");
@@ -540,7 +540,7 @@ void CM727::Precache()
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_727mag.mdl");
 
-	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl"); // brass shellTE_MODEL
+	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl"); // brass shell
 
 	PRECACHE_SOUND("items/9mmclip1.wav");
 	PRECACHE_SOUND("items/clipinsert1.wav");

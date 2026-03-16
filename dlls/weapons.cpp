@@ -212,7 +212,7 @@ void EjectBrass(const Vector& vecOrigin, const Vector& vecVelocity, float rotati
 	WRITE_ANGLE(rotation);
 	WRITE_SHORT(model);
 	WRITE_BYTE(soundtype);
-	WRITE_BYTE(25); // 2.5 seconds
+	WRITE_BYTE(30); // 2.5 seconds
 	MESSAGE_END();
 }
 

@@ -791,9 +791,45 @@ void HUD_TempEntUpdate_(
 		}
 
 		if ((pTemp->flags & FTENT_GRAVITY) != 0)
+		{
 			pTemp->entity.baseline.origin[2] += gravity;
+
+			if ((pTemp->flags & FTENT_BUOYANT) != 0)
+			{
+				if (gEngfuncs.PM_PointContents(pTemp->entity.origin, nullptr) == CONTENTS_WATER)
+				{
+					pTemp->entity.baseline.origin[2] -= gravity;
+
+					VectorScale(pTemp->entity.baseline.origin, 0.98f, pTemp->entity.baseline.origin);
+					VectorScale(pTemp->entity.angles, 0.98f, pTemp->entity.angles);
+
+					if (pTemp->entity.baseline.origin[2] < 0)
+						pTemp->entity.baseline.origin[2] *= 0.95f;
+
+					pTemp->entity.baseline.origin[2] += ((sin(3 * engine_cl->time) * 0.05f) + 0.5f);
+				}
+			}
+		}
 		else if ((pTemp->flags & FTENT_SLOWGRAVITY) != 0)
+		{
 			pTemp->entity.baseline.origin[2] += gravitySlow;
+
+			if ((pTemp->flags & FTENT_BUOYANT) != 0)
+			{
+				if (gEngfuncs.PM_PointContents(pTemp->entity.origin, nullptr) == CONTENTS_WATER)
+				{
+					pTemp->entity.baseline.origin[2] -= gravitySlow;
+
+					VectorScale(pTemp->entity.baseline.origin, 0.98f, pTemp->entity.baseline.origin);
+					VectorScale(pTemp->entity.angles, 0.98f, pTemp->entity.angles);
+
+					if (pTemp->entity.baseline.origin[2] < 0)
+						pTemp->entity.baseline.origin[2] *= 0.95f;
+
+					pTemp->entity.baseline.origin[2] += ((sin(3 * engine_cl->time) * 0.05f) + 0.5f);
+				}
+			}
+		}
 
 		if ((pTemp->flags & FTENT_CLIENTCUSTOM) != 0)
 		{
