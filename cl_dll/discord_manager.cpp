@@ -77,8 +77,15 @@ void DiscordMan_Update(void)
 	// Menu detections, these don't seem to work very well.
 	if (engine_cl->maxclients > 1)
 	{
+		int playercount = 0;
+		size_t maxplayers = sizeof(engine_cl->players) / sizeof(engine_cl->players[0]);
+		for (int i = 0; i < maxplayers; i++)
+		{
+			if (engine_cl->players[i].userid != NULL)
+				playercount++;
+		}
+
 		char buffer[64];
-		size_t playercount = sizeof(engine_cl->players) / sizeof(engine_cl->players[0]);
 		sprintf(buffer, "MultiPlayer (%d / %d)\n", playercount, engine_cl->maxclients);
 		skilllevel = buffer;
 	}
