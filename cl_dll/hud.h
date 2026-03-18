@@ -141,6 +141,7 @@ public:
 	bool MsgFunc_WeapPickup(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_ItemPickup(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_HideWeapon(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf);
 
 	void SlotInput(int iSlot);
 	void UserCmd_Slot1();
@@ -163,11 +164,17 @@ private:
 	WEAPON* m_pWeapon;
 	int m_HUD_bucket0;
 	int m_HUD_selection;
+	int m_iGrenType;
+	int m_iGrenAmnt;
 	Rect *m_prcDivider;
+	Rect* m_prcGrenType;
+	Rect* m_prcNoIconType;
 
 	Rect* m_prcAmmoText;
 	HSPRITE_GOLDSRC m_hDivider;
 	HSPRITE_GOLDSRC m_hAmmoText;
+	HSPRITE_GOLDSRC m_hGrenType;
+	HSPRITE_GOLDSRC m_hNoIconType;
 	int m_HUD_divider;
 	int m_HUD_AmmoText;
 };
@@ -376,7 +383,6 @@ public:
 	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf);
-	bool MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf);
 
 private:
 	HSPRITE_GOLDSRC  m_hSprite1;
@@ -393,8 +399,6 @@ private:
 	int m_iHeight; // width of the battery innards
 	int m_iHunger;
 	int m_iFireMode;
-	int m_iGrenType;
-	int m_iGrenAmnt;
 	int m_iHealth_head;
 	int m_iHealth_chest;
 	int m_iHealth_stmch;
@@ -406,7 +410,6 @@ private:
 	Rect* m_rFireMode;
 	HSPRITE_GOLDSRC m_hHunger;
 	Rect* m_rHunger;
-	Rect* m_rGrenType;
 };
 
 

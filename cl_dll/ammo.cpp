@@ -219,6 +219,7 @@ DECLARE_MESSAGE(m_Ammo, AmmoPickup); // flashes an ammo pickup record
 DECLARE_MESSAGE(m_Ammo, WeapPickup); // flashes a weapon pickup record
 DECLARE_MESSAGE(m_Ammo, HideWeapon); // hides the weapon, ammo, and crosshair displays temporarily
 DECLARE_MESSAGE(m_Ammo, ItemPickup);
+DECLARE_MESSAGE(m_Ammo, GrenadeHUD)
 
 DECLARE_COMMAND(m_Ammo, Slot1);
 DECLARE_COMMAND(m_Ammo, Slot2);
@@ -251,6 +252,7 @@ bool CHudAmmo::Init()
 	HOOK_MESSAGE(ItemPickup);
 	HOOK_MESSAGE(HideWeapon);
 	HOOK_MESSAGE(AmmoX);
+	HOOK_MESSAGE(GrenadeHUD);
 
 	HOOK_COMMAND("slot1", Slot1);
 	HOOK_COMMAND("slot2", Slot2);
@@ -293,6 +295,15 @@ void CHudAmmo::Reset()
 
 bool CHudAmmo::VidInit()
 {
+	m_iGrenType = 0;
+	m_iGrenAmnt = 0;
+
+	int HUD_GrenType = gHUD.GetSpriteIndex("grentype");
+	m_prcGrenType = &gHUD.GetSpriteRect(HUD_GrenType);
+
+	int HUD_NoIconType = gHUD.GetSpriteIndex("ammonone");
+	m_prcNoIconType = &gHUD.GetSpriteRect(HUD_NoIconType);
+
 	int HUD_divider = gHUD.GetSpriteIndex( "divider" );
 	int HUD_AmmoText = gHUD.GetSpriteIndex( "ammotext" );
 
@@ -707,6 +718,16 @@ bool CHudAmmo::MsgFunc_WeaponList(const char* pszName, int iSize, void* pbuf)
 	return true;
 }
 
+bool CHudAmmo::MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf)
+{
+	m_iFlags |= HUD_ACTIVE;
+
+	BEGIN_READ(pbuf, iSize);
+	m_iGrenType = READ_BYTE();
+	m_iGrenAmnt = READ_BYTE();
+	return true;
+}
+
 //------------------------------------------------------------------------
 // Command Handlers
 //------------------------------------------------------------------------
@@ -937,8 +958,8 @@ bool CHudAmmo::Draw(float flTime)
 			// room for the number and the '|' and the current ammo
 		
 			int fontheight = (m_prcDigitsBG1->top - m_prcDigitsBG1->bottom)/2;
-			x = ScreenWidth - (8 * AmmoWidth) - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, clipsize, r, g, b);
+			x = ScreenWidth - (10 * AmmoWidth) - iIconWidth;
+			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS | DHN_DRAWZERO, clipsize, r, g, b);
 
 			Rect rc;
 			rc.top = 0;
@@ -978,15 +999,13 @@ bool CHudAmmo::Draw(float flTime)
 
 			// GL Seems to need this
 			ScaleColors(r, g, b, a);
-			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlagsSM | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmoType), r, g, b);
-			if (gWR.CountAmmo(pw->iAmmoType) == 0)
-				x += (0.5 * fontsize);
+			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlagsSM | DHN_3DIGITS_SM | DHN_DRAWZERO, gWR.CountAmmo(pw->iAmmoType), r, g, b);
 		}
 		else
 		{
 			// SPR_Draw a bullets only line
 			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS | DHN_DRAWZERO, gWR.CountAmmo(pw->iAmmoType), r, g, b);
 			
 			SPR_Set(gHUD.GetSprite(m_HUD_AmmoText), r, g, b );
 			SPR_DrawAdditive( 0,  x-(3*fontsize), y-(0.5 * fontsize), m_prcAmmoText );
@@ -1006,28 +1025,58 @@ bool CHudAmmo::Draw(float flTime)
 		SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
 	}
 
-	// Does weapon have secondary ammo?
+	// Draw secondary
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+	x = ScreenWidth - 5 * AmmoWidth;
+	x = gHUD.DrawHudNumberSm(x, y, iFlagsSM | DHN_3DIGITS_SM | DHN_DRAWZERO_SM, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
+	SPR_Set(m_hDigitsBG1, r, g, b );
+	SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
+	SPR_Set(m_hDigitsBG2, r, g, b );
+	SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsSmBG2 );
+			
+	// Draw the ammo Icon
 	if (pw->iAmmo2Type > 0)
 	{
-		int iIconWidth = m_pWeapon->rcAmmo2.right - m_pWeapon->rcAmmo2.left;
-
-		// Do we have secondary ammo?
-		if ((pw->iAmmo2Type != 0) && (gWR.CountAmmo(pw->iAmmo2Type) > 0))
-		{
-			y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
-			x = ScreenWidth - 3 * AmmoWidth;
-			x = gHUD.DrawHudNumberSm(x, y, iFlagsSM | DHN_3DIGITS_SM, gWR.CountAmmo(pw->iAmmo2Type), r, g, b);
-			SPR_Set(m_hDigitsBG1, r, g, b );
-			SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
-			SPR_Set(m_hDigitsBG2, r, g, b );
-			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsSmBG2 );
-			
-			// Draw the ammo Icon
-			SPR_Set(m_pWeapon->hAmmo2, r, g, b);
-			int iOffset = (m_pWeapon->rcAmmo2.bottom - m_pWeapon->rcAmmo2.top) / 8;
-			SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo2);
-		}
+		SPR_Set(m_pWeapon->hAmmo2, r, g, b);
+		int iOffset = (m_pWeapon->rcAmmo2.bottom - m_pWeapon->rcAmmo2.top) / 8;
+		SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo2);
 	}
+	else
+	{
+		if (!m_hNoIconType)
+			m_hNoIconType = gHUD.GetSprite(gHUD.GetSpriteIndex("ammonone"));
+		SPR_Set(m_hNoIconType, r, g, b);
+		int iOffset = (m_prcNoIconType->bottom - m_prcNoIconType->top) / 8; // same size as normal ammo
+		SPR_DrawAdditive(0, x, y - iOffset, m_prcNoIconType);
+	}
+
+
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+	x = ScreenWidth - 3 * AmmoWidth;
+	x = gHUD.DrawHudNumberSm(x, y, iFlagsSM | DHN_3DIGITS_SM | DHN_DRAWZERO_SM, m_iGrenAmnt, r, g, b);
+	SPR_Set(m_hDigitsBG1, r, g, b );
+	SPR_DrawAdditive( 0,  x-(0.5*fontsize), y, m_prcDigitsSmBG1 );
+	SPR_Set(m_hDigitsBG2, r, g, b );
+	SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsSmBG2 );
+			
+	// Draw the ammo Icon
+	if (m_iGrenAmnt > 0)
+	{
+		if (!m_hGrenType)
+			m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
+		SPR_Set(m_hGrenType, r, g, b); // TO-DO: hud icons
+		int iOffset = (m_prcGrenType->bottom - m_prcGrenType->top) / 8; // same size as normal ammo
+		SPR_DrawAdditive(0, x, y - iOffset, m_prcGrenType);
+	}
+	else
+	{
+		if (!m_hNoIconType)
+			m_hNoIconType = gHUD.GetSprite(gHUD.GetSpriteIndex("ammonone"));
+		SPR_Set(m_hNoIconType, r, g, b);
+		int iOffset = (m_prcNoIconType->bottom - m_prcNoIconType->top) / 8; // same size as normal ammo
+		SPR_DrawAdditive(0, x, y - iOffset, m_prcNoIconType);
+	}
+
 	return true;
 }
 

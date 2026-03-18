@@ -31,7 +31,6 @@ DECLARE_MESSAGE(m_Battery, Battery)
 DECLARE_MESSAGE(m_Battery, Hunger)
 DECLARE_MESSAGE(m_Battery, FireMode)
 DECLARE_MESSAGE(m_Battery, LimbDMG)
-DECLARE_MESSAGE(m_Battery, GrenadeHUD)
 
 bool CHudBattery::Init()
 {
@@ -50,7 +49,6 @@ bool CHudBattery::Init()
 	HOOK_MESSAGE(Hunger);
 	HOOK_MESSAGE(FireMode);
 	HOOK_MESSAGE(LimbDMG);
-	HOOK_MESSAGE(GrenadeHUD);
 
 	gHUD.AddHudElem(this);
 
@@ -63,7 +61,6 @@ bool CHudBattery::VidInit()
 	int HUD_suit_empty = gHUD.GetSpriteIndex("suit_empty");
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
 	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
-	int HUD_GrenType = gHUD.GetSpriteIndex("grentype");
 	int HUD_Hunger = gHUD.GetSpriteIndex("hud_hunger");
 	int HUD_FireMode = gHUD.GetSpriteIndex("firemode");
 
@@ -87,12 +84,9 @@ bool CHudBattery::VidInit()
 
 	m_iHunger = 0;
 	m_iFireMode = 0;
-	m_iGrenType = 0;
-	m_iGrenAmnt = 0;
 	
 	m_rFireMode = &gHUD.GetSpriteRect(HUD_FireMode);
 	m_rHunger = &gHUD.GetSpriteRect(HUD_Hunger);
-	m_rGrenType = &gHUD.GetSpriteRect(HUD_GrenType);
 	// Post-Human end
 
 	return true;
@@ -146,16 +140,6 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	m_iHealth_Rarm = (100 - READ_BYTE());
 	m_iHealth_Lleg = READ_BYTE();
 	m_iHealth_Rleg = READ_BYTE();
-	return true;
-}
-
-bool CHudBattery::MsgFunc_GrenadeHUD(const char* pszName, int iSize, void* pbuf)
-{
-	m_iFlags |= HUD_ACTIVE;
-
-	BEGIN_READ(pbuf, iSize);
-	m_iGrenType = READ_BYTE();
-	m_iGrenAmnt = READ_BYTE();
 	return true;
 }
 
@@ -288,6 +272,7 @@ bool CHudBattery::Draw(float flTime)
 	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, batattery, r, g, b);
 
 	// Fire Mode
+	/*
 	if (m_iFireMode > 0)
 	{
 		int iIconWidth = 160;
@@ -299,6 +284,7 @@ bool CHudBattery::Draw(float flTime)
 		SPR_Set(m_hFireMode, r, g, b);
 		SPR_DrawAdditive(m_iFireMode-1, x, y - iOffset, m_rFireMode);
 	}
+	*/
 
 	DrawDMGHEAD(flTime);
 	DrawDMGCHST(flTime);
@@ -307,58 +293,10 @@ bool CHudBattery::Draw(float flTime)
 	DrawDMGRARM(flTime);
 	DrawDMGLLEG(flTime);
 	DrawDMGRLEG(flTime);
-	if (m_iGrenAmnt > 0)
-	{
-		DrawGrenAmnt(flTime);
-		DrawGrenType(flTime);
-	}
+
 	return true;
 }
-bool CHudBattery::DrawGrenType(float flTime)
-{
-	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
-	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
-	int fontheight = m_prcDigitsBG1->top - m_prcDigitsBG1->bottom;
-	int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
-	int r, g, b, x, y, a;
 
-	UnpackRGB(r, g, b, RGB_YELLOWISH);
-	a = 128;
-	ScaleColors(r, g, b, a);
-
-	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-
-	x = ScreenWidth - (5 * AmmoWidth);
-	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	y -= 1.25 * fontsize;
-
-
-	// Draw
-	m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
-	SPR_Set(m_hGrenType, r, g, b);
-	SPR_DrawAdditive(m_iGrenType, x, y, m_rGrenType);
-	return true;
-}
-bool CHudBattery::DrawGrenAmnt(float flTime)
-{
-	int AmmoWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
-	int r, g, b, x, y, a;
-	int fontheight = m_prcDigitsBG1->top - m_prcDigitsBG1->bottom;
-	int fontsize = m_prcDigitsBG1->right - m_prcDigitsBG1->left;
-
-	UnpackRGB(r, g, b, RGB_YELLOWISH);
-	a = 128;
-	ScaleColors(r, g, b, a);
-
-	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
-	x = ScreenWidth - (3 * AmmoWidth);
-	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	y += (0.125 * fontheight);
-	y -= fontsize;
-
-	x = gHUD.DrawHudNumberSm(x, y, DHN_2DIGITS_SM | DHN_DRAWZERO_SM, m_iGrenAmnt, r, g, b);
-	return true;
-}
 bool CHudBattery::DrawDMGHEAD(float flTime)
 {
 	int r, g, b, x, y, a;
