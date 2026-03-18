@@ -78,7 +78,8 @@ void DiscordMan_Update(void)
 	if (engine_cl->maxclients > 1)
 	{
 		char buffer[64];
-		sprintf(buffer, "MultiPlayer (%d / %d)\n", engine_cl->playernum + 1, engine_cl->maxclients);
+		size_t playercount = sizeof(engine_cl->players) / sizeof(engine_cl->players[0]);
+		sprintf(buffer, "MultiPlayer (%d / %d)\n", playercount, engine_cl->maxclients);
 		skilllevel = buffer;
 	}
 	if (engine_cl->paused)
