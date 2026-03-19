@@ -166,7 +166,7 @@ void CGlock::ItemPostFrame()
 void CGlock::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );

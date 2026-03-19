@@ -125,7 +125,7 @@ void CMP5::Holster()
 void CMP5::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME );
@@ -475,8 +475,8 @@ LINK_ENTITY_TO_CLASS(ammo_ARgrenades, CMP5AmmoGrenade);
 //=========================================================
 // M727
 //=========================================================
-#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.125f	// Applied amount of time each shot adds to the time we must recover from
+#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.5f	// Maximum penalty to deal out
 
 static void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
 {
@@ -657,7 +657,7 @@ void CM727::Holster()
 void CM727::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME );
@@ -672,7 +672,7 @@ const Vector& CM727::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_3DEGREES, ramp, cone );
 
 	return cone;
 }
@@ -689,10 +689,7 @@ void CM727::PrimaryAttack()
 		return;
 	}
 
-
 	m_flNextSecondaryAttack = 0.15;
-
-	
 
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 
@@ -741,7 +738,7 @@ void CM727::PrimaryAttack()
 	}
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		m_flNextPrimaryAttack = 0.0825;
+		m_flNextPrimaryAttack = 0.1;
 	}
 	else
 	{
@@ -753,7 +750,7 @@ void CM727::PrimaryAttack()
 	/*
 	TestSprayPat(iMaxClip() - m_iClip); // breaks the camera sometimes
 	*/
-	CBasePlayerWeapon::Recoil(0.8, 1);
+	CBasePlayerWeapon::Recoil(0.85, 1.2);
 #endif
 }
 

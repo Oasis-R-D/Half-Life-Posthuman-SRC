@@ -371,6 +371,7 @@ int gCrosshairR;
 int gCrosshairG;
 int gCrosshairB;
 int gCrosshairType;
+double gOldCrosshairSpreadNum;
 double gCrosshairSpreadNum;
 
 void SetCrosshair(HSPRITE_GOLDSRC hspr, Rect rc, int r, int g, int b)
@@ -391,7 +392,6 @@ void CHud::MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
 
 void DrawCrosshair()
 {
-	
 	Vector angles;
 	Vector crosshairangles;
 	Vector forward, right, up;
@@ -403,7 +403,15 @@ void DrawCrosshair()
 	point = global_refdef.vieworg + forward * 50;
 	screen = gBSPRenderer.TriWorldToScreen(point);
 
+	// TO-DO: direction could use some smoothing
+	if (gOldCrosshairSpreadNum)
+	{
+		gCrosshairSpreadNum = dlerp(gOldCrosshairSpreadNum, gCrosshairSpreadNum, 0.66);
+	}
+	gOldCrosshairSpreadNum = gCrosshairSpreadNum;
+
 	Vector direction = forward + (up * gCrosshairSpreadNum) + (right * gCrosshairSpreadNum);
+
 	spreadvec = gBSPRenderer.TriWorldToScreen(global_refdef.vieworg + direction * 3072);
 	//gEngfuncs.Con_Printf("spread: %f\n", gCrosshairSpreadNum);
 

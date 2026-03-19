@@ -33,6 +33,11 @@ float lerp(float a, float b, float t)
 	return a + t * (b - a);
 }
 
+double dlerp(double a, double b, double t)
+{
+	return a + t * (b - a);
+}
+
 int CL_IsThirdPerson();
 void CL_CameraOffset(float* ofs);
 

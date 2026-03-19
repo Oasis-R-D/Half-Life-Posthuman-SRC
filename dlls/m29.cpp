@@ -252,7 +252,7 @@ void CM29::TertiaryAttack()
 void CM29::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M29_ACCURACY_MAXIMUM_PENALTY_TIME );
