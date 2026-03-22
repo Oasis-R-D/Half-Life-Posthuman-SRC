@@ -41,7 +41,7 @@
 // speed - the ideal magnitude of my velocity
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride)
+void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
 	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
@@ -59,6 +59,7 @@ void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Ve
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
+		pBullet->m_pIgnore = (pIgnore != nullptr) ? pIgnore : pBullet;
 		pBullet->pev->owner = NULL;
 
 		pBullet->Spawn();
@@ -285,9 +286,11 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				if (m_BulletDamage <= 0)
 					m_BulletDamage = 2;
 
+				m_muzzlevelocity -= 10 * p;
+
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1)); // use beam_tr2?
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther);
 
 				// Damage
 				ClearMultiDamage();
@@ -414,6 +417,14 @@ int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 	if (pentTouched == owner || pentTouched->IsBullet())
 	{
 		return 0;
+	}
+
+	if (m_pIgnore)
+	{
+		if (pentTouched == m_pIgnore)
+		{
+			return 0;
+		}
 	}
 
 	return 1;

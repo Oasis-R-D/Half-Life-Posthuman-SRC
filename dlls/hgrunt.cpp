@@ -528,8 +528,9 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				MESSAGE_END();
 				m_fuel = false;
 #ifndef  CLIENT_DLL
+				// TO-DO: USE THE EVENT FOR THIS INSTEAD
 				CPhysblood::BloodCreate(8, 350, ptr->vecEndPos, -vecDir, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(360)); // mainly to create blood hit FX
-#endif // ! CLIENT_DLL
+#endif
 			}
 			flDamage *= 0.25;
 		}
