@@ -394,21 +394,29 @@ void CPhysbullet::AirThink()
 	}
 
 	// WIND
-	float WINDxvel, flwindmult;
+	float flWindVel, flwindmult;
 
 	for (int i = 0; i < 3; i++)
 	{
-		WINDxvel = 10;
+		flWindVel = 8;
 
-		flwindmult = 8;
-		pev->velocity[i] += sin((gpGlobals->time * flwindmult)) * WINDxvel;
+		flwindmult = 0.25;
+		pev->velocity = pev->velocity + (gpGlobals->v_up * sin((gpGlobals->time * flwindmult)) * flWindVel);
+		pev->velocity = pev->velocity + (gpGlobals->v_right * sin((gpGlobals->time * flwindmult)) * flWindVel);
 	}
 	// WIND END
 
-	if (pev->waterlevel == 0)
-		return;
+	m_distpenetrate -= 0.25;
 
-	UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
+	if (pev->waterlevel != 0)
+	{
+		m_distpenetrate -= 0.1; // loses even more penetration when under the water
+
+		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
+	}
+
+	if (m_distpenetrate < 0)
+		m_distpenetrate = 0;
 }
 
 int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
