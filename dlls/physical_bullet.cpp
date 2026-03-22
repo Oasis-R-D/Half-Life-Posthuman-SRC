@@ -406,11 +406,11 @@ void CPhysbullet::AirThink()
 	}
 	// WIND END
 
-	m_distpenetrate -= 0.25;
+	m_distpenetrate -= 0.5;
 
 	if (pev->waterlevel != 0)
 	{
-		m_distpenetrate -= 0.1; // loses even more penetration when under the water
+		m_distpenetrate -= 0.5; // loses even more penetration when under the water
 
 		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 	}

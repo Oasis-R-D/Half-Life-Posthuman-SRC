@@ -95,7 +95,21 @@ int CCrossbowBolt::Classify()
 
 void CCrossbowBolt::Stay()
 {
+	TraceResult tr = UTIL_GetGlobalTrace();
+	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
+
 	//EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, "weapons/bolt_impact_con.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 98 + RANDOM_LONG(0, 7));
+	char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + gpGlobals->v_forward * 2, BULLET_PLAYER_9MM);
+	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+	WRITE_BYTE(TE_IMPACTVFX);
+	WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * gpGlobals->v_forward) * 0.1f); // org
+	WRITE_COORD_VECTOR(-1 * gpGlobals->v_forward);							// dir
+	WRITE_COORD(0);
+	WRITE_COORD(0);
+	WRITE_BYTE(material); // (count) (use as mat type?)
+	WRITE_BYTE(0); // (bullethole decal texture index)
+	MESSAGE_END();
+
 	Vector vecDir = pev->velocity.Normalize();
 	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
 
@@ -109,9 +123,7 @@ void CCrossbowBolt::Stay()
 
 	SetThink(&CCrossbowBolt::ExplodeThink);
 
-	TraceResult tr = UTIL_GetGlobalTrace();
-	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
-	UTIL_BloodPuff(tr, DONT_BLEED);
+	
 }
 
 void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
