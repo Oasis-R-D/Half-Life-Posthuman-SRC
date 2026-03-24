@@ -3156,7 +3156,7 @@ void CFire::BurnThink()
 		return;
 	}
 
-	if (m_bCodeSpawned) // don't create large clumps of fire entities
+	if (m_bCodeSpawned && (pev->flags & FL_ONGROUND) != 0) // don't create large clumps of fire entities
 	{
 		CBaseEntity* pList[2];
 		float checkRad = 0.5 * m_fRadius;
