@@ -99,7 +99,6 @@ public:
 	bool m_hasdroppedwpn = false;
 
 	int m_cClipSize;
-	int m_tankhealth = 30;
 	int m_voicePitch;
 
 	int m_iBrassShell;
@@ -262,14 +261,14 @@ void CHMiller::Spawn()
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_flDistTooFar = 2048+256;
-		m_flDistLook = 2048+256; //idk if this is needed
+		m_flDistLook = 4096; //idk if this is needed
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
 		m_flDistTooFar = 3072;
-		m_flDistLook = 3072; //idk if this is needed
+		m_flDistLook = 4096; //idk if this is needed
 		m_cClipSize = 30;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
@@ -277,7 +276,7 @@ void CHMiller::Spawn()
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_cClipSize = 30;
 		m_flDistTooFar = 2048+192;
-		m_flDistLook = 2048+192; //idk if this is needed
+		m_flDistLook = 4096; //idk if this is needed
 	}
 	pev->skin = RANDOM_LONG(0, 1);
 	m_cAmmoLoaded = m_cClipSize;
@@ -329,7 +328,7 @@ void CHMiller::Precache()
 
 	UTIL_PrecacheOther("rpg_rocket");
 
-	m_voicePitch = RANDOM_LONG(85, 80);
+	m_voicePitch = 100;
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl");
