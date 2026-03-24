@@ -1023,8 +1023,19 @@ void CFuncTankFlame::Fire(const Vector& barrelEnd, const Vector& forward, entvar
 		{
 			for (i = 0; i < bulletCount; i++)
 			{
+				float x, y, z;
+				Vector dir = forward;
+				do
+				{
+					x = RANDOM_FLOAT(-0.5, 0.5) + RANDOM_FLOAT(-0.5, 0.5);
+					y = RANDOM_FLOAT(-0.5, 0.5) + RANDOM_FLOAT(-0.5, 0.5);
+					z = x * x + y * y;
+				} while (z > 1);
+
+				dir = dir + x * gTankSpread[m_spread].x * gpGlobals->v_right + y * gTankSpread[m_spread].x * gpGlobals->v_up;
+
 				CFire* pFire = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 16 + RANDOM_FLOAT(-2.0, 2.0), m_iBulletDamage, this, 16);
-				pFire->pev->velocity = (forward+RANDOM_VECTOR(-gTankSpread[m_spread].x, gTankSpread[m_spread].x)) * (pev->armorvalue + (cos(gpGlobals->time) * (-64)));
+				pFire->pev->velocity = dir * (pev->armorvalue + (cos(gpGlobals->time) * (-64)));
 			}
 			CFuncTank::Fire(barrelEnd, forward, pev);
 		}
