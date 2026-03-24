@@ -3058,7 +3058,7 @@ void CFire::Spawn()
 	pev->flags |= FL_FIRE;
 	pev->gravity = 0.5;
 	pev->friction = 1;
-	m_fSpreadDelay = 8;
+	m_fSpreadDelay = 6;
 	m_fSpreadTimer = gpGlobals->time + m_fSpreadDelay;
 	SetThink(&CFire::BurnThink);
 	pev->nextthink = gpGlobals->time;
@@ -3204,7 +3204,7 @@ void CFire::BurnThink()
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
 		CSoundEnt::InsertSound(bits_SOUND_DANGER, DamageVec, 96, 0.5);
-		FireRadiusDamage(DamageVec, pev, pev, 5, pev->size.x * 0.5, CLASS_NONE, m_pIgnore);
+		FireRadiusDamage(DamageVec, pev, pev, 10, m_fRadius, CLASS_NONE, m_pIgnore);
 	}
 
 	m_iActiveTime--;
@@ -3219,7 +3219,7 @@ void CFire::BurnThink()
 		do {
 			if (times >= 50) // don't spawn if it isn't finding any good spots
 			{
-				ALERT(at_warning, "Env_Fire couldn't spawn fire!\n");
+				ALERT(at_warning, "Env_Fire: couldn't spawn fire!\n");
 				return;
 			}
 			times += 1;
