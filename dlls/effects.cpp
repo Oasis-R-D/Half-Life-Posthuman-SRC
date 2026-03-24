@@ -3064,8 +3064,9 @@ void CFire::Spawn()
 	pev->nextthink = gpGlobals->time;
 }
 
-void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, CBaseEntity* pEntIgnore)
+bool FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, CBaseEntity* pEntIgnore)
 {
+	bool hit = false;
 	CBaseEntity* pEntity = NULL;
 	TraceResult tr;
 	float flAdjustedDamage, falloff;
@@ -3125,8 +3126,10 @@ void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 			{
 				pEntity->TakeDamage(pevInflictor, pevAttacker, flAdjustedDamage, DMG_BURN);
 			}
+			hit = true;
 		}
 	}
+	return hit;
 }
 
 void CFire::BurnThink()
@@ -3177,7 +3180,7 @@ void CFire::BurnThink()
 		}
 	}
 
-	if (!m_bSoundPlaying) // start the sound loop
+	if (!m_bSoundPlaying && (pev->flags & FL_ONGROUND) != 0) // start the sound loop
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
 			strcpy(m_caSound, "soundscape_knockoffs/levels/Sector I/ember_loop.wav");
@@ -3204,7 +3207,9 @@ void CFire::BurnThink()
 		Vector DamageVec = pev->absmin + pev->size * 0.5;
 		DamageVec.z += 1;
 		CSoundEnt::InsertSound(bits_SOUND_DANGER, DamageVec, 96, 0.5);
-		FireRadiusDamage(DamageVec, pev, pev, 10, m_fRadius, CLASS_NONE, m_pIgnore);
+		bool hit = FireRadiusDamage(DamageVec, pev, pev, 10, m_fRadius, CLASS_NONE, m_pIgnore);
+		if (hit)
+			m_iActiveTime += 10;
 	}
 
 	m_iActiveTime--;

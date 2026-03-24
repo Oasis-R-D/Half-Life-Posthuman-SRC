@@ -444,7 +444,7 @@ extern void DecalClaws(TraceResult* pTrace, int iBulletType, int rot);
 extern void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage);
 extern int DamageDecal(CBaseEntity* pEntity, int bitsDamageType, TraceResult* hit = nullptr, bool heavy = false);
 extern void RadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, int bitsDamageType);
-extern void FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, CBaseEntity* pEntIgnore);
+extern bool FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, float flRadius, int iClassIgnore, CBaseEntity* pEntIgnore);
 
 typedef struct
 {
