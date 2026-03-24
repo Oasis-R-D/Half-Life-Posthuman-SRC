@@ -1223,7 +1223,7 @@ Bullet Armor Hit
 */
 void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* ptr, int bitsDamageType, CBaseEntity* Attacked) // easier way to handle ricochet
 {
-	if ((bitsDamageType & (DMG_BULLET | DMG_BLAST)) != 0)
+	if ((bitsDamageType & DMG_BULLET) != 0)
 	{
 		CPhysbullet* BULLET = dynamic_cast<CPhysbullet*>(CPhysbullet::Instance(pevAttacker));
 		
@@ -1232,7 +1232,7 @@ void CBaseEntity::BulletRic(entvars_t* pevAttacker, Vector vecDir, TraceResult* 
 			BULLET->m_distpenetrate = 0;
 			Vector Dir = -BULLET->m_direction;
 			Vector spawnpos = ptr->vecEndPos + Dir * -12;
-			CPhysbullet::BulletCreate(1, round(BULLET->m_BulletDamage/2), BULLET->m_muzzlevelocity, spawnpos, Dir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), false, 0);
+			CPhysbullet::BulletCreate(1, round(BULLET->m_BulletDamage/2), BULLET->m_muzzlevelocity*0.75, spawnpos, Dir, CONE_60DEGREES, CONE_60DEGREES, BULLET->m_Gravity, BULLET->m_Flare, edict(), false, 0, Attacked);
 			UTIL_Remove(BULLET);
 		}
 	}
