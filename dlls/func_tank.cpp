@@ -914,8 +914,6 @@ void CFuncTankRocket::Precache()
 	CFuncTank::Precache();
 }
 
-
-
 void CFuncTankRocket::Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* pevAttacker)
 {
 	int i;
@@ -983,6 +981,57 @@ void CFuncTankMortar::Fire(const Vector& barrelEnd, const Vector& forward, entva
 }
 
 
+class CFuncTankFlame : public CFuncTank
+{
+public:
+	bool KeyValue(KeyValueData* pkvd) override;
+	void Precache() override;
+	void Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* pevAttacker) override;
+};
+LINK_ENTITY_TO_CLASS(func_tankflame, CFuncTankFlame);
+
+void CFuncTankFlame::Precache()
+{
+	UTIL_PrecacheOther("rpg_rocket");
+	CFuncTank::Precache();
+}
+
+bool CFuncTankFlame::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "firesize"))
+	{
+		pev->impulse = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "firespeed"))
+	{
+		pev->armorvalue = atoi(pkvd->szValue);
+		return true;
+	}
+
+	return CFuncTank::KeyValue(pkvd);
+}
+
+void CFuncTankFlame::Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* pevAttacker)
+{
+	int i;
+
+	if (m_fireLast != 0)
+	{
+		int bulletCount = (gpGlobals->time - m_fireLast) * m_fireRate;
+		if (bulletCount > 0)
+		{
+			for (i = 0; i < bulletCount; i++)
+			{
+				CFire* pFire = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 16 + RANDOM_FLOAT(-2.0, 2.0), m_iBulletDamage, this, 16);
+				pFire->pev->velocity = (forward+RANDOM_VECTOR(-gTankSpread[m_spread].x, gTankSpread[m_spread].x)) * (pev->armorvalue + (cos(gpGlobals->time) * (-64)));
+			}
+			CFuncTank::Fire(barrelEnd, forward, pev);
+		}
+	}
+	else
+		CFuncTank::Fire(barrelEnd, forward, pev);
+}
 
 //============================================================================
 // FUNC TANK CONTROLS
@@ -1032,7 +1081,7 @@ void CFuncTankControls::Think()
 	do
 	{
 		pTarget = FIND_ENTITY_BY_TARGETNAME(pTarget, STRING(pev->target));
-	} while (!FNullEnt(pTarget) && 0 != strncmp(STRING(pTarget->v.classname), "func_tank", 9));
+	} while (!FNullEnt(pTarget) && (0 != strncmp(STRING(pTarget->v.classname), "func_tank", 9) || 0 != strncmp(STRING(pTarget->v.classname), "func_tankflame", 14)));
 
 	if (FNullEnt(pTarget))
 	{

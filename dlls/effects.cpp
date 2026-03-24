@@ -3153,6 +3153,30 @@ void CFire::BurnThink()
 		return;
 	}
 
+	if (m_bCodeSpawned) // don't create large clumps of fire entities
+	{
+		CBaseEntity* pList[2];
+		float checkRad = 0.5 * m_fRadius;
+		int check = UTIL_EntitiesInBox(pList, 2, pev->origin - Vector(checkRad, checkRad, 0), pev->origin + Vector(checkRad, checkRad, m_fHeight), FL_FIRE);
+		if (check > 1) // don't spawn monsters near players or other monsters
+		{
+			ALERT(at_notice, "Env_Fire: removed clump!\n");
+			CFire* pFire = dynamic_cast<CFire*>(pList[1]);
+
+			if ((pFire->m_iActiveTime + m_iActiveTime) < 600)
+				pFire->m_iActiveTime += 0.5 * m_iActiveTime;
+
+			if (pFire->m_iAmount < 4)
+				pFire->m_iAmount += RANDOM_LONG(0, 1);
+
+			if ((pFire->m_fRadius + m_fRadius) < 64)
+				pFire->m_fRadius += m_fRadius;
+
+			UTIL_Remove(this);
+			return;
+		}
+	}
+
 	if (!m_bSoundPlaying) // start the sound loop
 	{
 		if (iBurnAmnt >= 1 && iBurnAmnt < 2)
