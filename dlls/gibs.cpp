@@ -155,9 +155,6 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 	CBaseEntity* pVictim = CBaseEntity::Instance(pevVictim);
 	std::vector<gib_data_t> gibmap = GetNPCgibs(pVictim);
 	int size = gibmap.size();
-	
-	if (pVictim->m_iBurnTimer > 0)
-		m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
 
 	for (i = 0; i < size; i++) // loops through rows
 	{
@@ -172,6 +169,9 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
 			pGib->Spawn(gibmap[i].gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
 
+			if (pVictim && pVictim->m_iBurnTimer > 0)
+				pGib->m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
+
 			switch (type)
 			{
 				case 1:
@@ -183,7 +183,6 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 			}
 			if (type != 0)
 				continue; // loop back if it uses diff spawn type
-			
 
 			if (pevVictim) // probably uneeded
 			{
