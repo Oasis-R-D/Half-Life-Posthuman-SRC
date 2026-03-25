@@ -60,6 +60,7 @@ public:
 	void Precache() override;
 	static const char* pSoundsMetal[];
 	void SetYawSpeed() override; //overidden to lower YS
+	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	void SetActivity(Activity NewActivity) override; //overriden to change anims
 
@@ -79,6 +80,9 @@ public:
 	Schedule_t* GetScheduleOfType(int Type) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+
+	int IRelationship(CBaseEntity* pTarget) override;
+
 	void ArmorGibs(TraceResult* ptr, Vector Vel);
 
 	CUSTOM_SCHEDULES;
@@ -387,6 +391,22 @@ void CHMiller::SetYawSpeed()
 	}
 
 	pev->yaw_speed = round(ys / 0.75);
+}
+
+//=========================================================
+// Classify - indicates this monster's place in the
+// relationship table.
+//=========================================================
+int CHMiller::Classify()
+{
+	if (m_bPrehuman == false)
+	{
+		return CLASS_HUMAN_PASSIVE;
+	}
+	else
+	{
+		return CLASS_HUMAN_ALLY; // probably not a good idea to make him friendly under any circumstance
+	}
 }
 
 //=========================================================
@@ -1943,6 +1963,19 @@ bool CHMiller::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float
 	Forget(bits_MEMORY_INCOVER);
 
 	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
+}
+
+//=========================================================
+// IRelationship - overridden because miller prioritizes targetting the player
+//=========================================================
+int CHMiller::IRelationship(CBaseEntity* pTarget)
+{
+	if (pTarget->IsPlayer())
+	{
+		return R_NM;
+	}
+
+	return CSquadMonster::IRelationship(pTarget);
 }
 
 void CHMiller::ArmorGibs(TraceResult* ptr, Vector Vel)
