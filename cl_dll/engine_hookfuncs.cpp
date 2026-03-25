@@ -598,7 +598,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 {
 	//gEngfuncs.Con_DPrintf("char is equal to %d\n", count);
 
-	Hooked_R_SparkStreaks(org, gEngfuncs.RandomLong(1, 3), -200, 200); // TO-DO: add proper direction (would need a new func), make mat based, among us
+	Hooked_R_SparkStreaks(org, gEngfuncs.pfnRandomLong(1, 3), -200, 200); // TO-DO: add proper direction (would need a new func), make mat based, among us
 
 	switch ((char)count)
 	{
