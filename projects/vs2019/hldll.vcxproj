@@ -184,6 +184,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\m29.cpp" />
     <ClCompile Include="..\..\dlls\male_assassin.cpp" />
     <ClCompile Include="..\..\dlls\maprules.cpp" />
+    <ClCompile Include="..\..\dlls\miller_human.cpp" />
     <ClCompile Include="..\..\dlls\monstermaker.cpp" />
     <ClCompile Include="..\..\dlls\monsters.cpp" />
     <ClCompile Include="..\..\dlls\monsterstate.cpp" />

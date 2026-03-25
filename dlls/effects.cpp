@@ -2990,7 +2990,7 @@ LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
 //  Fire entity
 //=======================
 
-CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride)
+CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride, bool blue)
 {
 	CFire* pFire = GetClassPtr((CFire*)NULL);
 
@@ -3000,6 +3000,7 @@ CFire* CFire::FireCreate(Vector origin, double size, float activetime, int maxsi
 	pFire->m_pIgnore = dontburn;
 	pFire->m_bActive = true;
 	pFire->m_bCodeSpawned = true;
+	pFire->m_bBlueDubaDeBaDaDie = blue;
 	UTIL_SetOrigin(pFire->pev, origin);
 
 	pFire->m_fHeight = size;
@@ -3199,7 +3200,10 @@ void CFire::BurnThink()
 		VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0, 1));
 		VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0, 1));
 		VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
-		UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0); // TO-DO: do not use messages for this
+		if (!m_bBlueDubaDeBaDaDie)
+			UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0); // TO-DO: do not use messages for this
+		else
+			UTIL_Particle("blueflames.txt", VecflameOrg, g_vecZero, 0); // TO-DO: do not use messages for this
 	}
 
 	if ((trunc(m_iActiveTime/10) * 10) == m_iActiveTime) // damage stuff

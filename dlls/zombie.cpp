@@ -137,7 +137,6 @@ public:
 					ActualHeadcrab->pev->armorvalue = 1;
 					ActualHeadcrab->m_bPrehuman = 1;
 					ActualHeadcrab->pev->health = round(m_iHeadCrabHealth/3);
-					ALERT(at_console, "Headcrab SHOULD hate you\n");
 				}
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
 			}

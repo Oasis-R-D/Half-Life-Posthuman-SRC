@@ -1036,6 +1036,12 @@ void CFuncTankFlame::Fire(const Vector& barrelEnd, const Vector& forward, entvar
 
 				CFire* pFire = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 16 + RANDOM_FLOAT(-2.0, 2.0), m_iBulletDamage, this, 16);
 				pFire->pev->velocity = dir * (pev->armorvalue + (cos(gpGlobals->time) * (-64)));
+
+				if (RANDOM_LONG(0, 1))
+				{
+					CFire* pFire2 = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 3, m_iBulletDamage, this, 16, true);
+					pFire2->pev->velocity = pFire->pev->velocity;
+				}
 			}
 			CFuncTank::Fire(barrelEnd, forward, pev);
 		}

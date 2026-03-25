@@ -33,24 +33,24 @@
 #include "pm_materials.h"
 #include "hgrunt.h"
 #include "physical_bullet.h"
-int g_fGruntHeavyQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
+int g_fMillerQuestion; // true if an idle grunt asked a question. Cleared when someone answers.
 //=========================================================
 // monster-specific DEFINE's
 //=========================================================
 #define GRUNT_CLIP_SIZE 36	 // how many bullets in a clip? - NOTE: 3 round burst sound, so keep as 3 * x!
 #define GRUNT_VOL 0.35		 // volume of grunt sounds
-#define GRUNT_ATTN ATTN_NORM // attenutation of grunt sentences
-#define HGRUNT_LIMP_HEALTH 20
-#define HGRUNT_DMG_HEADSHOT (DMG_BULLET | DMG_CLUB) // damage types that can kill a grunt with a single headshot.
-#define HGRUNT_MINIMUM_HEADSHOT_DAMAGE 15			// must do at least this much damage in one shot to head to score a headshot kill
-#define HGRUNT_SENTENCE_VOLUME (float)0.35			// volume of grunt sentences
+#define MILLER_ATTN 0.7 // attenutation of grunt sentences
+#define MILLER_HUM_LIMP_HEALTH 20
+#define MILLER_HUM_DMG_HEADSHOT (DMG_BULLET | DMG_CLUB) // damage types that can kill a grunt with a single headshot.
+#define MILLER_HUM_MINIMUM_HEADSHOT_DAMAGE 15			// must do at least this much damage in one shot to head to score a headshot kill
+#define MILLER_HUM_SENTENCE_VOLUME (float)0.35			// volume of grunt sentences
 
-#define HGRUNT_9MMAR (1 << 0)
-#define HGRUNT_HANDGRENADE (1 << 1)
-#define HGRUNT_GRENADELAUNCHER (1 << 2)
-#define HGRUNT_SHOTGUN (1 << 3)
-#define HGRUNT_M249 (1 << 4)
-#define HGRUNT_M727 (1 << 5)
+#define MILLER_HUM_9MMAR (1 << 0)
+#define MILLER_HUM_HANDGRENADE (1 << 1)
+#define MILLER_HUM_GRENADELAUNCHER (1 << 2)
+#define MILLER_HUM_SHOTGUN (1 << 3)
+#define MILLER_HUM_M249 (1 << 4)
+#define MILLER_HUM_M727 (1 << 5)
 #define HITGROUP_HEAVY_VISOR 67
 
 class CHMiller : public CHGrunt
@@ -121,17 +121,14 @@ public:
 //=========================================================
 enum
 {
-	SCHED_GRUNT_HEAVY_SUPPRESS = LAST_COMMON_SCHEDULE + 1,
-	SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE, // move to a location to set up an attack against the enemy. (usually when a friendly is in the way).
-	SCHED_GRUNT_HEAVY_COVER_AND_RELOAD,
-	SCHED_GRUNT_HEAVY_SWEEP,
-	SCHED_GRUNT_HEAVY_FOUND_ENEMY,
-	SCHED_GRUNT_HEAVY_REPEL,
-	SCHED_GRUNT_HEAVY_REPEL_ATTACK,
-	SCHED_GRUNT_HEAVY_REPEL_LAND,
-	SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY,
-	SCHED_GRUNT_HEAVY_TAKECOVER_FAILED, // special schedule type that forces analysis of conditions and picks the best possible schedule to recover from this type of failure.
-	SCHED_GRUNT_HEAVY_ELOF_FAIL,
+	SCHED_MILLER_HUM_SUPPRESS = LAST_COMMON_SCHEDULE + 1,
+	SCHED_MILLER_HUM_ESTABLISH_LINE_OF_FIRE, // move to a location to set up an attack against the enemy. (usually when a friendly is in the way).
+	SCHED_MILLER_HUM_COVER_AND_RELOAD,
+	SCHED_MILLER_HUM_SWEEP,
+	SCHED_MILLER_HUM_FOUND_ENEMY,
+	SCHED_MILLER_HUM_WAIT_FACE_ENEMY,
+	SCHED_MILLER_HUM_TAKECOVER_FAILED, // special schedule type that forces analysis of conditions and picks the best possible schedule to recover from this type of failure.
+	SCHED_MILLER_HUM_ELOF_FAIL,
 };
 
 //=========================================================
@@ -184,16 +181,16 @@ const char* CHMiller::pGruntSentences[] =
 		"HG_TAUNT",	  // say rude things
 };
 
-enum HGRUNT_SENTENCE_TYPES
+enum MILLER_HUM_SENTENCE_TYPES
 {
-	HGRUNT_SENT_NONE = -1,
-	HGRUNT_SENT_GREN = 0,
-	HGRUNT_SENT_ALERT,
-	HGRUNT_SENT_MONSTER,
-	HGRUNT_SENT_COVER,
-	HGRUNT_SENT_THROW,
-	HGRUNT_SENT_CHARGE,
-	HGRUNT_SENT_TAUNT,
+	MILLER_HUM_SENT_NONE = -1,
+	MILLER_HUM_SENT_GREN = 0,
+	MILLER_HUM_SENT_ALERT,
+	MILLER_HUM_SENT_MONSTER,
+	MILLER_HUM_SENT_COVER,
+	MILLER_HUM_SENT_THROW,
+	MILLER_HUM_SENT_CHARGE,
+	MILLER_HUM_SENT_TAUNT,
 };
 
 //=========================================================
@@ -213,7 +210,7 @@ void CHMiller::Spawn()
 
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		pev->health = round(gSkillData.hgruntHealth * 2.0);
+		pev->health = round(gSkillData.hgruntHealth * 6.0);
 	}
 	else
 	{
@@ -224,7 +221,7 @@ void CHMiller::Spawn()
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
 	m_flNextPainTime = gpGlobals->time;
-	m_iSentence = HGRUNT_SENT_NONE;
+	m_iSentence = MILLER_HUM_SENT_NONE;
 
 	m_afCapability = bits_CAP_SQUAD | bits_CAP_TURN_HEAD | bits_CAP_DOORS_GROUP;
 
@@ -235,14 +232,14 @@ void CHMiller::Spawn()
 
 	if (pev->weapons == 0)
 	{
-		pev->weapons = HGRUNT_M249 | HGRUNT_HANDGRENADE;
+		pev->weapons = MILLER_HUM_SHOTGUN | MILLER_HUM_HANDGRENADE;
 	}
 
-	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+	if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
-		m_cClipSize = 9;
+		m_cClipSize = 4;
 		if (g_iSkillLevel != SKILL_HARD)
 		{
 			m_flDistTooFar = 384;
@@ -252,26 +249,26 @@ void CHMiller::Spawn()
 			m_flDistTooFar = 1024;
 		}
 	}
-	else if (FBitSet(pev->weapons, HGRUNT_M249))
+	else if (FBitSet(pev->weapons, MILLER_HUM_M249))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m249.mdl");
 		m_cClipSize = 201;
 	}
-	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+	else if (FBitSet(pev->weapons, MILLER_HUM_GRENADELAUNCHER))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_flDistTooFar = 2048+256;
 		m_flDistLook = 4096; //idk if this is needed
 		m_cClipSize = 30;
 	}
-	else if (FBitSet(pev->weapons, HGRUNT_M727))
+	else if (FBitSet(pev->weapons, MILLER_HUM_M727))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
 		m_flDistTooFar = 3072;
 		m_flDistLook = 4096; //idk if this is needed
 		m_cClipSize = 30;
 	}
-	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+	else if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_cClipSize = 30;
@@ -328,7 +325,7 @@ void CHMiller::Precache()
 
 	UTIL_PrecacheOther("rpg_rocket");
 
-	m_voicePitch = 100;
+	m_voicePitch = 50;
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl");
@@ -402,9 +399,9 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 	case HGRUNT_AE_RELOAD:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/reload3.wav", 1, ATTN_NORM);
-		else if (FBitSet(pev->weapons, HGRUNT_M249))
+		else if (FBitSet(pev->weapons, MILLER_HUM_M249))
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/saw_reload2.wav", 1, ATTN_NORM);
 		else
 			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_reload1.wav", 1, ATTN_NORM);
@@ -448,7 +445,7 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case HGRUNT_AE_BURST1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 		{
 			Shoot();
 			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
@@ -456,11 +453,11 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 			else
 				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 		{
 			Shotgun();
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
+		else if (FBitSet(pev->weapons, MILLER_HUM_M727))
 		{
 			ShootM727();
 			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
@@ -478,9 +475,9 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case HGRUNT_AE_BURST2:
 	case HGRUNT_AE_BURST3:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 			Shoot();
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
+		else if (FBitSet(pev->weapons, MILLER_HUM_M727))
 			ShootM727();
 		else
 			M249();
@@ -495,8 +492,14 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 			// SOUND HERE!
 			UTIL_MakeVectors(pev->angles);
 			pHurt->pev->punchangle.x = 15;
-			pHurt->pev->velocity = pHurt->pev->velocity + gpGlobals->v_forward * 150 + gpGlobals->v_up * 50;
+			pHurt->pev->velocity = pHurt->pev->velocity + gpGlobals->v_forward * 300 + gpGlobals->v_up * 100;
 			pHurt->TakeDamage(pev, pev, gSkillData.hgruntDmgKick*2, DMG_CLUB);
+			if (pHurt->IsPlayer())
+			{
+				CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pHurt);
+				CBasePlayerWeapon* pWeapon = pPlayer->m_pActiveItem->GetWeaponPtr();
+				pWeapon->m_flNextPrimaryAttack += 0.5;
+			}
 		}
 	}
 	break;
@@ -505,7 +508,7 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		if (FOkToSpeak())
 		{
-			SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+			SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 			JustSpoke();
 		}
 	}
@@ -529,21 +532,21 @@ void CHMiller::SetActivity(Activity NewActivity)
 	{
 	case ACT_RANGE_ATTACK1:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR) || FBitSet(pev->weapons, HGRUNT_M727) || FBitSet(pev->weapons, HGRUNT_M249))
+		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR) || FBitSet(pev->weapons, MILLER_HUM_M727) || FBitSet(pev->weapons, MILLER_HUM_M249))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_mp5");
 			else
 				iSequence = LookupSequence("crouching_mp5");
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_shotgun");
 			else
 				iSequence = LookupSequence("crouching_shotgun");
 		}
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
+		else if (FBitSet(pev->weapons, MILLER_HUM_M727))
 		{
 			if (m_fStanding)
 				iSequence = LookupSequence("standing_m727");
@@ -561,7 +564,7 @@ void CHMiller::SetActivity(Activity NewActivity)
 	break;
 	case ACT_RANGE_ATTACK2:
 	{
-		if ((pev->weapons & HGRUNT_HANDGRENADE) != 0)
+		if ((pev->weapons & MILLER_HUM_HANDGRENADE) != 0)
 			iSequence = LookupSequence("throwgrenade");
 		else
 			iSequence = LookupSequence("launchgrenade");
@@ -569,7 +572,7 @@ void CHMiller::SetActivity(Activity NewActivity)
 		break;
 	case ACT_RUN:
 	{
-		if (pev->health <= HGRUNT_LIMP_HEALTH)
+		if (pev->health <= MILLER_HUM_LIMP_HEALTH)
 			iSequence = LookupActivity(ACT_RUN_HURT);
 		else
 			iSequence = LookupActivity(NewActivity);
@@ -577,7 +580,7 @@ void CHMiller::SetActivity(Activity NewActivity)
 	break;
 	case ACT_WALK:
 	{
-		if (pev->health <= HGRUNT_LIMP_HEALTH)
+		if (pev->health <= MILLER_HUM_LIMP_HEALTH)
 			iSequence = LookupActivity(ACT_WALK_HURT);
 		else
 			iSequence = LookupActivity(NewActivity);
@@ -592,9 +595,9 @@ void CHMiller::SetActivity(Activity NewActivity)
 	break;
 	case ACT_RELOAD:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR || HGRUNT_M727))
+		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR || MILLER_HUM_M727))
 			iSequence = LookupSequence("reload_mp5");
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		else if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 			iSequence = LookupSequence("reload_shotgun");
 		else
 			iSequence = LookupSequence("reload_mp5");
@@ -634,7 +637,7 @@ void CHMiller::SetActivity(Activity NewActivity)
 //=========================================================
 bool CHMiller::CheckRangeAttack2(float flDot, float flDist)
 {
-	if (!FBitSet(pev->weapons, (HGRUNT_HANDGRENADE | HGRUNT_GRENADELAUNCHER)))
+	if (!FBitSet(pev->weapons, (MILLER_HUM_HANDGRENADE | MILLER_HUM_GRENADELAUNCHER)))
 	{
 		return false;
 	}
@@ -663,7 +666,7 @@ bool CHMiller::CheckRangeAttack2(float flDot, float flDist)
 
 	Vector vecTarget;
 
-	if (FBitSet(pev->weapons, HGRUNT_HANDGRENADE))
+	if (FBitSet(pev->weapons, MILLER_HUM_HANDGRENADE))
 	{
 		// find feet
 		if (RANDOM_LONG(0, 1))
@@ -710,7 +713,7 @@ bool CHMiller::CheckRangeAttack2(float flDot, float flDist)
 	}
 
 
-	if (FBitSet(pev->weapons, HGRUNT_HANDGRENADE))
+	if (FBitSet(pev->weapons, MILLER_HUM_HANDGRENADE))
 	{
 		m_vecTossVelocity = ShootAtEnemy(vecTarget);
 		// throw a hand grenade
@@ -768,38 +771,38 @@ void CHMiller::PainSound()
 
 void CHMiller::IdleSound()
 {
-	if (FOkToSpeak() && (0 != g_fGruntHeavyQuestion || RANDOM_LONG(0, 1)))
+	if (FOkToSpeak() && (0 != g_fMillerQuestion || RANDOM_LONG(0, 1)))
 	{
-		if (0 == g_fGruntHeavyQuestion)
+		if (0 == g_fMillerQuestion)
 		{
 			// ask question or make statement
 			switch (RANDOM_LONG(0, 2))
 			{
 			case 0: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CHECK", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntHeavyQuestion = 1;
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_CHECK", MILLER_HUM_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				g_fMillerQuestion = 1;
 				break;
 			case 1: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntHeavyQuestion = 2;
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", MILLER_HUM_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				g_fMillerQuestion = 2;
 				break;
 			case 2: // statement
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_IDLE", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_IDLE", MILLER_HUM_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
 				break;
 			}
 		}
 		else
 		{
-			switch (g_fGruntHeavyQuestion)
+			switch (g_fMillerQuestion)
 			{
 			case 1: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CLEAR", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_CLEAR", MILLER_HUM_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
 				break;
 			case 2: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_ANSWER", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_ANSWER", MILLER_HUM_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
 				break;
 			}
-			g_fGruntHeavyQuestion = 0;
+			g_fMillerQuestion = 0;
 		}
 		JustSpoke();
 	}
@@ -821,14 +824,14 @@ void CHMiller::Shotgun()
 	UTIL_MakeVectors(pev->angles);
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/dbarrel1.wav", 1, ATTN_GUN);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
-		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
+		CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, UTIL_DegreesToRadCone(16), CONE_2DEGREES, 0.75, 12, edict());
 	else
 	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
+		CPhysbullet::BulletCreate(18, 11, 5750, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_2DEGREES, 1, 12, edict());
 	}
 	m_cAmmoLoaded--; // take away a bullet!
 #endif
@@ -891,13 +894,13 @@ void CHMiller::Killed(entvars_t* pevAttacker, int iGib)
 		pev->weaponmodel = 0;
 
 		// now spawn a gun.
-		if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+		if (FBitSet(pev->weapons, MILLER_HUM_SHOTGUN))
 			DropItem("weapon_shotgun", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_M249))
+		else if (FBitSet(pev->weapons, MILLER_HUM_M249))
 			DropItem("weapon_m249", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+		else if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
-		else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
+		else if (FBitSet(pev->weapons, MILLER_HUM_GRENADELAUNCHER))
 		{
 			DropItem("ammo_ARgrenades", BodyTarget(pev->origin), vecGunAngles);
 			DropItem("weapon_9mmAR", vecGunPos, vecGunAngles);
@@ -941,7 +944,7 @@ CBaseEntity* CHMiller::Kick()
 //=========================================================
 // GruntFail
 //=========================================================
-Task_t tlGruntHeavyFail[] =
+Task_t tlMillerHumFail[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
@@ -949,10 +952,10 @@ Task_t tlGruntHeavyFail[] =
 		{TASK_WAIT_PVS, (float)0},
 };
 
-Schedule_t slGruntHeavyFail[] =
+Schedule_t slMillerHumFail[] =
 	{
-		{tlGruntHeavyFail,
-			ARRAYSIZE(tlGruntHeavyFail),
+		{tlMillerHumFail,
+			ARRAYSIZE(tlMillerHumFail),
 			bits_COND_CAN_RANGE_ATTACK1 |
 				bits_COND_CAN_RANGE_ATTACK2 |
 				bits_COND_CAN_MELEE_ATTACK1 |
@@ -964,7 +967,7 @@ Schedule_t slGruntHeavyFail[] =
 //=========================================================
 // Grunt Combat Fail
 //=========================================================
-Task_t tlGruntHeavyCombatFail[] =
+Task_t tlMillerHumCombatFail[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
@@ -972,10 +975,10 @@ Task_t tlGruntHeavyCombatFail[] =
 		{TASK_WAIT_PVS, (float)0},
 };
 
-Schedule_t slGruntHeavyCombatFail[] =
+Schedule_t slMillerHumCombatFail[] =
 	{
-		{tlGruntHeavyCombatFail,
-			ARRAYSIZE(tlGruntHeavyCombatFail),
+		{tlMillerHumCombatFail,
+			ARRAYSIZE(tlMillerHumCombatFail),
 			bits_COND_CAN_RANGE_ATTACK1 |
 				bits_COND_CAN_RANGE_ATTACK2,
 			0,
@@ -985,7 +988,7 @@ Schedule_t slGruntHeavyCombatFail[] =
 //=========================================================
 // Victory dance!
 //=========================================================
-Task_t tlGruntHeavyVictoryDance[] =
+Task_t tlMillerHumVictoryDance[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
@@ -998,10 +1001,10 @@ Task_t tlGruntHeavyVictoryDance[] =
 		{TASK_PLAY_SEQUENCE, (float)ACT_VICTORY_DANCE},
 };
 
-Schedule_t slGruntHeavyVictoryDance[] =
+Schedule_t slMillerHumVictoryDance[] =
 	{
-		{tlGruntHeavyVictoryDance,
-			ARRAYSIZE(tlGruntHeavyVictoryDance),
+		{tlMillerHumVictoryDance,
+			ARRAYSIZE(tlMillerHumVictoryDance),
 			bits_COND_NEW_ENEMY |
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE,
@@ -1013,19 +1016,19 @@ Schedule_t slGruntHeavyVictoryDance[] =
 // Establish line of fire - move to a position that allows
 // the grunt to attack.
 //=========================================================
-Task_t tlGruntHeavyEstablishLineOfFire[] =
+Task_t tlMillerHumEstablishLineOfFire[] =
 	{
-		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_GRUNT_HEAVY_ELOF_FAIL},
+		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_MILLER_HUM_ELOF_FAIL},
 		{TASK_GET_PATH_TO_ENEMY, (float)0},
 		{TASK_GRUNT_SPEAK_SENTENCE, (float)0},
 		{TASK_RUN_PATH, (float)0},
 		{TASK_WAIT_FOR_MOVEMENT, (float)0},
 };
 
-Schedule_t slGruntHeavyEstablishLineOfFire[] =
+Schedule_t slMillerHumEstablishLineOfFire[] =
 	{
-		{tlGruntHeavyEstablishLineOfFire,
-			ARRAYSIZE(tlGruntHeavyEstablishLineOfFire),
+		{tlMillerHumEstablishLineOfFire,
+			ARRAYSIZE(tlMillerHumEstablishLineOfFire),
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_CAN_RANGE_ATTACK1 |
@@ -1042,17 +1045,17 @@ Schedule_t slGruntHeavyEstablishLineOfFire[] =
 // GruntFoundEnemy - grunt established sight with an enemy
 // that was hiding from the squad.
 //=========================================================
-Task_t tlGruntHeavyFoundEnemy[] =
+Task_t tlMillerHumFoundEnemy[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_PLAY_SEQUENCE_FACE_ENEMY, (float)ACT_SIGNAL1},
 };
 
-Schedule_t slGruntHeavyFoundEnemy[] =
+Schedule_t slMillerHumFoundEnemy[] =
 	{
-		{tlGruntHeavyFoundEnemy,
-			ARRAYSIZE(tlGruntHeavyFoundEnemy),
+		{tlMillerHumFoundEnemy,
+			ARRAYSIZE(tlMillerHumFoundEnemy),
 			bits_COND_HEAR_SOUND,
 
 			bits_SOUND_DANGER,
@@ -1062,19 +1065,19 @@ Schedule_t slGruntHeavyFoundEnemy[] =
 //=========================================================
 // GruntCombatFace Schedule
 //=========================================================
-Task_t tlGruntHeavyCombatFace1[] =
+Task_t tlMillerHumCombatFace1[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_WAIT, (float)1.5},
-		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_SWEEP},
+		{TASK_SET_SCHEDULE, (float)SCHED_MILLER_HUM_SWEEP},
 };
 
-Schedule_t slGruntHeavyCombatFace[] =
+Schedule_t slMillerHumCombatFace[] =
 	{
-		{tlGruntHeavyCombatFace1,
-			ARRAYSIZE(tlGruntHeavyCombatFace1),
+		{tlMillerHumCombatFace1,
+			ARRAYSIZE(tlMillerHumCombatFace1),
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_CAN_RANGE_ATTACK1 |
@@ -1087,7 +1090,7 @@ Schedule_t slGruntHeavyCombatFace[] =
 // Suppressing fire - don't stop shooting until the clip is
 // empty or grunt gets hurt.
 //=========================================================
-Task_t tlGruntHeavySignalSuppress[] =
+Task_t tlMillerHumSignalSuppress[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_FACE_IDEAL, (float)0},
@@ -1109,10 +1112,10 @@ Task_t tlGruntHeavySignalSuppress[] =
 		{TASK_RANGE_ATTACK1, (float)0},
 };
 
-Schedule_t slGruntHeavySignalSuppress[] =
+Schedule_t slMillerHumSignalSuppress[] =
 	{
-		{tlGruntHeavySignalSuppress,
-			ARRAYSIZE(tlGruntHeavySignalSuppress),
+		{tlMillerHumSignalSuppress,
+			ARRAYSIZE(tlMillerHumSignalSuppress),
 			bits_COND_ENEMY_DEAD |
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
@@ -1124,7 +1127,7 @@ Schedule_t slGruntHeavySignalSuppress[] =
 			"SignalSuppress"},
 };
 
-Task_t tlGruntHeavySuppress[] =
+Task_t tlMillerHumSuppress[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_FACE_ENEMY, (float)0},
@@ -1144,10 +1147,10 @@ Task_t tlGruntHeavySuppress[] =
 		{TASK_RANGE_ATTACK1, (float)0},
 };
 
-Schedule_t slGruntHeavySuppress[] =
+Schedule_t slMillerHumSuppress[] =
 	{
-		{tlGruntHeavySuppress,
-			ARRAYSIZE(tlGruntHeavySuppress),
+		{tlMillerHumSuppress,
+			ARRAYSIZE(tlMillerHumSuppress),
 			bits_COND_ENEMY_DEAD |
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
@@ -1165,17 +1168,17 @@ Schedule_t slGruntHeavySuppress[] =
 // to attack to break a grunt's run to cover schedule, but
 // when a grunt is in cover, we do want them to attack if they can.
 //=========================================================
-Task_t tlGruntHeavyWaitInCover[] =
+Task_t tlMillerHumWaitInCover[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
 		{TASK_WAIT_FACE_ENEMY, (float)1},
 };
 
-Schedule_t slGruntHeavyWaitInCover[] =
+Schedule_t slMillerHumWaitInCover[] =
 	{
-		{tlGruntHeavyWaitInCover,
-			ARRAYSIZE(tlGruntHeavyWaitInCover),
+		{tlMillerHumWaitInCover,
+			ARRAYSIZE(tlMillerHumWaitInCover),
 			bits_COND_NEW_ENEMY |
 				bits_COND_HEAR_SOUND |
 				bits_COND_CAN_RANGE_ATTACK1 |
@@ -1191,23 +1194,23 @@ Schedule_t slGruntHeavyWaitInCover[] =
 // run to cover.
 // !!!BUGBUG - set a decent fail schedule here.
 //=========================================================
-Task_t tlGruntHeavyTakeCover1[] =
+Task_t tlMillerHumTakeCover1[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
-		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_GRUNT_HEAVY_TAKECOVER_FAILED},
+		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_MILLER_HUM_TAKECOVER_FAILED},
 		{TASK_WAIT, (float)0.2},
 		{TASK_FIND_COVER_FROM_ENEMY, (float)0},
 		{TASK_GRUNT_SPEAK_SENTENCE, (float)0},
 		{TASK_RUN_PATH, (float)0},
 		{TASK_WAIT_FOR_MOVEMENT, (float)0},
 		{TASK_REMEMBER, (float)bits_MEMORY_INCOVER},
-		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY},
+		{TASK_SET_SCHEDULE, (float)SCHED_MILLER_HUM_WAIT_FACE_ENEMY},
 };
 
-Schedule_t slGruntHeavyTakeCover[] =
+Schedule_t slMillerHumTakeCover[] =
 	{
-		{tlGruntHeavyTakeCover1,
-			ARRAYSIZE(tlGruntHeavyTakeCover1),
+		{tlMillerHumTakeCover1,
+			ARRAYSIZE(tlMillerHumTakeCover1),
 			0,
 			0,
 			"TakeCover"},
@@ -1216,7 +1219,7 @@ Schedule_t slGruntHeavyTakeCover[] =
 //=========================================================
 // drop grenade then run to cover.
 //=========================================================
-Task_t tlGruntHeavyGrenadeCover1[] =
+Task_t tlMillerHumGrenadeCover1[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_FIND_COVER_FROM_ENEMY, (float)99},
@@ -1225,13 +1228,13 @@ Task_t tlGruntHeavyGrenadeCover1[] =
 		{TASK_CLEAR_MOVE_WAIT, (float)0},
 		{TASK_RUN_PATH, (float)0},
 		{TASK_WAIT_FOR_MOVEMENT, (float)0},
-		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY},
+		{TASK_SET_SCHEDULE, (float)SCHED_MILLER_HUM_WAIT_FACE_ENEMY},
 };
 
-Schedule_t slGruntHeavyGrenadeCover[] =
+Schedule_t slMillerHumGrenadeCover[] =
 	{
-		{tlGruntHeavyGrenadeCover1,
-			ARRAYSIZE(tlGruntHeavyGrenadeCover1),
+		{tlMillerHumGrenadeCover1,
+			ARRAYSIZE(tlMillerHumGrenadeCover1),
 			0,
 			0,
 			"GrenadeCover"},
@@ -1241,17 +1244,17 @@ Schedule_t slGruntHeavyGrenadeCover[] =
 //=========================================================
 // drop grenade then run to cover.
 //=========================================================
-Task_t tlGruntHeavyTossGrenadeCover1[] =
+Task_t tlMillerHumTossGrenadeCover1[] =
 	{
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_RANGE_ATTACK2, (float)0},
 		{TASK_SET_SCHEDULE, (float)SCHED_TAKE_COVER_FROM_ENEMY},
 };
 
-Schedule_t slGruntHeavyTossGrenadeCover[] =
+Schedule_t slMillerHumTossGrenadeCover[] =
 	{
-		{tlGruntHeavyTossGrenadeCover1,
-			ARRAYSIZE(tlGruntHeavyTossGrenadeCover1),
+		{tlMillerHumTossGrenadeCover1,
+			ARRAYSIZE(tlMillerHumTossGrenadeCover1),
 			0,
 			0,
 			"TossGrenadeCover"},
@@ -1260,7 +1263,7 @@ Schedule_t slGruntHeavyTossGrenadeCover[] =
 //=========================================================
 // hide from the loudest sound source (to run from grenade)
 //=========================================================
-Task_t tlGruntHeavyTakeCoverFromBestSound[] =
+Task_t tlMillerHumTakeCoverFromBestSound[] =
 	{
 		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_COWER}, // duck and cover if cannot move from explosion
 		{TASK_STOP_MOVING, (float)0},
@@ -1271,10 +1274,10 @@ Task_t tlGruntHeavyTakeCoverFromBestSound[] =
 		{TASK_TURN_LEFT, (float)179},
 };
 
-Schedule_t slGruntHeavyTakeCoverFromBestSound[] =
+Schedule_t slMillerHumTakeCoverFromBestSound[] =
 	{
-		{tlGruntHeavyTakeCoverFromBestSound,
-			ARRAYSIZE(tlGruntHeavyTakeCoverFromBestSound),
+		{tlMillerHumTakeCoverFromBestSound,
+			ARRAYSIZE(tlMillerHumTakeCoverFromBestSound),
 			0,
 			0,
 			"GruntTakeCoverFromBestSound"},
@@ -1283,7 +1286,7 @@ Schedule_t slGruntHeavyTakeCoverFromBestSound[] =
 //=========================================================
 // Grunt reload schedule
 //=========================================================
-Task_t tlGruntHeavyHideReload[] =
+Task_t tlMillerHumHideReload[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_RELOAD},
@@ -1295,10 +1298,10 @@ Task_t tlGruntHeavyHideReload[] =
 		{TASK_PLAY_SEQUENCE, (float)ACT_RELOAD},
 };
 
-Schedule_t slGruntHeavyHideReload[] =
+Schedule_t slMillerHumHideReload[] =
 	{
-		{tlGruntHeavyHideReload,
-			ARRAYSIZE(tlGruntHeavyHideReload),
+		{tlMillerHumHideReload,
+			ARRAYSIZE(tlMillerHumHideReload),
 			bits_COND_HEAVY_DAMAGE |
 				bits_COND_HEAR_SOUND,
 
@@ -1308,7 +1311,7 @@ Schedule_t slGruntHeavyHideReload[] =
 //=========================================================
 // Do a turning sweep of the area
 //=========================================================
-Task_t tlGruntHeavySweep[] =
+Task_t tlMillerHumSweep[] =
 	{
 		{TASK_TURN_LEFT, (float)179},
 		{TASK_WAIT, (float)1},
@@ -1316,10 +1319,10 @@ Task_t tlGruntHeavySweep[] =
 		{TASK_WAIT, (float)1},
 };
 
-Schedule_t slGruntHeavySweep[] =
+Schedule_t slMillerHumSweep[] =
 	{
-		{tlGruntHeavySweep,
-			ARRAYSIZE(tlGruntHeavySweep),
+		{tlMillerHumSweep,
+			ARRAYSIZE(tlMillerHumSweep),
 
 			bits_COND_NEW_ENEMY |
 				bits_COND_LIGHT_DAMAGE |
@@ -1339,7 +1342,7 @@ Schedule_t slGruntHeavySweep[] =
 // primary range attack. Overriden because base class stops attacking when the enemy is occluded.
 // grunt's grenade toss requires the enemy be occluded.
 //=========================================================
-Task_t tlGruntHeavyRangeAttack1A[] =
+Task_t tlMillerHumRangeAttack1A[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_PLAY_SEQUENCE_FACE_ENEMY, (float)ACT_CROUCH},
@@ -1356,10 +1359,10 @@ Task_t tlGruntHeavyRangeAttack1A[] =
 		{TASK_RANGE_ATTACK1, (float)0},
 };
 
-Schedule_t slGruntHeavyRangeAttack1A[] =
+Schedule_t slMillerHumRangeAttack1A[] =
 	{
-		{tlGruntHeavyRangeAttack1A,
-			ARRAYSIZE(tlGruntHeavyRangeAttack1A),
+		{tlMillerHumRangeAttack1A,
+			ARRAYSIZE(tlMillerHumRangeAttack1A),
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_HEAVY_DAMAGE |
@@ -1377,7 +1380,7 @@ Schedule_t slGruntHeavyRangeAttack1A[] =
 // primary range attack. Overriden because base class stops attacking when the enemy is occluded.
 // grunt's grenade toss requires the enemy be occluded.
 //=========================================================
-Task_t tlGruntHeavyRangeAttack1B[] =
+Task_t tlMillerHumRangeAttack1B[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_PLAY_SEQUENCE_FACE_ENEMY, (float)ACT_IDLE_ANGRY},
@@ -1394,10 +1397,10 @@ Task_t tlGruntHeavyRangeAttack1B[] =
 		{TASK_RANGE_ATTACK1, (float)0},
 };
 
-Schedule_t slGruntHeavyRangeAttack1B[] =
+Schedule_t slMillerHumRangeAttack1B[] =
 	{
-		{tlGruntHeavyRangeAttack1B,
-			ARRAYSIZE(tlGruntHeavyRangeAttack1B),
+		{tlMillerHumRangeAttack1B,
+			ARRAYSIZE(tlMillerHumRangeAttack1B),
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_HEAVY_DAMAGE |
@@ -1414,123 +1417,43 @@ Schedule_t slGruntHeavyRangeAttack1B[] =
 // secondary range attack. Overriden because base class stops attacking when the enemy is occluded.
 // grunt's grenade toss requires the enemy be occluded.
 //=========================================================
-Task_t tlGruntHeavyRangeAttack2[] =
+Task_t tlMillerHumRangeAttack2[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_RANGE_ATTACK2},
-		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY}, // don't run immediately after throwing grenade.
+		{TASK_SET_SCHEDULE, (float)SCHED_MILLER_HUM_WAIT_FACE_ENEMY}, // don't run immediately after throwing grenade.
 };
 
-Schedule_t slGruntHeavyRangeAttack2[] =
+Schedule_t slMillerHumRangeAttack2[] =
 	{
-		{tlGruntHeavyRangeAttack2,
-			ARRAYSIZE(tlGruntHeavyRangeAttack2),
+		{tlMillerHumRangeAttack2,
+			ARRAYSIZE(tlMillerHumRangeAttack2),
 			0,
 			0,
 			"RangeAttack2"},
 };
 
-
-//=========================================================
-// repel
-//=========================================================
-Task_t tlGruntHeavyRepel[] =
-	{
-		{TASK_STOP_MOVING, (float)0},
-		{TASK_FACE_IDEAL, (float)0},
-		{TASK_PLAY_SEQUENCE, (float)ACT_GLIDE},
-};
-
-Schedule_t slGruntHeavyRepel[] =
-	{
-		{tlGruntHeavyRepel,
-			ARRAYSIZE(tlGruntHeavyRepel),
-			bits_COND_SEE_ENEMY |
-				bits_COND_NEW_ENEMY |
-				bits_COND_LIGHT_DAMAGE |
-				bits_COND_HEAVY_DAMAGE |
-				bits_COND_HEAR_SOUND,
-
-			bits_SOUND_DANGER |
-				bits_SOUND_COMBAT |
-				bits_SOUND_PLAYER,
-			"Repel"},
-};
-
-
-//=========================================================
-// repel
-//=========================================================
-Task_t tlGruntHeavyRepelAttack[] =
-	{
-		{TASK_STOP_MOVING, (float)0},
-		{TASK_FACE_ENEMY, (float)0},
-		{TASK_PLAY_SEQUENCE, (float)ACT_FLY},
-};
-
-Schedule_t slGruntHeavyRepelAttack[] =
-	{
-		{tlGruntHeavyRepelAttack,
-			ARRAYSIZE(tlGruntHeavyRepelAttack),
-			bits_COND_ENEMY_OCCLUDED,
-			0,
-			"Repel Attack"},
-};
-
-//=========================================================
-// repel land
-//=========================================================
-Task_t tlGruntHeavyRepelLand[] =
-	{
-		{TASK_STOP_MOVING, (float)0},
-		{TASK_PLAY_SEQUENCE, (float)ACT_LAND},
-		{TASK_GET_PATH_TO_LASTPOSITION, (float)0},
-		{TASK_RUN_PATH, (float)0},
-		{TASK_WAIT_FOR_MOVEMENT, (float)0},
-		{TASK_CLEAR_LASTPOSITION, (float)0},
-};
-
-Schedule_t slGruntHeavyRepelLand[] =
-	{
-		{tlGruntHeavyRepelLand,
-			ARRAYSIZE(tlGruntHeavyRepelLand),
-			bits_COND_SEE_ENEMY |
-				bits_COND_NEW_ENEMY |
-				bits_COND_LIGHT_DAMAGE |
-				bits_COND_HEAVY_DAMAGE |
-				bits_COND_HEAR_SOUND,
-
-			bits_SOUND_DANGER |
-				bits_SOUND_COMBAT |
-				bits_SOUND_PLAYER,
-			"Repel Land"},
-};
-
-
 DEFINE_CUSTOM_SCHEDULES(CHMiller){
-	slGruntHeavyFail,
-	slGruntHeavyCombatFail,
-	slGruntHeavyVictoryDance,
-	slGruntHeavyEstablishLineOfFire,
-	slGruntHeavyFoundEnemy,
-	slGruntHeavyCombatFace,
-	slGruntHeavySignalSuppress,
-	slGruntHeavySuppress,
-	slGruntHeavyWaitInCover,
-	slGruntHeavyTakeCover,
-	slGruntHeavyGrenadeCover,
-	slGruntHeavyTossGrenadeCover,
-	slGruntHeavyTakeCoverFromBestSound,
-	slGruntHeavyHideReload,
-	slGruntHeavySweep,
-	slGruntHeavyRangeAttack1A,
-	slGruntHeavyRangeAttack1B,
-	slGruntHeavyRangeAttack2,
-	slGruntHeavyRepel,
-	slGruntHeavyRepelAttack,
-	slGruntHeavyRepelLand,
+	slMillerHumFail,
+	slMillerHumCombatFail,
+	slMillerHumVictoryDance,
+	slMillerHumEstablishLineOfFire,
+	slMillerHumFoundEnemy,
+	slMillerHumCombatFace,
+	slMillerHumSignalSuppress,
+	slMillerHumSuppress,
+	slMillerHumWaitInCover,
+	slMillerHumTakeCover,
+	slMillerHumGrenadeCover,
+	slMillerHumTossGrenadeCover,
+	slMillerHumTakeCoverFromBestSound,
+	slMillerHumHideReload,
+	slMillerHumSweep,
+	slMillerHumRangeAttack1A,
+	slMillerHumRangeAttack1B,
+	slMillerHumRangeAttack2,
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES(CHMiller, CSquadMonster);
@@ -1541,26 +1464,7 @@ Schedule_t* CHMiller::GetSchedule()
 {
 
 	// clear old sentence
-	m_iSentence = HGRUNT_SENT_NONE;
-
-	// flying? If PRONE, barnacle has me. IF not, it's assumed I am rapelling.
-	if (pev->movetype == MOVETYPE_FLY && m_MonsterState != MONSTERSTATE_PRONE)
-	{
-		if ((pev->flags & FL_ONGROUND) != 0)
-		{
-			// just landed
-			pev->movetype = MOVETYPE_STEP;
-			return GetScheduleOfType(SCHED_GRUNT_HEAVY_REPEL_LAND);
-		}
-		else
-		{
-			// repel down a rope,
-			if (m_MonsterState == MONSTERSTATE_COMBAT)
-				return GetScheduleOfType(SCHED_GRUNT_HEAVY_REPEL_ATTACK);
-			else
-				return GetScheduleOfType(SCHED_GRUNT_HEAVY_REPEL);
-		}
-	}
+	m_iSentence = MILLER_HUM_SENT_NONE;
 
 	// grunts place HIGH priority on running away from danger sounds.
 	if (HasConditions(bits_COND_HEAR_SOUND))
@@ -1583,7 +1487,7 @@ Schedule_t* CHMiller::GetSchedule()
 
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_GREN", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_GREN", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
@@ -1632,24 +1536,24 @@ Schedule_t* CHMiller::GetSchedule()
 						{
 							if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
 								// player
-								SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 							else if ((m_hEnemy != NULL) &&
 									 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
 									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
 									 (!m_hEnemy->IsMachine(m_hEnemy)))
 								// monster
-								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 
 							JustSpoke();
 						}
 
 						if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
 						{
-							return GetScheduleOfType(SCHED_GRUNT_HEAVY_SUPPRESS);
+							return GetScheduleOfType(SCHED_MILLER_HUM_SUPPRESS);
 						}
 						else
 						{
-							return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+							return GetScheduleOfType(SCHED_MILLER_HUM_ESTABLISH_LINE_OF_FIRE);
 						}
 					}
 				}
@@ -1660,7 +1564,7 @@ Schedule_t* CHMiller::GetSchedule()
 				//!!!KELLY - this individual just realized he's out of bullet ammo.
 				// He's going to try to find cover to run to and reload, but rarely, if
 				// none is available, he'll drop and reload in the open here.
-				return GetScheduleOfType(SCHED_GRUNT_HEAVY_COVER_AND_RELOAD);
+				return GetScheduleOfType(SCHED_MILLER_HUM_COVER_AND_RELOAD);
 			}
 
 			// damaged just a little
@@ -1671,15 +1575,15 @@ Schedule_t* CHMiller::GetSchedule()
 				// 10% chance of flinch.
 				int iPercent = RANDOM_LONG(0, 99);
 
-				if (iPercent <= 90 && m_hEnemy != NULL)
+				if (iPercent <= 60 && m_hEnemy != NULL)
 				{
 					// only try to take cover if we actually have an enemy!
 
 					//!!!KELLY - this grunt was hit and is going to run to cover.
 					if (FOkToSpeak()) // && RANDOM_LONG(0,1))
 					{
-						//SENTENCEG_PlayRndSz( ENT(pev), "HG_COVER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-						m_iSentence = HGRUNT_SENT_COVER;
+						//SENTENCEG_PlayRndSz( ENT(pev), "HG_COVER", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
+						m_iSentence = MILLER_HUM_SENT_COVER;
 						//JustSpoke();
 					}
 					return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
@@ -1696,7 +1600,7 @@ Schedule_t* CHMiller::GetSchedule()
 			}
 			// can grenade launch
 
-			else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER) && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+			else if (FBitSet(pev->weapons, MILLER_HUM_GRENADELAUNCHER) && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
 				// shoot a grenade if you can
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
@@ -1712,7 +1616,7 @@ Schedule_t* CHMiller::GetSchedule()
 					if (MySquadLeader()->m_fEnemyEluded && !HasConditions(bits_COND_ENEMY_FACING_ME))
 					{
 						MySquadLeader()->m_fEnemyEluded = false;
-						return GetScheduleOfType(SCHED_GRUNT_HEAVY_FOUND_ENEMY);
+						return GetScheduleOfType(SCHED_MILLER_HUM_FOUND_ENEMY);
 					}
 				}
 
@@ -1738,7 +1642,7 @@ Schedule_t* CHMiller::GetSchedule()
 				//!!!KELLY - this grunt is about to throw or fire a grenade at the player. Great place for "fire in the hole"  "frag out" etc
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return GetScheduleOfType(SCHED_RANGE_ATTACK2);
@@ -1749,12 +1653,12 @@ Schedule_t* CHMiller::GetSchedule()
 				// charge the enemy's position.
 				if (FOkToSpeak()) // && RANDOM_LONG(0,1))
 				{
-					//SENTENCEG_PlayRndSz( ENT(pev), "HG_CHARGE", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-					m_iSentence = HGRUNT_SENT_CHARGE;
+					//SENTENCEG_PlayRndSz( ENT(pev), "HG_CHARGE", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
+					m_iSentence = MILLER_HUM_SENT_CHARGE;
 					//JustSpoke();
 				}
 
-				return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+				return GetScheduleOfType(SCHED_MILLER_HUM_ESTABLISH_LINE_OF_FIRE);
 			}
 			else if (HasConditions(bits_COND_ENEMY_OCCLUDED))
 			{
@@ -1763,7 +1667,7 @@ Schedule_t* CHMiller::GetSchedule()
 				// grunt's covered position. Good place for a taunt, I guess?
 				if (FOkToSpeak() && RANDOM_LONG(0, 1))
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_TAUNT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_TAUNT", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
 				return GetScheduleOfType(SCHED_STANDOFF);
@@ -1771,7 +1675,7 @@ Schedule_t* CHMiller::GetSchedule()
 
 			if (HasConditions(bits_COND_SEE_ENEMY) && !HasConditions(bits_COND_CAN_RANGE_ATTACK1))
 			{
-				return GetScheduleOfType(SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE);
+				return GetScheduleOfType(SCHED_MILLER_HUM_ESTABLISH_LINE_OF_FIRE);
 			}
 		}
 	}
@@ -1808,33 +1712,33 @@ Schedule_t* CHMiller::GetScheduleOfType(int Type)
 			{
 				if (FOkToSpeak())
 				{
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_THROW", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 					JustSpoke();
 				}
-				return slGruntHeavyTossGrenadeCover;
+				return slMillerHumTossGrenadeCover;
 			}
 			else
 			{
-				return &slGruntHeavyTakeCover[0];
+				return &slMillerHumTakeCover[0];
 			}
 		}
 		else
 		{
 			if (RANDOM_LONG(0, 1))
 			{
-				return &slGruntHeavyTakeCover[0];
+				return &slMillerHumTakeCover[0];
 			}
 			else
 			{
-				return &slGruntHeavyGrenadeCover[0];
+				return &slMillerHumGrenadeCover[0];
 			}
 		}
 	}
 	case SCHED_TAKE_COVER_FROM_BEST_SOUND:
 	{
-		return &slGruntHeavyTakeCoverFromBestSound[0];
+		return &slMillerHumTakeCoverFromBestSound[0];
 	}
-	case SCHED_GRUNT_HEAVY_TAKECOVER_FAILED:
+	case SCHED_MILLER_HUM_TAKECOVER_FAILED:
 	{
 		if (HasConditions(bits_COND_CAN_RANGE_ATTACK1) && OccupySlot(bits_SLOTS_HGRUNT_ENGAGE))
 		{
@@ -1844,15 +1748,15 @@ Schedule_t* CHMiller::GetScheduleOfType(int Type)
 		return GetScheduleOfType(SCHED_FAIL);
 	}
 	break;
-	case SCHED_GRUNT_HEAVY_ELOF_FAIL:
+	case SCHED_MILLER_HUM_ELOF_FAIL:
 	{
 		// human grunt is unable to move to a position that allows him to attack the enemy.
 		return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
 	}
 	break;
-	case SCHED_GRUNT_HEAVY_ESTABLISH_LINE_OF_FIRE:
+	case SCHED_MILLER_HUM_ESTABLISH_LINE_OF_FIRE:
 	{
-		return &slGruntHeavyEstablishLineOfFire[0];
+		return &slMillerHumEstablishLineOfFire[0];
 	}
 	break;
 	case SCHED_RANGE_ATTACK1:
@@ -1862,33 +1766,33 @@ Schedule_t* CHMiller::GetScheduleOfType(int Type)
 			m_fStanding = RANDOM_LONG(0, 1);
 
 		if (m_fStanding)
-			return &slGruntHeavyRangeAttack1B[0];
+			return &slMillerHumRangeAttack1B[0];
 		else
-			return &slGruntHeavyRangeAttack1A[0];
+			return &slMillerHumRangeAttack1A[0];
 	}
 	case SCHED_RANGE_ATTACK2:
 	{
-		return &slGruntHeavyRangeAttack2[0];
+		return &slMillerHumRangeAttack2[0];
 	}
 	case SCHED_COMBAT_FACE:
 	{
-		return &slGruntHeavyCombatFace[0];
+		return &slMillerHumCombatFace[0];
 	}
-	case SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY:
+	case SCHED_MILLER_HUM_WAIT_FACE_ENEMY:
 	{
-		return &slGruntHeavyWaitInCover[0];
+		return &slMillerHumWaitInCover[0];
 	}
-	case SCHED_GRUNT_HEAVY_SWEEP:
+	case SCHED_MILLER_HUM_SWEEP:
 	{
-		return &slGruntHeavySweep[0];
+		return &slMillerHumSweep[0];
 	}
-	case SCHED_GRUNT_HEAVY_COVER_AND_RELOAD:
+	case SCHED_MILLER_HUM_COVER_AND_RELOAD:
 	{
-		return &slGruntHeavyHideReload[0];
+		return &slMillerHumHideReload[0];
 	}
-	case SCHED_GRUNT_HEAVY_FOUND_ENEMY:
+	case SCHED_MILLER_HUM_FOUND_ENEMY:
 	{
-		return &slGruntHeavyFoundEnemy[0];
+		return &slMillerHumFoundEnemy[0];
 	}
 	case SCHED_VICTORY_DANCE:
 	{
@@ -1896,22 +1800,22 @@ Schedule_t* CHMiller::GetScheduleOfType(int Type)
 		{
 			if (!IsLeader())
 			{
-				return &slGruntHeavyFail[0];
+				return &slMillerHumFail[0];
 			}
 		}
 
-		return &slGruntHeavyVictoryDance[0];
+		return &slMillerHumVictoryDance[0];
 	}
-	case SCHED_GRUNT_HEAVY_SUPPRESS:
+	case SCHED_MILLER_HUM_SUPPRESS:
 	{
 		if (m_hEnemy->IsPlayer() && m_fFirstEncounter)
 		{
 			m_fFirstEncounter = false; // after first encounter, leader won't issue handsigns anymore when he has a new enemy
-			return &slGruntHeavySignalSuppress[0];
+			return &slMillerHumSignalSuppress[0];
 		}
 		else
 		{
-			return &slGruntHeavySuppress[0];
+			return &slMillerHumSuppress[0];
 		}
 	}
 	case SCHED_FAIL:
@@ -1919,26 +1823,10 @@ Schedule_t* CHMiller::GetScheduleOfType(int Type)
 		if (m_hEnemy != NULL)
 		{
 			// grunt has an enemy, so pick a different default fail schedule most likely to help recover.
-			return &slGruntHeavyCombatFail[0];
+			return &slMillerHumCombatFail[0];
 		}
 
-		return &slGruntHeavyFail[0];
-	}
-	case SCHED_GRUNT_HEAVY_REPEL:
-	{
-		if (pev->velocity.z > -128)
-			pev->velocity.z -= 32;
-		return &slGruntHeavyRepel[0];
-	}
-	case SCHED_GRUNT_HEAVY_REPEL_ATTACK:
-	{
-		if (pev->velocity.z > -128)
-			pev->velocity.z -= 32;
-		return &slGruntHeavyRepelAttack[0];
-	}
-	case SCHED_GRUNT_HEAVY_REPEL_LAND:
-	{
-		return &slGruntHeavyRepelLand[0];
+		return &slMillerHumFail[0];
 	}
 	default:
 	{
