@@ -255,12 +255,10 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 void CHeadCrab::Spawn()
 {
 	Precache();
-	if (m_bPrehuman == 1)
-		ALERT(at_console, "Headcrab hates you\n");
-	else if (pev->armorvalue == 1)
+
+	if (pev->armorvalue == 1)
 	{
 		m_bPrehuman = 1;
-		ALERT(at_console, "Headcrab hates you\n");
 	}
 	
 	if (FClassnameIs(pev, "monster_headcrab_fast"))

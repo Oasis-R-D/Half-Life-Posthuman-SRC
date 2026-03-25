@@ -4,6 +4,7 @@ LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
 // START NPC GIB LISTS (FORK YOU C++) // MDL, BG, AMNT, TYPE
 // TYPES: 1 - head, 2 - sticky
 
+// TO-DO: fix alien gibs being tiny (make small ones headcrab only)
 std::vector<gib_data_t> xenian_gibmap =
 {
 		gib_data_t{"models/agibs.mdl", 0, 1}, // skull
@@ -151,9 +152,13 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 {
 	int i, p, amnt, body;
-	std::vector<gib_data_t> gibmap = GetNPCgibs(pevVictim);
+	CBaseEntity* pVictim = CBaseEntity::Instance(pevVictim);
+	std::vector<gib_data_t> gibmap = GetNPCgibs(pVictim);
 	int size = gibmap.size();
 	
+	if (pVictim->m_iBurnTimer > 0)
+		m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
+
 	for (i = 0; i < size; i++) // loops through rows
 	{
 		int type = 0;
@@ -272,6 +277,53 @@ void CoolerGib::WaitTillLand()
 		}
 		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}
+
+	if (m_iBurnTimer > 0)
+	{
+		if(pev->waterlevel > 0) 
+			m_iBurnTimer = 0;
+
+		if (m_iBurnTimer > 200)
+			m_iBurnTimer = 200;
+
+		else
+		{
+			int max = 1; // max particles / 4
+
+			int iBurnAmnt = ceil(m_iBurnTimer/10);
+			if (iBurnAmnt > max) 
+				iBurnAmnt = max;
+			
+			for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
+			{
+				Vector VecflameOrg = pev->origin;
+				VecflameOrg.x += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+				VecflameOrg.y += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+				VecflameOrg.z += -2 + 2 * (RANDOM_FLOAT(0, 0.5)) + 1;
+
+				UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
+			}
+
+			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
+			{
+				if (RANDOM_LONG(0, 4) == 4)
+				{
+					Vector VecSpreadOrg = Center();
+					VecSpreadOrg.z = pev->absmin.z + 5;
+
+					// make sure there isn't already fire there
+					CBaseEntity* pList[2];
+					int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
+					if (0 == count) // don't spawn monsters near players or other monsters
+					{
+						CFire::FireCreate(VecSpreadOrg, 8, 10, 1, this); // spread fire around, cause chaos
+					}
+				}
+			}
+			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+			m_iBurnTimer--;
+		}
+	}
 }
 
 //
@@ -359,20 +411,19 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	m_lifeTime = 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
-	SetThink(&CoolerGib::WaitTillLand);
-	SetTouch(&CoolerGib::BounceGibTouch);
 }
 
-std::vector<gib_data_t> CoolerGib::GetNPCgibs(entvars_t* pevVictim)
+std::vector<gib_data_t> CoolerGib::GetNPCgibs(CBaseEntity* pVictim)
 {
-	if (FClassnameIs(pevVictim, "monster_turret"))
+	if (FClassnameIs(pVictim->pev, "monster_turret"))
 		return human_gibmap;
-	else if (FClassnameIs(pevVictim, "monster_pitdrone"))
+	else if (FClassnameIs(pVictim->pev, "monster_pitdrone"))
 		return pitdrone_gibmap;
 	else 
 	{
-		switch ((CBaseEntity::Instance(pevVictim))->BloodColor())
+		switch (pVictim->BloodColor())
 		{
+			default:
 			case BLOOD_COLOR_RED:
 				return human_gibmap;
 				break;
