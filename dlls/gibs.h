@@ -33,7 +33,7 @@ public:
 	static void SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib);
 	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = g_vecZero);
 	static void SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib);
-	static std::vector<gib_data_t> GetNPCgibs(entvars_t* pevVictim);	
+	static std::vector<gib_data_t> GetNPCgibs(CBaseEntity* pevVictim);	
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 
 	int m_bloodColor;
