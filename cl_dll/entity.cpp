@@ -200,7 +200,7 @@ void DLLEXPORT HUD_TxferPredictionData(struct entity_state_s* ps, const struct e
 
 	pcd->viewmodel = ppcd->viewmodel;
 	pcd->fuser1 = ppcd->fuser1;
-	altviewmodel = pcd->fuser1;
+	altviewmodel = pcd->fuser1; // ALTVM CODE
 	pcd->m_iId = ppcd->m_iId;
 	pcd->ammo_shells = ppcd->ammo_shells;
 	pcd->ammo_nails = ppcd->ammo_nails;
