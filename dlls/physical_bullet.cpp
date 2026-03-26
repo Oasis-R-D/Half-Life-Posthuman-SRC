@@ -41,9 +41,9 @@
 // speed - the ideal magnitude of my velocity
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, float BLLTDamage, int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
+void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, unsigned int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
-	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
+	for (unsigned int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -115,7 +115,6 @@ void CPhysbullet::Spawn()
 			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
 			m_distpenetrate = 32;
-			m_bHeavyDecal = true;
 			break;
 		case 12:
 			SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
@@ -126,13 +125,11 @@ void CPhysbullet::Spawn()
 			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
 			m_distpenetrate = 18;
-			m_bHeavyDecal = true;
 			break;
 		case 44:
 			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
 			m_distpenetrate = 16;
-			m_bHeavyDecal = true;
 			break;
 		case 69:
 			SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
@@ -145,7 +142,6 @@ void CPhysbullet::Spawn()
 			m_distpenetrate = 128;
 			pev->rendercolor = Vector(255, 70, 170);
 			pev->rendermode = kRenderTransAdd;
-			m_bHeavyDecal = true;
 			break;
 		default:
 		case 9:
