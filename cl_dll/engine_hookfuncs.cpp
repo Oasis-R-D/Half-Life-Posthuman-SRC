@@ -64,6 +64,7 @@ extern model_t* cl_sprite_shell;
 
 std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
+extern char * UTIL_VarArgs_client(const char* format, ...);
 
 int ModelFrameCount(model_t* model)
 {
@@ -261,8 +262,6 @@ FuncHook(R_Blood, void, float* org, float* dir, int pcolor, int speed)
 {
 	OrigR_Blood(org, dir, pcolor, speed);
 }
-
- extern char * UTIL_VarArgs_client(const char* format, ...);
 
 FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int modelIndex2, float size)
 {
@@ -536,7 +535,7 @@ FuncHook(R_SparkStreaks, void, float* pos, int count, int velocityMin, int veloc
 
 FuncHook(R_BulletImpactParticles, void, float* pos)
 {
-	gParticleEngine.CreateSystem_File(particle_bulletimpact, pos, Vector(0, 0, 0), 0);
+	//gParticleEngine.CreateSystem_File(particle_bulletimpact, pos, Vector(0, 0, 0), 0);
 	// ^^^ this would also benefit from changing color based on the texture hit's color
 }
 
@@ -596,15 +595,24 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
-	//gEngfuncs.Con_DPrintf("char is equal to %d\n", count);
+	char material = (char)count;
+	//gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
 
-	Hooked_R_SparkStreaks(org, gEngfuncs.pfnRandomLong(1, 3), -200, 200); // TO-DO: add proper direction (would need a new func), make mat based, among us
-
-	switch ((char)count)
+	switch ((char)material)
 	{
 		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); break;
-		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); break;
+		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); return; break;
+		case CHAR_TEX_IMPEN: return; break;
+		case CHAR_TEX_FLESH:
+			//Hooked_R_BloodSprite(org, BLOOD_COLOR_RED, int modelIndex, int modelIndex2, 8); // TO-DO: figure out how to get model index and crap
+			gParticleEngine.CreateCluster("blood_effects_cluster.txt", org, dir, 0);
+			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), "bloodspot", "engine_blood_impact.txt", 160, 0, 0), org, dir, 0);
+			return;
+			break;
+		case CHAR_TEX_DIRT: gParticleEngine.CreateSystem_File(particle_bulletimpact, org, dir, 0); return; break; //TO-DO: make particles smaller and brown
 	}
+
+	Hooked_R_SparkStreaks(org, gEngfuncs.pfnRandomLong(1, 3), -200, 200); // TO-DO: add proper direction (would need a new func), make mat based, among us
 
 	// UNUSED
 	//OrigR_MultiGunshot(org, dir, noise, count, decalCount, decalIndices);
