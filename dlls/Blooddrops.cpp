@@ -60,18 +60,14 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 void CPhysblood::Spawn()
 {
 	Precache();
-	switch (RANDOM_LONG(1, 3))
-	{
-	case 1:
-	case 2:
+	if (RANDOM_LONG(1, 3) <= 2)
 		m_opposite = 1;
-		break;
-	case 3:
+	else
+	{
 		if (m_isgib != true)
 			m_opposite = -1;
 		else
 			m_opposite = 1;
-		break;
 	}
 
 	SET_MODEL(ENT(pev), "sprites/blood.spr");
@@ -106,35 +102,28 @@ void CPhysblood::Spawn()
 
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, m_SpawnPos);
+	// TO-DO: use radial spread, this is not the proper way to do spread
 	pev->velocity = ((m_direction + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
 	pev->gravity = m_Gravity;
 	pev->owner = NULL;
 	
+	pev->rendermode = kRenderTransAlpha;
+	pev->renderamt = 225;
+
 	switch(m_BloodType)
 	{
 		case BLOOD_COLOR_RED: pev->rendercolor = Vector(RANDOM_LONG(102, 200), 0, 0); break;
 		case BLOOD_COLOR_YELLOW: pev->rendercolor = Vector(199, 195, 55); break;
 		case BLOOD_COLOR_GREEN: pev->rendercolor = Vector(185, 235, 85); break;
 		case BLOOD_COLOR_CYAN: pev->rendercolor = Vector(RANDOM_LONG(16, 18), RANDOM_LONG(253, 255), RANDOM_LONG(190, 192)); break;
-		case NULL: pev->rendercolor = Vector(115, 205, 255); break; // water
+		case NULL: pev->rendercolor = Vector(115, 205, 255); pev->renderamt = 125; pev->rendermode = kRenderTransAdd; break; // water
 		default: pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255)); break; // corruption
-	}
-	
-	if (m_BloodType == NULL) // water drop
-	{
-		pev->renderamt = 125;
-		pev->rendermode = kRenderTransAdd;
-	}
-	else
-	{
-		pev->rendermode = kRenderTransAlpha;
-		pev->renderamt = 225;
 	}
 
 	pev->frame = RANDOM_LONG(0, 8);
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	SetTouch(&CPhysblood::BoltTouch);
+	SetTouch(&CPhysblood::DropTouch);
 	SetThink(&CPhysblood::AirThink);
 	pev->nextthink = gpGlobals->time;
 }
@@ -152,17 +141,13 @@ void CPhysblood::Precache()
 	PRECACHE_SOUND("common/drip_07.wav");
 }
 
-
-int CPhysblood::Classify()
-{
-	return CLASS_NONE;
-}
-
-void CPhysblood::BoltTouch(CBaseEntity* pOther)
+void CPhysblood::DropTouch(CBaseEntity* pOther)
 {
 	SetTouch(NULL);
 	SetThink(NULL);
+
 	TraceResult tr = UTIL_GetGlobalTrace();
+
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
@@ -184,10 +169,11 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 	{
 		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3), 6);
 	}
-	else
+	else // also good for catching errors with monster blood types
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6), 6);
 	}
+
 	char dripsnd[256];
 	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
 	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
@@ -196,7 +182,6 @@ void CPhysblood::BoltTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	
 	pev->nextthink = gpGlobals->time + 0.05f;
 	if (m_BloodType == BLOOD_COLOR_CYAN)
 	{
@@ -206,9 +191,8 @@ void CPhysblood::AirThink()
 		{
 			if (!pObject->IsBSPModel() && 0 != pObject->pev->takedamage && m_hashealed != true && !FClassnameIs(pObject->pev, "monster_headcrab_super"))
 			{
-				ALERT(at_console, "attempt heal\n");
-				m_hashealed = true;
-				pObject->TakeHealth(2, DMG_GENERIC);
+				m_hashealed = true; // remove it too?
+				pObject->TakeHealth(5, DMG_GENERIC);
 			}
 		}
 	}

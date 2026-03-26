@@ -15,10 +15,9 @@ class CPhysblood : public CBaseEntity
 public:
 	void Spawn() override;
 	void Precache() override;
-	int Classify() override;
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	void EXPORT AirThink();
-	void EXPORT BoltTouch(CBaseEntity* pOther);
+	void EXPORT DropTouch(CBaseEntity* pOther);
 	static void BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib = false, float spread = RANDOM_FLOAT(CONE_45DEGREES, CONE_15DEGREES), bool speedRNG = true); // add damage, spread and owner so entities calling this can give it the proper stuff
 
 private:
