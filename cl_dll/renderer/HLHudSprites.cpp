@@ -406,7 +406,7 @@ void DrawCrosshair()
 	float frametime = engine_cl->time - engine_cl->oldtime;
 	if (gOldCrosshairSpreadNum)
 	{
-		gCrosshairSpreadNum = dlerp(gOldCrosshairSpreadNum, gCrosshairSpreadNum, 0.66*frametime);
+		gCrosshairSpreadNum = dlerp(gOldCrosshairSpreadNum, gCrosshairSpreadNum, 5*frametime);
 	}
 	gOldCrosshairSpreadNum = gCrosshairSpreadNum;
 

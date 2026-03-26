@@ -294,7 +294,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 				ApplyMultiDamage(owner->pev, owner->pev);
 				
 				/*
@@ -338,7 +338,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	if (0 != pOther->pev->takedamage)
 	{
 		ClearMultiDamage();
-		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 		ApplyMultiDamage(owner->pev, owner->pev);
 	}
 	else
