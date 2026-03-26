@@ -27,11 +27,10 @@
 // UNDONE: Save/restore this?
 
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
+void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
-		int i;
 		if (isgib == false && BLDamnt > 12)
 		{
 			BLDamnt = 12;
@@ -40,7 +39,7 @@ void CPhysblood::BloodCreate(int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vect
 		if ((g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)
 			BLDamnt /= 2;
 
-		for (i = 0; i < BLDamnt; i++) // Allows multishot
+		for (unsigned int i = 0; i < BLDamnt; i++) // Allows multishot
 		{
 			// Create a new entity with CPhysblood private data
 			CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
