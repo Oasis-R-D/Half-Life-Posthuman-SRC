@@ -3,6 +3,7 @@
 // Based on code from the Valve Dev Community wiki
 // 
 // Jay - 2022
+// Updated by PackMan09
 // ================================================== \\
 
 #include "hud.h"
@@ -39,7 +40,7 @@ void DiscordMan_Startup(void)
 	handlers.spectateGame = HandleDiscordSpectate;
 	handlers.joinRequest = HandleDiscordJoinRequest;
 
-	Discord_Initialize("1306778334579134534", &handlers, 1, 0);
+	Discord_Initialize("1306778334579134534", &handlers, 1, 0); //TO-DO: how does one hide this
 
 	memset(&discordPresence, 0, sizeof(discordPresence));
 
@@ -62,15 +63,15 @@ void DiscordMan_Update(void)
 	
 	switch (skill)
 	{
-	case 1:
-		State = "Easy Mode\n";
-		break;
-	case 2:
-		State = "Hard Mode\n";
-		break;
-	case 3:
-		State = "Realism Mode\n";
-		break;
+		case 1:
+			State = "Easy Mode\n";
+			break;
+		case 2:
+			State = "Hard Mode\n";
+			break;
+		case 3:
+			State = "Realism Mode\n";
+			break;
 	}
 	
 	// Menu detections, these don't seem to work very well.
@@ -88,9 +89,12 @@ void DiscordMan_Update(void)
 		sprintf(buffer, "MultiPlayer (%d / %d)\n", playercount, engine_cl->maxclients);
 		State = buffer;
 	}
-	if (engine_cl->paused)
+	else
 	{
-		State = "In Menus\n";
+		if (engine_cl->paused)
+		{
+			State = "In Menus\n";
+		}
 	}
 	if (engine_cl->intermission)
 	{
