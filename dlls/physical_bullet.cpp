@@ -307,7 +307,35 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 				// VFX
 				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
 				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
-				TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_MONSTER_12MM);
+				char material = TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_MONSTER_12MM);
+
+				if (pOther->IsBSPModel())
+				{
+					// ALERT(at_console, "char is %c \0", material);
+
+					// entry
+					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+					WRITE_BYTE(TE_IMPACTVFX);
+					WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
+					WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
+					WRITE_COORD(0);
+					WRITE_COORD(0);
+					WRITE_BYTE(material); // (count) (use as mat type?)
+					WRITE_BYTE(0);		  // (bullethole decal texture index)
+					MESSAGE_END();
+
+					// exit (disabled for being unperformant)
+					/*
+					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+					WRITE_BYTE(TE_IMPACTVFX);
+					WRITE_COORD_VECTOR(beam_tr.vecEndPos + (pev->velocity.Normalize()) * 0.1f); // org
+					WRITE_COORD_VECTOR(pev->velocity.Normalize());							// dir
+					WRITE_COORD(0);
+					WRITE_COORD(0);
+					WRITE_BYTE(material); // (count) (use as mat type?)
+					WRITE_BYTE(0);		  // (bullethole decal texture index)
+					MESSAGE_END(); */
+				}
 
 				// Remove original bullet
 				UTIL_Remove(this);
