@@ -191,6 +191,7 @@ struct particle_system_t
 	float veldampdelay;
 	float gravity;
 	float particlefreq;
+	float systfadetime;
 	float impactdamp;
 	float mainalpha;
 

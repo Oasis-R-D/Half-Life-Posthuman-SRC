@@ -247,7 +247,7 @@ startparticles 1
 lightmaps 0
 )";
 
-char particle_bulletimpact[] = R"(
+char particle_gs[] = R"(
 life 1.5
 lifevar 0.1
 
@@ -262,7 +262,7 @@ maxvel 200
 rotationvel 90
 rotationvar 30
 
-sprite _particletexture
+sprite gsparticle
 rendermode 2
 
 scale 1.5
@@ -280,6 +280,42 @@ startparticles 15
 collision 2
 impactdamp 0.25
 lightmaps 1
+
+)";
+
+char particle_bulletdripimpact[] = R"(
+life 1.5
+lifevar 0.1
+
+randomdir %d
+
+maxofs 12
+
+fadedelay 1.3
+
+minvel 64
+maxvel 200
+rotationvel 90
+rotationvar 30
+
+texture gsparticle
+rendermode 2
+
+scale %f
+
+pcolr %d
+pcolg %d
+pcolb %d
+
+
+gravity 1
+
+collision 2
+impactdamp 0.75
+lightmaps 1
+
+systemfadetime %f
+intensity %d
 
 )";
 

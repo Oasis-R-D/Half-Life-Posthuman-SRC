@@ -24,7 +24,9 @@ extern char bloodchunks[];
 
 extern char bloodspray[];
 
-extern char particle_bulletimpact[];
+extern char particle_gs[];
+
+extern char particle_bulletdripimpact[];
 
 extern char particle_muzzleflash[];
 

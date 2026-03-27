@@ -514,6 +514,8 @@ particle_system_t* CParticleEngine::CreateSystem(char* szPath, Vector origin, Ve
 			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframevare"))
 			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "systemfadetime"))
+			pSystem->systfadetime = atof(szValue);
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -894,6 +896,8 @@ particle_system_t* CParticleEngine::CreateSystem_File(char* szSystem, Vector ori
 			pSystem->framevar4 = static_cast<unsigned short>(atoi(szValue));
 		else if (!strcmp(szField, "startframevare"))
 			pSystem->framevar5 = static_cast<unsigned short>(atoi(szValue));
+		else if (!strcmp(szField, "systemfadetime"))
+			pSystem->systfadetime = atof(szValue);
 		else if (!strcmp(szField, "texture"))
 		{
 			int iOriginalBind;
@@ -1491,7 +1495,7 @@ void CParticleEngine::UpdateSystems()
 			continue;
 		}
 
-		float flLife = engine_cl->time - next->spawntime;
+		float flLife = engine_cl->time - next->spawntime; // TO-DO: implement systemfadetime
 		float flFreq = 1 / (float)next->particlefreq;
 		int iTimesSpawn = flLife / flFreq;
 

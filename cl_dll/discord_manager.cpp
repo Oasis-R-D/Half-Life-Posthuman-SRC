@@ -8,7 +8,7 @@
 
 #include "hud.h"
 #include "discord_manager.h"
-#include <string.h>
+#include <string>
 #include "discord\discord_rpc.h"
 #include <time.h>
 
