@@ -519,13 +519,6 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 			{
 				ALERT(at_console, "penetration mult: %f\n", 512);
 				return penmodifier = 512;
-				
-			}
-			else if (!strcmp(szbuffer, "mat_flesh"))
-			{
-				ALERT(at_console, "penetration mult: %f\n", 1.66);
-				return penmodifier = 1.75f;
-				
 			}
 
 			chTextureType = TEXTURETYPE_Find(szbuffer);

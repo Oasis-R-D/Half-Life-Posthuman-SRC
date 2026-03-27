@@ -253,7 +253,7 @@ lifevar 0.1
 
 systemshape 1
 systemsize 1
-randomdir 1
+randomdir 0
 
 fadedelay 1.3
 
@@ -262,7 +262,7 @@ maxvel 200
 rotationvel 90
 rotationvar 30
 
-sprite gsparticle
+texture gsparticle
 rendermode 2
 
 scale 1.5

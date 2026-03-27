@@ -600,7 +600,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 
 	switch ((char)material)
 	{
-		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); break;
+		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); gParticleEngine.CreateSystem_File(particle_gs, org, dir, 0); break;
 		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); return; break;
 		case CHAR_TEX_IMPEN: return; break;
 		case CHAR_TEX_FLESH:
