@@ -404,7 +404,7 @@ void DrawCrosshair()
 	screen = gBSPRenderer.TriWorldToScreen(point);
 
 	float frametime = engine_cl->time - engine_cl->oldtime;
-	if (gOldCrosshairSpreadNum)
+	if (gOldCrosshairSpreadNum > 0.01 && gOldCrosshairSpreadNum < 1.0)
 	{
 		gCrosshairSpreadNum = dlerp(gOldCrosshairSpreadNum, gCrosshairSpreadNum, 5*frametime);
 	}

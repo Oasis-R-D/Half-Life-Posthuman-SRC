@@ -265,8 +265,6 @@ void CShotgun::SecondaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-
-
 	m_iClip -= 2;
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
@@ -319,7 +317,16 @@ void CShotgun::SecondaryAttack()
 
 	pev->armortype = 2;
 
-	m_pPlayer->pev->punchangle.x -= 10;
+#ifndef CLIENT_DLL
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		{
+		CBasePlayerWeapon::Recoil(7, 4);
+		}
+	else
+		{
+		CBasePlayerWeapon::Recoil(10, 5);
+		}
+#endif
 }
 
 void CShotgun::TertiaryAttack()

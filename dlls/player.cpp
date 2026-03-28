@@ -4599,7 +4599,7 @@ int CBasePlayer::GiveAmmo(int iCount, const char* szName, int iMax)
 	return i;
 }
 
-void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
+void CBasePlayer::UpdateCrosshair(double spread, int crosshairtype)
 {
 	GetAutoaimVector(AUTOAIM_10DEGREES); // All guns use 10 degwees now
 	TraceResult spreadTR;

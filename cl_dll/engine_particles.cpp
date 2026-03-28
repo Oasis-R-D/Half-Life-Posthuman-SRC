@@ -255,6 +255,8 @@ systemshape 1
 systemsize 1
 randomdir 0
 
+maxofs 32
+
 fadedelay 1.3
 
 minvel 50
@@ -265,7 +267,7 @@ rotationvar 30
 texture gsparticle
 rendermode 2
 
-scale 1.5
+scale 1.25
 scalevar 0.25
 
 pcolr 47

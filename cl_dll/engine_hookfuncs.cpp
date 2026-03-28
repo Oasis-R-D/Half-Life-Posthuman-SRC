@@ -595,18 +595,21 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
+	Vector newOrg = org;
 	char material = (char)count;
-	//gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
+	gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
 
 	switch ((char)material)
 	{
-		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); gParticleEngine.CreateSystem_File(particle_gs, org, dir, 0); break;
+		default: gParticleEngine.CreateSystem("engine_default_impsmoke.txt", org, dir, 0); break;
 		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); return; break;
 		case CHAR_TEX_IMPEN: return; break;
 		case CHAR_TEX_FLESH:
+			newOrg = dir;
+			newOrg = (newOrg*2) + org;
 			//Hooked_R_BloodSprite(org, BLOOD_COLOR_RED, int modelIndex, int modelIndex2, 8); // TO-DO: figure out how to get model index and crap
-			gParticleEngine.CreateCluster("blood_effects_cluster.txt", org, dir, 0);
-			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), "bloodspot", "engine_blood_impact.txt", 160, 0, 0), org, dir, 0);
+			gParticleEngine.CreateCluster("blood_effects_cluster.txt", newOrg, dir, 0);
+			gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), "bloodspot", "engine_blood_impact.txt", 160, 0, 0), newOrg, dir, 0);
 			return;
 			break;
 		case CHAR_TEX_DIRT: gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_bulletdripimpact, 0, 0.5, 185, 155, 95, 2, 10), org, dir, 0); return; break;

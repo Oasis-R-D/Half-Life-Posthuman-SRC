@@ -1654,7 +1654,7 @@ float TEXTURETYPE_PlayMatSound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, i
 
 	chTextureType = 0;
 
-	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE && pEntity->Classify() != CLASS_VEHICLE)
 		// hit body
 		chTextureType = CHAR_TEX_FLESH;
 	else
