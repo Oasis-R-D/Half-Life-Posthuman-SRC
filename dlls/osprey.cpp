@@ -841,14 +841,16 @@ void COsprey::ShowDamage()
 	if (m_iDoLeftSmokePuff > 0 || RANDOM_LONG(0, 99) > m_flLeftHealth)
 	{
 		Vector vecSrc = pev->origin + gpGlobals->v_right * -340;
-		UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
+		//UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, vecSrc, g_vecZero, 0.0, 0.0, PE_BILLOWSMOKE, 0, 0, 0);
 		if (m_iDoLeftSmokePuff > 0)
 			m_iDoLeftSmokePuff--;
 	}
 	if (m_iDoRightSmokePuff > 0 || RANDOM_LONG(0, 99) > m_flRightHealth)
 	{
 		Vector vecSrc = pev->origin + gpGlobals->v_right * 340;
-		UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
+		//UTIL_Particle("engine_smoke.txt", vecSrc, g_vecZero, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, vecSrc, g_vecZero, 0.0, 0.0, PE_BILLOWSMOKE, 0, 0, 0);
 		if (m_iDoRightSmokePuff > 0)
 			m_iDoRightSmokePuff--;
 	}

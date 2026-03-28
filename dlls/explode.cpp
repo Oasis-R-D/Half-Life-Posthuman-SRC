@@ -243,6 +243,7 @@ void CEnvExplosion::Smoke()
 {
 	if ((pev->spawnflags & SF_ENVEXPLOSION_NOSMOKE) == 0)
 	{
+		/*
 		MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
 		WRITE_BYTE(TE_SMOKE);
 		WRITE_COORD(pev->origin.x);
@@ -252,6 +253,8 @@ void CEnvExplosion::Smoke()
 		WRITE_BYTE((byte)m_spriteScale); // scale * 10
 		WRITE_BYTE(12);					 // framerate
 		MESSAGE_END();
+		*/
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BILLOWSMOKE, 0, 0, 0);
 	}
 
 	if ((pev->spawnflags & SF_ENVEXPLOSION_REPEATABLE) == 0)

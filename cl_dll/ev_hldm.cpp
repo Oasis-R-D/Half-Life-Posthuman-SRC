@@ -2082,5 +2082,8 @@ void EV_Particles(event_args_t* args)
 			else
 				gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
 			break;
+		case 10: // grenade/flying vehicle smoke
+			gParticleEngine.CreateSystem("engine_smoke.txt", args->origin, gpGlobals->v_up, 0);
+			break;
 	}
 }

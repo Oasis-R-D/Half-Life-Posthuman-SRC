@@ -41,6 +41,7 @@ enum ParticleEngine
 	PE_BLDGIBCLOUD,
 	PE_SMOKECLOUD,
 	PE_FIRE,
+	PE_BILLOWSMOKE,
 };
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
