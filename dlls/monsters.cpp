@@ -543,7 +543,7 @@ void CBaseMonster::Railed() //:troll:
 				VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
 				VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
 
-				UTIL_Particle("flames.txt", VecflameOrg, g_vecZero, 0);
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
 			}
 
 			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)

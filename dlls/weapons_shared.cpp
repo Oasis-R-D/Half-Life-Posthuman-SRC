@@ -177,7 +177,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 			m_pPlayer->m_bInGrenade = true;
 			m_pPlayer->m_bInGrenadeDelay = true;
 
-			ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
+			//ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
 
 			m_pPlayer->m_iGrenadeAmnt--;
 

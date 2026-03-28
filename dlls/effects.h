@@ -240,6 +240,7 @@ public:
 	bool m_bSoundPlaying;
 	bool m_bCodeSpawned;
 	bool m_bBlueDubaDeBaDaDie;
+	bool m_bIgnoreCheck;
 
 	float m_fSpreadDelay;
 	float m_fSpreadTimer;
@@ -255,7 +256,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 public:
-	static CFire* FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride = NULL, bool blue = false);
+	static CFire* FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride = NULL, bool blue = false, bool ignorecheck = false);
 };
 
 // RENDERERS START

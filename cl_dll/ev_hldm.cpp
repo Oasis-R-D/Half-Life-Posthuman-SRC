@@ -2076,5 +2076,11 @@ void EV_Particles(event_args_t* args)
 		case 8: // smoke gren expl
 			gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0);
 			break;
+		case 9: // fire
+			if (args->bparam2 != 1)
+				gParticleEngine.CreateSystem("flames.txt", args->origin, gpGlobals->v_up, 0);
+			else
+				gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
+			break;
 	}
 }
