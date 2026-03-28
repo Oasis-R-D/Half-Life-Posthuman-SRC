@@ -597,7 +597,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 {
 	Vector newOrg = org;
 	char material = (char)count;
-	gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
+	//gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
 
 	switch ((char)material)
 	{
@@ -1212,11 +1212,11 @@ FuncHook(R_TempModel, TEMPENTITY*, float* pos, float* dir, float* angles, float 
 	case BREAK_METAL:
 		tempent->hitSound = BREAK_2;
 		tempent->flags |= FTENT_SMOKETRAIL;
-		tempent->flags = ~FTENT_BUOYANT;
+		tempent->flags &= ~FTENT_BUOYANT;
 		tempent->entity.baseline.angles = Vector(RandomFloat(-512, 511), RandomFloat(-256, 255), RandomFloat(-256, 255));
 		break;
-	case BREAK_FLESH: tempent->flags = ~FTENT_BUOYANT; break;
-	case BREAK_CONCRETE: tempent->flags = ~FTENT_BUOYANT; break;
+	case BREAK_FLESH: tempent->flags &= ~FTENT_BUOYANT; break;
+	case BREAK_CONCRETE: tempent->flags &= ~FTENT_BUOYANT; break;
 	}
 
 	tempent->entity.baseline.origin = dir;

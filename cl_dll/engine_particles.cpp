@@ -321,7 +321,6 @@ intensity %d
 
 )";
 
-// replace "sprite muzzleflash1" with a input so we can use this one
 char particle_muzzleflash[] = R"(
 life 0.025
 
