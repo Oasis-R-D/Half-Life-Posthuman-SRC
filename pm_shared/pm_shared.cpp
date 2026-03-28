@@ -523,6 +523,8 @@ int PM_MapTextureTypeStepType(char chTextureType)
 		return STEP_TILE;
 	case CHAR_TEX_SLOSH:
 		return STEP_SLOSH;
+	case CHAR_TEX_FLESH:
+		return STEP_SLOSH;
 	case CHAR_TEX_IMPEN:
 		return STEP_CONCRETE;
 	}
@@ -1322,9 +1324,9 @@ void PM_Friction()
 		friction *= pmove->friction; // player friction?
 
 		// Bleed off some speed, but if we have less than the bleed
-		//  threshhold, bleed the theshold amount.
+		// threshold, bleed the theshold amount.
 		control = (speed < pmove->movevars->stopspeed) ? pmove->movevars->stopspeed : speed;
-		// Add the amount to t'he drop amount.
+		// Add the amount to the drop amount.
 		drop += control * friction * pmove->frametime;
 	}
 
@@ -2710,7 +2712,7 @@ void PM_Jump()
 	// Don't play jump sounds while frozen.
 	if ((pmove->flags & FL_FROZEN) == 0)
 	{
-PM_PlayStepSound(PM_MapTextureTypeStepType(pmove->chtexturetype), 1.0);
+		PM_PlayStepSound(PM_MapTextureTypeStepType(pmove->chtexturetype), 1.0);
 	}
 
 	// See if user can super long jump?
