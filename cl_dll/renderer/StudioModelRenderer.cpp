@@ -1903,6 +1903,34 @@ void CStudioModelRenderer::StudioDrawModel(int flags)
 	if (flags & STUDIO_RENDER && !(m_pCurrentEntity->curstate.effects & FL_NOMODEL))
 	{
 		StudioRenderModel();
+
+		// H MODEL CODE
+		if (m_pCurrentEntity->curstate.weaponmodel)
+		{
+			int playermdl_numbones = m_pStudioHeader->numbones;
+
+			cl_entity_t saveent = *m_pCurrentEntity;
+			model_t* savedmdl = m_pRenderModel;
+
+			model_t* pweaponmodel = CL_GetModelByIndex(m_pCurrentEntity->curstate.weaponmodel);
+			m_pRenderModel = pweaponmodel;
+			
+			m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
+
+			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+
+			m_pCurrentEntity->model = pweaponmodel;
+			
+			m_pCurrentStudioMDL = (StudioMDL_Model*)m_pRenderModel->entities;
+			m_pCurrentStudioMDL->EnableBuffers();
+	
+			StudioRenderModel();
+			StudioCalcAttachments();
+
+			*m_pCurrentEntity = saveent;
+			m_pRenderModel = savedmdl;
+			m_pStudioHeader = (studiohdr_t*)m_pRenderModel->cache.data;
+		}
 	}
 
 	return;
@@ -4674,6 +4702,40 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 	{
 		StudioMDL_BodyPart* bodypart = m_pCurrentStudioMDL->GetBodyPartbyIndex(i);
 		StudioDrawPointsSolid(bodypart);
+	}
+
+	// H MODEL CODE
+	if (m_pCurrentEntity->curstate.weaponmodel)
+	{
+		int playermdl_numbones = m_pStudioHeader->numbones;
+		cl_entity_t saveent = *m_pCurrentEntity;
+		model_t* savedmdl = m_pRenderModel;
+
+		model_t* pweaponmodel = CL_GetModelByIndex(m_pCurrentEntity->curstate.weaponmodel);
+		m_pRenderModel = pweaponmodel;
+
+		m_pCurrentEntity->model = pweaponmodel;
+
+		m_pCurrentStudioMDL = (StudioMDL_Model*)pweaponmodel->entities;
+
+		m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
+
+		m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+
+		StudioMergeBones(pweaponmodel);
+
+		m_pCurrentStudioMDL->EnableBuffers();
+
+		for (int i = 0; i < m_pStudioHeader->numbodyparts; i++)
+		{
+			StudioMDL_BodyPart* bodypart = m_pCurrentStudioMDL->GetBodyPartbyIndex(i);
+			StudioDrawPointsSolid(bodypart);
+		}
+
+		StudioCalcAttachments();
+
+		*m_pCurrentEntity = saveent;
+		m_pRenderModel = savedmdl;
 	}
 }
 
