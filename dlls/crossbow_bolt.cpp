@@ -122,8 +122,6 @@ void CCrossbowBolt::Stay()
 	pev->nextthink = gpGlobals->time + 1.5;
 
 	SetThink(&CCrossbowBolt::ExplodeThink);
-
-	
 }
 
 void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
@@ -175,7 +173,12 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 
 void CCrossbowBolt::BubbleThink()
 {
+	// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
+	// TO-DO: add lens flare
 	pev->nextthink = gpGlobals->time + 0.1;
+
+	// fire trail
+	//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, VectorNormalize(pev->velocity), 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 
 	if (pev->waterlevel == 0)
 		return;
@@ -186,10 +189,8 @@ void CCrossbowBolt::BubbleThink()
 void CCrossbowBolt::ExplodeThink()
 {
 	int iContents = UTIL_PointContents(pev->origin);
-	int iScale;
 
 	pev->dmg = 30;
-	iScale = 10;
 
 	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 	WRITE_BYTE(TE_EXPLOSION);

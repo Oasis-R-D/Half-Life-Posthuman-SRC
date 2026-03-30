@@ -865,7 +865,9 @@ struct TITLECOMMENT // Chapter titles
 	const char* pBSPName;
 	const char* pTitleName;
 };
+
 // DO BY RELEASE: add RPC to all maps
+// DO BY RELEASE: maybe just use this for DRPC?
 TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in the game weren't cut or anything, they were just added just in case there needed to be more maps
 	{
 		{"ph_train1", "FIELD DAY"},
