@@ -18,7 +18,7 @@ static DiscordRichPresence discordPresence;
 extern cl_enginefunc_t gEngfuncs;
 
 // Blank handlers; not required for singleplayer Half-Life
-static void HandleDiscordReady(const DiscordUser* connectedUser) {gEngfuncs.pfnConsolePrint(connectedUser->username)}
+static void HandleDiscordReady(const DiscordUser* connectedUser) {gEngfuncs.pfnConsolePrint(connectedUser->username);}
 static void HandleDiscordDisconnected(int errcode, const char* message) {}
 static void HandleDiscordError(int errcode, const char* message) {}
 static void HandleDiscordJoin(const char* secret) {}
