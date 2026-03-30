@@ -1913,18 +1913,16 @@ float TEXTURETYPE_PlaySound(TraceResult* ptr, Vector vecSrc, Vector vecEnd, int 
 		fattn = 0.7;
 		break;
 	case CHAR_TEX_GRATE:
-		fvol = 0.9;
-		rgsz[0] = "player/pl_grate1.wav";
-		rgsz[1] = "player/pl_grate4.wav";
-		cnt = 2;
+		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 0.8 : 0.7;
+		rgsz[0] = "bullet/imp_metal01.wav";
+		cnt = 1;
 		break;
 	case CHAR_TEX_TILE:
-		fvol = 0.8;
-		rgsz[0] = "player/pl_tile1.wav";
-		rgsz[1] = "player/pl_tile3.wav";
-		rgsz[2] = "player/pl_tile2.wav";
-		rgsz[3] = "player/pl_tile4.wav";
-		cnt = 4;
+		fvol = (iBulletType == BULLET_MONSTER_12MM) ? 0.8 : 0.7;
+		rgsz[0] = "debris/glassshatter1.wav";
+		rgsz[1] = "debris/glassshatter2.wav";
+		rgsz[2] = "debris/glassshatter3.wav";
+		cnt = 3;
 		break;
 	case CHAR_TEX_SLOSH:
 		fvol = 0.9;
@@ -2118,7 +2116,7 @@ void CSpeaker::SpeakerThink()
 		if (SENTENCEG_PlayRndSz(ENT(pev), szSoundFile, flvolume, flattenuation, flags, pitch) < 0)
 			ALERT(at_console, "Level Design Error!\nSPEAKER has bad sentence group name: %s\n", szSoundFile);
 
-		// set next announcement time for random 5 to 10 minute delay
+		// set next announcement time for random 15 to 135 second delay
 		pev->nextthink = gpGlobals->time +
 						 RANDOM_FLOAT(ANNOUNCE_MINUTES_MIN * 60.0, ANNOUNCE_MINUTES_MAX * 60.0);
 
