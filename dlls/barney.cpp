@@ -235,7 +235,7 @@ int CBarney::ISoundMask()
 //=========================================================
 int CBarney::Classify()
 {
-	if (m_bPrehuman == 0)
+	if (!m_bPrehuman)
 	{
 		return CLASS_HUMAN_PASSIVE;
 	}

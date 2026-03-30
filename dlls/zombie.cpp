@@ -399,7 +399,7 @@ IMPLEMENT_CUSTOM_SCHEDULES(CZombie, CTalkMonster);
 //=========================================================
 int CZombie::Classify()
 {
-	if (m_bPrehuman == 0)
+	if (!m_bPrehuman)
 	{
 		return CLASS_PLAYER_ALLY;
 	}
@@ -664,7 +664,7 @@ void CZombie::Spawn()
 	m_afCapability = bits_CAP_DOORS_GROUP;
 
 	MonsterInit();
-	if (m_bPrehuman == 0)
+	if (!m_bPrehuman)
 	{
 		SetUse(&CZombie::FollowerUse);
 	}

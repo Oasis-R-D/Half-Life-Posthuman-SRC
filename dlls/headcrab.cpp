@@ -121,7 +121,7 @@ const char* CHeadCrab::pBiteSounds[] =
 //=========================================================
 int CHeadCrab::Classify()
 {
-	if (m_bPrehuman == 0)
+	if (!m_bPrehuman)
 	{
 		return CLASS_PLAYER_ALLY;
 	}

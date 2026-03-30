@@ -286,7 +286,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1)); // use beam_tr2?
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 				// Damage
 				ClearMultiDamage();
@@ -425,8 +425,11 @@ void CPhysbullet::AirThink()
 		flWindVel = 8;
 
 		flwindmult = 0.25;
-		pev->velocity = pev->velocity + (gpGlobals->v_up * sin((gpGlobals->time * flwindmult)) * flWindVel);
-		pev->velocity = pev->velocity + (gpGlobals->v_right * sin((gpGlobals->time * flwindmult)) * flWindVel);
+
+		double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
+
+		pev->velocity = pev->velocity + (gpGlobals->v_up * calculatedWind);
+		pev->velocity = pev->velocity + (gpGlobals->v_right * calculatedWind);
 	}
 	// WIND END
 

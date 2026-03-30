@@ -723,14 +723,6 @@ void CHeadcrabGrenade::PrimaryAttack()
 			pSqueak->pev->targetname = ALLOC_STRING("thrownHC");
 #endif
 
-			// play hunt sound
-			float flRndSound = RANDOM_FLOAT(0, 1);
-
-			//if (flRndSound <= 0.5)
-			//	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_attack1.wav", 1, ATTN_NORM, 0, 105);
-			//else
-			//	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "headcrab/hc_attack2.wav", 1, ATTN_NORM, 0, 105);
-
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
@@ -902,15 +894,6 @@ void CHeadcrabGrenadeFast::PrimaryAttack()
 			pSqueak->pev->angles.x = 0;
 			pSqueak->pev->angles.z = 0;
 #endif
-
-			// play hunt sound
-			float flRndSound = RANDOM_FLOAT(0, 1);
-
-			if (flRndSound <= 0.5)
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
-			else
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
-
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
@@ -1001,15 +984,6 @@ void CHeadcrabGrenadePoison::PrimaryAttack()
 			pSqueak->pev->angles.x = 0;
 			pSqueak->pev->angles.z = 0;
 #endif
-
-			// play hunt sound
-			float flRndSound = RANDOM_FLOAT(0, 1);
-
-			if (flRndSound <= 0.5)
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
-			else
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
-
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;

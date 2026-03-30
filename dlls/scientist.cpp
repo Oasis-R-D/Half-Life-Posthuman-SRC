@@ -566,7 +566,7 @@ void CScientist::RunTask(Task_t* pTask)
 //=========================================================
 int CScientist::Classify()
 {
-	if (m_bPrehuman == 0)
+	if (!m_bPrehuman)
 	{
 		return CLASS_HUMAN_PASSIVE;
 	}
