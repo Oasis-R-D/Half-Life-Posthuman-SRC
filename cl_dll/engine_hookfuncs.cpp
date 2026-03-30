@@ -603,7 +603,6 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	{
 		default: gParticleEngine.CreateSystem("engine_impsmoke_crete.txt", org, dir, 0); break;
 		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", org, dir, 0); return; break;
-		case CHAR_TEX_METAL: gParticleEngine.CreateSystem("engine_impsmoke_spark.txt", org, dir, 0); break;
 		case CHAR_TEX_IMPEN: return; break;
 		case CHAR_TEX_FLESH:
 			newOrg = dir;
@@ -617,6 +616,11 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 			//gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_bulletdripimpact, 0, 0.5, 185, 155, 95, 2, 10), org, dir, 0);
 			gParticleEngine.CreateSystem("engine_impsmoke_dirt.txt", org, dir, 0);
 			return;
+			break;
+		case CHAR_TEX_METAL:
+			newOrg = dir;
+			newOrg = (newOrg*2) + org;
+			gParticleEngine.CreateSystem("engine_impsmoke_spark.txt", newOrg, dir, 0);
 			break;
 	}
 
