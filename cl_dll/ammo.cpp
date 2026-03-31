@@ -1000,11 +1000,17 @@ bool CHudAmmo::Draw(float flTime)
 			// GL Seems to need this
 			ScaleColors(r, g, b, a);
 			x = gHUD.DrawHudNumberSm(x, y-(0.5 * fontheight), iFlagsSM | DHN_3DIGITS_SM | DHN_DRAWZERO, gWR.CountAmmo(pw->iAmmoType), r, g, b);
+
+			// Draw the ammo Icon
+			y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+			int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
+			SPR_Set(m_pWeapon->hAmmo, r, g, b);
+			SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
 		}
 		else
 		{
 			// SPR_Draw a bullets only line
-			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
+			x = ScreenWidth - 8.5 * AmmoWidth - iIconWidth;
 			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS | DHN_DRAWZERO, gWR.CountAmmo(pw->iAmmoType), r, g, b);
 			
 			SPR_Set(gHUD.GetSprite(m_HUD_AmmoText), r, g, b );
@@ -1016,13 +1022,16 @@ bool CHudAmmo::Draw(float flTime)
 			SPR_DrawAdditive( 0,  x-(2*fontsize), y, m_prcDigitsBG2 );
 			SPR_Set(m_hDigitsBG1, r, g, b );
 			SPR_DrawAdditive( 0,  x-fontsize, y, m_prcDigitsBG1 );
-		}
 
-		// Draw the ammo Icon
-		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
-		int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
-		SPR_Set(m_pWeapon->hAmmo, r, g, b);
-		SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo);
+			SPR_Set(m_hDivider, r, g, b );
+			SPR_DrawAdditive( 0,  x+(0.25*fontsize), y, m_prcDivider );
+			// Draw the ammo Icon
+
+			y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/4;
+			int iOffset = (m_pWeapon->rcAmmo.bottom - m_pWeapon->rcAmmo.top) / 8;
+			SPR_Set(m_pWeapon->hAmmo, r, g, b);
+			SPR_DrawAdditive(0, x+(fontsize), y - iOffset, &m_pWeapon->rcAmmo);
+		}
 	}
 
 	// Draw secondary
