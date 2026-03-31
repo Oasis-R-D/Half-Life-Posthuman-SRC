@@ -136,7 +136,7 @@ void CCrossbow::FireBolt()
 	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 6 + gpGlobals->v_up * -5;
 	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
-#ifndef CLIENT_DL
+#ifndef CLIENT_DLL
 	CCrossbowBolt* pBolt = CCrossbowBolt::BoltCreate(vecSrc, anglesAim, BOLT_AIR_VELOCITY, m_pPlayer); 
 	// Fixed the underwater firing because for some reason fixing some obscure bug in the base codebase messes with the gameplay too much smh
 #endif
