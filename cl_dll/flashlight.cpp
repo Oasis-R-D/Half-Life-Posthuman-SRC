@@ -38,6 +38,7 @@ DECLARE_MESSAGE(m_Flash, Hunger)
 
 bool CHudFlashlight::Init()
 {
+	m_iOldHunger = -1;
 	m_fFade = 0;
 	m_fOn = false;
 
@@ -102,8 +103,9 @@ bool CHudFlashlight::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
-	m_iOldHunger = m_iHunger
-	m_iHunger = READ_SHORT();
+	int value = READ_SHORT();
+	m_iOldHunger = (m_iOldHunger == -1) ? value : m_iHunger;
+	m_iHunger = value;
 
 	return true;
 }
@@ -118,7 +120,7 @@ bool CHudFlashlight::Draw(float flTime)
 	if (!prehuman)
 	{
 		g_iNightVision = m_fOn;
-		g_iFlashLight = false
+		g_iFlashLight = false;
 	}
 	else
 	{
@@ -190,9 +192,8 @@ bool CHudFlashlight::Draw(float flTime)
 		int r, g, b, x, y, a;
 		Rect rc;
 
-		int hungerdif = (abs(m_iHunger - m_iOldHunger))
 		// check if hud needs to enter or exit
-		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (hungerdif > 5 && hungerdif != 100))) // show hud
+		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (abs(m_iHunger - m_iOldHunger)) > 5)) // show hud
 		{
 			m_fHungerState = HUNGERSTATE_ENTER;
 			m_fHungerStateTime = flTime + 1;

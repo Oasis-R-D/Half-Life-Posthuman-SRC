@@ -28,7 +28,6 @@
 #include <stdio.h>
 
 DECLARE_MESSAGE(m_Battery, Battery)
-DECLARE_MESSAGE(m_Battery, Hunger)
 DECLARE_MESSAGE(m_Battery, FireMode)
 DECLARE_MESSAGE(m_Battery, LimbDMG)
 
@@ -60,7 +59,6 @@ bool CHudBattery::VidInit()
 	int HUD_suit_empty = gHUD.GetSpriteIndex("suit_empty");
 	int HUD_suit_full = gHUD.GetSpriteIndex("suit_full");
 	int HUD_suit_dmg = gHUD.GetSpriteIndex("limb_dmgs");
-	int HUD_Hunger = gHUD.GetSpriteIndex("hud_hunger");
 	int HUD_FireMode = gHUD.GetSpriteIndex("firemode");
 
 	m_hSprite1 = m_hSprite2 = m_hPowertext = m_hLimbDMG = 0; // delaying get sprite handles until we know the sprites are loaded
@@ -81,11 +79,9 @@ bool CHudBattery::VidInit()
 	m_prcDigitsBG1 = &gHUD.GetSpriteRect(HUD_DigitsBG1);
 	m_prcDigitsBG2 = &gHUD.GetSpriteRect(HUD_DigitsBG2);
 
-	m_iHunger = 0;
 	m_iFireMode = 0;
 	
 	m_rFireMode = &gHUD.GetSpriteRect(HUD_FireMode);
-	m_rHunger = &gHUD.GetSpriteRect(HUD_Hunger);
 	// Post-Human end
 
 	return true;
