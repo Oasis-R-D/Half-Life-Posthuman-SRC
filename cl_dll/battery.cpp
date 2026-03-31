@@ -46,7 +46,6 @@ bool CHudBattery::Init()
 	m_iHealth_Rleg = 0;	
 
 	HOOK_MESSAGE(Battery);
-	HOOK_MESSAGE(Hunger);
 	HOOK_MESSAGE(FireMode);
 	HOOK_MESSAGE(LimbDMG);
 
@@ -108,16 +107,6 @@ bool CHudBattery::MsgFunc_Battery(const char* pszName, int iSize, void* pbuf)
 	return true;
 }
 
-bool CHudBattery::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
-{
-	m_iFlags |= HUD_ACTIVE;
-
-	BEGIN_READ(pbuf, iSize);
-	m_iHunger = READ_SHORT();
-
-	return true;
-}
-
 bool CHudBattery::MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf)
 {
 	m_iFlags |= HUD_ACTIVE;
@@ -154,18 +143,8 @@ bool CHudBattery::Draw(float flTime)
 	int r, g, b, x, y, a, batattery;
 	Rect rc;
 
-	if (m_iHunger > 10)
-	{
-		UnpackRGB(r, g, b, RGB_YELLOWISH);
-		a = MIN_ALPHA;
-	}
-	else
-	{
-		UnpackRGB(r, g, b, RGB_REDISH);
-		a = 255;
-		if (m_iHunger <= 0)
-			a = (int)(fabs(sin(flTime * 20)) * 256.0);
-	}
+	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	a = MIN_ALPHA;
 
 	if (gHUD.FlashingHUD > 0)
 	{
@@ -176,30 +155,6 @@ bool CHudBattery::Draw(float flTime)
 		batattery = m_iBat;
 
 	ScaleColors(r, g, b, a);
-
-	if (m_iHunger <= 100) // this is broken
-	{
-		/*
-		x = (m_prc1->right - m_prc1->left) * 6;
-		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 - (m_rHunger->bottom - m_rHunger->top) / 3;
-
-		m_hHunger = gHUD.GetSpriteIndex("hud_hunger");
-		SPR_Set(gHUD.GetSprite(m_hHunger), r, g, b);
-		SPR_DrawAdditive(0, x, y, &gHUD.GetSpriteRect(m_hHunger));
-
-		//m_hHunger = gHUD.GetSprite(gHUD.GetSpriteIndex("hud_hunger"));
-		//SPR_Set(m_hHunger, r, g, b);
-		//SPR_DrawAdditive(0, x, y, m_rHunger);
-
-		x += (m_prc1->right - m_prc1->left);
-		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-		x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHunger, r, g, b);
-
-		x += (m_prc1->right - m_prc1->left) / 2;
-		y += gHUD.m_iFontHeight / 4;
-		FillRGBA(x, y, m_iHunger, gHUD.m_iFontHeight / 2, r, g, b, a);
-		*/
-	}
 
 	rc = *m_prc2;
 	rc.top += m_iHeight * ((float)(100 - (V_min(100, batattery))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1

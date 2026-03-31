@@ -380,7 +380,6 @@ public:
 	bool DrawGrenType(float flTime);
 	bool DrawGrenAmnt(float flTime);
 	bool MsgFunc_Battery(const char* pszName, int iSize, void* pbuf);
-	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FireMode(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf);
 
@@ -397,7 +396,6 @@ private:
 	int m_iBatMax;
 	float m_fFade;
 	int m_iHeight; // width of the battery innards
-	int m_iHunger;
 	int m_iFireMode;
 	int m_iHealth_head;
 	int m_iHealth_chest;
@@ -408,8 +406,6 @@ private:
 	int m_iHealth_Rleg;
 	HSPRITE_GOLDSRC  m_hFireMode;
 	Rect* m_rFireMode;
-	HSPRITE_GOLDSRC m_hHunger;
-	Rect* m_rHunger;
 };
 
 
@@ -425,7 +421,7 @@ public:
 	void Reset() override;
 	bool MsgFunc_Flashlight(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf);
-
+	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
 private:
 	HSPRITE_GOLDSRC  m_hSprite1;
 	HSPRITE_GOLDSRC  m_hSprite2;
@@ -435,6 +431,7 @@ private:
 	Rect* m_prcBeam;
 	float m_flBat;
 	int m_iBat;
+	int m_iHunger;
 	bool m_fOn;
 	float m_fFade;
 	int m_iWidth; // width of the battery innards

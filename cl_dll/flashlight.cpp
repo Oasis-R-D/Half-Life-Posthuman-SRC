@@ -32,6 +32,7 @@ bool prehuman;
 
 DECLARE_MESSAGE(m_Flash, FlashBat)
 DECLARE_MESSAGE(m_Flash, Flashlight)
+DECLARE_MESSAGE(m_Flash, Hunger)
 
 #define BAT_NAME "sprites/%d_Flashlight.spr"
 
@@ -42,6 +43,7 @@ bool CHudFlashlight::Init()
 
 	HOOK_MESSAGE(Flashlight);
 	HOOK_MESSAGE(FlashBat);
+	HOOK_MESSAGE(Hunger);
 
 	m_iFlags |= HUD_ACTIVE;
 
@@ -75,8 +77,6 @@ bool CHudFlashlight::VidInit()
 
 bool CHudFlashlight::MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf)
 {
-
-
 	BEGIN_READ(pbuf, iSize);
 	int x = READ_BYTE();
 	m_iBat = x;
@@ -87,13 +87,22 @@ bool CHudFlashlight::MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf
 
 bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pbuf)
 {
-
 	BEGIN_READ(pbuf, iSize);
 	m_fOn = READ_BYTE() != 0;
 	int x = READ_BYTE();
 	prehuman = READ_BYTE();
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
+
+	return true;
+}
+
+bool CHudFlashlight::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
+{
+	m_iFlags |= HUD_ACTIVE;
+
+	BEGIN_READ(pbuf, iSize);
+	m_iHunger = READ_SHORT();
 
 	return true;
 }
@@ -105,65 +114,106 @@ bool CHudFlashlight::Draw(float flTime)
 	else
 		g_iFlashLight = m_fOn;
 
-	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
-		return true;
-
-	if (!gHUD.HasSuit())
-		return true;
-
-	int r, g, b, x, y, a;
-	Rect rc;
-
-	if (m_fOn)
-		a = 225;
-	else
-		a = MIN_ALPHA;
-
-	if (gHUD.FlashingHUD > 0)
+	if (prehuman) // draw normal flashlight hud
 	{
-		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
-		m_flBat = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 1); // make the values go haywire
-	}
-	else // not flashing
-	{
-		if (!prehuman) // no flashlight in post-human
+		if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
 			return true;
+
+		if (!gHUD.HasSuit())
+			return true;
+
+		int r, g, b, x, y, a;
+		Rect rc;
+
+		if (m_fOn)
+			a = 225;
+		else
+			a = MIN_ALPHA;
+
+		if (gHUD.FlashingHUD > 0)
+		{
+			a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+			m_flBat = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 1); // make the values go haywire
+		}
+
+		if (m_flBat < 0.20)
+			UnpackRGB(r, g, b, RGB_REDISH);
+		else
+			UnpackRGB(r, g, b, RGB_YELLOWISH);
+
+		ScaleColors(r, g, b, a);
+
+		y = (m_prc1->bottom - m_prc2->top) / 2;
+		x = ScreenWidth - m_iWidth - m_iWidth / 2;
+
+		// Draw the flashlight casing
+		SPR_Set(m_hSprite1, r, g, b);
+		SPR_DrawAdditive(0, x, y, m_prc1);
+
+		if (m_fOn)
+		{ // draw the flashlight beam
+			x = ScreenWidth - m_iWidth / 2;
+
+			SPR_Set(m_hBeam, r, g, b);
+			SPR_DrawAdditive(0, x, y, m_prcBeam);
+		}
+
+		// draw the flashlight energy level
+		x = ScreenWidth - m_iWidth - m_iWidth / 2;
+		int iOffset = m_iWidth * (1.0 - m_flBat);
+		if (iOffset < m_iWidth)
+		{
+			rc = *m_prc2;
+			rc.left += iOffset;
+
+			SPR_Set(m_hSprite2, r, g, b);
+			SPR_DrawAdditive(0, x + iOffset, y, &rc);
+		}
 	}
-
-	if (m_flBat < 0.20)
-		UnpackRGB(r, g, b, RGB_REDISH);
-	else
-		UnpackRGB(r, g, b, RGB_YELLOWISH);
-
-	ScaleColors(r, g, b, a);
-
-	y = (m_prc1->bottom - m_prc2->top) / 2;
-	x = ScreenWidth - m_iWidth - m_iWidth / 2;
-
-	// Draw the flashlight casing
-	SPR_Set(m_hSprite1, r, g, b);
-	SPR_DrawAdditive(0, x, y, m_prc1);
-
-	if (m_fOn)
-	{ // draw the flashlight beam
-		x = ScreenWidth - m_iWidth / 2;
-
-		SPR_Set(m_hBeam, r, g, b);
-		SPR_DrawAdditive(0, x, y, m_prcBeam);
-	}
-
-	// draw the flashlight energy level
-	x = ScreenWidth - m_iWidth - m_iWidth / 2;
-	int iOffset = m_iWidth * (1.0 - m_flBat);
-	if (iOffset < m_iWidth)
+	else // draw hunger hud
 	{
-		rc = *m_prc2;
-		rc.left += iOffset;
+		if ((gHUD.m_iHideHUDDisplay & HIDEHUD_ALL) != 0)
+			return true;
 
-		SPR_Set(m_hSprite2, r, g, b);
-		SPR_DrawAdditive(0, x + iOffset, y, &rc);
+		int r, g, b, x, y, a;
+		Rect rc;
+
+		if (m_iHunger <= 10 || m_iHunger % 10 == 0) // show hud
+			a = 225;
+		else // don't show hud
+			a = MIN_ALPHA;
+
+		/* // not part of the suit, don't flash
+		if (gHUD.FlashingHUD > 0)
+		{
+			a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+			m_iHunger = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100); // make the values go haywire
+		}
+		*/
+
+		UnpackRGB(r, g, b, RGB_REDISH);
+
+		ScaleColors(r, g, b, a);
+
+		y = (m_prc1->bottom - m_prc2->top) / 2;
+		x = ScreenWidth - m_iWidth - m_iWidth / 2;
+
+		// Draw the flashlight casing
+		SPR_Set(m_hSprite1, r, g, b);
+		SPR_DrawAdditive(0, x, y, m_prc1);
+
+		// draw the flashlight energy level
+		x = ScreenWidth - m_iWidth - m_iWidth / 2;
+		int iOffset = m_iWidth * (1.0 - m_iHunger);
+		if (iOffset < m_iWidth)
+		{
+			rc = *m_prc2;
+			rc.left += iOffset;
+
+			SPR_Set(m_hSprite2, r, g, b);
+			SPR_DrawAdditive(0, x + iOffset, y, &rc);
+		}
 	}
-
 
 	return true;
 }
