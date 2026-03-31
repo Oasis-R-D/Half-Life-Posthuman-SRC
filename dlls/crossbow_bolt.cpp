@@ -178,12 +178,18 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 
 void CCrossbowBolt::BubbleThink()
 {
-	// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
 	// TO-DO: add lens flare
 	
+	// thrusters (doesn't ignore gravity)
 	pev->nextthink = gpGlobals->time + 0.05;
 	if (VectorLength(pev->velocity) < (2*m_uiSpeed))
-		pev->velocity = pev->velocity + (VectorNormalize(pev->velocity) * (0.2*m_uiSpeed));
+	{
+		pev->velocity = pev->velocity + (VectorNormalize(pev->velocity) * (0.1*m_uiSpeed));
+		// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
+	}
+
+	// drag (ignores gravity)
+	pev->velocity = pev->velocity - (m_vecDir * (0.025*m_uiSpeed));
 
 	// fire trail
 	//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, VectorNormalize(pev->velocity), 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
