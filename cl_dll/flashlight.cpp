@@ -102,17 +102,29 @@ bool CHudFlashlight::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
+	m_iOldHunger = m_iHunger
 	m_iHunger = READ_SHORT();
 
 	return true;
 }
 
+#define HUNGERSTATE_ENTER 2
+#define HUNGERSTATE_IDLEIN 1
+#define HUNGERSTATE_IDLEOUT 0
+#define HUNGERSTATE_EXIT 3
+
 bool CHudFlashlight::Draw(float flTime)
 {
 	if (!prehuman)
+	{
 		g_iNightVision = m_fOn;
+		g_iFlashLight = false
+	}
 	else
+	{
 		g_iFlashLight = m_fOn;
+		g_iNightVision = false;
+	}
 
 	if (prehuman) // draw normal flashlight hud
 	{
@@ -178,10 +190,28 @@ bool CHudFlashlight::Draw(float flTime)
 		int r, g, b, x, y, a;
 		Rect rc;
 
-		if (m_iHunger <= 10 || m_iHunger % 10 == 0) // show hud
-			a = 225;
-		else // don't show hud
-			a = MIN_ALPHA;
+		int hungerdif = (abs(m_iHunger - m_iOldHunger))
+		// check if hud needs to enter or exit
+		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (hungerdif > 5 && hungerdif != 100)) // show hud
+		{
+			m_fHungerState = HUNGERSTATE_ENTER;
+			m_fHungerStateTime = flTime + 1;
+		}
+		else if (m_fHungerState == HUNGERSTATE_IDLEIN)
+		{
+			m_fHungerState = HUNGERSTATE_EXIT;
+			m_fHungerStateTime = flTime + 1;
+		}
+		
+		if (m_fHungerStateTime < flTime) // time for in/out expired
+		{
+			if (m_fHungerState == HUNGERSTATE_ENTER)
+				m_fHungerState = HUNGERSTATE_IDLEIN;
+			else if (if (m_fHungerState == HUNGERSTATE_EXIT))
+				m_fHungerState = HUNGERSTATE_IDLEOUT;
+		}
+
+		a = 225;
 
 		/* // not part of the suit, don't flash
 		if (gHUD.FlashingHUD > 0)
