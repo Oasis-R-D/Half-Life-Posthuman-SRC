@@ -31,14 +31,17 @@
 
 LINK_ENTITY_TO_CLASS(crossbow_bolt, CCrossbowBolt);
 
-CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner)
+CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, unsigned int speed, CBaseEntity* pOwner)
 {
 	// Create a new entity with CCrossbowBolt private data
 	CCrossbowBolt* pBolt = GetClassPtr((CCrossbowBolt*)NULL);
 	pBolt->pev->classname = MAKE_STRING("bolt");
 	pBolt->pev->origin = vecOrigin;
 	pBolt->pev->angles = vecAngles;
+	pBolt->m_vecDir = vecAngles;
 	pBolt->pev->owner = pOwner->edict();
+	pBolt->pev->avelocity.z = 100
+	pBolt->m_uiSpeed = speed;
 	pBolt->Spawn();
 
 	return pBolt;
@@ -49,12 +52,14 @@ void CCrossbowBolt::Spawn()
 	Precache();
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
-	pev->gravity = 0.5;
+	pev->gravity = 1.0;
 
 	SET_MODEL(ENT(pev), "models/crossbow_bolt.mdl");
 
 	UTIL_SetOrigin(pev, pev->origin);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+
+	pev->velocity = m_vecDir * m_uiSpeed;
 
 	SetTouch(&CCrossbowBolt::BoltTouch);
 	SetThink(&CCrossbowBolt::BubbleThink);
@@ -175,7 +180,10 @@ void CCrossbowBolt::BubbleThink()
 {
 	// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
 	// TO-DO: add lens flare
-	pev->nextthink = gpGlobals->time + 0.1;
+
+	pev->nextthink = gpGlobals->time + 0.05;
+	if (VecLength(pev->velocity) < (2*m_uiSpeed))
+		pev->velocity += VectorNormalize(pev->velocity) * (0.2*m_uiSpeed);
 
 	// fire trail
 	//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, VectorNormalize(pev->velocity), 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);

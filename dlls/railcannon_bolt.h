@@ -25,6 +25,8 @@ class CCrossbowBolt : public CBaseEntity
 	void Stay();
 	int m_iTrail;
 
+	unsigned int m_uiSpeed;
+	Vector m_vecDir;
 public:
-	static CCrossbowBolt* BoltCreate(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner);
+	static CCrossbowBolt* BoltCreate(Vector vecOrigin, Vector vecAngles, unsigned int speed, CBaseEntity* pOwner);
 };
