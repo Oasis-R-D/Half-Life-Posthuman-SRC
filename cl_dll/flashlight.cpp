@@ -208,7 +208,7 @@ bool CHudFlashlight::Draw(float flTime)
 		{
 			if (m_fHungerState == HUNGERSTATE_ENTER)
 				m_fHungerState = HUNGERSTATE_IDLEIN;
-			else if (if (m_fHungerState == HUNGERSTATE_EXIT))
+			else if (m_fHungerState == HUNGERSTATE_EXIT)
 				m_fHungerState = HUNGERSTATE_IDLEOUT;
 		}
 
