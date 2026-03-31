@@ -182,7 +182,7 @@ void CCrossbowBolt::BubbleThink()
 	
 	// thrusters (doesn't ignore gravity)
 	pev->nextthink = gpGlobals->time + 0.05;
-	if (VectorLength(pev->velocity) < (2*m_uiSpeed))
+	if (pev->velocity.Length() < (2*m_uiSpeed))
 	{
 		pev->velocity = pev->velocity + (VectorNormalize(pev->velocity) * (0.1*m_uiSpeed));
 		// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
