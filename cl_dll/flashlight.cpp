@@ -192,7 +192,7 @@ bool CHudFlashlight::Draw(float flTime)
 
 		int hungerdif = (abs(m_iHunger - m_iOldHunger))
 		// check if hud needs to enter or exit
-		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (hungerdif > 5 && hungerdif != 100)) // show hud
+		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (hungerdif > 5 && hungerdif != 100))) // show hud
 		{
 			m_fHungerState = HUNGERSTATE_ENTER;
 			m_fHungerStateTime = flTime + 1;
