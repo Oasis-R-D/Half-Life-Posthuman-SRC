@@ -225,7 +225,7 @@ bool CHudFlashlight::Draw(float flTime)
 		{
 			case HUNGERSTATE_EXIT:
 			{
-				double math = -1 * (cos(0.5*M_PI(abs(flTime-m_fHungerStateTime)))*2);
+				double math = -1 * (cos(0.5 * M_PI * (fabs(flTime - m_fHungerStateTime))) * 2);
 				if (math != 0)
 					y = (m_prc1->bottom - m_prc2->top) / math;
 				else
@@ -234,7 +234,7 @@ bool CHudFlashlight::Draw(float flTime)
 			}
 			case HUNGERSTATE_ENTER: 
 			{
-				double math = (sin(0.5*M_PI(abs(flTime-m_fHungerStateTime)))*2);
+				double math = sin(0.5 * M_PI * (fabs(flTime - m_fHungerStateTime))) * 2;
 				if (math != 0)
 					y = (m_prc1->bottom - m_prc2->top) / math;
 				else
