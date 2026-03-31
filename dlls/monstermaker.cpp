@@ -288,4 +288,9 @@ void CMonsterMaker::DeathNotice(entvars_t* pevChild)
 	{
 		pevChild->owner = NULL;
 	}
+	
+	if (m_cLiveChildren == 0 && m_cNumMonsters == 0) // no more can spawn or are spawned
+	{
+		UTIL_Remove(this);
+	}
 }
