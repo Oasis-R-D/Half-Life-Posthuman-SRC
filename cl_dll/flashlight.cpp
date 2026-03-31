@@ -212,21 +212,34 @@ bool CHudFlashlight::Draw(float flTime)
 				m_fHungerState = HUNGERSTATE_IDLEOUT;
 		}
 
-		a = 225;
+		if (m_fHungerState == HUNGERSTATE_IDLEOUT)
+			return true; // doesn't need drawn
 
-		/* // not part of the suit, don't flash
-		if (gHUD.FlashingHUD > 0)
-		{
-			a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
-			m_iHunger = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 100); // make the values go haywire
-		}
-		*/
+		a = 225;
 
 		UnpackRGB(r, g, b, RGB_REDISH);
 
 		ScaleColors(r, g, b, a);
 
-		y = (m_prc1->bottom - m_prc2->top) / 2;
+		switch(m_fHungerState)
+		{
+			case HUNGERSTATE_EXIT:
+				double math = -1 * (cos(0.5*M_PI(abs(flTime-m_fHungerStateTime)))*2);
+				if (math != 0)
+					y = (m_prc1->bottom - m_prc2->top) / math;
+				else
+					y = 0;
+				break;
+			case HUNGERSTATE_ENTER: 
+				double math = (sin(0.5*M_PI(abs(flTime-m_fHungerStateTime)))*2);
+				if (math != 0)
+					y = (m_prc1->bottom - m_prc2->top) / math;
+				else
+					y = 0;
+				break;
+			case HUNGERSTATE_IDLEIN: y = (m_prc1->bottom - m_prc2->top) / 2; break;
+		}
+
 		x = ScreenWidth - m_iWidth - m_iWidth / 2;
 
 		// Draw the flashlight casing
