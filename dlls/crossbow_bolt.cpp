@@ -40,7 +40,7 @@ CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, uns
 	pBolt->pev->angles = vecAngles;
 	pBolt->m_vecDir = vecAngles;
 	pBolt->pev->owner = pOwner->edict();
-	pBolt->pev->avelocity.z = 100
+	pBolt->pev->avelocity.z = 100;
 	pBolt->m_uiSpeed = speed;
 	pBolt->Spawn();
 
@@ -180,10 +180,10 @@ void CCrossbowBolt::BubbleThink()
 {
 	// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
 	// TO-DO: add lens flare
-
+	
 	pev->nextthink = gpGlobals->time + 0.05;
-	if (VecLength(pev->velocity) < (2*m_uiSpeed))
-		pev->velocity += VectorNormalize(pev->velocity) * (0.2*m_uiSpeed);
+	if (VectorLength(pev->velocity) < (2*m_uiSpeed))
+		pev->velocity = pev->velocity + (VectorNormalize(pev->velocity) * (0.2*m_uiSpeed));
 
 	// fire trail
 	//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, VectorNormalize(pev->velocity), 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);

@@ -171,13 +171,13 @@ void CCrossbow::SecondaryAttack()
 
 void CCrossbow::Reload()
 {
-	if (m_pPlayer->m_iFOV != 0)
-	{
-		SecondaryAttack();
-	}
-
 	if (DefaultReload(1, CROSSBOW_RELOAD, 2))
 	{
+		if (m_pPlayer->m_iFOV != 0)
+		{
+			SecondaryAttack();
+		}
+		
 		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/xbow_reload1.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 93 + RANDOM_LONG(0, 0xF));
 	}
 }
@@ -235,7 +235,7 @@ class CCrossbowAmmo : public CBasePlayerAmmo
 	}
 	bool AddAmmo(CBaseEntity* pOther) override
 	{
-		if (pOther->GiveAmmo(1, "bolts", 10) != -1)
+		if (pOther->GiveAmmo(2, "bolts", 10) != -1)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
 			return true;
