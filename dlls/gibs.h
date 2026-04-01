@@ -27,15 +27,22 @@ public:
 	void EXPORT BounceGibTouch(CBaseEntity* pOther);
 	void EXPORT StickyGibTouch(CBaseEntity* pOther);
 	void EXPORT WaitTillLand();
+	void EXPORT PickUpThink();
+	void EXPORT EatThink();
 	void LimitVelocity();
 
 	int ObjectCaps() override { return (CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
 	static void SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib);
 	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = g_vecZero);
 	static void SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib);
 	static std::vector<gib_data_t> GetNPCgibs(CBaseEntity* pevVictim);	
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 
+	bool m_bDisableFade;
+	CBaseEntity* m_pGibbed;
+	CBasePlayer* m_pEater;
+	gib_data_t m_gdType;
 	int m_bloodColor;
 	int m_cBloodDecals = 4; // how many blood decals this gib can place (1 per bounce until none remain).
 	float m_lifeTime;

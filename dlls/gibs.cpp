@@ -34,7 +34,43 @@ std::vector<gib_data_t> pitdrone_gibmap =
 		gib_data_t{"models/pit_drone_gibs.mdl", 4, 1},  // tail
 		gib_data_t{"models/pit_drone_gibs.mdl", 5, 1},  // generic?
 		gib_data_t{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
-};													    
+};				
+
+void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	if (!pActivator->IsPlayer())
+		return;
+
+	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer>(pActivator);
+
+	if (pPlayer->m_bPrehuman == true)
+		return; // no snack for you!!
+
+	if (pev->velocity == g_vecZero)
+	{
+		m_bDisableFade = true;
+		m_pEater = pPlayer;
+		SetThink(&CoolerGib::SUB_StartFadeOut);
+		pev->nextthink = gpGlobals->time + 0.25; // delay before "grabbed"
+	}
+}
+
+void CoolerGib::PickUpThink()
+{
+	Vector vecBetween = m_pEater->Center() - pev->origin;
+	pev->gravity = 0.0;
+	pev->velocity = VectorNormalize(vecBetween) * VectorLength(vecBetween); // should take 1 second to travel
+	SetThink(&CoolerGib::SUB_StartFadeOut);
+	pev->nextthink = gpGlobals->time + 1.0; // delay before "eaten"
+}
+
+void CoolerGib::EatThink()
+{
+	// TO-DO: implement hunger change here
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+	SetThink(&CoolerGib::SUB_Remove);
+	pev->nextthink = gpGlobals->time
+}
 
 // HACKHACK -- The gib velocity equations don't work
 void CoolerGib::LimitVelocity()
@@ -168,9 +204,14 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 		{
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
 			pGib->Spawn(gibmap[i].gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
+			pGib->m_gdType = gibmap[i];
+			if (pVictim)
+			{
+				pGib->m_pGibbed = pVictim;
 
-			if (pVictim && pVictim->m_iBurnTimer > 0)
-				pGib->m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
+				if (pVictim->m_iBurnTimer > 0)
+					pGib->m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
+			}
 
 			switch (type)
 			{
@@ -187,7 +228,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 			if (pevVictim) // probably uneeded
 			{
 				// spawn the gib somewhere in the monster's bounding volume
-				if (spawnposOVRDE == g_vecZero)
+				if (spawnposOVRDE == g_vecZero) // this will make npcs directly at the origin not gib properly
 				{
 					pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
 					pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
@@ -214,7 +255,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 				pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
 
 				// copy owner's blood color
-				pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
+				pGib->m_bloodColor = pVictim->BloodColor();
 
 				if (pevVictim->health > -50)
 				{
@@ -257,8 +298,11 @@ void CoolerGib::WaitTillLand()
 	{
 		if (pev->armortype == 0)
 		{
-			SetThink(&CoolerGib::SUB_StartFadeOut);
-			pev->nextthink = gpGlobals->time + m_lifeTime;
+			if (!m_bDisableFade && m_lifetime < gpGlobals->time) // switched to a timer due to eating
+			{
+				SetThink(&CoolerGib::SUB_StartFadeOut);
+				pev->nextthink = gpGlobals->time;
+			}
 		}
 
 		// If you bleed, you stink!
@@ -407,7 +451,7 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	pev->nextthink = gpGlobals->time + 0.1;
-	m_lifeTime = 25;
+	m_lifeTime = gpGlobals->time + 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
