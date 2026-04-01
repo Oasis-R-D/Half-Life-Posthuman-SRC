@@ -41,7 +41,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	if (!pActivator->IsPlayer())
 		return;
 
-	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer>(pActivator);
+	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pActivator);
 
 	if (pPlayer->m_bPrehuman == true)
 		return; // no snack for you!!
@@ -50,7 +50,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	{
 		m_bDisableFade = true;
 		m_pEater = pPlayer;
-		SetThink(&CoolerGib::SUB_StartFadeOut);
+		SetThink(&CoolerGib::PickUpThink);
 		pev->nextthink = gpGlobals->time + 0.25; // delay before "grabbed"
 	}
 }
@@ -59,8 +59,8 @@ void CoolerGib::PickUpThink()
 {
 	Vector vecBetween = m_pEater->Center() - pev->origin;
 	pev->gravity = 0.0;
-	pev->velocity = VectorNormalize(vecBetween) * VectorLength(vecBetween); // should take 1 second to travel
-	SetThink(&CoolerGib::SUB_StartFadeOut);
+	pev->velocity = VectorNormalize(vecBetween) * vecBetween.Length(); // should take 1 second to travel
+	SetThink(&CoolerGib::EatThink);
 	pev->nextthink = gpGlobals->time + 1.0; // delay before "eaten"
 }
 
@@ -69,7 +69,7 @@ void CoolerGib::EatThink()
 	// TO-DO: implement hunger change here
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
 	SetThink(&CoolerGib::SUB_Remove);
-	pev->nextthink = gpGlobals->time
+	pev->nextthink = gpGlobals->time;
 }
 
 // HACKHACK -- The gib velocity equations don't work
@@ -298,7 +298,7 @@ void CoolerGib::WaitTillLand()
 	{
 		if (pev->armortype == 0)
 		{
-			if (!m_bDisableFade && m_lifetime < gpGlobals->time) // switched to a timer due to eating
+			if (!m_bDisableFade && m_lifeTime < gpGlobals->time) // switched to a timer due to eating
 			{
 				SetThink(&CoolerGib::SUB_StartFadeOut);
 				pev->nextthink = gpGlobals->time;
