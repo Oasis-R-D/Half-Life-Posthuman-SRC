@@ -30,6 +30,11 @@ extern bool g_iFlashLight;
 
 bool prehuman;
 
+#define HUNGERSTATE_ENTER 2
+#define HUNGERSTATE_IDLEIN 1
+#define HUNGERSTATE_IDLEOUT 0
+#define HUNGERSTATE_EXIT 3
+
 DECLARE_MESSAGE(m_Flash, FlashBat)
 DECLARE_MESSAGE(m_Flash, Flashlight)
 DECLARE_MESSAGE(m_Flash, Hunger)
@@ -38,6 +43,7 @@ DECLARE_MESSAGE(m_Flash, Hunger)
 
 bool CHudFlashlight::Init()
 {
+	m_fHungerState == HUNGERSTATE_IDLEOUT;
 	m_iOldHunger = -1;
 	m_fFade = 0;
 	m_fOn = false;
@@ -110,10 +116,8 @@ bool CHudFlashlight::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	return true;
 }
 
-#define HUNGERSTATE_ENTER 2
-#define HUNGERSTATE_IDLEIN 1
-#define HUNGERSTATE_IDLEOUT 0
-#define HUNGERSTATE_EXIT 3
+extern char * UTIL_VarArgs_client(const char* format, ...);
+
 
 bool CHudFlashlight::Draw(float flTime)
 {
@@ -193,23 +197,15 @@ bool CHudFlashlight::Draw(float flTime)
 		Rect rc;
 
 		// check if hud needs to enter or exit
-		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 10 == 0 || (abs(m_iHunger - m_iOldHunger)) > 5)) // show hud
+		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 2 == 0 || (abs(m_iHunger - m_iOldHunger)) > 5)) // show hud
 		{
 			m_fHungerState = HUNGERSTATE_ENTER;
-			m_fHungerStateTime = flTime + 1;
+			m_fHungerTimeStart = flTime;
 		}
-		else if (m_fHungerState == HUNGERSTATE_IDLEIN)
+		else if (m_fHungerState == HUNGERSTATE_IDLEIN && !(m_iHunger <= 10 || m_iHunger % 2 == 0))
 		{
 			m_fHungerState = HUNGERSTATE_EXIT;
-			m_fHungerStateTime = flTime + 1;
-		}
-		
-		if (m_fHungerStateTime < flTime) // time for in/out expired
-		{
-			if (m_fHungerState == HUNGERSTATE_ENTER)
-				m_fHungerState = HUNGERSTATE_IDLEIN;
-			else if (m_fHungerState == HUNGERSTATE_EXIT)
-				m_fHungerState = HUNGERSTATE_IDLEOUT;
+			m_fHungerTimeStart = flTime;
 		}
 
 		if (m_fHungerState == HUNGERSTATE_IDLEOUT)
@@ -221,29 +217,45 @@ bool CHudFlashlight::Draw(float flTime)
 
 		ScaleColors(r, g, b, a);
 
+		float timedif = flTime - m_fHungerTimeStart;
+		float pos = ScreenHeight / 32;
+
 		switch(m_fHungerState)
 		{
 			case HUNGERSTATE_EXIT:
 			{
-				double math = -1 * (cos(0.5 * M_PI * (fabs(flTime - m_fHungerStateTime))) * 2);
-				if (math != 0)
-					y = (m_prc1->bottom - m_prc2->top) / math;
+				double math = ((3*pow(timedif, 2)) - (2*pow(timedif, 3)));
+				if (timedif < 1)
+				{
+					float Ybuffer = (-math * pos + pos) - (m_prc1->bottom + m_prc2->top);
+					y = round(Ybuffer);
+				}
 				else
-					y = 0;
+				{
+					m_fHungerState = HUNGERSTATE_IDLEOUT;
+					return true;
+				}
 				break;
 			}
 			case HUNGERSTATE_ENTER: 
 			{
-				double math = sin(0.5 * M_PI * (fabs(flTime - m_fHungerStateTime))) * 2;
-				if (math != 0)
-					y = (m_prc1->bottom - m_prc2->top) / math;
+				double math = ((3*pow(timedif, 2)) - (2*pow(timedif, 3)));
+				if (timedif < 1)
+				{
+					float Ybuffer = (math * pos) - (m_prc1->bottom + m_prc2->top);
+					y = round(Ybuffer);
+				}
 				else
-					y = 0;
+				{
+					m_fHungerState = HUNGERSTATE_IDLEIN;
+					y = -(m_prc1->bottom + m_prc2->top)/2;
+				}
 				break;
 			}
-			case HUNGERSTATE_IDLEIN: y = (m_prc1->bottom - m_prc2->top) / 2; break;
+			case HUNGERSTATE_IDLEIN: y = -(m_prc1->bottom + m_prc2->top)/2; break;
 		}
 
+		//gEngfuncs.pfnCenterPrint(UTIL_VarArgs_client("%d, %d, %d, %d\n", m_iHunger, m_fHungerState, y, (abs(m_iHunger - m_iOldHunger))));
 		x = ScreenWidth - m_iWidth - m_iWidth / 2;
 
 		// Draw the flashlight casing
@@ -252,7 +264,8 @@ bool CHudFlashlight::Draw(float flTime)
 
 		// draw the flashlight energy level
 		x = ScreenWidth - m_iWidth - m_iWidth / 2;
-		int iOffset = m_iWidth * (1.0 - m_iHunger);
+		float buff = m_iHunger / 100;
+		int iOffset = m_iWidth * (buff-1.0);
 		if (iOffset < m_iWidth)
 		{
 			rc = *m_prc2;

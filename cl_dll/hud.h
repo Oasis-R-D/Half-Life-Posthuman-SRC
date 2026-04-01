@@ -435,8 +435,8 @@ private:
 	int m_iOldHunger;
 	bool m_fOn;
 	float m_fFade;
+	float m_fHungerTimeStart;
 	int m_fHungerState;
-	float m_fHungerStateTime;
 	int m_iWidth; // width of the battery innards
 };
 
