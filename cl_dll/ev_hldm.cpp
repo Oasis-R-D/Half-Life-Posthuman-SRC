@@ -2004,8 +2004,8 @@ void EV_Particles(event_args_t* args)
 
 				if (args->bparam1) // bleeding
 					idx = 1;
-
-				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 0, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
+				// TO-DO: randomly goes wrong way at light speed sometimes
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, args->bparam2, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, args->angles * idx, 0);
 			}
 
 			break;

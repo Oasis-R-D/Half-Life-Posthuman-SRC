@@ -38,7 +38,7 @@ std::vector<gib_data_t> pitdrone_gibmap =
 
 void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	if (!pActivator->IsPlayer())
+	if (!pActivator->IsPlayer() || m_pEater && pev->velocity == g_vecZero)
 		return;
 
 	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pActivator);
@@ -46,53 +46,66 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	if (pPlayer->m_bPrehuman == true)
 		return; // no snack for you!!
 
-	if (pev->velocity == g_vecZero)
-	{
-		m_bDisableFade = true;
-		m_pEater = pPlayer;
-		SetThink(&CoolerGib::PickUpThink);
-		pev->nextthink = gpGlobals->time + 0.25; // delay before "grabbed"
-	}
+	ALERT(at_console, "using GIB!\n");
+
+	m_bDisableFade = true;
+	m_pEater = pPlayer;
+	SetThink(&CoolerGib::PickUpThink);
+	pev->nextthink = gpGlobals->time + 0.25; // delay before "grabbed"
 }
 
 void CoolerGib::PickUpThink()
 {
 	Vector vecBetween = m_pEater->Center() - pev->origin;
-	pev->gravity = 0.0;
-	pev->velocity = VectorNormalize(vecBetween) * vecBetween.Length(); // should take 1 second to travel
+	pev->movetype = MOVETYPE_NOCLIP;
+	pev->velocity = vecBetween;
 	SetThink(&CoolerGib::EatThink);
-	pev->nextthink = gpGlobals->time + 1.0; // delay before "eaten"
+	pev->nextthink = gpGlobals->time + 0.05; // delay before "eaten"
 }
 
 void CoolerGib::EatThink()
 {
-	// play sound (TO-DO: make positioned propery?)
-	const char* sound = 0;
-	sound = UTIL_VarArgs("player/eat%d.wav", RANDOM_LONG(1, 3));
-	EMIT_SOUND(m_pEater->edict(), CHAN_VOICE, sound, 0.8, 1.2);
-	
-	// VFX
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+	pev->nextthink = gpGlobals->time + 0.01;
 
-	if (m_bloodColor == BLOOD_COLOR_RED)
+	bool eaten = false;
+
+	Vector vecBetween = m_pEater->Center() - pev->origin;
+	pev->velocity = vecBetween * 16;
+	if (vecBetween.Length() < 16)
+		eaten = true;
+
+	if (eaten)
 	{
-		// tasty!
-		m_pEater->Hunger += RANDOM_LONG(5, 6);
-		m_pEater->TakeHealth(5, DMG_GENERIC);
-	}
-	else if (m_bloodColor != DONT_BLEED)
-	{
-		// slop!
-		int increment = RANDOM_LONG(2, 3);
-		m_pEater->Hunger += RANDOM_LONG(2, 3);
-		m_pEater->TakeHealth(increment+1, DMG_GENERIC);
-	}
+		// play sound (TO-DO: make positioned propery?)
+		const char* sound = 0;
+		sound = UTIL_VarArgs("player/eat%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(m_pEater->edict(), CHAN_VOICE, sound, 0.8, 1.2);
 
-	if (m_pEater->Hunger > 100)
-		m_pEater->Hunger = 100;
+		// VFX
+		// no matter what I do, the blood droplets get sent in 1 direction, annoying af ngl
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 1);
+		UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
 
-	SetThink(&CoolerGib::SUB_Remove);
-	pev->nextthink = gpGlobals->time;
+		if (m_bloodColor == BLOOD_COLOR_RED)
+		{
+			// tasty!
+			m_pEater->Hunger += RANDOM_LONG(5, 6);
+			m_pEater->TakeHealth(5, DMG_GENERIC);
+		}
+		else if (m_bloodColor != DONT_BLEED)
+		{
+			// slop!
+			int increment = RANDOM_LONG(2, 3);
+			m_pEater->Hunger += RANDOM_LONG(2, 3);
+			m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
+		}
+
+		if (m_pEater->Hunger > 100)
+			m_pEater->Hunger = 100;
+
+		SetThink(&CoolerGib::SUB_Remove);
+		pev->nextthink = gpGlobals->time;
+	}
 }
 
 // HACKHACK -- The gib velocity equations don't work
@@ -472,7 +485,7 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	SET_MODEL(ENT(pev), szGibModel);
 	pev->body = body;
 
-	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
 	pev->nextthink = gpGlobals->time + 0.1;
 	m_lifeTime = gpGlobals->time + 25;
 	SetThink(&CoolerGib::WaitTillLand);
