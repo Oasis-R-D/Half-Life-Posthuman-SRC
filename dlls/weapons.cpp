@@ -298,6 +298,9 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
 	UTIL_PrecacheOther("env_fire");
+	PRECACHE_SOUND("player/eat1.wav"); // weapon falls to the ground
+	PRECACHE_SOUND("player/eat2.wav"); // weapon falls to the ground
+	PRECACHE_SOUND("player/eat3.wav"); // weapon falls to the ground
 
 	// grenades
 	PRECACHE_MODEL("models/w_grenade.mdl"); // HE
@@ -328,8 +331,8 @@ void W_Precache()
 	// crowbar
 	UTIL_PrecacheOtherWeapon("weapon_crowbar");
 
-	// prehuman melee
-	UTIL_PrecacheOtherWeapon("weapon_melee");
+	// prehuman sledgehammer
+	UTIL_PrecacheOtherWeapon("weapon_sledge");
 
 	// glock
 	UTIL_PrecacheOtherWeapon("weapon_9mmhandgun");
@@ -424,6 +427,7 @@ TYPEDESCRIPTION CBasePlayerItem::m_SaveData[] =
 IMPLEMENT_SAVERESTORE(CBasePlayerItem, CBaseAnimating);
 
 
+// TO-DO: probably needs spread values
 TYPEDESCRIPTION CBasePlayerWeapon::m_SaveData[] =
 	{
 #if defined(CLIENT_WEAPONS)

@@ -4292,7 +4292,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_m727");
 		GiveNamedItem("weapon_corrupted");
 		GiveNamedItem("weapon_m29");
-		GiveNamedItem("weapon_melee");
+		GiveNamedItem("weapon_sledge");
 		m_iGrenadeAmnt = 3;
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);

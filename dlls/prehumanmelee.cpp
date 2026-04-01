@@ -25,7 +25,7 @@
 #define CROWBAR_BODYHIT_VOLUME 128
 #define CROWBAR_WALLHIT_VOLUME 512
 
-LINK_ENTITY_TO_CLASS(weapon_melee, CMelee);
+LINK_ENTITY_TO_CLASS(weapon_sledge, CMelee);
 
 void CMelee::Spawn()
 {

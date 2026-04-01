@@ -1,13 +1,13 @@
 #include "gibs.h"
 
 LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
-// START NPC GIB LISTS (FORK YOU C++) // MDL, BG, AMNT, TYPE
-// TYPES: 1 - head, 2 - sticky
+// START NPC GIB LISTS
+// TYPES: 0 || null - default, 1 - head, 2 - sticky
 
 // TO-DO: fix alien gibs being tiny (make small ones headcrab only)
 std::vector<gib_data_t> xenian_gibmap =
-{
-		gib_data_t{"models/agibs.mdl", 0, 1}, // skull
+{		// 			MDL 			   BG # TYPE
+		gib_data_t{"models/agibs.mdl", 0, 1},
 		gib_data_t{"models/agibs.mdl", 1, 1},
 		gib_data_t{"models/agibs.mdl", 2, 1},
 		gib_data_t{"models/agibs.mdl", 3, 1},
@@ -16,8 +16,8 @@ std::vector<gib_data_t> xenian_gibmap =
 };
 
 std::vector<gib_data_t> human_gibmap =
-{
-		gib_data_t{"models/hgibs.mdl", 0, 1, 1}, // skull
+{		// 			MDL 			   BG # TYPE
+		gib_data_t{"models/hgibs.mdl", 0, 1, 1},
 		gib_data_t{"models/hgibs.mdl", 1, 1},
 		gib_data_t{"models/hgibs.mdl", 2, 1},
 		gib_data_t{"models/hgibs.mdl", 3, 1},
@@ -26,7 +26,7 @@ std::vector<gib_data_t> human_gibmap =
 };
 
 std::vector<gib_data_t> pitdrone_gibmap =
-{
+{		// 			MDL 			   		    BG # TYPE
 		gib_data_t{"models/pit_drone_gibs.mdl", 0, 2},  // claws
 		gib_data_t{"models/pit_drone_gibs.mdl", 1, 1},  // tentacle 1
 		gib_data_t{"models/pit_drone_gibs.mdl", 2, 1},  // tentacle 2
@@ -66,8 +66,31 @@ void CoolerGib::PickUpThink()
 
 void CoolerGib::EatThink()
 {
-	// TO-DO: implement hunger change here
+	// play sound (TO-DO: make positioned propery?)
+	const char* sound = 0;
+	sound = UTIL_VarArgs("player/eat%d.wav", RANDOM_LONG(1, 3));
+	EMIT_SOUND(m_pEater->edict(), CHAN_VOICE, sound, 0.8, 1.2);
+	
+	// VFX
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+
+	if (m_bloodColor == BLOOD_COLOR_RED)
+	{
+		// tasty!
+		m_pEater->Hunger += RANDOM_LONG(5, 6);
+		m_pEater->TakeHealth(5, DMG_GENERIC);
+	}
+	else if (m_bloodColor != DONT_BLEED)
+	{
+		// slop!
+		int increment = RANDOM_LONG(2, 3);
+		m_pEater->Hunger += RANDOM_LONG(2, 3);
+		m_pEater->TakeHealth(increment+1, DMG_GENERIC);
+	}
+
+	if (m_pEater->Hunger > 100)
+		m_pEater->Hunger = 100;
+
 	SetThink(&CoolerGib::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
