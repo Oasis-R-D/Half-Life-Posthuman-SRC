@@ -150,8 +150,11 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 		else
 		{
 			m_pIgnore = pOther;
-			UTIL_SetOrigin(pev, tr.vecEndPos);
-			pev->velocity = pev->velocity.Normalize() * (4*m_uiSpeed);
+			recoverDir = pev->velocity;
+			recoverPos = tr.vecEndPos;
+			SetTouch(NULL);
+			SetThink(&CCrossbowBolt::RecoverThink);
+			pev->nextthink = gpGlobals->time;
 		}
 	}
 	else
@@ -191,6 +194,15 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 
 	if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
 		UTIL_Sparks(pev->origin);
+}
+
+void CCrossbowBolt::RecoverThink()
+{
+	UTIL_SetOrigin(pev, recoverPos);
+	pev->velocity = recoverDir;
+	SetTouch(&CCrossbowBolt::BoltTouch);
+	SetThink(&CCrossbowBolt::BubbleThink);
+	pev->nextthink = gpGlobals->time;
 }
 
 void CCrossbowBolt::BubbleThink()
