@@ -39,7 +39,7 @@ CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, uns
 	pBolt->pev->origin = vecOrigin;
 	pBolt->pev->angles = vecAngles;
 	pBolt->m_vecDir = vecAngles;
-	pBolt->pev->owner = pOwner->edict();
+	pBolt->Owner = pOwner->edict();
 	pBolt->pev->avelocity.z = 100;
 	pBolt->m_uiSpeed = speed;
 	pBolt->Spawn();
@@ -50,7 +50,7 @@ CCrossbowBolt* CCrossbowBolt::BoltCreate(Vector vecOrigin, Vector vecAngles, uns
 void CCrossbowBolt::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_BOUNCE;
+	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
 	pev->gravity = 1.0;
 
@@ -60,6 +60,7 @@ void CCrossbowBolt::Spawn()
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
 	pev->velocity = m_vecDir * m_uiSpeed;
+	pev->angles = UTIL_VecToAngles(pev->velocity);
 
 	SetTouch(&CCrossbowBolt::BoltTouch);
 	SetThink(&CCrossbowBolt::BubbleThink);
@@ -93,51 +94,33 @@ void CCrossbowBolt::Precache()
 	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
 }
 
-int CCrossbowBolt::Classify()
+int CCrossbowBolt::ShouldCollide(CBaseEntity* pentTouched)
 {
-	return CLASS_NONE;
-}
+	CBaseEntity* owner = CBaseEntity::Instance(Owner);
+	if (pentTouched == owner || pentTouched->IsBullet())
+	{
+		return 0;
+	}
 
-void CCrossbowBolt::Stay()
-{
-	TraceResult tr = UTIL_GetGlobalTrace();
-	UTIL_DecalTrace(&tr, RANDOM_LONG(28, 32));
+	if (m_pIgnore)
+	{
+		if (pentTouched == m_pIgnore)
+		{
+			return 0;
+		}
+	}
 
-	//EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, "weapons/bolt_impact_con.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 98 + RANDOM_LONG(0, 7));
-	char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + gpGlobals->v_forward * 2, BULLET_PLAYER_9MM);
-	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-	WRITE_BYTE(TE_IMPACTVFX);
-	WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * gpGlobals->v_forward) * 0.1f); // org
-	WRITE_COORD_VECTOR(-1 * gpGlobals->v_forward);							// dir
-	WRITE_COORD(0);
-	WRITE_COORD(0);
-	WRITE_BYTE(material); // (count) (use as mat type?)
-	WRITE_BYTE(0); // (bullethole decal texture index)
-	MESSAGE_END();
-
-	Vector vecDir = pev->velocity.Normalize();
-	UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
-
-	pev->angles = UTIL_VecToAngles(vecDir);
-	pev->solid = SOLID_NOT;
-	pev->movetype = MOVETYPE_FLY;
-	pev->velocity = Vector(0, 0, 0);
-	pev->avelocity.z = 0;
-	pev->angles.z = RANDOM_LONG(0, 360);
-	pev->nextthink = gpGlobals->time + 1.5;
-
-	SetThink(&CCrossbowBolt::ExplodeThink);
+	return 1;
 }
 
 void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 {
-	SetTouch(NULL);
-	SetThink(NULL);
+	TraceResult tr = UTIL_GetGlobalTrace();
 	EMIT_SOUND(edict(), CHAN_AUTO, "weapons/bolt_impact.wav", 1, ATTN_NORM);
 	if (pOther->pev->takedamage != DAMAGE_NO)
 	{
-		TraceResult tr = UTIL_GetGlobalTrace();
-		entvars_t* pevOwner = VARS(pev->owner);
+		entvars_t* pevOwner = VARS(Owner);
+		/*
 		if ((pOther->pev->flags & FL_MONSTER) != 0)
 		{
 			auto monster = pOther->MyMonsterPointer();
@@ -154,42 +137,78 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pOther);
 			pPlayer->m_bRailed = true;
 			pPlayer->m_flRailChargeTime = gpGlobals->time + 1.5;
-		}
+		} */
 		ClearMultiDamage();
-		pOther->TraceAttack(pevOwner, 30, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+		pOther->TraceAttack(pevOwner, 200, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_ALWAYSGIB);
 		ApplyMultiDamage(pev, pevOwner);
-		if (pOther->IsBSPModel())
-			Stay();
+		if (pOther->pev->deadflag != DEAD_DEAD)
+		{
+			SetTouch(NULL);
+			SetThink(NULL);
+			UTIL_Remove(this);
+		}
 		else
 		{
-			UTIL_Remove(this);
+			m_pIgnore = pOther;
+			UTIL_SetOrigin(pev, tr.vecEndPos);
+			pev->velocity = pev->velocity.Normalize() * (4*m_uiSpeed);
 		}
 	}
 	else
 	{
+		SetTouch(NULL);
 		SetThink(&CCrossbowBolt::SUB_Remove);
 		pev->nextthink = gpGlobals->time; // this will get changed below if the bolt is allowed to stick in what it hit.
 		if (FClassnameIs(pOther->pev, "worldspawn"))
-			Stay();
+		{
+			UTIL_DecalTrace(&tr, DECAL_GARGSTOMP1);
+
+			char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + gpGlobals->v_forward * 2, BULLET_PLAYER_9MM);
+			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+			WRITE_BYTE(TE_IMPACTVFX);
+			WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * gpGlobals->v_forward) * 0.1f); // org
+			WRITE_COORD_VECTOR(-1 * gpGlobals->v_forward);							// dir
+			WRITE_COORD(0);
+			WRITE_COORD(0);
+			WRITE_BYTE(material); // (count) (use as mat type?)
+			WRITE_BYTE(0); // (bullethole decal texture index)
+			MESSAGE_END();
+
+			Vector vecDir = pev->velocity.Normalize();
+			UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
+
+			pev->angles = UTIL_VecToAngles(vecDir);
+			pev->solid = SOLID_NOT;
+			pev->movetype = MOVETYPE_FLY;
+			pev->velocity = g_vecZero;
+			pev->avelocity.z = 0;
+			pev->angles.z = RANDOM_LONG(0, 360);
+			pev->nextthink = gpGlobals->time + 1.5;
+
+			SetThink(&CCrossbowBolt::ExplodeThink);
+		}
 	}
+
 	if (UTIL_PointContents(pev->origin) != CONTENTS_WATER)
 		UTIL_Sparks(pev->origin);
 }
 
 void CCrossbowBolt::BubbleThink()
 {
+	pev->gravity = 0.0;
 	// TO-DO: add lens flare
 	
-	// thrusters (doesn't ignore gravity)
+	// thrusters (ignores gravity)
 	pev->nextthink = gpGlobals->time + 0.05;
-	if (pev->velocity.Length() < (2*m_uiSpeed))
+
+	if (pev->velocity.Length() < (6*m_uiSpeed))
 	{
-		pev->velocity = pev->velocity + (VectorNormalize(pev->velocity) * (0.1*m_uiSpeed));
+		pev->gravity = -1.5;
+		pev->velocity = (pev->velocity * 1.25);
 		// TO-DO: add thruster VFX (particles that travel in the railcannon's direction, but slightly slower)
 	}
 
-	// drag (ignores gravity)
-	pev->velocity = pev->velocity - (m_vecDir * (0.025*m_uiSpeed));
+	pev->angles = UTIL_VecToAngles(pev->velocity);
 
 	// fire trail
 	//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, VectorNormalize(pev->velocity), 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
@@ -226,17 +245,14 @@ void CCrossbowBolt::ExplodeThink()
 
 	entvars_t* pevOwner;
 
-	if (pev->owner)
-		pevOwner = VARS(pev->owner);
+	if (Owner)
+		pevOwner = VARS(Owner);
 	else
 		pevOwner = NULL;
 
-	pev->owner = NULL; // can't traceline attack owner if this is set
+	Owner = NULL; // can't traceline attack owner if this is set
 
-	::RadiusDamage(pev->origin, pevOwner, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB); // TO-DO: make full radius do full damage instead of falling off
-	
-	TraceResult tr = UTIL_GetGlobalTrace();
-	UTIL_DecalTrace(&tr, DECAL_OFSCORCH1 + RANDOM_LONG(0, 2));
+	::RadiusDamage(pev->origin, pevOwner, pevOwner, pev->dmg, 96, CLASS_NONE, DMG_BLAST | DMG_ALWAYSGIB);
 
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
 

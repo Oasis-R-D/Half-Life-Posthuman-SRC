@@ -129,16 +129,14 @@ void CCrossbow::FireBolt()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-	Vector anglesAim = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
-	UTIL_MakeVectors(anglesAim);
-
-	anglesAim.x = -anglesAim.x;
 	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 6 + gpGlobals->v_up * -5;
 	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 #ifndef CLIENT_DLL
-	CCrossbowBolt* pBolt = CCrossbowBolt::BoltCreate(vecSrc, anglesAim, BOLT_AIR_VELOCITY, m_pPlayer); 
+	CCrossbowBolt* pBolt = CCrossbowBolt::BoltCreate(vecSrc, gpGlobals->v_forward, BOLT_AIR_VELOCITY, m_pPlayer); 
 	// Fixed the underwater firing because for some reason fixing some obscure bug in the base codebase messes with the gameplay too much smh
+
+	CBasePlayerWeapon::Recoil(8, 2);
 #endif
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)

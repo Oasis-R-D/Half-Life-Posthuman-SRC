@@ -348,7 +348,7 @@ public:
 	bool DefaultReload(int iClipSize, int iAnim, float fDelay, int body = 0, bool altvm = false, int iAltAnim = -1);
 	virtual void ReloadSetAmmos();
 	void ItemPostFrame() override; // called each frame by the player PostThink
-	virtual const Vector& GetBulletSpread() { return Vector(0.04362, 0.04362, 0.04362); } // 5 degrees
+	virtual const Vector& GetBulletSpread() { return Vector(0.0, 0., 0.0); } // 5 degrees
 	void ShootGrenade(int type);// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"

@@ -298,9 +298,10 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
 	UTIL_PrecacheOther("env_fire");
-	PRECACHE_SOUND("player/eat1.wav"); // weapon falls to the ground
-	PRECACHE_SOUND("player/eat2.wav"); // weapon falls to the ground
-	PRECACHE_SOUND("player/eat3.wav"); // weapon falls to the ground
+	PRECACHE_SOUND("player/eat1.wav"); // eat a gib
+	PRECACHE_SOUND("player/eat2.wav"); // eat a gib
+	PRECACHE_SOUND("player/eat3.wav"); // eat a gib
+	PRECACHE_SOUND("player/eatfail.wav"); // fail to eat a gib
 
 	// grenades
 	PRECACHE_MODEL("models/w_grenade.mdl"); // HE

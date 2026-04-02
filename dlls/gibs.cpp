@@ -46,6 +46,12 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	if (pPlayer->m_bPrehuman == true || pPlayer->m_bInGrenade)
 		return; // no snack for you!!
 
+	if (pPlayer->Hunger > 97)
+	{
+		EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "player/eatfail.wav", 0.85, 1.2);
+		return;
+	}
+
 	pPlayer->m_bNoMove = true;
 
 	ALERT(at_console, "using GIB!\n");
@@ -53,62 +59,49 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	m_bDisableFade = true;
 	m_pEater = pPlayer;
 	SetThink(&CoolerGib::PickUpThink);
-	pev->nextthink = gpGlobals->time + 0.25; // delay before "grabbed"
+	pev->nextthink = gpGlobals->time + 0.1; // delay before "grabbed"
 }
 
 void CoolerGib::PickUpThink()
 {
-	Vector vecBetween = m_pEater->Center() - pev->origin;
-	pev->movetype = MOVETYPE_NOCLIP;
-	pev->velocity = vecBetween;
+	pev->effects |= EF_NODRAW;
+	pev->solid = SOLID_NOT;
 	SetThink(&CoolerGib::EatThink);
-	pev->nextthink = gpGlobals->time + 0.05; // delay before "eaten"
+	pev->nextthink = gpGlobals->time + 0.15; // delay before "eaten"
 }
 
 void CoolerGib::EatThink()
 {
-	pev->nextthink = gpGlobals->time + 0.01;
+	// play sound (TO-DO: make positioned propery?)
+	const char* sound = 0;
+	sound = UTIL_VarArgs("player/eat%d.wav", RANDOM_LONG(1, 3));
+	EMIT_SOUND_DYN(m_pEater->edict(), CHAN_AUTO, sound, 0.8, 1.2, 0, 95+RANDOM_LONG(0,10));
 
-	bool eaten = false;
+	// VFX
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 1);
+	UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
 
-	Vector vecBetween = m_pEater->Center() - pev->origin;
-	pev->velocity = vecBetween * 16;
-	if (vecBetween.Length() < 16)
-		eaten = true;
-
-	if (eaten)
+	if (m_bloodColor == BLOOD_COLOR_RED)
 	{
-		// play sound (TO-DO: make positioned propery?)
-		const char* sound = 0;
-		sound = UTIL_VarArgs("player/eat%d.wav", RANDOM_LONG(1, 3));
-		EMIT_SOUND(m_pEater->edict(), CHAN_VOICE, sound, 0.8, 1.2);
-
-		// VFX
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 1);
-		UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
-
-		if (m_bloodColor == BLOOD_COLOR_RED)
-		{
-			// tasty!
-			m_pEater->Hunger += RANDOM_LONG(5, 6);
-			m_pEater->TakeHealth(5, DMG_GENERIC);
-		}
-		else if (m_bloodColor != DONT_BLEED)
-		{
-			// slop!
-			int increment = RANDOM_LONG(2, 3);
-			m_pEater->Hunger += RANDOM_LONG(2, 3);
-			m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
-		}
-
-		if (m_pEater->Hunger > 100)
-			m_pEater->Hunger = 100;
-
-		m_pEater->m_bNoMove = false;
-
-		SetThink(&CoolerGib::SUB_Remove);
-		pev->nextthink = gpGlobals->time;
+		// tasty!
+		m_pEater->Hunger += RANDOM_LONG(5, 6);
+		m_pEater->TakeHealth(5, DMG_GENERIC);
 	}
+	else if (m_bloodColor != DONT_BLEED)
+	{
+		// slop!
+		int increment = RANDOM_LONG(2, 3);
+		m_pEater->Hunger += RANDOM_LONG(2, 3);
+		m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
+	}
+
+	if (m_pEater->Hunger > 100)
+		m_pEater->Hunger = 100;
+
+	m_pEater->m_bNoMove = false;
+
+	SetThink(&CoolerGib::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
 }
 
 // HACKHACK -- The gib velocity equations don't work
