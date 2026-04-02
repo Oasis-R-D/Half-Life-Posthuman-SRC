@@ -435,7 +435,7 @@ void CCorruptedWPN::ItemPostFrame()
 		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.5;
 		m_fGrenadeFireDelay = gpGlobals->time + 0.5;
 
-		GrenadeAttack();
+		OffhandAttack();
 		
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 		{

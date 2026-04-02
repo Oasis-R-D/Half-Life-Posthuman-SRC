@@ -451,7 +451,7 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
 			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
 
-			GrenadeAttack();
+			OffhandAttack();
 
 
 			if (m_pPlayer->m_iGrenadeAmnt == 1)
