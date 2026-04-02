@@ -52,8 +52,8 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 		return;
 	}
 
-	m_pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
-	SendWeaponAnim(1, m_pPlayer->m_bPrehuman, true); // OH_THROW = 1
+	pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
+	SendWeaponAnim(1, pPlayer->m_bPrehuman, true); // OH_THROW = 1
 
 	pPlayer->m_bNoMove = true;
 
