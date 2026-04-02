@@ -353,7 +353,7 @@ public:
 	virtual void PrimaryAttack() {}						  // do "+ATTACK"
 	virtual void SecondaryAttack() {}					  // do "+ATTACK2"
 	virtual void TertiaryAttack() {}					  // do "+ALT1"
-	virtual void GrenadeAttack() { ALERT(at_notice, "Grenade animation not created!"); }	// do "+SCORE_UP //smth like that idk the real name
+	virtual void OffhandAttack() { ALERT(at_notice, "Offhand animation not created!"); } // moves only the weapon, offhand anim is created separately
 	virtual void Reload() {}							  // do "+RELOAD"
 	virtual void WeaponIdle() {}						  // called when no buttons pressed
 	bool UpdateClientData(CBasePlayer* pPlayer) override; // sends hud info to client dll, if things have changed

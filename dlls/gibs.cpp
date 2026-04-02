@@ -43,7 +43,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pActivator);
 
-	if (pPlayer->m_bPrehuman == true || pPlayer->m_bInGrenade)
+	if (pPlayer->m_bPrehuman == true || pPlayer->m_bInGrenade) // TO-DO: make it a general in offhand anim var
 		return; // no snack for you!!
 
 	if (pPlayer->Hunger > 97)

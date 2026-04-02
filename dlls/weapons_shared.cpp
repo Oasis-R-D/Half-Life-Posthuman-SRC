@@ -185,7 +185,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25f;
 			m_fGrenadeFireDelay = gpGlobals->time + 0.5f;
 
-			GrenadeAttack();
+			OffhandAttack();
 			m_pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
 			SendWeaponAnim(OH_THROW, m_pPlayer->m_bPrehuman, true);
 			if (m_pPlayer->m_iGrenadeAmnt == 1)
