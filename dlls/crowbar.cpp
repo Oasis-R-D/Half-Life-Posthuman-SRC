@@ -221,16 +221,6 @@ void CCrowbar::Hit(bool type, int hand)
 					if (m_pPlayer->health_stomach < 0)
 						m_pPlayer->health_stomach = 0;
 				}
-				else if (pHit->BloodColor() == BLOOD_COLOR_RED)
-				{
-					m_pPlayer->Hunger += 30;
-					m_pPlayer->TakeHealth(gSkillData.healthkitCapacity, DMG_GENERIC);
-				}
-				else if (pHit->BloodColor() != DONT_BLEED)
-				{
-					m_pPlayer->Hunger += 15;
-					m_pPlayer->TakeHealth(5, DMG_GENERIC);
-				}
 
 				if (m_pPlayer->Hunger > 100)
 					m_pPlayer->Hunger = 100;

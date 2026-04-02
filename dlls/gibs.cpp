@@ -43,8 +43,10 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pActivator);
 
-	if (pPlayer->m_bPrehuman == true)
+	if (pPlayer->m_bPrehuman == true || pPlayer->m_bInGrenade)
 		return; // no snack for you!!
+
+	pPlayer->m_bNoMove = true;
 
 	ALERT(at_console, "using GIB!\n");
 
@@ -82,7 +84,6 @@ void CoolerGib::EatThink()
 		EMIT_SOUND(m_pEater->edict(), CHAN_VOICE, sound, 0.8, 1.2);
 
 		// VFX
-		// no matter what I do, the blood droplets get sent in 1 direction, annoying af ngl
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 1);
 		UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
 
@@ -102,6 +103,8 @@ void CoolerGib::EatThink()
 
 		if (m_pEater->Hunger > 100)
 			m_pEater->Hunger = 100;
+
+		m_pEater->m_bNoMove = false;
 
 		SetThink(&CoolerGib::SUB_Remove);
 		pev->nextthink = gpGlobals->time;

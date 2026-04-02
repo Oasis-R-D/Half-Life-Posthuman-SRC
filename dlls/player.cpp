@@ -108,6 +108,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iWeaponFlash, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iWeaponStatus, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_fLongJump, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_bNoMove, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_bPrehuman, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_fInitHUD, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_tbdPrev, FIELD_TIME),
@@ -534,13 +535,6 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 	// handle all bits set in this damage message,
 	// let the suit give player the diagnosis
-
-	// UNDONE: still need to record damage and heal messages for the following types
-
-	// DMG_BURN
-	// DMG_FREEZE
-	// DMG_BLAST
-	// DMG_SHOCK
 
 	m_bitsDamageType |= bitsDamage; // Save this so we can report it to the client
 	m_bitsHUDDamage = -1;			// make sure the damage bits get resent
@@ -2492,7 +2486,12 @@ void CBasePlayer::PreThink()
 	{
 		pev->velocity = g_vecZero;
 	}
-	if (health_legL && health_legR >= 90 || m_bNoSprint)
+
+	if (m_bNoMove)
+	{
+		pev->maxspeed = 0.001; // FREEZE!
+	}
+	else if (health_legL && health_legR >= 90 || m_bNoSprint)
 	{
 		pev->maxspeed = 250;
 	}
