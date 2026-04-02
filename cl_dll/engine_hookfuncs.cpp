@@ -595,6 +595,12 @@ FuncHook(R_LavaSplash, void, float* org)
 
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
+	// TO-DO: figure out how to get surface material color
+	// IDEA: use cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture) or something similar,
+	// retrieve the pallete and then just see which color has a higher amount throughout the entire image
+	// would be way easier than make a system to average the colors
+	// or just find a better way to do smoke that looks good for all tex types and colors
+	
 	Vector newOrg = org;
 	newOrg = dir;
 	newOrg = (newOrg*2) + org;
@@ -606,10 +612,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	{
 		default: gParticleEngine.CreateSystem("engine_impsmoke_crete.txt", newOrg, dir, 0); break;
 		case CHAR_TEX_GLASS: gParticleEngine.CreateCluster("glass_impact_cluster.txt", newOrg, dir, 0); return; break;
-		case CHAR_TEX_WOOD: 
-			gParticleEngine.CreateCluster("wood_impact_cluster.txt", newOrg, dir, 0); 
-			return; 
-			break;
+		case CHAR_TEX_WOOD: gParticleEngine.CreateCluster("wood_impact_cluster.txt", newOrg, dir, 0); return; break;
 		case CHAR_TEX_IMPEN: return; break;
 		case CHAR_TEX_FLESH:
 			//Hooked_R_BloodSprite(org, BLOOD_COLOR_RED, int modelIndex, int modelIndex2, 8); // TO-DO: figure out how to get model index and crap
