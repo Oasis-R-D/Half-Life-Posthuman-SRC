@@ -182,7 +182,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 			m_pPlayer->m_iGrenadeAmnt--;
 
 			m_flNextGrenadeAttack = gpGlobals->time + 2;
-			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25f;
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.2f;
 			m_fGrenadeFireDelay = gpGlobals->time + 0.5f;
 
 			OffhandAttack();
