@@ -601,10 +601,18 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	// would be way easier than making a system to average the colors
 	// or just find a better way to do smoke that looks good for all tex types and colors
 	
-	Vector newOrg = org;
-	newOrg = dir;
+	Vector newOrg = dir;
 	newOrg = (newOrg*2) + org;
 
+	Vector newDir = dir;
+
+	pmtrace_t tr;
+	gEngfuncs.pEventAPI->EV_PlayerTrace(org, newOrg, PM_STUDIO_BOX, -1, &tr);
+	//EV_HLDM_PlayTextureSound(idx, &tr, org, newOrg, iBulletType);
+	const char* pTextureName = EV_TraceTexture(tr->ent, org, newOrg);
+	/*Vector color = */CTextureLoader::LoadWADColor(pTextureName);
+
+	EV_TraceTexture
 	char material = (char)count;
 	// TO-DO: get texture name
 	//gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
