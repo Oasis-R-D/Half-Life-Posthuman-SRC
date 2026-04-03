@@ -141,7 +141,7 @@ public:
 	bool LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip);
 	void LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture, bool isdecal = false);
 
-	byte* LoadWADColor(char* szTexture);
+	tex_pixdata LoadWADColor(char* szTexture);
 
 	byte* LoadTGAFileRaw(const char* filename, int& width, int& height, int& bitsperpixel, bool bBorder); // WARNING !!! YOU MUST DELETE THE RETURN OF THIS FUNCTION WITH delete[] ONCE YOURE DONE WITH IT;
 
