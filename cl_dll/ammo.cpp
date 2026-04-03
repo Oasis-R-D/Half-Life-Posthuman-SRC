@@ -644,7 +644,7 @@ bool CHudAmmo::MsgFunc_CurWeapon(const char* pszName, int iSize, void* pbuf)
 
 	m_pWeapon = pWeapon;
 
-	if (gHUD.m_iFOV >= 90) // TO-DO: would this not break if some minecraft player shows up with their godawful 60 FOV?
+	if (gHUD.m_iFOV >= 90)
 	{ // normal crosshairs
 		if (fOnTarget && 0 != m_pWeapon->hAutoaim)
 			SetCrosshair(m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255);
@@ -1073,7 +1073,7 @@ bool CHudAmmo::Draw(float flTime)
 	{
 		if (!m_hGrenType)
 			m_hGrenType = gHUD.GetSprite(gHUD.GetSpriteIndex("grentype"));
-		SPR_Set(m_hGrenType, r, g, b); // TO-DO: hud icons
+		SPR_Set(m_hGrenType, r, g, b);
 		int iOffset = (m_prcGrenType->bottom - m_prcGrenType->top) / 8; // same size as normal ammo
 		SPR_DrawAdditive(0, x, y - iOffset, m_prcGrenType);
 	}

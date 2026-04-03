@@ -2062,7 +2062,7 @@ void CTestHull::BuildNodeGraph()
 
 	// save the node graph for this level
 	WorldGraph.FSaveGraph(STRING(gpGlobals->mapname));
-	ALERT(at_console, "Done.\n"); // TO-DO: optimize this (shit freezes the fuck outta me game!!!)
+	ALERT(at_console, "Done.\n");
 }
 
 

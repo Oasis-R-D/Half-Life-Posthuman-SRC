@@ -113,7 +113,7 @@ bool CM29::Deploy()
 	if (g_pGameRules->IsMultiplayer())
 		NotFirstDraw = true;
 
-	m_iCrossHairType = CROSSHAIR_NOCENTER; // TO-DO: make a new type for the m29 that takes the dual weapons in account
+	m_iCrossHairType = CROSSHAIR_NOCENTER;
 	m_flAccuracyPenalty = M29_ACCURACY_MAXIMUM_PENALTY_TIME;
 
 	CalculateAmmo();

@@ -110,7 +110,7 @@ void CHalfLifeMultiplay::ClientUserInfoChanged(CBasePlayer* pPlayer, char* infob
 
 //=========================================================
 //=========================================================
-void CHalfLifeMultiplay::RefreshSkillData() // TO-DO: probably remove this or rebalance
+void CHalfLifeMultiplay::RefreshSkillData()
 {
 	// load all default values
 	CGameRules::RefreshSkillData();

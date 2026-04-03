@@ -452,7 +452,7 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
 	
-	ExplodeHE(&tr, DMG_SONIC); // TO-DO: call detonate instead?
+	ExplodeHE(&tr, DMG_SONIC);
 }
 
 void CGrenade::DangerSoundThink()

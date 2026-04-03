@@ -316,7 +316,7 @@ void CHordeMaker::MakeMonster()
 
 	if (m_cNumMonsters == 0)
 	{
-		// Disable this forever.  Don't kill it because it still gets death notices // TO-DO: can we remove it once the remaining children die?
+		// Disable this forever.  Don't kill it because it still gets death notices
 		SetThink(NULL);
 		SetUse(NULL);
 	}

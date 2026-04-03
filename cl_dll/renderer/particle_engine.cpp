@@ -1997,7 +1997,6 @@ bool CParticleEngine::UpdateParticle(cl_particle_t* pParticle)
 		}
 	}
 
-	// to-do: variation needs to be per particle not per system
 	// Calculate texcoords
 	if (pSystem->numframes)
 	{

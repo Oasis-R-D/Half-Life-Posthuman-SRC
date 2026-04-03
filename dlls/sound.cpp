@@ -1619,7 +1619,6 @@ void TEXTURETYPE_Init()
 // NOTE: this routine should ONLY be called if the
 // current texture under the player changes!
 
-// TO-DO: figure out why impen and flesh aren't being returned
 char TEXTURETYPE_Find(char* name) // TO-DO: would probably be better to have a .TXT for every material type so that the max is higher
 {
 	// CONSIDER: pre-sort texture names and perform faster binary search here

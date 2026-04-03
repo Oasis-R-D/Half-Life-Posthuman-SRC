@@ -4095,6 +4095,9 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 	bool needsbufferupdate = false;
 	for (int i = 0; i < m_pDecals.size(); i++)
 	{
+		//char name[64];
+		//strcpy(name, m_pDecals[i].get()->texinfo->szName); // TO-DO: find some way to get this into decalbatch for second "for (auto texture : decalbatch)"
+
 		std::vector<DecalVert_t> decalvertlist;
 		DrawSingleDecal(m_pDecals[i].get(), decalvertlist, m_bTransPass, &needsbufferupdate);
 		auto& row = decalbatch[m_pDecals[i].get()->texinfo->gl_texid];
