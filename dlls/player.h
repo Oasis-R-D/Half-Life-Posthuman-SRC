@@ -219,7 +219,7 @@ public:
 	int m_iGrenadeAmnt;
 	int m_iGrenadeType;
 	bool m_bInGrenadeDelay = false;
-	bool m_bInGrenade = false;
+	bool m_bInGrenade = false; // TO-DO: make m_bInOffhand, make disable weapon switching
 	bool m_bCanGrenade = true;
 	Vector m_vecAutoAim;
 	bool m_fOnTarget;

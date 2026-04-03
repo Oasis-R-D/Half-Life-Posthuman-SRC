@@ -5,7 +5,7 @@
 #include "com_model.h"
 #include "triangleapi.h"
 #include "net_api.h"
-
+#include "event_api.h"
 #include "client_state.h"
 #include "Exports.h"
 
