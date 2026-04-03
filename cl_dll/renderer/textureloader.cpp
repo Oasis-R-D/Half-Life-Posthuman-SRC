@@ -774,6 +774,62 @@ cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture)
 
 /*
 ====================
+LoadWADColor
+Purpose: returns pixel and pallete data, used for impact VFX and water fog
+====================
+*/
+tex_pixdata CTextureLoader::LoadWADColor(char* szTexture)
+{
+	char szName[32];
+	cl_texture_t* pTexture = NULL;
+
+	for (int i = 0; i < m_iNumWADFiles; i++)
+	{
+		byte* pFile = m_pWADFiles[i].wadfile;
+		wadinfo_t* pInfo = m_pWADFiles[i].info;
+		for (int j = 0; j < pInfo->numlumps; j++)
+		{
+			lumpinfo_t* pLump = &m_pWADFiles[i].lumps[j];
+			if (pLump->type != 0 && !(pLump->type & 0x43))
+				continue;
+
+			strcpy(szName, pLump->name);
+			strLower(szName);
+
+			if (!strcmp(szName, szTexture))
+			{
+				pTexture = new cl_texture_t{};
+
+				// Fill in data
+				strcpy(pTexture->szName, szTexture);
+				pTexture->iWidth = ByteToUInt(pFile + pLump->filepos + 16);
+				pTexture->iHeight = ByteToUInt(pFile + pLump->filepos + 20);
+				pTexture->iBpp = 4;
+
+				// Get offsets
+				int iIndexOffset = ByteToUInt(pFile + pLump->filepos + 24);
+				int iMip3Offset = ByteToUInt(pFile + pLump->filepos + 36);
+
+				byte* pPalette;
+				if (pLump->type & 0x43)
+					pPalette = pFile + pLump->filepos + iMip3Offset + ((pTexture->iWidth / 8) * (pTexture->iHeight / 8)) + 2;
+				else
+					pPalette = pFile + pLump->filepos + iIndexOffset + (pTexture->iWidth * pTexture->iHeight) + 2;
+
+				// if (iAltIndex && gBSPRenderer.m_pCvarFixTextCorruption->value == 0)
+				//	pTexture->iIndex = iAltIndex;
+
+				byte* pPixels = pFile + pLump->filepos + iIndexOffset;
+				return {pPixels, pPalette, pTexture}; // TO-DO: would prob be better to pass this onto a function that gets the color, then return that
+			}
+		}
+	}
+
+	return NULL;
+}
+
+/*
+====================
 LoadPallettedTexture
 
 ====================

@@ -596,9 +596,9 @@ FuncHook(R_LavaSplash, void, float* org)
 FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, int decalCount, int* decalIndices)
 {
 	// TO-DO: figure out how to get surface material color
-	// IDEA: use cl_texture_t* CTextureLoader::LoadWADTexture(char* szTexture) or something similar,
+	// IDEA: use tex_pixdata CTextureLoader::LoadWADColor(char* szTexture)
 	// retrieve the pallete and then just see which color has a higher amount throughout the entire image
-	// would be way easier than make a system to average the colors
+	// would be way easier than making a system to average the colors
 	// or just find a better way to do smoke that looks good for all tex types and colors
 	
 	Vector newOrg = org;
@@ -606,6 +606,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	newOrg = (newOrg*2) + org;
 
 	char material = (char)count;
+	// TO-DO: get texture name
 	//gEngfuncs.Con_DPrintf("char is equal to %d\n", material);
 
 	switch ((char)material)

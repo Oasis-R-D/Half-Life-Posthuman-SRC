@@ -104,6 +104,13 @@ struct waddecals_t
 	decalgroupentry_t* texinfo;
 };
 
+struct tex_pixdata
+{
+    byte* pix;
+	byte* pal;
+	cl_texture_t* texture;
+};
+
 /*
 =======================
 CTextureLoader
@@ -133,6 +140,8 @@ public:
 	bool LoadTGAFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip, bool bBorder);
 	bool LoadDDSFile(byte* pFile, cl_texture_t* pTexture, bool bNoMip);
 	void LoadPallettedTexture(byte* data, byte* pal, cl_texture_t* pTexture, bool isdecal = false);
+
+	byte* LoadWADColor(char* szTexture);
 
 	byte* LoadTGAFileRaw(const char* filename, int& width, int& height, int& bitsperpixel, bool bBorder); // WARNING !!! YOU MUST DELETE THE RETURN OF THIS FUNCTION WITH delete[] ONCE YOURE DONE WITH IT;
 
