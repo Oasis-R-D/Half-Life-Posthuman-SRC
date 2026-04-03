@@ -29,6 +29,7 @@
 
 //	Global engine <-> studio model rendering code interface
 extern engine_studio_api_t IEngineStudio;
+extern CTextureLoader gTextureLoader;
 
 client_state_s *engine_cl = nullptr;
 client_static_s *engine_cls = nullptr;
@@ -600,17 +601,22 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	// retrieve the pallete and then just see which color has a higher amount throughout the entire image
 	// would be way easier than making a system to average the colors
 	// or just find a better way to do smoke that looks good for all tex types and colors
-	
+	Vector color;
+
 	Vector newOrg = dir;
 	newOrg = (newOrg*2) + org;
 
 	Vector newDir = dir;
 
+
 	pmtrace_t tr;
 	gEngfuncs.pEventAPI->EV_PlayerTrace(org, newOrg, PM_STUDIO_BOX, -1, &tr);
-	//EV_HLDM_PlayTextureSound(idx, &tr, org, newOrg, iBulletType);
-	char* pTextureName = (char*)EV_TraceTexture(tr->ent, org, newOrg);
-	/*Vector color = */CTextureLoader::LoadWADColor(pTextureName);
+	char* pTextureName = (char*)EV_TraceTexture(tr.ent, org, (newDir*(-16)) + org);
+	gEngfuncs.pfnConsolePrint(pTextureName);
+	if (pTextureName)
+		/*color = */ gTextureLoader.LoadWADColor(pTextureName); // TO-DO: always returns nothing???
+	else
+		color = Vector(128, 128, 128);
 
 	char material = (char)count;
 	// TO-DO: get texture name

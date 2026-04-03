@@ -164,11 +164,11 @@ void CBasePlayerWeapon::ItemPostFrame()
 	{
 		TertiaryAttack();
 	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time)
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextOffhandAttack < gpGlobals->time)
 	{
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 		{
-			m_flNextGrenadeAttack = gpGlobals->time + 3;
+			m_flNextOffhandAttack = gpGlobals->time + 3;
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 			m_pPlayer->m_iGrenadeAmnt = 0;
 		}
@@ -181,7 +181,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 
 			m_pPlayer->m_iGrenadeAmnt--;
 
-			m_flNextGrenadeAttack = gpGlobals->time + 2;
+			m_flNextOffhandAttack = gpGlobals->time + 2;
 			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.2f;
 			m_fGrenadeFireDelay = gpGlobals->time + 0.5f;
 

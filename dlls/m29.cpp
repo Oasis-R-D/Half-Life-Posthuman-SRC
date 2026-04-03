@@ -430,11 +430,11 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 	{
 		TertiaryAttack();
 	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextOffhandAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
 	{
 		if (m_pPlayer->m_iGrenadeAmnt <= 0)
 		{
-			m_flNextGrenadeAttack = gpGlobals->time + 3;
+			m_flNextOffhandAttack = gpGlobals->time + 3;
 			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
 			m_pPlayer->m_iGrenadeAmnt = 0;
 		}
@@ -447,7 +447,7 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 
 			m_pPlayer->m_iGrenadeAmnt--;
 
-			m_flNextGrenadeAttack = gpGlobals->time + 2;
+			m_flNextOffhandAttack = gpGlobals->time + 2;
 			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
 			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
 

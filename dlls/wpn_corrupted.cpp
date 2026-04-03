@@ -422,7 +422,7 @@ void CCorruptedWPN::ItemPostFrame()
 		TertiaryAttack();
 		//m_pPlayer->pev->button &= ~IN_ALT1;
 	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextGrenadeAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextOffhandAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
 	{
 		m_pPlayer->m_bInGrenade = true;
 		m_pPlayer->m_bInGrenadeDelay = true;
@@ -431,7 +431,7 @@ void CCorruptedWPN::ItemPostFrame()
 		
 		m_pPlayer->m_iGrenadeAmnt--;
 
-		m_flNextGrenadeAttack = gpGlobals->time + 2.5;
+		m_flNextOffhandAttack = gpGlobals->time + 2.5;
 		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.5;
 		m_fGrenadeFireDelay = gpGlobals->time + 0.5;
 

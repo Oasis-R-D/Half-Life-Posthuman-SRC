@@ -383,7 +383,7 @@ public:
 	float m_flNextPrimaryAttack;   // soonest time ItemPostFrame will call PrimaryAttack
 	float m_flNextSecondaryAttack; // soonest time ItemPostFrame will call SecondaryAttack
 	float m_flNextTertiaryAttack;
-	float m_flNextGrenadeAttack;	// TO-DO: switch to m_flNextOffhandAttack
+	float m_flNextOffhandAttack;	// TO-DO: switch to m_flNextOffhandAttack
 	float m_flTimeWeaponIdle;	   // soonest time ItemPostFrame will call WeaponIdle
 	float m_flTimeAltWeaponIdle;	   // soonest time ItemPostFrame will call WeaponIdle
 	int m_iPrimaryAmmoType;		   // "primary" ammo index into players m_rgAmmo[]

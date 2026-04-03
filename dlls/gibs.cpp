@@ -48,7 +48,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	CBasePlayerWeapon* pWpn = pPlayer->m_pActiveItem->GetWeaponPtr();
 
-	if (pWpn && gpGlobals->time < pWpn->m_flNextGrenadeAttack)
+	if (pWpn && gpGlobals->time < pWpn->m_flNextOffhandAttack)
 		return;
 
 	if (pPlayer->Hunger > 97)
@@ -59,7 +59,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
 	pWpn->SendWeaponAnim(OH_GRAB, 0, true); // body is 0 since prehuman players cannot eat anyways
-	pWpn->m_flNextGrenadeAttack = gpGlobals->time + 1.33;
+	pWpn->m_flNextOffhandAttack = gpGlobals->time + 1.33;
 	pWpn->m_flNextSecondaryAttack = pWpn->m_flNextPrimaryAttack = pWpn->m_flNextTertiaryAttack = 1.2f;
 
 	pPlayer->m_bNoMove = true;
