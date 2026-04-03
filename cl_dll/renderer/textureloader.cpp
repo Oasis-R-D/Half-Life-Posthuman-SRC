@@ -780,6 +780,7 @@ Purpose: returns pixel and pallete data, used for impact VFX and water fog
 */
 tex_pixdata CTextureLoader::LoadWADColor(char* szTexture)
 {
+	Vector test;
 	char szName[32];
 	cl_texture_t* pTexture = NULL;
 
