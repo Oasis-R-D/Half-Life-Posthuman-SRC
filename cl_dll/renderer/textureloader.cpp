@@ -826,7 +826,7 @@ tex_pixdata CTextureLoader::LoadWADColor(char* szTexture)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
