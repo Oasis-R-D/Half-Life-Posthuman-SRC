@@ -46,6 +46,11 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	if (pPlayer->m_bPrehuman == true || pPlayer->m_bInGrenade) // TO-DO: make it a general in offhand anim var
 		return; // no snack for you!!
 
+	CBasePlayerWeapon* pWpn = pPlayer->m_pActiveItem->GetWeaponPtr();
+
+	if (pWpn && gpGlobals->time < pWpn->m_flNextGrenadeAttack)
+		return;
+
 	if (pPlayer->Hunger > 97)
 	{
 		EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "player/eatfail.wav", 0.85, 1.2);
@@ -53,8 +58,9 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	}
 
 	pPlayer->altviewmodel = MAKE_STRING("models/v_ohgrenade.mdl");
-	CBasePlayerWeapon* pWpn = pPlayer->m_pActiveItem->GetWeaponPtr();
-	pWpn->SendWeaponAnim(1, pPlayer->m_bPrehuman, true); // OH_THROW = 1
+	pWpn->SendWeaponAnim(OH_GRAB, 0, true); // body is 0 since prehuman players cannot eat anyways
+	pWpn->m_flNextGrenadeAttack = gpGlobals->time + 1.33;
+	pWpn->m_flNextSecondaryAttack = pWpn->m_flNextPrimaryAttack = pWpn->m_flNextTertiaryAttack = 1.25f;
 
 	pPlayer->m_bNoMove = true;
 
@@ -63,7 +69,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	m_bDisableFade = true;
 	m_pEater = pPlayer;
 	SetThink(&CoolerGib::PickUpThink);
-	pev->nextthink = gpGlobals->time + 0.1; // delay before "grabbed"
+	pev->nextthink = gpGlobals->time + 0.333; // delay before "grabbed"
 }
 
 void CoolerGib::PickUpThink()
@@ -71,7 +77,7 @@ void CoolerGib::PickUpThink()
 	pev->effects |= EF_NODRAW;
 	pev->solid = SOLID_NOT;
 	SetThink(&CoolerGib::EatThink);
-	pev->nextthink = gpGlobals->time + 0.15; // delay before "eaten"
+	pev->nextthink = gpGlobals->time + 0.3; // delay before "eaten"
 }
 
 void CoolerGib::EatThink()

@@ -1773,5 +1773,6 @@ private:
 enum offhandgren_e
 {
 	OH_DONOTHING = 0,
-	OH_THROW
+	OH_THROW,
+	OH_GRAB,
 };
