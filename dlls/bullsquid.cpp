@@ -73,6 +73,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	int m_maxFrame;
+	bool oddthink;
 };
 
 LINK_ENTITY_TO_CLASS(squidspit, CSquidSpit);
@@ -86,7 +87,7 @@ IMPLEMENT_SAVERESTORE(CSquidSpit, CBaseEntity);
 
 void CSquidSpit::Spawn()
 {
-	pev->movetype = MOVETYPE_FLY;
+	pev->movetype = MOVETYPE_TOSS;
 	pev->classname = MAKE_STRING("squidspit");
 	pev->solid = SOLID_BBOX;
 	pev->rendermode = kRenderTransAlpha;
@@ -112,6 +113,10 @@ void CSquidSpit::Animate()
 			pev->frame = 0;
 		}
 	}
+
+	oddthink = !oddthink;
+	if (oddthink)
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
 }
 
 void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity) // we should make it like BM:S where there's multiple, like a shotgun
@@ -229,9 +234,12 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	bool m_fCanThreatDisplay; // this is so the squid only does the "I see a headcrab!" dance one time.
+	bool m_fThrowGrenade;
 
 	float m_flLastHurtTime; // we keep track of this, because if something hurts a squid, it will forget about its love of headcrabs for a while.
 	float m_flNextSpitTime; // last time the bullsquid used the spit attack.
+
+	Vector m_vecTossVelocity;
 };
 LINK_ENTITY_TO_CLASS(monster_bullchicken, CBullsquid);
 
@@ -240,6 +248,8 @@ TYPEDESCRIPTION CBullsquid::m_SaveData[] =
 		DEFINE_FIELD(CBullsquid, m_fCanThreatDisplay, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBullsquid, m_flLastHurtTime, FIELD_TIME),
 		DEFINE_FIELD(CBullsquid, m_flNextSpitTime, FIELD_TIME),
+		DEFINE_FIELD(CBullsquid, m_vecTossVelocity, FIELD_VECTOR),
+		DEFINE_FIELD(CBullsquid, m_fThrowGrenade, FIELD_BOOLEAN),
 };
 
 IMPLEMENT_SAVERESTORE(CBullsquid, CBaseMonster);
@@ -329,18 +339,16 @@ bool CBullsquid::CheckRangeAttack1(float flDot, float flDist)
 	if (IsMoving() && flDist >= 512)
 	{
 		// squid will far too far behind if he stops running to spit at this distance from the enemy.
-		return false;
+		m_fThrowGrenade = false;
+		return m_fThrowGrenade;
 	}
 
 	if (flDist > 64 && flDist <= 784 && flDot >= 0.5 && gpGlobals->time >= m_flNextSpitTime)
 	{
-		if (m_hEnemy != NULL)
+		if (m_hEnemy == NULL)
 		{
-			if (fabs(pev->origin.z - m_hEnemy->pev->origin.z) > 256)
-			{
-				// don't try to spit at someone up really high or down really low.
-				return false;
-			}
+			m_fThrowGrenade = false;
+			return m_fThrowGrenade;
 		}
 
 		if (IsMoving())
@@ -354,10 +362,37 @@ bool CBullsquid::CheckRangeAttack1(float flDot, float flDist)
 			m_flNextSpitTime = gpGlobals->time + 0.5;
 		}
 
-		return true;
+		UTIL_MakeVectors(pev->angles);
+
+		// !!!HACKHACK - the spot at which the spit originates (in front of the mouth) was measured in 3ds and hardcoded here.
+		// we should be able to read the position of bones at runtime for this info.
+		Vector vecSpitOffset = (gpGlobals->v_right * 8 + gpGlobals->v_forward * 37 + gpGlobals->v_up * 23);
+		vecSpitOffset = (pev->origin + vecSpitOffset);
+
+		// find target
+		Vector vecTarget = m_hEnemy->BodyTarget( pev->origin ); // normal hgrunt code wasn't working here
+
+		Vector vecToss = VecCheckThrow(pev, vecSpitOffset, vecTarget, 900);
+
+		if (vecToss != g_vecZero)
+		{
+			m_vecTossVelocity = vecToss;
+
+			m_fThrowGrenade = true;
+			return m_fThrowGrenade;
+		}
+		else
+		{
+			// don't check again for a while.
+			m_flNextSpitTime = gpGlobals->time + 1; // one full second.
+
+			m_fThrowGrenade = false;
+			return m_fThrowGrenade;
+		}
 	}
 
-	return false;
+	m_fThrowGrenade = false;
+	return m_fThrowGrenade;
 }
 
 //=========================================================
@@ -549,7 +584,6 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 		if (m_hEnemy)
 		{
 			Vector vecSpitOffset;
-			Vector vecSpitDir;
 
 			UTIL_MakeVectors(pev->angles);
 
@@ -557,14 +591,11 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			// we should be able to read the position of bones at runtime for this info.
 			vecSpitOffset = (gpGlobals->v_right * 8 + gpGlobals->v_forward * 37 + gpGlobals->v_up * 23);
 			vecSpitOffset = (pev->origin + vecSpitOffset);
-			if (m_hEnemy) // fixes crash
-				vecSpitDir = ((m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs) - vecSpitOffset).Normalize();
-			else
-				vecSpitDir = gpGlobals->v_forward;
+			Vector vecSpitDir = (m_vecTossVelocity).Normalize();
 
-			vecSpitDir.x += RANDOM_FLOAT(-0.025, 0.025);
-			vecSpitDir.y += RANDOM_FLOAT(-0.025, 0.025);
-			vecSpitDir.z += RANDOM_FLOAT(-0.025, 0);
+			m_vecTossVelocity.x += RANDOM_FLOAT(-0.025, 0.025);
+			m_vecTossVelocity.y += RANDOM_FLOAT(-0.025, 0.025);
+			m_vecTossVelocity.z += RANDOM_FLOAT(-0.025, 0.025);
 
 
 			// do stuff for this event.
@@ -585,10 +616,14 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			WRITE_BYTE(25);				   // noise ( client will divide by 100 )
 			MESSAGE_END();
 			constexpr float bull_spits = 10;
-			for (int i = 0; i < bull_spits; i++)
-				{
-					CSquidSpit::Shoot(pev, vecSpitOffset, vecSpitDir * 900);
-				}
+
+			for (int i = 0; i < bull_spits; i++) // TO-DO: use modified grunt code here to add arcing
+			{
+					CSquidSpit::Shoot(pev, vecSpitOffset, m_vecTossVelocity);
+			}
+
+			//ALERT(at_console, "should I have attacked: %d\n", (int)m_fThrowGrenade);
+			m_fThrowGrenade = false;
 		}
 	}
 	break;

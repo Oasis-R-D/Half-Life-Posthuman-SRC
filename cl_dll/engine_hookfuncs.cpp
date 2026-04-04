@@ -612,7 +612,7 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 	pmtrace_t tr;
 	gEngfuncs.pEventAPI->EV_PlayerTrace(org, newOrg, PM_STUDIO_BOX, -1, &tr);
 	char* pTextureName = (char*)EV_TraceTexture(tr.ent, org, (newDir*(-16)) + org);
-	gEngfuncs.pfnConsolePrint(pTextureName);
+	//gEngfuncs.pfnConsolePrint(pTextureName);
 	if (pTextureName)
 		/*color = */ gTextureLoader.LoadWADColor(pTextureName); // TO-DO: always returns nothing???
 	else
