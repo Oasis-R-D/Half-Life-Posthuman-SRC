@@ -420,7 +420,7 @@
     <ClCompile Include="..\..\cl_dll\engine_particles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\prehumanmelee.cpp">
+    <ClCompile Include="..\..\dlls\sledgehammer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -78,6 +78,8 @@ bool CCrowbar::Deploy()
 	if (g_pGameRules->IsMultiplayer())
 		NotFirstDraw = true;
 
+	m_iCrossHairType = CROSSHAIR_NONE;
+
 	m_pPlayer->CrowbarFlinch = 0;
 
 	if (!NotFirstDraw)

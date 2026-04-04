@@ -73,7 +73,7 @@ CEagle g_Eagle;
 CM727 g_M727;
 CCorruptedWPN g_Corrupt;
 CM29 g_M29;
-CMelee g_Melee;
+CSledgeHammer g_Melee;
 
 /*
 ======================
@@ -639,7 +639,7 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	case WEAPON_M29: 
 		pWeapon = &g_M29;
 		break;
-	case WEAPON_MELEE: 
+	case WEAPON_SLEDGE: 
 		pWeapon = &g_Melee;
 		break;
 	}

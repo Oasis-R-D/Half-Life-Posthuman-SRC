@@ -462,7 +462,7 @@
     <ClCompile Include="..\..\dlls\voltigore_baby.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\prehumanmelee.cpp">
+    <ClCompile Include="..\..\dlls\sledgehammer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\gibs.cpp">

@@ -308,9 +308,13 @@ public:
 	bool m_ForceSendAnimations = false;
 };
 
-#define CROSSHAIR_DEFAULT 0 // 4 bars, center dot
-#define CROSSHAIR_NOCENTER 1 // no center dot
-#define CROSSHAIR_DUCKBILL 2 // Top and bottom don't move
+typedef enum
+{
+	CROSSHAIR_NONE = -1,
+	CROSSHAIR_DEFAULT,
+	CROSSHAIR_NOCENTER,		// glock
+	CROSSHAIR_DUCKBILL		// mp5
+} Crosshair;
 
 // inventory items that go bang/boom/alien noises/metal noises
 class CBasePlayerWeapon : public CBasePlayerItem
@@ -393,17 +397,21 @@ public:
 	int m_iClientWeaponState;	   // the last version of the weapon state sent to hud dll (is current weapon, is on target)
 	bool m_fInReload;			   // Are we in the middle of a reload;
 	int m_iDefaultAmmo; // how much ammo you get when you pick up this weapon as placed by a level designer.
-	bool NotFirstDraw;
-	bool m_hasbeeped;
-	double m_flTimeSincePrimary;
+	
 	// hle time creep vars // Qhar?!
 	float m_flPrevPrimaryAttack;
 	float m_flLastFireTime;
 
 	// POST-HUMAN
+	double m_flTimeSincePrimary;
+
 	float m_fGrenadeFireDelay;
 	float m_flAccuracyPenalty;
-	int m_iCrossHairType   = 0;
+
+	int m_iCrossHairType = 0;
+	
+	bool m_hasbeeped;
+	bool NotFirstDraw;
 };
 
 
@@ -663,7 +671,7 @@ enum melee_e
 	MELEE_HEAVYMISS3
 };
 
-class CMelee : public CBasePlayerWeapon
+class CSledgeHammer : public CBasePlayerWeapon
 {
 private:
 	enum SwingMode

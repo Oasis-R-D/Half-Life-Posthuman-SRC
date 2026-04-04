@@ -392,6 +392,9 @@ void CHud::MsgFunc_CrossHair(const char* pszName, int iSize, void* pbuf)
 
 void DrawCrosshair()
 {
+	if (gCrosshairType == -1)
+		return;
+
 	Vector angles;
 	Vector crosshairangles;
 	Vector forward, right, up;

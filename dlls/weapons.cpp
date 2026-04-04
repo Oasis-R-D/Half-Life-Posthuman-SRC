@@ -1499,13 +1499,13 @@ void CBasePlayerWeapon::PrintState()
 	ALERT(at_console, "m_iclip:  %i\n", m_iClip);
 }
 
-TYPEDESCRIPTION CMelee::m_SaveData[] =
+TYPEDESCRIPTION CSledgeHammer::m_SaveData[] =
 	{
-		DEFINE_FIELD(CMelee, m_flBigSwingStart, FIELD_TIME),
-		DEFINE_FIELD(CMelee, m_iSwing, FIELD_INTEGER),
-		DEFINE_FIELD(CMelee, m_iSwingMode, FIELD_INTEGER),
+		DEFINE_FIELD(CSledgeHammer, m_flBigSwingStart, FIELD_TIME),
+		DEFINE_FIELD(CSledgeHammer, m_iSwing, FIELD_INTEGER),
+		DEFINE_FIELD(CSledgeHammer, m_iSwingMode, FIELD_INTEGER),
 };
-IMPLEMENT_SAVERESTORE(CMelee, CBasePlayerWeapon);
+IMPLEMENT_SAVERESTORE(CSledgeHammer, CBasePlayerWeapon);
 
 TYPEDESCRIPTION CRpg::m_SaveData[] =
 	{

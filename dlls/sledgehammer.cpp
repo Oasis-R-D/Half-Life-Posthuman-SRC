@@ -25,12 +25,12 @@
 #define CROWBAR_BODYHIT_VOLUME 128
 #define CROWBAR_WALLHIT_VOLUME 512
 
-LINK_ENTITY_TO_CLASS(weapon_sledge, CMelee);
+LINK_ENTITY_TO_CLASS(weapon_sledge, CSledgeHammer);
 
-void CMelee::Spawn()
+void CSledgeHammer::Spawn()
 {
 	Precache();
-	m_iId = WEAPON_MELEE;
+	m_iId = WEAPON_SLEDGE;
 	SET_MODEL(ENT(pev), "models/w_crowbar.mdl");
 	m_iClip = WEAPON_NOCLIP;
 	m_iSwingMode = SWING_NONE;
@@ -38,7 +38,7 @@ void CMelee::Spawn()
 }
 
 
-void CMelee::Precache()
+void CSledgeHammer::Precache()
 {
 	PRECACHE_MODEL("models/v_melee.mdl");
 	PRECACHE_MODEL("models/w_crowbar.mdl");
@@ -55,7 +55,7 @@ void CMelee::Precache()
 	m_usMelee = PRECACHE_EVENT(1, "events/melee.sc");
 }
 
-bool CMelee::GetItemInfo(ItemInfo* p)
+bool CSledgeHammer::GetItemInfo(ItemInfo* p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = NULL;
@@ -65,19 +65,20 @@ bool CMelee::GetItemInfo(ItemInfo* p)
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iSlot = 0;
 	p->iPosition = 1;
-	p->iId = WEAPON_MELEE;
+	p->iId = WEAPON_SLEDGE;
 	p->iWeight = CROWBAR_WEIGHT;
 	return true;
 }
 
 
 
-bool CMelee::Deploy()
+bool CSledgeHammer::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_NONE;
 	return DefaultDeploy("models/v_melee.mdl", "models/p_crowbar.mdl", MELEE_DRAW, "crowbar");
 }
 
-void CMelee::Holster()
+void CSledgeHammer::Holster()
 {
 	//Cancel any swing in progress.
 	m_iSwingMode = SWING_NONE;
@@ -133,7 +134,7 @@ void FindHullIntersection(const Vector& vecSrc, TraceResult& tr, const Vector& m
 }
 
 
-void CMelee::PrimaryAttack()
+void CSledgeHammer::PrimaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
 		return;
@@ -143,7 +144,7 @@ void CMelee::PrimaryAttack()
 	}
 }
 
-void CMelee::SecondaryAttack()
+void CSledgeHammer::SecondaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
@@ -153,7 +154,7 @@ void CMelee::SecondaryAttack()
 	}
 }
 
-void CMelee::TertiaryAttack()
+void CSledgeHammer::TertiaryAttack()
 {
 	if (m_iSwingMode != SWING_START_BIG)
 	{
@@ -168,29 +169,29 @@ void CMelee::TertiaryAttack()
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 }
 
-void CMelee::Smack()
+void CSledgeHammer::Smack()
 {
 	DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR);
 }
 
-void CMelee::SmackHeavy()
+void CSledgeHammer::SmackHeavy()
 {
 	DecalGunshot(&m_trHit, BULLET_MONSTER_12MM);
 }
 
 
-void CMelee::SwingAgain()
+void CSledgeHammer::SwingAgain()
 {
 	Swing(false);
 }
 
-void CMelee::SwingAgainHeavy()
+void CSledgeHammer::SwingAgainHeavy()
 {
 	SwingHeavy(false);
 }
 
 
-bool CMelee::Swing(const bool bFirst)
+bool CSledgeHammer::Swing(const bool bFirst)
 {
 	bool bDidHit = false;
 
@@ -335,14 +336,14 @@ bool CMelee::Swing(const bool bFirst)
 
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 
-		SetThink(&CMelee::Smack);
+		SetThink(&CSledgeHammer::Smack);
 		pev->nextthink = gpGlobals->time + 0.1;
 #endif
 	}
 	return bDidHit;
 }
 
-bool CMelee::SwingHeavy(const bool bFirst)
+bool CSledgeHammer::SwingHeavy(const bool bFirst)
 {
 	bool bDidHit = false;
 
@@ -466,14 +467,14 @@ bool CMelee::SwingHeavy(const bool bFirst)
 
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 
-		SetThink(&CMelee::SmackHeavy);
+		SetThink(&CSledgeHammer::SmackHeavy);
 		pev->nextthink = gpGlobals->time + 0.12;
 #endif
 	}
 	return bDidHit;
 }
 
-void CMelee::BigSwing()
+void CSledgeHammer::BigSwing()
 {
 	TraceResult tr;
 	#ifndef CLIENT_DLL
@@ -580,7 +581,7 @@ void CMelee::BigSwing()
 
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 
-		SetThink(&CMelee::SmackHeavy);
+		SetThink(&CSledgeHammer::SmackHeavy);
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;
 #endif
 		m_flNextPrimaryAttack = GetNextAttackDelay(1.5f);
@@ -595,7 +596,7 @@ void CMelee::BigSwing()
 	m_pPlayer->pev->velocity.y += addedvel.y;
 }
 
-void CMelee::WeaponIdle()
+void CSledgeHammer::WeaponIdle()
 {
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
@@ -607,7 +608,7 @@ void CMelee::WeaponIdle()
 			m_iSwingMode = SWING_DOING_BIG;
 
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2;
-			SetThink(&CMelee::BigSwing);
+			SetThink(&CSledgeHammer::BigSwing);
 			pev->nextthink = gpGlobals->time + 0.025;
 		}
 	}
@@ -636,21 +637,21 @@ void CMelee::WeaponIdle()
 		SendWeaponAnim(iAnim);
 	}
 }
-void CMelee::GetWeaponData(weapon_data_t& data)
+void CSledgeHammer::GetWeaponData(weapon_data_t& data)
 {
 	CBasePlayerWeapon::GetWeaponData(data);
 
 	data.m_fInSpecialReload = static_cast<int>(m_iSwingMode);
 }
 
-void CMelee::SetWeaponData(const weapon_data_t& data)
+void CSledgeHammer::SetWeaponData(const weapon_data_t& data)
 {
 	CBasePlayerWeapon::SetWeaponData(data);
 
 	m_iSwingMode = data.m_fInSpecialReload;
 }
 
-int CMelee::iItemSlot()
+int CSledgeHammer::iItemSlot()
 {
 	return 1;
 }
