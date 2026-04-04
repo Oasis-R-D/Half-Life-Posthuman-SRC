@@ -64,8 +64,6 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	pPlayer->m_bNoMove = true;
 
-	ALERT(at_console, "using GIB!\n");
-
 	m_bDisableFade = true;
 	m_pEater = pPlayer;
 	SetThink(&CoolerGib::PickUpThink);

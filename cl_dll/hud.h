@@ -426,6 +426,8 @@ private:
 	HSPRITE_GOLDSRC  m_hSprite1;
 	HSPRITE_GOLDSRC  m_hSprite2;
 	HSPRITE_GOLDSRC  m_hBeam;
+	HSPRITE_GOLDSRC  m_hHungBG;
+	Rect* m_prcHungBG;
 	Rect* m_prc1;
 	Rect* m_prc2;
 	Rect* m_prcBeam;
@@ -438,6 +440,7 @@ private:
 	float m_fHungerTimeStart;
 	int m_fHungerState;
 	int m_iWidth; // width of the battery innards
+	int m_iHungWidth; // width of the hunger innards
 };
 
 //
