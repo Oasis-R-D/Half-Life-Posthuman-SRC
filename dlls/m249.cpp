@@ -169,11 +169,23 @@ const Vector& CM249::GetBulletSpread()
 
 void CM249::PrimaryAttack()
 {
+	CM249::Shoot(false);
+}
+
+void CM249::SecondaryAttack()
+{
+	CM249::Shoot(true);
+}
+
+void CM249::Shoot(bool alt)
+{
+	m_iCrossHairType = alt ? CROSSHAIR_NONE : CROSSHAIR_DEFAULT;
+
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound();
 
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.15;
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.15;
 		return;
 	}
 
@@ -183,12 +195,11 @@ void CM249::PrimaryAttack()
 		{
 			PlayEmptySound();
 
-			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.15;
+			m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.15;
 		}
 
 		return;
 	}
-
 
 	--m_iClip;
 
@@ -222,7 +233,7 @@ void CM249::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_HARD)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread * 0.8, 0.75, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread * (alt? 0.33 : 0.8), 0.75, 556, m_pPlayer->edict());
 	}
 	else
 	{
@@ -253,11 +264,15 @@ void CM249::PrimaryAttack()
 		}
 	}
 
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_HARD ? 0.085 : 0.06);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_HARD ? 0.085 : 0.06);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 #ifndef CLIENT_DLL
-	CBasePlayerWeapon::Recoil(0.65, 1.125);
+	
+	if (alt)
+		CBasePlayerWeapon::Recoil(0.65, clampSine(cos(2*gpGlobals->time+RANDOM_FLOAT(-0.33, 0.33))*2, 0.7, 1.75), true);
+	else
+		CBasePlayerWeapon::Recoil(0.65, 1.125);
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 

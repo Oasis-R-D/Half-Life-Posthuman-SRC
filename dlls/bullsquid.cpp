@@ -617,7 +617,7 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			MESSAGE_END();
 			constexpr float bull_spits = 10;
 
-			for (int i = 0; i < bull_spits; i++) // TO-DO: use modified grunt code here to add arcing
+			for (int i = 0; i < bull_spits; i++) // TO-DO: fix not shooting at proper position (check not checking)
 			{
 					CSquidSpit::Shoot(pev, vecSpitOffset, m_vecTossVelocity);
 			}

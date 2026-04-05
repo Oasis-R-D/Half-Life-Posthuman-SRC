@@ -310,10 +310,10 @@ public:
 
 typedef enum
 {
-	CROSSHAIR_NONE = -1,
-	CROSSHAIR_DEFAULT,
-	CROSSHAIR_NOCENTER,		// glock
-	CROSSHAIR_DUCKBILL		// mp5
+	CROSSHAIR_DEFAULT = 0,
+	CROSSHAIR_NOCENTER,		// don't draw a center dot
+	CROSSHAIR_DUCKBILL,		// no center but top and bottom are squished in
+	CROSSHAIR_NONE			// don't draw a crosshair
 } Crosshair;
 
 // inventory items that go bang/boom/alien noises/metal noises
@@ -1468,6 +1468,7 @@ public:
 	void Holster() override;
 	void WeaponIdle() override;
 	void PrimaryAttack() override;
+	void SecondaryAttack() override;
 	void Reload() override;
 	int iItemSlot() override;
 	bool GetItemInfo(ItemInfo* p) override;
@@ -1485,6 +1486,8 @@ public:
 
 	void GetWeaponData(weapon_data_t& data) override;
 	void SetWeaponData(const weapon_data_t& data) override;
+
+	void Shoot(bool alt);
 
 private:
 	static int RecalculateBody(int iClip);

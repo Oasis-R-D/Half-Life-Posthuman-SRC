@@ -186,6 +186,28 @@ inline float clamp( float val, float minVal, float maxVal )
 		return val;
 }
 
+inline float clampSine( float val, float minVal, float maxVal )
+{
+	if (val >= 0)
+	{
+		if (val < minVal)
+			return minVal;
+		else if (val > maxVal)
+			return maxVal;
+		else
+			return val;
+	}
+	else if (val < 0)
+	{
+		if (val > -minVal)
+			return -minVal;
+		else if (val < -maxVal)
+			return -maxVal;
+		else
+			return val;
+	}
+}
+
 inline float RemapValClamped( float val, float A, float B, float C, float D)
 {
 	if ( A == B )
