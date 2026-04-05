@@ -376,7 +376,7 @@ void W_Precache()
 
 	// M29 (shhhhhh it's a secret)
 	UTIL_PrecacheOtherWeapon("weapon_m29");
-
+	UTIL_PrecacheOtherWeapon("weapon_glock_dual");
 	
 	if (g_pGameRules->IsDeathmatch())
 	{

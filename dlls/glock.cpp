@@ -384,3 +384,486 @@ class CGlockAmmo : public CBasePlayerAmmo
 };
 LINK_ENTITY_TO_CLASS(ammo_glockclip, CGlockAmmo);
 LINK_ENTITY_TO_CLASS(ammo_9mmclip, CGlockAmmo);
+
+/////////////////////////////////////////////////////////////////////////////////
+
+LINK_ENTITY_TO_CLASS(weapon_glock_dual, CGlockDual);
+bool CGlockDual::CanAttack(float attack_time, float curtime, bool isPredicted)
+{
+#if defined(CLIENT_WEAPONS)
+	if (!isPredicted)
+#else
+	if (1)
+#endif
+	{
+		return (attack_time <= curtime) ? true : false;
+	}
+	else
+	{
+		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
+	}
+}
+
+
+
+bool CGlockDual::GetItemInfo(ItemInfo* p)
+{
+	p->pszName = STRING(pev->classname);
+	p->pszAmmo1 = "9mm";
+	p->iMaxAmmo1 = _9MM_MAX_CARRY;
+	p->pszAmmo2 = NULL;
+	p->iMaxAmmo2 = -1;
+	p->iMaxClip = 34;
+	p->iSlot = 1;
+	p->iPosition = 4;
+	p->iFlags = 0;
+	p->iId = m_iId = WEAPON_GLOCKDUAL;
+	p->iWeight = GLOCK_WEIGHT;
+
+	return true;
+}
+
+void CGlockDual::Spawn()
+{
+	pev->classname = MAKE_STRING("weapon_glock_dual"); // hack to allow for old names
+	Precache();
+	m_iId = WEAPON_GLOCKDUAL;
+	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
+
+	m_iDefaultAmmo = 34;
+
+	FallInit(); // get ready to fall down.
+}
+
+
+void CGlockDual::Precache()
+{
+	PRECACHE_MODEL("models/v_glockR.mdl");
+	PRECACHE_MODEL("models/v_glockL.mdl");
+	PRECACHE_MODEL("models/w_9mmhandgun.mdl");
+	PRECACHE_MODEL("models/p_9mmhandgun.mdl");
+
+	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
+
+	PRECACHE_SOUND("items/9mmclip1.wav");
+	PRECACHE_SOUND("items/9mmclip2.wav");
+
+	PRECACHE_SOUND("weapons/pl_gun1.wav"); //silenced handgun
+	PRECACHE_SOUND("weapons/pl_gun2.wav"); //silenced handgun
+	PRECACHE_SOUND("weapons/pl_gun3.wav"); //handgun
+
+	m_usFireM29 = PRECACHE_EVENT(1, "events/m29.sc");
+}
+void CGlockDual::CalculateAmmo()
+{
+	int m_iclip1;
+	int mod = m_iClip % 2;
+	if (mod != 0)
+	{
+		m_iclip1 = m_iClip + 1;
+		m_iCylR_ammo = m_iCylL_ammo = (m_iclip1 / 2);
+		m_iCylL_ammo -= 1;
+	}
+	else
+	{
+		m_iCylR_ammo = m_iCylL_ammo = (m_iClip / 2);
+	}
+}
+bool CGlockDual::Deploy()
+{
+	if (g_pGameRules->IsMultiplayer())
+		NotFirstDraw = true;
+
+	m_iCrossHairType = CROSSHAIR_NOCENTER;
+	m_flAccuracyPenalty = PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME;
+
+	CalculateAmmo();
+
+	return DefaultDeploy("models/v_glockR.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW, "onehanded", pev->body, "models/v_glockL.mdl", GLOCK_DRAW);
+}
+
+
+void CGlockDual::Holster()
+{
+	m_flAccuracyPenalty = 0.0;
+	m_pPlayer->altviewmodel = 0; // ALTVM CODE
+	m_fInReload = false; // cancel any reload in progress.
+
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
+	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	SendWeaponAnim(GLOCK_HOLSTER);
+	SendWeaponAnim(GLOCK_HOLSTER, 0 , true);
+}
+
+void CGlockDual::SecondaryAttack()
+{
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
+		return;
+
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.15;
+		return;
+	}
+	if (m_iClip <= 0 || m_iCylR_ammo <= 0)
+	{
+		if (m_fFireOnEmpty)
+		{
+			PlayEmptySound();
+			m_flNextSecondaryAttack = 0.15;
+		}
+		return;
+	}
+
+	m_iCylR_ammo--;
+
+	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
+	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
+
+	SendWeaponAnim(m_iCylR_ammo == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
+
+	m_flNextSecondaryAttack = 0.125f;
+
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+	Shoot(0);
+
+	m_flTimeWeaponIdle = 1;
+}
+
+void CGlockDual::PrimaryAttack()
+{
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
+		return;
+
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.15;
+		return;
+	}
+
+	if (m_iClip <= 0 || m_iCylL_ammo <= 0)
+	{
+		if (m_fFireOnEmpty)
+		{
+			PlayEmptySound();
+			m_flNextPrimaryAttack = 0.15;
+		}
+		return;
+	}
+
+	m_iCylL_ammo--;
+
+	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(-50, -70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
+	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * -6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
+
+	SendWeaponAnim(m_iCylL_ammo == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0, true);
+
+	m_flNextPrimaryAttack = 0.125f;
+
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+	Shoot(1);
+
+	m_flTimeAltWeaponIdle = 1;
+}
+
+void CGlockDual::TertiaryAttack()
+{
+
+}
+
+void CGlockDual::ItemPreFrame()
+{
+	// Check our penalty time decay
+	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	{
+		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
+	}
+	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+}
+
+const Vector& CGlockDual::GetBulletSpread()
+{		
+	static Vector cone;
+
+	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
+
+	// We lerp from very accurate to inaccurate over time
+	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
+
+	return cone;
+}
+
+void CGlockDual::Shoot(int gunnumb)
+{
+	float spread = GetBulletSpread().x;
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PISTOL_ACCURACY_SHOT_PENALTY_TIME;
+
+	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
+	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
+	m_iClip--;
+
+	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, pev->body ? "weapons/pl_gun1.wav" : "weapons/pl_gun3.wav", 1, ATTN_NORM);
+
+	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
+
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
+
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+	Vector vecDir;
+	Vector vecSrc;
+	if (gunnumb == 0)
+	{
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * 7.5;
+	}
+	else
+	{
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * -7.5;
+	}
+	
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+
+#ifndef CLIENT_DLL
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, spread, spread, 0.66, 9, m_pPlayer->edict());
+	}
+	else
+	{
+		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+	}
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(0.85, 1.00));
+	}
+	else
+	{
+		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(1.00, 1.15));
+	}
+#endif
+}
+
+void CGlockDual::Reload()
+{
+	DefaultReload(34, m_iCylR_ammo == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY, 1.5, pev->body, true, m_iCylL_ammo == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY);
+}
+
+
+void CGlockDual::WeaponIdle()
+{
+	ResetEmptySound();
+	if (m_iClip > 0 && m_iCylL_ammo == 0 && m_iCylR_ammo == 0)
+		CalculateAmmo();
+	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+
+	if (m_iClip <= 0)
+		return;
+
+	if (m_flTimeWeaponIdle <= UTIL_WeaponTimeBase() && m_iCylR_ammo != 0)
+	{
+		switch (RANDOM_LONG(1, 3))
+		{
+		case 1: SendWeaponAnim(GLOCK_IDLE1, pev->body), m_flTimeWeaponIdle = 2; break;
+		case 2: SendWeaponAnim(GLOCK_IDLE2, pev->body), m_flTimeWeaponIdle = 1.37; break;
+		case 3: SendWeaponAnim(GLOCK_IDLE3, pev->body), m_flTimeWeaponIdle = 1.67; break;
+		}
+	}
+
+	if (m_flTimeAltWeaponIdle <= UTIL_WeaponTimeBase() && m_iCylL_ammo != 0)
+	{
+		switch (RANDOM_LONG(1, 3))
+		{
+		case 1: SendWeaponAnim(GLOCK_IDLE1, pev->body, true), m_flTimeAltWeaponIdle = 2; break;
+		case 2: SendWeaponAnim(GLOCK_IDLE2, pev->body, true), m_flTimeAltWeaponIdle = 1.37; break;
+		case 3: SendWeaponAnim(GLOCK_IDLE3, pev->body, true), m_flTimeAltWeaponIdle = 1.67; break;
+		}
+	}
+}
+
+void CGlockDual::ItemPostFrame() // completely overriden to make multiple changes
+{
+	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
+	{
+		// complete the reload.
+		int j = V_min(iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+		// Add them to the clip
+		m_iClip += j;
+		CalculateAmmo();
+
+		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+
+		m_pPlayer->TabulateAmmo();
+
+		m_fInReload = false;
+	}
+	if (m_pPlayer->m_bInGrenadeDelay && m_fGrenadeFireDelay < gpGlobals->time)
+	{
+		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, m_pPlayer->pev);
+		WRITE_BYTE(m_pPlayer->m_iGrenadeType);
+		WRITE_BYTE(m_pPlayer->m_iGrenadeAmnt);
+		MESSAGE_END();
+		ShootGrenade(m_pPlayer->m_iGrenadeType);
+		m_pPlayer->m_bInGrenadeDelay = false;
+		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon grenade anims since this is for the animations
+	}
+	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
+	{
+		m_flLastFireTime = 0.0f;
+	}
+
+	if ((m_pPlayer->pev->button & IN_ATTACK2) != 0 && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
+	{
+		if (m_iCylR_ammo == 0)
+		{
+			m_fFireOnEmpty = true;
+		}
+
+		m_pPlayer->TabulateAmmo();
+		SecondaryAttack();
+
+		if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+		{
+			if (m_iCylL_ammo == 0)
+			{
+				m_fFireOnEmpty = true;
+			}
+
+			m_pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
+	}
+	else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
+	{
+		TertiaryAttack();
+	}
+	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextOffhandAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
+	{
+		if (m_pPlayer->m_iGrenadeAmnt <= 0)
+		{
+			m_flNextOffhandAttack = gpGlobals->time + 3;
+			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
+			m_pPlayer->m_iGrenadeAmnt = 0;
+		}
+		else
+		{
+			m_pPlayer->m_bInGrenade = true;
+			m_pPlayer->m_bInGrenadeDelay = true;
+
+			ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
+
+			m_pPlayer->m_iGrenadeAmnt--;
+
+			m_flNextOffhandAttack = gpGlobals->time + 2;
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
+			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
+
+			OffhandAttack();
+
+
+			if (m_pPlayer->m_iGrenadeAmnt == 1)
+			{
+				switch (RANDOM_LONG(1, 3))
+				{
+				case 1:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
+					break;
+				case 2:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);
+					break;
+				case 3:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);
+					break;
+				}
+			}
+		}
+		m_pPlayer->pev->button &= ~IN_SCORE;
+	}
+	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+	{
+		if (m_iCylL_ammo == 0)
+		{
+			m_fFireOnEmpty = true;
+		}
+
+		m_pPlayer->TabulateAmmo();
+		PrimaryAttack();
+	}
+	else if ((m_pPlayer->pev->button & IN_RELOAD) != 0 && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+	{
+		// reload when reload is pressed, or if no buttons are down and weapon is empty.
+		Reload();
+	}
+	else if ((m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2)) == 0)
+	{
+		// no fire buttons down
+
+		m_fFireOnEmpty = false;
+
+		if (!IsUseable() && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+		{
+#ifndef CLIENT_DLL
+			// weapon isn't useable, switch.
+			if ((iFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) == 0 && g_pGameRules->GetNextBestWeapon(m_pPlayer, this))
+			{
+				m_flNextPrimaryAttack = (UseDecrement() ? 0.0 : gpGlobals->time) + 0.3;
+				return;
+			}
+#endif
+		}
+		else
+		{
+			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
+			if (m_iClip == 0 && (iFlags() & ITEM_FLAG_NOAUTORELOAD) == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+			{
+				Reload();
+
+				return;
+			}
+		}
+		if (m_iClip <= round(0.2 * iMaxClip()) && m_hasbeeped == false && m_iClip != -1)
+		{
+			switch(RANDOM_LONG(1, 3))
+			{
+				case 1:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
+				break;
+				case 2:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);				
+				break;
+				case 3:
+					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);	
+				break;
+			}
+			
+			m_hasbeeped = true;
+		}
+		
+		WeaponIdle();
+		return;
+	}
+
+	// catch all
+	if (ShouldWeaponIdle())
+	{
+		WeaponIdle();
+	}
+}

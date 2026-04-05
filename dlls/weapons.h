@@ -1787,3 +1787,39 @@ enum offhandgren_e
 	OH_THROW,
 	OH_GRAB,
 };
+
+class CGlockDual : public CBasePlayerWeapon
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	int iItemSlot() override { return 2; }
+	bool GetItemInfo(ItemInfo* p) override;
+	bool CanAttack(float attack_time, float curtime, bool isPredicted);
+	void PrimaryAttack() override;
+	void SecondaryAttack() override;
+	void TertiaryAttack() override;
+	void Shoot(int gunnumb);
+	bool Deploy() override;
+	void Holster() override;
+	void Reload() override;
+	void WeaponIdle() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
+	void ItemPostFrame() override;
+	void CalculateAmmo();
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+
+private:
+	unsigned short m_usFireM29;
+	int m_iCylR_ammo;
+	int m_iCylL_ammo;
+	int m_iShell;
+};
