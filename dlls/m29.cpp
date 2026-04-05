@@ -179,7 +179,7 @@ void CM29::SecondaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
 
-	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM29::PrimaryAttack()
@@ -223,7 +223,7 @@ void CM29::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
 
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM29::TertiaryAttack()
