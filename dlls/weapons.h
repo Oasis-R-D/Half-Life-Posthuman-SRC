@@ -1753,7 +1753,6 @@ public:
 	int iItemSlot() override { return 2; }
 	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;
-	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
 	void Shoot(int gunnumb);
@@ -1782,7 +1781,7 @@ private:
 
 enum offhandgren_e
 {
-	OH_DONOTHING = 0,
+	OH_DONOTHING = 0, // hides the hand
 	OH_THROW,
 	OH_GRAB,
 };

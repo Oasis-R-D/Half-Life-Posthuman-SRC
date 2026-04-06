@@ -28,23 +28,6 @@
 #define firerate 0.25
 
 LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
-bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
-{
-#if defined(CLIENT_WEAPONS)
-	if (!isPredicted)
-#else
-	if (1)
-#endif
-	{
-		return (attack_time <= curtime) ? true : false;
-	}
-	else
-	{
-		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
-	}
-}
-
-
 
 bool CM29::GetItemInfo(ItemInfo* p)
 {
