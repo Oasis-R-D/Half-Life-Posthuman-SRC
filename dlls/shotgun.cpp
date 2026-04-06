@@ -121,7 +121,7 @@ bool CShotgun::Deploy()
 void CShotgun::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( /*( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) &&*/ ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME );
@@ -246,6 +246,7 @@ void CShotgun::SecondaryAttack()
 	{
 		return;
 	}
+
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
 
@@ -334,8 +335,8 @@ void CShotgun::SecondaryAttack()
 
 void CShotgun::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 2; // TO-DO: exact value
-	m_flNextTertiaryAttack = gpGlobals->time + 2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1.03; // TO-DO: exact value
+	m_flTimeWeaponIdle = m_flNextTertiaryAttack = gpGlobals->time + 1.13;
 
 	SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
 

@@ -78,9 +78,11 @@ void CM29::Precache()
 
 	m_usFireM29 = PRECACHE_EVENT(1, "events/m29.sc");
 }
+
 void CM29::CalculateAmmo()
 {
 	int m_iclip1;
+
 	int mod = m_iClip % 2;
 	if (mod != 0)
 	{
@@ -93,6 +95,7 @@ void CM29::CalculateAmmo()
 		m_iCylR_ammo = m_iCylL_ammo = (m_iClip / 2);
 	}
 }
+
 bool CM29::Deploy()
 {
 	if (g_pGameRules->IsMultiplayer())
@@ -105,7 +108,6 @@ bool CM29::Deploy()
 
 	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body, "models/v_m29L.mdl", PYTHON_DRAW);
 }
-
 
 void CM29::Holster()
 {
