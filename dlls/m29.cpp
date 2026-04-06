@@ -27,6 +27,8 @@
 #define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
 #define firerate 0.25
 
+extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
+
 LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
 
 bool CM29::GetItemInfo(ItemInfo* p)
