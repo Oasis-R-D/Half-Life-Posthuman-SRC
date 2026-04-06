@@ -48,7 +48,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	CBasePlayerWeapon* pWpn = pPlayer->m_pActiveItem->GetWeaponPtr();
 
-	if (pWpn && gpGlobals->time < pWpn->m_flNextOffhandAttack)
+	if (pWpn && (gpGlobals->time < pWpn->m_flNextOffhandAttack || pWpn->IsDual()))
 		return;
 
 	if (pPlayer->Hunger > 97)

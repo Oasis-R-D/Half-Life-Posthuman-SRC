@@ -373,7 +373,7 @@ public:
 	virtual bool ShouldWeaponIdle() { return false; }
 	void Holster() override;
 	virtual bool UseDecrement() { return false; }
-
+	virtual bool IsDual() { return false; }
 	int PrimaryAmmoIndex() override;
 	int SecondaryAmmoIndex() override;
 
@@ -1751,6 +1751,7 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 2; }
+	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;
 	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
