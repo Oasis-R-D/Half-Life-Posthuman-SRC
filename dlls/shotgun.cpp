@@ -94,6 +94,8 @@ bool CShotgun::Deploy()
 
 	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME;
 
+	m_flPumpTime = 0; // Hack, should probably find a way to tell it to pump the gun after the draw is done
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	if (g_iSkillLevel == SKILL_HARD)
@@ -175,7 +177,7 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
+
 	float spread = GetBulletSpread().x;
 	float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
 
@@ -224,15 +226,16 @@ void CShotgun::PrimaryAttack()
 	m_fInSpecialReload = 0;
 	
 	pev->armortype = 1;
+
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
+	{
 		CBasePlayerWeapon::Recoil(3, 2);
-		}
+	}
 	else
-		{
+	{
 		CBasePlayerWeapon::Recoil(4, 2);
-		}
+	}
 #endif
 }
 
@@ -319,25 +322,28 @@ void CShotgun::SecondaryAttack()
 
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
+	{
 		CBasePlayerWeapon::Recoil(7, 4);
-		}
+	}
 	else
 		{
 		CBasePlayerWeapon::Recoil(10, 5);
-		}
+	}
 #endif
 }
 
 void CShotgun::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 2; // TO-DO: exact value
 	m_flNextTertiaryAttack = gpGlobals->time + 2;
+
 	SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
+
 	if (m_iFiremode == 0)
 		m_iFiremode = 1;
 	else
 		m_iFiremode = 0;
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(m_iFiremode ? 3 : 4);
 	MESSAGE_END();
