@@ -618,14 +618,30 @@ void CBaseMonster::DeadMonsterThink()
 
 		for (int i; i < 3; i++)
 		{
-			// get a random spot in the radius (could make this focus on only a random quadrant to make it directional)
-			float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
-			float x = pev->origin.x + time * cos(theter);
-			float y = pev->origin.y + time * sin(theter);
+			int count = 0;
+			
+			do
+			{
+				count++;
+				// get a random spot in the radius (could make this focus on only a random quadrant to make it directional)
+				float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
+				float x = pev->origin.x + time * cos(theter);
+				float y = pev->origin.y + time * sin(theter);
 
-			origin = Vector(x, y, pev->origin.z);
-		
-			CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
+				origin = Vector(x, y, pev->origin.z+1);
+
+				int contents = UTIL_PointContents(origin);
+
+				if (count > 64) // no valid spots or VERY unlucky
+					break;
+			}
+			while (contents != CONTENT_EMPTY);
+
+			if (count > 64)
+				m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+				break;
+			else
+				CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
 		}
 
 		m_iPoolTime--;
