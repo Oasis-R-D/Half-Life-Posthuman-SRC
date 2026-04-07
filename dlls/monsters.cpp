@@ -616,7 +616,8 @@ void CBaseMonster::DeadMonsterThink()
 		int time = 10 - (trunc(m_iPoolTime/10) * 10); // range
 		Vector origin;
 
-		for (int i; i < 3; i++)
+		// spawns 2 every 0.1 seconds (bad idea?)
+		for (int i; i < 2; i++)
 		{
 			int count = 0;
 			int contents;
