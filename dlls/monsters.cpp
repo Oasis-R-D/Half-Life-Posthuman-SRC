@@ -624,7 +624,10 @@ void CBaseMonster::DeadMonsterThink()
 			do
 			{
 				count++;
-				// get a random spot in the radius (could make this focus on only a random quadrant to make it directional)
+
+				// get a random spot in the radius
+				// could make this focus on only a random quadrant to make it directional
+				// time x4 makes the radius jump 4 units each time
 				float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
 				float x = pev->origin.x + (4*time) * cos(theter);
 				float y = pev->origin.y + (4*time) * sin(theter);
@@ -636,11 +639,12 @@ void CBaseMonster::DeadMonsterThink()
 				if (count > 64) // no valid spots or VERY unlucky
 					break;
 			}
-			while (contents != CONTENT_EMPTY);
+			while (contents != CONTENT_EMPTY); // don't spawn in walls
 
 			if (count > 64)
 			{
 				m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+				ALERT(at_console, "failed to continue blood pool!\n");
 				break;
 			}
 			else
