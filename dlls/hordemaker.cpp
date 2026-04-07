@@ -33,6 +33,7 @@
 #define SF_HORDEMAKER_CYCLIC 4	 	// drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 #define SF_HORDEMAKER_PREHUMAN 16 	// Children are spawned with PreHuman tag
+#define SF_HORDEMAKER_AWARE 16 	// Children are spawned with nearest player as the enemy (and knowing where they are)
 
 extern CGraph WorldGraph;
 
@@ -243,12 +244,13 @@ void CHordeMaker::MakeMonster()
 		}
 	}
 
+	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
+
 	// move these checks to the valid node finder?
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
 		Vector checkspot = VecSpawn + Vector(0, 0, 32);
-		CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
 
 		if (pPlayer != nullptr)
 		{
@@ -290,10 +292,16 @@ void CHordeMaker::MakeMonster()
 	pevCreate->angles = Vector(0, RANDOM_LONG(0, 360), 0);
 	SetBits(pevCreate->spawnflags, SF_MONSTER_FALL_TO_GROUND);
 	
+	CBaseEntity* ent = CBaseEntity::Instance(pent);
 	if ((pev->spawnflags & SF_HORDEMAKER_PREHUMAN) != 0)
 	{
-		CBaseEntity* ent = CBaseEntity::Instance(pent);
 		ent->m_bPrehuman = true;
+	}
+	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer != nullptr)
+	{
+		// TO-DO: this may not be all the needed code to make them spawn knowing and attacking the player
+		ent->m_hEnemy = pPlayer;
+		ent->m_vecEnemyLKP = pPlayer->pev->origin;
 	}
 
 	ALERT(at_aiconsole, "SPAWNED %s AT: (%f, %f, %f)\n", STRING(m_iszMonsterClassname), pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
