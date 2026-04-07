@@ -620,7 +620,7 @@ void CBaseMonster::DeadMonsterThink()
 		int count = 0;
 		int contents;
 
-		do
+		do // get the location
 		{
 			count++;
 
@@ -654,7 +654,7 @@ void CBaseMonster::DeadMonsterThink()
 			m_bShouldPool = false;
 	}
 
-	Railed();
+	Railed(); // Post-Human additions
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 }
 
@@ -666,7 +666,7 @@ void CBaseMonster::MonsterThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 
-	Railed();
+	Railed(); // Post-Human additions
 	RunAI();
 
 	float flInterval = StudioFrameAdvance(); // animate
