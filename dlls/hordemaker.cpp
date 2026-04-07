@@ -300,8 +300,12 @@ void CHordeMaker::MakeMonster()
 	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer != nullptr)
 	{
 		// TO-DO: this may not be all the needed code to make them spawn knowing and attacking the player
-		ent->m_hEnemy = pPlayer;
-		ent->m_vecEnemyLKP = pPlayer->pev->origin;
+		CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(ent);
+		if (pMonster != nullptr)
+		{
+			pMonster->m_hEnemy = pPlayer;
+			pMonster->m_vecEnemyLKP = pPlayer->pev->origin;
+		}
 	}
 
 	ALERT(at_aiconsole, "SPAWNED %s AT: (%f, %f, %f)\n", STRING(m_iszMonsterClassname), pevCreate->origin.x, pevCreate->origin.y, pevCreate->origin.z);
