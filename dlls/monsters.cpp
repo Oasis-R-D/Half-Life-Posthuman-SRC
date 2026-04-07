@@ -619,7 +619,8 @@ void CBaseMonster::DeadMonsterThink()
 		for (int i; i < 3; i++)
 		{
 			int count = 0;
-			
+			int contents;
+
 			do
 			{
 				count++;
@@ -630,7 +631,7 @@ void CBaseMonster::DeadMonsterThink()
 
 				origin = Vector(x, y, pev->origin.z+1);
 
-				int contents = UTIL_PointContents(origin);
+				contents = UTIL_PointContents(origin);
 
 				if (count > 64) // no valid spots or VERY unlucky
 					break;
@@ -638,8 +639,10 @@ void CBaseMonster::DeadMonsterThink()
 			while (contents != CONTENT_EMPTY);
 
 			if (count > 64)
+			{
 				m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
 				break;
+			}
 			else
 				CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
 		}
