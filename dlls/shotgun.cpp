@@ -94,32 +94,34 @@ bool CShotgun::Deploy()
 
 	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME;
 
+	m_flPumpTime = 0; // Hack, should probably find a way to tell it to pump the gun after the draw is done
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(m_iFiremode ? 3 : 4);
+	WRITE_SHORT((bool)m_iFiremode ? 3 : 4);
 	if (g_iSkillLevel == SKILL_HARD)
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
-		m_iCrossHairType = m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
+		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
 	MESSAGE_END();
 
 	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
 		if (!NotFirstDraw)
 			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
+		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
 	}
 	else
 	{
 		if (!NotFirstDraw)
 			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
 	}
 }
 
 void CShotgun::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) && ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
+	if ( /*( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) &&*/ ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME );
@@ -175,7 +177,7 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-	//Vector spread = m_iFiremode == 0 ? VECTOR_CONE_5DEGREES : VECTOR_CONE_10DEGREES;
+
 	float spread = GetBulletSpread().x;
 	float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
 
@@ -224,15 +226,16 @@ void CShotgun::PrimaryAttack()
 	m_fInSpecialReload = 0;
 	
 	pev->armortype = 1;
+
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
+	{
 		CBasePlayerWeapon::Recoil(3, 2);
-		}
+	}
 	else
-		{
+	{
 		CBasePlayerWeapon::Recoil(4, 2);
-		}
+	}
 #endif
 }
 
@@ -243,6 +246,7 @@ void CShotgun::SecondaryAttack()
 	{
 		return;
 	}
+
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
 
@@ -261,7 +265,7 @@ void CShotgun::SecondaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, true, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 1, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -319,32 +323,35 @@ void CShotgun::SecondaryAttack()
 
 #ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-		{
+	{
 		CBasePlayerWeapon::Recoil(7, 4);
-		}
+	}
 	else
 		{
 		CBasePlayerWeapon::Recoil(10, 5);
-		}
+	}
 #endif
 }
 
 void CShotgun::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = 2;
-	m_flNextTertiaryAttack = gpGlobals->time + 2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1.03; // TO-DO: exact value
+	m_flTimeWeaponIdle = m_flNextTertiaryAttack = gpGlobals->time + 1.13;
+
 	SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
+
 	if (m_iFiremode == 0)
 		m_iFiremode = 1;
 	else
 		m_iFiremode = 0;
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT(m_iFiremode ? 3 : 4);
+	WRITE_SHORT((bool)m_iFiremode ? 3 : 4);
 	MESSAGE_END();
 	if (g_iSkillLevel == SKILL_HARD)
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
-		m_iCrossHairType = m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
+		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
 }
 
 void CShotgun::Reload()

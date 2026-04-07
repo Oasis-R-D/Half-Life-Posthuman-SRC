@@ -24,8 +24,6 @@ class CBasePlayerWeapon;
 
 void DeactivateSatchels(CBasePlayer* pOwner);
 
-
-
 // Contact Grenade / Timed grenade / Satchel Charge / flashbang / hopwire(maybe)
 class CGrenade : public CBaseMonster
 {
@@ -373,7 +371,7 @@ public:
 	virtual bool ShouldWeaponIdle() { return false; }
 	void Holster() override;
 	virtual bool UseDecrement() { return false; }
-
+	virtual bool IsDual() { return false; }
 	int PrimaryAmmoIndex() override;
 	int SecondaryAmmoIndex() override;
 
@@ -1701,7 +1699,6 @@ public:
 	void Precache() override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
-	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void TertiaryAttack() override;
 	void Reload() override;
@@ -1751,11 +1748,10 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	int iItemSlot() override { return 2; }
+	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;
-	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
-	void TertiaryAttack() override;
 	void Shoot(int gunnumb);
 	bool Deploy() override;
 	void Holster() override;
@@ -1773,7 +1769,6 @@ public:
 		return false;
 #endif
 	}
-	bool slowmo = false;
 
 private:
 	unsigned short m_usFireM29;
@@ -1783,7 +1778,7 @@ private:
 
 enum offhandgren_e
 {
-	OH_DONOTHING = 0,
+	OH_DONOTHING = 0, // hides the hand
 	OH_THROW,
 	OH_GRAB,
 };

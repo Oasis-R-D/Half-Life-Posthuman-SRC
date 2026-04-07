@@ -611,7 +611,58 @@ void CBaseMonster::Railed() //:troll:
 
 void CBaseMonster::DeadMonsterThink()
 {
-	Railed();
+	if (m_bShouldPool)
+	{
+		int time = 10 - trunc(m_iPoolTime/10); // range
+		Vector origin;
+
+		// spawns 1 every 0.1 seconds
+		int count = 0;
+		int contents;
+
+		if (time > RANDOM_LONG(1,2)) // wait a bit
+		{
+			// fetch blood pool pos
+			Vector boneOrg, boneDir;
+			if (PoolAtt() == -1)
+				GetBonePosition(1, boneOrg, boneDir);
+			else // fallback to bone 0 pos
+				GetAttachment(PoolAtt(), boneOrg, boneDir);
+
+			do // get the location
+			{
+				count++;
+
+				// get a random spot in the radius
+				// could make this focus on only a random quadrant to make it directional
+				// time x4 makes the radius jump 4 units each time
+				float theter = RANDOM_FLOAT(0, 1) * (2 * 3.141592);
+				float x = boneOrg.x + (3 * time) * cos(theter);
+				float y = boneOrg.y + (3 * time) * sin(theter);
+
+				origin = Vector(x, y, pev->origin.z + 1);
+				contents = UTIL_PointContents(origin);
+
+				if (count > 64) // no valid spots or VERY unlucky
+					break;
+			} while (contents != CONTENT_EMPTY); // don't spawn in walls
+
+			if (count > 64)
+			{
+				m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+				ALERT(at_console, "failed to continue blood pool!\n");
+			}
+			else
+				CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false, true); // TO-DO: make not play sfx
+		}
+
+		m_iPoolTime--;
+
+		if (m_iPoolTime <= 0) // stop bleeding
+			m_bShouldPool = false;
+	}
+
+	Railed(); // Post-Human additions
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 }
 
@@ -623,7 +674,7 @@ void CBaseMonster::MonsterThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 
-	Railed();
+	Railed(); // Post-Human additions
 	RunAI();
 
 	float flInterval = StudioFrameAdvance(); // animate
@@ -3548,6 +3599,8 @@ void CBaseMonster::MonsterInitDead()
 	pev->frame = 0;
 	ResetSequenceInfo();
 	pev->framerate = 0;
+
+	m_bShouldPool = false; // map spawned corpses shouldn't bleed out
 
 	// Copy health
 	pev->max_health = pev->health;

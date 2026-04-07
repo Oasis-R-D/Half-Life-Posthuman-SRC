@@ -24,10 +24,8 @@
 #include "Blooddrops.h"
 #include "decals.h"
 
-// UNDONE: Save/restore this?
-
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
-void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
+void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG, bool pool)
 {
 	if (UTIL_ShouldShowBlood(BloodType) == true)
 	{
@@ -51,6 +49,7 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
 			pBlood->m_isgib = isgib;
+			pBlood->m_isPool = pool;
 			pBlood->m_randomspeed = speedRNG;
 			pBlood->Spawn();
 		}	
@@ -111,6 +110,8 @@ void CPhysblood::Spawn()
 	
 	pev->rendermode = kRenderTransAlpha;
 	pev->renderamt = 225;
+	if (m_isPool)
+		pev->renderamt = 0;
 
 	switch(m_BloodType)
 	{
@@ -128,27 +129,25 @@ void CPhysblood::Spawn()
 	pev->nextthink = gpGlobals->time;
 }
 
-
 void CPhysblood::Precache()
 {
 	PRECACHE_MODEL("sprites/blood.spr");
-	PRECACHE_SOUND("common/drip_01.wav");
-	PRECACHE_SOUND("common/drip_02.wav");
-	PRECACHE_SOUND("common/drip_03.wav");
-	PRECACHE_SOUND("common/drip_04.wav");
-	PRECACHE_SOUND("common/drip_05.wav");
-	PRECACHE_SOUND("common/drip_06.wav");
-	PRECACHE_SOUND("common/drip_07.wav");
+	if (!m_isPool)
+	{
+		PRECACHE_SOUND("common/drip_01.wav");
+		PRECACHE_SOUND("common/drip_02.wav");
+		PRECACHE_SOUND("common/drip_03.wav");
+		PRECACHE_SOUND("common/drip_04.wav");
+		PRECACHE_SOUND("common/drip_05.wav");
+		PRECACHE_SOUND("common/drip_06.wav");
+		PRECACHE_SOUND("common/drip_07.wav");
+	}
 }
 
 void CPhysblood::DropTouch(CBaseEntity* pOther)
 {
-	SetTouch(NULL);
-	SetThink(NULL);
-
 	TraceResult tr = UTIL_GetGlobalTrace();
 
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
 	if (m_BloodType == BLOOD_COLOR_RED)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6), 6);
@@ -174,16 +173,22 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6), 6);
 	}
 
-	char dripsnd[256];
-	sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
-	EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
+	if (!m_isPool)
+	{
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
+
+		char dripsnd[256];
+		sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));
+		EMIT_SOUND(edict(), CHAN_AUTO, dripsnd, 1, 0.6f);
+	}
+
 	UTIL_Remove(this);
 }
 
 void CPhysblood::AirThink()
 {
 	pev->nextthink = gpGlobals->time + 0.05f;
-	if (m_BloodType == BLOOD_COLOR_CYAN)
+	if (m_BloodType == BLOOD_COLOR_CYAN && !m_isPool)
 	{
 		CBaseEntity* pObject = NULL;
 		pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);

@@ -27,24 +27,9 @@
 #define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
 #define firerate 0.25
 
+extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
+
 LINK_ENTITY_TO_CLASS(weapon_m29, CM29);
-bool CM29::CanAttack(float attack_time, float curtime, bool isPredicted)
-{
-#if defined(CLIENT_WEAPONS)
-	if (!isPredicted)
-#else
-	if (1)
-#endif
-	{
-		return (attack_time <= curtime) ? true : false;
-	}
-	else
-	{
-		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
-	}
-}
-
-
 
 bool CM29::GetItemInfo(ItemInfo* p)
 {
@@ -93,9 +78,11 @@ void CM29::Precache()
 
 	m_usFireM29 = PRECACHE_EVENT(1, "events/m29.sc");
 }
+
 void CM29::CalculateAmmo()
 {
 	int m_iclip1;
+
 	int mod = m_iClip % 2;
 	if (mod != 0)
 	{
@@ -108,6 +95,7 @@ void CM29::CalculateAmmo()
 		m_iCylR_ammo = m_iCylL_ammo = (m_iClip / 2);
 	}
 }
+
 bool CM29::Deploy()
 {
 	if (g_pGameRules->IsMultiplayer())
@@ -121,22 +109,18 @@ bool CM29::Deploy()
 	return DefaultDeploy("models/v_m29R.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body, "models/v_m29L.mdl", PYTHON_DRAW);
 }
 
-
 void CM29::Holster()
 {
 	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->altviewmodel = 0; // ALTVM CODE
+
 	m_fInReload = false; // cancel any reload in progress.
-	if (slowmo)
-	{
-		CVAR_SET_STRING("host_framerate", "0");
-		slowmo = false;
-	}
+
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	SendWeaponAnim(PYTHON_HOLSTER);
-	SendWeaponAnim(PYTHON_HOLSTER, 0 , true);
+	SendWeaponAnim(PYTHON_HOLSTER, pev->body, true);
 }
 
 void CM29::SecondaryAttack()
@@ -161,25 +145,13 @@ void CM29::SecondaryAttack()
 		return;
 	}
 
-	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
-	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
-
-	m_iClip--;
 	m_iCylR_ammo--;
 
-	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
-
-	// player "shoot" animation
-	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	m_flNextSecondaryAttack = firerate;
 
-	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 	Shoot(0);
 
-	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
-		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
-
-	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM29::PrimaryAttack()
@@ -205,48 +177,13 @@ void CM29::PrimaryAttack()
 		return;
 	}
 
-	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
-	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
-
-	m_iClip--;
 	m_iCylL_ammo--;
 
-	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
-
-	// player "shoot" animation
-	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 	m_flNextPrimaryAttack = firerate;
 
-	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 	Shoot(1);
 
-	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
-		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
-
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-}
-
-void CM29::TertiaryAttack()
-{
-	if (g_pGameRules->IsMultiplayer())
-		return;
-
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.25;
-	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
-		return;
-
-	slowmo = !slowmo;
-
-	if (slowmo)
-	{
-		CVAR_SET_STRING("host_framerate", "0.001");
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Slowmo");
-	}
-	else
-	{
-		CVAR_SET_STRING("host_framerate", "0");
-		ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Fastmo");
-	}
+	m_flTimeAltWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM29::ItemPreFrame()
@@ -279,6 +216,15 @@ void CM29::Shoot(int gunnumb)
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += M29_ACCURACY_SHOT_PENALTY_TIME;
 
+	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
+	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
+
+	m_iClip--;
+
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
 	int flags;
@@ -288,7 +234,7 @@ void CM29::Shoot(int gunnumb)
 	flags = 0;
 #endif
 	Vector vecDir;
-	//ALERT(at_console, "gun numb: %d \n", gunnumb);
+
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, gunnumb, 0, 0, 0);
 
 	Vector vecSrc;
@@ -314,6 +260,9 @@ void CM29::Shoot(int gunnumb)
 	}
 	CBasePlayerWeapon::Recoil(2, 1);
 #endif
+
+	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo
 }
 
 void CM29::Reload()
@@ -355,8 +304,10 @@ void CM29::WeaponIdle()
 			iAnim = PYTHON_FIDGET;
 			m_flTimeWeaponIdle = (170.0 / 30.0);
 		}
-		SendWeaponAnim(iAnim, 0);
+
+		SendWeaponAnim(iAnim, pev->body);
 	}
+
 	if (m_flTimeAltWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
@@ -382,7 +333,8 @@ void CM29::WeaponIdle()
 		iAltAnim = PYTHON_FIDGET;
 		m_flTimeAltWeaponIdle = (170.0 / 30.0);
 	}
-	SendWeaponAnim(iAltAnim, 0, true);
+
+	SendWeaponAnim(iAltAnim, pev->body, true);
 }
 
 void CM29::ItemPostFrame() // completely overriden to make multiple changes
@@ -401,21 +353,10 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 
 		m_fInReload = false;
 	}
-	if (m_pPlayer->m_bInGrenadeDelay && m_fGrenadeFireDelay < gpGlobals->time)
-	{
-		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, m_pPlayer->pev);
-		WRITE_BYTE(m_pPlayer->m_iGrenadeType);
-		WRITE_BYTE(m_pPlayer->m_iGrenadeAmnt);
-		MESSAGE_END();
-		ShootGrenade(m_pPlayer->m_iGrenadeType);
-		m_pPlayer->m_bInGrenadeDelay = false;
-		m_pPlayer->m_bInGrenade = false; // TO-DO: move this to per weapon grenade anims since this is for the animations
-	}
 	if ((m_pPlayer->pev->button & IN_ATTACK) == 0)
 	{
 		m_flLastFireTime = 0.0f;
 	}
-
 	if ((m_pPlayer->pev->button & IN_ATTACK2) != 0 && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
 	{
 		if (m_iCylR_ammo == 0)
@@ -425,53 +366,24 @@ void CM29::ItemPostFrame() // completely overriden to make multiple changes
 
 		m_pPlayer->TabulateAmmo();
 		SecondaryAttack();
+
+		// code duplicated so you can fire them at the same time
+		if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+		{
+			if (m_iCylL_ammo == 0)
+			{
+				m_fFireOnEmpty = true;
+			}
+
+			m_pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
+
 	}
-	else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
+	/*else if ((m_pPlayer->pev->button & IN_ALT1) != 0 && m_flNextTertiaryAttack < gpGlobals->time)
 	{
 		TertiaryAttack();
-	}
-	else if ((m_pPlayer->pev->button & IN_SCORE) != 0 && m_flNextOffhandAttack < gpGlobals->time && m_pPlayer->m_iGrenadeAmnt > 0)
-	{
-		if (m_pPlayer->m_iGrenadeAmnt <= 0)
-		{
-			m_flNextOffhandAttack = gpGlobals->time + 3;
-			m_pPlayer->SetSuitUpdate("!HEV_GOUT", false, 0);
-			m_pPlayer->m_iGrenadeAmnt = 0;
-		}
-		else
-		{
-			m_pPlayer->m_bInGrenade = true;
-			m_pPlayer->m_bInGrenadeDelay = true;
-
-			ClientPrint(m_pPlayer->pev, HUD_PRINTCENTER, "Grenade Start");
-
-			m_pPlayer->m_iGrenadeAmnt--;
-
-			m_flNextOffhandAttack = gpGlobals->time + 2;
-			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flNextTertiaryAttack = 1.25;
-			m_fGrenadeFireDelay = gpGlobals->time + 0.35;
-
-			OffhandAttack();
-
-
-			if (m_pPlayer->m_iGrenadeAmnt == 1)
-			{
-				switch (RANDOM_LONG(1, 3))
-				{
-				case 1:
-					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo1.wav", 1, ATTN_NORM);
-					break;
-				case 2:
-					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo2.wav", 1, ATTN_NORM);
-					break;
-				case 3:
-					EMIT_SOUND(m_pPlayer->edict(), CHAN_AUTO, "fvox/Lowammo3.wav", 1, ATTN_NORM);
-					break;
-				}
-			}
-		}
-		m_pPlayer->pev->button &= ~IN_SCORE;
-	}
+	}*/ // no tertiary
 	else if ((m_pPlayer->pev->button & IN_ATTACK) != 0 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{
 		if (m_iCylL_ammo == 0)

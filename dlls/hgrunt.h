@@ -126,6 +126,8 @@ public:
 	bool FOkToSpeak();
 	void JustSpoke();
 
+	int PoolAtt() override { return -2; }
+
 	CUSTOM_SCHEDULES;
 	static TYPEDESCRIPTION m_SaveData[];
 
