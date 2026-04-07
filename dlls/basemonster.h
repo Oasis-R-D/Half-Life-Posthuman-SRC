@@ -117,7 +117,7 @@ public:
 	// POSTHUMAN
 	bool m_bShouldPool = true;
 	int m_iPoolTime = 100; // 10 seconds
-
+	virtual int PoolAtt() { return -1; }
 	bool m_bRailed = false;
 	float m_flRailChargeTime;
 
