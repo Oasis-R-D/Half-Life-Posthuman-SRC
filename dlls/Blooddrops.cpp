@@ -24,8 +24,6 @@
 #include "Blooddrops.h"
 #include "decals.h"
 
-// UNDONE: Save/restore this?
-
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG)
 {
@@ -128,7 +126,6 @@ void CPhysblood::Spawn()
 	pev->nextthink = gpGlobals->time;
 }
 
-
 void CPhysblood::Precache()
 {
 	PRECACHE_MODEL("sprites/blood.spr");
@@ -143,9 +140,6 @@ void CPhysblood::Precache()
 
 void CPhysblood::DropTouch(CBaseEntity* pOther)
 {
-	SetTouch(NULL);
-	SetThink(NULL);
-
 	TraceResult tr = UTIL_GetGlobalTrace();
 
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);

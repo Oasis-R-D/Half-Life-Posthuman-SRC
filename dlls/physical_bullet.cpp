@@ -10,7 +10,7 @@
 *   object code is restricted to non-commercial enhancements to products from
 *   Valve LLC.  All other use, distribution, or modification is prohibited
 *   without written permission from Valve LLC.
-*
+*	
 ****/
 
 #include "extdll.h"
@@ -34,6 +34,7 @@
 * NOTE: The game CAN handle realistic values but they aren't very fun (practically just hitscan)
 * NOTE: Realism values calculated by multiplying IRL FeetPS by 12 (IPS) (assuming Inches = HU)
 */
+
 
 // UNDONE: Save/restore this?
 
@@ -179,24 +180,21 @@ void CPhysbullet::Spawn()
 
 	SetTouch(&CPhysbullet::BoltTouch);
 	SetThink(&CPhysbullet::AirThink);
-	if (!g_pGameRules->IsMultiplayer() || true)
-	{
-		// TRAIL START
-		pev->nextthink = gpGlobals->time + 0.05f;
-		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
-		WRITE_BYTE(TE_BEAMFOLLOW);
-		WRITE_SHORT(entindex());		 // entity
-		WRITE_SHORT(m_iTrail);			 // model
-		WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
-		WRITE_BYTE(1);					 // width
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
-		MESSAGE_END();
-	}
-}
 
+	// TRAIL START
+	pev->nextthink = gpGlobals->time + 0.05f;
+	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+	WRITE_BYTE(TE_BEAMFOLLOW);
+	WRITE_SHORT(entindex());		 // entity
+	WRITE_SHORT(m_iTrail);			 // model
+	WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
+	WRITE_BYTE(1);					 // width
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
+	MESSAGE_END();
+}
 
 void CPhysbullet::Precache()
 {
@@ -220,12 +218,6 @@ void CPhysbullet::Precache()
 
 	PRECACHE_SOUND("bullet/imp_dirt01.wav");
 }
-
-
-/*int CPhysbullet::Classify() // Why is this here? // could be used to make npcs fear bullets?
-{
-	return CLASS_NONE;
-}*/
 
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
