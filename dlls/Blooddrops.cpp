@@ -110,6 +110,8 @@ void CPhysblood::Spawn()
 	
 	pev->rendermode = kRenderTransAlpha;
 	pev->renderamt = 225;
+	if (m_isPool)
+		pev->renderamt = 0;
 
 	switch(m_BloodType)
 	{
