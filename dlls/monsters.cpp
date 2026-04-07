@@ -611,6 +611,29 @@ void CBaseMonster::Railed() //:troll:
 
 void CBaseMonster::DeadMonsterThink()
 {
+	if (m_bShouldPool)
+	{
+		int time = 10 - (trunc(m_iPoolTime/10) * 10); // range
+		Vector origin;
+
+		for (int i; i < 3; i++)
+		{
+			// get a random spot in the radius (could make this focus on only a random quadrant to make it directional)
+			float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
+			float x = pev->origin.x + time * cos(theter);
+			float y = pev->origin.y + time * sin(theter);
+
+			origin = Vector(x, y, pev->origin.z);
+		
+			CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
+		}
+
+		m_iPoolTime--;
+
+		if (m_iPoolTime <= 0) // stop bleeding
+			m_bShouldPool = false;
+	}
+
 	Railed();
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 }

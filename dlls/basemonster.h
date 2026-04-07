@@ -113,6 +113,11 @@ public:
 	float m_flLastYawTime;
 
 	bool m_AllowItemDropping = true;
+
+	// POSTHUMAN
+	bool m_bShouldPool = true;
+	int m_iPoolTime = 100; // 10 seconds
+
 	bool m_bRailed = false;
 	float m_flRailChargeTime;
 
