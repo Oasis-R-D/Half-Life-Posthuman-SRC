@@ -616,41 +616,37 @@ void CBaseMonster::DeadMonsterThink()
 		int time = 10 - (trunc(m_iPoolTime/10) * 10); // range
 		Vector origin;
 
-		// spawns 2 every 0.1 seconds (bad idea?)
-		for (int i; i < 2; i++)
+		// spawns 1 every 0.1 seconds
+		int count = 0;
+		int contents;
+
+		do
 		{
-			int count = 0;
-			int contents;
+			count++;
 
-			do
-			{
-				count++;
+			// get a random spot in the radius
+			// could make this focus on only a random quadrant to make it directional
+			// time x4 makes the radius jump 4 units each time
+			float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
+			float x = pev->origin.x + (4*time) * cos(theter);
+			float y = pev->origin.y + (4*time) * sin(theter);
 
-				// get a random spot in the radius
-				// could make this focus on only a random quadrant to make it directional
-				// time x4 makes the radius jump 4 units each time
-				float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
-				float x = pev->origin.x + (4*time) * cos(theter);
-				float y = pev->origin.y + (4*time) * sin(theter);
+			origin = Vector(x, y, pev->origin.z+1);
 
-				origin = Vector(x, y, pev->origin.z+1);
+			contents = UTIL_PointContents(origin);
 
-				contents = UTIL_PointContents(origin);
-
-				if (count > 64) // no valid spots or VERY unlucky
-					break;
-			}
-			while (contents != CONTENT_EMPTY); // don't spawn in walls
-
-			if (count > 64)
-			{
-				m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
-				ALERT(at_console, "failed to continue blood pool!\n");
+			if (count > 64) // no valid spots or VERY unlucky
 				break;
-			}
-			else
-				CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
 		}
+		while (contents != CONTENT_EMPTY); // don't spawn in walls
+
+		if (count > 64)
+		{
+			m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+			ALERT(at_console, "failed to continue blood pool!\n");
+		}
+		else
+			CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false); // TO-DO: make not play sfx
 
 		m_iPoolTime--;
 
