@@ -625,8 +625,8 @@ void CBaseMonster::DeadMonsterThink()
 				count++;
 				// get a random spot in the radius (could make this focus on only a random quadrant to make it directional)
 				float theter = RANDOM_FLOAT(0, 1) * (2*3.141592);
-				float x = pev->origin.x + time * cos(theter);
-				float y = pev->origin.y + time * sin(theter);
+				float x = pev->origin.x + (4*time) * cos(theter);
+				float y = pev->origin.y + (4*time) * sin(theter);
 
 				origin = Vector(x, y, pev->origin.z+1);
 
