@@ -123,7 +123,7 @@ void CShotgun::ItemPreFrame()
 	// Check our penalty time decay
 	if ( /*( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) &&*/ ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
-		m_flAccuracyPenalty -= gpGlobals->frametime;
+		m_flAccuracyPenalty -= 2*gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
 	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
