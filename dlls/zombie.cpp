@@ -115,6 +115,7 @@ public:
 		
 		}
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+		m_bloodColor = BLOOD_COLOR_RED; // switch it back to red
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{

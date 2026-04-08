@@ -624,10 +624,10 @@ void CBaseMonster::DeadMonsterThink()
 		{
 			// fetch blood pool pos
 			Vector boneOrg, boneDir;
-			if (PoolAtt() == -1)
+			if (PoolAtt() == -1) // fallback to bone 1 pos
 				GetBonePosition(1, boneOrg, boneDir);
-			else // fallback to bone 0 pos
-				GetAttachment(PoolAtt(), boneOrg, boneDir);
+			else
+				GetAttachment(PoolAtt(), boneOrg, boneDir); // has a specialized location
 
 			do // get the location
 			{
