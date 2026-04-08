@@ -263,6 +263,7 @@ void CApache::DyingThink()
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, vecpiss, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0); // might need to be bigger
 
 		// lots of smoke
+		/*
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 		WRITE_BYTE(TE_SMOKE);
 		WRITE_COORD(pev->origin.x + RANDOM_FLOAT(-150, 150));
@@ -272,6 +273,9 @@ void CApache::DyingThink()
 		WRITE_BYTE(100); // scale * 10
 		WRITE_BYTE(10);	 // framerate
 		MESSAGE_END();
+		*/
+
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + Vector(RANDOM_FLOAT(-48, 48), RANDOM_FLOAT(-48, 48), RANDOM_FLOAT(-48, 48)), g_vecZero, 0.0, 0.0, PE_BILLOWSMOKE, 0, 0, 0);
 
 		Vector vecSpot = pev->origin + (pev->mins + pev->maxs) * 0.5;
 		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSpot);

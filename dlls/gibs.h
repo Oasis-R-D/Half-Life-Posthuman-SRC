@@ -7,7 +7,7 @@
 #include "decals.h"
 #include "Blooddrops.h"
 #include "weapons.h"
-#include <string> // worse than the first STD meaning that comes to mind
+#include <string>
 
 #pragma once
 
