@@ -1171,6 +1171,8 @@ bool UTIL_ShouldShowBlood(int color)
 			if (CVAR_GET_FLOAT("violence_hblood") != 0)
 				return true;
 		}
+		else if (color == NULL)
+			return true; // NULL is water
 		else
 		{
 			if (CVAR_GET_FLOAT("violence_ablood") != 0)
