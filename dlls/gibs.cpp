@@ -385,13 +385,14 @@ void CoolerGib::WaitTillLand()
 				m_bShouldPool = false;
 		}
 
-		if (pev->armortype == 0)
+		// don't fade if
+		// - hasn't been 25 seconds
+		// - hasn't finished pooling
+		// - told not to
+		if (!m_bDisableFade && m_lifeTime < gpGlobals->time && m_bShouldPool == false)
 		{
-			if (!m_bDisableFade && m_lifeTime < gpGlobals->time) // switched to a timer due to eating
-			{
-				SetThink(&CoolerGib::SUB_StartFadeOut);
-				pev->nextthink = gpGlobals->time;
-			}
+			SetThink(&CoolerGib::SUB_StartFadeOut);
+			pev->nextthink = gpGlobals->time;
 		}
 
 		// If you bleed, you stink!
