@@ -55,6 +55,7 @@
 #define SF_PREHUMAN 1024			   // makes the monster have different player relations (used for pre-disaster)
 #define SF_ONLYINHARD 2048			   // Removes the monster if you aren't in realism mode
 #define SF_NOTINHARD 4096			   // Removes the monster if you are in realism mode
+#define SF_DONTPOOL 8192
 #define SF_MONSTER_FALL_TO_GROUND 0x80000000
 
 // specialty spawnflags

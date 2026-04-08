@@ -642,6 +642,8 @@ void CBaseMonster::DeadMonsterThink()
 
 				origin = Vector(x, y, pev->origin.z + 1);
 				contents = UTIL_PointContents(origin);
+				
+				// check if in view of the origin?
 
 				if (count > 64) // no valid spots or VERY unlucky
 					break;
@@ -3600,7 +3602,8 @@ void CBaseMonster::MonsterInitDead()
 	ResetSequenceInfo();
 	pev->framerate = 0;
 
-	m_bShouldPool = false; // map spawned corpses shouldn't bleed out
+	if ((pev->spawnflags & SF_DONTPOOL) == 0)
+		m_bShouldPool = false; // don't create a blood pool
 
 	// Copy health
 	pev->max_health = pev->health;
