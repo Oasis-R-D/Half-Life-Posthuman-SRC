@@ -48,4 +48,9 @@ public:
 	int m_bloodColor;
 	int m_cBloodDecals = 4; // how many blood decals this gib can place (1 per bounce until none remain).
 	float m_lifeTime;
+
+	// ported pooling code
+	bool m_bShouldPool = true;
+	bool m_bLanded;
+	int m_iPoolTime = 80; // 10 seconds
 };
