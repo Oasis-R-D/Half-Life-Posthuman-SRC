@@ -338,7 +338,7 @@ void CoolerGib::WaitTillLand()
 	{
 		if (m_bShouldPool && UTIL_ShouldShowBlood(m_bloodColor) == true)
 		{
-			int time = 8 - trunc(m_iPoolTime/10); // range
+			int time = 6 - trunc(m_iPoolTime/10); // range
 			Vector origin;
 
 			// spawns 1 every 0.1 seconds

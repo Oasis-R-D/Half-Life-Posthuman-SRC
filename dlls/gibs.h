@@ -52,5 +52,5 @@ public:
 	// ported pooling code
 	bool m_bShouldPool = true;
 	bool m_bLanded;
-	int m_iPoolTime = 80; // 10 seconds
+	int m_iPoolTime = 60; // 10 seconds
 };
