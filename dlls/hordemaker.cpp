@@ -33,7 +33,7 @@
 #define SF_HORDEMAKER_CYCLIC 4	 	// drop one monster every time fired.
 #define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
 #define SF_HORDEMAKER_PREHUMAN 16 	// Children are spawned with PreHuman tag
-#define SF_HORDEMAKER_AWARE 16 	// Children are spawned with nearest player as the enemy (and knowing where they are)
+#define SF_HORDEMAKER_AWARE 32 	// Children are spawned with nearest player as the enemy (and knowing where they are)
 
 extern CGraph WorldGraph;
 

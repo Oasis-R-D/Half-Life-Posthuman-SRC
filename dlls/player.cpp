@@ -1398,6 +1398,59 @@ void CBasePlayer::PlayerDeathThink()
 			pev->velocity = g_vecZero;
 		else
 			pev->velocity = flForward * pev->velocity.Normalize();
+
+		if (m_bShouldPool)
+		{
+			int time = 40 - trunc(m_iPoolTime/10); // range
+			Vector origin;
+
+			// spawns 1 every 0.1 seconds
+			int count = 0;
+			int contents;
+
+			if (time > RANDOM_LONG(2,4) && time % 4 == 0) // wait a bit
+			{
+				// fetch blood pool pos
+				Vector boneOrg, boneDir;
+				if (PoolAtt() == -1) // fallback to bone 1 pos
+					GetBonePosition(1, boneOrg, boneDir);
+				else
+					GetAttachment(PoolAtt(), boneOrg, boneDir); // has a specialized location
+
+				do // get the location
+				{
+					count++;
+
+					// get a random spot in the radius
+					// could make this focus on only a random quadrant to make it directional
+					// time x4 makes the radius jump 4 units each time
+					float theter = RANDOM_FLOAT(0, 1) * (2 * 3.141592);
+					float x = boneOrg.x + (0.75 * time) * cos(theter);
+					float y = boneOrg.y + (0.75 * time) * sin(theter);
+
+					origin = Vector(x, y, pev->origin.z + 1);
+					contents = UTIL_PointContents(origin);
+				
+					// check if in view of the origin?
+
+					if (count > 64) // no valid spots or VERY unlucky
+						break;
+				} while (contents != CONTENT_EMPTY); // don't spawn in walls
+
+				if (count > 64)
+				{
+					m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+					ALERT(at_console, "failed to continue blood pool!\n");
+				}
+				else
+					CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false, true); // TO-DO: make not play sfx
+			}
+
+			m_iPoolTime--;
+
+			if (m_iPoolTime <= 0) // stop bleeding
+				m_bShouldPool = false;
+		}
 	}
 
 	if (HasWeapons())
@@ -1470,7 +1523,7 @@ void CBasePlayer::PlayerDeathThink()
 	if (0 != pev->iuser1) // player is in spectator mode
 		return;
 
-	// wait for any button down,  or mp_forcerespawn is set and the respawn time is up
+	// wait for any button down, or mp_forcerespawn is set and the respawn time is up
 	if (!fAnyButtonDown && !(g_pGameRules->IsMultiplayer() && forcerespawn.value > 0 && (gpGlobals->time > (m_fDeadTime + 5))))
 		return;
 
@@ -1480,6 +1533,7 @@ void CBasePlayer::PlayerDeathThink()
 	//ALERT(at_console, "Respawn\n");
 	respawn(pev, (m_afPhysicsFlags & PFLAG_OBSERVER) == 0); // don't copy a corpse if we're in deathcam.
 	pev->nextthink = -1;
+
 	// RENDERERS START
 	m_bUpdateEffects = true;
 	// RENDERERS END
@@ -3431,6 +3485,7 @@ void CBasePlayer::Spawn()
 	health_armL = 100;
 	health_legL = 0;
 	health_legR = 0;
+	m_iPoolTime = 400;
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "slj", "0");
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "hl", "1");
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "bj", UTIL_dtos1(sv_allowbunnyhopping.value != 0 ? 1 : 0));

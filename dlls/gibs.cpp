@@ -336,25 +336,77 @@ void CoolerGib::WaitTillLand()
 
 	if (pev->velocity == g_vecZero)
 	{
-		if (pev->armortype == 0)
+		if (m_bShouldPool && UTIL_ShouldShowBlood(m_bloodColor) == true)
 		{
-			if (!m_bDisableFade && m_lifeTime < gpGlobals->time) // switched to a timer due to eating
+			int time = 6 - trunc(m_iPoolTime/10); // range
+			Vector origin;
+
+			// spawns 1 every 0.1 seconds
+			int count = 0;
+			int contents;
+
+			if (time > RANDOM_LONG(1,2)) // wait a bit
 			{
-				SetThink(&CoolerGib::SUB_StartFadeOut);
-				pev->nextthink = gpGlobals->time;
+				// fetch blood pool pos
+				Vector boneOrg = pev->origin;
+
+				do // get the location
+				{
+					count++;
+
+					// get a random spot in the radius
+					// could make this focus on only a random quadrant to make it directional
+					// time x4 makes the radius jump 4 units each time
+					float theter = RANDOM_FLOAT(0, 1) * (2 * 3.141592);
+					float x = boneOrg.x + (3 * time) * cos(theter);
+					float y = boneOrg.y + (3 * time) * sin(theter);
+
+					origin = Vector(x, y, pev->origin.z + 1);
+					contents = UTIL_PointContents(origin);
+					
+					// check if in view of the origin?
+
+					if (count > 64) // no valid spots or VERY unlucky
+						break;
+				} while (contents != CONTENT_EMPTY); // don't spawn in walls
+
+				if (count > 64)
+				{
+					m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
+					ALERT(at_console, "failed to continue blood pool!\n");
+				}
+				else
+					CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, m_bloodColor, false, 0, false, true); // TO-DO: make not play sfx
 			}
+
+			m_iPoolTime--;
+
+			if (m_iPoolTime <= 0) // stop bleeding
+				m_bShouldPool = false;
+		}
+
+		// don't fade if
+		// - hasn't been 25 seconds
+		// - hasn't finished pooling
+		// - told not to
+		if (!m_bDisableFade && m_lifeTime < gpGlobals->time && m_bShouldPool == false)
+		{
+			SetThink(&CoolerGib::SUB_StartFadeOut);
+			pev->nextthink = gpGlobals->time;
 		}
 
 		// If you bleed, you stink!
-		if (m_bloodColor != DONT_BLEED)
+		if (!m_bLanded && m_bloodColor != DONT_BLEED)
 		{
 			// ok, start stinkin!
 			CSoundEnt::InsertSound(bits_SOUND_MEAT, pev->origin, 384, 25);
 		}
+		pev->nextthink = gpGlobals->time + 0.1;
+		m_bLanded = true;
 	}
 	else
 	{
-		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED && (RANDOM_LONG(0, 1) == 1))
+		if (m_cBloodDecals > 0 && UTIL_ShouldShowBlood(m_bloodColor) == true && (RANDOM_LONG(0, 1) == 1))
 		{
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
 		}

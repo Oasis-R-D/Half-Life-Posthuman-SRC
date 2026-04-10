@@ -469,6 +469,9 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 
 	pPlayer->SetHasSuit(true);
 
+	pPlayer->m_bShouldPool = true;
+	pPlayer->m_iPoolTime = 400; // 40 seconds
+
 	addDefault = true;
 
 	while (pWeaponEntity = UTIL_FindEntityByClassname(pWeaponEntity, "game_player_equip"))

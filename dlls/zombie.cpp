@@ -115,6 +115,7 @@ public:
 		
 		}
 		CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+		m_bloodColor = BLOOD_COLOR_RED; // switch it back to red
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{
@@ -122,6 +123,7 @@ public:
 		{
 			if (RANDOM_LONG(0, 2) == 0) //33% of unlatching occuring
 			{
+				// TO-DO: add a check to make sure there's space 
 				pev->body = 1;
 				UTIL_MakeVectors(pev->angles);
 				char* monster;
@@ -130,7 +132,9 @@ public:
 				else
 					monster = "monster_headcrab";
 				CBaseEntity* headcrab = Create(monster, pev->origin + Vector(0, 0, 68), pev->angles, edict());
+
 				headcrab->pev->spawnflags |= SF_MONSTER_FALL_TO_GROUND;
+
 				if (m_bPrehuman == 1 || FBitSet(pev->spawnflags, SF_PREHUMAN))
 				{
 					CHeadCrab* ActualHeadcrab = dynamic_cast<CHeadCrab*>(headcrab);
@@ -138,7 +142,11 @@ public:
 					ActualHeadcrab->m_bPrehuman = 1;
 					ActualHeadcrab->pev->health = round(m_iHeadCrabHealth/3);
 				}
+
+				headcrab->pev->health = round(m_iHeadCrabHealth/3);
+				headcrab->pev->angles = pev->angles;
 				headcrab->pev->velocity = gpGlobals->v_forward * 128;
+				m_bloodColor = BLOOD_COLOR_RED;
 			}
 		}
 		CTalkMonster::Killed(pevAttacker, iGib);

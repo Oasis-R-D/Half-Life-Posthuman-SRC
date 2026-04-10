@@ -624,10 +624,11 @@ void CBaseMonster::DeadMonsterThink()
 		{
 			// fetch blood pool pos
 			Vector boneOrg, boneDir;
-			if (PoolAtt() == -1)
+
+			if (PoolAtt() == -1) // fallback to bone 1 pos
 				GetBonePosition(1, boneOrg, boneDir);
-			else // fallback to bone 0 pos
-				GetAttachment(PoolAtt(), boneOrg, boneDir);
+			else
+				GetAttachment(PoolAtt(), boneOrg, boneDir); // has a specialized location
 
 			do // get the location
 			{
@@ -642,6 +643,8 @@ void CBaseMonster::DeadMonsterThink()
 
 				origin = Vector(x, y, pev->origin.z + 1);
 				contents = UTIL_PointContents(origin);
+	
+				// check if in view of the origin?
 
 				if (count > 64) // no valid spots or VERY unlucky
 					break;
@@ -3600,7 +3603,8 @@ void CBaseMonster::MonsterInitDead()
 	ResetSequenceInfo();
 	pev->framerate = 0;
 
-	m_bShouldPool = false; // map spawned corpses shouldn't bleed out
+	if ((pev->spawnflags & SF_DONTPOOL) == 0)
+		m_bShouldPool = false; // don't create a blood pool
 
 	// Copy health
 	pev->max_health = pev->health;
