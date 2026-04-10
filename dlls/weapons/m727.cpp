@@ -276,6 +276,7 @@ void CM727::PrimaryAttack()
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
+
 	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
 	char wpnsnd2[256];
 	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
@@ -288,14 +289,9 @@ void CM727::PrimaryAttack()
 	{
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 	}
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		m_flNextPrimaryAttack = 0.1;
-	}
-	else
-	{
-		m_flNextPrimaryAttack = 0.0727; // this is the actual fire rate, you adult I notn't
-	}
+
+	m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.0727 : 0.1;
+
 	m_flTimeWeaponIdle = 5;
 
 #ifndef CLIENT_DLL
@@ -309,7 +305,7 @@ void CM727::PrimaryAttack()
 void CM727::SecondaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
-	return;
+		return;
 
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = 0.5;
 

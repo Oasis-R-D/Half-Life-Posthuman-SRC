@@ -213,8 +213,6 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-
-
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
@@ -259,19 +257,13 @@ void CMP5::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	if (pev->armortype == 2)
+	if (pev->armortype == 2) // TO-DO: make it fire regardless of button being down if (pev->armortype == 2 && pev->armorvalue > 0)
 	{
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
-				if (g_iSkillLevel != SKILL_HARD)
-				{	
-					m_flNextPrimaryAttack = 0.066;
-				}
-				else
-				{
-					m_flNextPrimaryAttack = 0.075;
-				}
+
+			m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
 		}
 		else
 		{
@@ -281,16 +273,9 @@ void CMP5::PrimaryAttack()
 	}
 	else
 	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-
-			m_flNextPrimaryAttack = 0.066;
-		}
-		else
-		{
-			m_flNextPrimaryAttack = 0.075;
-		}
+		m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
 	}
+
 	m_flTimeWeaponIdle = 5;
 
 	#ifndef CLIENT_DLL
