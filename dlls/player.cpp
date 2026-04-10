@@ -1532,8 +1532,8 @@ void CBasePlayer::PlayerDeathThink()
 
 	//ALERT(at_console, "Respawn\n");
 	respawn(pev, (m_afPhysicsFlags & PFLAG_OBSERVER) == 0); // don't copy a corpse if we're in deathcam.
-	m_bShouldPool = false;
 	pev->nextthink = -1;
+
 	// RENDERERS START
 	m_bUpdateEffects = true;
 	// RENDERERS END
@@ -3485,8 +3485,7 @@ void CBasePlayer::Spawn()
 	health_armL = 100;
 	health_legL = 0;
 	health_legR = 0;
-	m_bShouldPool = true;
-	m_iPoolTime = 400; // 40 seconds
+	m_iPoolTime = 400;
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "slj", "0");
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "hl", "1");
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "bj", UTIL_dtos1(sv_allowbunnyhopping.value != 0 ? 1 : 0));
