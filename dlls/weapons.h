@@ -1826,10 +1826,8 @@ public:
 	int iItemSlot() override { return 2; }
 	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;
-	bool CanAttack(float attack_time, float curtime, bool isPredicted);
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
-	void TertiaryAttack() override;
 	void Shoot(int gunnumb);
 	bool Deploy() override;
 	void Holster() override;

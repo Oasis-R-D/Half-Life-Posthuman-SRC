@@ -388,23 +388,8 @@ LINK_ENTITY_TO_CLASS(ammo_9mmclip, CGlockAmmo);
 /////////////////////////////////////////////////////////////////////////////////
 
 LINK_ENTITY_TO_CLASS(weapon_glock_dual, CGlockDual);
-bool CGlockDual::CanAttack(float attack_time, float curtime, bool isPredicted)
-{
-#if defined(CLIENT_WEAPONS)
-	if (!isPredicted)
-#else
-	if (1)
-#endif
-	{
-		return (attack_time <= curtime) ? true : false;
-	}
-	else
-	{
-		return ((static_cast<int>(std::floor(attack_time * 1000.0)) * 1000.0) <= 0.0) ? true : false;
-	}
-}
 
-
+extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
 
 bool CGlockDual::GetItemInfo(ItemInfo* p)
 {
@@ -569,11 +554,6 @@ void CGlockDual::PrimaryAttack()
 	Shoot(1);
 
 	m_flTimeAltWeaponIdle = 1;
-}
-
-void CGlockDual::TertiaryAttack()
-{
-
 }
 
 void CGlockDual::ItemPreFrame()
