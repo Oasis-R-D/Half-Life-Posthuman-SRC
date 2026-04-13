@@ -1262,7 +1262,12 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			//Spawn blud dwops UwU
 			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
 
+
 			//RENDERERS START
+			if(blood == BLOOD_COLOR_YELLOW || blood == BLOOD_COLOR_GREEN)
+				UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_alien", ENTINDEX(ptr->pHit));
+			else
+				UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_human", ENTINDEX(ptr->pHit));
 			//UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_alien", ENTINDEX(ptr->pHit));
 			//RENDERERS END
 		}
