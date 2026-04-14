@@ -221,6 +221,13 @@ void CPhysbullet::Precache()
 
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
+	TraceResult tr = UTIL_GetGlobalTrace();
+	if (UTIL_PointContents(tr.vecEndPos) == CONTENTS_SKY)
+	{
+		UTIL_Remove(this);
+		return;
+	}
+
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner == nullptr)
 	{
@@ -229,7 +236,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	}
 
 	m_Endpos = pev->origin; // where bullet hit
-	TraceResult tr = UTIL_GetGlobalTrace();
 
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
