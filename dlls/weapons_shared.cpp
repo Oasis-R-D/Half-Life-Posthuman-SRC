@@ -48,6 +48,9 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 
 void CBasePlayerWeapon::AcousticMod(int pitch, int type)
 {
+	if (m_pPlayer->pev->waterlevel == 3)
+		return;
+
 	TraceResult ForTr, UpTr;
 
 	UTIL_TraceLine(m_pPlayer->GetGunPosition(), m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 768, ignore_monsters, NULL, &ForTr);
