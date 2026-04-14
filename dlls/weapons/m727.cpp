@@ -281,6 +281,7 @@ void CM727::PrimaryAttack()
 	char wpnsnd2[256];
 	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
 	EMIT_SOUND(edict(), CHAN_WEAPON, wpnsnd2, 1, ATTN_NORM);
+	AcousticMod(); 
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 11 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);

@@ -401,6 +401,8 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
+	void AcousticMod(int pitch = 100, int type = 0);
+
 	double m_flTimeSincePrimary;
 
 	float m_fGrenadeFireDelay;

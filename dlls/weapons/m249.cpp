@@ -250,6 +250,7 @@ void CM249::Shoot(bool alt)
 	}
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
+	AcousticMod(); 
 
 	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 12 + gpGlobals->v_right * 4;
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(100, 200) + gpGlobals->v_up * RANDOM_FLOAT(15, 45) + gpGlobals->v_forward * 25;

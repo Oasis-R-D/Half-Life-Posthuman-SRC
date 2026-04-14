@@ -298,21 +298,22 @@ void W_Precache()
 	UTIL_PrecacheOther("phys_blood");
 	UTIL_PrecacheOther("phys_bullet");
 	UTIL_PrecacheOther("env_fire");
-	PRECACHE_SOUND("player/eat1.wav"); // eat a gib
+
+	PRECACHE_SOUND("player/eat1.wav"); // eat a gib // put these in gibs.cpp?
 	PRECACHE_SOUND("player/eat2.wav"); // eat a gib
 	PRECACHE_SOUND("player/eat3.wav"); // eat a gib
 	PRECACHE_SOUND("player/eatfail.wav"); // fail to eat a gib
 
 	// grenades
-	PRECACHE_MODEL("models/w_grenade.mdl"); // HE
-	PRECACHE_MODEL("models/grenade.mdl"); // IMPACT/M203
-	PRECACHE_MODEL("models/w_fgrenade.mdl"); // FLASHBANG
-	PRECACHE_MODEL("models/w_landmine.mdl"); // LANDMINE
-	PRECACHE_MODEL("models/v_ohgrenade.mdl"); // Throw VM
-	PRECACHE_MODEL("models/w_sgrenade.mdl"); // SMOKE
-	PRECACHE_MODEL("models/w_igrenade.mdl"); // INCENDIARY
-	PRECACHE_MODEL("models/cindergibs.mdl"); // BRICK placeholder
-	PRECACHE_MODEL("models/w_flare.mdl"); // SIGNAL FLARE?
+	PRECACHE_MODEL("models/w_grenade.mdl");			// HE
+	PRECACHE_MODEL("models/grenade.mdl");			// IMPACT/M203
+	PRECACHE_MODEL("models/w_fgrenade.mdl");		// FLASHBANG
+	PRECACHE_MODEL("models/w_landmine.mdl");		// LANDMINE
+	PRECACHE_MODEL("models/v_ohgrenade.mdl");		// Throw VM
+	PRECACHE_MODEL("models/w_sgrenade.mdl");		// SMOKE
+	PRECACHE_MODEL("models/w_igrenade.mdl");		// INCENDIARY
+	PRECACHE_MODEL("models/cindergibs.mdl");		// BRICK placeholder
+	PRECACHE_MODEL("models/w_flare.mdl");			// SIGNAL FLARE?
 	PRECACHE_MODEL("sprites/flashbangflash.spr");
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
 	PRECACHE_SOUND("weapons/smokegrenade-1.wav");
@@ -411,9 +412,14 @@ void W_Precache()
 	PRECACHE_SOUND("weapons/bullet_hit2.wav"); // hit by bullet
 
 	PRECACHE_SOUND("items/weapondrop1.wav"); // weapon falls to the ground
+
 	PRECACHE_SOUND("fvox/Lowammo1.wav"); // TO-DO: Move to ammo hud?
 	PRECACHE_SOUND("fvox/Lowammo2.wav");
 	PRECACHE_SOUND("fvox/Lowammo3.wav");
+
+	PRECACHE_SOUND("weapons/acoustic_big.wav"); // gunfire acoustics
+	PRECACHE_SOUND("weapons/acoustic_med.wav"); // gunfire acoustics
+	PRECACHE_SOUND("weapons/acoustic_sml.wav"); // gunfire acoustics
 }
 
 TYPEDESCRIPTION CBasePlayerItem::m_SaveData[] =

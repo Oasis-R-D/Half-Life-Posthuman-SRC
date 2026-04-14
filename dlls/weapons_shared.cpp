@@ -46,6 +46,51 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 	ammoType.WeaponName = weaponName;
 }
 
+void CBasePlayerWeapon::AcousticMod(int pitch, int type)
+{
+	TraceResult ForTr, UpTr;
+
+	UTIL_TraceLine(m_pPlayer->GetGunPosition(), m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 768, ignore_monsters, NULL, &ForTr);
+	UTIL_TraceLine(m_pPlayer->GetGunPosition(), m_pPlayer->GetGunPosition() + gpGlobals->v_up * 768, ignore_monsters, NULL, &UpTr);
+
+#ifndef CLIENT_DLL
+	// check to see if it's in the sky, bias if so
+	if (UTIL_PointContents(UpTr.vecEndPos) == CONTENTS_SKY)
+		UpTr.flFraction = 4;
+	if (UTIL_PointContents(ForTr.vecEndPos) == CONTENTS_SKY)
+		ForTr.flFraction = 4;
+#endif
+
+	// more biases
+	if (UpTr.flFraction == 1)
+		ForTr.flFraction = 1.25;
+
+	if (ForTr.flFraction == 1)
+		ForTr.flFraction = 1.25;
+
+	float dist = ((768 * ForTr.flFraction) + (768 * UpTr.flFraction)) / 2;
+
+	const char* strink;
+
+	if (dist >= 768)
+	{	// large area
+		strink = "large\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_big.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	else if (dist <= 256)
+	{	// small area
+		strink = "small\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_sml.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	else	 
+	{	// medium area
+		strink = "medium\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_med.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	ALERT(at_console, strink);
+	ALERT(at_console, "dist = %f\n", dist);
+}
+
 bool CBasePlayerWeapon::CanDeploy()
 {
 	bool bHasAmmo = false;
@@ -607,7 +652,7 @@ void CEagle::PrimaryAttack()
 
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
-
+	AcousticMod();
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 15;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -6 + gpGlobals->v_forward * 8 + gpGlobals->v_right * 5, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
