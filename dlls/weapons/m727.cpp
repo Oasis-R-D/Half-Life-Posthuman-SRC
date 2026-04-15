@@ -290,6 +290,7 @@ void CM727::PrimaryAttack()
 	#endif
 
 	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+
 	char wpnsnd2[256];
 	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
 	EMIT_SOUND(edict(), CHAN_WEAPON, wpnsnd2, 1, ATTN_NORM);
