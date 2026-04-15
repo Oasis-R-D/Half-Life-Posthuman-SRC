@@ -44,6 +44,17 @@ void CMP5::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CMP5::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/mp5_sml.wav"; break;
+		case 2: return "weapons/acoustic/mp5_med.wav"; break;
+		case 3: return "weapons/acoustic/mp5_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CMP5::Precache()
 {
@@ -65,7 +76,6 @@ void CMP5::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
-	
 }
 
 bool CMP5::GetItemInfo(ItemInfo* p)

@@ -84,6 +84,18 @@ void CM727::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CM727::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/m727_sml.wav"; break;
+		case 2: return "weapons/acoustic/m727_med.wav"; break;
+		case 3: return "weapons/acoustic/m727_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CM727::Precache()
 {
 	PRECACHE_MODEL("models/w_727.mdl");

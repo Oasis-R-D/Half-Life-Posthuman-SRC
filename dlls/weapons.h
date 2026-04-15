@@ -805,6 +805,7 @@ class CMP5 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 
@@ -1665,6 +1666,7 @@ class CM727 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 
