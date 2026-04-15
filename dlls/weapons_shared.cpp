@@ -46,6 +46,17 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 	ammoType.WeaponName = weaponName;
 }
 
+const char* CBasePlayerWeapon::AcousticSound(int size);
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic_sml.wav"; break;
+		case 2: return "weapons/acoustic_med.wav"; break;
+		case 3: return "weapons/acoustic_big.wav"; break;
+	}
+}
+
+// TO-DO: volume input
 void CBasePlayerWeapon::AcousticMod(int type, int pitchBIG, int pitchMED, int pitchSML)
 {
 	if (m_pPlayer->pev->waterlevel == 3)
@@ -78,17 +89,17 @@ void CBasePlayerWeapon::AcousticMod(int type, int pitchBIG, int pitchMED, int pi
 	if (dist >= 768)
 	{	// large area
 		strink = "large\n";
-		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_big.wav", 1, ATTN_ACOUSTIC, 0, pitchBIG);
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(3), 1, ATTN_ACOUSTIC, 0, pitchBIG);
 	}
 	else if (dist <= 256)
 	{	// small area
 		strink = "small\n";
-		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_sml.wav", 1, ATTN_ACOUSTIC, 0, pitchSML);
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(1), 1, ATTN_ACOUSTIC, 0, pitchSML);
 	}
 	else	 
 	{	// medium area
 		strink = "medium\n";
-		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_med.wav", 1, ATTN_ACOUSTIC, 0, pitchMED);
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(2), 1, ATTN_ACOUSTIC, 0, pitchMED);
 	}
 	ALERT(at_console, "dist = %f\n", dist);
 	ALERT(at_console, strink);

@@ -401,6 +401,7 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
+	virtual const char* AcousticSound(int size);
 	void AcousticMod(int type = 0, int pitchBIG = 100, int pitchMED = 100, int pitchSML = 100);
 
 	double m_flTimeSincePrimary;
