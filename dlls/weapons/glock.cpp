@@ -285,7 +285,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, pev->body ? "weapons/pl_gun1.wav" : "weapons/pl_gun3.wav", 1, ATTN_NORM);
 	if (!pev->body) // subsonic shouldnt make loud noises
-		AcousticMod(0, 100, 105, 110);
+		AcousticMod();
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
@@ -583,6 +583,8 @@ const Vector& CGlockDual::GetBulletSpread()
 
 void CGlockDual::Shoot(int gunnumb)
 {
+	AcousticMod();
+
 	float spread = GetBulletSpread().x;
 
 	m_flTimeSincePrimary = gpGlobals->time;

@@ -1828,6 +1828,7 @@ class CMP5Dual : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 2; }
 	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;

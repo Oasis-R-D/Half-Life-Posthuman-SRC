@@ -515,6 +515,17 @@ void CMP5Dual::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CMP5Dual::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/mp5_sml.wav"; break;
+		case 2: return "weapons/acoustic/mp5_med.wav"; break;
+		case 3: return "weapons/acoustic/mp5_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CMP5Dual::Precache()
 {
@@ -693,6 +704,8 @@ const Vector& CMP5Dual::GetBulletSpread()
 
 void CMP5Dual::Shoot(int gunnumb)
 {
+	AcousticMod();
+
 	float spread = GetBulletSpread().x;
 
 	m_flTimeSincePrimary = gpGlobals->time;

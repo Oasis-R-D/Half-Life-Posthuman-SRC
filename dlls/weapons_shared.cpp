@@ -61,7 +61,7 @@ const char* CBasePlayerWeapon::AcousticSound(int size)
 // TO-DO: volume input
 void CBasePlayerWeapon::AcousticMod(int type, int pitchBIG, int pitchMED, int pitchSML)
 {
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 || g_pGameRules->IsMultiplayer())
 		return;
 
 	TraceResult ForTr, UpTr;
