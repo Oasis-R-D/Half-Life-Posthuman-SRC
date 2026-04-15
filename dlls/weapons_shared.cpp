@@ -90,8 +90,8 @@ void CBasePlayerWeapon::AcousticMod(int pitch, int type)
 		strink = "medium\n";
 		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, "weapons/acoustic_med.wav", 1, ATTN_ACOUSTIC, 0, pitch);
 	}
-	ALERT(at_console, strink);
 	ALERT(at_console, "dist = %f\n", dist);
+	ALERT(at_console, strink);
 }
 
 bool CBasePlayerWeapon::CanDeploy()
