@@ -54,6 +54,8 @@ const char* CBasePlayerWeapon::AcousticSound(int size);
 		case 2: return "weapons/acoustic_med.wav"; break;
 		case 3: return "weapons/acoustic_big.wav"; break;
 	}
+
+	return "common/null.wav";
 }
 
 // TO-DO: volume input
