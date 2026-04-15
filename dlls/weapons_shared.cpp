@@ -46,7 +46,7 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 	ammoType.WeaponName = weaponName;
 }
 
-const char* CBasePlayerWeapon::AcousticSound(int size);
+const char* CBasePlayerWeapon::AcousticSound(int size)
 {
 	switch(size)
 	{
