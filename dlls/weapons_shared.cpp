@@ -46,6 +46,67 @@ void AddAmmoNameToAmmoRegistry(const char* szAmmoname, const char* weaponName)
 	ammoType.WeaponName = weaponName;
 }
 
+const char* CBasePlayerWeapon::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic_sml.wav"; break;
+		case 2: return "weapons/acoustic_med.wav"; break;
+		case 3: return "weapons/acoustic_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
+// TO-DO: volume input
+void CBasePlayerWeapon::AcousticMod(int type, int pitchBIG, int pitchMED, int pitchSML)
+{
+	if (m_pPlayer->pev->waterlevel == 3)
+		return;
+
+	TraceResult ForTr, UpTr;
+
+	UTIL_TraceLine(m_pPlayer->GetGunPosition(), m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 768, ignore_monsters, NULL, &ForTr);
+	UTIL_TraceLine(m_pPlayer->GetGunPosition(), m_pPlayer->GetGunPosition() + gpGlobals->v_up * 768, ignore_monsters, NULL, &UpTr);
+
+#ifndef CLIENT_DLL
+	// check to see if it's in the sky, bias if so
+	if (UTIL_PointContents(UpTr.vecEndPos) == CONTENTS_SKY)
+		UpTr.flFraction = 4;
+	if (UTIL_PointContents(ForTr.vecEndPos) == CONTENTS_SKY)
+		ForTr.flFraction = 4;
+#endif
+
+	// more biases
+	if (UpTr.flFraction == 1)
+		ForTr.flFraction = 1.25;
+
+	if (ForTr.flFraction == 1)
+		ForTr.flFraction = 1.25;
+
+	float dist = ((768 * ForTr.flFraction) + (768 * UpTr.flFraction)) / 2;
+
+	const char* strink;
+
+	if (dist >= 768)
+	{	// large area
+		strink = "large\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(3), 1, ATTN_ACOUSTIC, 0, pitchBIG);
+	}
+	else if (dist <= 256)
+	{	// small area
+		strink = "small\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(1), 1, ATTN_ACOUSTIC, 0, pitchSML);
+	}
+	else	 
+	{	// medium area
+		strink = "medium\n";
+		EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_AUTO, AcousticSound(2), 1, ATTN_ACOUSTIC, 0, pitchMED);
+	}
+	ALERT(at_console, "dist = %f\n", dist);
+	ALERT(at_console, strink);
+}
+
 bool CBasePlayerWeapon::CanDeploy()
 {
 	bool bHasAmmo = false;
@@ -607,7 +668,7 @@ void CEagle::PrimaryAttack()
 
 	SendWeaponAnim(m_iClip == 0 ? EAGLE_SHOOT_EMPTY : EAGLE_SHOOT);
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/desert_eagle_fire.wav", 1, ATTN_NORM);
-
+	AcousticMod();
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 15;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -6 + gpGlobals->v_forward * 8 + gpGlobals->v_right * 5, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 

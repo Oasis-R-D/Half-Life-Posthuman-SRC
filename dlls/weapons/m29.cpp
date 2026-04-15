@@ -236,6 +236,7 @@ void CM29::Shoot(int gunnumb)
 	Vector vecDir;
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, gunnumb, 0, 0, 0);
+	AcousticMod(); 
 
 	Vector vecSrc;
 	if (gunnumb == 0)

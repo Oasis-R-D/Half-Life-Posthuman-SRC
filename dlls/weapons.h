@@ -401,6 +401,9 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
+	virtual const char* AcousticSound(int size);
+	void AcousticMod(int type = 0, int pitchBIG = 100, int pitchMED = 100, int pitchSML = 100);
+
 	double m_flTimeSincePrimary;
 
 	float m_fGrenadeFireDelay;
@@ -802,6 +805,7 @@ class CMP5 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 
@@ -1662,6 +1666,7 @@ class CM727 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 

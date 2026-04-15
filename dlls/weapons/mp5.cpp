@@ -44,6 +44,17 @@ void CMP5::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CMP5::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/mp5_sml.wav"; break;
+		case 2: return "weapons/acoustic/mp5_med.wav"; break;
+		case 3: return "weapons/acoustic/mp5_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CMP5::Precache()
 {
@@ -65,7 +76,6 @@ void CMP5::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
-	
 }
 
 bool CMP5::GetItemInfo(ItemInfo* p)
@@ -213,8 +223,6 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-
-
 	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
@@ -252,6 +260,7 @@ void CMP5::PrimaryAttack()
 	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
+	AcousticMod();
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 15 + gpGlobals->v_right * 4, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
@@ -259,19 +268,13 @@ void CMP5::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	if (pev->armortype == 2)
+	if (pev->armortype == 2) // TO-DO: make it fire regardless of button being down if (pev->armortype == 2 && pev->armorvalue > 0)
 	{
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
-				if (g_iSkillLevel != SKILL_HARD)
-				{	
-					m_flNextPrimaryAttack = 0.066;
-				}
-				else
-				{
-					m_flNextPrimaryAttack = 0.075;
-				}
+
+			m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
 		}
 		else
 		{
@@ -281,16 +284,9 @@ void CMP5::PrimaryAttack()
 	}
 	else
 	{
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-
-			m_flNextPrimaryAttack = 0.066;
-		}
-		else
-		{
-			m_flNextPrimaryAttack = 0.075;
-		}
+		m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
 	}
+
 	m_flTimeWeaponIdle = 5;
 
 	#ifndef CLIENT_DLL
@@ -350,15 +346,31 @@ void CMP5::Reload()
 	if (pev->weapons == 1)
 		return;
 
-	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 3 : 2);
+	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 2.83f : 1.66f);
 	pev->armorvalue = 0;
 }
+
+extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
 
 void CMP5::WeaponIdle()
 {
 	ResetEmptySound();
 
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		if (pev->armortype == 2 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()) && pev->armorvalue <= 2 && pev->armorvalue > 0)
+		{
+			if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && 0 == m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = true;
+			}
+
+			m_pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
+	}
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;

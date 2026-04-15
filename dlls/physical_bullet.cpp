@@ -221,6 +221,13 @@ void CPhysbullet::Precache()
 
 void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 {	
+	TraceResult tr = UTIL_GetGlobalTrace();
+	if (UTIL_PointContents(tr.vecEndPos) == CONTENTS_SKY)
+	{
+		UTIL_Remove(this);
+		return;
+	}
+
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner == nullptr)
 	{
@@ -229,7 +236,6 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 	}
 
 	m_Endpos = pev->origin; // where bullet hit
-	TraceResult tr = UTIL_GetGlobalTrace();
 
 	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
 	{
@@ -345,7 +351,38 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 		m_distpenetrate = 0;
 	}
 
-	// Did not penetrate, normal collision
+	
+	// ricochet
+	if (pOther->IsBSPModel())
+	{
+		// if what we hit is static architecture, can stay around for a while.
+		Vector vecDir = m_direction;
+
+		// See if we should reflect off this surface
+		float hitDot = -DotProduct( tr.vecPlaneNormal, vecDir );
+			
+		if ((hitDot < 0.0871) && (m_muzzlevelocity > 2500)) // 85 degrees
+		{
+			ALERT(at_console, "REFLECT!!!!!!\n");
+			Vector vReflection = (2.0f * tr.vecPlaneNormal * hitDot) + vecDir;
+			
+			m_distpenetrate *= 10 * hitDot;
+			m_BulletDamage -= round(50 * hitDot);
+
+			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, 0, 0, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+
+			// Damage
+			ClearMultiDamage();
+			pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+			ApplyMultiDamage(owner->pev, owner->pev);
+
+			// Remove original bullet
+			UTIL_Remove(this);
+			return;
+		}
+	}
+
+	// Did not penetrate or bounce, normal collision
 
 	pev->movetype = MOVETYPE_NONE;
 	SetTouch(NULL);

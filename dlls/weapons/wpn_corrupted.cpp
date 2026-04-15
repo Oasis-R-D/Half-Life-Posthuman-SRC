@@ -240,6 +240,7 @@ void CCorruptedWPN::PrimaryAttack()
 	m_pPlayer->m_iWeaponFlash = RANDOM_LONG(128, 512);
 
 	EMIT_SOUND_DYN(m_pPlayer->edict(), CHAN_WEAPON, wpnsnd2, RANDOM_FLOAT(0.75, 0.95), ATTN_GUN, 0, RANDOM_LONG(50, 250));
+	AcousticMod(); 
 
 	m_flTimeSincePrimary = gpGlobals->time;
 

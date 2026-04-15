@@ -84,6 +84,18 @@ void CM727::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CM727::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/m727_sml.wav"; break;
+		case 2: return "weapons/acoustic/m727_med.wav"; break;
+		case 3: return "weapons/acoustic/m727_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CM727::Precache()
 {
 	PRECACHE_MODEL("models/w_727.mdl");
@@ -276,10 +288,13 @@ void CM727::PrimaryAttack()
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
+
 	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+
 	char wpnsnd2[256];
 	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
 	EMIT_SOUND(edict(), CHAN_WEAPON, wpnsnd2, 1, ATTN_NORM);
+	AcousticMod(); 
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 11 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
@@ -288,14 +303,9 @@ void CM727::PrimaryAttack()
 	{
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 	}
-	if (g_iSkillLevel != SKILL_HARD)
-	{
-		m_flNextPrimaryAttack = 0.1;
-	}
-	else
-	{
-		m_flNextPrimaryAttack = 0.0727; // this is the actual fire rate, you adult I notn't
-	}
+
+	m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.0727 : 0.1;
+
 	m_flTimeWeaponIdle = 5;
 
 #ifndef CLIENT_DLL
@@ -309,7 +319,7 @@ void CM727::PrimaryAttack()
 void CM727::SecondaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
-	return;
+		return;
 
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = 0.5;
 

@@ -4703,7 +4703,7 @@ void CBasePlayer::ItemPreFrame()
 		return;
 
 	m_pActiveItem->ItemPreFrame();
-	if (m_pActiveItem->GetWeaponPtr())
+	if (m_pActiveItem->GetWeaponPtr()) // pretty sure this is uneeded
 		UpdateCrosshair(m_pActiveItem->GetWeaponPtr()->GetBulletSpread().x, m_pActiveItem->GetWeaponPtr()->m_iCrossHairType);
 }
 

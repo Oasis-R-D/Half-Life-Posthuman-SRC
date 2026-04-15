@@ -1218,6 +1218,39 @@ bool CBaseEntity::FVisible(const Vector& vecOrigin)
 }
 /*
 ================
+Gunshot audio FX
+================
+*/
+void CBaseEntity::AcousticModDist(int pitch, int type)
+{
+	if (pev->waterlevel == 3 || g_pGameRules->IsMultiplayer())
+		return;
+
+	CBasePlayer* player = dynamic_cast<CBasePlayer*>(UTIL_GetLocalPlayer());
+	float dist = (pev->origin - player->pev->origin).Length();
+
+	const char* strink;
+
+	if (dist >= 768)
+	{	// large area
+		strink = "NPC large\n";
+		EMIT_SOUND_DYN(edict(), CHAN_AUTO, "weapons/acoustic_big.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	else if (dist <= 256)
+	{	// small area
+		strink = "NPC small\n";
+		EMIT_SOUND_DYN(edict(), CHAN_AUTO, "weapons/acoustic_sml.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	else	 
+	{	// medium area
+		strink = "NPC medium\n";
+		EMIT_SOUND_DYN(edict(), CHAN_AUTO, "weapons/acoustic_med.wav", 1, ATTN_ACOUSTIC, 0, pitch);
+	}
+	ALERT(at_console, "NPC dist = %f\n", dist);
+	ALERT(at_console, strink);
+}
+/*
+================
 Bullet Armor Hit
 ================
 */
@@ -1262,7 +1295,12 @@ void CBaseEntity::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			//Spawn blud dwops UwU
 			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
 
+
 			//RENDERERS START
+			if(blood == BLOOD_COLOR_YELLOW || blood == BLOOD_COLOR_GREEN)
+				UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_alien", ENTINDEX(ptr->pHit));
+			else
+				UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_human", ENTINDEX(ptr->pHit));
 			//UTIL_StudioDecal(ptr->vecPlaneNormal, ptr->vecEndPos, "shot_alien", ENTINDEX(ptr->pHit));
 			//RENDERERS END
 		}
