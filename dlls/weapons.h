@@ -570,6 +570,7 @@ class CGlock : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 2; }
 	bool GetItemInfo(ItemInfo* p) override;
 	
@@ -751,6 +752,7 @@ class CPython : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 2; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void PrimaryAttack() override;
@@ -869,6 +871,7 @@ class CCrossbow : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void FireBolt();
@@ -936,6 +939,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void Holster() override;
@@ -1465,6 +1469,7 @@ public:
 #endif
 
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	void Spawn() override;
 	bool Deploy() override;
 	void Holster() override;
@@ -1610,6 +1615,7 @@ public:
 #endif
 
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	void Spawn() override;
 	bool Deploy() override;
 	void Holster() override;
@@ -1752,6 +1758,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
+	const char* AcousticSound(int size) override;
 	int iItemSlot() override { return 2; }
 	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;

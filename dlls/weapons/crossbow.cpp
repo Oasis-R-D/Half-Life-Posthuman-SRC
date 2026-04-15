@@ -40,6 +40,18 @@ void CCrossbow::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CCrossbow::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/rail_sml.wav"; break;
+		case 2: return "weapons/acoustic/rail_med.wav"; break;
+		case 3: return "weapons/acoustic/rail_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CCrossbow::Precache()
 {
 	PRECACHE_MODEL("models/w_crossbow.mdl");

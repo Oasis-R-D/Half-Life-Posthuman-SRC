@@ -58,6 +58,17 @@ void CPython::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CPython::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/357_sml.wav"; break;
+		case 2: return "weapons/acoustic/357_med.wav"; break;
+		case 3: return "weapons/acoustic/357_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CPython::Precache()
 {

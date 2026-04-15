@@ -39,6 +39,17 @@ void CGlock::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CGlock::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/pistol_sml.wav"; break;
+		case 2: return "weapons/acoustic/pistol_med.wav"; break;
+		case 3: return "weapons/acoustic/pistol_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CGlock::Precache()
 {

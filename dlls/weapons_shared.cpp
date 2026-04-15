@@ -478,6 +478,18 @@ IMPLEMENT_SAVERESTORE(CEagle, CEagle::BaseClass);
 
 LINK_ENTITY_TO_CLASS(weapon_eagle, CEagle);
 
+const char* CEagle::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/deag_sml.wav"; break;
+		case 2: return "weapons/acoustic/deag_med.wav"; break;
+		case 3: return "weapons/acoustic/deag_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CEagle::Precache()
 {
 	PRECACHE_MODEL("models/v_desert_eagle.mdl");

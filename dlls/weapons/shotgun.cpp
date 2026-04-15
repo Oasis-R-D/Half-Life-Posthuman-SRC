@@ -49,6 +49,18 @@ void CShotgun::Holster()
 	MESSAGE_END();
 }
 
+const char* CShotgun::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/spas_sml.wav"; break;
+		case 2: return "weapons/acoustic/spas_med.wav"; break;
+		case 3: return "weapons/acoustic/spas_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CShotgun::Precache()
 {
 	PRECACHE_MODEL("models/v_shotgun.mdl");

@@ -27,6 +27,18 @@
 
 LINK_ENTITY_TO_CLASS(weapon_m249, CM249);
 
+const char* CM249::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/m249_sml.wav"; break;
+		case 2: return "weapons/acoustic/m249_med.wav"; break;
+		case 3: return "weapons/acoustic/m249_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
+
 void CM249::Precache()
 {
 	PRECACHE_MODEL("models/v_saw.mdl");

@@ -60,6 +60,17 @@ void CM29::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+const char* CM29::AcousticSound(int size)
+{
+	switch(size)
+	{
+		case 1: return "weapons/acoustic/m29_sml.wav"; break;
+		case 2: return "weapons/acoustic/m29_med.wav"; break;
+		case 3: return "weapons/acoustic/m29_big.wav"; break;
+	}
+
+	return "common/null.wav";
+}
 
 void CM29::Precache()
 {
