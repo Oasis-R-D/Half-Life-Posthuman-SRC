@@ -250,7 +250,7 @@ void CMP5::PrimaryAttack()
 	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
-	AcousticMod();
+	AcousticMod(0, 100, 105, 110);
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 15 + gpGlobals->v_right * 4, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
@@ -336,15 +336,31 @@ void CMP5::Reload()
 	if (pev->weapons == 1)
 		return;
 
-	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 3 : 2);
+	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 2.83f : 1.66f);
 	pev->armorvalue = 0;
 }
+
+extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
 
 void CMP5::WeaponIdle()
 {
 	ResetEmptySound();
 
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+
+	if (g_iSkillLevel != SKILL_HARD)
+	{
+		if (pev->armortype == 2 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()) && pev->armorvalue <= 2 && pev->armorvalue > 0)
+		{
+			if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && 0 == m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = true;
+			}
+
+			m_pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
+	}
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;

@@ -401,7 +401,7 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
-	void AcousticMod(int pitch = 100, int type = 0);
+	void AcousticMod(int type = 0, int pitchBIG = 100, int pitchMED = 100, int pitchSML = 100);
 
 	double m_flTimeSincePrimary;
 
