@@ -23,7 +23,7 @@
 #include "UserMessages.h"
 #include "railcannon_bolt.h"
 
-#define BOLT_AIR_VELOCITY 6000
+#define BOLT_AIR_VELOCITY 10000
 #define BOLT_WATER_VELOCITY 5000
 
 LINK_ENTITY_TO_CLASS(weapon_crossbow, CCrossbow);
