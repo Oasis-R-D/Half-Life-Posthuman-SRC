@@ -255,7 +255,7 @@ public:
 
 	CUSTOM_SCHEDULES;
 
-	bool m_iType = FUNGHOUL;
+	int m_iType = FUNGHOUL;
 
 	// dismemberment (yay :D)
 	// TO-DO: add #defines for the stub locations such as: (pev->origin + gpglobals->v_right + 4)
@@ -487,7 +487,7 @@ void CFunghoul::MonsterThink()
 	if (player && player->IsAlive())
 	{
 		Vector towardsP = pev->origin - player->pev->origin;
-		if (towardsP.Length2D() > 48) // player escaped
+		if (towardsP.Length2D() > 64) // player escaped
 		{
 			m_PlayerLocked = NULL;
 			player->m_iSpeedOverride = -1;
@@ -713,7 +713,11 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 		}
 		else
+		{
+			if (!pHurt)
+				SetActivity(ACT_BIG_FLINCH); // stagger back
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
+		}
 	}
 	break;
 
@@ -833,7 +837,7 @@ bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 	if (m_iType != FUNGHOUL_INFECTOR && m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH)
 		return false; // no arms to swipe with (skill issue)
 
-	if (flDist <= (m_iType != FUNGHOUL_INFECTOR ? 64.0 : 48.0) && flDot >= 0.7 && m_hEnemy)
+	if (flDist <= (m_iType != FUNGHOUL_INFECTOR ? 64.0 : 64.0) && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
 	}
