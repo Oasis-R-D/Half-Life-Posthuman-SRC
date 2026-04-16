@@ -51,6 +51,7 @@
 
 #define LIMBBREAK_THRESH 20
 
+#pragma region projectile
 class CFunghoulGuts : public CBaseEntity
 {
 public:
@@ -200,6 +201,7 @@ void CFunghoulGuts::Launch(entvars_t* pevOwner, Vector vecStart, Vector vecVeloc
 	SetThink(&CFunghoulGuts::Animate);
 	pev->nextthink = gpGlobals->time + 0.1;
 }
+#pragma endregion
 
 enum
 {
@@ -331,7 +333,7 @@ const char* CFunghoul::pPainSounds[] =
 Task_t tlFunghoulBiting[] =
 	{
 		{TASK_STOP_MOVING, 0},
-		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
+		{TASK_SET_ACTIVITY, (float)ACT_EAT},
 		{TASK_WAIT_INDEFINITE, (float)0},
 };
 
