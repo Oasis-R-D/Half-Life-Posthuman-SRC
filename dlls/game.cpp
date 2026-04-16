@@ -348,6 +348,11 @@ DECLARE_SKILL_CVARS(voltigore_dmg_beam);
 DECLARE_SKILL_CVARS(babyvoltigore_health);
 DECLARE_SKILL_CVARS(babyvoltigore_dmg_punch);
 
+// funghoul
+DECLARE_SKILL_CVARS(funghoul_health);
+DECLARE_SKILL_CVARS(funghoul_dmg_slash);
+DECLARE_SKILL_CVARS(funghoul_dmg_bite);
+
 // PLAYER WEAPONS
 
 // M727
