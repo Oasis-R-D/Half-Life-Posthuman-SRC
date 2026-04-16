@@ -297,14 +297,21 @@ void CHordeMaker::MakeMonster()
 	{
 		ent->m_bPrehuman = true;
 	}
+
+	// orginal pPlayer is only in PVS, this makes sure the monster KNOWS ALL
+	if (!g_pGameRules->IsMultiplayer())
+		pPlayer = dynamic_cast<CBasePlayer*>(UTIL_GetLocalPlayer());
+
 	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer != nullptr)
 	{
 		// TO-DO: this may not be all the needed code to make them spawn knowing and attacking the player
 		CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(ent);
 		if (pMonster != nullptr)
 		{
+			//pMonster->StartTask(pTask);
 			pMonster->m_hEnemy = pPlayer;
 			pMonster->m_vecEnemyLKP = pPlayer->pev->origin;
+			pMonster->m_movementGoal = MOVEGOAL_ENEMY;
 		}
 	}
 
