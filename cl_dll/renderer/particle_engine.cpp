@@ -79,6 +79,19 @@ const char glsl_particle_fp[] = R"(
 
 CParticleEngine gParticleEngine;
 
+static const struct
+{ // HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+	const char* name;
+	GLenum minimize, maximize;
+} texModes[] = {
+	//?? remove this later:
+	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},								  // box filter, no mipmaps
+	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},								  // linear filter, no mipmaps
+	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST}, // no (box) filter
+	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},	  // bilinear filter
+	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}, // trilinear filter
+};
 
 
 /*
@@ -168,8 +181,17 @@ void R_InitParticleTexture(GLuint &particle_id)
 	}
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
+	for (int i = 0; i < sizeof(texModes) / sizeof(texModes[0]); i++)
+	{
+		if (stricmp(texModes[i].name, texturemode))
+			continue;
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texModes[i].minimize);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texModes[i].maximize);
+		break;
+	}
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	// 										^^ is this filtering?
 }
 

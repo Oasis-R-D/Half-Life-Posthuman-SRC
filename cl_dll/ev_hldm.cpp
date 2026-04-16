@@ -1989,7 +1989,13 @@ void EV_Particles(event_args_t* args)
 
 			if (!args->bparam1)
 				gParticleEngine.CreateCluster(constchar3, args->origin, args->angles, 0);
-			
+
+			if (args->fparam2 > 0)
+			{
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bonefragment1, (int)args->fparam2), args->origin, args->angles, 0);
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bonefragment2, (int)args->fparam2), args->origin, args->angles, 0);
+			}
+
 			if (args->bparam1) // bleeding
 				BLDAMNT = gEngfuncs.pfnRandomLong(2, 3);
 

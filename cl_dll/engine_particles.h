@@ -12,6 +12,9 @@
 // ENGINE_PARTICLES.H: File to store liks to code defined particles
 //8================================================================D
 
+extern char bonefragment1[];
+extern char bonefragment2[];
+
 extern char impactsmoke[];
 
 extern char bulletholeglow[];
@@ -19,10 +22,9 @@ extern char bulletholeglow[];
 extern char innacuracydebug[];
 
 extern char bloodsprite[];
-
 extern char bloodchunks[];
-
 extern char bloodspray[];
+extern char bloodgibcloud[];
 
 extern char particle_gs[];
 
@@ -31,6 +33,4 @@ extern char particle_bulletdripimpact[];
 extern char particle_muzzleflash[];
 
 extern char particle_explosion[];
-
-extern char bloodgibcloud[];
 

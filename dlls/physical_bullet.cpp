@@ -369,7 +369,7 @@ void CPhysbullet::BoltTouch(CBaseEntity* pOther)
 			m_distpenetrate *= 10 * hitDot;
 			m_BulletDamage -= round(50 * hitDot);
 
-			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, 0, 0, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			ClearMultiDamage();

@@ -1622,7 +1622,20 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 	if ((bitsDamageType & (DMG_CRUSH | DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB | DMG_MORTAR)) == 0)
 		return;
 	
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
+	int fragments = 0;
+	if (BloodColor() == BLOOD_COLOR_RED)
+	{
+		switch (ptr->iHitgroup)
+		{
+			case HITGROUP_HEAD: fragments = 2; break;
+			case HITGROUP_LEFTARM: 
+			case HITGROUP_RIGHTARM: fragments = RANDOM_LONG(0, 1) ? 1 :  0; break;
+			case HITGROUP_LEFTLEG: 
+			case HITGROUP_RIGHTLEG: fragments = RANDOM_LONG(0, 2) == 1 ? 1 : 0; break;
+		}
+	}
+
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, fragments, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
 
 	if (!IsAlive())
 	{

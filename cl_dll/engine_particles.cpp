@@ -13,6 +13,66 @@
 // WHY: Most of these are only here so they can accept inputs
 //8========================================================D
 
+char bonefragment2[] = R"(
+life 5
+lifevar 1
+
+fadedelay 4
+
+minvel 100
+maxvel 200
+
+maxofs 48
+
+texture fleck_bone2
+rendermode 2
+
+scale 0.5
+scalevar 0.25
+
+collision 2
+rotationvel 30
+rotationdamp -0.01
+
+impactdamp 0.5
+
+gravity 1
+
+startparticles %d
+
+lightmaps 1
+)";
+
+char bonefragment1[] = R"(
+life 5
+lifevar 1
+
+fadedelay 4
+
+minvel 100
+maxvel 200
+
+maxofs 48
+
+texture fleck_bone1
+rendermode 2
+
+scale 0.75
+scalevar 0.25
+
+collision 2
+rotationvel 30
+rotationdamp -0.01
+
+impactdamp 0.5
+
+gravity 1
+
+startparticles %d
+
+lightmaps 1
+)";
+
 // vv based on flames_smoke.txt
 char impactsmoke[] = R"(
 life 1
