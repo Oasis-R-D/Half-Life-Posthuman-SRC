@@ -48,6 +48,8 @@
 #define FUNGHOUL_ADVSEC 2
 #define FUNGHOUL_SPITTER 3
 
+#define LIMBBREAK_THRESH 20
+
 class CFunghoulGuts : public CBaseEntity
 {
 public:
@@ -250,6 +252,13 @@ public:
 	CUSTOM_SCHEDULES;
 
 	bool m_iType = FUNGHOUL;
+
+	// dismemberment (yay :D)
+	// TO-DO: add #defines for the stub locations such as: (pev->origin + gpglobals->v_right + 4)
+	int m_iArmRh = 0; // disables part of swinging, reduces grab strength
+	int m_iArmLh = 0;
+	int m_iLegRh = 0; // forces into crawling
+	int m_iLegLh = 0;
 
 	float m_flNextFlinch;
 	float m_flNextThrowTime;
@@ -659,6 +668,14 @@ void CFunghoul::Spawn()
 	m_pGonomeGuts = nullptr;
 	m_PlayerLocked = nullptr;
 
+	// only have to compare the strings 3 times instead of every attack
+	if (FClassnameIs(pev, "monster_funghoul_advsec"))
+		m_iType = FUNGHOUL_ADVSEC;
+	else if (FClassnameIs(pev, "monster_funghoul_infector"))
+		m_iType = FUNGHOUL_INFECTOR;
+	else if (FClassnameIs(pev, "monster_funghoul_spitter"))
+		m_iType = FUNGHOUL_SPITTER;
+
 	MonsterInit();
 }
 
@@ -740,6 +757,9 @@ int CFunghoul::IgnoreConditions()
 
 bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 {
+	if (m_iType != FUNGHOUL_INFECTOR && m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH)
+		return false; // no arms to swipe with (skill issue)
+	
 	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
@@ -758,7 +778,7 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 		return false;
 	}
 
-	if (!FClassnameIs(pev, "monster_funghoul_spitter"))
+	if (m_iType != FUNGHOUL_SPITTER)
 		return false;
 
 	if (flDist > 64.0 && flDist <= 784.0 && flDot >= 0.5 && gpGlobals->time >= m_flNextThrowTime)
