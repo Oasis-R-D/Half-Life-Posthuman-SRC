@@ -284,6 +284,14 @@ LINK_ENTITY_TO_CLASS(monster_funghoul_infector, CFunghoul); // Attacking holds p
 LINK_ENTITY_TO_CLASS(monster_funghoul_spitter, CFunghoul); // gonome
 LINK_ENTITY_TO_CLASS(monster_funghoul_advsec, CFunghoul); // gonome melee but tankier
 
+//=========================================================
+// monster-specific schedule types
+//=========================================================
+enum
+{
+	SCHED_FUNGHOUL_BITING = LAST_COMMON_SCHEDULE + 1,
+};
+
 const char* CFunghoul::pAttackHitSounds[] =
 	{
 		"zombie/claw_strike1.wav",
@@ -319,6 +327,26 @@ const char* CFunghoul::pPainSounds[] =
 		"funghoul/gonome_pain4.wav",
 };
 
+//=========================================================
+// enjoying a tasty snack
+//=========================================================
+Task_t tlFunghoulBiting[] =
+	{
+		{TASK_STOP_MOVING, 0},
+		{TASK_SET_ACTIVITY, (float)ACT_IDLE},
+		{TASK_WAIT_INDEFINITE, (float)0},
+};
+
+Schedule_t slFunghoulBiting[] =
+	{
+		{tlFunghoulBiting,
+			ARRAYSIZE(tlFunghoulBiting),
+			bits_COND_HEAVY_DAMAGE,
+
+			0,
+			"Biting"},
+};
+
 Task_t tlGonomeVictoryDance[] =
 	{
 		{TASK_STOP_MOVING, 0},
@@ -352,6 +380,7 @@ Schedule_t slGonomeVictoryDance[] =
 
 DEFINE_CUSTOM_SCHEDULES(CFunghoul){
 	slGonomeVictoryDance,
+	slFunghoulBiting,
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES(CFunghoul, CBaseMonster);
@@ -852,6 +881,8 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 {
 	if (Type == SCHED_VICTORY_DANCE)
 		return slGonomeVictoryDance;
+	else if (Type == SCHED_FUNGHOUL_BITING)
+		return slFunghoulBiting;
 	else
 		return CBaseMonster::GetScheduleOfType(Type);
 }
