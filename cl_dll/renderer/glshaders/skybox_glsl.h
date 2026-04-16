@@ -31,8 +31,8 @@ const char glsl_skybox_fp[] = R"(
 	{
 		vec4 skytex = texture(texture0, frag_texcoord);
 
-		skytex = mix(skytex, vec4(fogcolor, 1), int(skyfog) * 0.4);
-
+		//skytex = mix(skytex, vec4(fogcolor, 1), int(skyfog) * 0.4);
+		
 		gl_FragColor = skytex;
 	}
 

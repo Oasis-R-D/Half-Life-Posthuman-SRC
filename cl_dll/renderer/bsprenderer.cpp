@@ -5022,6 +5022,19 @@ void CBSPRenderer::InitSky(void)
 	}
 };
 
+static const struct
+{ // TO-DO: HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+	const char* name;
+	GLenum minimize, maximize;
+} texModes[] = {
+	//?? remove this later:
+	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},								  // box filter, no mipmaps
+	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},								  // linear filter, no mipmaps
+	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST}, // no (box) filter
+	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},	  // bilinear filter
+	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}, // trilinear filter
+};
 
 /*
 ====================
@@ -5050,6 +5063,14 @@ void CBSPRenderer::DrawSky(void)
 	for (int i = 0; i < 6; i++)
 	{
 		BindGLTexture(GL_TEXTURE0, m_iSkyTextures[i]);
+		const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
+
+		if (!stricmp(texModes[0].name, texturemode))
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texModes[0].minimize);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texModes[0].maximize);
+		}
+
 		glDrawArrays(GL_TRIANGLES, i * 6, 6);
 	}
 

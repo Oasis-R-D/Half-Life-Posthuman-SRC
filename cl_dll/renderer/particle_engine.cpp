@@ -80,7 +80,7 @@ const char glsl_particle_fp[] = R"(
 CParticleEngine gParticleEngine;
 
 static const struct
-{ // HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+{ // TO-DO: HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
 	const char* name;
 	GLenum minimize, maximize;
 } texModes[] = {
