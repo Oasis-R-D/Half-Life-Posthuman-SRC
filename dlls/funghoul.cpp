@@ -262,7 +262,6 @@ public:
 	int m_iLegRh = 0; // forces into crawling
 	int m_iLegLh = 0;
 
-	float m_flNextFlinch;
 	float m_flNextThrowTime;
 
 	//TODO: needs to be EHANDLE, save/restored or a save during a windup will cause problems
@@ -272,7 +271,6 @@ public:
 
 TYPEDESCRIPTION CFunghoul::m_SaveData[] =
 	{
-		DEFINE_FIELD(CFunghoul, m_flNextFlinch, FIELD_TIME),
 		DEFINE_FIELD(CFunghoul, m_flNextThrowTime, FIELD_TIME),
 		DEFINE_FIELD(CFunghoul, m_PlayerLocked, FIELD_EHANDLE),
 };
@@ -836,7 +834,7 @@ bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 	if (m_iType != FUNGHOUL_INFECTOR && m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH)
 		return false; // no arms to swipe with (skill issue)
 
-	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
+	if (flDist <= (m_iType != FUNGHOUL_INFECTOR ? 64.0 : 48.0) && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
 	}
