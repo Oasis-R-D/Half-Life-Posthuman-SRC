@@ -26,6 +26,7 @@
 #include "saverestore.h"
 #include "nodes.h"
 #include "player.h"
+#include "gamerules.h"
 
 // Monstermaker spawnflags
 #define SF_HORDEMAKER_START_ON 1	// start active ( if has targetname )

@@ -40,7 +40,13 @@
 #define GONOME_AE_ATTACK_BITE_THIRD 21
 #define GONOME_AE_ATTACK_BITE_FINISH 22
 
-#define ZOMBIE_FLINCH_DELAY 2 // at most one flinch every n secs
+#define ZOMBIE_FLINCH_DELAY 8 // at most one flinch every n secs
+
+// for the type variable
+#define FUNGHOUL 0
+#define FUNGHOUL_INFECTOR 1
+#define FUNGHOUL_ADVSEC 2
+#define FUNGHOUL_SPITTER 3
 
 class CFunghoulGuts : public CBaseEntity
 {
@@ -74,12 +80,12 @@ TYPEDESCRIPTION CFunghoulGuts::m_SaveData[] =
 
 IMPLEMENT_SAVERESTORE(CFunghoulGuts, CFunghoulGuts::BaseClass);
 
-LINK_ENTITY_TO_CLASS(gonomeguts, CFunghoulGuts);
+LINK_ENTITY_TO_CLASS(funghoulguts, CFunghoulGuts);
 
 void CFunghoulGuts::Spawn()
 {
 	pev->movetype = MOVETYPE_FLY;
-	pev->classname = MAKE_STRING("gonomeguts");
+	pev->classname = MAKE_STRING("funghoulguts");
 
 	pev->solid = SOLID_BBOX;
 	pev->rendermode = kRenderTransAlpha;
@@ -136,7 +142,7 @@ void CFunghoulGuts::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.gonomeDmgGuts, DMG_GENERIC);
+		pOther->TakeDamage(pev, pev, gSkillData.gonomeDmgGuts, DMG_ACID);
 	}
 
 	SetThink(&CFunghoulGuts::SUB_Remove);
@@ -229,6 +235,7 @@ public:
 	bool CheckRangeAttack1(float flDot, float flDist) override;
 	bool CheckRangeAttack2(float flDot, float flDist) override { return false; }
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
 
@@ -241,6 +248,8 @@ public:
 	void SetActivity(Activity NewActivity) override;
 
 	CUSTOM_SCHEDULES;
+
+	bool m_iType = FUNGHOUL;
 
 	float m_flNextFlinch;
 	float m_flNextThrowTime;
@@ -259,7 +268,10 @@ TYPEDESCRIPTION CFunghoul::m_SaveData[] =
 
 IMPLEMENT_SAVERESTORE(CFunghoul, CFunghoul::BaseClass);
 
-LINK_ENTITY_TO_CLASS(monster_gonome, CFunghoul);
+LINK_ENTITY_TO_CLASS(monster_funghoul, CFunghoul); // gonome but only melee
+LINK_ENTITY_TO_CLASS(monster_funghoul_infector, CFunghoul); // Attacking holds player and does damage over time (player can escape by fighting the pull, stumbles funghoul)
+LINK_ENTITY_TO_CLASS(monster_funghoul_spitter, CFunghoul); // gonome
+LINK_ENTITY_TO_CLASS(monster_funghoul_advsec, CFunghoul); // gonome melee but tankier
 
 const char* CFunghoul::pAttackHitSounds[] =
 	{
@@ -276,9 +288,9 @@ const char* CFunghoul::pAttackMissSounds[] =
 
 const char* CFunghoul::pIdleSounds[] =
 	{
-		"gonome/gonome_idle1.wav",
-		"gonome/gonome_idle2.wav",
-		"gonome/gonome_idle3.wav",
+		"funghoul/gonome_idle1.wav",
+		"funghoul/gonome_idle2.wav",
+		"funghoul/gonome_idle3.wav",
 };
 
 const char* CFunghoul::pAlertSounds[] =
@@ -290,10 +302,10 @@ const char* CFunghoul::pAlertSounds[] =
 
 const char* CFunghoul::pPainSounds[] =
 	{
-		"gonome/gonome_pain1.wav",
-		"gonome/gonome_pain2.wav",
-		"gonome/gonome_pain3.wav",
-		"gonome/gonome_pain4.wav",
+		"funghoul/gonome_pain1.wav",
+		"funghoul/gonome_pain2.wav",
+		"funghoul/gonome_pain3.wav",
+		"funghoul/gonome_pain4.wav",
 };
 
 Task_t tlGonomeVictoryDance[] =
@@ -359,6 +371,32 @@ void CFunghoul::SetYawSpeed()
 #endif
 
 	pev->yaw_speed = ys;
+}
+
+void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
+{
+	if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
+	{
+		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+		{
+			if (m_iType == FUNGHOUL_ADVSEC)
+			{
+				if (g_iSkillLevel != SKILL_HARD)
+				{
+					flDamage = round(flDamage * 0.8);
+				}
+				else
+				{
+					flDamage = round(flDamage * 0.7);
+				}
+				if (RANDOM_LONG(0, 1) == 1)
+					UTIL_Sparks(ptr->vecEndPos);
+			}
+		}
+	
+	}
+	CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	m_bloodColor = BLOOD_COLOR_RED; // switch it back to red
 }
 
 bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
@@ -610,10 +648,10 @@ void CFunghoul::Spawn()
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
-	m_bloodColor = BLOOD_COLOR_GREEN;
-	pev->health = gSkillData.gonomeHealth;
+	m_bloodColor = BLOOD_COLOR_RED; // TO-DO: custom color (replaces blue?)
+	pev->health = gSkillData.zombieHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
-	m_flFieldOfView = 0.5;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
+	m_flFieldOfView = 0.66;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_afCapability = bits_CAP_DOORS_GROUP;
 
@@ -649,17 +687,17 @@ void CFunghoul::Precache()
 	for (i = 0; i < ARRAYSIZE(pPainSounds); i++)
 		PRECACHE_SOUND((char*)pPainSounds[i]);
 
-	PRECACHE_SOUND("gonome/gonome_death2.wav");
-	PRECACHE_SOUND("gonome/gonome_death3.wav");
-	PRECACHE_SOUND("gonome/gonome_death4.wav");
+	PRECACHE_SOUND("funghoul/gonome_death2.wav");
+	PRECACHE_SOUND("funghoul/gonome_death3.wav");
+	PRECACHE_SOUND("funghoul/gonome_death4.wav");
 
-	PRECACHE_SOUND("gonome/gonome_jumpattack.wav");
+	PRECACHE_SOUND("funghoul/gonome_jumpattack.wav");
 
-	PRECACHE_SOUND("gonome/gonome_melee1.wav");
-	PRECACHE_SOUND("gonome/gonome_melee2.wav");
+	PRECACHE_SOUND("funghoul/gonome_melee1.wav");
+	PRECACHE_SOUND("funghoul/gonome_melee2.wav");
 
-	PRECACHE_SOUND("gonome/gonome_run.wav");
-	PRECACHE_SOUND("gonome/gonome_eat.wav");
+	PRECACHE_SOUND("funghoul/gonome_run.wav");
+	PRECACHE_SOUND("funghoul/gonome_eat.wav");
 
 	PRECACHE_SOUND("bullchicken/bc_acid1.wav");
 	PRECACHE_SOUND("bullchicken/bc_spithit1.wav");
@@ -719,6 +757,9 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 	{
 		return false;
 	}
+
+	if (!FClassnameIs(pev, "monster_funghoul_spitter"))
+		return false;
 
 	if (flDist > 64.0 && flDist <= 784.0 && flDot >= 0.5 && gpGlobals->time >= m_flNextThrowTime)
 	{
@@ -917,15 +958,15 @@ bool CDeadFunghoul::KeyValue(KeyValueData* pkvd)
 	return CBaseMonster::KeyValue(pkvd);
 }
 
-LINK_ENTITY_TO_CLASS(monster_gonome_dead, CDeadFunghoul);
+LINK_ENTITY_TO_CLASS(monster_funghoul_dead, CDeadFunghoul);
 
 //=========================================================
 // ********** DeadGonome SPAWN **********
 //=========================================================
 void CDeadFunghoul::Spawn()
 {
-	PRECACHE_MODEL("models/gonome.mdl");
-	SET_MODEL(ENT(pev), "models/gonome.mdl");
+	PRECACHE_MODEL("models/zombie.mdl");
+	SET_MODEL(ENT(pev), "models/zombie.mdl");
 
 	pev->effects = 0;
 	pev->sequence = 0;
