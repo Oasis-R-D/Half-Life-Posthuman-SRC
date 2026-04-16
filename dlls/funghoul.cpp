@@ -39,6 +39,9 @@
 #define GONOME_AE_ATTACK_BITE_SECOND 20
 #define GONOME_AE_ATTACK_BITE_THIRD 21
 #define GONOME_AE_ATTACK_BITE_FINISH 22
+#define GONOME_AE_ATTACK_GRAB_START 23 	// grab the enemy
+#define GONOME_AE_ATTACK_GRAB_BITE 24	// enemy is held
+										// none for letting go (instead staggers backwards (player broke free))
 
 #define ZOMBIE_FLINCH_DELAY 8 // at most one flinch every n secs
 
@@ -93,7 +96,7 @@ void CFunghoulGuts::Spawn()
 	pev->rendermode = kRenderTransAlpha;
 	pev->renderamt = 255;
 
-	//TODO: probably shouldn't be assinging to x every time
+	// TO-DO: probably shouldn't be assinging to x every time
 	if (g_Language == LANGUAGE_GERMAN)
 	{
 		SET_MODEL(edict(), "sprites/bigspit.spr");
@@ -459,6 +462,9 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 	case ZOMBIE_AE_ATTACK_RIGHT:
 	{
+		if (m_iArmRh >= LIMBBREAK_THRESH)
+			break; // no arm
+
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneSlash, DMG_SLASH);
@@ -480,6 +486,9 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case ZOMBIE_AE_ATTACK_LEFT:
 	{
+		if (m_iArmLh >= LIMBBREAK_THRESH)
+			break; // no arm
+
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash left!\n" );
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneSlash, DMG_SLASH);
@@ -498,7 +507,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case ZOMBIE_AE_ATTACK_GUTS_GRAB:
+	case ZOMBIE_AE_ATTACK_GUTS_GRAB: // unused
 	{
 		//Only if we still have an enemy at this point
 		if (m_hEnemy)
@@ -639,6 +648,36 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
+	case GONOME_AE_ATTACK_GRAB_START:
+	{
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_SLASH);
+		if (pHurt && pHurt->IsAlive())
+		{
+			if (pHurt->IsPlayer())
+			{
+				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
+				player->m_bNoSprint = true; // TO-DO: make grabbier
+				player->pev->velocity = (pev->origin - player->pev->origin) * gpGlobals->frametime; // TO-DO: figure out how to make it a pulling force
+				m_PlayerLocked = player; // use to continually apply pull force (in monster think)
+			}
+			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
+			{
+				// freeze movement somehow someway
+			}
+
+			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
+		}
+		else
+			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
+	}
+	break;
+
+	case GONOME_AE_ATTACK_GRAB_BITE:
+	{
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_POISON);
+	}
+	break;
+
 	default:
 		CBaseMonster::HandleAnimEvent(pEvent);
 		break;
@@ -689,6 +728,7 @@ void CFunghoul::Precache()
 	PRECACHE_MODEL("models/gonome.mdl");
 	PRECACHE_MODEL("sprites/bigspit.spr");
 
+	// TO-DO: isn't there a macro for this?
 	for (i = 0; i < ARRAYSIZE(pAttackHitSounds); i++)
 		PRECACHE_SOUND((char*)pAttackHitSounds[i]);
 
@@ -759,7 +799,7 @@ bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 {
 	if (m_iType != FUNGHOUL_INFECTOR && m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH)
 		return false; // no arms to swipe with (skill issue)
-	
+
 	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
