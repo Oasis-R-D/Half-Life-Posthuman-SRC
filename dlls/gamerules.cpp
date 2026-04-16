@@ -314,6 +314,10 @@ void CGameRules::RefreshSkillData()
 	gSkillData.babyvoltigoreHealth = GetSkillCvar("sk_babyvoltigore_health");
 	gSkillData.babyvoltigoreDmgPunch = GetSkillCvar("sk_babyvoltigore_dmg_punch");
 
+	gSkillData.funghoulHealth = GetSkillCvar("sk_funghoul_health");
+	gSkillData.funghoulDmgSlash = GetSkillCvar("sk_funghoul_dmg_slash");
+	gSkillData.funghoulDmgBite = GetSkillCvar("sk_funghoul_dmg_bite");
+
 	//Turret
 	gSkillData.turretHealth = GetSkillCvar("sk_turret_health");
 

@@ -13,10 +13,10 @@
 *
 ****/
 //=========================================================
-// Zombie
+// Funghoul
 //=========================================================
 
-// UNDONE: Don't flinch every time you get hit
+// 112, 8, 32 could be a good blood color
 
 #include "extdll.h"
 #include "util.h"
@@ -42,8 +42,6 @@
 #define GONOME_AE_ATTACK_GRAB_START 23 	// grab the enemy
 #define GONOME_AE_ATTACK_GRAB_BITE 24	// enemy is held
 										// none for letting go (instead staggers backwards (player broke free))
-
-#define ZOMBIE_FLINCH_DELAY 8 // at most one flinch every n secs
 
 // for the type variable
 #define FUNGHOUL 0
@@ -108,8 +106,8 @@ void CFunghoulGuts::Spawn()
 	{
 		SET_MODEL(edict(), "sprites/bigspit.spr");
 		pev->rendercolor.x = 128;
-		pev->rendercolor.x = 32;
-		pev->rendercolor.x = 128;
+		pev->rendercolor.y = 48;
+		pev->rendercolor.z = 0;
 	}
 
 	pev->frame = 0;
@@ -147,7 +145,7 @@ void CFunghoulGuts::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.gonomeDmgGuts, DMG_ACID);
+		pOther->TakeDamage(pev, pev, gSkillData.funghoulDmgBite, DMG_ACID);
 	}
 
 	SetThink(&CFunghoulGuts::SUB_Remove);
@@ -220,6 +218,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	void Spawn() override;
+	void MonsterThink() override;
 	void Precache() override;
 	void SetYawSpeed() override;
 	int Classify() override;
@@ -452,6 +451,26 @@ void CFunghoul::IdleSound()
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, pIdleSounds[RANDOM_LONG(0, ARRAYSIZE(pIdleSounds) - 1)], 1.0, ATTN_NORM, 0, pitch);
 }
 
+void CFunghoul::MonsterThink()
+{
+	auto player = m_PlayerLocked.Entity<CBasePlayer>();
+
+	if (player && player->IsAlive())
+	{
+		Vector towardsP = pev->origin - player->pev->origin;
+		player->pev->velocity = (towardsP) * 0.1;
+
+		if (towardsP.Length2D() > 48) // player escaped
+		{
+			m_PlayerLocked = NULL;
+			player->m_bNoSprint = false;
+			SetActivity(ACT_BIG_FLINCH); // stagger back
+		}
+	}
+
+	CBaseMonster::MonsterThink();
+}
+
 //=========================================================
 // HandleAnimEvent - catches the monster-specific messages
 // that occur when tagged animation frames are played.
@@ -467,13 +486,13 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
 			{
 				pHurt->pev->punchangle.z = -9;
-				pHurt->pev->punchangle.x = 5;
+				pHurt->pev->punchangle.x = 2;
 				pHurt->pev->velocity = pHurt->pev->velocity - gpGlobals->v_right * 25;
 			}
 			// Play a random attack hit sound
@@ -491,13 +510,13 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
 			{
 				pHurt->pev->punchangle.z = 9;
-				pHurt->pev->punchangle.x = 5;
+				pHurt->pev->punchangle.x = 2;
 				pHurt->pev->velocity = pHurt->pev->velocity + gpGlobals->v_right * 25;
 			}
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
@@ -578,7 +597,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 		m_pGonomeGuts = nullptr;
 	}
 	break;
-
+/*
 	case GONOME_AE_ATTACK_BITE_FIRST:
 	case GONOME_AE_ATTACK_BITE_SECOND:
 	case GONOME_AE_ATTACK_BITE_THIRD:
@@ -647,10 +666,10 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 	}
 	break;
-
+*/
 	case GONOME_AE_ATTACK_GRAB_START:
 	{
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
 		if (pHurt && pHurt->IsAlive())
 		{
 			if (pHurt->IsPlayer())
@@ -674,7 +693,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case GONOME_AE_ATTACK_GRAB_BITE:
 	{
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_POISON);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_POISON);
 	}
 	break;
 
@@ -697,7 +716,7 @@ void CFunghoul::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_RED; // TO-DO: custom color (replaces blue?)
-	pev->health = gSkillData.zombieHealth;
+	pev->health = gSkillData.funghoulHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.66;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -777,19 +796,7 @@ int CFunghoul::IgnoreConditions()
 	}
 	else if ((m_Activity == ACT_MELEE_ATTACK1) || (m_Activity == ACT_MELEE_ATTACK1))
 	{
-#if 0
-		if (pev->health < 20)
-			iIgnore |= (bits_COND_LIGHT_DAMAGE|bits_COND_HEAVY_DAMAGE);
-		else
-#endif
-		if (m_flNextFlinch >= gpGlobals->time)
-			iIgnore |= (bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE);
-	}
-
-	if ((m_Activity == ACT_SMALL_FLINCH) || (m_Activity == ACT_BIG_FLINCH))
-	{
-		if (m_flNextFlinch < gpGlobals->time)
-			m_flNextFlinch = gpGlobals->time + ZOMBIE_FLINCH_DELAY;
+		iIgnore |= (bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE);
 	}
 
 	return iIgnore;
@@ -913,31 +920,25 @@ void CFunghoul::SetActivity(Activity NewActivity)
 		m_pGonomeGuts = nullptr;
 	}
 
-	auto player = m_PlayerLocked.Entity<CBasePlayer>();
-
-	if (player)
-	{
-		if (NewActivity != ACT_MELEE_ATTACK1)
-		{
-			if (player && player->IsAlive())
-				player->EnableControl(true);
-
-			m_PlayerLocked = nullptr;
-		}
-	}
-
 	switch (NewActivity)
 	{
 	case ACT_MELEE_ATTACK1:
 		if (m_hEnemy)
 		{
-			if ((pev->origin - m_hEnemy->pev->origin).Length2D() >= 48)
+			if (m_iType != FUNGHOUL_INFECTOR)
 			{
-				iSequence = LookupSequence("attack1");
+				if ((pev->origin - m_hEnemy->pev->origin).Length2D() >= 48)
+				{
+					iSequence = LookupSequence("attack1");
+				}
+				else
+				{
+					iSequence = LookupSequence("attack2");
+				}
 			}
 			else
 			{
-				iSequence = LookupSequence("attack2");
+				iSequence = LookupSequence("attack2"); // TO-DO: grab anim
 			}
 		}
 		else
@@ -988,59 +989,4 @@ void CFunghoul::SetActivity(Activity NewActivity)
 
 	m_Activity = NewActivity; // Go ahead and set this so it doesn't keep trying when the anim is not present
 	m_IdealActivity = NewActivity;
-}
-
-//=========================================================
-// DEAD GONOME PROP
-//=========================================================
-class CDeadFunghoul : public CBaseMonster
-{
-public:
-	void Spawn() override;
-	int Classify() override { return CLASS_ALIEN_PASSIVE; }
-
-	bool KeyValue(KeyValueData* pkvd) override;
-
-	int m_iPose; // which sequence to display	-- temporary, don't need to save
-	static char* m_szPoses[3];
-};
-
-char* CDeadFunghoul::m_szPoses[] = {"dead_on_stomach1", "dead_on_back", "dead_on_side"};
-
-bool CDeadFunghoul::KeyValue(KeyValueData* pkvd)
-{
-	if (FStrEq(pkvd->szKeyName, "pose"))
-	{
-		m_iPose = atoi(pkvd->szValue);
-		return true;
-	}
-
-	return CBaseMonster::KeyValue(pkvd);
-}
-
-LINK_ENTITY_TO_CLASS(monster_funghoul_dead, CDeadFunghoul);
-
-//=========================================================
-// ********** DeadGonome SPAWN **********
-//=========================================================
-void CDeadFunghoul::Spawn()
-{
-	PRECACHE_MODEL("models/zombie.mdl");
-	SET_MODEL(ENT(pev), "models/zombie.mdl");
-
-	pev->effects = 0;
-	pev->sequence = 0;
-	m_bloodColor = BLOOD_COLOR_GREEN;
-
-	pev->sequence = LookupSequence(m_szPoses[m_iPose]);
-
-	if (pev->sequence == -1)
-	{
-		ALERT(at_console, "Dead gonome with bad pose\n");
-	}
-
-	// Corpses have less health
-	pev->health = 8;
-
-	MonsterInitDead();
 }

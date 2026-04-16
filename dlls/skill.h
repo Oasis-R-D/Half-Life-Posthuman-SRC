@@ -121,6 +121,10 @@ struct skilldata_t
 	float voltigoreDmgPunch;
 	float voltigoreDmgBeam;
 
+	float funghoulHealth;
+	float funghoulDmgSlash;
+	float funghoulDmgBite;
+
 	// Player Weapons
 	float plrDmgCrowbar;
 	float plrDmgSledge;

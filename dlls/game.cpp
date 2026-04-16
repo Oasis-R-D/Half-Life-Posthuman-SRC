@@ -899,6 +899,11 @@ void GameDLLInit()
 	REGISTER_SKILL_CVARS(babyvoltigore_health);
 	REGISTER_SKILL_CVARS(babyvoltigore_dmg_punch);
 
+	// Baby Voltigore
+	REGISTER_SKILL_CVARS(funghoul_health);
+	REGISTER_SKILL_CVARS(funghoul_dmg_slash);
+	REGISTER_SKILL_CVARS(funghoul_dmg_bite);
+
 	// PLAYER WEAPONS
 
 	// M727
