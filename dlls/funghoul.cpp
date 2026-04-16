@@ -487,12 +487,10 @@ void CFunghoul::MonsterThink()
 	if (player && player->IsAlive())
 	{
 		Vector towardsP = pev->origin - player->pev->origin;
-		player->pev->velocity = (towardsP) * 0.1;
-
 		if (towardsP.Length2D() > 48) // player escaped
 		{
 			m_PlayerLocked = NULL;
-			player->m_bNoSprint = false;
+			player->m_iSpeedOverride = -1;
 			SetActivity(ACT_BIG_FLINCH); // stagger back
 		}
 	}
@@ -704,8 +702,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			if (pHurt->IsPlayer())
 			{
 				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
-				player->m_bNoSprint = true; // TO-DO: make grabbier
-				player->pev->velocity = (pev->origin - player->pev->origin) * gpGlobals->frametime; // TO-DO: figure out how to make it a pulling force
+				player->m_iSpeedOverride = 40;
 				m_PlayerLocked = player; // use to continually apply pull force (in monster think)
 			}
 			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
@@ -903,6 +900,7 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 			player->EnableControl(true);
 
 		m_PlayerLocked = nullptr;
+		player->m_iSpeedOverride = -1;
 	}
 
 	CBaseMonster::Killed(pevAttacker, iGib);
@@ -958,14 +956,7 @@ void CFunghoul::SetActivity(Activity NewActivity)
 		{
 			if (m_iType != FUNGHOUL_INFECTOR)
 			{
-				if ((pev->origin - m_hEnemy->pev->origin).Length2D() >= 48)
-				{
-					iSequence = LookupSequence("attack1");
-				}
-				else
-				{
-					iSequence = LookupSequence("attack2");
-				}
+				iSequence = LookupSequence("attack1");
 			}
 			else
 			{

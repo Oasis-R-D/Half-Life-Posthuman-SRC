@@ -144,6 +144,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -2569,6 +2570,8 @@ void CBasePlayer::PreThink()
 	{
 		pev->maxspeed = 384;
 	}
+	if (m_iSpeedOverride != -1)
+		pev->maxspeed = m_iSpeedOverride;
 }
 
 /* Time based Damage works as follows: 
@@ -3554,6 +3557,8 @@ void CBasePlayer::Spawn()
 	m_bIsClimbing = false; // ROPEUPD
 	m_flNextChatTime = gpGlobals->time;
 	Hunger = 100;
+	m_iSpeedOverride = -1;
+	m_bNoMove = m_bNoSprint = false;
 	g_pGameRules->PlayerSpawn(this);
 }
 
