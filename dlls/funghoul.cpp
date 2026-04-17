@@ -339,6 +339,7 @@ Task_t tlFunghoulGrab[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_SET_FAIL_SCHEDULE, (float) SCHED_FUNGHOUL_STAGGER }, // TO-DO: flinch
+		{TASK_FACE_ENEMY, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_MELEE_ATTACK2},
 		{TASK_SET_ACTIVITY, (float)ACT_SPECIAL_ATTACK1},
 		{TASK_WAIT_INDEFINITE, (float)0}, // just cycle barnacle pull anim while barnacle hoists.
@@ -535,6 +536,7 @@ void CFunghoul::MonsterThink()
 		Vector towardsP = pev->origin - player->pev->origin;
 		if (towardsP.Length2D() > 64) // player escaped
 		{
+			TaskFail();
 			m_PlayerLocked = NULL;
 			player->m_iSpeedOverride = -1;
 		}
@@ -769,6 +771,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case GONOME_AE_ATTACK_GRAB_BITE:
 	{	// TO-DO: add sfx (blood too?)
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "funghoul/placeholderBITE.wav", 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_POISON);
 	}
 	break;
@@ -850,6 +853,8 @@ void CFunghoul::Precache()
 
 	PRECACHE_SOUND("funghoul/gonome_run.wav");
 	PRECACHE_SOUND("funghoul/gonome_eat.wav");
+
+	PRECACHE_SOUND("funghoul/placeholderBITE.wav");
 
 	PRECACHE_SOUND("bullchicken/bc_acid1.wav");
 	PRECACHE_SOUND("bullchicken/bc_spithit1.wav");
