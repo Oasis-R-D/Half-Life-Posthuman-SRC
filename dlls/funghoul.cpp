@@ -206,6 +206,7 @@ void CFunghoulGuts::Launch(entvars_t* pevOwner, Vector vecStart, Vector vecVeloc
 enum
 {
 	TASK_GONOME_GET_PATH_TO_ENEMY_CORPSE = LAST_COMMON_TASK + 1,
+	TASK_STAGGER,
 };
 
 
@@ -244,11 +245,13 @@ public:
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
 
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
+	bool CheckMeleeAttack2(float flDot, float flDist) override;
 
 	Schedule_t* GetScheduleOfType(int Type) override;
 
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
+	void RunTask(Task_t* pTask) override;
 	void StartTask(Task_t* pTask) override;
 
 	void SetActivity(Activity NewActivity) override;
@@ -289,7 +292,7 @@ LINK_ENTITY_TO_CLASS(monster_funghoul_advsec, CFunghoul); // gonome melee but ta
 //=========================================================
 enum
 {
-	SCHED_FUNGHOUL_BITING = LAST_COMMON_SCHEDULE + 1,
+	SCHED_FUNGHOUL_STAGGER = LAST_COMMON_SCHEDULE + 1,
 };
 
 const char* CFunghoul::pAttackHitSounds[] =
@@ -328,25 +331,67 @@ const char* CFunghoul::pPainSounds[] =
 };
 
 //=========================================================
-// enjoying a tasty snack
+// BarnacleVictimGrab - barnacle tongue just hit the monster,
+// so play a hit animation, then play a cycling pull animation
+// as the creature is hoisting the monster.
 //=========================================================
-Task_t tlFunghoulBiting[] =
+Task_t tlFunghoulGrab[] =
 	{
 		{TASK_STOP_MOVING, 0},
-		{TASK_SET_ACTIVITY, (float)ACT_EAT},
-		{TASK_WAIT_INDEFINITE, (float)0},
+		{TASK_SET_FAIL_SCHEDULE, (float) SCHED_FUNGHOUL_STAGGER }, // TO-DO: flinch
+		{TASK_PLAY_SEQUENCE, (float)ACT_MELEE_ATTACK2},
+		{TASK_SET_ACTIVITY, (float)ACT_SPECIAL_ATTACK1},
+		{TASK_WAIT_INDEFINITE, (float)0}, // just cycle barnacle pull anim while barnacle hoists.
+};
+
+Schedule_t slFunghoulGrab[] =
+	{
+		{tlFunghoulGrab,
+			ARRAYSIZE(tlFunghoulGrab),
+			bits_COND_HEAVY_DAMAGE,
+			bits_SOUND_NONE,
+			"Victim Grab"}};
+
+Task_t tlFunghoulStagger[] =
+{
+    { TASK_REMEMBER,     (float)bits_MEMORY_FLINCHED }, // Remember in my memory that I flinched
+    { TASK_STOP_MOVING,  0                           }, // Stop moving
+    { TASK_STAGGER, 0								 }, // Make a small flinch
+};
+
+Schedule_t slFunghoulStagger[] =
+{
+    {
+        tlFunghoulStagger,            // This schedule use the "tlSmallFlinch" tasks array
+        ARRAYSIZE(tlFunghoulStagger), // "ARRAYSIZE" will return 3 here and tell this schedule has 3 tasks
+        0,                        // No condition bit can interrupt this schedule
+        0,                        // No sound bit can interrupt this schedule
+        "Stagger"            // This schedule is named "Small Flinch"
+    },
+};
+
+/*
+//=========================================================
+// BarnacleVictimChomp - barnacle has pulled the prey to its
+// mouth. Victim should play the BARNCLE_CHOMP animation
+// once, then loop the BARNACLE_CHEW animation indefinitely
+//=========================================================
+Task_t tlFunghoulBiting[] = // probably uneeded, change pull loop above to the biting
+	{
+		{TASK_STOP_MOVING, 0},
+		{TASK_PLAY_SEQUENCE, (float)ACT_BARNACLE_CHOMP},
+		{TASK_SET_ACTIVITY, (float)ACT_BARNACLE_CHEW},
+		{TASK_WAIT_INDEFINITE, (float)0}, // just cycle barnacle pull anim while barnacle hoists.
 };
 
 Schedule_t slFunghoulBiting[] =
 	{
 		{tlFunghoulBiting,
 			ARRAYSIZE(tlFunghoulBiting),
-			bits_COND_HEAVY_DAMAGE,
-
 			0,
-			"Biting"},
-};
-
+			0,
+			"Barnacle Chomp"}};
+*/
 Task_t tlGonomeVictoryDance[] =
 	{
 		{TASK_STOP_MOVING, 0},
@@ -380,7 +425,8 @@ Schedule_t slGonomeVictoryDance[] =
 
 DEFINE_CUSTOM_SCHEDULES(CFunghoul){
 	slGonomeVictoryDance,
-	slFunghoulBiting,
+	slFunghoulGrab,
+	slFunghoulStagger,
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES(CFunghoul, CBaseMonster);
@@ -491,7 +537,6 @@ void CFunghoul::MonsterThink()
 		{
 			m_PlayerLocked = NULL;
 			player->m_iSpeedOverride = -1;
-			SetActivity(ACT_BIG_FLINCH); // stagger back
 		}
 	}
 
@@ -703,7 +748,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			{
 				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
 				player->m_iSpeedOverride = 40;
-				m_PlayerLocked = player; // use to continually apply pull force (in monster think)
+				m_PlayerLocked = player; // use to moniter player distance
 			}
 			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
 			{
@@ -715,14 +760,15 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 		else
 		{
 			if (!pHurt)
-				SetActivity(ACT_BIG_FLINCH); // stagger back
+			{
+			}
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 		}
 	}
 	break;
 
 	case GONOME_AE_ATTACK_GRAB_BITE:
-	{
+	{	// TO-DO: add sfx (blood too?)
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_POISON);
 	}
 	break;
@@ -822,22 +868,30 @@ int CFunghoul::IgnoreConditions()
 
 	if (m_Activity == ACT_RANGE_ATTACK1)
 	{
-		iIgnore |= bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE | bits_COND_ENEMY_TOOFAR | bits_COND_ENEMY_OCCLUDED;
+		iIgnore |= bits_COND_HEAVY_DAMAGE | bits_COND_ENEMY_TOOFAR | bits_COND_ENEMY_OCCLUDED;
 	}
-	else if ((m_Activity == ACT_MELEE_ATTACK1) || (m_Activity == ACT_MELEE_ATTACK1))
-	{
-		iIgnore |= (bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE);
-	}
+
+	iIgnore |= bits_COND_LIGHT_DAMAGE;
 
 	return iIgnore;
 }
 
 bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 {
-	if (m_iType != FUNGHOUL_INFECTOR && m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH)
+	if (m_iType == FUNGHOUL_INFECTOR || (m_iArmLh >= LIMBBREAK_THRESH && m_iArmRh >= LIMBBREAK_THRESH))
 		return false; // no arms to swipe with (skill issue)
 
-	if (flDist <= (m_iType != FUNGHOUL_INFECTOR ? 64.0 : 64.0) && flDot >= 0.7 && m_hEnemy)
+	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
+	{
+		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
+	}
+
+	return false;
+}
+
+bool CFunghoul::CheckMeleeAttack2(float flDot, float flDist)
+{
+	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
 	}
@@ -882,8 +936,10 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 {
 	if (Type == SCHED_VICTORY_DANCE)
 		return slGonomeVictoryDance;
-	else if (Type == SCHED_FUNGHOUL_BITING)
-		return slFunghoulBiting;
+	else if (Type == SCHED_MELEE_ATTACK2)
+		return slFunghoulGrab;
+	else if (Type == SCHED_FUNGHOUL_STAGGER)
+		return slFunghoulStagger;
 	else
 		return CBaseMonster::GetScheduleOfType(Type);
 }
@@ -908,6 +964,24 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 	}
 
 	CBaseMonster::Killed(pevAttacker, iGib);
+}
+
+void CFunghoul::RunTask(Task_t* pTask)
+{
+	switch (pTask->iTask)
+	{
+	case TASK_STAGGER:
+	{
+		if (m_fSequenceFinished)
+		{
+			TaskComplete();
+		}
+	}
+	break;
+	default:
+		CBaseMonster::RunTask(pTask);
+		break;
+	}
 }
 
 void CFunghoul::StartTask(Task_t* pTask)
@@ -935,7 +1009,23 @@ void CFunghoul::StartTask(Task_t* pTask)
 		}
 	}
 	break;
+	case TASK_STAGGER:
+	{
+		m_IdealActivity = ACT_BIG_FLINCH;
 
+		auto player = m_PlayerLocked.Entity<CBasePlayer>();
+
+		if (player && player->IsAlive())
+		{
+			Vector towardsP = pev->origin - player->pev->origin;
+			if (towardsP.Length2D() > 64) // player escaped
+			{
+				m_PlayerLocked = NULL;
+				player->m_iSpeedOverride = -1;
+			}
+		}
+	}
+	break;
 	default:
 		CBaseMonster::StartTask(pTask);
 		break;
@@ -958,18 +1048,21 @@ void CFunghoul::SetActivity(Activity NewActivity)
 	case ACT_MELEE_ATTACK1:
 		if (m_hEnemy)
 		{
-			if (m_iType != FUNGHOUL_INFECTOR)
-			{
-				iSequence = LookupSequence("attack1");
-			}
-			else
-			{
-				iSequence = LookupSequence("attack2"); // TO-DO: grab anim
-			}
+			iSequence = LookupSequence("attack1");
 		}
 		else
 		{
 			iSequence = LookupActivity(ACT_MELEE_ATTACK1);
+		}
+		break;
+	case ACT_MELEE_ATTACK2:
+		if (m_hEnemy)
+		{
+			iSequence = LookupSequence("attack2"); // TO-DO: grab anim
+		}
+		else
+		{
+			iSequence = LookupActivity(ACT_MELEE_ATTACK2);
 		}
 		break;
 	case ACT_RUN:
