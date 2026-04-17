@@ -771,7 +771,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case GONOME_AE_ATTACK_GRAB_BITE:
 	{	// TO-DO: add sfx (blood too?)
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "funghoul/placeholderBITE.wav", 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "funghoul/placeholderBITE.wav", 0.75, ATTN_STATIC, 0, 100 + RANDOM_LONG(-15, 5));
 		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_POISON);
 	}
 	break;
