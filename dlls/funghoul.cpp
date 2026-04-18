@@ -529,18 +529,56 @@ void CFunghoul::IdleSound()
 
 void CFunghoul::MonsterThink()
 {
-	auto player = m_PlayerLocked.Entity<CBasePlayer>();
-
-	if (player && player->IsAlive())
+	if (m_PlayerLocked)
 	{
-		Vector towardsP = pev->origin - player->pev->origin;
-		if (towardsP.Length2D() > 64) // player escaped
+		if (m_PlayerLocked->IsPlayer())
 		{
-			TaskFail();
-			m_PlayerLocked = NULL;
-			player->m_iSpeedOverride = -1;
+			auto player = m_PlayerLocked.Entity<CBasePlayer>();
+
+			if (player)
+			{
+				if (player->IsAlive())
+				{
+					Vector towardsP = pev->origin - player->pev->origin;
+					if (towardsP.Length2D() > 64) // player escaped
+					{
+						TaskFail();
+						m_PlayerLocked = NULL;
+						player->m_iSpeedOverride = -1;
+					}
+				}
+				else
+				{
+					TaskFail();
+					m_PlayerLocked = NULL;
+				}
+			}
+		}
+		else
+		{
+			auto monster = m_PlayerLocked.Entity<CBaseMonster>();
+
+			if (monster)
+			{
+				if (monster->IsAlive())
+				{
+					Vector towardsP = pev->origin - monster->pev->origin;
+					if (towardsP.Length2D() > 64) // player escaped
+					{
+						TaskFail();
+						m_PlayerLocked = NULL;
+					}
+				}
+				else // escape once enemy is dead
+				{
+					TaskFail();
+					m_PlayerLocked = NULL;
+				}
+			}
 		}
 	}
+	else if (m_Activity == ACT_SPECIAL_ATTACK1)
+		TaskFail(); // make sure that it cannot get stuck
 
 	CBaseMonster::MonsterThink();
 }
@@ -671,86 +709,17 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 		m_pGonomeGuts = nullptr;
 	}
 	break;
-/*
-	case GONOME_AE_ATTACK_BITE_FIRST:
-	case GONOME_AE_ATTACK_BITE_SECOND:
-	case GONOME_AE_ATTACK_BITE_THIRD:
-	{
-		if (m_hEnemy == nullptr || (pev->origin - m_hEnemy->pev->origin).Length() < 48)
-		{
-			// Unfreeze previous player if they were locked.
-			auto prevPlayer = m_PlayerLocked.Entity<CBasePlayer>();
-			m_PlayerLocked = nullptr;
-
-			if (prevPlayer && prevPlayer->IsAlive())
-			{
-				prevPlayer->EnableControl(true);
-			}
-
-			auto enemy = m_hEnemy.Entity<CBaseEntity>();
-
-			if (enemy && enemy->IsPlayer() && enemy->IsAlive())
-			{
-				static_cast<CBasePlayer*>(enemy)->EnableControl(false);
-				m_PlayerLocked = enemy;
-			}
-		}
-
-		// do stuff for this event.
-		//		ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_SLASH);
-		if (pHurt)
-		{
-			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
-			{
-				pHurt->pev->punchangle.x = 9;
-				pHurt->pev->velocity = pHurt->pev->velocity + gpGlobals->v_forward * 25;
-			}
-			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
-		}
-		else
-			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
-	}
-	break;
-
-	case GONOME_AE_ATTACK_BITE_FINISH:
-	{
-		auto enemy = m_PlayerLocked.Entity<CBasePlayer>();
-
-		if (enemy && enemy->IsAlive())
-		{
-			static_cast<CBasePlayer*>(enemy)->EnableControl(true);
-		}
-
-		m_PlayerLocked = nullptr;
-
-		// do stuff for this event.
-		//		ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.gonomeDmgOneBite, DMG_SLASH);
-		if (pHurt)
-		{
-			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
-			{
-				pHurt->pev->punchangle.x = 9;
-				pHurt->pev->velocity = pHurt->pev->velocity + gpGlobals->v_forward * 25;
-			}
-			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
-		}
-		else
-			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
-	}
-	break;
-*/
 	case GONOME_AE_ATTACK_GRAB_START:
 	{
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(74, gSkillData.funghoulDmgSlash/2, DMG_SLASH);
 		if (pHurt && pHurt->IsAlive())
 		{
+			m_PlayerLocked = pHurt; // use to moniter distance
 			if (pHurt->IsPlayer())
 			{
 				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
-				player->m_iSpeedOverride = 40;
-				m_PlayerLocked = player; // use to moniter player distance
+				player->m_iSpeedOverride = 30;
+				player->pev->velocity = player->pev->velocity * 0.5;
 			}
 			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
 			{
@@ -789,7 +758,7 @@ void CFunghoul::Spawn()
 {
 	Precache();
 
-	SET_MODEL(ENT(pev), "models/gonome.mdl");
+	SET_MODEL(ENT(pev), "models/funghoul.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
@@ -823,7 +792,7 @@ void CFunghoul::Precache()
 {
 	int i;
 
-	PRECACHE_MODEL("models/gonome.mdl");
+	PRECACHE_MODEL("models/funghoul.mdl");
 	PRECACHE_MODEL("sprites/bigspit.spr");
 
 	// TO-DO: isn't there a macro for this?
@@ -896,7 +865,7 @@ bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 
 bool CFunghoul::CheckMeleeAttack2(float flDot, float flDist)
 {
-	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
+	if (flDist <= 48.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
 	}
@@ -957,16 +926,32 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 		m_pGonomeGuts = nullptr;
 	}
 
-	auto player = m_PlayerLocked.Entity<CBasePlayer>();
-
-	if (player)
+	if (m_PlayerLocked)
 	{
-		if (player && player->IsAlive())
-			player->EnableControl(true);
+		if (m_PlayerLocked->IsPlayer())
+		{
+			auto player = m_PlayerLocked.Entity<CBasePlayer>();
 
-		m_PlayerLocked = nullptr;
-		player->m_iSpeedOverride = -1;
+			if (player)
+			{
+				if (player && player->IsAlive())
+					player->EnableControl(true);
+
+				player->m_iSpeedOverride = -1;
+			}
+		}
+		else
+		{
+			auto monster = m_PlayerLocked.Entity<CBaseMonster>();
+
+			if (monster)
+			{
+				// free movement
+			}
+		}
 	}
+
+	m_PlayerLocked = nullptr;
 
 	CBaseMonster::Killed(pevAttacker, iGib);
 }
@@ -1018,16 +1003,32 @@ void CFunghoul::StartTask(Task_t* pTask)
 	{
 		m_IdealActivity = ACT_BIG_FLINCH;
 
-		auto player = m_PlayerLocked.Entity<CBasePlayer>();
-
-		if (player && player->IsAlive())
+		if (m_PlayerLocked)
 		{
-			Vector towardsP = pev->origin - player->pev->origin;
-			if (towardsP.Length2D() > 64) // player escaped
+			if (m_PlayerLocked->IsPlayer())
 			{
-				m_PlayerLocked = NULL;
-				player->m_iSpeedOverride = -1;
+				auto player = m_PlayerLocked.Entity<CBasePlayer>();
+
+				if (player && player->IsAlive())
+				{
+					player->m_iSpeedOverride = -1;
+				}
 			}
+			else
+			{
+				auto monster = m_PlayerLocked.Entity<CBaseMonster>();
+
+				if (monster)
+				{
+					if (monster->IsAlive())
+					{
+						// free
+					}
+				}
+			}
+
+			TaskFail();
+			m_PlayerLocked = NULL;
 		}
 	}
 	break;
@@ -1053,7 +1054,7 @@ void CFunghoul::SetActivity(Activity NewActivity)
 	case ACT_MELEE_ATTACK1:
 		if (m_hEnemy)
 		{
-			iSequence = LookupSequence("attack1");
+			iSequence = LookupSequence("whip");
 		}
 		else
 		{
@@ -1063,7 +1064,7 @@ void CFunghoul::SetActivity(Activity NewActivity)
 	case ACT_MELEE_ATTACK2:
 		if (m_hEnemy)
 		{
-			iSequence = LookupSequence("attack2"); // TO-DO: grab anim
+			iSequence = LookupSequence("bite"); // TO-DO: grab anim
 		}
 		else
 		{
@@ -1075,11 +1076,11 @@ void CFunghoul::SetActivity(Activity NewActivity)
 		{
 			if ((pev->origin - m_hEnemy->pev->origin).Length() <= 512)
 			{
-				iSequence = LookupSequence("runshort");
+				iSequence = LookupSequence("run");
 			}
 			else
 			{
-				iSequence = LookupSequence("runlong");
+				iSequence = 2; // hopefully this is legal
 			}
 		}
 		else
