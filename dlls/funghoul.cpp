@@ -247,6 +247,7 @@ public:
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
 	bool CheckMeleeAttack2(float flDot, float flDist) override;
 
+	Schedule_t* GetSchedule() override;
 	Schedule_t* GetScheduleOfType(int Type) override;
 
 	void Killed(entvars_t* pevAttacker, int iGib) override;
@@ -424,10 +425,45 @@ Schedule_t slGonomeVictoryDance[] =
 		},
 };
 
+//=========================================================
+// InvestigateSound - sends a monster to the location of the
+// sound that was just heard, to check things out.
+//=========================================================
+Task_t tlFunghoulInvestigate[] =
+	{
+		{TASK_STOP_MOVING, (float)0},
+		{TASK_STORE_LASTPOSITION, (float)0},
+		{TASK_GET_PATH_TO_BESTSOUND, (float)0},
+		{TASK_FACE_IDEAL, (float)0},
+		{TASK_RUN_PATH, (float)0},
+		{TASK_WAIT_FOR_MOVEMENT, (float)0},
+		{TASK_PLAY_SEQUENCE, (float)ACT_IDLE},
+		{TASK_WAIT, (float)6},
+		{TASK_GET_PATH_TO_LASTPOSITION, (float)0},
+		{TASK_RUN_PATH, (float)0},
+		{TASK_WAIT_FOR_MOVEMENT, (float)0},
+		{TASK_CLEAR_LASTPOSITION, (float)0},
+};
+
+Schedule_t slFunghoulInvestigate[] =
+	{
+		{tlFunghoulInvestigate,
+			ARRAYSIZE(tlFunghoulInvestigate),
+			bits_COND_NEW_ENEMY |
+				bits_COND_SEE_FEAR |
+				bits_COND_LIGHT_DAMAGE |
+				bits_COND_HEAVY_DAMAGE |
+				bits_COND_HEAR_SOUND,
+
+			bits_SOUND_DANGER,
+			"FunghoulInvestigateSound"},
+};
+
 DEFINE_CUSTOM_SCHEDULES(CFunghoul){
 	slGonomeVictoryDance,
 	slFunghoulGrab,
 	slFunghoulStagger,
+	slFunghoulInvestigate,
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES(CFunghoul, CBaseMonster);
@@ -529,7 +565,7 @@ void CFunghoul::IdleSound()
 
 void CFunghoul::MonsterThink()
 {
-	if (m_PlayerLocked)
+	if (m_iType == FUNGHOUL_INFECTOR && m_PlayerLocked)
 	{
 		if (m_PlayerLocked->IsPlayer())
 		{
@@ -766,7 +802,7 @@ void CFunghoul::Spawn()
 	m_bloodColor = BLOOD_COLOR_RED; // TO-DO: custom color (replaces blue?)
 	pev->health = gSkillData.funghoulHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
-	m_flFieldOfView = 0.66;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
+	m_flFieldOfView = 0.75;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_afCapability = bits_CAP_DOORS_GROUP;
 
@@ -774,13 +810,25 @@ void CFunghoul::Spawn()
 	m_pGonomeGuts = nullptr;
 	m_PlayerLocked = nullptr;
 
+	m_flDistTooFar = 3072;
+	m_flDistLook = 3072; //idk if this is needed
+
 	// only have to compare the strings 3 times instead of every attack
 	if (FClassnameIs(pev, "monster_funghoul_advsec"))
+	{
 		m_iType = FUNGHOUL_ADVSEC;
+		pev->body = 2;
+	}
 	else if (FClassnameIs(pev, "monster_funghoul_infector"))
+	{
 		m_iType = FUNGHOUL_INFECTOR;
+		pev->body = 4;
+	}
 	else if (FClassnameIs(pev, "monster_funghoul_spitter"))
+	{
 		m_iType = FUNGHOUL_SPITTER;
+		pev->body = 3;
+	}
 
 	MonsterInit();
 }
@@ -865,6 +913,9 @@ bool CFunghoul::CheckMeleeAttack1(float flDot, float flDist)
 
 bool CFunghoul::CheckMeleeAttack2(float flDot, float flDist)
 {
+	if (m_iType != FUNGHOUL_INFECTOR)
+		return false;
+
 	if (flDist <= 48.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
@@ -875,6 +926,9 @@ bool CFunghoul::CheckMeleeAttack2(float flDot, float flDist)
 
 bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 {
+	if (m_iType != FUNGHOUL_SPITTER)
+		return false;
+
 	if (flDist < 256.0)
 		return false;
 
@@ -883,8 +937,6 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 		return false;
 	}
 
-	if (m_iType != FUNGHOUL_SPITTER)
-		return false;
 
 	if (flDist > 64.0 && flDist <= 784.0 && flDot >= 0.5 && gpGlobals->time >= m_flNextThrowTime)
 	{
@@ -906,6 +958,28 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 	return false;
 }
 
+//=========================================================
+// Get Schedule!
+//=========================================================
+Schedule_t* CFunghoul::GetSchedule()
+{
+	if (HasConditions(bits_COND_HEAR_SOUND) && !HasConditions(bits_COND_SEE_ENEMY)) // investigate sounds
+	{
+		CSound* pSound;
+		pSound = PBestSound();
+		ASSERT(pSound != NULL);
+		if (pSound)
+		{
+			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
+			{
+				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			}
+		}
+	}
+
+	return CBaseMonster::GetSchedule();
+}
+
 Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 {
 	if (Type == SCHED_VICTORY_DANCE)
@@ -914,6 +988,8 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 		return slFunghoulGrab;
 	else if (Type == SCHED_FUNGHOUL_STAGGER)
 		return slFunghoulStagger;
+	else if (Type == SCHED_INVESTIGATE_SOUND)
+		return slFunghoulInvestigate; // override this
 	else
 		return CBaseMonster::GetScheduleOfType(Type);
 }
@@ -1003,7 +1079,7 @@ void CFunghoul::StartTask(Task_t* pTask)
 	{
 		m_IdealActivity = ACT_BIG_FLINCH;
 
-		if (m_PlayerLocked)
+		if (m_iType == FUNGHOUL_INFECTOR && m_PlayerLocked)
 		{
 			if (m_PlayerLocked->IsPlayer())
 			{
