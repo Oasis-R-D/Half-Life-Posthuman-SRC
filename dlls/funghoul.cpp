@@ -27,6 +27,8 @@
 #include "soundent.h"
 #include "player.h"
 #include "animation.h"
+#include "Blooddrops.h"
+#include "weapons.h"
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -495,8 +497,14 @@ void CFunghoul::SetYawSpeed()
 	pev->yaw_speed = ys;
 }
 
+// TraceAttack fully overwritten to reduce blood amount (performance in large hordes)
 void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
+	if ((bitsDamageType & DMG_FUNGUS) != 0)
+	{
+		return;
+	}
+
 	if (m_iType == FUNGHOUL_ADVSEC)
 	{
 		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
@@ -517,7 +525,80 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 			}
 		}
 	}
-	CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+
+	Vector vecOrigin = ptr->vecEndPos;
+	int BLDAMNT;
+
+	BLDAMNT = floor(flDamage / 3.33);
+
+	if (0 != pev->takedamage)
+	{
+		m_LastHitGroup = ptr->iHitgroup;
+		if (g_iSkillLevel != SKILL_HARD)
+		{
+			switch (ptr->iHitgroup)
+			{
+			case HITGROUP_GENERIC:
+				break;
+			case HITGROUP_HEAD:
+				flDamage *= gSkillData.monHead;
+				break;
+			case HITGROUP_CHEST:
+				flDamage *= gSkillData.monChest;
+				break;
+			case HITGROUP_STOMACH:
+				flDamage *= gSkillData.monStomach;
+				break;
+			case HITGROUP_LEFTARM:
+			case HITGROUP_RIGHTARM:
+				flDamage *= gSkillData.monArm;
+				break;
+			case HITGROUP_LEFTLEG:
+			case HITGROUP_RIGHTLEG:
+				flDamage *= gSkillData.monLeg;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			switch (ptr->iHitgroup)
+			{
+			case HITGROUP_GENERIC:
+				break;
+			case HITGROUP_HEAD:
+				flDamage *= 6;
+				break;
+			case HITGROUP_CHEST:
+				flDamage *= 1.125;
+				break;
+			case HITGROUP_STOMACH:
+				flDamage *= 1;
+				break;
+			case HITGROUP_LEFTARM:
+			case HITGROUP_RIGHTARM:
+				flDamage *= 0.8;
+				break;
+			case HITGROUP_LEFTLEG:
+			case HITGROUP_RIGHTLEG:
+				flDamage *= 0.8;
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (BloodColor() != DONT_BLEED)
+		{
+			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
+			TraceBleed(floor(flDamage/2.33), vecDir, ptr, bitsDamageType);
+			//Spawn blud dwops UwU
+			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
+		}
+
+		AddMultiDamage(pevAttacker, this, flDamage, bitsDamageType);
+	}
 }
 
 bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
