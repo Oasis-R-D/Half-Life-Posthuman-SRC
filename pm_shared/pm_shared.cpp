@@ -2521,7 +2521,7 @@ void PM_NoClip()
 	}
 	wishvel[2] += pmove->cmd.upmove;
 
-	VectorMA(pmove->origin, pmove->frametime, wishvel, pmove->origin);
+	VectorMA(pmove->origin, pmove->frametime, wishvel*2, pmove->origin);
 
 	// Zero out the velocity so that we don't accumulate a huge downward velocity from
 	//  gravity, etc.

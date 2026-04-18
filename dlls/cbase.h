@@ -130,6 +130,7 @@ typedef void (CBaseEntity::*USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCalle
 #define CLASS_RACE_X 18 // Race X military
 #define CLASS_OHTHEMISERY 19 // Everybody wants to be my nemesis!
 #define CLASS_HALLUCINATION 20 // Lucigast and friends
+#define CLASS_FUNGAL 21 // Lucigast and friends
 
 class CBaseEntity;
 class CBaseToggle;

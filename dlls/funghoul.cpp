@@ -473,7 +473,7 @@ IMPLEMENT_CUSTOM_SCHEDULES(CFunghoul, CBaseMonster);
 //=========================================================
 int CFunghoul::Classify()
 {
-	return CLASS_ALIEN_MONSTER;
+	return CLASS_FUNGAL;
 }
 
 //=========================================================
@@ -484,7 +484,7 @@ void CFunghoul::SetYawSpeed()
 {
 	int ys;
 
-	ys = 120;
+	ys = 192;
 
 #if 0
 	switch ( m_Activity )
@@ -497,12 +497,13 @@ void CFunghoul::SetYawSpeed()
 
 void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
+	if (m_iType == FUNGHOUL_ADVSEC)
 	{
-		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
+		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 		{
-			if (m_iType == FUNGHOUL_ADVSEC)
+			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
+
 				if (g_iSkillLevel != SKILL_HARD)
 				{
 					flDamage = round(flDamage * 0.8);
@@ -515,7 +516,6 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 					UTIL_Sparks(ptr->vecEndPos);
 			}
 		}
-	
 	}
 	CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	m_bloodColor = BLOOD_COLOR_RED; // switch it back to red
@@ -524,6 +524,7 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
 	// Take 15% damage from bullets
+	/*
 	if (bitsDamageType == DMG_BULLET)
 	{
 		Vector vecDir = pev->origin - (pevInflictor->absmin + pevInflictor->absmax) * 0.5;
@@ -532,6 +533,7 @@ bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, floa
 		pev->velocity = pev->velocity + vecDir * flForce;
 		flDamage *= 0.15;
 	}
+	*/
 
 	// HACK HACK -- until we fix this.
 	if (IsAlive())
@@ -597,9 +599,15 @@ void CFunghoul::MonsterThink()
 			{
 				if (monster->IsAlive())
 				{
+					monster->m_hEnemy = this;
+					monster->m_movementGoal = MOVEGOAL_NONE;
+					monster->m_flDistLook = 128;
+					monster->m_flDistTooFar = 128;
 					Vector towardsP = pev->origin - monster->pev->origin;
 					if (towardsP.Length2D() > 64) // player escaped
 					{
+						monster->m_flDistLook = 1024;
+						monster->m_flDistTooFar = 1024;
 						TaskFail();
 						m_PlayerLocked = NULL;
 					}
@@ -797,7 +805,14 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			}
 			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
 			{
-				// freeze movement somehow someway
+				auto monster = m_PlayerLocked.Entity<CBaseMonster>();
+				if (monster)
+				{
+					monster->m_hEnemy = this;
+					monster->m_movementGoal = MOVEGOAL_NONE;
+					monster->m_flDistLook = 128;
+					monster->m_flDistTooFar = 128;
+				}
 			}
 
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackHitSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackHitSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));

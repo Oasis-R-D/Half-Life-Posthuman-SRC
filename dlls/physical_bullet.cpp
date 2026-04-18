@@ -510,8 +510,14 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	chTextureType = 0;
 
 	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+	{
 		// hit body
+
+		if (pEntity->Classify() == CLASS_FUNGAL)
+			return 1.33f; // soft flesh
+
 		chTextureType = CHAR_TEX_FLESH;
+	}
 	else if (pEntity->IsMachine(pEntity))
 	{
 		chTextureType = CHAR_TEX_METAL;
