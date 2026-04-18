@@ -35,10 +35,6 @@
 #define ZOMBIE_AE_ATTACK_LEFT 0x02
 #define ZOMBIE_AE_ATTACK_GUTS_GRAB 0x03
 #define ZOMBIE_AE_ATTACK_GUTS_THROW 4
-#define GONOME_AE_ATTACK_BITE_FIRST 19
-#define GONOME_AE_ATTACK_BITE_SECOND 20
-#define GONOME_AE_ATTACK_BITE_THIRD 21
-#define GONOME_AE_ATTACK_BITE_FINISH 22
 #define GONOME_AE_ATTACK_GRAB_START 23 	// grab the enemy
 #define GONOME_AE_ATTACK_GRAB_BITE 24	// enemy is held
 										// none for letting go (instead staggers backwards (player broke free))
@@ -243,6 +239,7 @@ public:
 	bool CheckRangeAttack2(float flDot, float flDist) override { return false; }
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType) override;
+	CBaseEntity* CheckTraceHullAttack(float flDist, int iDamage, int iDmgType) override;
 
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
 	bool CheckMeleeAttack2(float flDot, float flDist) override;
@@ -342,7 +339,9 @@ Task_t tlFunghoulGrab[] =
 		{TASK_SET_FAIL_SCHEDULE, (float) SCHED_FUNGHOUL_STAGGER }, // TO-DO: flinch
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_MELEE_ATTACK2},
+		{TASK_FACE_ENEMY, (float)0},
 		{TASK_SET_ACTIVITY, (float)ACT_SPECIAL_ATTACK1},
+		{TASK_FACE_ENEMY, (float)0},
 		{TASK_WAIT_INDEFINITE, (float)0}, // just cycle barnacle pull anim while barnacle hoists.
 };
 
@@ -617,6 +616,45 @@ void CFunghoul::MonsterThink()
 		TaskFail(); // make sure that it cannot get stuck
 
 	CBaseMonster::MonsterThink();
+}
+
+//=========================================================
+// CheckTraceHullAttack - expects a length to trace, amount
+// of damage to do, and damage type. Returns a pointer to
+// the damaged entity in case the monster wishes to do
+// other stuff to the victim (punchangle, etc)
+//
+// Used for many contact-range melee attacks. Bites, claws, etc.
+//=========================================================
+CBaseEntity* CFunghoul::CheckTraceHullAttack(float flDist, int iDamage, int iDmgType)
+{
+	TraceResult tr;
+
+	UTIL_MakeAimVectors(pev->angles);
+
+	Vector vecStart = pev->origin;
+	vecStart.z += pev->size.z * 0.5;
+	Vector vecEnd = vecStart + (gpGlobals->v_forward * flDist);
+
+	UTIL_TraceHull(vecStart, vecEnd, dont_ignore_monsters, head_hull, ENT(pev), &tr);
+
+	if (tr.pHit)
+	{
+		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
+
+		CFunghoul* pFunghoul = dynamic_cast<CFunghoul*>(pEntity);
+		if (pFunghoul)
+			return NULL; // no friendly fire
+
+		if (iDamage > 0)
+		{
+			pEntity->TakeDamage(pev, pev, iDamage, iDmgType);
+		}
+
+		return pEntity;
+	}
+
+	return NULL;
 }
 
 //=========================================================

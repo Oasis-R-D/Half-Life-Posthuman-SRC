@@ -300,7 +300,7 @@ public:
 	bool FShouldEat();				// see if a monster is 'hungry'
 	void Eat(float flFullDuration); // make the monster 'full' for a while.
 
-	CBaseEntity* CheckTraceHullAttack(float flDist, int iDamage, int iDmgType);
+	virtual CBaseEntity* CheckTraceHullAttack(float flDist, int iDamage, int iDmgType);
 	bool FacingIdeal();
 
 	bool FCheckAITrigger(); // checks and, if necessary, fires the monster's trigger target.

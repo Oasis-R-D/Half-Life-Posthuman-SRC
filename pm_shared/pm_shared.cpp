@@ -2501,90 +2501,31 @@ PM_NoClip
 
 ====================
 */
-void PM_NoClip(float factor, float maxacceleration) // HL2: GoldSource noclip
+void PM_NoClip()
 {
+	int i;
 	Vector wishvel;
-	Vector forward, right, up;
-	Vector wishdir;
-	float wishspeed;
-	float maxspeed = pmove->maxspeed * factor;
-
-
-	AngleVectors(pmove->cmd.viewangles, &forward, &right, &up); // Determine movement angles
-
-	//if (pmove->cmd.buttons & IN_SPEED)
-	//{
-	//	factor /= 2.0f;
-	//}
+	float fmove, smove;
+	//	float		currentspeed, addspeed, accelspeed;
 
 	// Copy movement amounts
-	float fmove = pmove->cmd.forwardmove * factor;
-	float smove = pmove->cmd.sidemove * factor;
+	fmove = pmove->cmd.forwardmove;
+	smove = pmove->cmd.sidemove;
 
-	VectorNormalize(forward); // Normalize remainder of vectors
-	VectorNormalize(right);	  //
+	VectorNormalize(pmove->forward);
+	VectorNormalize(pmove->right);
 
-	for (int i = 0; i < 3; i++) // Determine x and y parts of velocity
-		wishvel[i] = forward[i] * fmove + right[i] * smove;
-	wishvel[2] += pmove->cmd.upmove * factor;
-
-	VectorCopy(wishvel, wishdir); // Determine maginitude of speed of move
-	wishspeed = VectorNormalize(wishdir);
-
-	//
-	// Clamp to server defined max speed
-	//
-	if (wishspeed > maxspeed)
+	for (i = 0; i < 3; i++) // Determine x and y parts of velocity
 	{
-		VectorScale(wishvel, maxspeed / wishspeed, wishvel);
-		wishspeed = maxspeed;
+		wishvel[i] = pmove->forward[i] * fmove + pmove->right[i] * smove;
 	}
+	wishvel[2] += pmove->cmd.upmove;
 
-	if (maxacceleration > 0.0)
-	{
-		// Set pmove velocity
-		PM_Accelerate(wishdir, wishspeed, maxacceleration);
+	VectorMA(pmove->origin, pmove->frametime, wishvel, pmove->origin);
 
-		float spd = pmove->velocity.Length();
-		if (spd < 1.0f)
-		{
-			pmove->velocity = vec3_origin;
-			return;
-		}
-
-		// Bleed off some speed, but if we have less than the bleed
-		//  threshhold, bleed the theshold amount.
-		float control = (spd < maxspeed / 4.0) ? maxspeed / 4.0 : spd;
-
-		float friction = 4 * pmove->friction;
-
-		// Add the amount to the drop amount.
-		float drop = control * friction * pmove->frametime;
-
-		// scale the velocity
-		float newspeed = spd - drop;
-		if (newspeed < 0)
-			newspeed = 0;
-
-		// Determine proportion of old speed we are using.
-		newspeed /= spd;
-		VectorScale(pmove->velocity, newspeed, pmove->velocity);
-	}
-	else
-	{
-		VectorCopy(wishvel, pmove->velocity);
-	}
-
-	// Just move ( don't clip or anything )
-	Vector out;
-	VectorMA(pmove->origin, pmove->frametime, pmove->velocity, out);
-	pmove->origin = out;
-
-	// Zero out velocity if in noaccel mode
-	if (maxacceleration < 0.0f)
-	{
-		pmove->velocity = vec3_origin;
-	}
+	// Zero out the velocity so that we don't accumulate a huge downward velocity from
+	//  gravity, etc.
+	VectorClear(pmove->velocity);
 }
 
 // Only allow bunny jumping up to 1.7x server / player maxspeed setting
@@ -3186,7 +3127,7 @@ void PM_PlayerMove(qboolean server)
 		break;
 
 	case MOVETYPE_NOCLIP:
-		PM_NoClip(5, 5);
+		PM_NoClip();
 		break;
 
 	case MOVETYPE_TOSS:
