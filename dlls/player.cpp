@@ -108,7 +108,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iWeaponFlash, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iWeaponStatus, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_fLongJump, FIELD_BOOLEAN),
-		DEFINE_FIELD(CBasePlayer, m_bNoMove, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_bNoMove, FIELD_BOOLEAN), 
 		DEFINE_FIELD(CBasePlayer, m_bPrehuman, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_fInitHUD, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_tbdPrev, FIELD_TIME),
@@ -623,10 +623,10 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			ffound = true;
 		}
 
-		if ((bitsDamage & (DMG_POISON | DMG_PARALYZE)) != 0)
+		if ((bitsDamage & (DMG_POISON | DMG_PARALYZE | DMG_FUNGUS)) != 0)
 		{
 			SetSuitUpdate("!HEV_DMG3", false, SUIT_NEXT_IN_1MIN); // blood toxins detected
-			bitsDamage &= ~(DMG_POISON | DMG_PARALYZE);
+			bitsDamage &= ~(DMG_POISON | DMG_PARALYZE | DMG_FUNGUS);
 			ffound = true;
 		}
 
@@ -2712,6 +2712,10 @@ void CBasePlayer::CheckTimeBasedDamage()
 			case itbd_SlowFreeze:
 				TakeDamage(pev, pev, SLOWFREEZE_DAMAGE, DMG_GENERIC);
 				bDuration = SLOWFREEZE_DURATION;
+				break;
+			case itbd_Fungus:
+				TakeDamage(pev, pev, POISON_DAMAGE, DMG_GENERIC);
+				bDuration = POISON_DURATION * ((g_iSkillLevel == SKILL_HARD) ? 4 : 2);
 				break;
 			default:
 				bDuration = 0;

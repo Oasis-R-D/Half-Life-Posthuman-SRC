@@ -50,6 +50,7 @@ int giDmgFlags[NUM_DMG_TYPES] =
 		DMG_FALL,
 		DMG_PARALYZE,
 		DMG_HUNGER,
+		DMG_FUNGUS,
 };
 
 bool CHudHealth::Init()

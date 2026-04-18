@@ -142,7 +142,7 @@ void CFunghoulGuts::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		pOther->TakeDamage(pev, pev, gSkillData.funghoulDmgBite, DMG_ACID);
+		pOther->TakeDamage(pev, pev, gSkillData.funghoulDmgBite, DMG_FUNGUS);
 	}
 
 	SetThink(&CFunghoulGuts::SUB_Remove);
@@ -518,7 +518,6 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		}
 	}
 	CBaseMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
-	m_bloodColor = BLOOD_COLOR_RED; // switch it back to red
 }
 
 bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
@@ -680,7 +679,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash right!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH | DMG_FUNGUS);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -704,7 +703,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 		// do stuff for this event.
 		//		ALERT( at_console, "Slash left!\n" );
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgSlash, DMG_SLASH | DMG_FUNGUS);
 		if (pHurt)
 		{
 			if ((pHurt->pev->flags & (FL_MONSTER | FL_CLIENT)) != 0)
@@ -793,7 +792,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 	case GONOME_AE_ATTACK_GRAB_START:
 	{
-		CBaseEntity* pHurt = CheckTraceHullAttack(74, gSkillData.funghoulDmgSlash/2, DMG_SLASH);
+		CBaseEntity* pHurt = CheckTraceHullAttack(74, gSkillData.funghoulDmgSlash/2, DMG_SLASH | DMG_FUNGUS);
 		if (pHurt && pHurt->IsAlive())
 		{
 			m_PlayerLocked = pHurt; // use to moniter distance
@@ -830,7 +829,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	case GONOME_AE_ATTACK_GRAB_BITE:
 	{	// TO-DO: add sfx (blood too?)
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "funghoul/placeholderBITE.wav", 0.75, ATTN_STATIC, 0, 100 + RANDOM_LONG(-15, 5));
-		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_POISON);
+		CBaseEntity* pHurt = CheckTraceHullAttack(70, gSkillData.funghoulDmgBite, DMG_FUNGUS | DMG_IGNOREARMOR);
 	}
 	break;
 
