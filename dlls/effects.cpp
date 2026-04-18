@@ -1771,7 +1771,7 @@ bool CBlood::KeyValue(KeyValueData* pkvd)
 			SetColor((byte)32); // corrupted blood color
 			break;
 		case 3:
-			SetColor(BLOOD_COLOR_CYAN);
+			SetColor(BLOOD_COLOR_INFECTION);
 			break;
 		case 2:
 			SetColor(BLOOD_COLOR_GREEN);
@@ -1911,7 +1911,7 @@ bool CBloodSpray::KeyValue(KeyValueData* pkvd)
 			SetColor((byte)32); // corrupted blood color
 			break;
 		case 3:
-			SetColor(BLOOD_COLOR_CYAN);
+			SetColor(BLOOD_COLOR_INFECTION);
 			break;
 		case 2:
 			SetColor(BLOOD_COLOR_GREEN);

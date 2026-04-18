@@ -1975,12 +1975,13 @@ void EV_Particles(event_args_t* args)
 					constchar2 = "engine_blood_impact_rx.txt";
 					constchar3 = "blood_effects_cluster_rx.txt";
 					break;
-				case BLOOD_COLOR_CYAN:
-					G = 255;
-					B = 140;
+				case BLOOD_COLOR_INFECTION:
+					R = 128;
+					G = 54;
+					B = 32;
 					constchar = "Bbloodspot";
-					constchar2 = "engine_blood_impact_healing.txt";
-					constchar3 = "blood_effects_cluster_healing.txt";
+					constchar2 = "engine_blood_impact_fung.txt";
+					constchar3 = "blood_effects_cluster_fung.txt";
 					break;
 				default:
 					return;
@@ -2030,8 +2031,8 @@ void EV_Particles(event_args_t* args)
 				case BLOOD_COLOR_GREEN:
 					gParticleEngine.CreateSystem("engine_blood_impact_rx.txt", args->origin, gpGlobals->v_up, 0);
 					break;
-				case BLOOD_COLOR_CYAN:
-					gParticleEngine.CreateSystem("engine_blood_impact_healing.txt", args->origin, gpGlobals->v_up, 0);
+				case BLOOD_COLOR_INFECTION:
+					gParticleEngine.CreateSystem("engine_blood_impact_fung.txt", args->origin, gpGlobals->v_up, 0);
 					break;
 			}
 			break;
@@ -2063,11 +2064,12 @@ void EV_Particles(event_args_t* args)
 					constchar = "xbloodspot";
 					constchar2 = "engine_blood_impact_rx.txt";
 					break;
-				case BLOOD_COLOR_CYAN:
-					G = 255;
-					B = 140;
+				case BLOOD_COLOR_INFECTION:
+					R = 128;
+					G = 54;
+					B = 32;
 					constchar = "Bbloodspot";
-					constchar2 = "engine_blood_impact_healing.txt";
+					constchar2 = "engine_blood_impact_fung.txt";
 					break;
 				default:
 					return;

@@ -118,7 +118,7 @@ void CPhysblood::Spawn()
 		case BLOOD_COLOR_RED: pev->rendercolor = Vector(RANDOM_LONG(102, 200), 0, 0); break;
 		case BLOOD_COLOR_YELLOW: pev->rendercolor = Vector(199, 195, 55); break;
 		case BLOOD_COLOR_GREEN: pev->rendercolor = Vector(185, 235, 85); break;
-		case BLOOD_COLOR_CYAN: pev->rendercolor = Vector(RANDOM_LONG(16, 18), RANDOM_LONG(253, 255), RANDOM_LONG(190, 192)); break;
+		case BLOOD_COLOR_INFECTION: pev->rendercolor = Vector(128, 54, 32); break;
 		case NULL: pev->rendercolor = Vector(115, 205, 255); pev->renderamt = 125; pev->rendermode = kRenderTransAdd; break; // water
 		default: pev->rendercolor = Vector(RANDOM_LONG(0, 255), RANDOM_LONG(0, 255), RANDOM_LONG(0, 255)); break; // corruption
 	}
@@ -160,7 +160,7 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_XBLOODSPRAY1, DECAL_XBLOODSPRAY7), 6);
 	}
-	else if (m_BloodType == BLOOD_COLOR_CYAN)
+	else if (m_BloodType == BLOOD_COLOR_INFECTION)
 	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3), 6);
 	}
@@ -188,7 +188,9 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 void CPhysblood::AirThink()
 {
 	pev->nextthink = gpGlobals->time + 0.05f;
-	if (m_BloodType == BLOOD_COLOR_CYAN && !m_isPool)
+	
+	/* // WAS HEALING WATER
+	if (m_BloodType == BLOOD_COLOR_INFECTION && !m_isPool)
 	{
 		CBaseEntity* pObject = NULL;
 		pObject = UTIL_FindEntityInSphere(pObject, pev->origin, 4);
@@ -201,6 +203,7 @@ void CPhysblood::AirThink()
 			}
 		}
 	}
+	*/
 
 	if (pev->waterlevel == 0)
 		return;

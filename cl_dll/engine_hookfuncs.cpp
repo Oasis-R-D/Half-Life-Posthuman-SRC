@@ -46,7 +46,7 @@ extern model_t* cl_sprite_shell;
 #define BLOOD_COLOR_RED (byte)247
 #define BLOOD_COLOR_YELLOW (byte)195
 #define BLOOD_COLOR_GREEN (byte)176
-#define BLOOD_COLOR_CYAN (byte)43
+#define BLOOD_COLOR_INFECTION (byte)43
 
 // texture types
 #define CHAR_TEX_CONCRETE 'C' 
@@ -299,9 +299,10 @@ FuncHook(R_BloodSprite, void, float* org, int colorindex, int modelIndex, int mo
 			G = 235;
 			B = 85;
 			break;
-		case BLOOD_COLOR_CYAN:
-			G = 255;
-			B = 140;
+		case BLOOD_COLOR_INFECTION:
+			R = 128;
+			G = 54;
+			B = 32;
 			break;
 		default:
 			if (gEngfuncs.pfnRandomLong(0, 1) == 1)

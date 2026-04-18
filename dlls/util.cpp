@@ -40,8 +40,8 @@ int UTIL_BloodPuff(TraceResult tr, int bloodcolor)
 		spr->SetTransparency(kRenderGlow, 128, 128, 0, 128, kRenderFxNoDissipation);
 	else if (bloodcolor == BLOOD_COLOR_RED)
 		spr->SetTransparency(kRenderGlow, 128, 0, 0, 128, kRenderFxNoDissipation);
-	else if (bloodcolor == BLOOD_COLOR_CYAN)
-		spr->SetTransparency(kRenderGlow, 0, 128, 128, 128, kRenderFxNoDissipation);
+	else if (bloodcolor == BLOOD_COLOR_INFECTION)
+		spr->SetTransparency(kRenderGlow, 128, 54, 32, 128, kRenderFxNoDissipation);
 	else if (bloodcolor == BLOOD_COLOR_GREEN)
 		spr->SetTransparency(kRenderGlow, 185, 235, 85, 128, kRenderFxNoDissipation);
 	else
@@ -1260,7 +1260,7 @@ void UTIL_BloodDecalTrace(TraceResult* pTrace, int bloodColor)
 			UTIL_DecalTrace(pTrace, DECAL_YBLOOD1 + RANDOM_LONG(0, 4), 16);
 		else if (bloodColor == BLOOD_COLOR_GREEN)
 			UTIL_DecalTrace(pTrace, DECAL_XBLOOD1 + RANDOM_LONG(0, 4), 16);
-		else if (bloodColor == BLOOD_COLOR_CYAN)
+		else if (bloodColor == BLOOD_COLOR_INFECTION)
 			UTIL_DecalTrace(pTrace, DECAL_BBLOOD1 + RANDOM_LONG(0, 2), 16);
 	}
 }

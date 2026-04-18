@@ -475,7 +475,7 @@ void CBaseMonster::BecomeDead()
 
 bool CBaseMonster::ShouldGibMonster(int iGib)
 {
-	if ((iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE) || (iGib == GIB_ALWAYS || m_bloodColor == BLOOD_COLOR_CYAN))
+	if ((iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE) || iGib == GIB_ALWAYS)
 		return true;
 
 	return false;

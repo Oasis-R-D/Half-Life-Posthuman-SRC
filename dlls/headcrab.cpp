@@ -575,7 +575,7 @@ Schedule_t* CBabyCrab::GetScheduleOfType(int Type)
 
 	return CHeadCrab::GetScheduleOfType(Type);
 }
-
+/*
 class CHeadcrabSuper : public CHeadCrab
 {
 	virtual float GetDamageAmount()
@@ -600,7 +600,7 @@ class CHeadcrabSuper : public CHeadCrab
 		pev->view_ofs = Vector(0, 0, 20); // position of the eyes relative to monster's origin.
 		pev->yaw_speed = 5;				  //!!! should we put this in the monster's changeanim function since turn rates may vary with state/anim?
 
-		m_bloodColor = BLOOD_COLOR_CYAN;
+		m_bloodColor = BLOOD_COLOR_INFECTION;
 		m_flFieldOfView = 0.5;			  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 		m_MonsterState = MONSTERSTATE_NONE;
 
@@ -762,3 +762,4 @@ class CSHSpr : public CBaseEntity
 };
 
 LINK_ENTITY_TO_CLASS(sh_spr, CSHSpr);
+*/
