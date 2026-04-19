@@ -605,6 +605,8 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	m_lifeTime = gpGlobals->time + 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
+	if (m_bloodColor == BLOOD_COLOR_INFECTION)
+		m_bShouldPool = false;
 }
 
 std::vector<gib_data_t> CoolerGib::GetNPCgibs(CBaseEntity* pVictim)

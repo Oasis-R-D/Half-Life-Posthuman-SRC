@@ -522,13 +522,27 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 
 	if (0 != pev->takedamage)
 	{
+		switch (ptr->iHitgroup)
+		{
+		case HITGROUP_LEFTARM:
+			m_iArmLh += flDamage;
+			break;
+		case HITGROUP_RIGHTARM:
+			m_iArmRh += flDamage;
+			break;
+		case HITGROUP_LEFTLEG:
+			m_iLegLh += flDamage;
+			break;
+		case HITGROUP_RIGHTLEG:
+			m_iLegRh += flDamage;
+			break;
+		}
+
 		m_LastHitGroup = ptr->iHitgroup;
 		if (g_iSkillLevel != SKILL_HARD)
 		{
 			switch (ptr->iHitgroup)
 			{
-			case HITGROUP_GENERIC:
-				break;
 			case HITGROUP_HEAD:
 				flDamage *= gSkillData.monHead;
 				break;
@@ -540,13 +554,9 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 				break;
 			case HITGROUP_LEFTARM:
 			case HITGROUP_RIGHTARM:
-				flDamage *= gSkillData.monArm;
-				break;
 			case HITGROUP_LEFTLEG:
 			case HITGROUP_RIGHTLEG:
-				flDamage *= gSkillData.monLeg;
-				break;
-			default:
+				flDamage *= 0.5; // normally 0.75
 				break;
 			}
 		}
@@ -554,8 +564,6 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		{
 			switch (ptr->iHitgroup)
 			{
-			case HITGROUP_GENERIC:
-				break;
 			case HITGROUP_HEAD:
 				flDamage *= 6;
 				break;
@@ -567,13 +575,11 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 				break;
 			case HITGROUP_LEFTARM:
 			case HITGROUP_RIGHTARM:
-				flDamage *= 0.8;
+				flDamage *= 0.5;
 				break;
 			case HITGROUP_LEFTLEG:
 			case HITGROUP_RIGHTLEG:
-				flDamage *= 0.8;
-				break;
-			default:
+				flDamage *= 0.5;
 				break;
 			}
 		}
