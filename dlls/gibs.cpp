@@ -128,6 +128,7 @@ void CoolerGib::EatThink()
 	}
 	else if (m_bloodColor == BLOOD_COLOR_INFECTION)
 	{
+		m_pEater->TakeDamage(CWorld::World->pev, CWorld::World->pev, gSkillData.funghoulDmgBite/2, DMG_FUNGUS);
 		m_pEater->Hunger -= RANDOM_LONG(1, 3);
 		if (m_pEater->Hunger < 0)
 			m_pEater->Hunger = 0;
