@@ -419,10 +419,6 @@ void W_Precache()
 	PRECACHE_SOUND("fvox/Lowammo1.wav"); // TO-DO: Move to ammo hud?
 	PRECACHE_SOUND("fvox/Lowammo2.wav");
 	PRECACHE_SOUND("fvox/Lowammo3.wav");
-
-	PRECACHE_SOUND("weapons/acoustic_big.wav"); // gunfire acoustics
-	PRECACHE_SOUND("weapons/acoustic_med.wav"); // gunfire acoustics
-	PRECACHE_SOUND("weapons/acoustic_sml.wav"); // gunfire acoustics
 }
 
 TYPEDESCRIPTION CBasePlayerItem::m_SaveData[] =
