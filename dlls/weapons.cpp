@@ -265,8 +265,6 @@ void UTIL_PrecacheOtherWeapon(const char* szClassname)
 		pEntity->Precache();
 
 		CBasePlayerWeapon* weapon = dynamic_cast<CBasePlayerWeapon*>(pEntity)->GetWeaponPtr();
-		for (int i = 1; i < 4; i++)
-			PRECACHE_SOUND(weapon->AcousticSound(i));
 
 		memset(&II, 0, sizeof II);
 		if (((CBasePlayerItem*)pEntity)->GetItemInfo(&II))

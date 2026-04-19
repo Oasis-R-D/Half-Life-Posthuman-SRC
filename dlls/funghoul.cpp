@@ -975,6 +975,7 @@ void CFunghoul::Precache()
 
 	PRECACHE_MODEL("models/funghoul.mdl");
 	PRECACHE_MODEL("sprites/bigspit.spr");
+	PRECACHE_MODEL("models/fung_gibs.mdl");
 
 	// TO-DO: isn't there a macro for this?
 	for (i = 0; i < ARRAYSIZE(pAttackHitSounds); i++)

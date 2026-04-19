@@ -27,18 +27,6 @@
 
 LINK_ENTITY_TO_CLASS(weapon_m249, CM249);
 
-const char* CM249::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/m249_sml.wav"; break;
-		case 2: return "weapons/acoustic/m249_med.wav"; break;
-		case 3: return "weapons/acoustic/m249_big.wav"; break;
-	}
-
-	return "common/null.wav";
-}
-
 void CM249::Precache()
 {
 	PRECACHE_MODEL("models/v_saw.mdl");
@@ -219,7 +207,7 @@ void CM249::Shoot(bool alt)
 
 	m_bAlternatingEject = !m_bAlternatingEject;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_M249, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 

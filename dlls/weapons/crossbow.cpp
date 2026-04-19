@@ -40,18 +40,6 @@ void CCrossbow::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
-const char* CCrossbow::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/rail_sml.wav"; break;
-		case 2: return "weapons/acoustic/rail_med.wav"; break;
-		case 3: return "weapons/acoustic/rail_big.wav"; break;
-	}
-
-	return "common/null.wav";
-}
-
 void CCrossbow::Precache()
 {
 	PRECACHE_MODEL("models/w_crossbow.mdl");
@@ -136,7 +124,7 @@ void CCrossbow::FireBolt()
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usCrossbow, 0.0, g_vecZero, g_vecZero, 0, 0, m_iClip, 0, 0, 0);
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 2, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_RAILCAN, 0.0, PE_MUZZLESMK, 2, 0, 0);
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);

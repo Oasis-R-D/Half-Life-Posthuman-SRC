@@ -401,7 +401,6 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
-	virtual const char* AcousticSound(int size);
 	void AcousticMod(int type = 0, int pitchBIG = 100, int pitchMED = 100, int pitchSML = 100);
 
 	double m_flTimeSincePrimary;
@@ -570,7 +569,7 @@ class CGlock : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 2; }
 	bool GetItemInfo(ItemInfo* p) override;
 	
@@ -752,7 +751,7 @@ class CPython : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 2; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void PrimaryAttack() override;
@@ -807,7 +806,7 @@ class CMP5 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 
@@ -871,7 +870,7 @@ class CCrossbow : public CBasePlayerWeapon
 public:
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void FireBolt();
@@ -939,7 +938,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 4; }
 	bool GetItemInfo(ItemInfo* p) override;
 	void Holster() override;
@@ -1469,7 +1468,7 @@ public:
 #endif
 
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	void Spawn() override;
 	bool Deploy() override;
 	void Holster() override;
@@ -1615,7 +1614,7 @@ public:
 #endif
 
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	void Spawn() override;
 	bool Deploy() override;
 	void Holster() override;
@@ -1672,12 +1671,11 @@ class CM727 : public CBasePlayerWeapon // to-do: save firemode
 public:
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 3; }
 	bool GetItemInfo(ItemInfo* p) override;
 
 	void PrimaryAttack() override;
-	void SecondaryAttack() override;
 	void TertiaryAttack() override;
 	
 	bool Deploy() override;
@@ -1689,7 +1687,6 @@ public:
 	const Vector& GetBulletSpread() override;
 	void ItemPreFrame() override;
 
-	TraceResult m_trHit;
 	int m_iShell;
 	bool firemode;
 	bool UseDecrement() override
@@ -1758,7 +1755,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
-	const char* AcousticSound(int size) override;
+	
 	int iItemSlot() override { return 2; }
 	bool IsDual() override { return true; }
 	bool GetItemInfo(ItemInfo* p) override;

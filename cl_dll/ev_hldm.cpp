@@ -1871,6 +1871,89 @@ bool EV_TFC_IsAllyTeam(int iTeam1, int iTeam2)
 	return false;
 }
 
+static std::string GetAcoustic(int numb)
+{
+	using namespace std::string_literals;
+
+	switch(numb)
+	{
+		default:
+		case AC_GENERIC:	return "generic"s;	break;
+		case AC_SG:			return "spas"s;		break;
+		case AC_DSG:		return "spas2"s;	break;
+		case AC_RAILCAN:	return "rail"s;		break;
+		case AC_MP5:		return "mp5"s;		break;
+		case AC_M727:		return "m727"s;		break;
+		case AC_M249:		return "m249"s;		break;
+		case AC_PISTOL:		return "pistol"s;	break;
+		case AC_PYTHON:		return "357"s;		break;
+		case AC_DEAGLE:		return "deag"s;		break;
+		case AC_M29:		return "m29"s;		break;
+	}
+}
+
+void EV_Acoustic(event_args_t* args)
+{
+	if (args->fparam1 == AC_NONE) // no sound
+		return;
+
+	Vector Origin;
+	Vector Dir;
+	
+	std::string sound = GetAcoustic(args->fparam1);
+	std::string soundPath = std::string("weapons/acoustic/").append(sound);
+
+	pmtrace_t ForTr, UpTr;
+
+	if (args->bparam1 != true) // not func_tank
+	{
+		Origin = engine_cl->viewent.attachment[0];
+		Dir = args->origin;
+	}
+	else // func_tank
+	{
+		Origin = args->origin;
+		Dir = args->angles;
+	}
+
+	EV_SetTraceHull(2);
+	gEngfuncs.pEventAPI->EV_PlayerTrace(Origin, Origin+Dir*768, PM_WORLD_ONLY, -1, &ForTr);
+
+	EV_SetTraceHull(2);
+	gEngfuncs.pEventAPI->EV_PlayerTrace(Origin, Origin + Vector(0, 0, 768), PM_WORLD_ONLY, -1, &UpTr);
+
+	// check to see if it's in the sky, bias if so
+	if (gEngfuncs.PM_PointContents(UpTr.endpos, nullptr) == CONTENTS_SKY)
+		UpTr.fraction = 4;
+	if (gEngfuncs.PM_PointContents(ForTr.endpos, nullptr) == CONTENTS_SKY)
+		ForTr.fraction = 4;
+
+	// more biases
+	if (UpTr.fraction == 1)
+		ForTr.fraction = 1.25;
+
+	if (ForTr.fraction == 1)
+		ForTr.fraction = 1.25;
+
+	float dist = ((768 * ForTr.fraction) + (768 * UpTr.fraction)) / 2;
+
+	if (dist >= 768)
+	{	// large area
+		soundPath.append("_big.wav");
+	}
+	else if (dist <= 256)
+	{	// small area
+		soundPath.append("_sml.wav");
+	}
+	else	 
+	{	// medium area
+		soundPath.append("_med.wav");
+	}
+
+	// CHAN_BOT is unused, perfect for this
+	gEngfuncs.pEventAPI->EV_PlaySound(args->entindex, Origin, CHAN_BOT, soundPath.c_str(), 1, ATTN_ACOUSTIC, 0, 98 + gEngfuncs.pfnRandomLong(0, 4));
+}
+
 void EV_Particles(event_args_t* args)
 {
 	Vector Origin;
@@ -1890,15 +1973,17 @@ void EV_Particles(event_args_t* args)
 
 	switch (args->iparam1) // particle type
 	{
-		case 0: // muzzle smoke
+		case PE_MUZZLESMK:
+		{
 			if (EV_IsLocal(idx))
 			{
-				if (args->bparam1 != true)
+				EV_Acoustic(args);
+				if (args->bparam1 != true) // not func_tank
 				{
 					Origin = engine_cl->viewent.attachment[0];
 					Dir = args->origin;
 				}
-				else
+				else // func_tank
 				{
 					Origin = args->origin;
 					Dir = args->angles;
@@ -1908,7 +1993,7 @@ void EV_Particles(event_args_t* args)
 				default:
 				case 0: // Def muzzle smoke
 					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
-					//gParticleEngine.CreateSystem("engine_muzzleflash_flames.txt", Origin, Dir, 0);
+					// gParticleEngine.CreateSystem("engine_muzzleflash_flames.txt", Origin, Dir, 0);
 					break;
 				case 1: // shotgun?
 					// reserved for sg if we do change it
@@ -1918,11 +2003,15 @@ void EV_Particles(event_args_t* args)
 					break;
 				}
 			}
-			break;
-		case 1: //SG sparks // Should this be a param2 thing for the def muzzle flash? // Should this be a cluster?
+		}
+		break;
+		case PE_MUZZLESMKSG: // Should this be a param2 thing for the def muzzle flash? // Should this be a cluster?
+		{
+			
 			Origin = engine_cl->viewent.attachment[0];
 			if (EV_IsLocal(idx))
 			{
+				EV_Acoustic(args);
 				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
 				if (args->bparam1 != true)
 				{
@@ -1935,7 +2024,8 @@ void EV_Particles(event_args_t* args)
 				}
 			}
 			break;
-		case 2: //explosions
+		}
+		case PE_EXPLOSIONCLUST:
 			switch (args->iparam2)
 			{
 				default:
@@ -1950,7 +2040,7 @@ void EV_Particles(event_args_t* args)
 					break;
 			}
 			break;
-		case 3: //NPC impact
+		case PE_NPCIMPACTCLUST:
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
@@ -2016,10 +2106,10 @@ void EV_Particles(event_args_t* args)
 			}
 
 			break;
-		case 4: // neurotoxin expl
+		case PE_BLOATERGASEXPL: // neurotoxin expl
 			gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0);
 			break;
-		case 5: // phys blood hit the ground
+		case PE_BLDIMPACTCLUST: // phys blood hit the ground
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
@@ -2036,13 +2126,13 @@ void EV_Particles(event_args_t* args)
 					break;
 			}
 			break;
-		case 6: // glowing bullet impact 'crater'
+		case PE_BLLTIMPACTGLOW: // glowing bullet impact 'crater'
 			if (args->bparam2 != 1)
 				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
 			else if (EV_IsLocal(idx))
 				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
 			break;
-		case 7: // enemy gib cloud
+		case PE_BLDGIBCLOUD: // enemy gib cloud
 			switch (args->iparam2)
 			{
 				case BLOOD_COLOR_RED:
@@ -2081,16 +2171,16 @@ void EV_Particles(event_args_t* args)
 				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 1, gEngfuncs.pfnRandomLong(0, 1), constchar, constchar2, R, G, B), args->origin, g_vecZero, 0);
 			}
 			break;
-		case 8: // smoke gren expl
+		case PE_SMOKECLOUD: // smoke gren expl
 			gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0);
 			break;
-		case 9: // fire
+		case PE_FIRE: // fire
 			if (args->bparam2 != 1)
 				gParticleEngine.CreateSystem("flames.txt", args->origin, gpGlobals->v_up, 0);
 			else
 				gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
 			break;
-		case 10: // grenade/flying vehicle smoke
+		case PE_BILLOWSMOKE: // grenade/flying vehicle smoke
 			gParticleEngine.CreateSystem("engine_smoke.txt", args->origin, gpGlobals->v_up, 0);
 			break;
 	}

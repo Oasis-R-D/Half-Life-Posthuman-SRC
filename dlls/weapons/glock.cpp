@@ -39,18 +39,6 @@ void CGlock::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
-const char* CGlock::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/pistol_sml.wav"; break;
-		case 2: return "weapons/acoustic/pistol_med.wav"; break;
-		case 3: return "weapons/acoustic/pistol_big.wav"; break;
-	}
-
-	return "common/null.wav";
-}
-
 void CGlock::Precache()
 {
 	PRECACHE_MODEL("models/v_9mmhandgun.mdl");
@@ -230,7 +218,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	else
 	{
 		// non-silenced
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_PISTOL, 0.0, PE_MUZZLESMK, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 		m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 		m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;

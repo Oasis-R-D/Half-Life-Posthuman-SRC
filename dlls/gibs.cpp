@@ -36,6 +36,16 @@ std::vector<gib_data_t> pitdrone_gibmap =
 		gib_data_t{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
 };				
 
+std::vector<gib_data_t> funghoul_gibmap =
+{		// 			MDL 			   BG # TYPE
+		gib_data_t{"models/fung_gibs.mdl", 0, 1, 1},
+		gib_data_t{"models/fung_gibs.mdl", 1, 1},
+		gib_data_t{"models/fung_gibs.mdl", 2, 1},
+		gib_data_t{"models/fung_gibs.mdl", 3, 1},
+		gib_data_t{"models/fung_gibs.mdl", 4, 1},
+		gib_data_t{"models/fung_gibs.mdl", 5, 1},
+};
+
 void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!pActivator->IsPlayer() || m_pEater && pev->velocity == g_vecZero)
@@ -592,10 +602,10 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 std::vector<gib_data_t> CoolerGib::GetNPCgibs(CBaseEntity* pVictim)
 {
-	if (FClassnameIs(pVictim->pev, "monster_turret"))
-		return human_gibmap;
-	else if (FClassnameIs(pVictim->pev, "monster_pitdrone"))
+	if (FClassnameIs(pVictim->pev, "monster_pitdrone"))
 		return pitdrone_gibmap;
+	else if (pVictim->Classify() == CLASS_FUNGAL) // this won't work once more fungus npcs are added
+		return funghoul_gibmap;
 	else 
 	{
 		switch (pVictim->BloodColor())

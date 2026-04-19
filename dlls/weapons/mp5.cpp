@@ -44,18 +44,6 @@ void CMP5::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
-const char* CMP5::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/mp5_sml.wav"; break;
-		case 2: return "weapons/acoustic/mp5_med.wav"; break;
-		case 3: return "weapons/acoustic/mp5_big.wav"; break;
-	}
-
-	return "common/null.wav";
-}
-
 void CMP5::Precache()
 {
 	PRECACHE_MODEL("models/v_9mmAR.mdl");
@@ -173,7 +161,7 @@ void CMP5::PrimaryAttack()
 
 		m_flTimeSincePrimary = gpGlobals->time;
 
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NONE, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 		m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
 		m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
@@ -184,8 +172,6 @@ void CMP5::PrimaryAttack()
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
 		UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-
-		
 
 		// we don't add in player velocity anymore.
 		CGrenade::ShootContact(m_pPlayer->pev,
@@ -223,7 +209,7 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_MP5, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 

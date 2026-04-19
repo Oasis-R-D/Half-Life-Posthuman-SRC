@@ -49,18 +49,6 @@ void CShotgun::Holster()
 	MESSAGE_END();
 }
 
-const char* CShotgun::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/spas_sml.wav"; break;
-		case 2: return "weapons/acoustic/spas_med.wav"; break;
-		case 3: return "weapons/acoustic/spas_big.wav"; break;
-	}
-
-	return "common/null.wav";
-}
-
 void CShotgun::Precache()
 {
 	PRECACHE_MODEL("models/v_shotgun.mdl");
@@ -180,7 +168,7 @@ void CShotgun::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_SG, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -278,7 +266,7 @@ void CShotgun::SecondaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMKSG, 0, 1, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_DSG, 0.0, PE_MUZZLESMKSG, 0, 1, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 

@@ -44,6 +44,22 @@ enum ParticleEngine
 	PE_BILLOWSMOKE,
 };
 
+enum Acoustics
+{
+	AC_NONE = -1,
+	AC_GENERIC,
+	AC_SG,
+	AC_DSG,
+	AC_RAILCAN,
+	AC_MP5,
+	AC_M727,
+	AC_M249,
+	AC_PISTOL,
+	AC_PYTHON,
+	AC_DEAGLE,
+	AC_M29,
+};
+
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
 
 // These are caps bits to indicate what an object's capabilities (currently used for save/restore and level transitions)

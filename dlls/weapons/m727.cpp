@@ -30,49 +30,6 @@
 #define	M727_ACCURACY_SHOT_PENALTY_TIME		0.125f	// Applied amount of time each shot adds to the time we must recover from
 #define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.5f	// Maximum penalty to deal out
 
-static void FindHullIntersectionM727(const Vector& vecSrc, TraceResult& tr, const Vector& mins, const Vector& maxs, edict_t* pEntity)
-{
-	int i, j, k;
-	float distance;
-	const Vector* minmaxs[2] = {&mins, &maxs};
-	TraceResult tmpTrace;
-	Vector vecHullEnd = tr.vecEndPos;
-	Vector vecEnd;
-
-	distance = 1e6f;
-
-	vecHullEnd = vecSrc + ((vecHullEnd - vecSrc) * 2);
-	UTIL_TraceLine(vecSrc, vecHullEnd, dont_ignore_monsters, pEntity, &tmpTrace);
-	if (tmpTrace.flFraction < 1.0)
-	{
-		tr = tmpTrace;
-		return;
-	}
-
-	for (i = 0; i < 2; i++)
-	{
-		for (j = 0; j < 2; j++)
-		{
-			for (k = 0; k < 2; k++)
-			{
-				vecEnd.x = vecHullEnd.x + minmaxs[i]->x;
-				vecEnd.y = vecHullEnd.y + minmaxs[j]->y;
-				vecEnd.z = vecHullEnd.z + minmaxs[k]->z;
-
-				UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, pEntity, &tmpTrace);
-				if (tmpTrace.flFraction < 1.0)
-				{
-					float thisDistance = (tmpTrace.vecEndPos - vecSrc).Length();
-					if (thisDistance < distance)
-					{
-						tr = tmpTrace;
-						distance = thisDistance;
-					}
-				}
-			}
-		}
-	}
-}
 LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 
 void CM727::Spawn()
@@ -82,18 +39,6 @@ void CM727::Spawn()
 	m_iId = WEAPON_M727;
 	m_iDefaultAmmo = 30;
 	FallInit(); // get ready to fall down.
-}
-
-const char* CM727::AcousticSound(int size)
-{
-	switch(size)
-	{
-		case 1: return "weapons/acoustic/m727_sml.wav"; break;
-		case 2: return "weapons/acoustic/m727_med.wav"; break;
-		case 3: return "weapons/acoustic/m727_big.wav"; break;
-	}
-
-	return "common/null.wav";
 }
 
 void CM727::Precache()
@@ -116,12 +61,6 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
-	PRECACHE_SOUND("weapons/cbar_hit1.wav");
-	PRECACHE_SOUND("weapons/cbar_hit2.wav");
-	PRECACHE_SOUND("weapons/bay_hitbod1.wav");
-	PRECACHE_SOUND("weapons/bay_hitbod2.wav");
-	PRECACHE_SOUND("weapons/bay_hitbod3.wav");
-	PRECACHE_SOUND("weapons/cbar_miss1.wav");
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)
@@ -255,7 +194,7 @@ void CM727::PrimaryAttack()
 
 	m_flNextSecondaryAttack = 0.15;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, 0.0, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_M727, 0.0, PE_MUZZLESMK, 0, 0, 0);
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
@@ -314,46 +253,6 @@ void CM727::PrimaryAttack()
 	*/
 	CBasePlayerWeapon::Recoil(0.85, 1.2);
 #endif
-}
-
-void CM727::SecondaryAttack()
-{
-	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
-		return;
-
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = 0.5;
-
-	TraceResult tr;
-
-	Vector vecSrc = m_pPlayer->GetGunPosition();
-	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-	UTIL_TraceLine(vecSrc, vecSrc + gpGlobals->v_forward * 112, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
-	
-	const char* sound = 0;
-
-	if (tr.flFraction == 1)
-	{
-#ifndef CLIENT_DLL
-		sound = UTIL_VarArgs("zombie/claw_miss%d.wav", RANDOM_LONG(1, 2));
-#endif
-	}
-	else
-	{
-		auto pHit = CBaseEntity::Instance(tr.pHit);
-		ClearMultiDamage();
-		if (g_iSkillLevel != SKILL_HARD)
-			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
-		else
-			pHit->TraceAttack(m_pPlayer->pev, 45, gpGlobals->v_forward, &tr, DMG_CLUB);
-		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
-	
-#ifndef CLIENT_DLL
-	sound = UTIL_VarArgs("weapons/bay_hitbod%d.wav", RANDOM_LONG(1, 3));
-#endif
-	DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
-	}
-
-	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
 }
 
 void CM727::TertiaryAttack()
