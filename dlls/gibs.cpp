@@ -126,6 +126,12 @@ void CoolerGib::EatThink()
 		if (m_pEater->health_stomach < 0)
 			m_pEater->health_stomach = 0;
 	}
+	else if (m_bloodColor == BLOOD_COLOR_INFECTION)
+	{
+		m_pEater->Hunger -= RANDOM_LONG(1, 3);
+		if (m_pEater->Hunger < 0)
+			m_pEater->Hunger = 0;
+	}
 	else if (m_bloodColor != DONT_BLEED)
 	{
 		// slop!
