@@ -93,21 +93,10 @@ void CFunghoulGuts::Spawn()
 	pev->rendermode = kRenderTransAlpha;
 	pev->renderamt = 255;
 
-	// TO-DO: probably shouldn't be assinging to x every time
-	if (g_Language == LANGUAGE_GERMAN)
-	{
-		SET_MODEL(edict(), "sprites/bigspit.spr");
-		pev->rendercolor.x = 0;
-		pev->rendercolor.x = 255;
-		pev->rendercolor.x = 0;
-	}
-	else
-	{
-		SET_MODEL(edict(), "sprites/bigspit.spr");
-		pev->rendercolor.x = 128;
-		pev->rendercolor.y = 48;
-		pev->rendercolor.z = 0;
-	}
+	SET_MODEL(edict(), "sprites/bigspit.spr");
+	pev->rendercolor.x = 128;
+	pev->rendercolor.y = 48;
+	pev->rendercolor.z = 0;
 
 	pev->frame = 0;
 	pev->scale = 0.5;
@@ -139,8 +128,8 @@ void CFunghoulGuts::Touch(CBaseEntity* pOther)
 		TraceResult tr;
 		// make a splat on the wall
 		UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 10, dont_ignore_monsters, ENT(pev), &tr);
-		UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_RED);
-		UTIL_BloodDrips(tr.vecEndPos, tr.vecPlaneNormal, BLOOD_COLOR_RED, 35);
+		UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_INFECTION);
+		UTIL_BloodDrips(tr.vecEndPos, tr.vecPlaneNormal, BLOOD_COLOR_INFECTION, 35);
 	}
 	else
 	{
@@ -933,7 +922,7 @@ void CFunghoul::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_INFECTION; // TO-DO: custom color (replaces blue?)
-	pev->health = gSkillData.funghoulHealth;
+	pev->health = g_iSkillLevel == SKILL_HARD ? 90 : gSkillData.funghoulHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.75;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
