@@ -65,6 +65,7 @@ public:
 
 		TraceResult Height;
 		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
+		UTIL_SetOrigin(pev, Height.vecEndPos);
 
 		UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 		if (Height.flFraction == 1.0) // is the ceiling tall enough?
@@ -214,35 +215,38 @@ void CHordeMaker::Precache()
 //=========================================================
 void CHordeMaker::MakeMonster()
 {	
-	if (0 == WorldGraph.m_fGraphPresent && (pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
+	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
 	{
-		ALERT(at_warning, "HordeMaker: No nodegraph present");
-		return;
+		if (0 == WorldGraph.m_fGraphPresent)
+		{
+			ALERT(at_warning, "HordeMaker: No nodegraph present");
+			return;
+		}
+
+		if (g_liValidNodes.empty()) // generate list of spawns
+		{
+			for (int i = 0; i < WorldGraph.m_cNodes; i++)
+			{
+				if ((WorldGraph.m_pNodes[i].m_afNodeInfo & bits_NODE_LAND) != 0) // only check land nodes
+				{
+					Vector nodevec = WorldGraph.m_pNodes[i].m_vecOriginPeek;
+
+					TraceResult Height;
+					UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
+
+					UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
+					if (Height.flFraction == 1.0) // is the ceiling tall enough?
+					{
+						g_liValidNodes.push_back(i); // valid node, add to list
+					}
+				}
+			}
+		}
 	}
 	else if ((hordeSpawnsPresent == false || g_liValidInfoSpawns.empty()) && (pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
 	{
 		ALERT(at_warning, "HordeMaker: No valid info_hordespawns present");
 		return;
-	}
-
-	if (g_liValidNodes.empty() && (pev->spawnflags & SF_HORDEMAKER_USENODES) != 0) // generate list of spawns
-	{
-		for (int i = 0; i < WorldGraph.m_cNodes; i++)
-		{
-			if ((WorldGraph.m_pNodes[i].m_afNodeInfo & bits_NODE_LAND) != 0) // only check land nodes
-			{
-				Vector nodevec = WorldGraph.m_pNodes[i].m_vecOriginPeek;
-
-				TraceResult Height;
-				UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
-
-				UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
-				if (Height.flFraction == 1.0) // is the ceiling tall enough?
-				{
-					g_liValidNodes.push_back(i); // valid node, add to list
-				}
-			}
-		}
 	}
 
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
@@ -272,15 +276,20 @@ void CHordeMaker::MakeMonster()
 	lastspawnednode = selectednode;
 
 	Vector nodevec;
-	
-	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
-		nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
-	else
-		nodevec = g_liValidInfoSpawns[selectednode]->origin;
 
-	TraceResult Height;
-	UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
-	VecSpawn = Height.vecEndPos; // floor
+	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
+	{
+		nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+
+		TraceResult Height;
+		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
+		VecSpawn = Height.vecEndPos; // floor
+	}
+	else
+	{
+		nodevec = g_liValidInfoSpawns[selectednode]->origin;
+		VecSpawn = nodevec;
+	}
 
 	if (m_fCheckDist != NULL && m_fCheckDist > 0)
 	{
