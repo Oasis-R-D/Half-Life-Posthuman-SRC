@@ -194,6 +194,7 @@ enum
 {
 	TASK_GONOME_GET_PATH_TO_ENEMY_CORPSE = LAST_COMMON_TASK + 1,
 	TASK_STAGGER,
+	TASK_TOCRAWL,
 };
 
 
@@ -257,7 +258,7 @@ public:
 	int m_iArmLh = 0;
 	int m_iLegRh = 0; // forces into crawling
 	int m_iLegLh = 0;
-
+	bool m_bCrawling = false;
 	float m_flNextThrowTime;
 
 	//TODO: needs to be EHANDLE, save/restored or a save during a windup will cause problems
@@ -273,7 +274,8 @@ TYPEDESCRIPTION CFunghoul::m_SaveData[] =
 		DEFINE_FIELD(CFunghoul, m_iArmRh, FIELD_INTEGER),
 		DEFINE_FIELD(CFunghoul, m_iLegLh, FIELD_INTEGER),
 		DEFINE_FIELD(CFunghoul, m_iLegRh, FIELD_INTEGER),
-		DEFINE_FIELD(CFunghoul, m_iType, FIELD_INTEGER)
+		DEFINE_FIELD(CFunghoul, m_iType, FIELD_INTEGER),
+		DEFINE_FIELD(CFunghoul, m_bCrawling, FIELD_BOOLEAN),
 };
 
 IMPLEMENT_SAVERESTORE(CFunghoul, CFunghoul::BaseClass);
@@ -289,6 +291,7 @@ LINK_ENTITY_TO_CLASS(monster_funghoul_advsec, CFunghoul); // gonome melee but ta
 enum
 {
 	SCHED_FUNGHOUL_STAGGER = LAST_COMMON_SCHEDULE + 1,
+	SCHED_FUNGHOUL_TOCRAWL,
 };
 
 const char* CFunghoul::pAttackHitSounds[] =
@@ -347,7 +350,7 @@ Schedule_t slFunghoulGrab[] =
 	{
 		{tlFunghoulGrab,
 			ARRAYSIZE(tlFunghoulGrab),
-			bits_COND_HEAVY_DAMAGE,
+			bits_COND_HEAVY_DAMAGE | bits_COND_SPECIAL1,
 			bits_SOUND_NONE,
 			"Victim Grab"}};
 
@@ -363,34 +366,30 @@ Schedule_t slFunghoulStagger[] =
     {
         tlFunghoulStagger,            // This schedule use the "tlSmallFlinch" tasks array
         ARRAYSIZE(tlFunghoulStagger), // "ARRAYSIZE" will return 3 here and tell this schedule has 3 tasks
+        bits_COND_SPECIAL1,                        // No condition bit can interrupt this schedule
+        0,                        // No sound bit can interrupt this schedule
+        "Stagger"            // This schedule is named "Small Flinch"
+    },
+};
+
+Task_t tlFunghoulToCrawl[] =
+{
+    { TASK_REMEMBER,     (float)bits_MEMORY_FLINCHED }, // Remember in my memory that I flinched
+    { TASK_STOP_MOVING,  0                           }, // Stop moving
+    { TASK_TOCRAWL, 0								 }, // Make a small flinch
+};
+
+Schedule_t slFunghoulToCrawl[] =
+{
+    {
+        tlFunghoulToCrawl,            // This schedule use the "tlSmallFlinch" tasks array
+        ARRAYSIZE(tlFunghoulToCrawl), // "ARRAYSIZE" will return 3 here and tell this schedule has 3 tasks
         0,                        // No condition bit can interrupt this schedule
         0,                        // No sound bit can interrupt this schedule
         "Stagger"            // This schedule is named "Small Flinch"
     },
 };
 
-/*
-//=========================================================
-// BarnacleVictimChomp - barnacle has pulled the prey to its
-// mouth. Victim should play the BARNCLE_CHOMP animation
-// once, then loop the BARNACLE_CHEW animation indefinitely
-//=========================================================
-Task_t tlFunghoulBiting[] = // probably uneeded, change pull loop above to the biting
-	{
-		{TASK_STOP_MOVING, 0},
-		{TASK_PLAY_SEQUENCE, (float)ACT_BARNACLE_CHOMP},
-		{TASK_SET_ACTIVITY, (float)ACT_BARNACLE_CHEW},
-		{TASK_WAIT_INDEFINITE, (float)0}, // just cycle barnacle pull anim while barnacle hoists.
-};
-
-Schedule_t slFunghoulBiting[] =
-	{
-		{tlFunghoulBiting,
-			ARRAYSIZE(tlFunghoulBiting),
-			0,
-			0,
-			"Barnacle Chomp"}};
-*/
 Task_t tlGonomeVictoryDance[] =
 	{
 		{TASK_STOP_MOVING, 0},
@@ -416,7 +415,7 @@ Schedule_t slGonomeVictoryDance[] =
 			ARRAYSIZE(tlGonomeVictoryDance),
 			bits_COND_NEW_ENEMY |
 				bits_COND_LIGHT_DAMAGE |
-				bits_COND_HEAVY_DAMAGE,
+				bits_COND_HEAVY_DAMAGE | bits_COND_SPECIAL1,
 			bits_SOUND_NONE,
 			"BabyVoltigoreVictoryDance" //Yup, it's a copy
 		},
@@ -450,7 +449,7 @@ Schedule_t slFunghoulInvestigate[] =
 				bits_COND_SEE_FEAR |
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
-				bits_COND_HEAR_SOUND,
+				bits_COND_HEAR_SOUND | bits_COND_SPECIAL1,
 
 			bits_SOUND_DANGER,
 			"FunghoulInvestigateSound"},
@@ -461,6 +460,7 @@ DEFINE_CUSTOM_SCHEDULES(CFunghoul){
 	slFunghoulGrab,
 	slFunghoulStagger,
 	slFunghoulInvestigate,
+	slFunghoulToCrawl,
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES(CFunghoul, CBaseMonster);
@@ -482,7 +482,10 @@ void CFunghoul::SetYawSpeed()
 {
 	int ys;
 
-	ys = 192;
+	if (!m_bCrawling)
+		ys = 192;
+	else
+		ys = 112;
 
 #if 0
 	switch ( m_Activity )
@@ -543,6 +546,13 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		case HITGROUP_RIGHTLEG:
 			m_iLegRh += flDamage;
 			break;
+		}
+
+		if (m_iLegRh > LIMBBREAK_THRESH ||m_iLegLh > LIMBBREAK_THRESH)
+		{
+			if (!m_bCrawling)
+				SetConditions(bits_COND_SPECIAL1);
+			m_bCrawling = true;
 		}
 
 		m_LastHitGroup = ptr->iHitgroup;
@@ -1122,6 +1132,11 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 //=========================================================
 Schedule_t* CFunghoul::GetSchedule()
 {
+	if (HasConditions(bits_COND_SPECIAL1))
+	{
+		return GetScheduleOfType(SCHED_FUNGHOUL_TOCRAWL);
+	}
+
 	if (HasConditions(bits_COND_HEAR_SOUND) && !HasConditions(bits_COND_SEE_ENEMY)) // investigate sounds
 	{
 		CSound* pSound;
@@ -1143,6 +1158,8 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 {
 	if (Type == SCHED_VICTORY_DANCE)
 		return slGonomeVictoryDance;
+	else if (Type == SCHED_FUNGHOUL_TOCRAWL)
+		return slFunghoulToCrawl;
 	else if (Type == SCHED_MELEE_ATTACK2)
 		return slFunghoulGrab;
 	else if (Type == SCHED_FUNGHOUL_STAGGER)
@@ -1196,6 +1213,13 @@ void CFunghoul::RunTask(Task_t* pTask)
 	switch (pTask->iTask)
 	{
 	case TASK_STAGGER:
+	{
+		if (m_fSequenceFinished)
+		{
+			TaskComplete();
+		}
+	}
+	case TASK_TOCRAWL:
 	{
 		if (m_fSequenceFinished)
 		{
@@ -1267,6 +1291,38 @@ void CFunghoul::StartTask(Task_t* pTask)
 		}
 	}
 	break;
+	case TASK_TOCRAWL:
+	{
+		m_IdealActivity = ACT_BIG_FLINCH; // TO-DO: change to proper act
+
+		if (m_iType == FUNGHOUL_INFECTOR && m_PlayerLocked)
+		{
+			if (m_PlayerLocked->IsPlayer())
+			{
+				auto player = m_PlayerLocked.Entity<CBasePlayer>();
+
+				if (player && player->IsAlive())
+				{
+					player->m_iSpeedOverride = -1;
+				}
+			}
+			else
+			{
+				auto monster = m_PlayerLocked.Entity<CBaseMonster>();
+
+				if (monster)
+				{
+					if (monster->IsAlive())
+					{
+						// free
+					}
+				}
+			}
+
+			TaskFail();
+			m_PlayerLocked = NULL;
+		}
+	}
 	default:
 		CBaseMonster::StartTask(pTask);
 		break;
