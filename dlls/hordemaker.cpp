@@ -40,11 +40,11 @@
 extern CGraph WorldGraph;
 
 int lastspawnednode; // this is global so multiple ents can check it
-bool hordeSpawnsPresent = false;
 
 // need one for each spawn type
 std::vector<int> g_liValidNodes;
-std::vector<Vector> g_liValidInfoSpawns; // use the origin itself since no other data needs accessed
+
+std::vector<entvars_t> g_rgInfoHordeSpawns;
 
 inline bool IsEntityValid( CBaseEntity *entity )
 {
@@ -108,12 +108,12 @@ public:
 
 		TraceResult Height;
 		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
+		pev->origin = Height.vecEndPos;
 
 		UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 		if (Height.flFraction == 1.0) // is the ceiling tall enough?
 		{
-			g_liValidInfoSpawns.push_back(Height.vecEndPos); // valid node, add to list
-			hordeSpawnsPresent = true;
+			g_rgInfoHordeSpawns.push_back(pev); // valid node, add to list
 		}
 		else
 		{
@@ -122,6 +122,8 @@ public:
 			return;
 		}
 	}
+
+	std::vector<Vector> m_rgAllowedInfSpawns;
 };
 
 LINK_ENTITY_TO_CLASS(info_hordespawn, CHordeSpawn);
@@ -286,10 +288,22 @@ void CHordeMaker::MakeMonster()
 			}
 		}
 	}
-	else if ((hordeSpawnsPresent == false || g_liValidInfoSpawns.empty()) && (pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
+	else if ((pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
 	{
-		ALERT(at_warning, "HordeMaker: No valid info_hordespawns present");
-		return;
+		if (g_rgInfoHordeSpawns.empty())
+		{
+			ALERT(at_warning, "HordeMaker: No valid info_hordespawns present");
+			return;
+		}
+		
+		if (m_rgAllowedInfSpawns.empty())
+		{
+			for (const auto& pPev : g_rgInfoHordeSpawns)
+			{
+				// check classname here
+				m_rgAllowedInfSpawns.push_back(pPev->origin);
+			}
+		}
 	}
 
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
@@ -308,7 +322,7 @@ void CHordeMaker::MakeMonster()
 		if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
 			selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size()-1)];
 		else
-			selectednode = RANDOM_LONG(0, g_liValidInfoSpawns.size()-1);
+			selectednode = RANDOM_LONG(0, m_rgAllowedInfSpawns.size()-1);
 
 		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out // TO-DO: make one for each spawn type
 			continue;
@@ -330,7 +344,7 @@ void CHordeMaker::MakeMonster()
 	}
 	else
 	{
-		nodevec = g_liValidInfoSpawns[selectednode];
+		nodevec = m_rgAllowedInfSpawns[selectednode];
 		VecSpawn = nodevec;
 	}
 
