@@ -269,6 +269,11 @@ TYPEDESCRIPTION CFunghoul::m_SaveData[] =
 	{
 		DEFINE_FIELD(CFunghoul, m_flNextThrowTime, FIELD_TIME),
 		DEFINE_FIELD(CFunghoul, m_PlayerLocked, FIELD_EHANDLE),
+		DEFINE_FIELD(CFunghoul, m_iArmLh, FIELD_INTEGER),
+		DEFINE_FIELD(CFunghoul, m_iArmRh, FIELD_INTEGER),
+		DEFINE_FIELD(CFunghoul, m_iLegLh, FIELD_INTEGER),
+		DEFINE_FIELD(CFunghoul, m_iLegRh, FIELD_INTEGER),
+		DEFINE_FIELD(CFunghoul, m_iType, FIELD_INTEGER)
 };
 
 IMPLEMENT_SAVERESTORE(CFunghoul, CFunghoul::BaseClass);
