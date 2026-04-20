@@ -79,7 +79,7 @@ public:
 			return;
 		}
 	}
-}
+};
 
 LINK_ENTITY_TO_CLASS(info_hordespawn, CHordeSpawn);
 
