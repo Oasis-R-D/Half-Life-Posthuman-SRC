@@ -310,7 +310,7 @@ void CHordeMaker::MakeMonster()
 		{
 			pMonster->m_movementGoal = MOVEGOAL_ENEMY;
 			pMonster->m_afMemory |= bits_MEMORY_PROVOKED;
-			pMonster->PushEnemy(hEnemy, vecLocation);
+			pMonster->PushEnemy(pPlayer, pPlayer->pev->origin);
 		}
 	}
 
