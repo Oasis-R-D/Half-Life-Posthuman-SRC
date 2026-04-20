@@ -46,6 +46,23 @@ bool hordeSpawnsPresent = false;
 std::vector<int> g_liValidNodes;
 std::vector<Vector> g_liValidInfoSpawns; // use the origin itself since no other data needs accessed
 
+inline bool IsEntityValid( CBaseEntity *entity )
+{
+	if (entity == NULL)
+		return false;
+
+	if (FNullEnt( entity->pev ))
+		return false;
+
+	if (FStrEq( STRING( entity->pev->netname ), "" ))
+		return false;
+
+	if (entity->pev->flags & FL_DORMANT)
+		return false;
+	
+	return true;
+}
+
 CBasePlayer* GetClosestPlayer(Vector pos)
 {
 	CBasePlayer *closePlayer = NULL;
@@ -55,7 +72,7 @@ CBasePlayer* GetClosestPlayer(Vector pos)
 	{
 		CBasePlayer *player = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( i ) );
 
-		if (!IsEntityValid( player ))
+		if (!IsEntityValid(player))
 			continue;
 
 		if (!player->IsAlive())
