@@ -46,7 +46,7 @@ bool hordeSpawnsPresent = false;
 std::vector<int> g_liValidNodes;
 std::vector<Vector> g_liValidInfoSpawns; // use the origin itself since no other data needs accessed
 
-CBasePlayer* GetClosestPlayer(const Vector *pos)
+CBasePlayer* GetClosestPlayer(Vector pos)
 {
 	CBasePlayer *closePlayer = NULL;
 	float closeDistSq = 999999999999.9f;
@@ -61,7 +61,7 @@ CBasePlayer* GetClosestPlayer(const Vector *pos)
 		if (!player->IsAlive())
 			continue;
 
-		float distSq = (player->pev->origin - *pos).LengthSquared();
+		float distSq = (player->pev->origin - pos).LengthSquared();
 		if (distSq < closeDistSq)
 		{
 			closeDistSq = distSq;
