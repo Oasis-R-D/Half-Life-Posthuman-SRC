@@ -714,7 +714,7 @@ void CFunghoul::MonsterThink()
 			{
 				if (monster->IsAlive())
 				{
-					monster->m_hEnemy = this;
+					monster->PushEnemy(this, pev->origin);
 					monster->m_movementGoal = MOVEGOAL_NONE;
 					monster->m_flDistLook = 128;
 					monster->m_flDistTooFar = 128;

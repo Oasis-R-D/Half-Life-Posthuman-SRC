@@ -46,6 +46,32 @@ bool hordeSpawnsPresent = false;
 std::vector<int> g_liValidNodes;
 std::vector<Vector> g_liValidInfoSpawns; // use the origin itself since no other data needs accessed
 
+CBasePlayer* GetClosestPlayer(const Vector *pos)
+{
+	CBasePlayer *closePlayer = NULL;
+	float closeDistSq = 999999999999.9f;
+
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *player = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( i ) );
+
+		if (!IsEntityValid( player ))
+			continue;
+
+		if (!player->IsAlive())
+			continue;
+
+		float distSq = (player->pev->origin - *pos).LengthSquared();
+		if (distSq < closeDistSq)
+		{
+			closeDistSq = distSq;
+			closePlayer = static_cast<CBasePlayer *>( player );
+		}
+	}
+
+	return closePlayer;
+}
+
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
 //=========================================================
@@ -291,7 +317,7 @@ void CHordeMaker::MakeMonster()
 		VecSpawn = nodevec;
 	}
 
-	if (m_fCheckDist != NULL && m_fCheckDist > 0)
+	if (m_fCheckDist)
 	{
 		Vector mins = VecSpawn - Vector(m_fCheckDist, m_fCheckDist, 0);
 		Vector maxs = VecSpawn + Vector(m_fCheckDist, m_fCheckDist, 72);
@@ -306,14 +332,14 @@ void CHordeMaker::MakeMonster()
 		}
 	}
 
-	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
+	CBasePlayer* pPlayer = GetClosestPlayer(VecSpawn);
 
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
 		Vector checkspot = VecSpawn + Vector(0, 0, 32);
 
-		if (pPlayer != nullptr)
+		if (pPlayer)
 		{
 			UTIL_TraceLine(checkspot, pPlayer->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
 			if (sightline.flFraction == 1.0)
@@ -358,11 +384,7 @@ void CHordeMaker::MakeMonster()
 	{
 		ent->m_bPrehuman = true;
 	}
-
-	// orginal pPlayer is only in PVS, this makes sure the monster KNOWS ALL
-	if (!g_pGameRules->IsMultiplayer())
-		pPlayer = dynamic_cast<CBasePlayer*>(UTIL_GetLocalPlayer());
-
+	
 	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer != nullptr)
 	{
 		// TO-DO: this may not be all the needed code to make them spawn knowing and attacking the player
