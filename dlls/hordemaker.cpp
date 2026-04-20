@@ -29,18 +29,29 @@
 #include "gamerules.h"
 
 // Monstermaker spawnflags
-#define SF_HORDEMAKER_START_ON 1	// start active ( if has targetname )
-#define SF_HORDEMAKER_EXPENSIVECHECK 2 // check if the spawn will be seen by the player
-#define SF_HORDEMAKER_CYCLIC 4	 	// drop one monster every time fired.
-#define SF_HORDEMAKER_MONSTERCLIP 8 // Children are blocked by monsterclip
-#define SF_HORDEMAKER_PREHUMAN 16 	// Children are spawned with PreHuman tag
-#define SF_HORDEMAKER_AWARE 32 	// Children are spawned with nearest player as the enemy (and knowing where they are)
+#define SF_HORDEMAKER_START_ON 1		// start active ( if has targetname )
+#define SF_HORDEMAKER_EXPENSIVECHECK 2 	// check if the spawn will be seen by the player
+#define SF_HORDEMAKER_CYCLIC 4	 		// drop one monster every time fired.
+#define SF_HORDEMAKER_MONSTERCLIP 8 	// Children are blocked by monsterclip
+#define SF_HORDEMAKER_PREHUMAN 16 		// Children are spawned with PreHuman tag
+#define SF_HORDEMAKER_AWARE 32 			// Children are spawned with nearest player as the enemy (and knowing where they are)
+#define SF_HORDEMAKER_USENODES 64 		// Spawn NPCs on nodes instead of info_hordespawn
 
 extern CGraph WorldGraph;
 
 int lastspawnednode; // this is global so multiple ents can check it
+bool hordeSpawnsPresent = false;
 
 std::vector<int> g_liValidNodes;
+
+//=========================================================
+// HordeMaker - this ent creates monsters during the game.
+//=========================================================
+class CHordeSpawn : public CBaseEntity
+{
+public:
+	void Spawn() override;
+}
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -176,9 +187,14 @@ void CHordeMaker::Precache()
 //=========================================================
 void CHordeMaker::MakeMonster()
 {	
-	if (0 == WorldGraph.m_fGraphPresent)
+	if (0 == WorldGraph.m_fGraphPresent && (pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
 	{
 		ALERT(at_warning, "HordeMaker: No nodegraph present");
+		return;
+	}
+	else if (hordeSpawnsPresent == false && (pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
+	{
+		ALERT(at_warning, "HordeMaker: No valid info_hordespawns present");
 		return;
 	}
 
