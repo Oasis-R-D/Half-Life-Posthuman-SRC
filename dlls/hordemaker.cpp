@@ -44,7 +44,7 @@ int lastspawnednode; // this is global so multiple ents can check it
 // need one for each spawn type
 std::vector<int> g_liValidNodes;
 
-std::vector<entvars_t> g_rgInfoHordeSpawns;
+std::vector<entvars_t*> g_rgInfoHordeSpawns;
 
 inline bool IsEntityValid( CBaseEntity *entity )
 {
@@ -97,20 +97,12 @@ class CHordeSpawn : public CBaseEntity
 public:
 	void Spawn() override
 	{
-		if (DROP_TO_FLOOR(ENT(pev)) == 0)
-		{
-			ALERT(at_error, "info_hordespawn %s fell out of level at %f,%f,%f", STRING(pev->classname), pev->origin.x, pev->origin.y, pev->origin.z);
-			UTIL_Remove(this);
-			return;
-		}
-
 		Vector nodevec = pev->origin;
 
 		TraceResult Height;
-		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
-		pev->origin = Height.vecEndPos;
 
-		UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
+		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
+
 		if (Height.flFraction == 1.0) // is the ceiling tall enough?
 		{
 			g_rgInfoHordeSpawns.push_back(pev); // valid node, add to list
@@ -122,8 +114,6 @@ public:
 			return;
 		}
 	}
-
-	std::vector<Vector> m_rgAllowedInfSpawns;
 };
 
 LINK_ENTITY_TO_CLASS(info_hordespawn, CHordeSpawn);
@@ -147,6 +137,8 @@ public:
 	bool Restore(CRestore& restore) override;
 
 	static TYPEDESCRIPTION m_SaveData[];
+
+	std::vector<Vector> m_rgAllowedInfSpawns;
 
 	string_t m_iszMonsterClassname; // classname of the monster(s) that will be created.
 
