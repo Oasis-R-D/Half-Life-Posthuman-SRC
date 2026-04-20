@@ -247,7 +247,6 @@ void CHordeMaker::MakeMonster()
 
 	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
 
-	// move these checks to the valid node finder?
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
@@ -309,10 +308,9 @@ void CHordeMaker::MakeMonster()
 		CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(ent);
 		if (pMonster != nullptr)
 		{
-			//pMonster->StartTask(pTask);
-			pMonster->m_hEnemy = pPlayer;
-			pMonster->m_vecEnemyLKP = pPlayer->pev->origin;
 			pMonster->m_movementGoal = MOVEGOAL_ENEMY;
+			pMonster->m_afMemory |= bits_MEMORY_PROVOKED;
+			pMonster->PushEnemy(hEnemy, vecLocation);
 		}
 	}
 

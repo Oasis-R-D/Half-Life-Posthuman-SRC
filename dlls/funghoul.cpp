@@ -215,6 +215,8 @@ public:
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	int IgnoreConditions() override;
 
+	void CallForHelp(float flDist, EHANDLE hEnemy, Vector& vecLocation);
+
 	void PainSound() override;
 	void AlertSound() override;
 	void IdleSound() override;
@@ -616,6 +618,27 @@ bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, floa
 	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
 
+
+// alert friends in radius
+void CFunghoul::CallForHelp(float flDist, EHANDLE hEnemy, Vector& vecLocation)
+{
+	// ALERT( at_aiconsole, "help " );
+
+	CBaseEntity* pEntity = NULL;
+	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, flDist)) != NULL)
+	{
+		if (pEntity->Classify() == CLASS_FUNGAL)
+		{
+			CBaseMonster* pMonster = pEntity->MyMonsterPointer();
+			if (pMonster)
+			{
+				pMonster->m_afMemory |= bits_MEMORY_PROVOKED;
+				pMonster->PushEnemy(hEnemy, vecLocation);
+			}
+		}
+	}
+}
+
 void CFunghoul::PainSound()
 {
 	int pitch = 95 + RANDOM_LONG(0, 9);
@@ -629,6 +652,8 @@ void CFunghoul::AlertSound()
 	int pitch = 95 + RANDOM_LONG(0, 9);
 
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, pAlertSounds[RANDOM_LONG(0, ARRAYSIZE(pAlertSounds) - 1)], 1.0, ATTN_NORM, 0, pitch);
+	if (m_hEnemy != NULL)
+		CallForHelp(512, m_hEnemy, m_vecEnemyLKP);
 }
 
 void CFunghoul::IdleSound()
