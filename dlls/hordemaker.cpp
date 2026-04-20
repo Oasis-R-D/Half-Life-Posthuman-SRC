@@ -332,7 +332,7 @@ void CHordeMaker::MakeMonster()
 		}
 	}
 
-	CBasePlayer* pPlayer = GetClosestPlayer(VecSpawn);
+	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
 
 	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
@@ -356,6 +356,9 @@ void CHordeMaker::MakeMonster()
 			}
 		}
 	}
+
+	// use closest player for next operations
+	pPlayer = GetClosestPlayer(VecSpawn);
 
 	pent = CREATE_NAMED_ENTITY(m_iszMonsterClassname);
 
