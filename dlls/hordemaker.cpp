@@ -44,7 +44,7 @@ bool hordeSpawnsPresent = false;
 
 // need one for each spawn type
 std::vector<int> g_liValidNodes;
-std::vector<entvars_t> g_liValidInfoSpawns;
+std::vector<Vector> g_liValidInfoSpawns; // use the origin itself since no other data needs accessed
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -65,12 +65,12 @@ public:
 
 		TraceResult Height;
 		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
-		UTIL_SetOrigin(pev, Height.vecEndPos);
 
 		UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 		if (Height.flFraction == 1.0) // is the ceiling tall enough?
 		{
-			g_liValidInfoSpawns.push_back(pev); // valid node, add to list
+			g_liValidInfoSpawns.push_back(Height.vecEndPos); // valid node, add to list
+			hordeSpawnsPresent = true;
 		}
 		else
 		{
@@ -287,7 +287,7 @@ void CHordeMaker::MakeMonster()
 	}
 	else
 	{
-		nodevec = g_liValidInfoSpawns[selectednode]->origin;
+		nodevec = g_liValidInfoSpawns[selectednode];
 		VecSpawn = nodevec;
 	}
 
