@@ -42,7 +42,9 @@ extern CGraph WorldGraph;
 int lastspawnednode; // this is global so multiple ents can check it
 bool hordeSpawnsPresent = false;
 
+// need one for each spawn type
 std::vector<int> g_liValidNodes;
+std::vector<entvars_t> g_liValidInfoSpawns;
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -50,8 +52,35 @@ std::vector<int> g_liValidNodes;
 class CHordeSpawn : public CBaseEntity
 {
 public:
-	void Spawn() override;
+	void Spawn() override
+	{
+		if (DROP_TO_FLOOR(ENT(pev)) == 0)
+		{
+			ALERT(at_error, "info_hordespawn %s fell out of level at %f,%f,%f", STRING(pev->classname), pev->origin.x, pev->origin.y, pev->origin.z);
+			UTIL_Remove(this);
+			return;
+		}
+
+		Vector nodevec = pev->origin;
+
+		TraceResult Height;
+		UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 64, ignore_monsters, dont_ignore_glass, NULL, &Height); // get floor
+
+		UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
+		if (Height.flFraction == 1.0) // is the ceiling tall enough?
+		{
+			g_liValidInfoSpawns.push_back(pev); // valid node, add to list
+		}
+		else
+		{
+			ALERT(at_error, "info_hordespawn %s ceiling too low at %f,%f,%f", STRING(pev->classname), pev->origin.x, pev->origin.y, pev->origin.z);
+			UTIL_Remove(this);
+			return;
+		}
+	}
 }
+
+LINK_ENTITY_TO_CLASS(info_hordespawn, CHordeSpawn);
 
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
@@ -170,9 +199,7 @@ void CHordeMaker::Spawn()
 	else
 	{
 		m_fFadeChildren = true;
-	}
-
-	
+	}	
 }
 
 void CHordeMaker::Precache()
@@ -192,13 +219,13 @@ void CHordeMaker::MakeMonster()
 		ALERT(at_warning, "HordeMaker: No nodegraph present");
 		return;
 	}
-	else if (hordeSpawnsPresent == false && (pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
+	else if ((hordeSpawnsPresent == false || g_liValidInfoSpawns.empty()) && (pev->spawnflags & SF_HORDEMAKER_USENODES) == 0)
 	{
 		ALERT(at_warning, "HordeMaker: No valid info_hordespawns present");
 		return;
 	}
 
-	if (g_liValidNodes.empty()) // generate list of spawns
+	if (g_liValidNodes.empty() && (pev->spawnflags & SF_HORDEMAKER_USENODES) != 0) // generate list of spawns
 	{
 		for (int i = 0; i < WorldGraph.m_cNodes; i++)
 		{
@@ -231,8 +258,12 @@ void CHordeMaker::MakeMonster()
 
 	while (true)
 	{
-		selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size()-1)];
-		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out
+		if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
+			selectednode = g_liValidNodes[RANDOM_LONG(0, g_liValidNodes.size()-1)];
+		else
+			selectednode = RANDOM_LONG(0, g_liValidInfoSpawns.size()-1);
+
+		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out // TO-DO: make one for each spawn type
 			continue;
 		else
 			break;
@@ -240,7 +271,12 @@ void CHordeMaker::MakeMonster()
 
 	lastspawnednode = selectednode;
 
-	Vector nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+	Vector nodevec;
+	
+	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
+		nodevec = WorldGraph.m_pNodes[selectednode].m_vecOriginPeek;
+	else
+		nodevec = g_liValidInfoSpawns[selectednode]->origin;
 
 	TraceResult Height;
 	UTIL_TraceLine(nodevec, nodevec - gpGlobals->v_up * 32, ignore_monsters, dont_ignore_glass, NULL, &Height); // find floor
