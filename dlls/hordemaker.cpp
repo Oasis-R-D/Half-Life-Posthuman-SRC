@@ -259,6 +259,11 @@ void CHordeMaker::Precache()
 //=========================================================
 void CHordeMaker::MakeMonster()
 {	
+	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
+	{ 
+		return; // not allowed to make a new one yet. Too many live ones out right now.
+	}
+
 	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
 	{
 		if (0 == WorldGraph.m_fGraphPresent)
@@ -300,15 +305,10 @@ void CHordeMaker::MakeMonster()
 			for (const auto& pPev : g_rgInfoHordeSpawns)
 			{
 				// check classname here
-				if (FStrEq(STRING(m_iszSpawnerName), STRING(pPev->targetname)) || FStringNull(m_iszSpawnerName))
+				if (FStringNull(m_iszSpawnerName) || FStrEq(STRING(m_iszSpawnerName), STRING(pPev->targetname)) )
 					m_rgAllowedInfSpawns.push_back(pPev->origin);
 			}
 		}
-	}
-
-	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
-	{ 
-		return; // not allowed to make a new one yet. Too many live ones out right now.
 	}
 
 	edict_t* pent;
@@ -324,7 +324,7 @@ void CHordeMaker::MakeMonster()
 		else
 			selectednode = RANDOM_LONG(0, m_rgAllowedInfSpawns.size()-1);
 
-		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out // TO-DO: make one for each spawn type
+		if (selectednode == lastspawnednode) // there's probably a monster still here, throw out
 			continue;
 		else
 			break;
@@ -419,7 +419,7 @@ void CHordeMaker::MakeMonster()
 		ent->m_bPrehuman = true;
 	}
 	
-	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer != nullptr)
+	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer)
 	{
 		// TO-DO: this may not be all the needed code to make them spawn knowing and attacking the player
 		CBaseMonster* pMonster = dynamic_cast<CBaseMonster*>(ent);
