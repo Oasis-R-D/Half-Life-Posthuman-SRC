@@ -589,7 +589,7 @@ void CFuncVehicle ::TerrainFollowing(void)
 	TraceResult tr;
 
 	// Get the normal of the surface we're right on top of
-	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -1)/* * (m_height + 48))*/, ignore_monsters, dont_ignore_glass, ENT(pev), &tr);
+	UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -1 * (m_height + 48)), ignore_monsters, dont_ignore_glass, ENT(pev), &tr);
 	if (tr.flFraction != 1.0) // we hit something
 	{
 		m_vSurfaceNormal = tr.vecPlaneNormal;
