@@ -255,7 +255,7 @@ void CHordeMaker::Precache()
 }
 
 //=========================================================
-// MakeMonster-  this is the code that drops the monster
+// MakeMonster - this is the code that drops the monster
 //=========================================================
 void CHordeMaker::MakeMonster()
 {	

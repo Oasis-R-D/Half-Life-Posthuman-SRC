@@ -124,6 +124,7 @@ private:
 	unsigned short m_usAdjustPitch;
 };
 
+// TO-DO: remove unused functions to make fixing this piece of garbage easier
 class CFuncVehicle : public CBaseEntity
 {
 public:
