@@ -141,6 +141,7 @@ public:
 	std::vector<Vector> m_rgAllowedInfSpawns;
 
 	string_t m_iszMonsterClassname; // classname of the monster(s) that will be created.
+	string_t m_iszSpawnerName; // only spawn monsters at spawners named this
 
 	int m_cNumMonsters; // max number of monsters this ent can create
 
@@ -158,6 +159,7 @@ LINK_ENTITY_TO_CLASS(hordemaker, CHordeMaker);
 TYPEDESCRIPTION CHordeMaker::m_SaveData[] =
 	{
 		DEFINE_FIELD(CHordeMaker, m_iszMonsterClassname, FIELD_STRING),
+		DEFINE_FIELD(CHordeMaker, m_iszSpawnerName, FIELD_STRING),
 		DEFINE_FIELD(CHordeMaker, m_cNumMonsters, FIELD_INTEGER),
 		DEFINE_FIELD(CHordeMaker, m_cLiveChildren, FIELD_INTEGER),
 		DEFINE_FIELD(CHordeMaker, m_iMaxLiveChildren, FIELD_INTEGER),
@@ -188,6 +190,11 @@ bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 	else if (FStrEq(pkvd->szKeyName, "monstertype"))
 	{
 		m_iszMonsterClassname = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "nodename"))
+	{
+		m_iszSpawnerName = ALLOC_STRING(pkvd->szValue);
 		return true;
 	}
 
@@ -293,7 +300,8 @@ void CHordeMaker::MakeMonster()
 			for (const auto& pPev : g_rgInfoHordeSpawns)
 			{
 				// check classname here
-				m_rgAllowedInfSpawns.push_back(pPev->origin);
+				if (FStrEq(STRING(m_iszSpawnerName), STRING(pPev->targetname)) || FStringNull(m_iszSpawnerName))
+					m_rgAllowedInfSpawns.push_back(pPev->origin);
 			}
 		}
 	}

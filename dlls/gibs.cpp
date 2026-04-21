@@ -37,7 +37,7 @@ std::vector<gib_data_t> pitdrone_gibmap =
 };				
 
 std::vector<gib_data_t> funghoul_gibmap =
-{		// 			MDL 			   BG # TYPE
+{		// 			MDL 			       BG # TYPE
 		gib_data_t{"models/fung_gibs.mdl", 0, 1, 1},
 		gib_data_t{"models/fung_gibs.mdl", 1, 1},
 		gib_data_t{"models/fung_gibs.mdl", 2, 1},
