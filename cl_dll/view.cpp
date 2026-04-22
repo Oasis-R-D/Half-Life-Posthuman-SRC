@@ -564,6 +564,17 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 		//origin = origin + right * (-pitch * 0.03f);
 		//origin = origin + up * (-pitch * 0.02f);
 	}
+	float side;
+	cl_entity_t* viewentity;
+
+	viewentity = gEngfuncs.GetEntityByIndex(pparams->viewentity);
+	if (!viewentity)
+		return;
+
+	side = 1.6 * V_CalcRoll(viewentity->angles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value); // 1.6 is 4*0.4
+	
+	
+	angles[ROLL] = angles[ROLL] + side;
 }
 extern extra_viewmodel_t extra_viewmodels[4];
 /*
