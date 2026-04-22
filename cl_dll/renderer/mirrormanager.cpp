@@ -212,7 +212,6 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 	m_pViewParams = pparams;
 
 	VectorAdd(m_pViewParams->viewangles, m_pViewParams->punchangle, m_pViewParams->viewangles);
-	VectorAdd(m_pViewParams->viewangles, (float*)&ev_punchangle, m_pViewParams->viewangles);
 	FrustumCheck restorefrustum = gHUD.viewFrustum;
 
 	for (int i = 0; i < m_iNumMirrors; i++)
