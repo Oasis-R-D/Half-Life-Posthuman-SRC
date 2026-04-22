@@ -169,8 +169,8 @@ void CHudHealth::GetPainColor(int& r, int& g, int& b)
 	}
 	else if (m_iHealth > 10)
 	{
-		r = round(-2.0625 * iHealth + 270.625);
-		g = round(2.55 * iHealth - 25.5);
+		r = round(-2.0625 * m_iHealth + 270.625);
+		g = round(2.55 * m_iHealth - 25.5);
 		b = 0;
 	}
 	else
