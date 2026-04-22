@@ -101,6 +101,7 @@ extern float IN_GetMouseSensitivity();
 cvar_t* cl_lw = NULL;
 cvar_t* cl_rollangle = nullptr;
 cvar_t* cl_rollspeed = nullptr;
+cvar_t* cl_rollmultvm = nullptr;
 cvar_t* cl_bobtilt = nullptr;
 cvar_t* r_decals = nullptr;
 
@@ -444,8 +445,9 @@ void CHud::Init()
 	m_pCvarStealMouse = CVAR_CREATE("hud_capturemouse", "1", FCVAR_ARCHIVE);
 	m_pCvarDraw = CVAR_CREATE("hud_draw", "1", FCVAR_ARCHIVE);
 	cl_lw = gEngfuncs.pfnGetCvarPointer("cl_lw");
-	cl_rollangle = CVAR_CREATE("cl_rollangle", "2.0", FCVAR_ARCHIVE);
-	cl_rollspeed = CVAR_CREATE("cl_rollspeed", "200", FCVAR_ARCHIVE);
+	cl_rollangle = CVAR_CREATE("cl_rollangle", "10.0", FCVAR_ARCHIVE);
+	cl_rollspeed = CVAR_CREATE("cl_rollspeed", "700", FCVAR_ARCHIVE);
+	cl_rollmultvm = CVAR_CREATE("cl_rollvmmult", "2.0", FCVAR_ARCHIVE);
 	cl_bobtilt = CVAR_CREATE("cl_bobtilt", "0", FCVAR_ARCHIVE);
 	r_decals = gEngfuncs.pfnGetCvarPointer("r_decals");
 

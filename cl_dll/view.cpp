@@ -80,6 +80,7 @@ extern cvar_t* cl_vsmoothing;
 extern cvar_t* cl_rollangle;
 extern cvar_t* cl_rollspeed;
 extern cvar_t* cl_bobtilt;
+extern cvar_t* cl_rollmultvm;
 
 #define CAM_MODE_RELAX 1
 #define CAM_MODE_FOCUS 2
@@ -176,50 +177,61 @@ void V_InterpolateAngles( float *start, float *end, float *output, float frac )
 	V_NormalizeAngles( output );
 } */
 
-// Quakeworld bob code, this fixes jitters in the mutliplayer since the clock (pparams->time) isn't quite linear
-float V_CalcBob(struct ref_params_s* pparams)
+enum calcBobMode_t
 {
-	static double bobtime = 0;
-	static float bob = 0;
-	float cycle;
-	static float lasttime = 0;
-	Vector vel;
+	VB_COS,
+	VB_SIN,
+	VB_COS2,
+	VB_SIN2
+};
 
+// Quakeworld bob code, this fixes jitters in the mutliplayer since the clock (pparams->time) isn't quite linear
+void V_CalcBob ( struct ref_params_s *pparams, float freqmod, calcBobMode_t mode, double &bobtime, float &bob, float &lasttime )
+{
+	float	cycle;
+	Vector	vel;
 
-	if (pparams->onground == -1 ||
-		pparams->time == lasttime)
+	if ( pparams->onground == -1 ||
+		 pparams->time == lasttime )
 	{
 		// just use old value
-		return bob;
+		return;// bob;	
 	}
 
 	lasttime = pparams->time;
 
-	//TODO: bobtime will eventually become a value so large that it will no longer behave properly.
-	//Consider resetting the variable if a level change is detected (pparams->time < lasttime might do the trick).
-	bobtime += pparams->frametime;
-	cycle = bobtime - (int)(bobtime / cl_bobcycle->value) * cl_bobcycle->value;
+	bobtime += pparams->frametime * freqmod;
+	cycle = bobtime - (int)( bobtime / cl_bobcycle->value ) * cl_bobcycle->value;
 	cycle /= cl_bobcycle->value;
-
-	if (cycle < cl_bobup->value)
+	
+	if ( cycle < cl_bobup->value )
 	{
 		cycle = M_PI * cycle / cl_bobup->value;
 	}
 	else
 	{
-		cycle = M_PI + M_PI * (cycle - cl_bobup->value) / (1.0 - cl_bobup->value);
+		cycle = M_PI + M_PI * ( cycle - cl_bobup->value )/( 1.0 - cl_bobup->value );
 	}
 
 	// bob is proportional to simulated velocity in the xy plane
 	// (don't count Z, or jumping messes it up)
-	VectorCopy(pparams->simvel, vel);
+	VectorCopy( pparams->simvel, vel );
 	vel[2] = 0;
 
-	bob = sqrt(vel[0] * vel[0] + vel[1] * vel[1]) * cl_bob->value;
-	bob = bob * 0.3 + bob * 0.7 * sin(cycle);
-	bob = V_min(bob, 4.0f);
-	bob = V_max(bob, -7.0f);
-	return bob;
+	bob = sqrt( vel[0] * vel[0] + vel[1] * vel[1] ) * cl_bob->value;
+
+	if ( mode == VB_SIN )
+		bob = bob * 0.3 + bob * 0.7 * sin( cycle );
+	else if ( mode == VB_COS )
+		bob = bob * 0.3 + bob * 0.7 * cos( cycle );
+	else if ( mode == VB_SIN2 )
+		bob = bob * 0.3 + bob * 0.7 * sin( cycle ) * sin( cycle );
+	else if ( mode == VB_COS2 )
+		bob = bob * 0.3 + bob * 0.7 * cos( cycle ) * cos( cycle );
+
+	bob = V_min( bob, 4 );
+	bob = V_max( bob, -7 );
+	//return bob;
 }
 
 /*
@@ -391,6 +403,9 @@ void V_CalcGunAngle(struct ref_params_s* pparams)
 	// don't apply all of the v_ipitch to prevent normally unseen parts of viewmodel from coming into view.
 	viewent->angles[PITCH] -= v_idlescale * sin(pparams->time * v_ipitch_cycle.value) * (v_ipitch_level.value * 0.5);
 	viewent->angles[YAW] -= v_idlescale * sin(pparams->time * v_iyaw_cycle.value) * v_iyaw_level.value;
+
+	VectorCopy( viewent->angles, viewent->curstate.angles );
+	VectorCopy( viewent->angles, viewent->latched.prevangles );
 }
 
 /*
@@ -573,7 +588,7 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 	if (!viewentity)
 		return;
 
-	side = 1.6 * V_CalcRoll(viewentity->angles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value); // 1.6 is 4*0.4
+	side = cl_rollmultvm->value * V_CalcRoll(viewentity->angles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value); // 2 is 4*0.5
 	
 	
 	angles[ROLL] = angles[ROLL] + side;
@@ -587,17 +602,22 @@ V_CalcRefdef
 */
 void V_CalcNormalRefdef(struct ref_params_s* pparams)
 {
-	cl_entity_t *ent, *view;
-	int i;
-	Vector angles;
-	float bob, waterOffset;
-	static viewinterp_t ViewInterp;
+	cl_entity_t				*ent, *view;
+	int						i;
+	Vector					angles;
+	float					bobRight = 0, bobUp = 0, bobForward = 0, waterOffset;
+	static viewinterp_t		ViewInterp;
 
 	static float oldz = 0;
 	static float lasttime;
+	bool underwater = false;
+
+	// double &bobtime, float &bob, float &lasttime
+	static double bobtimes[ 3 ] = { 0,0,0 };
+	static float lasttimes[ 3 ] = { 0,0,0 };
 
 	Vector camAngles, camForward, camRight, camUp;
-	cl_entity_t* pwater;
+	cl_entity_t *pwater;
 
 	V_DriftPitch(pparams);
 
@@ -613,16 +633,23 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 
 	// view is the weapon model (only visible from inside body )
 	view = &engine_cl->viewent;
+
 	// transform the view offset by the model's matrix to get the offset from
 	// model origin for the view
-	bob = V_CalcBob(pparams);
+	//if (pparams->onground || pparams->waterlevel == 3) // TO-DO: figure out how to make it fade out on jump
+	{
+		V_CalcBob(pparams, 0.75f, VB_SIN, bobtimes[0], bobRight, lasttimes[0]); // right
+		V_CalcBob(pparams, 1.50f, VB_SIN, bobtimes[1], bobUp, lasttimes[1]);	// up
+	}
+	
+	V_CalcBob(pparams, 1.00f, VB_SIN, bobtimes[2], bobForward, lasttimes[2]); // forward
 
 	// refresh position
-	VectorCopy(pparams->simorg, pparams->vieworg);
-	pparams->vieworg[2] += (bob);
-	VectorAdd(pparams->vieworg, pparams->viewheight, pparams->vieworg);
+	VectorCopy ( pparams->simorg, pparams->vieworg );
+	pparams->vieworg[2] += ( bobRight );
+	VectorAdd( pparams->vieworg, pparams->viewheight, pparams->vieworg );
 
-	VectorCopy(pparams->cl_viewangles, pparams->viewangles);
+	VectorCopy ( pparams->cl_viewangles, pparams->viewangles );
 
 	gEngfuncs.V_CalcShake();
 	gEngfuncs.V_ApplyShake(pparams->vieworg, pparams->viewangles, 1.0);
@@ -637,7 +664,6 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	pparams->vieworg[2] += 1.0 / 32;
 
 	// Check for problems around water, move the viewer artificially if necessary
-	// -- this prevents drawing errors in GL due to waves
 
 	waterOffset = 0;
 	if (pparams->waterlevel >= 2)
@@ -750,22 +776,68 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	// Let the viewmodel shake at about 10% of the amplitude
 	gEngfuncs.V_ApplyShake(view->origin, view->angles, 0.9);
 
-	for (i = 0; i < 3; i++)
+	for ( i = 0; i < 3; i++ )
 	{
-		view->origin[i] += bob * 0.4 * pparams->forward[i];
+		view->origin[i] += bobRight		* 0.33 * pparams->right[i];
+		view->origin[i] += bobUp		* 0.17 * pparams->up[i];
+		view->origin[i] -= bobForward	* 0.17 * pparams->forward[i];
 	}
-	view->origin[2] += bob;
+
+	view->origin[2] += bobRight;
 
 	V_CalcViewModelLag(pparams, view->origin, view->angles, Vector(pparams->cl_viewangles));
 
-	if (0 != cl_bobtilt->value)
+	//if (0 != cl_bobtilt->value)
 	{
 		// throw in a little tilt.
-		view->angles[YAW] -= bob * 0.5;
-		view->angles[ROLL] -= bob * 1;
-		view->angles[PITCH] -= bob * 0.3;
-		VectorCopy(view->angles, view->curstate.angles);
+		view->angles[YAW]   -= bobRight * 0.3;
+		view->angles[ROLL]  -= bobUp * 0.5;
+		view->angles[PITCH] -= bobRight * 0.3;
 	}
+
+	/*
+	int mouseX = 0, mouseY = 0;
+	gEngfuncs.GetMousePosition( &mouseX, &mouseY );
+
+	static float blendMouseX = 0.0;
+	static float blendMouseY = 0.0;
+
+	float relMouseX = ((float)(mouseX) / ScreenWidth) - 0.5;
+	float relMouseY = ((float)(mouseY) / ScreenHeight) - 0.5;
+	relMouseX *= 300.0;
+	relMouseY *= 300.0;
+
+	if ( relMouseX > 10.0 )
+		relMouseX = 10.0;
+	else if ( relMouseX < -10.0 )
+		relMouseX = -10.0;
+
+	if ( relMouseY > 10.0 )
+		relMouseY = 10.0;
+	else if ( relMouseY < -10.0 )
+		relMouseY = -10.0;
+
+	blendMouseX = relMouseX * 0.07 + blendMouseX * 0.97;	
+	blendMouseY = relMouseY * 0.07 + blendMouseY * 0.97;
+
+	gEngfuncs.Con_Printf( "\nX %3.2f Y %3.2f", blendMouseX, blendMouseY );
+
+	view->angles[ROLL] -= blendMouseX;
+	view->angles[YAW] += blendMouseX * 0.5;
+	view->angles[PITCH] += blendMouseY * 0.5;
+
+	// Enables old HL WON view bobbing
+	VectorCopy( view->angles, view->curstate.angles );
+
+	for ( int i = 0; i < 3; i++ )
+	{
+		view->origin[ i ] += 0.2 * blendMouseX * pparams->right[ i ];
+		view->origin[ i ] -= 0.35 * blendMouseY * pparams->up[ i ];
+	}
+	*/
+
+	// Enables old HL WON view bobbing
+	VectorCopy( view->angles, view->curstate.angles );
 
 	// pushing the view origin down off of the same X/Z plane as the ent's origin will give the
 	// gun a very nice 'shifting' effect when the player looks up/down. If there is a problem
@@ -791,26 +863,27 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	VectorAdd(view->angles, (float*)&newCLpunch, view->angles);
 
 	VectorCopy(view->angles, view->curstate.angles);
-	// VIEW PUNCH END
+	
 
 	V_DropPunchAngle(pparams->frametime, (float*)&ev_punchangle);
+	// VIEW PUNCH END
 
 	// smooth out stair step ups
 #if 1
-	if (0 == pparams->smoothing && 0 != pparams->onground && pparams->simorg[2] - oldz > 0)
+	if ( !pparams->smoothing && pparams->onground && pparams->simorg[2] - oldz > 0)
 	{
 		float steptime;
-
+		
 		steptime = pparams->time - lasttime;
 		if (steptime < 0)
-			//FIXME		I_Error ("steptime < 0");
+	//FIXME		I_Error ("steptime < 0");
 			steptime = 0;
 
 		oldz += steptime * 150;
 		if (oldz > pparams->simorg[2])
 			oldz = pparams->simorg[2];
 		if (pparams->simorg[2] - oldz > 18)
-			oldz = pparams->simorg[2] - 18;
+			oldz = pparams->simorg[2]- 18;
 		pparams->vieworg[2] += oldz - pparams->simorg[2];
 		view->origin[2] += oldz - pparams->simorg[2];
 	}
@@ -824,41 +897,41 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 		static float lastorg[3];
 		Vector delta;
 
-		VectorSubtract(pparams->simorg, lastorg, delta);
+		VectorSubtract( pparams->simorg, lastorg, delta );
 
-		if (Length(delta) != 0.0)
+		if ( Length( delta ) != 0.0 )
 		{
-			VectorCopy(pparams->simorg, ViewInterp.Origins[ViewInterp.CurrentOrigin & ORIGIN_MASK]);
-			ViewInterp.OriginTime[ViewInterp.CurrentOrigin & ORIGIN_MASK] = pparams->time;
+			VectorCopy( pparams->simorg, ViewInterp.Origins[ ViewInterp.CurrentOrigin & ORIGIN_MASK ] );
+			ViewInterp.OriginTime[ ViewInterp.CurrentOrigin & ORIGIN_MASK ] = pparams->time;
 			ViewInterp.CurrentOrigin++;
 
-			VectorCopy(pparams->simorg, lastorg);
+			VectorCopy( pparams->simorg, lastorg );
 		}
 	}
 
 	// Smooth out whole view in multiplayer when on trains, lifts
-	if (cl_vsmoothing && 0 != cl_vsmoothing->value &&
-		(0 != pparams->smoothing && (pparams->maxclients > 1)))
+	if ( cl_vsmoothing && cl_vsmoothing->value &&
+		( pparams->smoothing && ( pparams->maxclients > 1 ) ) )
 	{
 		int foundidx;
 		int i;
 		float t;
 
-		if (cl_vsmoothing->value < 0.0)
+		if ( cl_vsmoothing->value < 0.0 )
 		{
-			gEngfuncs.Cvar_SetValue("cl_vsmoothing", 0.0);
+			gEngfuncs.Cvar_SetValue( "cl_vsmoothing", 0.0 );
 		}
 
 		t = pparams->time - cl_vsmoothing->value;
 
-		for (i = 1; i < ORIGIN_MASK; i++)
+		for ( i = 1; i < ORIGIN_MASK; i++ )
 		{
 			foundidx = ViewInterp.CurrentOrigin - 1 - i;
-			if (ViewInterp.OriginTime[foundidx & ORIGIN_MASK] <= t)
+			if ( ViewInterp.OriginTime[ foundidx & ORIGIN_MASK ] <= t )
 				break;
 		}
 
-		if (i < ORIGIN_MASK && ViewInterp.OriginTime[foundidx & ORIGIN_MASK] != 0.0)
+		if ( i < ORIGIN_MASK && ViewInterp.OriginTime[ foundidx & ORIGIN_MASK ] != 0.0 )
 		{
 			// Interpolate
 			Vector delta;
@@ -866,22 +939,22 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 			double dt;
 			Vector neworg;
 
-			dt = ViewInterp.OriginTime[(foundidx + 1) & ORIGIN_MASK] - ViewInterp.OriginTime[foundidx & ORIGIN_MASK];
-			if (dt > 0.0)
+			dt = ViewInterp.OriginTime[ (foundidx + 1) & ORIGIN_MASK ] - ViewInterp.OriginTime[ foundidx & ORIGIN_MASK ];
+			if ( dt > 0.0 )
 			{
-				frac = (t - ViewInterp.OriginTime[foundidx & ORIGIN_MASK]) / dt;
-				frac = V_min(1.0, frac);
-				VectorSubtract(ViewInterp.Origins[(foundidx + 1) & ORIGIN_MASK], ViewInterp.Origins[foundidx & ORIGIN_MASK], delta);
-				VectorMA(ViewInterp.Origins[foundidx & ORIGIN_MASK], frac, delta, neworg);
+				frac = ( t - ViewInterp.OriginTime[ foundidx & ORIGIN_MASK] ) / dt;
+				frac = V_min( 1.0, frac );
+				VectorSubtract( ViewInterp.Origins[ ( foundidx + 1 ) & ORIGIN_MASK ], ViewInterp.Origins[ foundidx & ORIGIN_MASK ], delta );
+				VectorMA( ViewInterp.Origins[ foundidx & ORIGIN_MASK ], frac, delta, neworg );
 
 				// Dont interpolate large changes
-				if (Length(delta) < 64)
+				if ( Length( delta ) < 64 )
 				{
-					VectorSubtract(neworg, pparams->simorg, delta);
+					VectorSubtract( neworg, pparams->simorg, delta );
 
-					VectorAdd(pparams->simorg, delta, pparams->simorg);
-					VectorAdd(pparams->vieworg, delta, pparams->vieworg);
-					VectorAdd(view->origin, delta, view->origin);
+					VectorAdd( pparams->simorg, delta, pparams->simorg );
+					VectorAdd( pparams->vieworg, delta, pparams->vieworg );
+					VectorAdd( view->origin, delta, view->origin );
 				}
 			}
 		}
