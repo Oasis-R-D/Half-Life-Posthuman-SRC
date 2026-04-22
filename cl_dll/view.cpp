@@ -564,6 +564,8 @@ void V_CalcViewModelLag(ref_params_t* pparams, Vector& origin, Vector& angles, V
 		//origin = origin + right * (-pitch * 0.03f);
 		//origin = origin + up * (-pitch * 0.02f);
 	}
+
+	// BNH VM tilt
 	float side;
 	cl_entity_t* viewentity;
 
