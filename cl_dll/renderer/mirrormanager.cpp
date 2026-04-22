@@ -211,6 +211,8 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 	memcpy(&m_pMirrorParams, pparams, sizeof(ref_params_t));
 	m_pViewParams = pparams;
 
+	VectorAdd(m_pViewParams->viewangles, m_pViewParams->punchangle, m_pViewParams->viewangles);
+	VectorAdd(m_pViewParams->viewangles, (float*)&ev_punchangle, m_pViewParams->viewangles);
 	FrustumCheck restorefrustum = gHUD.viewFrustum;
 
 	for (int i = 0; i < m_iNumMirrors; i++)
@@ -220,7 +222,7 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 		if (!m_pCurrentMirror->draw)
 			continue;
 
-		gHUD.viewFrustum.SetFrustum(pparams->viewangles, pparams->vieworg, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
+		gHUD.viewFrustum.SetFrustum(m_pViewParams->viewangles, pparams->vieworg, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
 
 		if (gHUD.viewFrustum.CullBox(m_pCurrentMirror->mins, m_pCurrentMirror->maxs))
 		{
@@ -324,6 +326,7 @@ void CMirrorManager::DrawMirrorPass(void)
 
 	g_BeamRenderer.R_DrawBeams(engine_cl->time - engine_cl->oldtime);
 
+	// TO-DO: why aren't we doing these?
 	//// Draw props
 	//gPropManager.RenderProps();
 	//
