@@ -97,7 +97,7 @@ const Vector& CSpitThrower::GetBulletSpread()
 	// We lerp from very accurate to inaccurate over time
 	VectorLerp( VECTOR_CONE_4DEGREES, VECTOR_CONE_7DEGREES, ramp, cone );
 
-	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0)
+	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_3DEGREES;
 
 	return cone;

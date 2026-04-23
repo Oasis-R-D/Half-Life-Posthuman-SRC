@@ -258,7 +258,7 @@ void CM249::Shoot(bool alt)
 	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 12 + gpGlobals->v_right * 4;
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(100, 200) + gpGlobals->v_up * RANDOM_FLOAT(15, 45) + gpGlobals->v_forward * 25;
 	EjectBrass(ori, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	EjectBrass(ori, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_NULL);
+	EjectBrass(ori + gpGlobals->v_forward * 2 + gpGlobals->v_right * -1, vecShellVelocity+RANDOM_VECTOR(-2, 2), pev->angles.y, m_iLink, TE_BOUNCE_NULL);
 
 	if (0 == m_iClip)
 	{

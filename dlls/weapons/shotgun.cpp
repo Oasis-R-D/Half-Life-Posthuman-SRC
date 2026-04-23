@@ -145,7 +145,7 @@ const Vector& CShotgun::GetBulletSpread()
 		VectorLerp(0.013095, VECTOR_CONE_10DEGREES, ramp, cone);
 	}
 
-	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0)
+	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_2DEGREES;
 
 	return cone;
