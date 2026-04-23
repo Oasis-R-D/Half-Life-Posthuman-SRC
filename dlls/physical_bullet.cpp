@@ -178,7 +178,7 @@ void CPhysbullet::Spawn()
 
 	UTIL_SetSize(pev, g_vecZero, g_vecZero);
 
-	SetTouch(&CPhysbullet::BoltTouch);
+	SetTouch(&CPhysbullet::BulletImpact);
 	SetThink(&CPhysbullet::AirThink);
 
 	// TRAIL START
@@ -219,7 +219,7 @@ void CPhysbullet::Precache()
 	PRECACHE_SOUND("bullet/imp_dirt01.wav");
 }
 
-void CPhysbullet::BoltTouch(CBaseEntity* pOther)
+void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 {	
 	TraceResult tr = UTIL_GetGlobalTrace();
 	if (UTIL_PointContents(tr.vecEndPos) == CONTENTS_SKY)
@@ -512,11 +512,10 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
 	{
 		// hit body
-
 		if (pEntity->Classify() == CLASS_FUNGAL)
 			return 1.33f; // soft flesh
 
-		chTextureType = CHAR_TEX_FLESH;
+		return 1.75f; // flesh
 	}
 	else if (pEntity->IsMachine(pEntity))
 	{

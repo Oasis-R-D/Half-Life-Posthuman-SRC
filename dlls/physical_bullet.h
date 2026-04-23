@@ -22,7 +22,7 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	void EXPORT AirThink();
-	void EXPORT BoltTouch(CBaseEntity* pOther);
+	void EXPORT BulletImpact(CBaseEntity* pOther);
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	bool IsBullet() override { return true; }
 	
