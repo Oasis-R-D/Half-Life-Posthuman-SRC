@@ -152,7 +152,10 @@ const Vector& CM249::GetBulletSpread()
 										IN_FORWARD |
 										IN_BACK)) != 0 || !FBitSet(m_pPlayer->pev->flags, FL_ONGROUND))
 	{
-		vecSpread = CONE_10DEGREES;
+		if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 || !FBitSet(m_pPlayer->pev->flags, FL_ONGROUND))
+			vecSpread = CONE_10DEGREES*1.125;
+		else
+			vecSpread = CONE_10DEGREES;
 	}
 	else
 	{

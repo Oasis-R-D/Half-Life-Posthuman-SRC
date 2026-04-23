@@ -144,7 +144,11 @@ const Vector& CShotgun::GetBulletSpread()
 		// We lerp from very accurate to inaccurate over time
 		VectorLerp(0.013095, VECTOR_CONE_10DEGREES, ramp, cone);
 	}
-		return cone;
+
+	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0)
+		cone = cone + VECTOR_CONE_2DEGREES;
+
+	return cone;
 }
 
 

@@ -138,6 +138,9 @@ const Vector& CMP5::GetBulletSpread()
 	// We lerp from very accurate to inaccurate over time
 	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_5DEGREES, ramp, cone );
 
+	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0)
+		cone = cone + VECTOR_CONE_2DEGREES;
+
 	return cone;
 }
 

@@ -684,6 +684,7 @@ void DLLEXPORT CL_CreateMove(float frametime, struct usercmd_s* cmd, int active)
 		// adjust for speed key
 		if ((in_speed.state & 1) != 0)
 		{
+			cmd->buttons |= IN_RUN;
 			cmd->forwardmove *= cl_movespeedkey->value;
 			cmd->sidemove *= cl_movespeedkey->value;
 			cmd->upmove *= cl_movespeedkey->value;
@@ -799,6 +800,11 @@ int CL_ButtonBits(bool bResetState)
 		bits |= IN_BACK;
 	}
 
+	if ((in_speed.state & 3) != 0)
+	{
+		bits |= IN_RUN;
+	}
+
 	if ((in_use.state & 3) != 0)
 	{
 		bits |= IN_USE;
@@ -854,6 +860,7 @@ int CL_ButtonBits(bool bResetState)
 		in_jump.state &= ~2;
 		in_forward.state &= ~2;
 		in_back.state &= ~2;
+		in_speed.state &= ~2;
 		in_use.state &= ~2;
 		in_left.state &= ~2;
 		in_right.state &= ~2;
