@@ -211,7 +211,8 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 	memcpy(&m_pMirrorParams, pparams, sizeof(ref_params_t));
 	m_pViewParams = pparams;
 
-	VectorAdd(m_pViewParams->viewangles, m_pViewParams->punchangle, m_pViewParams->viewangles);
+	VectorSubtract(m_pViewParams->viewangles, m_pViewParams->punchangle, m_pViewParams->viewangles); // fixes not moving with punch // TO-DO: doesn't work with screen rotating punch (z) // TO-DO: this breaks the crosshair for some reason
+
 	FrustumCheck restorefrustum = gHUD.viewFrustum;
 
 	for (int i = 0; i < m_iNumMirrors; i++)
