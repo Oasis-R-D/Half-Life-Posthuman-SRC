@@ -175,7 +175,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			pOther->TakeDamage(pev, pev, (gSkillData.bullsquidDmgSpit / 2), DMG_ACID); //made damage lower to account for more projectiles
 		}
@@ -736,7 +736,7 @@ void CBullsquid::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.bullsquidHealth;
 	}

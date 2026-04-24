@@ -666,7 +666,7 @@ void CScientist::Spawn()
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.scientistHealth;
 	}

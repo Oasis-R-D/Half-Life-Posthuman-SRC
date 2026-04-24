@@ -156,7 +156,7 @@ void CShockBeam::BallTouch(CBaseEntity* pOther)
 		TraceResult tr = UTIL_GetGlobalTrace();
 
 		ClearMultiDamage();
-		if (g_iSkillLevel == SKILL_HARD)
+		if (g_iSkillLevel == SKILL_REALISM)
 		{
 			damage = RANDOM_LONG(30, 45);
 		}

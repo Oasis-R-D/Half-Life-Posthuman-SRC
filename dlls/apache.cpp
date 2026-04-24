@@ -129,12 +129,13 @@ void CApache::Spawn()
 	{
 		SET_MODEL(ENT(pev), "models/apache.mdl");
 	}
+	
 	UTIL_SetSize(pev, Vector(-32, -32, -64), Vector(32, 32, 0));
 	UTIL_SetOrigin(pev, pev->origin);
 
 	pev->flags |= FL_MONSTER;
 	pev->takedamage = DAMAGE_AIM;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.apacheHealth;
 	}
@@ -872,7 +873,7 @@ bool CApache::FireGun()
 #if 1
 		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
 		#ifndef CLIENT_DLL
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 		}

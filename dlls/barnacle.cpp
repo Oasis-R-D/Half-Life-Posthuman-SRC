@@ -112,7 +112,7 @@ void CBarnacle::Spawn()
 	pev->takedamage = DAMAGE_AIM;
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = EF_INVLIGHT; // take light from the ceiling
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = 25;
 	}

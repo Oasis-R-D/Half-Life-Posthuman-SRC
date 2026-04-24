@@ -98,7 +98,7 @@ bool CShotgun::Deploy()
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT((bool)m_iFiremode ? 3 : 4);
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel == SKILL_REALISM)
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
 		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
@@ -134,7 +134,7 @@ const Vector& CShotgun::GetBulletSpread()
 	static Vector cone;
 
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f);
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		// We lerp from very accurate to inaccurate over time
 		VectorLerp(m_iFiremode == 0 ? VECTOR_CONE_8DEGREES : VECTOR_CONE_10DEGREES, m_iFiremode == 0 ? VECTOR_CONE_20DEGREES : VECTOR_CONE_15DEGREES, ramp, cone);
@@ -192,7 +192,7 @@ void CShotgun::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
 		}
@@ -203,7 +203,7 @@ void CShotgun::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 
@@ -247,7 +247,7 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack()
 {
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel == SKILL_REALISM)
 	{
 		return;
 	}
@@ -298,7 +298,7 @@ void CShotgun::SecondaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_HARD ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	
@@ -354,7 +354,7 @@ void CShotgun::TertiaryAttack()
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT((bool)m_iFiremode ? 3 : 4);
 	MESSAGE_END();
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel == SKILL_REALISM)
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
 		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;

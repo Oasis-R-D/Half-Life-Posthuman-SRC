@@ -127,7 +127,7 @@ void CBloaterSpike::SpikeTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			pOther->TakeDamage(pev, pev, gSkillData.pitdroneDmgSpit-1, DMG_SLASH);
 		}

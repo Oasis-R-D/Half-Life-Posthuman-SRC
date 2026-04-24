@@ -587,7 +587,7 @@ void CAGrunt::Spawn()
 	pev->skin = RANDOM_LONG(0, 13);
 	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.agruntHealth;
 	}

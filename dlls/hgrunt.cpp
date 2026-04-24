@@ -458,7 +458,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (M_HasHelm == true)
 			{
-				if (g_iSkillLevel != SKILL_HARD)
+				if (g_iSkillLevel != SKILL_REALISM)
 				{
 					if (flDamage < 45 && m_helmDUR > 0)
 					{
@@ -537,7 +537,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
-			if (g_iSkillLevel != SKILL_HARD)
+			if (g_iSkillLevel != SKILL_REALISM)
 			{
 				flDamage = round(flDamage * 0.8);
 			}
@@ -730,7 +730,7 @@ void CHGrunt::Shoot()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5, 1); // shoot +-5 degrees
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 0.66, 9, edict());
 	}
@@ -766,7 +766,7 @@ void CHGrunt::ShootM727()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_7DEGREES, 2048, BULLET_MONSTER_727, 1); // shoot +-3.5 degrees
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 7000, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 0.66, 556, edict());
 	}
@@ -801,7 +801,7 @@ void CHGrunt::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 	//FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1); // shoot +-7.5 degrees
 #ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
@@ -834,7 +834,7 @@ void CHGrunt::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 0.66, 556, edict());
 	}
@@ -1027,7 +1027,7 @@ void CHGrunt::Spawn()
 	pev->effects = 0;
 
 	m_helmDUR = 3;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.hgruntHealth;
 	}
@@ -1069,7 +1069,7 @@ void CHGrunt::Spawn()
 		SetBodygroup(TORSO_GROUP, TORSO_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
 		}

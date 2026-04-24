@@ -713,7 +713,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 {
 
 /////////////////////////
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		switch (m_LastHitGroup)
 		{
@@ -1027,7 +1027,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	pev->nextthink = gpGlobals->time + 0.1;
 	if (0 == m_rgItems[ITEM_ANTIDOTE])
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			if (!g_pGameRules->IsMultiplayer())
 				UTIL_ScreenFade(this, Vector(128, 0, 0), 15, 50, 128, FFADE_OUT | FFADE_STAYOUT);
@@ -2182,7 +2182,7 @@ void CBasePlayer::PreThink()
 			--m_bleedAMNT;
 			m_bleedtime = gpGlobals->time + 1;
 			Hunger -= 1;
-			if (g_iSkillLevel == SKILL_HARD)
+			if (g_iSkillLevel == SKILL_REALISM)
 			{
 				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
 			}
@@ -2715,7 +2715,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 				break;
 			case itbd_Fungus:
 				TakeDamage(pev, pev, POISON_DAMAGE, DMG_GENERIC);
-				bDuration = POISON_DURATION * ((g_iSkillLevel == SKILL_HARD) ? 4 : 2);
+				bDuration = POISON_DURATION * ((g_iSkillLevel == SKILL_REALISM) ? 4 : 2);
 				break;
 			default:
 				bDuration = 0;
@@ -5368,7 +5368,7 @@ void CBasePlayer::EnableControl(bool fControl)
 //=========================================================
 Vector CBasePlayer::GetAutoaimVector(float flDelta)
 {
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel = SKILL_HARD)
 	{
 		UTIL_MakeVectors(pev->v_angle + pev->punchangle);
 		return gpGlobals->v_forward;

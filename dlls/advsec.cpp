@@ -832,7 +832,7 @@ void CAdvSec::Shoot()
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_6DEGREES, 0.66, 9, edict());
 	}
@@ -909,7 +909,7 @@ void CAdvSec::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 	//FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0); // shoot +-7.5 degrees
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
@@ -991,7 +991,7 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/glauncher.wav", 0.8, ATTN_GUN);
 		CGrenade::ShootContact(pev, GetGunPosition(), m_vecTossVelocity);
 		m_fThrowGrenade = false;
-		if (g_iSkillLevel == SKILL_HARD)
+		if (g_iSkillLevel == SKILL_REALISM)
 			m_flNextGrenadeCheck = gpGlobals->time + RANDOM_FLOAT(2, 5); // wait a random amount of time before shooting again
 		else
 			m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
@@ -1091,7 +1091,7 @@ void CAdvSec::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.hgruntHealth;
 	}
@@ -1124,7 +1124,7 @@ void CAdvSec::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		m_cClipSize = 9;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
 		}

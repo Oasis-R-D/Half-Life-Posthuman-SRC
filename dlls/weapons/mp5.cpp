@@ -233,7 +233,7 @@ void CMP5::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, spread.x, spread.y, 0.66f, 9, m_pPlayer->edict());
 		}
@@ -244,7 +244,7 @@ void CMP5::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, spread.x, spread.y, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, spread.x, spread.y, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
@@ -263,7 +263,7 @@ void CMP5::PrimaryAttack()
 		{
 			pev->armorvalue++;
 
-			m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
+			m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.075 : 0.066;
 		}
 		else
 		{
@@ -273,7 +273,7 @@ void CMP5::PrimaryAttack()
 	}
 	else
 	{
-		m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.075 : 0.066;
+		m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.075 : 0.066;
 	}
 
 	m_flTimeWeaponIdle = 5;
@@ -347,7 +347,7 @@ void CMP5::WeaponIdle()
 
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		if (pev->armortype == 2 && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()) && pev->armorvalue <= 2 && pev->armorvalue > 0)
 		{

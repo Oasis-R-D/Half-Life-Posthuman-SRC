@@ -234,7 +234,7 @@ void CM249::Shoot(bool alt)
 
 	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread * (alt? 0.33 : 0.8), 0.75, 556, m_pPlayer->edict());
 	}
@@ -268,7 +268,7 @@ void CM249::Shoot(bool alt)
 		}
 	}
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_HARD ? 0.085 : 0.06);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_REALISM ? 0.085 : 0.06);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 #ifndef CLIENT_DLL

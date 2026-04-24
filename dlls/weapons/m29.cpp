@@ -253,7 +253,7 @@ void CM29::Shoot(int gunnumb)
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 #ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
 	}

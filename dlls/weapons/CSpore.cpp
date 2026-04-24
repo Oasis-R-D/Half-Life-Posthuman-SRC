@@ -97,9 +97,9 @@ void CSpore::Spawn()
 		pev->gravity = 0.5;
 		pev->friction = 0.7;
 	}
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-	pev->dmg = gSkillData.plrDmgSpore;
+		pev->dmg = gSkillData.plrDmgSpore;
 	}
 	else
 	{

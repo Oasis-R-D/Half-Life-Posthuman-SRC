@@ -289,7 +289,7 @@ void COFShockRoach::Spawn()
 	pev->movetype = MOVETYPE_FLY;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.shockroachHealth;
 	}

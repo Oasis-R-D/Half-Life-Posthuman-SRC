@@ -212,7 +212,7 @@ void CHMiller::Spawn()
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = round(gSkillData.hgruntHealth * 6.0);
 	}
@@ -244,7 +244,7 @@ void CHMiller::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 4;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
 		}
@@ -449,7 +449,7 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/glauncher.wav", 0.8, ATTN_GUN);
 		CGrenade::ShootContact(pev, GetGunPosition(), m_vecTossVelocity);
 		m_fThrowGrenade = false;
-		if (g_iSkillLevel == SKILL_HARD)
+		if (g_iSkillLevel == SKILL_REALISM)
 			m_flNextGrenadeCheck = gpGlobals->time + RANDOM_FLOAT(2, 5); // wait a random amount of time before shooting again
 		else
 			m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
@@ -847,7 +847,7 @@ void CHMiller::Shotgun()
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/dbarrel1.wav", 1, ATTN_GUN);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, UTIL_DegreesToRadCone(16), CONE_2DEGREES, 0.75, 12, edict());
 	else
 	{
@@ -880,7 +880,7 @@ void CHMiller::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
 	}

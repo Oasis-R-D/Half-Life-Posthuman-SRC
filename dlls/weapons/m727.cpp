@@ -216,7 +216,7 @@ void CM727::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
 		}
@@ -227,7 +227,7 @@ void CM727::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 
@@ -246,7 +246,7 @@ void CM727::PrimaryAttack()
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 	}
 
-	m_flNextPrimaryAttack = g_iSkillLevel == SKILL_HARD ? 0.0727 : 0.1;
+	m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.0727 : 0.1;
 
 	m_flTimeWeaponIdle = 5;
 

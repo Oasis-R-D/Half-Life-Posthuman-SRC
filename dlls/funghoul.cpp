@@ -511,7 +511,7 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
 
-				if (g_iSkillLevel != SKILL_HARD)
+				if (g_iSkillLevel != SKILL_REALISM)
 				{
 					flDamage = round(flDamage * 0.8);
 				}
@@ -556,7 +556,7 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		}
 
 		m_LastHitGroup = ptr->iHitgroup;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			switch (ptr->iHitgroup)
 			{
@@ -968,7 +968,7 @@ void CFunghoul::Spawn()
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_INFECTION; // TO-DO: custom color (replaces blue?)
-	pev->health = g_iSkillLevel == SKILL_HARD ? 90 : gSkillData.funghoulHealth;
+	pev->health = g_iSkillLevel == SKILL_REALISM ? 90 : gSkillData.funghoulHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.75;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;

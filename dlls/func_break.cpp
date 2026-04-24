@@ -535,13 +535,13 @@ void CBreakable::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecD
 			break;
 		}
 	}
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CBaseDelay::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 	}
 	else
 	{
-		CBaseDelay::TraceAttack(pevAttacker, flDamage/2, vecDir, ptr, bitsDamageType);
+		CBaseDelay::TraceAttack(pevAttacker, flDamage/3, vecDir, ptr, bitsDamageType);
 	}
 }
 

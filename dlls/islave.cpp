@@ -510,7 +510,7 @@ void CISlave::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.slaveHealth;
 	}
@@ -817,7 +817,7 @@ void CISlave::ZapBeam(int side)
 	if (pEntity != NULL && 0 != pEntity->pev->takedamage)
 	{
 		
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			pEntity->TraceAttack(pev, gSkillData.slaveDmgZap, vecAim, &tr, DMG_SHOCK);
 		}

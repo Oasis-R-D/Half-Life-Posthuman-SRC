@@ -120,7 +120,7 @@ void CHalfLifeMultiplay::RefreshSkillData()
 	// suitcharger
 	gSkillData.suitchargerCapacity = 30;
 
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel == SKILL_REALISM)
 		return;
 
 	// Crowbar whack

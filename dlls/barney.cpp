@@ -348,11 +348,11 @@ void CBarney::BarneyFirePistol()
 	{
 	case SKILL_EASY: cone = CONE_8DEGREES; break;
 	case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
-	case SKILL_HARD: cone = CONE_2DEGREES; break;
+	case SKILL_HARD: cone = CONE_3DEGREES; break;
 	}
 	//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
 	}
@@ -428,7 +428,7 @@ void CBarney::Spawn()
 	}
 	
 	SET_MODEL(ENT(pev), "models/barney.mdl");
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.barneyHealth;
 	}
@@ -564,7 +564,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(0) != 1)
 			{
-				if (g_iSkillLevel != SKILL_HARD)
+				if (g_iSkillLevel != SKILL_REALISM)
 				{
 					flDamage = round(flDamage * 0.8);
 				}
@@ -587,7 +587,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(3) != 1)
 			{
-				if (g_iSkillLevel != SKILL_HARD)
+				if (g_iSkillLevel != SKILL_REALISM)
 				{
 					if (flDamage < 45 && m_helmDUR > 0)
 					{

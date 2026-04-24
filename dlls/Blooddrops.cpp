@@ -34,7 +34,7 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 			BLDamnt = 12;
 		}
 
-		if ((g_iSkillLevel == SKILL_HARD || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)
+		if ((g_iSkillLevel == SKILL_REALISM || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)
 			BLDamnt /= 2;
 
 		for (unsigned int i = 0; i < BLDamnt; i++) // Allows multishot

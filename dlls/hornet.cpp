@@ -101,7 +101,7 @@ void CHornet::Spawn()
 	if (!pSoundEnt)
 		pSoundEnt = edict();
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		pev->dmg = gSkillData.monDmgHornet;
 	else
 		pev->dmg = 15;

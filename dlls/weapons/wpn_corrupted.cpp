@@ -164,7 +164,7 @@ void CCorruptedWPN::PrimaryAttack()
 			m_flNextPrimaryAttack = 0.2;
 			recoily = 4;
 			recoilx = 2;
-			if (g_iSkillLevel != SKILL_HARD)
+			if (g_iSkillLevel != SKILL_REALISM)
 			{
 				spreadhorz = 0.17432;
 				spreadvert = 0.01746;

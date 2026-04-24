@@ -500,7 +500,7 @@ const Vector& CEagle::GetBulletSpread()
 	static Vector cone;
 
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, DG_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f);
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		// We lerp from very accurate to inaccurate over time
 		VectorLerp(m_bLaserActive ? VECTOR_CONE_5DEGREES : VECTOR_CONE_15DEGREES, m_bLaserActive ? VECTOR_CONE_15DEGREES : 2*VECTOR_CONE_20DEGREES, ramp, cone);

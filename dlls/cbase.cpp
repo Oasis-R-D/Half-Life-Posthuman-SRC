@@ -171,14 +171,14 @@ int DispatchSpawn(edict_t* pent)
 				return -1;
 			if (FBitSet(pEntity->pev->spawnflags, SF_NOTINHARD))
 			{
-				if (g_iSkillLevel == SKILL_HARD)
+				if (g_iSkillLevel == SKILL_REALISM)
 				{
 					return -1;
 				}
 			}
 			if (FBitSet(pEntity->pev->spawnflags, SF_ONLYINHARD))
 			{
-				if (g_iSkillLevel != SKILL_HARD)
+				if (g_iSkillLevel != SKILL_REALISM)
 				{
 					return -1;
 				}

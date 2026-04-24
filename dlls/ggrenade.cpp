@@ -332,7 +332,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					Vector Grennormal = (pev->origin - pPlayer->EyePosition()).Normalize();
 					UTIL_MakeVectors(pPlayer->pev->v_angle);
 					float dp = DotProduct(Grennormal, -gpGlobals->v_forward);
-					Vector Color = (g_iSkillLevel == SKILL_HARD) ? Vector(255, 255, 255) : Vector(128, 128, 128);
+					Vector Color = (g_iSkillLevel == SKILL_REALISM) ? Vector(255, 255, 255) : Vector(128, 128, 128);
 					if (dp < 0)
 					{
 						UTIL_ScreenFade(pPlayer, Color, 2, 1, 255, FFADE_IN);
@@ -753,7 +753,7 @@ void CGrenade::Spawn()
 
 	SET_MODEL(ENT(pev), "models/grenade.mdl");
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->dmg = 100;
 	}
@@ -783,7 +783,7 @@ CGrenade* CGrenade::ShootContact(entvars_t* pevOwner, Vector vecStart, Vector ve
 	// Explode on contact
 	pGrenade->SetTouch(&CGrenade::ExplodeTouch);
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		pGrenade->pev->dmg = gSkillData.plrDmgM203Grenade;
 	else
 		pGrenade->pev->dmg = 160;
@@ -823,7 +823,7 @@ CGrenade* CGrenade::ShootTimed(entvars_t* pevOwner, Vector vecStart, Vector vecV
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pGrenade->pev->dmg = 100;
 	}
@@ -862,12 +862,12 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 	{
 		case 0: // High Explosive
 			SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
-			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 100;
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_REALISM) ? 160 : 100;
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 1: // Impact
 			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
-			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_REALISM) ? 160 : 80;
 			// Tumble through the air
 			pGrenade->pev->avelocity.x = -400;
 			break;
@@ -881,7 +881,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->pev->health = 5;
 			pGrenade->pev->takedamage = DAMAGE_YES;
 			UTIL_SetSize(pGrenade->pev, Vector(4, 4, 0), Vector(4, 4, 0));
-			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_HARD) ? 160 : 80;
+			pGrenade->pev->dmg = (g_iSkillLevel == SKILL_REALISM) ? 160 : 80;
 			pGrenade->SetTouch(&CGrenade::SlideTouch);
 			pGrenade->SetThink(&CGrenade::LandmineThink);
 			// spin through the air
@@ -956,7 +956,7 @@ CGrenade* CGrenade::ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vec
 
 	UTIL_SetSize(pGrenade->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pGrenade->pev->dmg = 200;
 	}

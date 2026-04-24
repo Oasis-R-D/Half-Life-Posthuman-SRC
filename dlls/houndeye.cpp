@@ -337,7 +337,7 @@ void CHoundeye::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
 	pev->effects = 0;
-	if (g_iSkillLevel != SKILL_HARD) // TODO: MAJOR damage increase when hit in the eye
+	if (g_iSkillLevel != SKILL_REALISM) // TO-DO: MAJOR damage increase when hit in the eye
 	{
 		pev->health = gSkillData.houndeyeHealth;
 	}

@@ -190,7 +190,7 @@ void CPython::PrimaryAttack()
 	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	}

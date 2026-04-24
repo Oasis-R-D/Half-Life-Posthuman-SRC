@@ -100,7 +100,7 @@ public:
 			{
 				if (FClassnameIs(pev, "monster_zombie_barney") || FClassnameIs(pev, "monster_zombie_soldier"))
 				{
-					if (g_iSkillLevel != SKILL_HARD)
+					if (g_iSkillLevel != SKILL_REALISM)
 					{
 						flDamage = round(flDamage * 0.8);
 					}
@@ -607,39 +607,26 @@ void CZombie::Spawn()
 	if (FClassnameIs(pev, "monster_zombie_barney"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_barney.mdl");
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-		pev->health = gSkillData.zombieHealth * 1.5;
-		}
+		if (g_iSkillLevel != SKILL_REALISM)
+			pev->health = gSkillData.zombieHealth * 1.5;
 		else
-		{
-		pev->health = 90;
-		}
-
+			pev->health = 90;
 	}
 	else if (FClassnameIs(pev, "monster_zombie_soldier"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_soldier.mdl");
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-		pev->health = gSkillData.zombieHealth * 2;
-		}
+		if (g_iSkillLevel != SKILL_REALISM)
+			pev->health = gSkillData.zombieHealth * 2;
 		else
-		{
-		pev->health = 95;
-		}
+			pev->health = 95;
 	}
 	else if (FClassnameIs(pev, "monster_zombie_fast"))
 	{
 		SET_MODEL(ENT(pev), "models/zombie_fast.mdl");
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-		pev->health = gSkillData.zombieHealth -10;
-		}
+		if (g_iSkillLevel != SKILL_REALISM)
+			pev->health = gSkillData.zombieHealth -10;
 		else
-		{
-		pev->health = 75; // bro has literally no protection
-		}
+			pev->health = 75; // bro has literally no protection
 	}
 	else if (FClassnameIs(pev, "monster_zombie_hev")) // unused
 	{
@@ -650,14 +637,10 @@ void CZombie::Spawn()
 	{
 		SET_MODEL(ENT(pev), "models/zombie.mdl");
 		pev->health = gSkillData.zombieHealth;
-		if (g_iSkillLevel != SKILL_HARD)
-		{
-		pev->health = gSkillData.zombieHealth;
-		}
+		if (g_iSkillLevel != SKILL_REALISM)
+			pev->health = gSkillData.zombieHealth;
 		else
-		{
-		pev->health = 85;
-		}
+			pev->health = 85;
 	}
 
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);

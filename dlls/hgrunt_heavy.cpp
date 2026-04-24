@@ -223,7 +223,7 @@ void CHGruntHeavy::Spawn()
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = round(gSkillData.hgruntHealth * 1.75);
 	}
@@ -255,7 +255,7 @@ void CHGruntHeavy::Spawn()
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = 9;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
 		}
@@ -836,7 +836,7 @@ void CHGruntHeavy::Shotgun()
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 #ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
 	{
@@ -869,7 +869,7 @@ void CHGruntHeavy::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	#ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
 	}

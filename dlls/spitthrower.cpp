@@ -43,7 +43,7 @@ void CSpitThrower::Spawn()
 	Precache();
 	m_iId = WEAPON_SPITTHROWER;
 	SET_MODEL(edict(), "models/w_spitthrower.mdl");
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		m_iDefaultAmmo = 50;
 	}
@@ -140,13 +140,13 @@ void CSpitThrower::PrimaryAttack()
 bool CSpitThrower::GetItemInfo(ItemInfo* p)
 {
 	p->pszAmmo1 = "spit";
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-	p->iMaxAmmo1 = 75;
+		p->iMaxAmmo1 = 75;
 	}
 	else
 	{
-	p->iMaxAmmo1 = 50;
+		p->iMaxAmmo1 = 50;
 	}
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = nullptr;
@@ -250,9 +250,9 @@ class CEnvSpit : public CBaseEntity
 			int damage = 0;
 			switch (g_iSkillLevel)
 			{
-			case SKILL_EASY: damage = 5; break;
-			case SKILL_MEDIUM: damage = 5; break;
-			case SKILL_HARD: damage = 25; break;
+				case SKILL_EASY: damage = 5; break;
+				case SKILL_MEDIUM: damage = 5; break;
+				case SKILL_REALISM: damage = 25; break;
 			}
 
 			ClearMultiDamage();

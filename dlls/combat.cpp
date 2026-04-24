@@ -1320,7 +1320,7 @@ void CBaseMonster::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	if (0 != pev->takedamage)
 	{
 		m_LastHitGroup = ptr->iHitgroup;
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			switch (ptr->iHitgroup)
 			{
@@ -1660,7 +1660,7 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 
 
 
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		if (flDamage < 10)
 		{

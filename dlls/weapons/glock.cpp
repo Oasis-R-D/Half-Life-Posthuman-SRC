@@ -242,7 +242,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 #ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			if (m_iSilenced == 0)
 			{
@@ -273,7 +273,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_HARD ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
 	if (m_iSilenced == 0)

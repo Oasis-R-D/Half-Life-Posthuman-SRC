@@ -481,7 +481,7 @@ void CFish::Spawn()
 	pev->solid = SOLID_BBOX;
 	pev->movetype = MOVETYPE_FLY;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = round(gSkillData.ichthyosaurHealth/3);
 	}
