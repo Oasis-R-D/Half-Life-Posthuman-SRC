@@ -242,6 +242,8 @@ extern CBaseEntity* UTIL_PlayerByIndex(int playerIndex);
 #define UTIL_EntitiesInPVS(pent) (*g_engfuncs.pfnEntitiesInPVS)(pent)
 extern void UTIL_MakeVectors(const Vector& vecAngles);
 
+extern unsigned int UTIL_GetFreeEdictCount();
+
 // Pass in an array of pointers and an array size, it fills the array and returns the number inserted
 extern int UTIL_MonstersInSphere(CBaseEntity** pList, int listMax, const Vector& center, float radius);
 extern int UTIL_EntitiesInBox(CBaseEntity** pList, int listMax, const Vector& mins, const Vector& maxs, int flagMask);

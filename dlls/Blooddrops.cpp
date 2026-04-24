@@ -27,7 +27,7 @@
 LINK_ENTITY_TO_CLASS(phys_blood, CPhysblood);
 void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, int BloodType, bool isgib, float spread, bool speedRNG, bool pool)
 {
-	if (UTIL_ShouldShowBlood(BloodType) == true)
+	if (UTIL_ShouldShowBlood(BloodType) == true && UTIL_GetFreeEdictCount() > BLDamnt)
 	{
 		if (isgib == false && BLDamnt > 12)
 		{

@@ -484,6 +484,23 @@ int UTIL_EntitiesInBox(CBaseEntity** pList, int listMax, const Vector& mins, con
 	return count;
 }
 
+unsigned int UTIL_GetFreeEdictCount()
+{
+	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(0);
+
+	if (!pEdict)
+		return gpGlobals->maxEntities;
+
+	int freeEdicts = 0;
+
+	for (int i = 1; i < gpGlobals->maxEntities; i++, pEdict++)
+	{
+		if (!UTIL_IsValidEntity(pEdict)) // Not in use
+			freeEdicts++;
+	}
+
+	return freeEdicts;
+}
 
 int UTIL_MonstersInSphere(CBaseEntity** pList, int listMax, const Vector& center, float radius)
 {
