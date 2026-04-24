@@ -368,7 +368,7 @@ void CController::Spawn()
 	pev->movetype = MOVETYPE_FLY;
 	pev->flags |= FL_FLY;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
-	if (g_iSkillLevel != SKILL_HARD)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.controllerHealth;
 	}
@@ -1231,13 +1231,13 @@ void CControllerHeadBall::HuntThink()
 		if (pEntity != NULL && 0 != pEntity->pev->takedamage)
 		{
 			ClearMultiDamage();
-			if (g_iSkillLevel != SKILL_HARD)
+			if (g_iSkillLevel != SKILL_REALISM)
 			{
-			pEntity->TraceAttack(m_hOwner->pev, gSkillData.controllerDmgZap, pev->velocity, &tr, DMG_SHOCK);
+				pEntity->TraceAttack(m_hOwner->pev, gSkillData.controllerDmgZap, pev->velocity, &tr, DMG_SHOCK);
 			}
 			else
 			{
-			pEntity->TraceAttack(m_hOwner->pev, RANDOM_LONG(10,50), pev->velocity, &tr, DMG_SHOCK);
+				pEntity->TraceAttack(m_hOwner->pev, RANDOM_LONG(10,50), pev->velocity, &tr, DMG_SHOCK);
 			}
 			ApplyMultiDamage(pev, m_hOwner->pev);
 		}
@@ -1421,13 +1421,13 @@ void CControllerZapBall::ExplodeTouch(CBaseEntity* pOther)
 
 		ClearMultiDamage();
 		
-		if (g_iSkillLevel != SKILL_HARD)
+		if (g_iSkillLevel != SKILL_REALISM)
 		{
-		pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
+			pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
 		}
 		else
 		{
-		pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall+15, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
+			pOther->TraceAttack(pevOwner, gSkillData.controllerDmgBall+15, pev->velocity.Normalize(), &tr, DMG_ENERGYBEAM);
 		}
 		ApplyMultiDamage(pevOwner, pevOwner);
 
