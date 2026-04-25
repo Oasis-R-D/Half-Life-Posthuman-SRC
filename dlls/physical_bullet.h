@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include <unordered_map>
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -10,10 +11,21 @@
 #include "UserMessages.h"
 #include "soundent.h"
 
+enum penMat
+{
+	P_CRETE = 0,
+	P_DIRT, // slosh too
+	P_METAL, // grate and vent too
+	P_GLASS, // computer too
+	P_WOOD,
+	P_FLESH
+};
+
 // UNDONE: Save/restore this?  Don't forget to set classname and LINK_ENTITY_TO_CLASS()
 
 // OVERLOADS SOME ENTVARS:
 // speed - the ideal magnitude of my velocity
+
 class CPhysbullet : public CBaseEntity
 {
 	int m_iTrail;
@@ -26,12 +38,12 @@ public:
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	bool IsBullet() override { return true; }
 	
-	static const char* pNearMissSounds[];
+	const float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd);
 
 	edict_t* Owner;
 
 	CBaseEntity* m_pIgnore;
-	int m_Flare;
+	int m_iCaliber;
 	unsigned int m_muzzlevelocity;
 
 	Vector m_SpawnPos;
