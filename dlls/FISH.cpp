@@ -47,7 +47,7 @@
 //=========================================================
 
 // UNDONE: Save/restore here
-class CFish : public CFlyingMonster
+class CArcher : public CFlyingMonster
 {
 public:
 	void Spawn() override;
@@ -124,25 +124,25 @@ public:
 	void PainSound() override;
 };
 
-LINK_ENTITY_TO_CLASS(monster_archer, CFish);
+LINK_ENTITY_TO_CLASS(monster_archer, CArcher);
 
-TYPEDESCRIPTION CFish::m_SaveData[] =
+TYPEDESCRIPTION CArcher::m_SaveData[] =
 	{
-		DEFINE_FIELD(CFish, m_SaveVelocity, FIELD_VECTOR),
-		DEFINE_FIELD(CFish, m_idealDist, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_flBlink, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_flEnemyTouched, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_bOnAttack, FIELD_BOOLEAN),
-		DEFINE_FIELD(CFish, m_flMaxSpeed, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_flMinSpeed, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_flMaxDist, FIELD_FLOAT),
-		DEFINE_FIELD(CFish, m_flNextAlert, FIELD_TIME),
+		DEFINE_FIELD(CArcher, m_SaveVelocity, FIELD_VECTOR),
+		DEFINE_FIELD(CArcher, m_idealDist, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_flBlink, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_flEnemyTouched, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_bOnAttack, FIELD_BOOLEAN),
+		DEFINE_FIELD(CArcher, m_flMaxSpeed, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_flMinSpeed, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_flMaxDist, FIELD_FLOAT),
+		DEFINE_FIELD(CArcher, m_flNextAlert, FIELD_TIME),
 };
 
-IMPLEMENT_SAVERESTORE(CFish, CFlyingMonster);
+IMPLEMENT_SAVERESTORE(CArcher, CFlyingMonster);
 
 
-const char* CFish::pIdleSounds[] =
+const char* CArcher::pIdleSounds[] =
 	{
 		"ichy/ichy_idle1.wav",
 		"ichy/ichy_idle2.wav",
@@ -150,32 +150,32 @@ const char* CFish::pIdleSounds[] =
 		"ichy/ichy_idle4.wav",
 };
 
-const char* CFish::pAlertSounds[] =
+const char* CArcher::pAlertSounds[] =
 	{
 		"ichy/ichy_alert2.wav",
 		"ichy/ichy_alert3.wav",
 };
 
-const char* CFish::pAttackSounds[] =
+const char* CArcher::pAttackSounds[] =
 	{
 		"ichy/ichy_attack1.wav",
 		"ichy/ichy_attack2.wav",
 };
 
-const char* CFish::pBiteSounds[] =
+const char* CArcher::pBiteSounds[] =
 	{
 		"ichy/ichy_bite1.wav",
 		"ichy/ichy_bite2.wav",
 };
 
-const char* CFish::pPainSounds[] =
+const char* CArcher::pPainSounds[] =
 	{
 		"ichy/ichy_pain2.wav",
 		"ichy/ichy_pain3.wav",
 		"ichy/ichy_pain5.wav",
 };
 
-const char* CFish::pDieSounds[] =
+const char* CArcher::pDieSounds[] =
 	{
 		"ichy/ichy_die2.wav",
 		"ichy/ichy_die4.wav",
@@ -185,27 +185,27 @@ const char* CFish::pDieSounds[] =
 	EMIT_SOUND_DYN(ENT(pev), chan, array[RANDOM_LONG(0, ARRAYSIZE(array) - 1)], 1.0, 0.6, 0, RANDOM_LONG(95, 105));
 
 
-void CFish::IdleSound()
+void CArcher::IdleSound()
 {
 	EMIT_ICKY_SOUND(CHAN_VOICE, pIdleSounds);
 }
 
-void CFish::AlertSound()
+void CArcher::AlertSound()
 {
 	EMIT_ICKY_SOUND(CHAN_VOICE, pAlertSounds);
 }
 
-void CFish::AttackSound()
+void CArcher::AttackSound()
 {
 	EMIT_ICKY_SOUND(CHAN_VOICE, pAttackSounds);
 }
 
-void CFish::BiteSound()
+void CArcher::BiteSound()
 {
 	EMIT_ICKY_SOUND(CHAN_WEAPON, pBiteSounds);
 }
 
-void CFish::DeathSound()
+void CArcher::DeathSound()
 {
 	if (m_bRailed == false)
 	{
@@ -213,7 +213,7 @@ void CFish::DeathSound()
 	}
 }
 
-void CFish::PainSound()
+void CArcher::PainSound()
 {
 	EMIT_ICKY_SOUND(CHAN_VOICE, pPainSounds);
 }
@@ -232,16 +232,16 @@ enum
 // AI Schedules Specific to this monster
 //=========================================================
 
-static Task_t tlSwimAround[] =
+static Task_t tlArchSwimAround[] =
 	{
 		{TASK_SET_ACTIVITY, (float)ACT_WALK},
 		{TASK_ICHTHYOSAUR_SWIM, 0.0},
 };
 
-static Schedule_t slSwimAround[] =
+static Schedule_t slArchSwimAround[] =
 	{
-		{tlSwimAround,
-			ARRAYSIZE(tlSwimAround),
+		{tlArchSwimAround,
+			ARRAYSIZE(tlArchSwimAround),
 			bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
 				bits_COND_SEE_ENEMY |
@@ -252,33 +252,33 @@ static Schedule_t slSwimAround[] =
 			"SwimAround"},
 };
 
-static Task_t tlSwimAgitated[] =
+static Task_t tlArchSwimAgitated[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_SET_ACTIVITY, (float)ACT_RUN},
 		{TASK_WAIT, (float)2.0},
 };
 
-static Schedule_t slSwimAgitated[] =
+static Schedule_t slArchSwimAgitated[] =
 	{
-		{tlSwimAgitated,
-			ARRAYSIZE(tlSwimAgitated),
+		{tlArchSwimAgitated,
+			ARRAYSIZE(tlArchSwimAgitated),
 			0,
 			0,
 			"SwimAgitated"},
 };
 
 
-static Task_t tlCircleEnemy[] =
+static Task_t tlArchCircleEnemy[] =
 	{
 		{TASK_SET_ACTIVITY, (float)ACT_WALK},
 		{TASK_ICHTHYOSAUR_CIRCLE_ENEMY, 0.0},
 };
 
-static Schedule_t slCircleEnemy[] =
+static Schedule_t slArchCircleEnemy[] =
 	{
-		{tlCircleEnemy,
-			ARRAYSIZE(tlCircleEnemy),
+		{tlArchCircleEnemy,
+			ARRAYSIZE(tlArchCircleEnemy),
 			bits_COND_NEW_ENEMY |
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
@@ -289,50 +289,50 @@ static Schedule_t slCircleEnemy[] =
 };
 
 
-Task_t tlTwitchDie[] =
+Task_t tlArchTwitchDie[] =
 	{
 		{TASK_STOP_MOVING, 0},
 		{TASK_SOUND_DIE, (float)0},
 		{TASK_DIE, (float)0},
 };
 
-Schedule_t slTwitchDie[] =
+Schedule_t slArchTwitchDie[] =
 	{
-		{tlTwitchDie,
-			ARRAYSIZE(tlTwitchDie),
+		{tlArchTwitchDie,
+			ARRAYSIZE(tlArchTwitchDie),
 			0,
 			0,
 			"Die"},
 };
 
-Task_t tlFloat[] =
+Task_t tlArchFloat[] =
 	{
 		{TASK_ICHTHYOSAUR_FLOAT, (float)0},
 };
 
-Schedule_t slFloat[] =
+Schedule_t slArchFloat[] =
 	{
-		{tlFloat,
-			ARRAYSIZE(tlFloat),
+		{tlArchFloat,
+			ARRAYSIZE(tlArchFloat),
 			0,
 			0,
 			"Float"},
 };
 
-DEFINE_CUSTOM_SCHEDULES(CFish){
-	slSwimAround,
-	slSwimAgitated,
-	slCircleEnemy,
-	slTwitchDie,
-	slFloat,
+DEFINE_CUSTOM_SCHEDULES(CArcher){
+	slArchSwimAround,
+	slArchSwimAgitated,
+	slArchCircleEnemy,
+	slArchTwitchDie,
+	slArchFloat,
 };
-IMPLEMENT_CUSTOM_SCHEDULES(CFish, CFlyingMonster);
+IMPLEMENT_CUSTOM_SCHEDULES(CArcher, CFlyingMonster);
 
 //=========================================================
 // Classify - indicates this monster's place in the
 // relationship table.
 //=========================================================
-int CFish::Classify()
+int CArcher::Classify()
 {
 	return CLASS_ALIEN_MONSTER;
 }
@@ -341,7 +341,7 @@ int CFish::Classify()
 //=========================================================
 // CheckMeleeAttack1
 //=========================================================
-bool CFish::CheckMeleeAttack1(float flDot, float flDist)
+bool CArcher::CheckMeleeAttack1(float flDot, float flDist)
 {
 	if (flDot >= 0.7 && m_flEnemyTouched > gpGlobals->time - 0.2)
 	{
@@ -350,7 +350,7 @@ bool CFish::CheckMeleeAttack1(float flDot, float flDist)
 	return false;
 }
 
-void CFish::BiteTouch(CBaseEntity* pOther)
+void CArcher::BiteTouch(CBaseEntity* pOther)
 {
 	// bite if we hit who we want to eat
 	if (pOther == m_hEnemy)
@@ -360,7 +360,7 @@ void CFish::BiteTouch(CBaseEntity* pOther)
 	}
 }
 
-void CFish::CombatUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+void CArcher::CombatUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!ShouldToggle(useType, m_bOnAttack))
 		return;
@@ -372,7 +372,7 @@ void CFish::CombatUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 // CheckRangeAttack1  - swim in for a chomp
 //
 //=========================================================
-bool CFish::CheckRangeAttack1(float flDot, float flDist)
+bool CArcher::CheckRangeAttack1(float flDot, float flDist)
 {
 	if (flDot > -0.7 && (m_bOnAttack || (flDist <= 192 && m_idealDist <= 192)))
 	{
@@ -386,7 +386,7 @@ bool CFish::CheckRangeAttack1(float flDot, float flDist)
 // SetYawSpeed - allows each sequence to have a different
 // turn rate associated with it.
 //=========================================================
-void CFish::SetYawSpeed()
+void CArcher::SetYawSpeed()
 {
 	pev->yaw_speed = 100;
 }
@@ -394,13 +394,13 @@ void CFish::SetYawSpeed()
 //=========================================================
 // Killed - overrides CFlyingMonster.
 //=========================================================
-void CFish::Killed(entvars_t* pevAttacker, int iGib)
+void CArcher::Killed(entvars_t* pevAttacker, int iGib)
 {
 	CBaseMonster::Killed(pevAttacker, iGib);
 	pev->velocity = Vector(0, 0, 0);
 }
 
-void CFish::BecomeDead()
+void CArcher::BecomeDead()
 {
 	pev->takedamage = DAMAGE_YES; // don't let autoaim aim at corpses.
 
@@ -417,7 +417,7 @@ void CFish::BecomeDead()
 // HandleAnimEvent - catches the monster-specific messages
 // that occur when tagged animation frames are played.
 //=========================================================
-void CFish::HandleAnimEvent(MonsterEvent_t* pEvent)
+void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 {
 	bool bDidAttack = false;
 	switch (pEvent->event)
@@ -471,7 +471,7 @@ void CFish::HandleAnimEvent(MonsterEvent_t* pEvent)
 //=========================================================
 // Spawn
 //=========================================================
-void CFish::Spawn()
+void CArcher::Spawn()
 {
 	Precache();
 	
@@ -496,12 +496,12 @@ void CFish::Spawn()
 	SetFlyingSpeed(ICHTHYOSAUR_SPEED);
 	SetFlyingMomentum(2.5); // Set momentum constant
 
-	m_afCapability = bits_CAP_RANGE_ATTACK1 | bits_CAP_SWIM;
+	m_afCapability = bits_CAP_SWIM;
 
 	MonsterInit();
 
-	SetTouch(&CFish::BiteTouch);
-	SetUse(&CFish::CombatUse);
+	SetTouch(&CArcher::BiteTouch);
+	SetUse(&CArcher::CombatUse);
 
 	m_idealDist = 384;
 	m_flMinSpeed = 80;
@@ -517,7 +517,7 @@ void CFish::Spawn()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CFish::Precache()
+void CArcher::Precache()
 {
 	PRECACHE_MODEL("models/archer.mdl");
 
@@ -532,7 +532,7 @@ void CFish::Precache()
 //=========================================================
 // GetSchedule
 //=========================================================
-Schedule_t* CFish::GetSchedule()
+Schedule_t* CArcher::GetSchedule()
 {
 	// ALERT( at_console, "GetSchedule( )\n" );
 	switch (m_MonsterState)
@@ -575,25 +575,25 @@ Schedule_t* CFish::GetSchedule()
 
 //=========================================================
 //=========================================================
-Schedule_t* CFish::GetScheduleOfType(int Type)
+Schedule_t* CArcher::GetScheduleOfType(int Type)
 {
 	// ALERT( at_console, "GetScheduleOfType( %d ) %d\n", Type, m_bOnAttack );
 	switch (Type)
 	{
 	case SCHED_IDLE_WALK:
-		return slSwimAround;
+		return slArchSwimAround;
 	case SCHED_STANDOFF:
-		return slCircleEnemy;
+		return slArchCircleEnemy;
 	case SCHED_FAIL:
-		return slSwimAgitated;
+		return slArchSwimAgitated;
 	case SCHED_DIE:
 		if (pev->deadflag == DEAD_DEAD)
 		{
 			//Already dead, immediately switch to float.
-			return slFloat;
+			return slArchFloat;
 		}
 
-		return slTwitchDie;
+		return slArchTwitchDie;
 	}
 
 	return CBaseMonster::GetScheduleOfType(Type);
@@ -606,7 +606,7 @@ Schedule_t* CFish::GetScheduleOfType(int Type)
 // any necessary calculations to start the next task on the
 // schedule.
 //=========================================================
-void CFish::StartTask(Task_t* pTask)
+void CArcher::StartTask(Task_t* pTask)
 {
 	switch (pTask->iTask)
 	{
@@ -629,13 +629,12 @@ void CFish::StartTask(Task_t* pTask)
 
 	case TASK_ICHTHYOSAUR_FLOAT:
 	{
-		const int sequenceIndex = LookupSequence("bellyup");
+		const int sequenceIndex = LookupSequence("dead_float");
 
 		//Don't restart the animation if we're restoring.
 		if (pev->sequence != sequenceIndex)
 		{
-			pev->skin = EYE_BASE;
-			SetSequenceByName("bellyup");
+			SetSequenceByName("dead_float");
 		}
 		break;
 	}
@@ -646,7 +645,7 @@ void CFish::StartTask(Task_t* pTask)
 	}
 }
 
-void CFish::RunTask(Task_t* pTask)
+void CArcher::RunTask(Task_t* pTask)
 {
 	switch (pTask->iTask)
 	{
@@ -766,7 +765,7 @@ void CFish::RunTask(Task_t* pTask)
 
 
 
-float CFish::VectorToPitch(const Vector& vec)
+float CArcher::VectorToPitch(const Vector& vec)
 {
 	float pitch;
 	if (vec.z == 0 && vec.x == 0)
@@ -781,12 +780,12 @@ float CFish::VectorToPitch(const Vector& vec)
 }
 
 //=========================================================
-void CFish::Move(float flInterval)
+void CArcher::Move(float flInterval)
 {
 	CFlyingMonster::Move(flInterval);
 }
 
-float CFish::FlPitchDiff()
+float CArcher::FlPitchDiff()
 {
 	float flPitchDiff;
 	float flCurrentPitch;
@@ -813,7 +812,7 @@ float CFish::FlPitchDiff()
 	return flPitchDiff;
 }
 
-float CFish::ChangePitch(int speed)
+float CArcher::ChangePitch(int speed)
 {
 	if (pev->movetype == MOVETYPE_FLY)
 	{
@@ -846,7 +845,7 @@ float CFish::ChangePitch(int speed)
 	return 0;
 }
 
-float CFish::ChangeYaw(int speed)
+float CArcher::ChangeYaw(int speed)
 {
 	if (pev->movetype == MOVETYPE_FLY)
 	{
@@ -881,14 +880,14 @@ float CFish::ChangeYaw(int speed)
 }
 
 
-Activity CFish::GetStoppedActivity()
+Activity CArcher::GetStoppedActivity()
 {
 	if (pev->movetype != MOVETYPE_FLY) // UNDONE: Ground idle here, IDLE may be something else
 		return ACT_IDLE;
 	return ACT_WALK;
 }
 
-void CFish::SetActivity(Activity NewActivity)
+void CArcher::SetActivity(Activity NewActivity)
 {
 	const float frame = pev->frame;
 
@@ -897,18 +896,18 @@ void CFish::SetActivity(Activity NewActivity)
 	//Restore belly up state.
 	if (pev->deadflag == DEAD_DEAD)
 	{
-		SetSequenceByName("bellyup");
+		SetSequenceByName("dead_float");
 		pev->frame = frame;
 	}
 }
 
-void CFish::MoveExecute(CBaseEntity* pTargetEnt, const Vector& vecDir, float flInterval)
+void CArcher::MoveExecute(CBaseEntity* pTargetEnt, const Vector& vecDir, float flInterval)
 {
 	m_SaveVelocity = vecDir * m_flightSpeed;
 }
 
 
-void CFish::MonsterThink()
+void CArcher::MonsterThink()
 {
 	CFlyingMonster::MonsterThink();
 
@@ -921,13 +920,13 @@ void CFish::MonsterThink()
 	}
 }
 
-void CFish::Stop()
+void CArcher::Stop()
 {
 	if (!m_bOnAttack)
 		m_flightSpeed = 80.0;
 }
 
-void CFish::Swim()
+void CArcher::Swim()
 {
 	int retValue = 0;
 
@@ -1118,7 +1117,7 @@ void CFish::Swim()
 }
 
 
-Vector CFish::DoProbe(const Vector& Probe)
+Vector CArcher::DoProbe(const Vector& Probe)
 {
 	Vector WallNormal = Vector(0, 0, -1); // WATER normal is Straight Down for fish.
 	float frac;

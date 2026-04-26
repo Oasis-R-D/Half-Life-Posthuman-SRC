@@ -898,14 +898,12 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_rec2", "RV"}, // Probably RecX
 		{"ph_rec3", "RV"},
 		{"ph_cont1", "Contentious Morals"}, // I am hilarious (looking)
-		{"ph_cont2", "Contentious Morals"}, // SHC boss
+		{"ph_cont2", "Contentious Morals"},
 		{"ph_drive1", "Driven"},
 		{"ph_drive2", "Driven"},
 		{"ph_drive3", "Driven"},
 		{"ph_confine1", "Confinement"},
 		{"ph_confine2", "Confinement"},
-		{"ph_mutat1", "Mutation"}, // SHC final boss
-		{"ph_mutat2", "Mutation"}, 
 		{"ph_cliff1", "Cliffhanger"},
 		{"ph_cliff2", "Cliffhanger"},
 		{"ph_cliff3", "Cliffhanger"}, // Miller final boss
