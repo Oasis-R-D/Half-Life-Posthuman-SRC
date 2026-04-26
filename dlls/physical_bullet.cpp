@@ -1,4 +1,4 @@
-﻿/***
+/***
 *
 *	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
 *	
@@ -13,42 +13,16 @@
 *	
 ****/
 
+#include "extdll.h"
+#include "util.h"
+#include "cbase.h"
+#include "monsters.h"
+#include "weapons.h"
+#include "player.h"
+#include "gamerules.h"
+#include "UserMessages.h"
 #include "physical_bullet.h"
-
-#pragma region Penetration Tables
-
-// PENETRATION VALUES BASED ON CONCRETE (hence why concrete is always 1.0)
-static const std::unordered_map<int, float> map_556 =
-{//	   MAT		MULT
-	{P_CRETE,	1.0f},	// 6″
-	{P_DIRT,	0.6f},	// 10″
-	{P_METAL,	12.0f},	// 1/4″
-	{P_GLASS,	2.0f},	// 3″ (fiberglass)
-	{P_WOOD,	.35f},	// ~16″
-	{P_FLESH,	0.4f},	// 15″
-};
-
-static const std::unordered_map<int, float> map_9 =
-{//	   MAT		MULT	
-	{P_CRETE,	1.0f},	// 3″
-	{P_DIRT,	.33f},	// 9″
-	{P_METAL,	16.0f},	// 3/16″
-	{P_GLASS,	2.0f},	// 1.5″
-	{P_WOOD,	0.5f},	// 6″
-	{P_FLESH,	.25f},	// 12″
-};
-
-static std::unordered_map<int, std::unordered_map<int, float>> penetrationMaps =
-{
-	{9,		  map_9},
-	{12,	  map_9}, // TODO
-	{556,	map_556},
-	{762,	map_556}, // TODO
-	{357,	map_556}, // TODO
-	{44,	map_556}, // TODO
-};
-
-#pragma endregion
+#include "soundent.h"
 
 /*
 * 9MM MV: 6000 // REALISM: 10.0-15.0k
@@ -67,7 +41,6 @@ static std::unordered_map<int, std::unordered_map<int, float>> penetrationMaps =
 // speed - the ideal magnitude of my velocity
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-
 void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, unsigned int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
 	for (unsigned int i = 0; i < BLLTamnt; i++) // Allows multishot
@@ -82,7 +55,7 @@ void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, u
 		pBullet->m_Spread = vecSpread;
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
-		pBullet->m_iCaliber = FlareType; // tracer type
+		pBullet->m_Flare = FlareType; // tracer type
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
@@ -93,7 +66,7 @@ void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, u
 	}
 }
 
-static const char* pNearMissSounds[] =
+const char* CPhysbullet::pNearMissSounds[] =
 	{
 		"weapons/nearmiss1.wav",
 		"weapons/nearmiss2.wav",
@@ -131,32 +104,32 @@ void CPhysbullet::Spawn()
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
 
-	switch(m_iCaliber)
+	switch(m_Flare)
 	{
 		case 556:
 			SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
 			pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
-			m_distpenetrate = 6;
+			m_distpenetrate = 24;
 			break;
 		case 762:
 			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
-			m_distpenetrate = 10;
+			m_distpenetrate = 32;
 			break;
 		case 12:
 			SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
 			pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
-			m_distpenetrate = 3;
+			m_distpenetrate = 10;
 			break;
 		case 357:
 			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
-			m_distpenetrate = 6;
+			m_distpenetrate = 18;
 			break;
 		case 44:
 			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
 			pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
-			m_distpenetrate = 5;
+			m_distpenetrate = 16;
 			break;
 		case 69:
 			SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
@@ -174,7 +147,7 @@ void CPhysbullet::Spawn()
 		case 9:
 			SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
 			pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
-			m_distpenetrate = 3;
+			m_distpenetrate = 16;
 			break;
 	}
 
@@ -306,11 +279,11 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_iCaliber, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_iCaliber != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
 				ApplyMultiDamage(owner->pev, owner->pev);
 				
 				/*
@@ -390,7 +363,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			m_distpenetrate *= 10 * hitDot;
 			m_BulletDamage -= round(50 * hitDot);
 
-			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_iCaliber, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			ClearMultiDamage();
@@ -522,11 +495,10 @@ int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 	return 1;
 }
 
-const float CPhysbullet::TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
+float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
 {
 	// hit an object, determine how well the bullet can penetrate your mo-
-	if (m_iCaliber == 420)
-		return 1.0f;
+
 	char chTextureType;
 	char szbuffer[64];
 	const char* pTextureName;
@@ -591,36 +563,44 @@ const float CPhysbullet::TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc
 		}
 	}
 
-	std::unordered_map<int, float> map = penetrationMaps[m_iCaliber];
-	
 	switch (chTextureType)
 	{
 	default:
 	case CHAR_TEX_CONCRETE:
-		penmodifier = map[P_CRETE];
+		penmodifier = 1.33f;
 		break;
 	case CHAR_TEX_METAL:
-	case CHAR_TEX_VENT:
-	case CHAR_TEX_GRATE:
-		penmodifier = map[P_METAL];
+		penmodifier = 2;
 		break;
 	case CHAR_TEX_IMPEN:
 		penmodifier = 64;
 		break;
 	case CHAR_TEX_DIRT:
-	case CHAR_TEX_SLOSH:
-		penmodifier = map[P_DIRT];
+		penmodifier = 2;
 		break;
-	case CHAR_TEX_WOOD:
-		penmodifier = map[P_WOOD];
+	case CHAR_TEX_VENT:
+		penmodifier = 1.5f;
+		break;
+	case CHAR_TEX_GRATE:
+		penmodifier = 1;
 		break;
 	case CHAR_TEX_TILE:
+		penmodifier = 1.1f;
+		break;
+	case CHAR_TEX_SLOSH:
+		penmodifier = 1.125f;
+		break;
+	case CHAR_TEX_WOOD:
+		penmodifier = 1.25f;
+		break;
 	case CHAR_TEX_GLASS:
+		penmodifier = 1;
+		break;
 	case CHAR_TEX_COMPUTER:
-		penmodifier = map[P_GLASS];
+		penmodifier = 1.125f;
 		break;
 	case CHAR_TEX_FLESH: // less overpenetration
-		penmodifier = map[P_FLESH];
+		penmodifier = 1.75f;
 		break;
 	}
 	ALERT(at_console, "penetration mult: %f\n", penmodifier);

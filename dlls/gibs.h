@@ -11,7 +11,7 @@
 
 #pragma once
 
-struct gib_data_t // should be s, too lazy to change -PM
+struct gib_data_t
 {
     std::string gib_mdlname;
     int body;
