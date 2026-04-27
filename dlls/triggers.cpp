@@ -2872,6 +2872,7 @@ void CEnvCustomize::SetBoneController(float fController, int cnum, CBaseEntity* 
 	}
 }
 
+
 class CTriggerHunger : public CPointEntity // Ignore this being here, this WAS a trigger
 {
 public:
@@ -2889,6 +2890,7 @@ LINK_ENTITY_TO_CLASS(trigger_hunger, CTriggerHunger);
 void CTriggerHunger::Spawn()
 {
 }
+
 void CTriggerHunger::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!pActivator->IsPlayer())
@@ -2900,6 +2902,7 @@ void CTriggerHunger::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE
 	player->Hunger += m_iPlus;
 	player->Hunger = round(player->Hunger);
 }
+
 bool CTriggerHunger::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "plus"))
@@ -2923,6 +2926,7 @@ bool CTriggerHunger::KeyValue(KeyValueData* pkvd)
 
 class CTriggerSprint : public CPointEntity // this however, was never a trigger.
 {
+	// TO-DO: use m_bNoSprint
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 	{
 		if (pev->armortype == 0)
@@ -2932,8 +2936,8 @@ class CTriggerSprint : public CPointEntity // this however, was never a trigger.
 	}
 };
 
-LINK_ENTITY_TO_CLASS(trigger_sprint, CTriggerSprint);
 
+LINK_ENTITY_TO_CLASS(trigger_sprint, CTriggerSprint);
 
 class CtriggerRand : public CBaseDelay
 {
@@ -3011,13 +3015,9 @@ bool CtriggerRand::KeyValue(KeyValueData* pkvd)
 	return CBaseDelay::KeyValue(pkvd);
 }
 
-
 void CtriggerRand::Spawn()
 {
 }
-
-
-
 
 void CtriggerRand::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
@@ -3147,6 +3147,7 @@ bool CTriggerLimbDMG::KeyValue(KeyValueData* pkvd)
 	return CPointEntity::KeyValue(pkvd);
 }
 
+
 class CTriggerPreHuman : public CPointEntity
 {
 public:
@@ -3235,6 +3236,7 @@ bool CTriggerPreHuman::KeyValue(KeyValueData* pkvd)
 	return CPointEntity::KeyValue(pkvd);
 }
 
+
 class CTriggerWeapons : public CPointEntity
 {
 public:
@@ -3262,9 +3264,8 @@ void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 				auto player = (CBasePlayer*)pCaller;
 				player->m_iWeaponStatus = Training;
 			}
-			break;
+		break;
 		case 1:
-
 			for (;;)
 			{
 				pentTarget = FIND_ENTITY_BY_CLASSNAME(pentTarget, "player");
@@ -3279,7 +3280,7 @@ void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 					player->m_iWeaponStatus = Training;
 				}
 			}
-			break;
+		break;
 	}
 }
 
