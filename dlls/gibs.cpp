@@ -395,54 +395,6 @@ void CoolerGib::WaitTillLand()
 
 	if (pev->velocity == g_vecZero)
 	{
-		if (m_bShouldPool && UTIL_ShouldShowBlood(m_bloodColor) == true)
-		{
-			int time = 6 - trunc(m_iPoolTime/10); // range
-			Vector origin;
-
-			// spawns 1 every 0.1 seconds
-			int count = 0;
-			int contents;
-
-			if (time > RANDOM_LONG(1,2)) // wait a bit
-			{
-				// fetch blood pool pos
-				Vector boneOrg = pev->origin;
-
-				do // get the location
-				{
-					count++;
-
-					// get a random spot in the radius
-					// could make this focus on only a random quadrant to make it directional
-					// time x4 makes the radius jump 4 units each time
-					float theter = RANDOM_FLOAT(0, 1) * (2 * 3.141592);
-					float x = boneOrg.x + (3 * time) * cos(theter);
-					float y = boneOrg.y + (3 * time) * sin(theter);
-
-					origin = Vector(x, y, pev->origin.z + 1);
-					contents = UTIL_PointContents(origin);
-					
-					// check if in view of the origin?
-
-					if (count > 64) // no valid spots or VERY unlucky
-						break;
-				} while (contents != CONTENT_EMPTY); // don't spawn in walls
-
-				if (count > 64)
-				{
-					m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
-					ALERT(at_console, "failed to continue blood pool!\n");
-				}
-				else
-					CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, m_bloodColor, false, 0, false, true); // TO-DO: make not play sfx
-			}
-
-			m_iPoolTime--;
-
-			if (m_iPoolTime <= 0) // stop bleeding
-				m_bShouldPool = false;
-		}
 
 		// don't fade if
 		// - hasn't been 25 seconds
@@ -605,8 +557,6 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	m_lifeTime = gpGlobals->time + 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
-	if (m_bloodColor == BLOOD_COLOR_INFECTION)
-		m_bShouldPool = false;
 }
 
 std::vector<gib_data_t> CoolerGib::GetNPCgibs(CBaseEntity* pVictim)
