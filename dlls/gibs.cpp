@@ -398,9 +398,8 @@ void CoolerGib::WaitTillLand()
 
 		// don't fade if
 		// - hasn't been 25 seconds
-		// - hasn't finished pooling
 		// - told not to
-		if (!m_bDisableFade && m_lifeTime < gpGlobals->time && m_bShouldPool == false)
+		if (!m_bDisableFade && m_lifeTime < gpGlobals->time)
 		{
 			SetThink(&CoolerGib::SUB_StartFadeOut);
 			pev->nextthink = gpGlobals->time;
