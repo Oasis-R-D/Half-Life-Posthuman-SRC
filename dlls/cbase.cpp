@@ -881,8 +881,8 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_emer2", "Emergency"},
 		{"ph_emer3", "Emergency"},
 		{"ph_emer4", "Emergency"},
-		{"ph_over1", "OverGrowth"},
-		{"ph_over2", "OverGrowth"},
+		{"ph_over1", "Overgrowth"},
+		{"ph_over2", "Overgrowth"},
 		{"ph_tech1", "Technical Difficulties"},
 		{"ph_tech2", "Technical Difficulties"},
 		{"ph_insur1", "Insurrection"}, // RPC FINISHED
@@ -897,7 +897,7 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_rec1", "RV"},
 		{"ph_rec2", "RV"}, // Probably RecX
 		{"ph_rec3", "RV"},
-		{"ph_cont1", "Contentious Morals"}, // I am hilarious (looking)
+		{"ph_cont1", "Contentious Morals"},
 		{"ph_cont2", "Contentious Morals"},
 		{"ph_drive1", "Driven"},
 		{"ph_drive2", "Driven"},
@@ -912,6 +912,8 @@ TITLECOMMENT gTitleComments[] = // Any maps that are here but aren't actually in
 		{"ph_ext3" "Extinct"}, //post-cred
 		{"ph_erad1", "Eradication"}, // alt ending start
 		{"ph_erad2", "Eradication"},
+
+		// Developer maps
 		{"test", "DEV!!!!!!!!!"}, // RPC FINISHED
 		{"systemstest", "SYSTEM DEV!!!!!!!!!"},
 		{"test_range", "WPN DEV!!!!!!!!!"},
