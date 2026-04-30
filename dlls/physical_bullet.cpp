@@ -107,28 +107,68 @@ void CPhysbullet::Spawn()
 	switch(m_Flare)
 	{
 		case 556:
-			SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
-			pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_556mm.spr");
+				pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
+			}
+			
 			m_distpenetrate = 24;
 			break;
 		case 762:
-			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-			pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
+				pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
+			}
+
 			m_distpenetrate = 32;
 			break;
 		case 12:
-			SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
-			pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_12g.spr");
+				pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
+			}
+
 			m_distpenetrate = 10;
 			break;
 		case 357:
-			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-			pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
+				pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
+			}
+
 			m_distpenetrate = 18;
 			break;
 		case 44:
-			SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
-			pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_44magnum.spr");
+				pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
+			}
+
 			m_distpenetrate = 16;
 			break;
 		case 69:
@@ -137,16 +177,31 @@ void CPhysbullet::Spawn()
 			pev->rendermode = kRenderNormal;
 			break;
 		case 420:
-			SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-			pev->scale = 1.0;
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
+				pev->scale = 1.0;
+			}
+
 			m_distpenetrate = 128;
 			pev->rendercolor = Vector(255, 70, 170);
-			pev->rendermode = kRenderTransAdd;
 			break;
 		default:
 		case 9:
-			SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
-			pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
+				pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
+			}
+
 			m_distpenetrate = 16;
 			break;
 	}
@@ -199,6 +254,7 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_357magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_44magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
+	PRECACHE_MODEL("sprites/tracer_classic.spr"); // TFC laser pistol projectile
 	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
 	
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
