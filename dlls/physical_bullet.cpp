@@ -97,7 +97,7 @@ void CPhysbullet::Spawn()
 					
 	pev->velocity = m_direction * m_muzzlevelocity; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	pev->angles = m_direction;
+	pev->angles = UTIL_VecToAngles(m_direction);
 
 	m_haswizzed = false;
 
@@ -477,7 +477,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 void CPhysbullet::AirThink()
 {
-	pev->angles = m_direction;
+	pev->angles = UTIL_VecToAngles(m_direction);
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
 	
 	CBaseEntity* m_ent = NULL;

@@ -1699,37 +1699,6 @@ public:
 	}
 };
 
-class CCorruptedWPN : public CBasePlayerWeapon
-{
-public:
-
-	void Spawn() override;
-	void Precache() override;
-	int iItemSlot() override { return 3; }
-	bool GetItemInfo(ItemInfo* p) override;
-	void PrimaryAttack() override;
-	void TertiaryAttack() override;
-	void Reload() override;
-	bool Deploy() override;
-	void WeaponIdle() override;
-	void ItemPostFrame() override;
-	float m_flNextReload;
-	int m_corrskin;
-	int m_iCurrWPN;
-	bool UseDecrement() override
-	{
-#if defined(CLIENT_WEAPONS)
-		return true;
-#else
-		return false;
-#endif
-	}
-private:
-	unsigned short m_silenceevent;
-	float recoilx;
-	float recoily;
-};
-
 enum m29_e
 {
 	M29_IDLE1 = 0,

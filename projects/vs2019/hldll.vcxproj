@@ -250,7 +250,6 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\weapons\mp5.cpp" />
     <ClCompile Include="..\..\dlls\weapons\python.cpp" />
     <ClCompile Include="..\..\dlls\weapons\shotgun.cpp" />
-    <ClCompile Include="..\..\dlls\weapons\wpn_corrupted.cpp" />
     <ClCompile Include="..\..\dlls\weapons_shared.cpp" />
     <ClCompile Include="..\..\dlls\world.cpp" />
     <ClCompile Include="..\..\dlls\xen.cpp" />
