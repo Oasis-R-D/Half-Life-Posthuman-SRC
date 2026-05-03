@@ -132,7 +132,7 @@ void CPhysblood::Spawn()
 void CPhysblood::Precache()
 {
 	PRECACHE_MODEL("sprites/blood.spr");
-	if (!m_isPool)
+	if (!m_isPool) // TO-DO: play these in the blood drop impact event (would save a lot of precaching)
 	{
 		PRECACHE_SOUND("common/drip_01.wav");
 		PRECACHE_SOUND("common/drip_02.wav");

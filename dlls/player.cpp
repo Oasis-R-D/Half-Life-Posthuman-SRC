@@ -4353,7 +4353,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("ammo_spit");
 		GiveNamedItem("weapon_eagle");
 		GiveNamedItem("weapon_m727");
-		GiveNamedItem("weapon_corrupted");
 		GiveNamedItem("weapon_m29");
 		GiveNamedItem("weapon_sledge");
 		m_iGrenadeAmnt = 3;

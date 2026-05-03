@@ -375,9 +375,6 @@ void W_Precache()
 	// M727
 	UTIL_PrecacheOtherWeapon("weapon_m727");
 
-	// Corruption weapon
-	UTIL_PrecacheOtherWeapon("weapon_corrupted");
-
 	// M29 (shhhhhh it's a secret)
 	UTIL_PrecacheOtherWeapon("weapon_m29");
 
