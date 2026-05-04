@@ -133,14 +133,6 @@ void CElite::PrimaryAttack()
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
 		return;
 
-	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
-	{
-		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
-		return;
-	}
-
 	if (m_iClip <= 0)
 	{
 		if (m_fFireOnEmpty)

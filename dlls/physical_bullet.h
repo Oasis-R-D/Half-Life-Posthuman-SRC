@@ -18,7 +18,7 @@ class CPhysbullet : public CBaseEntity
 {
 	int m_iTrail;
 public:
-	static void BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, unsigned int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
 	void Spawn() override;
 	void Precache() override;
 	void EXPORT AirThink();

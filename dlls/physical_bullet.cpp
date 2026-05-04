@@ -41,21 +41,21 @@
 // speed - the ideal magnitude of my velocity
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTDamage, unsigned int BLLTSpeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int FlareType, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
+void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
 	for (unsigned int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
-		pBullet->m_muzzlevelocity = BLLTSpeed;
-		pBullet->m_BulletDamage = BLLTDamage;
+		pBullet->m_muzzlevelocity = BLLTspeed;
+		pBullet->m_BulletDamage = BLLTdamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_direction = vecDir;
 		pBullet->m_Spread = vecSpread;
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
-		pBullet->m_Flare = FlareType; // tracer type
+		pBullet->m_Flare = BLLTtype; // tracer type
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
