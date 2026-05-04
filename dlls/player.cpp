@@ -1236,9 +1236,9 @@ void CBasePlayer::TabulateAmmo()
 	ammo_argrens = AmmoInventory(GetAmmoIndex("ARgrenades"));
 	ammo_bolts = AmmoInventory(GetAmmoIndex("bolts"));
 	ammo_buckshot = AmmoInventory(GetAmmoIndex("buckshot"));
-	ammo_rockets = AmmoInventory(GetAmmoIndex("rockets"));
-	ammo_uranium = AmmoInventory(GetAmmoIndex("uranium"));
-	ammo_hornets = AmmoInventory(GetAmmoIndex("Hornets"));
+	ammo_rockets = AmmoInventory(GetAmmoIndex("10mm")); // 10mm (was 'rockets')
+	ammo_uranium = AmmoInventory(GetAmmoIndex("556")); // 556 (was 'uranium')
+	ammo_hornets = AmmoInventory(GetAmmoIndex("spit")); // spitthrower (was 'Hornets')
 }
 
 
@@ -4355,6 +4355,8 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_m727");
 		GiveNamedItem("weapon_m29");
 		GiveNamedItem("weapon_sledge");
+		GiveNamedItem("weapon_10mmhandgun");
+		GiveNamedItem("ammo_10mmclip");
 		m_iGrenadeAmnt = 3;
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);

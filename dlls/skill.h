@@ -129,6 +129,7 @@ struct skilldata_t
 	float plrDmgCrowbar;
 	float plrDmgSledge;
 	float plrDmg9MM;
+	float plrDmg10MM;
 	float plrDmg357;
 	float plrDmgMP5;
 	float plrDmgM203Grenade;

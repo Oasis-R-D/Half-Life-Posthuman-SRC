@@ -79,6 +79,12 @@ public:
 
 };
 
+// ammo type replacements
+// TO-DO: implement these in weapons
+#define eng_ammo_10mm ammo_rockets // done
+#define eng_ammo_556 ammo_uranium
+#define eng_ammo_spit ammo_hornets
+
 // constant items
 #define ITEM_HEALTHKIT 1
 #define ITEM_ANTIDOTE 2
@@ -92,6 +98,7 @@ public:
 // weapon weight factors (for auto-switching)   (-1 = noswitch)
 #define CROWBAR_WEIGHT 0
 #define GLOCK_WEIGHT 10
+#define ELITE_WEIGHT 12
 #define PYTHON_WEIGHT 15
 #define MP5_WEIGHT 15
 #define SHOTGUN_WEIGHT 15
@@ -110,6 +117,7 @@ public:
 #define URANIUM_MAX_CARRY 100
 #define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
 #define _357_MAX_CARRY 24
+#define _10MM_MAX_CARRY 80
 #define BUCKSHOT_MAX_CARRY 99
 #define BOLT_MAX_CARRY 10
 #define ROCKET_MAX_CARRY 3
@@ -131,6 +139,7 @@ public:
 #define SHOTGUN_MAX_CLIP 9
 #define CROSSBOW_MAX_CLIP 1
 #define RPG_MAX_CLIP 1
+#define ELITE_MAX_CLIP 8
 #define GAUSS_MAX_CLIP WEAPON_NOCLIP
 #define EGON_MAX_CLIP WEAPON_NOCLIP
 #define HORNETGUN_MAX_CLIP WEAPON_NOCLIP
@@ -154,10 +163,12 @@ public:
 #define TRIPMINE_DEFAULT_GIVE 1
 #define SNARK_DEFAULT_GIVE 5
 #define HIVEHAND_DEFAULT_GIVE 8
-#define CRYST_DEFAULT_GIVE 9
+#define ELITE_DEFAULT_GIVE 8
+
 // The amount of ammo given to a player by an ammo item.
 #define AMMO_URANIUMBOX_GIVE 20
 #define AMMO_GLOCKCLIP_GIVE GLOCK_MAX_CLIP
+#define AMMO_ELITECLIP_GIVE ELITE_MAX_CLIP
 #define AMMO_357BOX_GIVE PYTHON_MAX_CLIP
 #define AMMO_MP5CLIP_GIVE MP5_MAX_CLIP
 #define AMMO_M727CLIP_GIVE 30
@@ -169,7 +180,7 @@ public:
 #define AMMO_URANIUMBOX_GIVE 20
 #define AMMO_SNARKBOX_GIVE 5
 
-// bullet types
+// bullet types // unused
 typedef enum
 {
 	BULLET_NONE = 0,
@@ -775,10 +786,41 @@ public:
 	
 	bool m_bHasLaser;
 	bool m_bHasScope;
-	bool ShouldWeaponIdle() override { return m_bHasLaser ? true : false; }
+	bool ShouldWeaponIdle() override { return m_bHasLaser ? false : true; } // don't idle with the laser
 
 private:
 	unsigned short m_usFirePython;
+};
+
+class CElite : public CBasePlayerWeapon
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	
+	int iItemSlot() override { return 2; }
+	bool GetItemInfo(ItemInfo* p) override;
+	void PrimaryAttack() override;
+	bool Deploy() override;
+	void Holster() override;
+	void Reload() override;
+	void WeaponIdle() override;
+	const Vector& GetBulletSpread() override;
+	void ItemPreFrame() override;
+	void ItemPostFrame() override;
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+
+private:
+	int m_iShell;
+
+	unsigned short m_usFireElite;
 };
 
 enum mp5_e

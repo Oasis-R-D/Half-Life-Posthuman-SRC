@@ -13,6 +13,8 @@
 *
 ****/
 
+// TO-DO: move to weapons folder
+
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"

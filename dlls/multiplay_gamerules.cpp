@@ -121,13 +121,16 @@ void CHalfLifeMultiplay::RefreshSkillData()
 	gSkillData.suitchargerCapacity = 30;
 
 	if (g_iSkillLevel == SKILL_REALISM)
-		return;
+		return; // use realism values instead
 
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = 25;
 
 	// Glock Round
 	gSkillData.plrDmg9MM = 12;
+
+	// Elite Round
+	gSkillData.plrDmg10MM = 20;
 
 	// MP5 Round
 	gSkillData.plrDmgMP5 = 12;

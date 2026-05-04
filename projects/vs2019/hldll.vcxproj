@@ -243,6 +243,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\weapons\crowbar.cpp" />
     <ClCompile Include="..\..\dlls\weapons\CShockBeam.cpp" />
     <ClCompile Include="..\..\dlls\weapons\CSpore.cpp" />
+    <ClCompile Include="..\..\dlls\weapons\deltaelite.cpp" />
     <ClCompile Include="..\..\dlls\weapons\glock.cpp" />
     <ClCompile Include="..\..\dlls\weapons\m249.cpp" />
     <ClCompile Include="..\..\dlls\weapons\m29.cpp" />
