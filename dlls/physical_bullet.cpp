@@ -190,6 +190,19 @@ void CPhysbullet::Spawn()
 			m_distpenetrate = 128;
 			pev->rendercolor = Vector(255, 70, 170);
 			break;
+		case 10:
+			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_classic.spr");
+			}
+			else
+			{
+				SET_MODEL(ENT(pev), "sprites/tracer_9mm.spr");
+				pev->scale = RANDOM_FLOAT(0.20f, 0.22f);
+			}
+
+			m_distpenetrate = 18;
+			break;
 		default:
 		case 9:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)

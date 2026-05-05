@@ -172,11 +172,11 @@ void CElite::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg10MM, 6500, vecSrc, vecAiming, spread, spread, 0.66f, 9, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg10MM, 6500, vecSrc, vecAiming, spread, spread, 0.66f, 10, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 35, 6500, vecSrc, vecAiming, spread, spread, 1, 9, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 35, 6500, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
 	}
 	#endif
 
