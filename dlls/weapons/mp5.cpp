@@ -257,7 +257,7 @@ void CMP5::PrimaryAttack()
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	if (pev->armortype == 2) // TO-DO: make it fire regardless of button being down if (pev->armortype == 2 && pev->armorvalue > 0)
+	if (pev->armortype == 2)
 	{
 		if (pev->armorvalue < 2)
 		{
