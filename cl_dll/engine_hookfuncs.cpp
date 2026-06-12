@@ -641,6 +641,8 @@ FuncHook(R_MultiGunshot, void, float* org, float* dir, float* noise, int count, 
 			return;
 			break;
 		case CHAR_TEX_METAL:
+		case CHAR_TEX_VENT:
+		case CHAR_TEX_GRATE:
 			gParticleEngine.CreateSystem("engine_impsmoke_spark.txt", newOrg, dir, 0);
 			break;
 	}
