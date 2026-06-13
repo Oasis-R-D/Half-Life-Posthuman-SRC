@@ -21,6 +21,7 @@
 #include "player.h"
 #include "physical_bullet.h"
 
+#define PISTOL_FASTEST_REFIRE_TIME				0.10f	// spam clicking firerate
 #define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
 #define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
 
@@ -171,6 +172,15 @@ void CGlock::ItemPreFrame()
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
 	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
+	if (m_iClip <= 0)
+		return;
+
+	if ((m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2)) == 0)
+	{
+		if (m_flSoonestPrimaryAttack < gpGlobals->time)
+			m_flNextPrimaryAttack = 0;
+	}
 }
 
 const Vector& CGlock::GetBulletSpread()
@@ -190,18 +200,16 @@ const Vector& CGlock::GetBulletSpread()
 
 void CGlock::PrimaryAttack()
 {
-	GlockFire(GetBulletSpread().x, 0.125f, true);
+	GlockFire(GetBulletSpread().x, 0.5f, true);
 }
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 {
-	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
-		return; // move this to PrimaryAttack()?
-
 	if (m_iClip <= 0)
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(0.2);
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flSoonestPrimaryAttack = GetNextAttackDelay(0.2);
+
 		return;
 	}
 
@@ -244,7 +252,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	{
 		if (g_iSkillLevel != SKILL_REALISM)
 		{
-			if (m_iSilenced == 0)
+			if (!m_iSilenced)
 			{
 			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 
@@ -259,7 +267,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		else // realism diff (hardcoded damages to prevent cheaters)
 		{
 	
-			if (m_iSilenced == 0)
+			if (!m_iSilenced)
 			{
 			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 				CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
@@ -293,6 +301,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(flCycleTime);
+	m_flSoonestPrimaryAttack = UTIL_WeaponTimeBase() + PISTOL_FASTEST_REFIRE_TIME;
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

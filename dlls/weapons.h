@@ -602,6 +602,9 @@ public:
 	bool m_iSilenced;
 	bool m_bHasSilencer;
 	float m_fTimer;
+
+	float m_flSoonestPrimaryAttack;
+
 	bool UseDecrement() override
 	{
 #if defined(CLIENT_WEAPONS)
