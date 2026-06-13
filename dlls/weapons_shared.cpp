@@ -132,7 +132,6 @@ bool CBasePlayerWeapon::DefaultReload(int iClipSize, int iAnim, float fDelay, in
 	m_fInReload = true;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3;
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
-	m_pPlayer->pev->punchangle.z += RANDOM_LONG(-5, 5);
 	m_hasbeeped = false;
 	return true;
 }

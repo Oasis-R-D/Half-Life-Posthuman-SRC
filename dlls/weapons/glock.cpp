@@ -100,7 +100,7 @@ void CGlock::Holster()
 }
 void CGlock::SecondaryAttack()
 {
-	m_iSilenced = !m_iSilenced; // bro wtf does this even do :sob:
+	m_iSilenced = !m_iSilenced;
 	if (pev->body == 0)
 	{
 		SendWeaponAnim(GLOCK_ADD_SILENCER, pev->body);
@@ -154,8 +154,8 @@ void CGlock::ItemPostFrame()
 	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
 	{
 		m_fTimer = 0;
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, m_iSilenced, 0, 0, 0);
-		pev->body = m_iSilenced;
+		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
+		pev->body = (int)m_iSilenced;
 		if (pev->body == 0)
 			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body);
 	}
@@ -276,7 +276,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 	#endif
-	if (m_iSilenced == 0)
+	if (!m_iSilenced)
 	{
 		SendWeaponAnim(m_iClip == 0 ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 0);
 	}
@@ -286,7 +286,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	}
 
 	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, pev->body ? "weapons/pl_gun1.wav" : "weapons/pl_gun3.wav", 1, ATTN_NORM);
-	if (!pev->body) // subsonic shouldnt make loud noises
+	if (pev->body == 0) // subsonic shouldnt make loud noises
 		AcousticMod();
 
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
