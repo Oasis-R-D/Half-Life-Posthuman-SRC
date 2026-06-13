@@ -537,6 +537,7 @@ void ClientCommand(edict_t* pEntity)
 			player->GiveNamedItem(STRING(iszItem));
 		}
 	}
+
 	else if (FStrEq(pcmd, "drop"))
 	{
 		// player is dropping an item.
@@ -931,11 +932,14 @@ void StartFrame()
 void ClientPrecache()
 {
 	// setup precaches always needed
-	PRECACHE_SOUND("plats/vehicle_ignition.wav");
 	PRECACHE_MODEL("sprites/ballsmoke.spr");
 	PRECACHE_SOUND("player/sprayer.wav"); // spray paint sound for PreAlpha
+
+	// PRECACHE_SOUND("player/pl_jumpland2.wav");		// UNDONE: play 2x step sound
+
 	PRECACHE_SOUND("player/pl_fallpain2.wav");
 	PRECACHE_SOUND("player/pl_fallpain3.wav");
+
 	PRECACHE_SOUND("player/pl_step1.wav"); // walk on concrete
 	PRECACHE_SOUND("player/pl_step2.wav");
 	PRECACHE_SOUND("player/pl_step3.wav");
@@ -987,11 +991,6 @@ void ClientPrecache()
 	PRECACHE_SOUND("player/pl_ladder3.wav");
 	PRECACHE_SOUND("player/pl_ladder4.wav");
 
-	PRECACHE_SOUND("player/wade1.wav"); // wade in water
-	PRECACHE_SOUND("player/wade2.wav");
-	PRECACHE_SOUND("player/wade3.wav");
-	PRECACHE_SOUND("player/wade4.wav");
-
 	PRECACHE_SOUND("player/pl_wade1.wav"); // wade in water
 	PRECACHE_SOUND("player/pl_wade2.wav");
 	PRECACHE_SOUND("player/pl_wade3.wav");
@@ -1002,6 +1001,7 @@ void ClientPrecache()
 	PRECACHE_SOUND("debris/wood3.wav");
 
 	PRECACHE_SOUND("plats/train_use1.wav"); // use a train
+	PRECACHE_SOUND("plats/vehicle_ignition.wav");
 
 	PRECACHE_SOUND("buttons/spark5.wav"); // hit computer texture
 	PRECACHE_SOUND("buttons/spark6.wav");
@@ -1470,6 +1470,7 @@ int AddToFullPack(struct entity_state_s* state, int e, edict_t* ent, edict_t* ho
 		state->usehull = (ent->v.flags & FL_DUCKING) != 0 ? 1 : 0;
 		state->health = ent->v.health;
 	}
+
 	CBaseEntity* pEntity = static_cast<CBaseEntity*>(GET_PRIVATE(ent));
 	if (pEntity && pEntity->Classify() != CLASS_NONE && !pEntity->IsMachine(pEntity))
 		state->eflags |= EFLAG_FLESH_SOUND;
@@ -1824,12 +1825,12 @@ int GetWeaponData(struct edict_s* player, struct weapon_data_s* info)
 						item->m_iId = II.iId;
 						item->m_iClip = gun->m_iClip;
 
-						item->m_flTimeWeaponIdle = V_max(gun->m_flTimeWeaponIdle, -0.001);
-						item->m_flNextPrimaryAttack = V_max(gun->m_flNextPrimaryAttack, -0.001);
-						item->m_flNextSecondaryAttack = V_max(gun->m_flNextSecondaryAttack, -0.001);
+						item->m_flTimeWeaponIdle = V_max(gun->m_flTimeWeaponIdle, -0.001f);
+						item->m_flNextPrimaryAttack = V_max(gun->m_flNextPrimaryAttack, -0.001f);
+						item->m_flNextSecondaryAttack = V_max(gun->m_flNextSecondaryAttack, -0.001f);
 						item->m_fInReload = static_cast<int>(gun->m_fInReload);
 						item->m_fInSpecialReload = gun->m_fInSpecialReload;
-						item->fuser1 = V_max(gun->pev->fuser1, -0.001);
+						item->fuser1 = V_max(gun->pev->fuser1, -0.001f);
 						item->fuser2 = gun->m_flStartThrow;
 						item->fuser3 = gun->m_flReleaseThrow;
 						item->iuser1 = gun->m_chargeReady;
@@ -1838,7 +1839,7 @@ int GetWeaponData(struct edict_s* player, struct weapon_data_s* info)
 
 						gun->GetWeaponData(*item);
 
-						//						item->m_flPumpTime				= V_max( gun->m_flPumpTime, -0.001 );
+						//						item->m_flPumpTime				= V_max( gun->m_flPumpTime, -0.001f );
 					}
 				}
 				pPlayerItem = pPlayerItem->m_pNext;

@@ -223,7 +223,7 @@ void EjectBrass(const Vector& vecOrigin, const Vector& vecVelocity, float rotati
 	WRITE_ANGLE(rotation);
 	WRITE_SHORT(model);
 	WRITE_BYTE(soundtype);
-	WRITE_BYTE(30); // 2.5 seconds
+	WRITE_BYTE(25); // 2.5 seconds
 	MESSAGE_END();
 }
 
@@ -263,9 +263,6 @@ void UTIL_PrecacheOtherWeapon(const char* szClassname)
 	{
 		ItemInfo II;
 		pEntity->Precache();
-
-		CBasePlayerWeapon* weapon = dynamic_cast<CBasePlayerWeapon*>(pEntity)->GetWeaponPtr();
-
 		memset(&II, 0, sizeof II);
 		if (((CBasePlayerItem*)pEntity)->GetItemInfo(&II))
 		{
@@ -422,6 +419,9 @@ void W_Precache()
 	PRECACHE_SOUND("fvox/Lowammo3.wav");
 }
 
+
+
+
 TYPEDESCRIPTION CBasePlayerItem::m_SaveData[] =
 	{
 		DEFINE_FIELD(CBasePlayerItem, m_pPlayer, FIELD_CLASSPTR),
@@ -509,7 +509,7 @@ void CBasePlayerItem::FallThink()
 		// don't clatter if the gun is waiting to respawn (if it's waiting, it is invisible!)
 		if (!FNullEnt(pev->owner))
 		{
-			int pitch = 95 + RANDOM_LONG(-5, 29);
+			int pitch = 95 + RANDOM_LONG(0, 29);
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "items/weapondrop1.wav", 1, ATTN_NORM, 0, pitch);
 		}
 
@@ -522,6 +522,10 @@ void CBasePlayerItem::FallThink()
 		}
 
 		Materialize();
+	}
+	else if (m_pPlayer != NULL)
+	{
+		SetThink(NULL);
 	}
 }
 
@@ -539,8 +543,8 @@ void CBasePlayerItem::Materialize()
 	}
 
 	pev->solid = SOLID_TRIGGER;
-	UTIL_SetOrigin(pev, pev->origin); // link into world.
 
+	UTIL_SetOrigin(pev, pev->origin); // link into world.
 	SetTouch(&CBasePlayerItem::DefaultTouch);
 	SetThink(NULL);
 }
@@ -933,7 +937,6 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 	}
 	
 	m_pPlayer->pev->weaponmodel = MAKE_STRING(szWeaponModel);
-
 	strcpy(m_pPlayer->m_szAnimExtention, szAnimExt);
 	SendWeaponAnim(iAnim, body);
 
@@ -1128,7 +1131,7 @@ void CBasePlayerWeapon::DoRetireWeapon()
 //=========================================================================
 float CBasePlayerWeapon::GetNextAttackDelay(float delay)
 {
-	if (m_flLastFireTime == 0 || m_flNextPrimaryAttack <= -1.1)
+	if (m_flLastFireTime == 0 || m_flNextPrimaryAttack == -1)
 	{
 		// At this point, we are assuming that the client has stopped firing
 		// and we are going to reset our book keeping variables.
