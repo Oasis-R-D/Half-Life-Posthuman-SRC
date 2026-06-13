@@ -981,7 +981,7 @@ void InitInput()
 	cl_forwardspeed = gEngfuncs.pfnRegisterVariable("cl_forwardspeed", "192", 0);
 	cl_backspeed = gEngfuncs.pfnRegisterVariable("cl_backspeed", "128", 0);
 	cl_sidespeed = gEngfuncs.pfnRegisterVariable("cl_sidespeed", "128", 0);
-	cl_movespeedkey = gEngfuncs.pfnRegisterVariable("cl_movespeedkey", "2", 0);
+	cl_movespeedkey = gEngfuncs.pfnRegisterVariable("cl_movespeedkey", "3", 0);
 
 	cl_pitchup = gEngfuncs.pfnRegisterVariable("cl_pitchup", "89", 0);
 	cl_pitchdown = gEngfuncs.pfnRegisterVariable("cl_pitchdown", "89", 0);

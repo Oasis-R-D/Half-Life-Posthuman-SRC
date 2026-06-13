@@ -3480,21 +3480,13 @@ ReturnSpot:
 	return pSpot->edict();
 }
 
-#define WALK_SPEED 192
+#define RUN_SPEED 3
 
 void CBasePlayer::Spawn()
 {
 	m_bIsSpawning = true;
 
-	CVAR_SET_FLOAT("sv_maxspeed", WALK_SPEED * 2);
-	CVAR_SET_FLOAT("cl_anglespeedkey", 1);
-	CVAR_SET_FLOAT("cl_yawspeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_pitchspeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_upspeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_forwardspeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_backspeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_sidespeed", WALK_SPEED);
-	CVAR_SET_FLOAT("cl_movespeedkey", 2);
+	CVAR_SET_FLOAT("cl_movespeedkey", RUN_SPEED);
 	CVAR_SET_FLOAT("cl_lw", 0);
 
 	//Make sure this gets reset even if somebody adds an early return or throws an exception.

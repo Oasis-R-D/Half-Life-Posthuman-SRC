@@ -2932,7 +2932,7 @@ class CTriggerSprint : public CPointEntity // this however, was never a trigger.
 		if (pev->armortype == 0)
 			CVAR_SET_FLOAT("cl_movespeedkey", 1);
 		else
-			CVAR_SET_FLOAT("cl_movespeedkey", 2);
+			CVAR_SET_FLOAT("cl_movespeedkey", 3);
 	}
 };
 
