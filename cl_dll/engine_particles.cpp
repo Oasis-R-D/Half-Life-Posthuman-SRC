@@ -156,9 +156,9 @@ pcolb %d
 )";
 
 char bulletholeglow[] = R"(
-life 1.5
+life 0.25
 
-fadedelay 0.5
+fadedelay 0.1
 
 minvel 0
 maxvel 0
@@ -168,7 +168,7 @@ display 2
 texture gloworg
 rendermode 0
 
-scale 5
+scale 3.5
 
 pcolr 255
 pcolg 255
@@ -179,7 +179,7 @@ gravity 0
 startparticles 1
 
 lightmaps 0
-mainalpha 0.33
+mainalpha 0.75
 )";
 
 char innacuracydebug[] = R"(

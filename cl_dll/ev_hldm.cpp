@@ -2008,53 +2008,46 @@ void EV_Particles(event_args_t* args)
 	{
 		case PE_MUZZLESMK:
 		{
-			if (EV_IsLocal(idx))
+			EV_Acoustic(args);
+			if (args->bparam1 != 1) // not func_tank
 			{
-				EV_Acoustic(args);
-				if (args->bparam1 != 1) // not func_tank
-				{
-					Origin = engine_cl->viewent.attachment[0];
-					Dir = args->origin;
-				}
-				else // func_tank
-				{
-					Origin = args->origin;
-					Dir = args->angles;
-				}
-				switch (args->iparam2)
-				{
-				default:
-				case 0: // Def muzzle smoke
-					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
-					// gParticleEngine.CreateSystem("engine_muzzleflash_flames.txt", Origin, Dir, 0);
-					break;
-				case 1: // shotgun?
-					// reserved for sg if we do change it
-					break;
-				case 2: // Railcannon
-					gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0);
-					break;
-				}
+				Origin = engine_cl->viewent.attachment[0];
+				Dir = args->origin;
+			}
+			else // func_tank
+			{
+				Origin = args->origin;
+				Dir = args->angles;
+			}
+			switch (args->iparam2)
+			{
+			default:
+			case 0: // Def muzzle smoke
+				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
+				// gParticleEngine.CreateSystem("engine_muzzleflash_flames.txt", Origin, Dir, 0);
+				break;
+			case 1: // shotgun?
+				// reserved for sg if we do change it
+				break;
+			case 2: // Railcannon
+				gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0);
+				break;
 			}
 		}
 		break;
 		case PE_MUZZLESMKSG: // Should this be a param2 thing for the def muzzle flash? // Should this be a cluster?
 		{
-			
 			Origin = engine_cl->viewent.attachment[0];
-			if (EV_IsLocal(idx))
+			EV_Acoustic(args);
+			gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+			if (args->bparam1 != 1)
 			{
-				EV_Acoustic(args);
-				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
-				if (args->bparam1 != 1)
-				{
-					gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
-				}
-				else
-				{
-					gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
-					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
-				}
+				gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+			}
+			else
+			{
+				gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
+				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
 			}
 			break;
 		}

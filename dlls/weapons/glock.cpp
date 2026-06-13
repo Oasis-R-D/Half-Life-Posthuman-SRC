@@ -85,7 +85,7 @@ bool CGlock::Deploy()
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
 
 	if (!NotFirstDraw)
 		return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW_FIRST, "onehanded", pev->body);
@@ -97,7 +97,7 @@ void CGlock::Holster()
 	m_flAccuracyPenalty = 0.0;
 	m_pPlayer->pev->viewmodel = 0;
 	m_pPlayer->pev->weaponmodel = 0;
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
 }
 void CGlock::SecondaryAttack()
 {
@@ -155,7 +155,7 @@ void CGlock::ItemPostFrame()
 	if (m_fTimer <= gpGlobals->time && m_fTimer != 0)
 	{
 		m_fTimer = 0;
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), m_silenceevent, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, (int)m_iSilenced, 0, 0, 0);
 		pev->body = (int)m_iSilenced;
 		if (pev->body == 0)
 			SendWeaponAnim(GLOCK_DRAW_FIRST, pev->body);
@@ -229,7 +229,7 @@ void CGlock::GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim)
 	else
 	{
 		// non-silenced
-		PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
 		m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 		m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 		m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;

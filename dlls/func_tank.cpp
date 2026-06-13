@@ -1022,6 +1022,9 @@ void CFuncTankFlame::Fire(const Vector& barrelEnd, const Vector& forward, entvar
 		int bulletCount = (gpGlobals->time - m_fireLast) * m_fireRate;
 		if (bulletCount > 0)
 		{
+			if (!m_pController)
+				bulletCount = 1; // don't do the weird shotgun thing if not player controlled
+
 			for (i = 0; i < bulletCount; i++)
 			{
 				float x, y, z;
