@@ -72,8 +72,6 @@ bool CSledgeHammer::GetItemInfo(ItemInfo* p)
 	return true;
 }
 
-
-
 bool CSledgeHammer::Deploy()
 {
 	m_iCrossHairType = CROSSHAIR_NONE;

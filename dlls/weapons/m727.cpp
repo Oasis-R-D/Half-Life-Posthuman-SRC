@@ -67,7 +67,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "556";
-	p->iMaxAmmo1 = 200;
+	p->iMaxAmmo1 = _556MM_MAX_CARRY;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = MP5_MAX_CLIP;
@@ -314,7 +314,7 @@ class CM727AmmoClip : public CBasePlayerAmmo
 	}
 	bool AddAmmo(CBaseEntity* pOther) override
 	{
-		bool bResult = (pOther->GiveAmmo(30, "556", 200) != -1);
+		bool bResult = (pOther->GiveAmmo(30, "556", _556MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);

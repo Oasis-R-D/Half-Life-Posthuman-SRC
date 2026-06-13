@@ -118,6 +118,7 @@ public:
 #define _9MM_MAX_CARRY 180 //implement +1 ammo in the glock to make this make sense
 #define _357_MAX_CARRY 24
 #define _10MM_MAX_CARRY 80
+#define _556MM_MAX_CARRY 150
 #define BUCKSHOT_MAX_CARRY 99
 #define BOLT_MAX_CARRY 10
 #define ROCKET_MAX_CARRY 3
@@ -140,6 +141,7 @@ public:
 #define CROSSBOW_MAX_CLIP 1
 #define RPG_MAX_CLIP 1
 #define ELITE_MAX_CLIP 8
+#define M249_MAX_CLIP 100
 #define GAUSS_MAX_CLIP WEAPON_NOCLIP
 #define EGON_MAX_CLIP WEAPON_NOCLIP
 #define HORNETGUN_MAX_CLIP WEAPON_NOCLIP
@@ -164,6 +166,7 @@ public:
 #define SNARK_DEFAULT_GIVE 5
 #define HIVEHAND_DEFAULT_GIVE 8
 #define ELITE_DEFAULT_GIVE 8
+#define M249_DEFAULT_GIVE 50
 
 // The amount of ammo given to a player by an ammo item.
 #define AMMO_URANIUMBOX_GIVE 20

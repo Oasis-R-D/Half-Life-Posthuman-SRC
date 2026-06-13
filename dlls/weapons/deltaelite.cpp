@@ -84,7 +84,7 @@ bool CElite::Deploy()
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = ELITE_ACCURACY_MAXIMUM_PENALTY_TIME;
 
-	return DefaultDeploy("models/v_10mmhandgun.mdl", "models/p_357.mdl", PYTHON_DRAW, "elite");
+	return DefaultDeploy("models/v_10mmhandgun.mdl", "models/p_357.mdl", PYTHON_DRAW, "onehanded");
 }
 
 

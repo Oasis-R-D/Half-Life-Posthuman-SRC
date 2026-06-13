@@ -48,7 +48,7 @@ void CM249::Spawn()
 	Precache();
 	m_iId = WEAPON_CHAINGUN;
 	SET_MODEL(edict(), "models/w_saw.mdl");
-	m_iDefaultAmmo = 200;
+	m_iDefaultAmmo = M249_DEFAULT_GIVE;
 	m_bAlternatingEject = false;
 	FallInit(); // get ready to fall down.
 }
@@ -80,7 +80,7 @@ void CM249::Holster()
 
 void CM249::Reload()
 {
-	if (DefaultReload(200, M249_RELOAD_START, 1.0))
+	if (DefaultReload(M249_MAX_CLIP, M249_RELOAD_START, 1.0))
 	{
 		m_bReloading = true;
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 3.43;
@@ -341,11 +341,11 @@ int CM249::iItemSlot()
 bool CM249::GetItemInfo(ItemInfo* p)
 {
 	p->pszAmmo1 = "556";
-	p->iMaxAmmo1 = 200;
+	p->iMaxAmmo1 = _556MM_MAX_CARRY;
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo2 = nullptr;
 	p->iMaxAmmo2 = WEAPON_NOCLIP;
-	p->iMaxClip = 200;
+	p->iMaxClip = M249_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 2;
 	p->iFlags = 0;
@@ -387,7 +387,7 @@ public:
 
 	bool AddAmmo(CBaseEntity* pOther) override
 	{
-		if (pOther->GiveAmmo(200, "556", 200) != -1)
+		if (pOther->GiveAmmo(M249_DEFAULT_GIVE, "556", _556MM_MAX_CARRY) != -1)
 		{
 			EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip1.wav", VOL_NORM, ATTN_NORM);
 
