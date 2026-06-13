@@ -39,7 +39,7 @@ void CMP5::Spawn()
 	SET_MODEL(ENT(pev), "models/w_9mmAR.mdl");
 	m_iId = WEAPON_MP5;
 
-	m_iDefaultAmmo = 30;
+	m_iDefaultAmmo = MP5_MAX_CLIP;
 
 	FallInit(); // get ready to fall down.
 }
@@ -136,7 +136,7 @@ const Vector& CMP5::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_5DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_2DEGREES, VECTOR_CONE_4DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_2DEGREES;
@@ -212,7 +212,7 @@ void CMP5::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_MP5, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -263,7 +263,7 @@ void CMP5::PrimaryAttack()
 		{
 			pev->armorvalue++;
 
-			m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.075 : 0.066;
+			m_flNextPrimaryAttack = 0.075;
 		}
 		else
 		{
@@ -273,14 +273,14 @@ void CMP5::PrimaryAttack()
 	}
 	else
 	{
-		m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.075 : 0.066;
+		m_flNextPrimaryAttack = 0.075;
 	}
 
 	m_flTimeWeaponIdle = 5;
 
-	#ifndef CLIENT_DLL
-	CBasePlayerWeapon::Recoil(0.85, 1.25);
-	#endif
+#ifndef CLIENT_DLL
+	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 0.85 : -1, 1.5f);
+#endif
 }
 
 void CMP5::SecondaryAttack()
@@ -405,7 +405,7 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 	}
 	bool AddAmmo(CBaseEntity* pOther) override
 	{
-		bool bResult = (pOther->GiveAmmo(30, "9mm", _9MM_MAX_CARRY) != -1);
+		bool bResult = (pOther->GiveAmmo(MP5_MAX_CLIP, "9mm", _9MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);

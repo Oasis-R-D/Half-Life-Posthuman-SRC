@@ -837,8 +837,13 @@ void EV_FireM29(event_args_t* args)
 	if (EV_IsLocal(idx))
 	{
 		// Add muzzle flash to current weapon model
-		EV_MuzzleFlash(M29numb);
-		EV_WeaponAnimation(PYTHON_FIRE1, 0, M29numb);
+		EV_MuzzleFlash((bool)M29numb);
+		EV_WeaponAnimation(PYTHON_FIRE1, 0, (bool)M29numb);
+
+		event_args_t* acousticArgs = args;
+		acousticArgs->fparam1 = AC_LOUD;
+		acousticArgs->bparam1 = false;
+		EV_Acoustic(args);
 	}
 
 	switch (M29numb)
@@ -1915,17 +1920,8 @@ static std::string GetAcoustic(int numb)
 	switch(numb)
 	{
 		default:
-		case AC_GENERIC:	return "generic"s;	break;
-		case AC_SG:			return "spas"s;		break;
-		case AC_DSG:		return "spas2"s;	break;
-		case AC_RAILCAN:	return "rail"s;		break;
-		case AC_MP5:		return "mp5"s;		break;
-		case AC_M727:		return "m727"s;		break;
-		case AC_M249:		return "m249"s;		break;
-		case AC_PISTOL:		return "pistol"s;	break;
-		case AC_PYTHON:		return "357"s;		break;
-		case AC_DEAGLE:		return "deag"s;		break;
-		case AC_M29:		return "m29"s;		break;
+		case AC_NORM:	return "357"s;		break;
+		case AC_LOUD:	return "generic"s;	break;
 	}
 }
 
@@ -1942,7 +1938,7 @@ void EV_Acoustic(event_args_t* args)
 
 	pmtrace_t ForTr, UpTr;
 
-	if (args->bparam1 != true) // not func_tank
+	if (args->bparam1 != 1) // not func_tank
 	{
 		Origin = engine_cl->viewent.attachment[0];
 		Dir = args->origin;
@@ -2015,7 +2011,7 @@ void EV_Particles(event_args_t* args)
 			if (EV_IsLocal(idx))
 			{
 				EV_Acoustic(args);
-				if (args->bparam1 != true) // not func_tank
+				if (args->bparam1 != 1) // not func_tank
 				{
 					Origin = engine_cl->viewent.attachment[0];
 					Dir = args->origin;
@@ -2050,7 +2046,7 @@ void EV_Particles(event_args_t* args)
 			{
 				EV_Acoustic(args);
 				gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
-				if (args->bparam1 != true)
+				if (args->bparam1 != 1)
 				{
 					gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
 				}

@@ -70,7 +70,7 @@ bool CM727::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo1 = _556MM_MAX_CARRY;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
-	p->iMaxClip = MP5_MAX_CLIP;
+	p->iMaxClip = M727_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 1;
 	p->iFlags = 0;
@@ -100,50 +100,51 @@ bool CM727::Deploy()
 	return DefaultDeploy("models/v_727.mdl", "models/p_9mmAR.mdl", M727_DRAW_FIRST, "mp5");
 }
 
+static float pattern[31][2] =
+{
+	{-0.4,		 0},
+	{-0.7,		-0.575},
+	{-0.9,		 0.53125},
+	{-0.7,		-0.55625},
+	{-1,		 0.525},
+	{-0.8375,	-0.575},
+	{-1.25,		 0.50625},
+	{-1,		 0.175},
+	{-0.8125,	 0.8},
+	{-0.9125,	 0.65625},
+	{-1,		 0.9375},
+	{-0.9,		-0.65625},
+	{-0.80625,	 0.78125},
+	{-1,		-1.1875},
+	{-0.9125,	-0.78125},
+	{-0.925,	 1.0625},
+	{-1,		 0.90625},
+	{-0.83125,	-0.8125},
+	{-0.85625,	-0.625},
+	{-1.05,		-0.25},
+	{-0.85625,	-1.0625},
+	{-0.8125,	-0.25},
+	{-0.85625,	-0.9375},
+	{-0.9375,	 0.125},
+	{-0.8125,	 1.3125},
+	{-0.8875,	-1.0625},
+	{-0.83125,	 1.15625},
+	{-0.99375,	 1.18625},
+	{-0.96875,	-1.34375},
+	{-0.86875,	-1.34375},
+	{-0.86875,	 1.14375},
+};
+
 #ifndef CLIENT_DLL
 // spray pattern from https://steamcommunity.com/sharedfiles/filedetails/?id=3533371752 (m4a1)
 void CM727::TestSprayPat(int bulletnum)
 {
-	static float pattern[31][2] =
-	{
-		{-0.4,0},
-		{-0.7, -0.575},
-		{-0.9, 0.53125},
-		{-0.7, -0.55625},
-		{-1, 0.525},
-		{-0.8375, -0.575},
-		{-1.25, 0.50625},
-		{-1, 0.175},
-		{-0.8125, 0.8},
-		{-0.9125, 0.65625},
-		{-1, 0.9375},
-		{-0.9, -0.65625},
-		{-0.80625, 0.78125},
-		{-1, -1.1875},
-		{-0.9125, -0.78125},
-		{-0.925, 1.0625},
-		{-1, 0.90625},
-		{-0.83125, -0.8125},
-		{-0.85625, -0.625},
-		{-1.05, -0.25},
-		{-0.85625, -1.0625},
-		{-0.8125, -0.25},
-		{-0.85625, -0.9375},
-		{-0.9375, 0.125},
-		{-0.8125, 1.3125},
-		{-0.8875, -1.0625},
-		{-0.83125, 1.15625},
-		{-0.99375, 1.18625},
-		{-0.96875, -1.34375},
-		{-0.86875, -1.34375},
-		{-0.86875, 1.14375}
-	};
 	float recup;
 	float recside;
 
-	recup = pattern[bulletnum][0];
-	recside = 0.9f * pattern[bulletnum][1];
-	return Recoil(-recup, -recside, true);
+	recup =	  1.25 * pattern[bulletnum][0];
+	recside = 2 * pattern[bulletnum][1];
+	Recoil(-recup, -recside, true);
 }
 #endif
 
@@ -197,7 +198,7 @@ void CM727::PrimaryAttack()
 
 	m_flNextSecondaryAttack = 0.15;
 
-	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_M727, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
@@ -251,10 +252,8 @@ void CM727::PrimaryAttack()
 	m_flTimeWeaponIdle = 5;
 
 #ifndef CLIENT_DLL
-	/*
-	TestSprayPat(iMaxClip() - m_iClip); // breaks the camera sometimes
-	*/
-	CBasePlayerWeapon::Recoil(0.85, 1.2);
+	TestSprayPat(M727_MAX_CLIP - m_iClip); // breaks the camera sometimes
+	//CBasePlayerWeapon::Recoil(0.85, 1.2);
 #endif
 }
 

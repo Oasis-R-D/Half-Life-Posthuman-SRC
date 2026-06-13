@@ -325,7 +325,8 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 			// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-			p = i * TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i); // m_direction seems to be innacurate
+			float mat_mult = TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i); // m_direction seems to be innacurate
+			p = i * mat_mult;
 			p *= 1000;
 			p = round(p);
 			p /= 1000;
@@ -348,7 +349,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity < 75 ? m_Gravity * 3*mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
 
 				// Damage
 				ClearMultiDamage();

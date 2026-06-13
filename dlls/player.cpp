@@ -4717,6 +4717,12 @@ Called every frame by the player PreThink
 */
 void CBasePlayer::ItemPreFrame()
 {
+	if (!m_pActiveItem)
+		return;
+
+	if (m_pActiveItem->GetWeaponPtr()) // pretty sure this is uneeded
+		UpdateCrosshair(m_pActiveItem->GetWeaponPtr()->GetBulletSpread().x, m_pActiveItem->GetWeaponPtr()->m_iCrossHairType);
+
 #if defined(CLIENT_WEAPONS)
 	if (m_flNextAttack > 0)
 #else
@@ -4726,12 +4732,7 @@ void CBasePlayer::ItemPreFrame()
 		return;
 	}
 
-	if (!m_pActiveItem)
-		return;
-
 	m_pActiveItem->ItemPreFrame();
-	if (m_pActiveItem->GetWeaponPtr()) // pretty sure this is uneeded
-		UpdateCrosshair(m_pActiveItem->GetWeaponPtr()->GetBulletSpread().x, m_pActiveItem->GetWeaponPtr()->m_iCrossHairType);
 }
 
 

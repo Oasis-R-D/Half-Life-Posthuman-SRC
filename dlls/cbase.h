@@ -47,17 +47,8 @@ enum ParticleEngine
 enum Acoustics
 {
 	AC_NONE = -1,
-	AC_GENERIC,
-	AC_SG,
-	AC_DSG,
-	AC_RAILCAN,
-	AC_MP5,
-	AC_M727,
-	AC_M249,
-	AC_PISTOL,
-	AC_PYTHON,
-	AC_DEAGLE,
-	AC_M29,
+	AC_NORM,
+	AC_LOUD,
 };
 
 #define MAX_PATH_SIZE 10 // max number of nodes available for a path.
