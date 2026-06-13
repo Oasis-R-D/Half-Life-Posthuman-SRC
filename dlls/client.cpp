@@ -537,14 +537,6 @@ void ClientCommand(edict_t* pEntity)
 			player->GiveNamedItem(STRING(iszItem));
 		}
 	}
-	else if (FStrEq(pcmd, "ent_create"))
-	{
-		if (0 != g_psv_cheats->value)
-		{
-			int iszItem = ALLOC_STRING(CMD_ARGV(1)); // Make a copy of the classname
-			player->Ent_create(STRING(iszItem));
-		}
-	}
 	else if (FStrEq(pcmd, "drop"))
 	{
 		// player is dropping an item.
