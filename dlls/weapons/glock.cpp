@@ -21,7 +21,7 @@
 #include "player.h"
 #include "physical_bullet.h"
 
-#define PISTOL_FASTEST_REFIRE_TIME				0.10f	// spam clicking firerate
+#define PISTOL_FASTEST_REFIRE_TIME				0.15f	// spam clicking firerate
 #define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
 #define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
 
