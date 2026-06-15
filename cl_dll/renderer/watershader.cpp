@@ -719,7 +719,7 @@ void CWaterShader::SetupReflect(void)
 	Vector vForward;
 	Vector vMins, vMaxs;
 
-	m_pViewParams->viewangles = m_pViewParams->viewangles + m_pViewParams->punchangle;
+	m_pViewParams->viewangles = m_pViewParams->viewangles;
 
 	m_pWaterParams = *m_pViewParams;
 
@@ -754,7 +754,7 @@ void CWaterShader::SetupReflect(void)
 	auto &m_RefParams = gBSPRenderer.m_RefParams;
 	auto& m_vRenderOrigin = m_pWaterParams.vieworg;
 
-	glm::vec3 viewangles = glm::vec3(m_vViewAngles.x + m_RefParams.punchangle.x, m_vViewAngles.y + m_RefParams.punchangle.y, m_vViewAngles.z + m_RefParams.punchangle.z);
+	glm::vec3 viewangles = glm::vec3(m_vViewAngles.x, m_vViewAngles.y, m_vViewAngles.z);
 	Vector forward_, up_;
 	AngleVectors(Vector(viewangles.x, viewangles.y, viewangles.z), &forward_, nullptr, &up_);
 

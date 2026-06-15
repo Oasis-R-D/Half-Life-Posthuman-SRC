@@ -211,8 +211,6 @@ void CMirrorManager::DrawMirrorPasses(ref_params_t* pparams)
 	memcpy(&m_pMirrorParams, pparams, sizeof(ref_params_t));
 	m_pViewParams = pparams;
 
-	VectorSubtract(m_pViewParams->viewangles, m_pViewParams->punchangle, m_pViewParams->viewangles); // fixes not moving with punch // TO-DO: doesn't work with screen rotating punch (z) // TO-DO: this breaks the crosshair for some reason
-
 	FrustumCheck restorefrustum = gHUD.viewFrustum;
 
 	for (int i = 0; i < m_iNumMirrors; i++)
@@ -351,7 +349,6 @@ void CMirrorManager::SetupMirrorPass(void)
 	Vector up_;
 
 	Vector original_viewangles = m_pViewParams->viewangles;
-	original_viewangles = original_viewangles + gBSPRenderer.m_RefParams.punchangle;
 
 	AngleVectors(original_viewangles, &forward_, NULL, NULL);
 
@@ -382,7 +379,7 @@ void CMirrorManager::SetupMirrorPass(void)
 	auto& m_RefParams = gBSPRenderer.m_RefParams;
 	auto& m_vRenderOrigin = m_pMirrorParams.vieworg;
 
-	glm::vec3 viewangles = glm::vec3(m_vViewAngles.x + m_RefParams.punchangle.x, m_vViewAngles.y + m_RefParams.punchangle.y, m_vViewAngles.z + m_RefParams.punchangle.z);
+	glm::vec3 viewangles = glm::vec3(m_vViewAngles.x, m_vViewAngles.y, m_vViewAngles.z);
 
 	AngleVectors(Vector(viewangles.x, viewangles.y, viewangles.z), nullptr, nullptr, &up_);
 

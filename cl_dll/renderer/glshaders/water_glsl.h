@@ -88,10 +88,7 @@ const char* water_fragment_water_regular =
 		vec3 combinedNormal = (normalpixel1 + normalpixel2 + normalpixel3 + normalpixel4) * 0.5;
 		combinedNormal -= 1.0;
 		
-
-		float normalLen = length(combinedNormal);
-		vec2 finalNormal = combinedNormal.xy / normalLen;
-		finalNormal *= normalscale;
+		vec2 finalNormal = normalize(combinedNormal).xy * normalscale;
 
 		float depthFactor = clamp(-finalNormal.y * 4, 0.0, 1.0);
 
