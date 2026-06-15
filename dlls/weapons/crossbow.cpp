@@ -129,7 +129,7 @@ void CCrossbow::FireBolt()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-	Vector vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_forward * 20 + gpGlobals->v_right * 6 + gpGlobals->v_up * -5;
+	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecDir = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 #ifndef CLIENT_DLL
