@@ -4704,7 +4704,8 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 		StudioDrawPointsSolid(bodypart);
 	}
 
-	// H MODEL CODE
+	// H MODEL CODE // This block doesn't seem to affect anything at all
+	/*
 	if (m_pCurrentEntity->curstate.weaponmodel)
 	{
 		int playermdl_numbones = m_pStudioHeader->numbones;
@@ -4736,7 +4737,7 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 
 		*m_pCurrentEntity = saveent;
 		m_pRenderModel = savedmdl;
-	}
+	}*/
 }
 
 /*
