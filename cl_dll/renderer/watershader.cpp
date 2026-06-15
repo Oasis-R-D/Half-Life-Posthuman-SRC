@@ -757,6 +757,20 @@ void CWaterShader::FinishReflect(void)
 	m_pCurWater->rendered = true;
 }
 
+static const struct
+{ // TO-DO: HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+	const char* name;
+	GLenum minimize, maximize;
+} texModes[] = {
+	//?? remove this later:
+	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},								  // box filter, no mipmaps
+	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},								  // linear filter, no mipmaps
+	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST}, // no (box) filter
+	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},	  // bilinear filter
+	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}, // trilinear filter
+};
+
 /*
 ====================
 DrawWater
@@ -830,6 +844,13 @@ void CWaterShader::DrawWater(void)
 		m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_fogend], m_pWaterFogSettings.end);
 
 		gBSPRenderer.BindGLTexture(GL_TEXTURE0, m_pNormalTexture->iIndex);
+		const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
+		if (!stricmp(texModes[0].name, texturemode))
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texModes[0].minimize);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texModes[0].maximize);
+		}
+
 		gBSPRenderer.BindGLTexture(GL_TEXTURE3, m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum);
 
 		// Optimization: Try and find a water entity on the same z coord
