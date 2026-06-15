@@ -112,11 +112,11 @@ void CWaterShader::Init(void)
 
 	m_pCvarWaterFogStart = gEngfuncs.pfnRegisterVariable("r_watershader_fogstart", "200", 0);
 	m_pCvarWaterFogEnd = gEngfuncs.pfnRegisterVariable("r_watershader_fogend", "600", 0);
-	m_pCvarWaterTexscale = gEngfuncs.pfnRegisterVariable("r_watershader_texscale", "0.9", 0);
+	m_pCvarWaterTexscale = gEngfuncs.pfnRegisterVariable("r_watershader_texscale", "0.5", 0);
 	m_pCvarWaterRefractScale = gEngfuncs.pfnRegisterVariable("r_watershader_refractscale", "1.4", 0);
 	m_pCvarWaterReflectScale = gEngfuncs.pfnRegisterVariable("r_watershader_reflectscale", "2.4", 0);
-	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("r_watershader_normalscale", "0.13", 0);
-	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("r_watershader_fresnel", "0.5", 0);
+	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("r_watershader_normalscale", "0.07", 0);
+	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("r_watershader_fresnel", "5", 0);
 
 	m_pCvarWaterForceExpensive = gEngfuncs.pfnRegisterVariable("r_waterforceexpensive", "1", FCVAR_ARCHIVE);
 	m_pCvarWaterForceReflectEntities = gEngfuncs.pfnRegisterVariable("r_waterforcereflectentities", "1", FCVAR_ARCHIVE);
