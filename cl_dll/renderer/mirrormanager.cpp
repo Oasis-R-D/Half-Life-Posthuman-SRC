@@ -334,7 +334,7 @@ void CMirrorManager::DrawMirrorPass(void)
 	//gBSPRenderer.DrawTransparentTriangles();
 	//
 	//// Draw particles
-	//gParticleEngine.DrawParticles();
+	gParticleEngine.DrawParticles();
 
 	m_iNumPasses++;
 }
