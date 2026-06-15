@@ -111,6 +111,8 @@ public:
 	void RenderWireframe(void);
 	void DrawWorld(bool m_bSkyBox = false);
 
+	void SetClippingPlane(const mplane_t& plane);
+
 	void RenderSunShadow(void);
 
 	void LoadWADDecals(void);
@@ -406,6 +408,8 @@ public:
 		world_texgamma,
 
 		world_wireframe,
+
+		world_clipplane,
 
 		world_shaderlocs_size, //must be last
 	};

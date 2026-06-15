@@ -296,6 +296,8 @@ void CBSPRenderer::Init(void)
 
 	m_WorldShader_locs[world_wireframe] = m_WorldShader->GetUniformLoc("wireframe");
 
+	m_WorldShader_locs[world_clipplane] = m_WorldShader->GetUniformLoc("clipplane");
+
 	m_WorldShader_locs[world_waterpolys] = m_WorldShader->GetUniformLoc("waterpolys");
 	m_WorldShader_locs[world_scrollingpolys] = m_WorldShader->GetUniformLoc("scrollingpolys");
 	m_WorldShader_locs[world_detailtexture] = m_WorldShader->GetUniformLoc("detailtexture");
@@ -1866,6 +1868,12 @@ void CBSPRenderer::DrawWorld(bool m_bSkyBox)
 
 	GL_VertexArrayObject::ResetVAOBinding();
 };
+
+void CBSPRenderer::SetClippingPlane(const mplane_t& plane)
+{
+	m_WorldShader->Bind();
+	m_WorldShader->Uniform4fv(m_WorldShader_locs[world_clipplane], 1, glm::value_ptr(glm::vec4(plane.normal.x, plane.normal.y, plane.normal.z, plane.dist)));
+}
 
 //transform a point in world space to screen space
 

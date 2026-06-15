@@ -673,7 +673,9 @@ struct studioentity_data_t //structure that holds info which is generated per fr
 	matrix3x4_t rotationmatrix;
 	matrix3x4_t bonematrix[MAXSTUDIOBONES];
 	struct entextrainfo_t* entity_extrainfo;
-	int bonearrayoffset;
+	uint32_t bonearrayoffset1; // main skeleton
+	uint32_t bonearrayoffset2; // weapon skeleton (p_weapon, h_weapon, etc)
+	uint32_t bonearrayoffset3;
 	float m_flGaitMovement;
 	std::vector<studiodecal_t*> m_vStudioDecals;
 };
@@ -896,6 +898,9 @@ extern byte* ResizeArray(byte* pOriginal, int iSize, int iCount);
 extern void R_Init(void);
 extern void R_VidInit(void);
 extern void R_Shutdown(void);
+
+extern void R_SetClippingPlane(const mplane_t& plane);
+extern void R_DisableClippingPlane();
 
 
 //

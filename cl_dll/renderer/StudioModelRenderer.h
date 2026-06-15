@@ -167,6 +167,9 @@ public:
 	// Process movement of player
 	static void StudioProcessGait(entity_state_t* pplayer);
 
+
+	static void SetClippingPlane(const mplane_t& plane);
+
 public:
 
 	// Do interpolation?
@@ -311,6 +314,8 @@ public:
 
 		mdlshader_studiodecal,
 		mdlshader_decalsize,
+
+		mdlshader_clipplane,
 
 
 

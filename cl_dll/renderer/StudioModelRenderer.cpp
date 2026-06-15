@@ -322,6 +322,7 @@ void CStudioModelRenderer::Init(void)
 
 	m_ModelShaderLocs[mdlshader_studiodecal] = m_ModelShader->GetUniformLoc("studiodecal");
 	m_ModelShaderLocs[mdlshader_decalsize] = m_ModelShader->GetUniformLoc("decalsize");
+	m_ModelShaderLocs[mdlshader_clipplane] = m_ModelShader->GetUniformLoc("clipplane");
 
 	m_ModelShaderSolidLocs[mdlshadersolid_sunshadow] = m_ModelSolidShader->GetUniformLoc("bSunShadowMapPass");
 	m_ModelShaderSolidLocs[mdlshadersolid_texture_flags] = m_ModelSolidShader->GetUniformLoc("texture_flags");
@@ -761,7 +762,7 @@ inline size_t BoneData_Align(size_t value)
 	return (value + GL_ShaderProgram::GetDriverUBOAlignment() - 1) & ~(GL_ShaderProgram::GetDriverUBOAlignment() - 1);
 }
 
-void InsertBones(matrix3x4_t* bones, int numbones)
+[[nodiscard]] uint32_t InsertBones(matrix3x4_t* bones, int numbones)
 {
 	// YOU ARE TEARING ME APART LISA
 
@@ -782,14 +783,13 @@ void InsertBones(matrix3x4_t* bones, int numbones)
 		gl_bonetransforms.resize(gl_bonetransforms.size() + padMatrices);
 	}
 
-	g_StudioRenderer.m_pCurrentStudioEntData->bonearrayoffset = gl_bonearrayoffset;
-
 	gl_bonetransforms.resize(gl_bonetransforms.size() + (numbones * 3 * 4));
 	memcpy(gl_bonetransforms.data() + (gl_bonearrayoffset / sizeof(float)),
 		bones,
 		boneDataSize);
 
 	gl_bonearrayoffset += boneDataSize;
+	return gl_bonearrayoffset - boneDataSize;
 }
 
 void CStudioModelRenderer::StudioClearDrawList()
@@ -854,7 +854,7 @@ void CStudioModelRenderer::StudioSetupViewmodel()
 
 	memcpy(m_pCurrentStudioEntData->bonematrix, (*m_pbonetransform), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
-	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
+	m_pCurrentStudioEntData->bonearrayoffset1 = InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 }
 
 void CStudioModelRenderer::StudioSetupExtraViewmodel()
@@ -902,7 +902,7 @@ void CStudioModelRenderer::StudioSetupExtraViewmodel()
 
 	memcpy(m_pCurrentStudioEntData->bonematrix, (*m_pbonetransform), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
-	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
+	m_pCurrentStudioEntData->bonearrayoffset1 = InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 }
 
 void CStudioModelRenderer::StudioPushEntityToDraw(cl_entity_s* pEnt)
@@ -999,14 +999,14 @@ void CStudioModelRenderer::StudioPushEntityToDraw(cl_entity_s* pEnt)
 
 			StudioSetupBones();
 		}
-
-		StudioSaveBones();
 	}
 	else
 	{
 		StudioSetUpTransform(0);
 		StudioSetupBones();
 	}
+
+	StudioSaveBones();
 
 	m_pCurrentStudioEntData->rotationmatrix = (*m_protationmatrix);
 	memcpy(m_pCurrentStudioEntData->bonematrix, (*m_pbonetransform), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
@@ -1015,36 +1015,30 @@ void CStudioModelRenderer::StudioPushEntityToDraw(cl_entity_s* pEnt)
 	// constantly uploading bone data for every single entity
 	// CLEAN THIS UP !!!
 
-	InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
+	m_pCurrentStudioEntData->bonearrayoffset1 = InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 
-	if (pplayer)
+	if ((pplayer && pplayer->weaponmodel) || m_pCurrentEntity->curstate.weaponmodel)
 	{
-		if (pplayer->weaponmodel)
-		{
-			cl_entity_t saveent = *m_pCurrentEntity;
-			model_t* savedmdl = m_pRenderModel;
+		cl_entity_t saveent = *m_pCurrentEntity;
+		model_t* savedmdl = m_pRenderModel;
 
-			model_t* pweaponmodel = CL_GetModelByIndex(pplayer->weaponmodel);
-			m_pRenderModel = pweaponmodel;
+		model_t* pweaponmodel = CL_GetModelByIndex(pplayer ? pplayer->weaponmodel : m_pCurrentEntity->curstate.weaponmodel);
+		m_pRenderModel = pweaponmodel;
 
-			m_pCurrentEntity->model = pweaponmodel;
+		m_pCurrentEntity->model = pweaponmodel;
 
-			m_pCurrentStudioMDL = (StudioMDL_Model*)pweaponmodel->entities;
+		m_pCurrentStudioMDL = (StudioMDL_Model*)pweaponmodel->entities;
 
-			m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
+		m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
 
-			StudioMergeBones(pweaponmodel);
+		StudioMergeBones(pweaponmodel);
 
-			StudioCalcAttachments();
+		StudioCalcAttachments();
 
-			*m_pCurrentEntity = saveent;
-			m_pRenderModel = savedmdl;
+		*m_pCurrentEntity = saveent;
+		m_pRenderModel = savedmdl;
 
-			int oldboneoffset = m_pCurrentStudioEntData->bonearrayoffset;
-
-			InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
-			m_pCurrentStudioEntData->bonearrayoffset = oldboneoffset;
-		}
+		m_pCurrentStudioEntData->bonearrayoffset2 = InsertBones((*m_pbonetransform), m_pStudioHeader->numbones);
 	}
 
 	if (m_pPlayerInfo)
@@ -1882,7 +1876,7 @@ void CStudioModelRenderer::StudioDrawModel(int flags)
 	memcpy((*m_pbonetransform), m_pCurrentStudioEntData->bonematrix, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 	m_ModelBones_Buffer->Bind(GL_BufferHandler::UniformBuffer);
-	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset1, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 	if (flags & STUDIO_EVENTS)
 	{
@@ -1907,8 +1901,6 @@ void CStudioModelRenderer::StudioDrawModel(int flags)
 		// H MODEL CODE
 		if (m_pCurrentEntity->curstate.weaponmodel)
 		{
-			int playermdl_numbones = m_pStudioHeader->numbones;
-
 			cl_entity_t saveent = *m_pCurrentEntity;
 			model_t* savedmdl = m_pRenderModel;
 
@@ -1917,7 +1909,7 @@ void CStudioModelRenderer::StudioDrawModel(int flags)
 			
 			m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
 
-			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset2, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 			m_pCurrentEntity->model = pweaponmodel;
 			
@@ -2170,6 +2162,12 @@ void CStudioModelRenderer::StudioProcessGait(entity_state_t* pplayer)
 		m_pPlayerInfo->gaitframe += pseqdesc->numframes;
 }
 
+void CStudioModelRenderer::SetClippingPlane(const mplane_t& plane)
+{
+	m_ModelShader->Bind();
+	m_ModelShader->Uniform4fv(m_ModelShaderLocs[mdlshader_clipplane], 1, glm::value_ptr(glm::vec4(plane.normal.x, plane.normal.y, plane.normal.z, plane.dist)));
+}
+
 /*
 ====================
 StudioDrawPlayer
@@ -2190,7 +2188,7 @@ void CStudioModelRenderer::StudioDrawPlayerSolid(entity_state_t* pplayer)
 
 	(*m_protationmatrix) = m_pCurrentStudioEntData->rotationmatrix;
 	m_ModelBones_Buffer->Bind(GL_BufferHandler::UniformBuffer);
-	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset1, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 	// local player is always drawn
 	if (StudioCheckBBox())
@@ -2226,7 +2224,6 @@ void CStudioModelRenderer::StudioDrawPlayerSolid(entity_state_t* pplayer)
 
 		if (pplayer->weaponmodel)
 		{
-			int playermdl_numbones = m_pStudioHeader->numbones;
 			cl_entity_t saveent = *m_pCurrentEntity;
 			model_t* savedmdl = m_pRenderModel;
 
@@ -2239,7 +2236,7 @@ void CStudioModelRenderer::StudioDrawPlayerSolid(entity_state_t* pplayer)
 
 			m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
 
-			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset2, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 			StudioMergeBones(pweaponmodel);
 
@@ -2292,7 +2289,7 @@ void CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t* pplayer)
 			return;
 	}
 
-	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset1, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 	// enable buffers here so we dont bind buffers of models we won't draw
 	if (!m_pCurrentStudioMDL->IsBufferEnabled())
@@ -2345,7 +2342,7 @@ void CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t* pplayer)
 			
 			m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
 
-			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+			m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset2, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 			m_pCurrentEntity->model = pweaponmodel;
 			
@@ -4696,7 +4693,7 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 	if (!m_pCurrentStudioMDL->IsBufferEnabled())
 		m_pCurrentStudioMDL->EnableBuffers();
 
-	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset1, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
 	for (int i = 0; i < m_pStudioHeader->numbodyparts; i++)
 	{
@@ -4707,7 +4704,6 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 	// H MODEL CODE
 	if (m_pCurrentEntity->curstate.weaponmodel)
 	{
-		int playermdl_numbones = m_pStudioHeader->numbones;
 		cl_entity_t saveent = *m_pCurrentEntity;
 		model_t* savedmdl = m_pRenderModel;
 
@@ -4720,9 +4716,9 @@ void CStudioModelRenderer::StudioDrawModelSolid(void)
 
 		m_pStudioHeader = (studiohdr_t*)pweaponmodel->cache.data;
 
-		m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset + (playermdl_numbones * sizeof(matrix3x4_t)), sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
+		m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelSolidShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset2, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
-		StudioMergeBones(pweaponmodel);
+		//StudioMergeBones(pweaponmodel);
 
 		m_pCurrentStudioMDL->EnableBuffers();
 
