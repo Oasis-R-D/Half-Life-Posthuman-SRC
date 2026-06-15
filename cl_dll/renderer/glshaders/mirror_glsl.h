@@ -13,6 +13,7 @@ const char* mirror_vertex =
 	uniform mat4 viewMatrix;
 
 	out vec4 texcoord0;
+	out vec4 texcoord1;
 
 	void main() {
 
@@ -30,15 +31,18 @@ const char* mirror_fragment =
 	R"(
 	
 	uniform sampler2D texture0;  // mirror reflection texture
-	
-	in vec4 texcoord0;
+	uniform sampler2D texture1;  // overlay texture
 
+	in vec4 texcoord0;
+	in vec4 texcoord1;
 
 	void main()
 	{
 		vec2 reflectionCoord = vec2(-texcoord0.x, texcoord0.y) / texcoord0.w;
 		reflectionCoord *= 0.5;
 		reflectionCoord += 0.5;
+
+		vec4 base_mirrortex = texture2D(texture1, texcoord1.xy);
 
 		vec4 reflectionPixel = texture2D(texture0, reflectionCoord);
 
