@@ -32,7 +32,6 @@ const char* water_depth_vertex =
 		texcoord2.xyz = aPosition;
 		
 		vectorToCamera = renderorigin - texcoord2.xyz;
-
 	}
 	
 	)";
@@ -91,7 +90,11 @@ const char* water_fragment_water_regular =
 		vec2 finalNormal = normalize(combinedNormal).xy * normalscale;
 
 		float depthFactor = clamp(-finalNormal.y * 4, 0.0, 1.0);
-
+		
+		float fresnelFactor = dot( normalize(vectorToCamera), vec3(0.0, 0.0, 1.0) );
+        fresnelFactor = max(fresnelFactor, 0.0);
+        fresnelFactor = 1.0 - fresnelFactor;
+        fresnelFactor = pow(fresnelFactor, m_flFresnelTerm);
 
 		vec2 refractionCoord = texcoord1.xy / texcoord1.w;
 		refractionCoord *= 0.5;
@@ -113,19 +116,32 @@ const char* water_fragment_water_regular =
 		reflectionPixel.rgb *= exp(-depthFactor * 4);
 		
 		float refractiveFactor = dot( normalize(vectorToCamera), vec3(0.0, 0.0, 1.0) );
-		refractiveFactor = clamp(refractiveFactor * m_flFresnelTerm, 0.0, 1.0);
+		refractiveFactor = clamp(refractiveFactor * fresnelFactor, 0.0, 1.0);
 
 		if(underwater > 0)
-			refractiveFactor = 1.0; // don't reflect underwater
+			fresnelFactor = 0; // don't reflect underwater
 
-		vec4 water_result = mix(reflectionPixel, refractionPixel, refractiveFactor);
+		vec4 water_result = mix(refractionPixel, reflectionPixel, fresnelFactor);
 		vec4 base_watertex =  texture2D(texture3, basetex_texcoord);
 
-		vec4 endresult = mix(water_result, base_watertex, refractiveFactor * clamp(watertex_scale, 0.0, 1.0));
+		vec4 endresult = mix(base_watertex, water_result, clamp((0.1/watertex_scale)-fresnelFactor, fresnelFactor, 1));
 
 		if(underwater > 0)
 		{
-			endresult = mix(endresult, vec4(waterfog, 1), 1.0 - GetFogFactor() );
+			vec3 colorSum = vec3(0.0);
+			ivec2 texSize = textureSize(texture3, 0);
+			
+			colorSum += texelFetch(texture3, ivec2(0,			0), 0).rgb;
+			colorSum += texelFetch(texture3, ivec2(texSize.x,	texSize.y), 0).rgb;
+
+			colorSum += texelFetch(texture3, ivec2(texSize.x,	0), 0).rgb;
+			colorSum += texelFetch(texture3, ivec2(0,			texSize.y), 0).rgb;
+			
+			colorSum += texelFetch(texture3, ivec2(texSize.x/2, texSize.y/2), 0).rgb;
+			
+			colorSum /= 5;
+
+			endresult = mix(endresult, vec4(colorSum, 1), 1.0 - GetFogFactor() );
 		}
 
 		gl_FragColor = endresult;
