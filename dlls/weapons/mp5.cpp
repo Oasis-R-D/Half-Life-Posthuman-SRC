@@ -339,7 +339,7 @@ void CMP5::Reload()
 	if (pev->weapons == 1)
 		return;
 
-	DefaultReload(31, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 2.83f : 1.66f);
+	DefaultReload(45, m_iClip == 0 ? MP5_RELOAD_EMPTY : MP5_RELOAD_TACTICAL, m_iClip == 0 ? 2.83f : 1.66f);
 	pev->armorvalue = 0;
 }
 

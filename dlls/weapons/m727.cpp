@@ -61,6 +61,8 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
+
+	m_usM727 = PRECACHE_EVENT(1, "events/m727.sc");
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)
@@ -191,28 +193,30 @@ void CM727::PrimaryAttack()
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater or if emptied
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.15;
 		return;
 	}
 
-	m_flNextSecondaryAttack = 0.15;
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.15;
 
 	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
+
 	m_iClip--;
+
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
-	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 9 + gpGlobals->v_up * -10;
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_8DEGREES);
 
 	Vector spread = GetBulletSpread();
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
 
-	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_M727, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
@@ -229,36 +233,31 @@ void CM727::PrimaryAttack()
 	{
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
+
+	TestSprayPat(M727_MAX_CLIP - m_iClip);
+	//CBasePlayerWeapon::Recoil(0.85, 1.2);
 	#endif
 
-	SendWeaponAnim(RANDOM_LONG(M727_SHOOT1, M727_SHOOT3));
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
 
-	char wpnsnd2[256];
-	sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
-	EMIT_SOUND(edict(), CHAN_WEAPON, wpnsnd2, 1, ATTN_NORM);
-	AcousticMod(); 
-
-	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
-	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -5 + gpGlobals->v_forward * 11 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usM727, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
-	{
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
-	}
 
-	m_flNextPrimaryAttack = g_iSkillLevel == SKILL_REALISM ? 0.0727 : 0.1;
+	m_flNextPrimaryAttack = GetNextAttackDelay(g_iSkillLevel == SKILL_REALISM ? 0.0727 : 0.1);
 
-	m_flTimeWeaponIdle = 5;
-
-#ifndef CLIENT_DLL
-	TestSprayPat(M727_MAX_CLIP - m_iClip); // breaks the camera sometimes
-	//CBasePlayerWeapon::Recoil(0.85, 1.2);
-#endif
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CM727::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 0.125;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.125;
 	if ((m_pPlayer->m_afButtonLast & IN_ALT1) != 0)
 		return;
 
@@ -270,7 +269,9 @@ void CM727::TertiaryAttack()
 	{
 		firemode = true;
 	}
+
 	EMIT_SOUND(edict(), CHAN_ITEM, "items/9mmclip2.wav", 1, ATTN_NORM);
+
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
 	WRITE_SHORT(firemode ? 3 : 1);
 	MESSAGE_END();
@@ -285,15 +286,15 @@ void CM727::WeaponIdle()
 {
 	ResetEmptySound();
 
-	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	m_pPlayer->GetAutoaimVector(AUTOAIM_8DEGREES);
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
 	if (RANDOM_LONG(0, 1))
-		SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = 2.5;
+		SendWeaponAnim(M727_IDLE1), m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.5;
 	else
-		SendWeaponAnim(M727_IDLE2), m_flTimeWeaponIdle = 4;
+		SendWeaponAnim(M727_IDLE2), m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 4;
 		
 }
 

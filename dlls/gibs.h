@@ -50,4 +50,6 @@ public:
 	float m_lifeTime;
 
 	bool m_bLanded;
+
+	float m_nextBurnLogic;
 };

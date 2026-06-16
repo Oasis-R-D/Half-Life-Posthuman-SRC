@@ -1560,7 +1560,6 @@ private:
 	int m_iShell;
 
 	// Used to alternate between ejecting shells and links. - Solokiller
-	bool m_bAlternatingEject;
 	int m_iLink;
 	int m_iSmoke;
 	int m_iFire;
@@ -1783,6 +1782,9 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	unsigned short m_usM727;
 };
 
 enum m29_e

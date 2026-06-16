@@ -443,6 +443,7 @@ void EV_HLDM_FireBullets(int idx, float* forward, float* right, float* up, int c
 #pragma endregion
 
 #pragma region GLOCK EVENTS
+// TO-DO: fix shells ejecting at orgin when not silenced
 void EV_FireGlock1(event_args_t* args)
 {
 	int idx;
@@ -545,13 +546,6 @@ void EV_FireShotGunDouble(event_args_t* args)
 	bool notLastShot = (bool)args->bparam2;
 
 	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-	VectorCopy(args->angles, angles);
-	VectorCopy(args->velocity, velocity);
-
-	AngleVectors(angles, &forward, &right, &up);
-
-	shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
 
 	if (EV_IsLocal(idx))
 	{
@@ -569,6 +563,13 @@ void EV_FireShotGunDouble(event_args_t* args)
 
 	if (inSemi)
 	{
+		VectorCopy(args->origin, origin);
+		VectorCopy(args->angles, angles);
+		VectorCopy(args->velocity, velocity);
+
+		AngleVectors(angles, &forward, &right, &up);
+		shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
+
 		for (j = 0; j < 2; j++)
 		{
 			EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 10, -12, 4);
@@ -596,13 +597,6 @@ void EV_FireShotGunSingle(event_args_t* args)
 	bool notLastShot = (bool)args->bparam2;
 
 	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-	VectorCopy(args->angles, angles);
-	VectorCopy(args->velocity, velocity);
-
-	AngleVectors(angles, &forward, &right, &up);
-
-	shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
 
 	if (EV_IsLocal(idx))
 	{
@@ -619,11 +613,122 @@ void EV_FireShotGunSingle(event_args_t* args)
 
 	if (inSemi)
 	{
+		VectorCopy(args->origin, origin);
+		VectorCopy(args->angles, angles);
+		VectorCopy(args->velocity, velocity);
+
+		AngleVectors(angles, &forward, &right, &up);
+		shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
+
 		EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 10, -12, 4);
 		EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
 	}
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sbarrel1.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong(0, 0x1f));
+}
+#pragma endregion
+
+#pragma region M249 EVENTS
+// TO-DO: fix shells ejecting at orgin on body 0
+void EV_FireM249(event_args_t* args)
+{
+	int iBody = args->iparam1;
+
+	Vector up, right, forward;
+
+	AngleVectors(args->angles, &forward, &right, &up);
+
+	int iShell = EV_FindModelIndex("models/saw_link.mdl");
+	int iShell2 = EV_FindModelIndex("models/saw_shell.mdl");
+
+	if (EV_IsLocal(args->entindex))
+	{
+		EV_VMsilence(args); // didn't feel like adding the local weapon crap
+
+		EV_MuzzleFlash();
+		EV_WeaponAnimation(gEngfuncs.pfnRandomLong(0, 2) + M249_SHOOT1, iBody);
+
+		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
+		V_PunchAxis(1, gEngfuncs.pfnRandomFloat(-1, 1));
+	}
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+
+	EV_GetDefaultShellInfo(
+		args,
+		args->origin, args->velocity,
+		ShellVelocity,
+		ShellOrigin,
+		forward, right, up,
+		12, -10, 4);
+
+	EV_EjectBrass(ShellOrigin, ShellVelocity, args->angles[1], iShell, TE_BOUNCE_SHELL);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, args->angles[1], iShell2, TE_BOUNCE_SHELL);
+
+
+	const char* sound;
+	switch (gEngfuncs.pfnRandomLong(0, 1))
+	{
+	case 0: sound = "weapons/saw_fire1.wav"; break;
+	case 1: sound = "weapons/saw_fire2.wav"; break;
+	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound(
+		args->entindex,
+		args->origin, CHAN_WEAPON, sound,
+		VOL_NORM, ATTN_GUN, 0, 94 + gEngfuncs.pfnRandomLong(0, 15));
+}
+#pragma endregion
+
+#pragma region M727 EVENTS
+void EV_FireM727(event_args_t* args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, &forward, &right, &up);
+
+	shell = EV_FindModelIndex("models/saw_shell.mdl"); // brass shell
+
+	if (EV_IsLocal(idx))
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		EV_WeaponAnimation(M727_SHOOT1 + gEngfuncs.pfnRandomLong(0, 2), 0);
+
+		V_PunchAxis(gEngfuncs.pfnRandomFloat(0, 1), gEngfuncs.pfnRandomFloat(-1, 1));
+	}
+
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -5, 6);
+
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
+
+	switch (gEngfuncs.pfnRandomLong(0, 2))
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/727_hks1.wav", 1, ATTN_GUN, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/727_hks2.wav", 1, ATTN_GUN, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	case 2:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/727_hks3.wav", 1, ATTN_GUN, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	}
 }
 #pragma endregion
 
@@ -656,7 +761,7 @@ void EV_FireMP5(event_args_t* args)
 		EV_MuzzleFlash();
 		EV_WeaponAnimation(MP5_SHOOT1 + gEngfuncs.pfnRandomLong(0, 2), 0);
 
-		V_PunchAxis(gEngfuncs.pfnRandomFloat(-1, 1), gEngfuncs.pfnRandomFloat(-1, 1));
+		V_PunchAxis(gEngfuncs.pfnRandomFloat(0, 1), gEngfuncs.pfnRandomFloat(-1, 1));
 	}
 
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 15, -12, 4);
@@ -1075,8 +1180,7 @@ void EV_SnarkFire(event_args_t* args)
 #pragma region VIEWMODEL ALTERING
 void EV_VMstain(event_args_t* args)
 {
-	int idx;
-	idx = args->entindex;
+	int idx = args->entindex;
 	if (EV_IsLocal(idx))
 	{
 		if (engine_cl->viewent.model != nullptr)
@@ -1088,8 +1192,7 @@ void EV_VMstain(event_args_t* args)
 
 void EV_VMsilence(event_args_t* args)
 {
-	int idx;
-	idx = args->entindex;
+	int idx = args->entindex;
 	if (EV_IsLocal(idx) && engine_cl->viewent.model != nullptr)
 	{
 		engine_cl->viewent.curstate.body = args->iparam1;

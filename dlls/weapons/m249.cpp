@@ -40,6 +40,8 @@ void CM249::Precache()
 	PRECACHE_SOUND("weapons/saw_reload2.wav");
 	PRECACHE_SOUND("weapons/saw_fire1.wav");
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
+
+	m_usFireM249 = PRECACHE_EVENT(1, "events/m249.sc");
 }
 
 void CM249::Spawn()
@@ -49,7 +51,6 @@ void CM249::Spawn()
 	m_iId = WEAPON_CHAINGUN;
 	SET_MODEL(edict(), "models/w_saw.mdl");
 	m_iDefaultAmmo = M249_DEFAULT_GIVE;
-	m_bAlternatingEject = false;
 	FallInit(); // get ready to fall down.
 }
 
@@ -208,8 +209,6 @@ void CM249::Shoot(bool alt)
 
 	pev->body = RecalculateBody(m_iClip);
 
-	m_bAlternatingEject = !m_bAlternatingEject;
-
 	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
@@ -232,7 +231,6 @@ void CM249::Shoot(bool alt)
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
 
-	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, vecSpread, 8192, BULLET_PLAYER_MP5, 1);
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
@@ -242,23 +240,26 @@ void CM249::Shoot(bool alt)
 	{
 		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, vecSpread * 0.75, vecSpread * 0.75, 1, 556, m_pPlayer->edict());
 	}
+
+	if (alt)
+		CBasePlayerWeapon::Recoil(0.65, clampSine(cos(2*gpGlobals->time+RANDOM_FLOAT(-0.33, 0.33))*2, 0.7, 1.75), true);
+	else
+		CBasePlayerWeapon::Recoil(0.65, 1.125);
 	#endif
-	SendWeaponAnim(M249_SHOOT1 + RANDOM_LONG(0, 2));
-	
-	const char* sound;
-	switch (RANDOM_LONG(0, 1))
-	{
-	case 0: sound = "weapons/saw_fire1.wav"; break;
-	case 1: sound = "weapons/saw_fire2.wav"; break;
-	}
 
-	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, sound, 1, ATTN_NORM);
-	AcousticMod(); 
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
 
-	Vector ori = pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 12 + gpGlobals->v_right * 4;
-	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(100, 200) + gpGlobals->v_up * RANDOM_FLOAT(15, 45) + gpGlobals->v_forward * 25;
-	EjectBrass(ori, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	EjectBrass(ori + gpGlobals->v_forward * 2 + gpGlobals->v_right * -1, vecShellVelocity+RANDOM_VECTOR(-2, 2), pev->angles.y, m_iLink, TE_BOUNCE_NULL);
+	PLAYBACK_EVENT_FULL(
+		flags, m_pPlayer->edict(), m_usFireM249, 0,
+		g_vecZero, g_vecZero,
+		0, 0,
+		pev->body, 0,
+		0, 0);
 
 	if (0 == m_iClip)
 	{
@@ -271,13 +272,8 @@ void CM249::Shoot(bool alt)
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_REALISM ? 0.085 : 0.06);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
-#ifndef CLIENT_DLL
-	
-	if (alt)
-		CBasePlayerWeapon::Recoil(0.65, clampSine(cos(2*gpGlobals->time+RANDOM_FLOAT(-0.33, 0.33))*2, 0.7, 1.75), true);
-	else
-		CBasePlayerWeapon::Recoil(0.65, 1.125);
 
+#ifndef CLIENT_DLL
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
 	const Vector& vecVelocity = m_pPlayer->pev->velocity;

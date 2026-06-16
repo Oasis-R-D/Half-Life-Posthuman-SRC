@@ -393,25 +393,31 @@ void CoolerGib::WaitTillLand()
 		return;
 	}
 
-	if (pev->velocity == g_vecZero)
+	if (pev->velocity == g_vecZero || pev->waterlevel > 0 || m_bLanded)
 	{
+		if (pev->waterlevel > 0)
+		{
+
+			pev->velocity = 0.98f * (pev->velocity + Vector(0, 0, 800*gpGlobals->frametime));
+
+			pev->avelocity = pev->avelocity * 0.98f;
+
+			if (pev->velocity.z < 0)
+				pev->velocity.z *= 0.95f;
+
+			pev->velocity.z += ((sin(3 * gpGlobals->time) * 0.05f) + 0.5f);
+		}
+		// If you bleed, you stink!
+		else if (!m_bLanded && m_bloodColor != DONT_BLEED)
+			CSoundEnt::InsertSound(bits_SOUND_MEAT, pev->origin, 384, 25);
 
 		// don't fade if
 		// - hasn't been 25 seconds
 		// - told not to
 		if (!m_bDisableFade && m_lifeTime < gpGlobals->time)
-		{
 			SetThink(&CoolerGib::SUB_StartFadeOut);
-			pev->nextthink = gpGlobals->time;
-		}
 
-		// If you bleed, you stink!
-		if (!m_bLanded && m_bloodColor != DONT_BLEED)
-		{
-			// ok, start stinkin!
-			CSoundEnt::InsertSound(bits_SOUND_MEAT, pev->origin, 384, 25);
-		}
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time;
 		m_bLanded = true;
 	}
 	else
@@ -423,7 +429,7 @@ void CoolerGib::WaitTillLand()
 		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}
 
-	if (m_iBurnTimer > 0)
+	if (m_nextBurnLogic < gpGlobals->time && m_iBurnTimer > 0)
 	{
 		if(pev->waterlevel > 0) 
 			m_iBurnTimer = 0;
@@ -431,43 +437,41 @@ void CoolerGib::WaitTillLand()
 		if (m_iBurnTimer > 200)
 			m_iBurnTimer = 200;
 
-		else
-		{
-			int max = 1; // max particles / 4
+		int max = 1; // max particles / 4
 
-			int iBurnAmnt = ceil(m_iBurnTimer/10);
-			if (iBurnAmnt > max) 
-				iBurnAmnt = max;
+		int iBurnAmnt = ceil(m_iBurnTimer/10);
+		if (iBurnAmnt > max) 
+			iBurnAmnt = max;
 			
-			for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
-			{
-				Vector VecflameOrg = pev->origin;
-				VecflameOrg.x += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
-				VecflameOrg.y += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
-				VecflameOrg.z += -2 + 2 * (RANDOM_FLOAT(0, 0.5)) + 1;
+		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
+		{
+			Vector VecflameOrg = pev->origin;
+			VecflameOrg.x += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.y += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+			VecflameOrg.z += -2 + 2 * (RANDOM_FLOAT(0, 0.5)) + 1;
 
-				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
-			}
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
+		}
 
-			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
+		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
+		{
+			if (RANDOM_LONG(0, 4) == 4)
 			{
-				if (RANDOM_LONG(0, 4) == 4)
+				Vector VecSpreadOrg = Center();
+				VecSpreadOrg.z = pev->absmin.z + 5;
+
+				// make sure there isn't already fire there
+				CBaseEntity* pList[2];
+				int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
+				if (0 == count) // don't spawn monsters near players or other monsters
 				{
-					Vector VecSpreadOrg = Center();
-					VecSpreadOrg.z = pev->absmin.z + 5;
-
-					// make sure there isn't already fire there
-					CBaseEntity* pList[2];
-					int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
-					if (0 == count) // don't spawn monsters near players or other monsters
-					{
-						CFire::FireCreate(VecSpreadOrg, 8, 10, 1, this); // spread fire around, cause chaos
-					}
+					CFire::FireCreate(VecSpreadOrg, 8, 10, 1, this); // spread fire around, cause chaos
 				}
 			}
-			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
-			m_iBurnTimer--;
 		}
+		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
+		m_iBurnTimer--;
+		m_nextBurnLogic = gpGlobals->time + 0.1;
 	}
 }
 
@@ -550,6 +554,8 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 	SET_MODEL(ENT(pev), szGibModel);
 	pev->body = body;
+
+	m_nextBurnLogic = gpGlobals->time;
 
 	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
 	pev->nextthink = gpGlobals->time + 0.1;
