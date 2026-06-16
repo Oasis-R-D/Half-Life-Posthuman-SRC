@@ -66,6 +66,9 @@ void CShotgun::Precache()
 	PRECACHE_SOUND("weapons/reload3.wav"); // shotgun reload
 
 	PRECACHE_SOUND("weapons/357_cock1.wav"); // gun empty sound
+
+	m_usSingleFire = PRECACHE_EVENT(1, "events/shotgun1.sc");
+	m_usDoubleFire = PRECACHE_EVENT(1, "events/shotgun2.sc");
 }
 
 bool CShotgun::GetItemInfo(ItemInfo* p)
@@ -84,8 +87,6 @@ bool CShotgun::GetItemInfo(ItemInfo* p)
 
 	return true;
 }
-
-
 
 bool CShotgun::Deploy()
 {
@@ -177,6 +178,14 @@ void CShotgun::PrimaryAttack()
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
 	m_iClip--;
+
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
@@ -188,7 +197,6 @@ void CShotgun::PrimaryAttack()
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
 
-	//m_pPlayer->FireBullets(9, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
@@ -205,34 +213,7 @@ void CShotgun::PrimaryAttack()
 	{
 		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
 	}
-	#endif
 
-	if (m_iFiremode == 0)
-	{
-		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT1_PUMP_EMPTY : SHOTGUN_SHOOT1_PUMP);
-		m_flPumpTime = gpGlobals->time + 0.5;
-	}
-	else
-	{
-		SendWeaponAnim(SHOTGUN_SHOOT1_SEMI);
-		Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
-		EjectBrass(m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 10 + gpGlobals->v_right * 4, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHOTSHELL); 
-	}
-
-	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
-	AcousticMod(); 
-
-	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
-		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
-
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_iFiremode == 1 ? 0.2 : 0.9;
-	m_flNextTertiaryAttack = gpGlobals->time + m_iFiremode == 1 ? 0.2 : 0.9;
-	m_flTimeWeaponIdle = 1;
-	m_fInSpecialReload = 0;
-	
-	pev->armortype = 1;
-
-#ifndef CLIENT_DLL
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
 		CBasePlayerWeapon::Recoil(3, 2);
@@ -241,16 +222,34 @@ void CShotgun::PrimaryAttack()
 	{
 		CBasePlayerWeapon::Recoil(4, 2);
 	}
-#endif
+	#endif
+
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usSingleFire, 0.0, g_vecZero, g_vecZero, 0,  0, 0, 0, m_iFiremode == 1, m_iClip);
+
+	if (m_iFiremode == 0)
+		m_flPumpTime = UTIL_WeaponTimeBase() + 0.5;
+
+	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
+
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_iFiremode == 1 ? UTIL_WeaponTimeBase() + 0.2 : UTIL_WeaponTimeBase() + 0.9;
+	m_flNextTertiaryAttack = gpGlobals->time + m_iFiremode == 1 ? 0.2 : 0.9;
+
+	if (m_iClip != 0)
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.0;
+	else
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1;
+
+	m_fInSpecialReload = 0;
+	
+	pev->armortype = 1;
 }
 
 
 void CShotgun::SecondaryAttack()
 {
 	if (g_iSkillLevel == SKILL_REALISM)
-	{
 		return;
-	}
 
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK2) != 0)
 		return;
@@ -266,7 +265,8 @@ void CShotgun::SecondaryAttack()
 	if (m_iClip <= 1)
 	{
 		Reload();
-		PlayEmptySound();
+		if (m_iClip == 0)
+			PlayEmptySound();
 		return;
 	}
 
@@ -276,6 +276,13 @@ void CShotgun::SecondaryAttack()
 
 	m_iClip -= 2;
 
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	// player "shoot" animation
@@ -283,14 +290,14 @@ void CShotgun::SecondaryAttack()
 
 	m_flTimeSincePrimary = gpGlobals->time;
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();// + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
+	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
 	float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
+
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
 
-	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, spread, 2048, BULLET_PLAYER_BUCKSHOT, 1);
 	#ifndef CLIENT_DLL
 	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
 	{
@@ -300,17 +307,18 @@ void CShotgun::SecondaryAttack()
 	{
 		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
 	}
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		CBasePlayerWeapon::Recoil(7, 4);
+	}
+	else
+	{
+		CBasePlayerWeapon::Recoil(10, 5);
+	}
 	#endif
 	
-	//m_pPlayer->FireBullets(18, vecSrc, vecAiming, Vector(0.25, 0.02, 0.25), 2048, BULLET_PLAYER_BUCKSHOT, 1);
-
-	if (m_iFiremode == 0)
-		SendWeaponAnim(m_iClip == 0 ? SHOTGUN_SHOOT2_PUMP_EMPTY : SHOTGUN_SHOOT2_PUMP);
-	else
-		SendWeaponAnim(SHOTGUN_SHOOT2_SEMI);
-
-	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/dbarrel1.wav", 1, ATTN_NORM);
-	AcousticMod();
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, g_vecZero, g_vecZero, 0, 0, 0, 0, m_iFiremode == 1, m_iClip);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
@@ -321,22 +329,11 @@ void CShotgun::SecondaryAttack()
 	m_fInSpecialReload = 0;
 
 	if (m_iFiremode == 1)
-		m_flPumpTime = gpGlobals->time + 1;
+		m_flPumpTime = UTIL_WeaponTimeBase() + 1;
 	else
-		m_flPumpTime = gpGlobals->time + 0.6;
+		m_flPumpTime = UTIL_WeaponTimeBase() + 0.6;
 
 	pev->armortype = 2;
-
-#ifndef CLIENT_DLL
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(7, 4);
-	}
-	else
-		{
-		CBasePlayerWeapon::Recoil(10, 5);
-	}
-#endif
 }
 
 void CShotgun::TertiaryAttack()
@@ -444,7 +441,7 @@ void CShotgun::WeaponIdle()
 				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
 			}
 		}
-		else
+		else if (m_iClip != 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]) // keep pump pumped back
 		{
 			switch (RANDOM_LONG(1, 3))
 			{

@@ -64,6 +64,9 @@ void CMP5::Precache()
 	PRECACHE_SOUND("weapons/glauncher2.wav");
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
+
+	m_usMP5 = PRECACHE_EVENT(1, "events/mp5.sc");
+	m_usMP52 = PRECACHE_EVENT(1, "events/mp52.sc");
 }
 
 bool CMP5::GetItemInfo(ItemInfo* p)
@@ -149,16 +152,10 @@ void CMP5::PrimaryAttack()
 	if (pev->weapons == 1)
 	{
 		// don't fire underwater
-		if (m_pPlayer->pev->waterlevel == 3)
+		if (m_pPlayer->pev->waterlevel == 3 || m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] == 0)
 		{
 			PlayEmptySound();
-			m_flNextPrimaryAttack = 0.15;
-			return;
-		}
-
-		if (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] == 0)
-		{
-			PlayEmptySound();
+			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.15;
 			return;
 		}
 
@@ -181,14 +178,17 @@ void CMP5::PrimaryAttack()
 			m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16,
 			gpGlobals->v_forward * 2000);
 
-		SendWeaponAnim(MP5_SHOOT_M203);
+		int flags;
+	#if defined(CLIENT_WEAPONS)
+		flags = FEV_NOTHOST;
+	#else
+		flags = 0;
+	#endif
 
-		#ifndef CLIENT_DLL
-		CBasePlayerWeapon::Recoil(2.75, 0.85);
-		#endif
+		PLAYBACK_EVENT(flags, m_pPlayer->edict(), m_usMP52);
 
-		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 2.3;
-		m_flTimeWeaponIdle = 0.57;
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 2.3;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.57;
 		m_flNextTertiaryAttack = gpGlobals->time + 2.3;
 
 		if (0 == m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]) // HEV suit - indicate out of ammo condition
@@ -208,7 +208,7 @@ void CMP5::PrimaryAttack()
 	if (m_pPlayer->pev->waterlevel == 3 || m_iClip <= 0) // don't fire underwater
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.15;
 		return;
 	}
 
@@ -224,9 +224,8 @@ void CMP5::PrimaryAttack()
 
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 5.3 + gpGlobals->v_up * -9.25;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-
-	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 1);
 	Vector spread = GetBulletSpread();
+
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
 
@@ -246,41 +245,46 @@ void CMP5::PrimaryAttack()
 	{
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, spread.x, spread.y, 1, 69, m_pPlayer->edict());
 	}
-	#endif
-	SendWeaponAnim(RANDOM_LONG(MP5_SHOOT1, MP5_SHOOT3));
-	EMIT_SOUND(m_pPlayer->edict(), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM);
-	AcousticMod();
 
-	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
-	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -12 + gpGlobals->v_forward * 15 + gpGlobals->v_right * 4, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
+	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 0.8 : -0.9, 1);
+	#endif
+
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usMP5, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, 0, 0);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
+	// Check if on burst fire
 	if (pev->armortype == 2)
 	{
 		if (pev->armorvalue < 2)
 		{
 			pev->armorvalue++;
 
-			m_flNextPrimaryAttack = 0.075;
+			m_flNextPrimaryAttack = GetNextAttackDelay(0.075);
 		}
-		else
+		else // Burst ended
 		{
 			pev->armorvalue = 0;
-			m_flNextPrimaryAttack = 0.25;
+			m_flNextPrimaryAttack = GetNextAttackDelay(0.25);
 		}
 	}
 	else
 	{
-		m_flNextPrimaryAttack = 0.075;
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.075);
 	}
 
-	m_flTimeWeaponIdle = 5;
+	if (m_flNextPrimaryAttack < UTIL_WeaponTimeBase())
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.075;
 
-#ifndef CLIENT_DLL
-	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 0.85 : -1, 1.5f);
-#endif
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
 void CMP5::SecondaryAttack()

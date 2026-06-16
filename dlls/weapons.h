@@ -589,7 +589,7 @@ public:
 	
 	void PrimaryAttack() override;
 	void SecondaryAttack() override;
-	void GlockFire(float flSpread, float flCycleTime, bool fUseAutoAim);
+	void GlockFire(float flSpread, float flCycleTime);
 	bool Deploy() override;
 	void Holster() override;
 	void Reload() override;
@@ -617,7 +617,6 @@ private:
 	int m_iShell;
 
 	unsigned short m_usFireGlock1;
-	unsigned short m_usFireGlock2;
 	unsigned short m_silenceevent;
 };
 
@@ -880,6 +879,10 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	unsigned short m_usMP5;
+	unsigned short m_usMP52;
 };
 
 enum m727_e
@@ -1011,6 +1014,10 @@ public:
 		return false;
 #endif
 	}
+
+private:
+	unsigned short m_usDoubleFire;
+	unsigned short m_usSingleFire;
 };
 
 /*

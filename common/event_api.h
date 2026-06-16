@@ -53,7 +53,7 @@ extern bool EV_LocalPlayerDucking(float* viewheight);
 extern int EV_IndexFromTrace(pmtrace_t* pTrace);
 extern physent_t* EV_GetPhysent(int idx);
 extern void EV_SetTraceHull(int hull);
-extern void EV_WeaponAnimation(int sequence, int body, bool extraviewmodel);
+extern void EV_WeaponAnimation(int sequence, int body, bool extraviewmodel = false);
 extern unsigned short EV_PrecacheEvent(int type, const char* psz);
 extern void EV_PlaybackEvent(int flags, const edict_t* pInvoker, unsigned short eventindex, float delay, float* origin, float* angles, float fparam1, float fparam2, int iparam1, int iparam2, int bparam1, int bparam2);
 extern void EV_KillEvents(int entnum, const char* eventname);

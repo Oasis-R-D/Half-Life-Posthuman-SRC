@@ -179,6 +179,15 @@ void CElite::PrimaryAttack()
 	{
 		CPhysbullet::BulletCreate(1, 35, 6500, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
 	}
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+	{
+		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(0.85, 1.00));
+	}
+	else
+	{
+		CBasePlayerWeapon::Recoil(2, RANDOM_FLOAT(1.00, 1.15));
+	}
 	#endif
 
 	int flags;
@@ -188,6 +197,7 @@ void CElite::PrimaryAttack()
 	flags = 0;
 #endif
 
+	// TO-DO: move to EV_HLDM
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
@@ -198,19 +208,8 @@ void CElite::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	m_flNextPrimaryAttack = 0.125;
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.125;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-
-#ifndef CLIENT_DLL
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(0.85, 1.00));
-	}
-	else
-	{
-		CBasePlayerWeapon::Recoil(2, RANDOM_FLOAT(1.00, 1.15));
-	}
-#endif
 }
 
 
