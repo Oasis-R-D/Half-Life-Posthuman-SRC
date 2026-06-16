@@ -26,9 +26,10 @@
 #include "entity_types.h"
 #include "r_efx.h"
 
-extern BEAM* pBeam;
-extern BEAM* pBeam2;
-extern TEMPENTITY* pFlare; // Vit_amiN: egon's energy flare
+BEAM* pBeam;
+BEAM* pBeam2;
+TEMPENTITY* pFlare; // Vit_amiN: egon's beam flare
+
 void HUD_GetLastOrg(float* org);
 
 void UpdateBeams()

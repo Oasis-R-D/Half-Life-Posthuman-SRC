@@ -57,6 +57,8 @@ CPython g_Python;
 CMP5 g_Mp5;
 CCrossbow g_Crossbow;
 CShotgun g_Shotgun;
+
+/*
 CRpg g_Rpg;
 CGauss g_Gauss;
 CEgon g_Egon;
@@ -64,6 +66,8 @@ CHgun g_HGun;
 CHandGrenade g_HandGren;
 CSatchel g_Satchel;
 CTripmine g_Tripmine;
+*/
+
 CSqueak g_Snark;
 CM249 g_M249;
 CHeadcrabGrenade g_Headcrab;
@@ -473,13 +477,6 @@ void HUD_InitClientWeapons()
 	HUD_PrepEntity(&g_Mp5, &player);
 	HUD_PrepEntity(&g_Crossbow, &player);
 	HUD_PrepEntity(&g_Shotgun, &player);
-	HUD_PrepEntity(&g_Rpg, &player);
-	HUD_PrepEntity(&g_Gauss, &player);
-	HUD_PrepEntity(&g_Egon, &player);
-	HUD_PrepEntity(&g_HGun, &player);
-	HUD_PrepEntity(&g_HandGren, &player);
-	HUD_PrepEntity(&g_Satchel, &player);
-	HUD_PrepEntity(&g_Tripmine, &player);
 	HUD_PrepEntity(&g_Snark, &player);
 	HUD_PrepEntity(&g_M249, &player);
 	HUD_PrepEntity(&g_Headcrab, &player);
@@ -583,34 +580,6 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 
 	case WEAPON_SHOTGUN:
 		pWeapon = &g_Shotgun;
-		break;
-
-	case WEAPON_RPG:
-		pWeapon = &g_Rpg;
-		break;
-
-	case WEAPON_GAUSS:
-		pWeapon = &g_Gauss;
-		break;
-
-	case WEAPON_EGON:
-		pWeapon = &g_Egon;
-		break;
-
-	case WEAPON_HORNETGUN:
-		pWeapon = &g_HGun;
-		break;
-
-	case WEAPON_HANDGRENADE:
-		pWeapon = &g_HandGren;
-		break;
-
-	case WEAPON_SATCHEL:
-		pWeapon = &g_Satchel;
-		break;
-
-	case WEAPON_TRIPMINE:
-		pWeapon = &g_Tripmine;
 		break;
 
 	case WEAPON_SNARK:
@@ -754,12 +723,6 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		player.m_pActiveItem = g_pWpns[from->client.m_iId];
 	}
 
-	if (player.m_pActiveItem->m_iId == WEAPON_RPG)
-	{
-		((CRpg*)player.m_pActiveItem)->m_fSpotActive = static_cast<bool>(from->client.vuser2[1]);
-		((CRpg*)player.m_pActiveItem)->m_cActiveRockets = (int)from->client.vuser2[2];
-	}
-
 	// Don't go firing anything if we have died or are spectating
 	// Or if we don't have a weapon model deployed
 	if ((player.pev->deadflag != (DEAD_DISCARDBODY + 1)) &&
@@ -824,12 +787,6 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 	to->client.ammo_cells = player.ammo_uranium;
 	to->client.vuser2[0] = player.ammo_hornets;
 	to->client.ammo_rockets = player.ammo_rockets;
-
-	if (player.m_pActiveItem->m_iId == WEAPON_RPG)
-	{
-		to->client.vuser2[1] = static_cast<float>(((CRpg*)player.m_pActiveItem)->m_fSpotActive);
-		to->client.vuser2[2] = ((CRpg*)player.m_pActiveItem)->m_cActiveRockets;
-	}
 
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )

@@ -44,7 +44,7 @@ void CM727::Spawn()
 void CM727::Precache()
 {
 	PRECACHE_MODEL("models/w_727.mdl");
-	PRECACHE_MODEL("models/p_9mmAR.mdl");
+	PRECACHE_MODEL("models/p_727.mdl");
 	PRECACHE_MODEL("models/v_727.mdl");
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_727mag.mdl");
@@ -94,10 +94,9 @@ bool CM727::Deploy()
 
 	if (NotFirstDraw)
 	{
-		if (pev->weapons == 0)
-			return DefaultDeploy("models/v_727.mdl", "models/p_9mmAR.mdl", M727_DRAW, "mp5");
+		return DefaultDeploy("models/v_727.mdl", "models/p_727.mdl", M727_DRAW, "mp5");
 	}
-	return DefaultDeploy("models/v_727.mdl", "models/p_9mmAR.mdl", M727_DRAW_FIRST, "mp5");
+	return DefaultDeploy("models/v_727.mdl", "models/p_727.mdl", M727_DRAW_FIRST, "mp5");
 }
 
 static float pattern[31][2] =

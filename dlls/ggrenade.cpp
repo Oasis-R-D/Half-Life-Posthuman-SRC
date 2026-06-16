@@ -296,12 +296,11 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 			if (pMonster != nullptr)
 			{
 				UTIL_TraceLine(origin, pMonster->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
-				pMonster->TaskComplete();
-				pMonster->ClearSchedule();
+				//pMonster->TaskComplete();
+				//pMonster->ClearSchedule();
 				pMonster->ClearConditions(bits_COND_HEAR_SOUND);
 				pMonster->Forget(bits_MEMORY_INCOVER);
 				pMonster->m_hEnemy = NULL;
-				pMonster->m_movementGoal = MOVEGOAL_NONE;
 				
 				if (sightline.flFraction == 1.0)
 				{
@@ -309,10 +308,9 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					pTask->iTask = TASK_FIND_COVER_FROM_ORIGIN;
 					pTask->flData = 3.75f;
 					pMonster->StartTask(pTask);
-					pMonster->m_flDistLook = 32;
 					pMonster->m_flDistTooFar = 128;
-					pMonster->m_flNextAttack = 1.0f;
-					pMonster->ClearConditions(bits_COND_SEE_ENEMY | bits_COND_CAN_ATTACK);
+					pMonster->m_flNextAttack = 0.5f;
+					pMonster->ClearConditions(bits_COND_SEE_ENEMY);
 
 					pMonster->pev->nextthink = gpGlobals->time;
 					if (pMonster->pev->health > 0)

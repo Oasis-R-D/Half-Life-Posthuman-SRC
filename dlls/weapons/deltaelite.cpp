@@ -62,6 +62,7 @@ void CElite::Precache()
 {
 	PRECACHE_MODEL("models/v_10mmhandgun.mdl");
 	PRECACHE_MODEL("models/w_10mmhandgun.mdl");
+	PRECACHE_MODEL("models/p_9mmhandgun.mdl");
 	PRECACHE_MODEL("models/p_357.mdl");
 
 	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
@@ -84,7 +85,7 @@ bool CElite::Deploy()
 	m_iCrossHairType = CROSSHAIR_DEFAULT;
 	m_flAccuracyPenalty = ELITE_ACCURACY_MAXIMUM_PENALTY_TIME;
 
-	return DefaultDeploy("models/v_10mmhandgun.mdl", "models/p_357.mdl", PYTHON_DRAW, "onehanded");
+	return DefaultDeploy("models/v_10mmhandgun.mdl", "models/p_9mmhandgun.mdl", PYTHON_DRAW, "onehanded");
 }
 
 

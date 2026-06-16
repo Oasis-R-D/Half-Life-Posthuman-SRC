@@ -445,6 +445,63 @@ void CBasePlayer::SelectLastItem()
 //=========================================================
 // Deagle (why? WHY NOT!)
 //=========================================================
+
+LINK_ENTITY_TO_CLASS(laser_spot, CLaserSpot);
+
+//=========================================================
+//=========================================================
+CLaserSpot* CLaserSpot::CreateSpot()
+{
+	CLaserSpot* pSpot = GetClassPtr((CLaserSpot*)NULL);
+	pSpot->Spawn();
+
+	pSpot->pev->classname = MAKE_STRING("laser_spot");
+
+	return pSpot;
+}
+
+//=========================================================
+//=========================================================
+void CLaserSpot::Spawn()
+{
+	Precache();
+	pev->movetype = MOVETYPE_NONE;
+	pev->solid = SOLID_NOT;
+
+	pev->rendermode = kRenderGlow;
+	pev->renderfx = kRenderFxNoDissipation;
+	pev->renderamt = 255;
+
+	SET_MODEL(ENT(pev), "sprites/laserdot.spr");
+	UTIL_SetOrigin(pev, pev->origin);
+};
+
+//=========================================================
+// Suspend- make the laser sight invisible.
+//=========================================================
+void CLaserSpot::Suspend(float flSuspendTime)
+{
+	pev->effects |= EF_NODRAW;
+
+	SetThink(&CLaserSpot::Revive);
+	pev->nextthink = gpGlobals->time + flSuspendTime;
+}
+
+//=========================================================
+// Revive - bring a suspended laser sight back.
+//=========================================================
+void CLaserSpot::Revive()
+{
+	pev->effects &= ~EF_NODRAW;
+
+	SetThink(NULL);
+}
+
+void CLaserSpot::Precache()
+{
+	PRECACHE_MODEL("sprites/laserdot.spr");
+};
+
 #ifndef CLIENT_DLL
 TYPEDESCRIPTION CEagle::m_SaveData[] =
 	{

@@ -453,6 +453,8 @@ TYPEDESCRIPTION CBasePlayerWeapon::m_SaveData[] =
 		DEFINE_FIELD(CBasePlayerWeapon, m_iClip, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayerWeapon, m_iDefaultAmmo, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayerWeapon, NotFirstDraw, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayerWeapon, m_iCrossHairType, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayerWeapon, m_flAccuracyPenalty, FIELD_FLOAT),
 };
 
 IMPLEMENT_SAVERESTORE(CBasePlayerWeapon, CBasePlayerItem);
@@ -1515,6 +1517,7 @@ TYPEDESCRIPTION CSledgeHammer::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE(CSledgeHammer, CBasePlayerWeapon);
 
+/*
 TYPEDESCRIPTION CRpg::m_SaveData[] =
 	{
 		DEFINE_FIELD(CRpg, m_fSpotActive, FIELD_BOOLEAN),
@@ -1528,6 +1531,7 @@ TYPEDESCRIPTION CRpgRocket::m_SaveData[] =
 		DEFINE_FIELD(CRpgRocket, m_pLauncher, FIELD_EHANDLE),
 };
 IMPLEMENT_SAVERESTORE(CRpgRocket, CGrenade);
+*/
 
 TYPEDESCRIPTION CShotgun::m_SaveData[] =
 	{
@@ -1540,6 +1544,7 @@ TYPEDESCRIPTION CShotgun::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE(CShotgun, CBasePlayerWeapon);
 
+/*
 TYPEDESCRIPTION CGauss::m_SaveData[] =
 	{
 		DEFINE_FIELD(CGauss, m_fInAttack, FIELD_INTEGER),
@@ -1574,6 +1579,7 @@ TYPEDESCRIPTION CSatchel::m_SaveData[] =
 		DEFINE_FIELD(CSatchel, m_chargeReady, FIELD_INTEGER),
 };
 IMPLEMENT_SAVERESTORE(CSatchel, CBasePlayerWeapon);
+*/
 
 TYPEDESCRIPTION CM249::m_SaveData[] =
 	{

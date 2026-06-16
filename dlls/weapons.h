@@ -80,7 +80,6 @@ public:
 };
 
 // ammo type replacements
-// TO-DO: implement these in weapons
 #define eng_ammo_10mm ammo_rockets // done
 #define eng_ammo_556 ammo_uranium
 #define eng_ammo_spit ammo_hornets
@@ -1014,6 +1013,7 @@ public:
 	}
 };
 
+/*
 class CLaserSpot : public CBaseEntity
 {
 public:
@@ -1451,6 +1451,7 @@ public:
 private:
 	unsigned short m_usTripFire;
 };
+*/
 
 enum squeak_e
 {
@@ -1610,6 +1611,21 @@ private:
 	unsigned short m_usSnarkFire;
 };
 
+enum spitthrower_e
+{
+	EGON_IDLE1 = 0,
+	EGON_FIDGET1,
+	EGON_ALTFIREON,
+	EGON_ALTFIRECYCLE,
+	EGON_ALTFIREOFF,
+	EGON_FIRE1,
+	EGON_FIRE2,
+	EGON_FIRE3,
+	EGON_FIRE4,
+	EGON_DRAW,
+	EGON_HOLSTER
+};
+
 class CSpitThrower : public CBasePlayerWeapon
 {
 	void Precache() override;
@@ -1707,6 +1723,20 @@ private:
 /**
  *	@brief Identical to CLaserSpot, different class to avoid RPG laser confusion logic. - Solokiller
  */
+class CLaserSpot : public CBaseEntity
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+
+	int ObjectCaps() override { return FCAP_DONT_SAVE; }
+
+	void Suspend(float flSuspendTime);
+	void EXPORT Revive();
+
+	static CLaserSpot* CreateSpot();
+};
+
 class CEagleLaser : public CLaserSpot
 {
 public:
