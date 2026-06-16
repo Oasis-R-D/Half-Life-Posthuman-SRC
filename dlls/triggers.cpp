@@ -29,6 +29,7 @@
 #include "gamerules.h"
 #include "talkmonster.h"
 #include "UserMessages.h"
+#include "animation.h"
 
 #define SF_TRIGGER_PUSH_START_OFF 2		   //spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE 1	   // Only fire hurt target once
@@ -2493,8 +2494,6 @@ public:
 
 	float m_flRadius;
 	int m_iszModel;
-	int m_iClass;
-	int m_iPlayerReact;
 	int m_iPrisoner;
 	int m_iMonsterClip;
 	int m_iVisible;
@@ -2515,8 +2514,6 @@ TYPEDESCRIPTION CEnvCustomize::m_SaveData[] =
 	{
 		DEFINE_FIELD(CEnvCustomize, m_flRadius, FIELD_FLOAT),
 		DEFINE_FIELD(CEnvCustomize, m_iszModel, FIELD_STRING),
-		DEFINE_FIELD(CEnvCustomize, m_iClass, FIELD_INTEGER),
-		DEFINE_FIELD(CEnvCustomize, m_iPlayerReact, FIELD_INTEGER),
 		DEFINE_FIELD(CEnvCustomize, m_iPrisoner, FIELD_INTEGER),
 		DEFINE_FIELD(CEnvCustomize, m_iMonsterClip, FIELD_INTEGER),
 		DEFINE_FIELD(CEnvCustomize, m_iVisible, FIELD_INTEGER),
@@ -2563,16 +2560,6 @@ bool CEnvCustomize ::KeyValue(KeyValueData* pkvd)
 	else if (FStrEq(pkvd->szKeyName, "m_iMonsterClip"))
 	{
 		m_iMonsterClip = atoi(pkvd->szValue);
-		return true;
-	}
-	else if (FStrEq(pkvd->szKeyName, "m_iClass"))
-	{
-		m_iClass = atoi(pkvd->szValue);
-		return true;
-	}
-	else if (FStrEq(pkvd->szKeyName, "m_iPlayerReact"))
-	{
-		m_iPlayerReact = atoi(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "m_flRadius"))
@@ -2706,9 +2693,9 @@ void CEnvCustomize ::Affect(CBaseEntity* pTarget, USE_TYPE useType)
 	}
 	if (pev->body != -1)
 	{
-		pTarget->pev->body = pev->body;
+		::SetBodygroup(GET_MODEL_PTR(ENT(pTarget->pev)), pTarget->pev, pev->body, pev->armorvalue);
 		if (pev->spawnflags & SF_CUSTOM_DEBUG)
-			ALERT(at_console, " body = %d", pev->body);
+			ALERT(at_console, " body = %d", pTarget->pev->body);
 	}
 	if (pev->skin != -1)
 	{
