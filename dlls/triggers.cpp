@@ -2682,8 +2682,8 @@ void CEnvCustomize ::Affect(CBaseEntity* pTarget, USE_TYPE useType)
 	}
 	SetBoneController(m_fController0, 0, pTarget);
 	SetBoneController(m_fController1, 1, pTarget);
-	SetBoneController(m_fController2, 2, pTarget);
-	SetBoneController(m_fController3, 3, pTarget);
+	((CBaseAnimating*)pTarget)->SetBlending(0, m_fController2);
+	((CBaseAnimating*)pTarget)->SetBlending(1, m_fController3);
 	if (m_fFramerate != -1)
 	{
 		// FIXME: check for env_model, stop it from changing its own framerate
