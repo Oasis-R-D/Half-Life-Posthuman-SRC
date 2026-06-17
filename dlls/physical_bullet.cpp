@@ -353,7 +353,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 				// Damage
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, (m_Flare != 420) ? (DMG_BULLET | DMG_NEVERGIB) : DMG_BULLET);
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 				ApplyMultiDamage(owner->pev, owner->pev);
 				
 				/*
@@ -433,11 +433,11 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			m_distpenetrate *= 10 * hitDot;
 			m_BulletDamage -= round(50 * hitDot);
 
-			CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+			CPhysbullet::BulletCreate(1, m_BulletDamage/3, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			ClearMultiDamage();
-			pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+			pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 			ApplyMultiDamage(owner->pev, owner->pev);
 
 			// Remove original bullet
@@ -456,7 +456,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	if (0 != pOther->pev->takedamage)
 	{
 		ClearMultiDamage();
-		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET);
+		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		ApplyMultiDamage(owner->pev, owner->pev);
 	}
 	else
