@@ -29,10 +29,16 @@ CBaseEntity
 				CBaseGroup
 */
 
+enum MuzzleSmokeType
+{
+	PE_MS_NORMAL = 0,
+	PE_MS_SHOTGUN,
+	PE_MS_RAILCANNON,
+};
+
 enum ParticleEngine
 {
 	PE_MUZZLESMK = 0,
-	PE_MUZZLESMKSG,
 	PE_EXPLOSIONCLUST,
 	PE_NPCIMPACTCLUST,
 	PE_BLOATERGASEXPL,

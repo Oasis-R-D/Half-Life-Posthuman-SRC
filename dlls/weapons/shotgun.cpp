@@ -175,7 +175,7 @@ void CShotgun::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_LOUD, 0.0, PE_MUZZLESMKSG, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_LOUD, 0, PE_MUZZLESMK, PE_MS_SHOTGUN, 0, 0);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -276,7 +276,7 @@ void CShotgun::SecondaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_LOUD, 0.0, PE_MUZZLESMKSG, 0, 1, 0);
+	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_LOUD, 0, PE_MUZZLESMK, PE_MS_SHOTGUN, 0, 1);
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
@@ -413,6 +413,9 @@ void CShotgun::Reload()
 			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload3.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f));
 
 		SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_INSERT_SEMI : SHOTGUN_RELOAD_INSERT);
+		
+		m_iClip += 1;
+		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
 
 		m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
@@ -420,8 +423,8 @@ void CShotgun::Reload()
 	else
 	{
 		// Add them to the clip
-		m_iClip += 1;
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+		//m_iClip += 1;
+		//m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
 		m_fInSpecialReload = 1;
 	}
 }

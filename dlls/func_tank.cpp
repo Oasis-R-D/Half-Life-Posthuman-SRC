@@ -678,7 +678,7 @@ void CFuncTank::Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* 
 		}
 		if (!FStringNull(m_iszSpriteFlash))
 		{
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, barrelEnd, forward, 0.0, 0.0, PE_MUZZLESMK, 0, true, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, barrelEnd, forward, 0.0, 0.0, PE_MUZZLESMK, PE_MS_NORMAL, true, 0);
 			CSprite* pSprite = CSprite::SpriteCreate(STRING(m_iszSpriteFlash), barrelEnd, true);
 			pSprite->AnimateAndDie(60);
 			pSprite->SetTransparency(kRenderTransAdd, 255, 255, 255, 255, kRenderFxNoDissipation);

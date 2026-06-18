@@ -1460,7 +1460,7 @@ void CBasePlayer::PlayerDeathThink()
 					// get a random spot in the radius
 					// could make this focus on only a random quadrant to make it directional
 					// time x4 makes the radius jump 4 units each time
-					float theter = RANDOM_FLOAT(0, 1) * (2 * 3.141592);
+					float theter = RANDOM_FLOAT(0, 1) * M_PI2;
 					float x = boneOrg.x + (0.75 * time) * cos(theter);
 					float y = boneOrg.y + (0.75 * time) * sin(theter);
 
@@ -1474,10 +1474,7 @@ void CBasePlayer::PlayerDeathThink()
 				} while (contents != CONTENT_EMPTY); // don't spawn in walls
 
 				if (count > 64)
-				{
 					m_bShouldPool = false; // bigger radius probably won't fix it, and if it does then that would be going through a wall (bad)
-					ALERT(at_console, "failed to continue blood pool!\n");
-				}
 				else
 					CPhysblood::BloodCreate(1, 0, origin, -gpGlobals->v_up, 1.0, BloodColor(), false, 0, false, true); // TO-DO: make not play sfx
 			}

@@ -145,7 +145,7 @@ void CElite::PrimaryAttack()
 		return;
 	}
 
-	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(FEV_HOSTONLY, m_pPlayer->edict(), g_sParticleEvent, 0.0, gpGlobals->v_forward, gpGlobals->v_forward, AC_NORM, 0.0, PE_MUZZLESMK, PE_MS_NORMAL, 0, 0);
 	m_pPlayer->m_iWeaponVolume = 800; // middle of normal and loud
 	m_pPlayer->m_iWeaponFlash = 384; // middle of bright and normal
 	
