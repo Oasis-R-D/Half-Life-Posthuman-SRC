@@ -447,12 +447,14 @@ bool CHGrunt::CheckRangeAttack2(float flDot, float flDist)
 void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	
-	if (ptr->iHitgroup == 0)
+	// don't count headshots if they have a gasmask! (makes it seem armored)
+	if (ptr->iHitgroup == 0 && GetBodygroup(HEAD_GROUP) > HEAD_GASMASK_BLACK)
 	{
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
+
 	// check for helmet shot
-	if (ptr->iHitgroup == 69)
+	if (ptr->iHitgroup == HITGROUP_HELMET)
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
 		{
@@ -499,7 +501,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	if (ptr->iHitgroup == 67)
+	if (ptr->iHitgroup == HITGROUP_PROPANETANK)
 	{
 		ptr->iHitgroup = HITGROUP_STOMACH;
 		if (m_fuel == true)

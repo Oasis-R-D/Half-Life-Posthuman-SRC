@@ -29,7 +29,7 @@ LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 //=========================================================
 //						   MP5EOD
 //=========================================================
-#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.1f	// Applied amount of time each shot adds to the time we must recover from
+#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.125f	// Applied amount of time each shot adds to the time we must recover from
 #define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
 
 void CMP5::Spawn()

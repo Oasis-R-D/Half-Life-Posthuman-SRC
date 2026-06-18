@@ -14,7 +14,6 @@
 #define GRUNT_ATTN ATTN_NORM // attenutation of grunt sentences
 #define HGRUNT_LIMP_HEALTH 20
 #define HGRUNT_DMG_HEADSHOT (DMG_BULLET | DMG_CLUB) // damage types that can kill a grunt with a single headshot.
-#define HGRUNT_NUM_HEADS 2							// how many grunt heads are there?
 #define HGRUNT_MINIMUM_HEADSHOT_DAMAGE 15			// must do at least this much damage in one shot to head to score a headshot kill
 #define HGRUNT_SENTENCE_VOLUME (float)0.35			// volume of grunt sentences
 
@@ -67,6 +66,9 @@
 #define GUN_M249 2
 #define GUN_M727 3
 #define GUN_NONE 4
+
+#define HITGROUP_HELMET 69
+#define HITGROUP_PROPANETANK 67
 
 //=========================================================
 // Monster's Anim Events Go Here
