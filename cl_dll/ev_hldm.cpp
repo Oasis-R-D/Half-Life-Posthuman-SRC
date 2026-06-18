@@ -798,7 +798,7 @@ void EV_FireMP52(event_args_t* args)
 
 		int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 
-		V_PunchAxis(0, skill != 3 ? -10 : -3);
+		V_PunchAxis(0, skill != 4 ? -10 : -3);
 	}
 
 	switch (gEngfuncs.pfnRandomLong(0, 1))
@@ -1416,7 +1416,7 @@ void EV_Particles(event_args_t* args)
 	int BLDAMNT;
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 
-	BLDAMNT = args->fparam1 / ((skill != 3) ? 2.0 : 4);
+	BLDAMNT = args->fparam1 / ((skill != 4) ? 2.0 : 4);
 	if (BLDAMNT > 24)
 		BLDAMNT = 24;
 

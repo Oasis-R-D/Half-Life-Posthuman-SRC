@@ -1235,7 +1235,7 @@ void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	}
 	else
 	{

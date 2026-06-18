@@ -252,6 +252,7 @@ class CEnvSpit : public CBaseEntity
 			{
 				case SKILL_EASY: damage = 5; break;
 				case SKILL_MEDIUM: damage = 5; break;
+				case SKILL_HARD: damage = 5; break;
 				case SKILL_REALISM: damage = 25; break;
 			}
 

@@ -69,9 +69,12 @@ void DiscordMan_Update(void)
 			State = "Easy Mode\n";
 			break;
 		case 2:
-			State = "Hard Mode\n";
+			State = "Normal Mode\n";
 			break;
 		case 3:
+			State = "Hard Mode\n";
+			break;
+		case 4:
 			State = "Realism Mode\n";
 			break;
 	}

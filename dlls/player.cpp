@@ -5379,7 +5379,7 @@ void CBasePlayer::EnableControl(bool fControl)
 //=========================================================
 Vector CBasePlayer::GetAutoaimVector(float flDelta)
 {
-	if (g_iSkillLevel == SKILL_HARD)
+	if (g_iSkillLevel >= SKILL_HARD)
 	{
 		UTIL_MakeVectors(pev->v_angle + pev->punchangle);
 		return gpGlobals->v_forward;

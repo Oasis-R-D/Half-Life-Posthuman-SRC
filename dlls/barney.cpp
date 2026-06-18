@@ -348,7 +348,7 @@ void CBarney::BarneyFirePistol()
 	{
 	case SKILL_EASY: cone = CONE_8DEGREES; break;
 	case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
-	case SKILL_HARD: cone = CONE_3DEGREES; break;
+	case SKILL_HARD: case SKILL_REALISM: cone = CONE_3DEGREES; break;
 	}
 	//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
 	#ifndef CLIENT_DLL

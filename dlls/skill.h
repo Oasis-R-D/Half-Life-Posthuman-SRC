@@ -185,4 +185,4 @@ inline DLL_GLOBAL int g_iSkillLevel;
 #define SKILL_EASY 1
 #define SKILL_MEDIUM 2
 #define SKILL_HARD 3
-#define SKILL_REALISM 3 // used to separate what is intended hard mode behavior and what is intended realism behavior
+#define SKILL_REALISM 4 // used to separate what is intended hard mode behavior and what is intended realism behavior

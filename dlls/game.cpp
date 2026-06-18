@@ -46,6 +46,9 @@ cvar_t allow_spectators = {"allow_spectators", "0.0", FCVAR_SERVER}; // 0 preven
 cvar_t mp_chattime = {"mp_chattime", "10", FCVAR_SERVER};
 
 cvar_t sv_allowbunnyhopping = {"sv_allowbunnyhopping", "0", FCVAR_SERVER};
+
+cvar_t skill_override = {"skill_override", "0", FCVAR_SERVER | FCVAR_SPONLY};
+
 //Macros to make skill cvars easier to define
 #define DECLARE_SKILL_CVARS(name)                 \
 	cvar_t sk_##name##1 = {"sk_" #name "1", "0"}; \
@@ -616,6 +619,7 @@ void GameDLLInit()
 
 	CVAR_REGISTER(&sv_allowbunnyhopping);
 
+	CVAR_REGISTER(&skill_override);
 	// REGISTER CVARS FOR SKILL LEVEL STUFF
 	// Agrunt
 	CVAR_REGISTER(&sk_agrunt_health1); // {"sk_agrunt_health1","0"};

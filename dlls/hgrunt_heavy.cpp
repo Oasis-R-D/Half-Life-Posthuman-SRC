@@ -444,7 +444,7 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/glauncher.wav", 0.8, ATTN_GUN);
 		CGrenade::ShootContact(pev, GetGunPosition(), m_vecTossVelocity);
 		m_fThrowGrenade = false;
-		if (g_iSkillLevel == SKILL_HARD)
+		if (g_iSkillLevel >= SKILL_HARD)
 			m_flNextGrenadeCheck = gpGlobals->time + RANDOM_FLOAT(2, 5); // wait a random amount of time before shooting again
 		else
 			m_flNextGrenadeCheck = gpGlobals->time + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
@@ -1816,7 +1816,7 @@ Schedule_t* CHGruntHeavy::GetScheduleOfType(int Type)
 	{
 		if (InSquad())
 		{
-			if (g_iSkillLevel == SKILL_HARD && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
+			if (g_iSkillLevel >= SKILL_HARD && HasConditions(bits_COND_CAN_RANGE_ATTACK2) && OccupySlot(bits_SLOTS_HGRUNT_GRENADE))
 			{
 				if (FOkToSpeak())
 				{
