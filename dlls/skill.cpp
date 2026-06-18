@@ -46,15 +46,18 @@ float GetSkillCvar(const char* pName)
 		if (flValue > 0)
 		{
 			if (skips > 0)
-				ALERT(at_console, "\n\n** GetSkillCVar Skipped %d times! Result: %s **\n\n", skips, szBuffer);
+				ALERT(at_console, "\n* GetSkillCVar Skipped %d times! Result: %s *\n", skips, szBuffer);
 			return flValue;
 		}
 		else if (skillLevel == 1)
+		{
 			ALERT(at_console, "\n\n** GetSkillCVar Got a zero for %s **\n\n", szBuffer);
-
-		skips++;
-		skillLevel--;
+			return 0;
+		}
+		else
+		{
+			skips++;
+			skillLevel--;
+		}
 	}
-
-	return 0;
 }

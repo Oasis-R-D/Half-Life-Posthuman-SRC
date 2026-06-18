@@ -137,12 +137,7 @@ struct skilldata_t
 	float plrDmgCrossbowClient;
 	float plrDmgCrossbowMonster;
 	float plrDmgRPG;
-	float plrDmgGauss;
-	float plrDmgEgonNarrow;
-	float plrDmgEgonWide;
-	float plrDmgHornet;
 	float plrDmgHandGrenade;
-	float plrDmgSatchel;
 	float plrDmgTripmine;
 	float plrDmgM727;
 

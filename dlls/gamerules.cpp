@@ -196,7 +196,7 @@ void CGameRules::RefreshSkillData()
 
 	gSkillData.iSkillLevel = iSkill;
 
-	ALERT(at_console, "\nGAME SKILL LEVEL:%d\n", iSkill);
+	ALERT(at_console, "\nGAME SKILL LEVEL: %d\n", iSkill);
 
 	//Agrunt
 	gSkillData.agruntHealth = GetSkillCvar("sk_agrunt_health");
@@ -366,18 +366,8 @@ void CGameRules::RefreshSkillData()
 	// RPG
 	gSkillData.plrDmgRPG = GetSkillCvar("sk_plr_rpg");
 
-	// Gauss gun
-	gSkillData.plrDmgGauss = GetSkillCvar("sk_plr_gauss");
-
-	// Egon Gun
-	gSkillData.plrDmgEgonNarrow = GetSkillCvar("sk_plr_egon_narrow");
-	gSkillData.plrDmgEgonWide = GetSkillCvar("sk_plr_egon_wide");
-
 	// Hand Grendade
 	gSkillData.plrDmgHandGrenade = GetSkillCvar("sk_plr_hand_grenade");
-
-	// Satchel Charge
-	gSkillData.plrDmgSatchel = GetSkillCvar("sk_plr_satchel");
 
 	// Tripmine
 	gSkillData.plrDmgTripmine = GetSkillCvar("sk_plr_tripmine");
@@ -387,12 +377,9 @@ void CGameRules::RefreshSkillData()
 	gSkillData.monDmgMP5 = GetSkillCvar("sk_9mmAR_bullet");
 	gSkillData.monDmg9MM = GetSkillCvar("sk_9mm_bullet");
 	gSkillData.monDmgM727 = GetSkillCvar("sk_M727_bullet");
+
 	// MONSTER HORNET
 	gSkillData.monDmgHornet = GetSkillCvar("sk_hornet_dmg");
-
-	// PLAYER HORNET
-	gSkillData.plrDmgHornet = GetSkillCvar("sk_plr_hornet_dmg");
-
 
 	// HEALTH/CHARGE
 	gSkillData.suitchargerCapacity = GetSkillCvar("sk_suitcharger");
