@@ -27,6 +27,8 @@ cvar_t* rpc_chapter;
 cvar_t* rpc_area;
 cvar_t* rpc_image;
 
+cvar_t* skill_override;
+
 extern bool g_iAlive;
 
 extern int g_weaponselect;
@@ -995,6 +997,8 @@ void InitInput()
 	// jay - discord rpc
 	rpc_chapter = gEngfuncs.pfnRegisterVariable("rpc_chapter", "", FCVAR_CLIENTDLL);
 	rpc_image = gEngfuncs.pfnRegisterVariable("rpc_image", "", FCVAR_CLIENTDLL);
+
+	skill_override = gEngfuncs.pfnRegisterVariable("skill_override", "0", FCVAR_CLIENTDLL);
 
 	// Initialize third person camera controls.
 	CAM_Init();

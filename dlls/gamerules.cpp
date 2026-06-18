@@ -178,7 +178,7 @@ bool CGameRules::CanHavePlayerItem(CBasePlayer* pPlayer, CBasePlayerItem* pWeapo
 void CGameRules::RefreshSkillData()
 {
 	int iSkill = (int)CVAR_GET_FLOAT("skill");
-	int override = skill_override.value;
+	int override = (int)CVAR_GET_FLOAT("skill_override");
 
 	if (override != 0)
 		iSkill = override;
