@@ -145,6 +145,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iPoolTime, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -709,7 +710,6 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vector EXCTDMGlocation)
 {
-
 /////////////////////////
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
@@ -760,7 +760,7 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 	}
 /////////////////////////
 
-	m_bleedtime = gpGlobals->time;
+	m_bleedtime = gpGlobals->time + 1;
 }
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
@@ -1058,7 +1058,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-	if (0 == m_rgItems[ITEM_ANTIDOTE])
+	if (0 == m_rgItems[ITEM_DEFIB])
 	{
 		if (g_iSkillLevel != SKILL_REALISM)
 		{
@@ -2215,11 +2215,28 @@ void CBasePlayer::PreThink()
 		{
 			--m_bleedAMNT;
 			m_bleedtime = gpGlobals->time + 1;
+
 			Hunger -= 1;
+
 			if (g_iSkillLevel == SKILL_REALISM)
 			{
-				TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && m_bleedAMNT >= 14)
+				{
+					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
+					m_rgItems[ITEM_TOURNIQUET]--;
+				}
+				else
+					TakeDamage(pev, pev, 1, DMG_GENERIC | DMG_IGNOREARMOR);
 			}
+			else
+			{
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && m_bleedAMNT >= 4)
+				{
+					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
+					m_rgItems[ITEM_TOURNIQUET]--;
+				}
+			}
+
 			if (RANDOM_LONG(0, 1) == 1)
 			{
 				CPhysblood::BloodCreate(1, 100, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(15), false);

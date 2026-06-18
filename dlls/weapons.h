@@ -85,7 +85,7 @@ public:
 #define eng_ammo_spit ammo_hornets
 
 // constant items
-#define ITEM_HEALTHKIT 1
+#define ITEM_TOURNIQUET  1
 #define ITEM_ANTIDOTE 2
 #define ITEM_SECURITY 3
 #define ITEM_BATTERY 4

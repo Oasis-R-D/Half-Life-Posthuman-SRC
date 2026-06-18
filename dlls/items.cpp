@@ -257,6 +257,26 @@ class CItemBattery : public CItem
 
 LINK_ENTITY_TO_CLASS(item_battery, CItemBattery);
 
+class CItemTourniquet : public CItem
+{
+	void Spawn() override
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_security.mdl"); // TO-DO: W_model
+		CItem::Spawn();
+	}
+	void Precache() override
+	{
+		PRECACHE_MODEL("models/w_security.mdl");
+	}
+	bool MyTouch(CBasePlayer* pPlayer) override
+	{
+		pPlayer->m_rgItems[ITEM_TOURNIQUET] += 1;
+		return true;
+	}
+};
+
+LINK_ENTITY_TO_CLASS(item_tourniquet, CItemTourniquet);
 
 class CItemRadBGone : public CItem
 {
