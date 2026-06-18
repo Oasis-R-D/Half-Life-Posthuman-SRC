@@ -1648,7 +1648,7 @@ void CFuncTrackTrain::Precache()
 	PRECACHE_SOUND("plats/ttrain_brake1.wav");
 	PRECACHE_SOUND("plats/ttrain_start1.wav");
 
-	m_usAdjustPitch = PRECACHE_EVENT(1, "events/train.sc");
+	m_usAdjustPitch = PRECACHE_EVENT(1, "scripts/events/train.sc");
 }
 
 // This class defines the volume of space that the player must stand in to control the train

@@ -1018,6 +1018,8 @@ public:
 private:
 	unsigned short m_usDoubleFire;
 	unsigned short m_usSingleFire;
+	unsigned short m_usSemiDoubleFire;
+	unsigned short m_usSemiSingleFire;
 };
 
 /*

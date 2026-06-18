@@ -24,6 +24,8 @@ void EV_FireCrossbow2(event_args_t* args);
 void EV_SnarkFire(event_args_t* args);
 
 // begin posthumanoid
+void EV_FireShotGunSingleSEMI(event_args_t* args);
+void EV_FireShotGunDoubleSEMI(event_args_t* args);
 void EV_VMstain(event_args_t* args);
 void EV_VMsilence(event_args_t* args);
 void EV_FireElite(event_args_t* args);

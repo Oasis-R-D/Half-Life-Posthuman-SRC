@@ -397,7 +397,7 @@ void W_Precache()
 	g_sModelIndexLgtng = PRECACHE_MODEL((char*)g_pModelNameLgtng);
 	g_sModelIndexLaserDot = PRECACHE_MODEL("sprites/laserdot.spr");
 	g_sModelIndexShrapnel = PRECACHE_MODEL("models/shrapnel.mdl");
-	g_sParticleEvent = PRECACHE_EVENT(1, "events/particles.sc");
+	g_sParticleEvent = PRECACHE_EVENT(1, "scripts/events/particles.sc");
 
 	// used by explosions
 	PRECACHE_MODEL("sprites/explode1.spr");

@@ -74,7 +74,7 @@ void CElite::Precache()
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("weapons/357_shot1.wav");
 	PRECACHE_SOUND("weapons/357_shot2.wav");
-	m_usFireElite = PRECACHE_EVENT(1, "events/elite.sc");
+	m_usFireElite = PRECACHE_EVENT(1, "scripts/events/elite.sc");
 }
 
 bool CElite::Deploy()

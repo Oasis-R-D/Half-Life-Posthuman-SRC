@@ -51,7 +51,7 @@ void CCrowbar::Precache()
 	PRECACHE_SOUND("weapons/cbar_hitbod3.wav");
 	PRECACHE_SOUND("weapons/cbar_miss1.wav");
 
-	m_usCrowbar = PRECACHE_EVENT(1, "events/crowbar.sc");
+	m_usCrowbar = PRECACHE_EVENT(1, "scripts/events/crowbar.sc");
 
 	UTIL_PrecacheOther("monster_zombie");
 }

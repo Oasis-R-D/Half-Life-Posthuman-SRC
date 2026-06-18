@@ -41,7 +41,7 @@ void CM249::Precache()
 	PRECACHE_SOUND("weapons/saw_fire1.wav");
 	PRECACHE_SOUND("weapons/saw_fire2.wav");
 
-	m_usFireM249 = PRECACHE_EVENT(1, "events/m249.sc");
+	m_usFireM249 = PRECACHE_EVENT(1, "scripts/events/m249.sc");
 }
 
 void CM249::Spawn()
@@ -213,7 +213,7 @@ void CM249::Shoot(bool alt)
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	m_pPlayer->pev->effects |= EF_MUZZLEFLASH;
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	m_flNextAnimTime = UTIL_WeaponTimeBase() + 0.2;
 

@@ -54,7 +54,7 @@ void CSledgeHammer::Precache()
 	PRECACHE_SOUND("weapons/cbar_hitbod3.wav");
 	PRECACHE_SOUND("weapons/cbar_miss1.wav");
 
-	m_usMelee = PRECACHE_EVENT(1, "events/melee.sc");
+	m_usMelee = PRECACHE_EVENT(1, "scripts/events/melee.sc");
 }
 
 bool CSledgeHammer::GetItemInfo(ItemInfo* p)

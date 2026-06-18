@@ -51,8 +51,8 @@ void CCrossbow::Precache()
 
 	UTIL_PrecacheOther("crossbow_bolt");
 
-	m_usCrossbow = PRECACHE_EVENT(1, "events/crossbow1.sc");
-	m_usCrossbow2 = PRECACHE_EVENT(1, "events/crossbow2.sc");
+	m_usCrossbow = PRECACHE_EVENT(1, "scripts/events/crossbow1.sc");
+	m_usCrossbow2 = PRECACHE_EVENT(1, "scripts/events/crossbow2.sc");
 }
 
 

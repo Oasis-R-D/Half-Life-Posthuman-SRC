@@ -414,7 +414,7 @@ void CSqueak::Precache()
 	UTIL_PrecacheOther("monster_headcrab_fast");
 	UTIL_PrecacheOther("monster_headcrab_poison");
 
-	m_usSnarkFire = PRECACHE_EVENT(1, "events/snarkfire.sc");
+	m_usSnarkFire = PRECACHE_EVENT(1, "scripts/events/snarkfire.sc");
 }
 
 
@@ -624,7 +624,7 @@ void CHeadcrabGrenade::Precache()
 	UTIL_PrecacheOther("monster_headcrab");
 
 
-	m_usSnarkFire = PRECACHE_EVENT(1, "events/snarkfire.sc");
+	m_usSnarkFire = PRECACHE_EVENT(1, "scripts/events/snarkfire.sc");
 }
 bool CHeadcrabGrenade::GetItemInfo(ItemInfo* p)
 {

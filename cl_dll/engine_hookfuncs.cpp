@@ -669,19 +669,14 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	if (!cl_sprite_muzzleflash[index])
 		return;
 
-	std::string filepath = (const char*)cl_sprite_muzzleflash[index];
-	filepath.erase(0, 8);
-	filepath.erase(filepath.end()-4, filepath.end());
+	//std::string filepath = (const char*)cl_sprite_muzzleflash[index];
+	//filepath.erase(0, 8);
+	//filepath.erase(filepath.end()-4, filepath.end());
 
-	//gEngfuncs.Con_DPrintf("scale %f\n", scale);
-	//gEngfuncs.Con_DPrintf("scale %s\n", filepath);
-
-	// smelly particle vers
-	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_muzzleflash, scale * 20, filepath), pos1, Vector(0, 0, 0), 0);
+	// particle vers
+	//gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(particle_muzzleflash, scale * 20, filepath), pos1, Vector(0, 0, 0), 0);
 	
-	// smelly tempent remake
 	// must set position for right culling on render
-	/*
 	pTemp = Hooked_CL_TempEntAlloc(pos1, cl_sprite_muzzleflash[index]);
 	if (!pTemp)
 		return;
@@ -701,7 +696,6 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
 	
 	CL_AddVisibleEntity(&pTemp->entity);
-	*/
 }
 
 FuncHook(R_ParticleBox, void, float* mins, float* maxs, unsigned char r, unsigned char g, unsigned char b, float life)

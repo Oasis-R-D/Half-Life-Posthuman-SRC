@@ -542,8 +542,7 @@ void EV_FireShotGunDouble(event_args_t* args)
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
-	bool inSemi = (bool)args->bparam1;
-	bool notLastShot = (bool)args->bparam2;
+	bool notLastShot = args->bparam2 != 0;
 
 	idx = args->entindex;
 
@@ -552,29 +551,10 @@ void EV_FireShotGunDouble(event_args_t* args)
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
 
-		if (inSemi)
-			EV_WeaponAnimation(SHOTGUN_SHOOT2_SEMI, 0);
-		else
-			EV_WeaponAnimation(notLastShot ? SHOTGUN_SHOOT2_PUMP : SHOTGUN_SHOOT2_PUMP_EMPTY, 0);
+		EV_WeaponAnimation(notLastShot ? SHOTGUN_SHOOT2_PUMP : SHOTGUN_SHOOT2_PUMP_EMPTY, 0);
 
 		V_PunchAxis(PITCH, -3.0);
 		V_PunchAxis(YAW, gEngfuncs.pfnRandomFloat(-2, 2));
-	}
-
-	if (inSemi)
-	{
-		VectorCopy(args->origin, origin);
-		VectorCopy(args->angles, angles);
-		VectorCopy(args->velocity, velocity);
-
-		AngleVectors(angles, &forward, &right, &up);
-		shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
-
-		for (j = 0; j < 2; j++)
-		{
-			EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 10, -12, 4);
-			EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
-		}
 	}
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/dbarrel1.wav", gEngfuncs.pfnRandomFloat(0.98, 1.0), ATTN_NORM, 0, 85 + gEngfuncs.pfnRandomLong(0, 0x1f));
@@ -593,7 +573,6 @@ void EV_FireShotGunSingle(event_args_t* args)
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
-	bool inSemi = (bool)args->bparam1;
 	bool notLastShot = (bool)args->bparam2;
 
 	idx = args->entindex;
@@ -602,27 +581,85 @@ void EV_FireShotGunSingle(event_args_t* args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		if (inSemi)
-			EV_WeaponAnimation(SHOTGUN_SHOOT1_SEMI, 0);
-		else
-			EV_WeaponAnimation(notLastShot ? SHOTGUN_SHOOT1_PUMP : SHOTGUN_SHOOT1_PUMP_EMPTY, 0);
+
+		EV_WeaponAnimation(notLastShot ? SHOTGUN_SHOOT1_PUMP : SHOTGUN_SHOOT1_PUMP_EMPTY, 0);
 
 		V_PunchAxis(PITCH, -1.0);
 		V_PunchAxis(YAW, gEngfuncs.pfnRandomFloat(-1, 1));
 	}
 
-	if (inSemi)
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sbarrel1.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong(0, 0x1f));
+}
+
+void EV_FireShotGunDoubleSEMI(event_args_t* args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	int j;
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+
+	bool notLastShot = args->bparam2 != 0;
+
+	idx = args->entindex;
+
+	if (EV_IsLocal(idx))
 	{
-		VectorCopy(args->origin, origin);
-		VectorCopy(args->angles, angles);
-		VectorCopy(args->velocity, velocity);
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
 
-		AngleVectors(angles, &forward, &right, &up);
-		shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
+		EV_WeaponAnimation(SHOTGUN_SHOOT2_SEMI, 0);
 
-		EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 10, -12, 4);
-		EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
+		V_PunchAxis(PITCH, -3.0);
+		V_PunchAxis(YAW, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/dbarrel1.wav", gEngfuncs.pfnRandomFloat(0.98, 1.0), ATTN_NORM, 0, 85 + gEngfuncs.pfnRandomLong(0, 0x1f));
+}
+
+void EV_FireShotGunSingleSEMI(event_args_t* args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+
+	bool notLastShot = (bool)args->bparam2;
+
+	idx = args->entindex;
+
+	if (EV_IsLocal(idx))
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+
+		EV_WeaponAnimation(SHOTGUN_SHOOT1_SEMI, 0);
+
+		V_PunchAxis(PITCH, -1.0);
+		V_PunchAxis(YAW, gEngfuncs.pfnRandomFloat(-1, 1));
+	}
+
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, &forward, &right, &up);
+	shell = EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
+
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 10, -12, 4);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sbarrel1.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong(0, 0x1f));
 }

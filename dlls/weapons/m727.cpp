@@ -62,7 +62,7 @@ void CM727::Precache()
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
 
-	m_usM727 = PRECACHE_EVENT(1, "events/m727.sc");
+	m_usM727 = PRECACHE_EVENT(1, "scripts/events/m727.sc");
 }
 
 bool CM727::GetItemInfo(ItemInfo* p)

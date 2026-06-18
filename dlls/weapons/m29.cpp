@@ -75,7 +75,7 @@ void CM29::Precache()
 	PRECACHE_SOUND("weapons/m29_fire1.wav");
 	PRECACHE_SOUND("weapons/m29_fire2.wav");
 
-	m_usFireM29 = PRECACHE_EVENT(1, "events/m29.sc");
+	m_usFireM29 = PRECACHE_EVENT(1, "scripts/events/m29.sc");
 }
 
 void CM29::CalculateAmmo()
