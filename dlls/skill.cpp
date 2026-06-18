@@ -22,6 +22,10 @@
 //=========================================================
 // take the name of a cvar, tack a digit for the skill level
 // on, and return the value.of that Cvar
+// 
+// UPDATE! now loops through until it finds a proper value!
+// This lets you only input 1 value into skill.cfg and have it work (less clutter)
+// 
 //=========================================================
 float GetSkillCvar(const char* pName)
 {
@@ -30,14 +34,27 @@ float GetSkillCvar(const char* pName)
 	char szBuffer[64];
 
 	int skillLevel = gSkillData.iSkillLevel == 4 ? 3 : gSkillData.iSkillLevel;
-	iCount = sprintf(szBuffer, "%s%d", pName, skillLevel);
 
-	flValue = CVAR_GET_FLOAT(szBuffer);
+	int skips = 0;
 
-	if (flValue <= 0)
+	while (skillLevel > 0)
 	{
-		ALERT(at_console, "\n\n** GetSkillCVar Got a zero for %s **\n\n", szBuffer);
+		iCount = sprintf(szBuffer, "%s%d", pName, skillLevel);
+
+		flValue = CVAR_GET_FLOAT(szBuffer);
+
+		if (flValue > 0)
+		{
+			if (skips > 0)
+				ALERT(at_console, "\n\n** GetSkillCVar Skipped %d times! Result: %s **\n\n", skips, szBuffer);
+			return flValue;
+		}
+		else if (skillLevel == 1)
+			ALERT(at_console, "\n\n** GetSkillCVar Got a zero for %s **\n\n", szBuffer);
+
+		skips++;
+		skillLevel--;
 	}
 
-	return flValue;
+	return 0;
 }
