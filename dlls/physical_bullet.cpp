@@ -311,56 +311,48 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		TraceResult beam_tr;
 		TraceResult beam_tr2;
 		double p;
-		int i = 1;
+		int i = 0;
 
-		UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate) // Raymarching (works better than the tau cannons trace back method)
+		do // Raymarching (works better than the tau cannons trace back method)
 		{
 			i += 1;
-			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, NULL, &beam_tr2);
-			
-			if (i > m_distpenetrate)
-				break;
+			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, dont_ignore_glass, NULL, &beam_tr2);
 		}
-		if (0 == beam_tr2.fAllSolid) // Raymarch found da way // BUGBUG!! the while loop just skips and returns 1 if the player is far from the end point
+		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate);
+
+		if (0 == beam_tr2.fAllSolid) // Raymarch found da way
 		{
-			//ALERT(at_console, "est wall depth %i\n", i);
+			//ALERT(at_console, "\nest wall depth %i\n", i);
 
 			UTIL_TraceLine(beam_tr2.vecEndPos, tr.vecEndPos, dont_ignore_monsters, NULL, &beam_tr); // trace backwards to add exit decal
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
-			// Multiply dist by the penetration multiplier and round to the 3rd or 4th decimal (I forget which)
-			float mat_mult = TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i); // m_direction seems to be innacurate
+			// Multiply dist by the penetration multiplier
+			float mat_mult = TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i);
 			p = i * mat_mult;
-			p *= 1000;
-			p = round(p);
-			p /= 1000;
 			
 			if (p < m_distpenetrate && m_distpenetrate > 0)
 			{
 				// Prevent inf penetration
-				m_distpenetrate = m_distpenetrate - p;
-				if (m_distpenetrate < 0)
-					m_distpenetrate = 0;
+				m_distpenetrate = V_max(m_distpenetrate - p, 0);
+				m_BulletDamage = V_max(m_BulletDamage - round(0.125 * p), 2);
+				m_muzzlevelocity = V_max(m_muzzlevelocity - 10 * p, 1000);
 
 				//ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-				//ALERT(at_console, "penetrated: %f units + mult\n", p);
-
-				m_BulletDamage -= round(0.125 * p);
-				if (m_BulletDamage <= 0)
-					m_BulletDamage = 2;
-
-				m_muzzlevelocity -= 10 * p;
+				//ALERT(at_console, "penetrated: %f units + mult\n\n", p);
 
 				// Fire penetrated bullet
 				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity < 75 ? m_Gravity * 3*mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
+				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity < 75 ? m_Gravity * 3 * mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
 
 				// Damage
-				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-				ApplyMultiDamage(owner->pev, owner->pev);
-				
+				if (DAMAGE_NO != pOther->pev->takedamage)
+				{
+					ClearMultiDamage();
+					pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+					ApplyMultiDamage(owner->pev, owner->pev);
+				}
+
 				/*
 				if (pOther->BloodColor() != DONT_BLEED && !g_pGameRules->IsMultiplayer())
 				{
@@ -441,9 +433,12 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			CPhysbullet::BulletCreate(1, m_BulletDamage/3, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
-			ClearMultiDamage();
-			pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
-			ApplyMultiDamage(owner->pev, owner->pev);
+			if (DAMAGE_NO != pOther->pev->takedamage)
+			{
+				ClearMultiDamage();
+				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				ApplyMultiDamage(owner->pev, owner->pev);
+			}
 
 			// Remove original bullet
 			UTIL_Remove(this);
@@ -458,7 +453,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	SetTouch(NULL);
 	SetThink(NULL);
 
-	if (0 != pOther->pev->takedamage)
+	if (DAMAGE_NO != pOther->pev->takedamage)
 	{
 		ClearMultiDamage();
 		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
