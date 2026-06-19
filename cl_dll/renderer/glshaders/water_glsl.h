@@ -115,7 +115,7 @@ const char* water_fragment_water_regular =
 		reflectionCoord += 0.5;
 		reflectionCoord += finalNormal;
 
-		vec2 basetex_texcoord = texcoord0.xy;
+		vec2 basetex_texcoord = texcoord0.xy + vec2(0.00116 * flTime, 0.00356 * -flTime);
 		basetex_texcoord += finalNormal;
 
 		vec4 refractionPixel = texture2D(texture1, refractionCoord);
