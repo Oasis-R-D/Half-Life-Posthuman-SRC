@@ -107,6 +107,8 @@ TYPEDESCRIPTION CBaseMonster::m_SaveData[] =
 		DEFINE_FIELD(CBaseMonster, m_AllowItemDropping, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_bRailed, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_bPrehuman, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBaseMonster, m_bShouldPool, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBaseMonster, m_iPoolTime, FIELD_INTEGER),
 };
 
 //IMPLEMENT_SAVERESTORE( CBaseMonster, CBaseToggle );
@@ -657,8 +659,8 @@ void CBaseMonster::DeadMonsterThink()
 
 		m_iPoolTime--;
 
-		if (m_iPoolTime <= 0) // stop bleeding
-			m_bShouldPool = false;
+		if (m_iPoolTime <= 0)
+			m_bShouldPool = false; // pooling finished
 	}
 
 	Railed(); // Post-Human additions
@@ -2179,6 +2181,11 @@ void CBaseMonster::MonsterInit()
 	if ((pev->spawnflags & SF_MONSTER_HITMONSTERCLIP) != 0)
 		pev->flags |= FL_MONSTERCLIP;
 
+	if ((pev->spawnflags & SF_DONTPOOL) == 1)
+		m_bShouldPool = false; // don't create a blood pool
+	else
+		m_iPoolTime = RANDOM_LONG(50, 100);
+
 	ClearSchedule();
 	RouteClear();
 	InitBoneControllers(); // FIX: should be done in Spawn
@@ -3600,8 +3607,10 @@ void CBaseMonster::MonsterInitDead()
 	ResetSequenceInfo();
 	pev->framerate = 0;
 
-	if ((pev->spawnflags & SF_DONTPOOL) == 0)
+	if ((pev->spawnflags & SF_DONTPOOL) == 1)
 		m_bShouldPool = false; // don't create a blood pool
+	else
+		m_iPoolTime = RANDOM_LONG(50, 100);
 
 	// Copy health
 	pev->max_health = pev->health;

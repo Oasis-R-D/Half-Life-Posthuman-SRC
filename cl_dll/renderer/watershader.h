@@ -90,10 +90,10 @@ public:
 	cvar_t* m_pCvarWaterReflectScale;
 	cvar_t* m_pCvarWaterNormalScale;
 	cvar_t* m_pCvarWaterFresnel;
+	cvar_t* m_pCvarWaterNormalTex;
 	cvar_t* m_pCvarWaterForceExpensive;
 	cvar_t* m_pCvarWaterForceReflectEntities;
 
-	cl_texture_t* m_pNormalTexture;
 	cl_water_t* m_pCurWater;
 
 	ref_params_t* m_pViewParams;

@@ -26,6 +26,8 @@ public:
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 	bool IsBullet() override { return true; }
 	
+	void FindWaterSurface();
+
 	static const char* pNearMissSounds[];
 
 	edict_t* Owner;

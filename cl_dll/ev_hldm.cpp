@@ -1656,6 +1656,9 @@ void EV_Particles(event_args_t* args)
 					break;
 			}
 			break;
+		case PE_H20IMPACTCLUST: // phys blood hit the ground
+			gParticleEngine.CreateCluster("water_impact_cluster.txt", args->origin, Vector(0,0,1), 0);
+			break;
 		case PE_BLLTIMPACTGLOW: // glowing bullet impact 'crater'
 		{
 			if (args->bparam2 != 1)

@@ -83,6 +83,7 @@ public:
 
 	int waterfog_start, waterfog_end;
 	float normal_scale, watertex_scale, refraction_scale, reflection_scale, fresnel;
+	string_t normal;
 };
 
 
@@ -105,6 +106,7 @@ TYPEDESCRIPTION CBaseDoor::m_SaveData[] =
 		DEFINE_FIELD(CBaseDoor, reflection_scale, FIELD_FLOAT),
 		DEFINE_FIELD(CBaseDoor, refraction_scale, FIELD_FLOAT),
 		DEFINE_FIELD(CBaseDoor, normal_scale, FIELD_FLOAT),
+		DEFINE_FIELD(CBaseDoor, normal, FIELD_STRING),
 
 };
 
@@ -213,7 +215,7 @@ void PlayLockSounds(entvars_t* pev, locksound_t* pls, bool flocked, bool fbutton
 bool CBaseDoor::KeyValue(KeyValueData* pkvd)
 {
 
-	if (FStrEq(pkvd->szKeyName, "skin")) //skin is used for content type
+	if (FStrEq(pkvd->szKeyName, "skin")) // skin is used for content type
 	{
 		pev->skin = atof(pkvd->szValue);
 		return true;
@@ -298,6 +300,11 @@ bool CBaseDoor::KeyValue(KeyValueData* pkvd)
 		fresnel = atof(pkvd->szValue);
 		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "normal"))
+	{
+		normal = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
 
 	return CBaseToggle::KeyValue(pkvd);
 }
@@ -332,6 +339,7 @@ void CBaseDoor::SendInitMessage(CBasePlayer* player)
 	WRITE_FLOAT(reflection_scale);
 	WRITE_FLOAT(normal_scale);
 	WRITE_FLOAT(fresnel);
+	WRITE_STRING(STRING(normal));
 	MESSAGE_END();
 }
 

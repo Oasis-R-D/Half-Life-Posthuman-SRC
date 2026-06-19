@@ -12,7 +12,7 @@ const char* water_depth_vertex =
 	out vec4 texcoord0;
 	out vec4 texcoord1;
 	out vec3 texcoord2;
-	out vec3 vectorToCamera;
+	out vec3 vecWaterToCam;
 
 	vec4 R1;
 
@@ -31,7 +31,7 @@ const char* water_depth_vertex =
 
 		texcoord2.xyz = aPosition;
 		
-		vectorToCamera = renderorigin - texcoord2.xyz;
+		vecWaterToCam = renderorigin - texcoord2.xyz;
 	}
 	
 	)";
@@ -49,6 +49,8 @@ const char* water_fragment_water_regular =
 	uniform sampler2D texture1;  // refraction texture
 	uniform sampler2D texture2;  // reflection texture
 	uniform sampler2D texture3;  // original water texture
+	uniform sampler2D texture4;  // water depth buffer // TO-DO: implement
+	uniform sampler2D texture5;  // world depth buffer // TO-DO: implement
 
 	uniform float normalscale;
 	uniform float watertex_scale;
@@ -60,16 +62,26 @@ const char* water_fragment_water_regular =
 	in vec4 texcoord0;
 	in vec4 texcoord1;
 	in vec3 texcoord2;
-	in vec3 vectorToCamera;
+	in vec3 vecWaterToCam;
 	
 	float GetFogFactor()
 	{
-		float dist = length(vectorToCamera);
+		float dist = length(vecWaterToCam);
 
 		float fogFactor = (fogend - dist) / (fogend - fogstart);
 		fogFactor = clamp(fogFactor, 0.0, 1.0);
 		
 		return fogFactor;
+	}
+	
+	float GetFresnel()
+	{
+		float fresnelFactor = dot( normalize(vecWaterToCam), vec3(0.0, 0.0, 1.0) );
+        fresnelFactor = max(fresnelFactor, 0.0);
+        fresnelFactor = 1.0 - fresnelFactor;
+        fresnelFactor = pow(fresnelFactor, m_flFresnelTerm);
+		
+		return fresnelFactor;
 	}
 
 	void main()
@@ -91,10 +103,7 @@ const char* water_fragment_water_regular =
 
 		float depthFactor = clamp(-finalNormal.y * 4, 0.0, 1.0);
 		
-		float fresnelFactor = dot( normalize(vectorToCamera), vec3(0.0, 0.0, 1.0) );
-        fresnelFactor = max(fresnelFactor, 0.0);
-        fresnelFactor = 1.0 - fresnelFactor;
-        fresnelFactor = pow(fresnelFactor, m_flFresnelTerm);
+		float fresnelFactor = GetFresnel();
 
 		vec2 refractionCoord = texcoord1.xy / texcoord1.w;
 		refractionCoord *= 0.5;
@@ -115,7 +124,7 @@ const char* water_fragment_water_regular =
 		refractionPixel.rgb *= exp(-depthFactor * 4);
 		reflectionPixel.rgb *= exp(-depthFactor * 4);
 		
-		float refractiveFactor = dot( normalize(vectorToCamera), vec3(0.0, 0.0, 1.0) );
+		float refractiveFactor = dot( normalize(vecWaterToCam), vec3(0.0, 0.0, 1.0) );
 		refractiveFactor = clamp(refractiveFactor * fresnelFactor, 0.0, 1.0);
 
 		if(underwater > 0)

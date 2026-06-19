@@ -473,8 +473,7 @@ void CHalfLifeMultiplay::PlayerSpawn(CBasePlayer* pPlayer)
 
 	pPlayer->SetHasSuit(true);
 
-	pPlayer->m_bShouldPool = true;
-	pPlayer->m_iPoolTime = 400; // 40 seconds
+	pPlayer->m_bShouldPool = false; // don't bleed in MP
 
 	addDefault = true;
 

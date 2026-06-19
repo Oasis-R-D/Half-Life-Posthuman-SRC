@@ -145,7 +145,6 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, m_iPoolTime, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -1481,8 +1480,8 @@ void CBasePlayer::PlayerDeathThink()
 
 			m_iPoolTime--;
 
-			if (m_iPoolTime <= 0) // stop bleeding
-				m_bShouldPool = false;
+			if (m_iPoolTime <= 0)
+				m_bShouldPool = false; // pooling finished
 		}
 	}
 

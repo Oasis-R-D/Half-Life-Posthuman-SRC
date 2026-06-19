@@ -568,6 +568,8 @@ struct cl_waterinfo_t
 	float refraction_scale, reflection_scale;
 	float normal_scale;
 	float fresnel;
+
+	cl_texture_t* m_pNormalTexture;
 };
 
 struct cl_water_t

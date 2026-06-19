@@ -117,6 +117,7 @@ void CWaterShader::Init(void)
 	m_pCvarWaterReflectScale = gEngfuncs.pfnRegisterVariable("r_watershader_reflectscale", "2.4", 0);
 	m_pCvarWaterNormalScale = gEngfuncs.pfnRegisterVariable("r_watershader_normalscale", "0.07", 0);
 	m_pCvarWaterFresnel = gEngfuncs.pfnRegisterVariable("r_watershader_fresnel", "5", 0);
+	m_pCvarWaterNormalTex = gEngfuncs.pfnRegisterVariable("r_watershader_normaltex", "noisy", 0);
 
 	m_pCvarWaterForceExpensive = gEngfuncs.pfnRegisterVariable("r_waterforceexpensive", "1", FCVAR_ARCHIVE);
 	m_pCvarWaterForceReflectEntities = gEngfuncs.pfnRegisterVariable("r_waterforcereflectentities", "1", FCVAR_ARCHIVE);
@@ -194,17 +195,7 @@ VidInit
 */
 void CWaterShader::VidInit(void)
 {
-	// Load texture
-	m_pNormalTexture = gTextureLoader.LoadTexture("gfx/textures/watershader.tga");
-
 	m_iNumPasses = 0;
-
-	if (!m_pNormalTexture)
-	{
-		gEngfuncs.pfnClientCmd("escape\n");
-		MessageBox(NULL, "VIDEO ERROR: Could not load 'gfx/textures/watershader.tga'!\n", "ERROR", MB_OK);
-		gEngfuncs.pfnClientCmd("quit\n");
-	}
 
 	if (m_iLastWaterRes != m_pCvarWaterResolution->value)
 	{
@@ -811,6 +802,9 @@ void CWaterShader::DrawWater(void)
 		if (gHUD.viewFrustum.CullBox(m_pCurWater->mins + m_pCurWater->entity->curstate.origin, m_pCurWater->maxs + m_pCurWater->entity->curstate.origin) && !onlyrenderthiswater)
 			continue;
 
+		// Set in info grabber below
+		GLuint normalMapIndex = 0;
+
 		for (int j = 0; j < m_iNumWaterData; j++)
 		{
 
@@ -825,6 +819,9 @@ void CWaterShader::DrawWater(void)
 				// m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_refraction_scale], m_pWaterEntInfo[j].refraction_scale);
 				// m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_reflection_scale], m_pWaterEntInfo[j].reflection_scale);
 				m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_m_flFresnelTerm], m_pWaterEntInfo[j].fresnel);
+
+				normalMapIndex = m_pWaterEntInfo[j].m_pNormalTexture->iIndex;
+
 				break;
 			}
 		}
@@ -843,7 +840,7 @@ void CWaterShader::DrawWater(void)
 		m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_fogstart], m_pWaterFogSettings.start);
 		m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_fogend], m_pWaterFogSettings.end);
 
-		gBSPRenderer.BindGLTexture(GL_TEXTURE0, m_pNormalTexture->iIndex);
+		gBSPRenderer.BindGLTexture(GL_TEXTURE0, normalMapIndex);
 		const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
 		if (!stricmp(texModes[0].name, texturemode))
 		{
@@ -914,6 +911,7 @@ int CWaterShader::MsgWaterInfo(const char* pszName, int iSize, void* pbuf)
 	//  watertex_scale
 	//  normal_scale
 	//  fresnel
+	//	normal
 
 	cl_waterinfo_t* waterinfo = &m_pWaterEntInfo[m_iNumWaterData];
 	m_iNumWaterData++;
@@ -929,6 +927,12 @@ int CWaterShader::MsgWaterInfo(const char* pszName, int iSize, void* pbuf)
 	waterinfo->reflection_scale = READ_FLOAT();
 	waterinfo->normal_scale = READ_FLOAT();
 	waterinfo->fresnel = READ_FLOAT();
+
+	char buffer[64];
+	int iCount = sprintf(buffer, "%s%s%s", "gfx/textures/water/", READ_STRING(), ".tga");
+
+	waterinfo->m_pNormalTexture = gTextureLoader.LoadTexture(buffer);
+
 	if (waterinfo->waterfog_color == Vector(0, 0, 0))
 		waterinfo->waterfog_color = Vector(70.f / 255.f, 155.f / 255.f, 155.f / 255.f); // default water fog color
 
@@ -952,6 +956,22 @@ int CWaterShader::MsgWaterInfo(const char* pszName, int iSize, void* pbuf)
 
 	if (!waterinfo->fresnel)
 		waterinfo->fresnel = m_pCvarWaterFresnel->value;
+
+	// Load texture
+	if (!waterinfo->m_pNormalTexture)
+	{
+		iCount = sprintf(buffer, "%s%s%s", "gfx/textures/water/", m_pCvarWaterNormalTex->string, ".tga");
+		waterinfo->m_pNormalTexture = gTextureLoader.LoadTexture(buffer);
+	}
+
+	if (!waterinfo->m_pNormalTexture)
+	{
+		char ErrorBuffer[64];
+		iCount = sprintf(ErrorBuffer, "VIDEO ERROR: Could not load water normal map '%s'!\n", m_pCvarWaterNormalTex->string);
+		gEngfuncs.pfnClientCmd("escape\n");
+		MessageBox(NULL, ErrorBuffer, "ERROR", MB_OK);
+		gEngfuncs.pfnClientCmd("quit\n");
+	}
 
 	return 1;
 }

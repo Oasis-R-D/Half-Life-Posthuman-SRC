@@ -244,8 +244,9 @@ void CPhysbullet::Spawn()
 	SetTouch(&CPhysbullet::BulletImpact);
 	SetThink(&CPhysbullet::AirThink);
 
-	// TRAIL START
 	pev->nextthink = gpGlobals->time + 0.05f;
+
+	// TRAIL START
 	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 	WRITE_BYTE(TE_BEAMFOLLOW);
 	WRITE_SHORT(entindex());		 // entity
@@ -293,6 +294,10 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	}
 
 	m_Endpos = pev->origin; // where bullet hit
+
+	// Add water hit VFX
+	if (pev->waterlevel != 0 || UTIL_PointContents(m_Endpos - m_direction * 1) == CONTENTS_WATER)
+		FindWaterSurface();
 
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner == nullptr)
@@ -493,10 +498,10 @@ void CPhysbullet::AirThink()
 {
 	pev->angles = UTIL_VecToAngles(m_direction);
 	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
-	
-	CBaseEntity* m_ent = NULL;
+
 	if (!m_haswizzed && !m_bsubsonic)
 	{
+		CBaseEntity* m_ent = NULL;
 		while ((m_ent = UTIL_FindEntityInSphere(m_ent, pev->origin, 128)) != NULL)
 		{
 			if (m_ent->IsPlayer() && Owner != m_ent->edict())
@@ -513,23 +518,19 @@ void CPhysbullet::AirThink()
 	}
 
 	// WIND
-	float flWindVel, flwindmult;
+	float flWindVel = 8;
+	float flwindmult = 0.25;
+
+	double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
 
 	for (int i = 0; i < 3; i++)
 	{
-		flWindVel = 8;
-
-		flwindmult = 0.25;
-
-		double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
-
 		pev->velocity = pev->velocity + (gpGlobals->v_up * calculatedWind);
 		pev->velocity = pev->velocity + (gpGlobals->v_right * calculatedWind);
 	}
 	// WIND END
 
-	m_distpenetrate -= 0.5;
-
+	m_distpenetrate -= 1.0;
 	if (pev->waterlevel != 0)
 	{
 		m_distpenetrate -= 0.5; // loses even more penetration when under the water
@@ -537,13 +538,8 @@ void CPhysbullet::AirThink()
 		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 	}
 
-	if (m_distpenetrate <= 0)
-	{
-		m_distpenetrate = 0;
-		return;
-	}
-
-	m_distpenetrate -= 0.5;
+	if (m_distpenetrate == 0)
+		UTIL_Remove(this);
 }
 
 int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
@@ -563,6 +559,33 @@ int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 	}
 
 	return 1;
+}
+
+// "Raymarch" to find the hit point of the water surface. Doesn't work too well for physical bullets but oh well.
+void CPhysbullet::FindWaterSurface()
+{
+	int tries = 0;
+
+	int bound = ceil((m_SpawnPos - m_Endpos).Length()) + 16;
+
+	Vector dir = (m_Endpos - m_SpawnPos).Normalize();
+
+	while (true)
+	{
+		tries++;
+
+		int contents = UTIL_PointContents(m_Endpos - dir * tries);
+
+		if (contents == CONTENTS_EMPTY)
+		{
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_Endpos - (dir * tries) + Vector(0, 0, 2), gpGlobals->v_up, 0.0, 0.0, PE_H20IMPACTCLUST, 0, 0, 0);
+			return;
+		}
+		else if ((contents != CONTENTS_WATER || tries >= bound) && tries > 4) // make it run at least 4 times in case it starts in a wall
+		{
+			return;
+		}
+	}
 }
 
 float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd)
