@@ -479,7 +479,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			if (pev->waterlevel == 0)
 			{
 				pev->angles = tr.vecPlaneNormal;
-				PLAYBACK_EVENT_FULL(0, Owner, g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
 			}
 		}
 	}
