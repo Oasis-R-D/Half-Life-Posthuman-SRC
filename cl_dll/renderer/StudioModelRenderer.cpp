@@ -1106,6 +1106,8 @@ void CStudioModelRenderer::StudioDrawViewmodel()
 
 	assert(gBSPRenderer.m_bMainPass, "trying to render viewmodel on a separate render pass !! dont do that");
 
+	glEnable(GL_DEPTH_CLAMP);
+
 	m_bExternalEntity = false;
 
 	m_ModelShader->Bind();
@@ -1146,6 +1148,7 @@ void CStudioModelRenderer::StudioDrawViewmodel()
 	m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_viewmodel], 0);
 
 	m_pCurrentEntity = nullptr;
+	glDisable(GL_DEPTH_CLAMP);
 }
 
 /*

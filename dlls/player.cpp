@@ -609,6 +609,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			{
 				SetSuitUpdate("!HEV_DMG2", false, SUIT_NEXT_IN_1MIN); // internal bleeding
 				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.25, 0.55);
+				Concuss(10, 10);
 			}
 			bitsDamage &= ~DMG_SONIC;
 			ffound = true;
@@ -616,6 +617,9 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 		if ((bitsDamage & (DMG_POISON | DMG_PARALYZE | DMG_FUNGUS)) != 0)
 		{
+			if (fmajor)
+				Concuss(10, 20);
+
 			SetSuitUpdate("!HEV_DMG3", false, SUIT_NEXT_IN_1MIN); // blood toxins detected
 			bitsDamage &= ~(DMG_POISON | DMG_PARALYZE | DMG_FUNGUS);
 			ffound = true;
@@ -631,6 +635,8 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 		if ((bitsDamage & DMG_NERVEGAS) != 0)
 		{
+			Concuss(5, 15);
+
 			SetSuitUpdate("!HEV_NEURO", false, SUIT_NEXT_IN_1MIN); // atmos hazard detected
 
 			bitsDamage &= ~DMG_NERVEGAS;
@@ -657,8 +663,8 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 			ffound = true;
 		}
 	}
-	pev->punchangle.x = RANDOM_LONG(-1, 1);
-	pev->punchangle.y = RANDOM_LONG(-1, 1);
+	pev->punchangle.x += RANDOM_LONG(-1, 1);
+	pev->punchangle.y += RANDOM_LONG(-1, 1);
 	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75)
 	{
 		// first time we take major damage...
@@ -4850,6 +4856,9 @@ void CBasePlayer::InternalSendSingleAmmoUpdate(int ammoIndex)
 
 void CBasePlayer::Concuss(float intensity, float dur)
 {
+	if (m_flConcussion > intensity || intensity <= 0)
+		return; // already concussed!
+
 	m_flConcDuration = dur;
 	m_flConcStartTime = gpGlobals->time;
 	m_flConcussion = intensity;
