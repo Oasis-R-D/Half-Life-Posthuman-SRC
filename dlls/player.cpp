@@ -296,14 +296,16 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 {
 	Vector vecOrigin = ptr->vecEndPos;
 	Vector hitlocation = ptr->vecEndPos;
-	int BLDAMNT;
 	float punchangle;
-	BLDAMNT = round(flDamage / 2.5);
-	if (0 !=pev->armorvalue && ptr->iHitgroup != HITGROUP_HEAD)
-		if (RANDOM_LONG(0,2) == 1)
-			UTIL_Sparks(ptr->vecEndPos);
+
 	if (0 != pev->takedamage)
 	{
+		int BLDAMNT = round(flDamage / 2.5);
+
+		if (0 != pev->armorvalue && ptr->iHitgroup != HITGROUP_HEAD)
+			if (RANDOM_LONG(0,2) == 1)
+				UTIL_Sparks(ptr->vecEndPos);
+
 		m_LastHitGroup = ptr->iHitgroup;
 
 		switch (ptr->iHitgroup)
@@ -317,18 +319,16 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			flDamage *= gSkillData.plrHead;
 			health_head += flDamage*2;
 			if (health_head > 100)
-			{
-			health_head = 100;
-			}
+				health_head = 100;
+
 			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.25, 5);
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;
 			health_chest += flDamage;
 			if (health_chest > 100)
-			{
-			health_chest = 100;
-			}
+				health_chest = 100;
+
 			if (RANDOM_LONG(0, 2) == 2)
 				FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.1, 0.25);
 			break;
@@ -336,43 +336,33 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			flDamage *= gSkillData.plrStomach;
 			health_stomach += flDamage;
 			if (health_stomach > 100)
-			{
-			health_stomach = 100;
-			}
+				health_stomach = 100;
 			break;
 		case HITGROUP_LEFTARM:
 			flDamage *= gSkillData.plrArm;
 			health_armL -= flDamage*1.25;
 			if (health_armL < 0)
-			{
-			health_armL = 0;
-			}
+				health_armL = 0;
 			break;
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
 			health_armR -= flDamage*1.25;
 			if (health_armR < 0)
-			{
-			health_armR = 0;
-			}
+				health_armR = 0;
 			break;
 		case HITGROUP_LEFTLEG:
 			flDamage *= gSkillData.plrLeg;
 		
 			health_legL += flDamage;
 			if (health_legL > 100)
-			{
-			health_legL = 100;
-			}
+				health_legL = 100;
 			break;
 		case HITGROUP_RIGHTLEG:
 			flDamage *= gSkillData.plrLeg;
 		
 			health_legR += flDamage;
 			if (health_legR > 100)
-			{
-			health_legR = 100;
-			}
+				health_legR = 100;
 			break;
 		default:
 			break;
