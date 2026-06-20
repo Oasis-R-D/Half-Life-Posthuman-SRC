@@ -184,10 +184,10 @@ void CPhysbullet::Spawn()
 			else
 			{
 				SET_MODEL(ENT(pev), "sprites/tracer_357magnum.spr");
-				pev->scale = 1.0;
+				pev->scale = 0.5;
 			}
 
-			m_distpenetrate = 128;
+			m_distpenetrate = 32;
 			pev->rendercolor = Vector(255, 70, 170);
 			break;
 		case 10:

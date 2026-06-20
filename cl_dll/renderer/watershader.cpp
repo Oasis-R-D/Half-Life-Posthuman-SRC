@@ -531,19 +531,18 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 	{
 		m_pCurWater = &m_pWaterEntities[i];
 
-		if (ViewInWater())
-		{
-			onlyrenderthiswater = true;
-		}
 		if (!m_pCurWater->draw)
 			continue;
+
+		if (ViewInWater())
+			onlyrenderthiswater = true;
 
 		m_pCurWater->origin[0] = m_pCurWater->entity->curstate.origin[0] + ((m_pCurWater->mins[0] + m_pCurWater->maxs[0]) * 0.5f);
 		m_pCurWater->origin[1] = m_pCurWater->entity->curstate.origin[1] + ((m_pCurWater->mins[1] + m_pCurWater->maxs[1]) * 0.5f);
 		m_pCurWater->origin[2] = m_pCurWater->entity->curstate.origin[2] + ((m_pCurWater->mins[2] + m_pCurWater->maxs[2]) * 0.5f);
 
 		gHUD.viewFrustum.SetFrustum(pparams->viewangles, pparams->vieworg, gHUD.m_iFOV, gHUD.m_pFogSettings.end, true);
-		if (gHUD.viewFrustum.CullBox(m_pCurWater->mins + m_pCurWater->entity->curstate.origin, m_pCurWater->maxs + m_pCurWater->entity->curstate.origin) && !onlyrenderthiswater)
+		if (!onlyrenderthiswater && gHUD.viewFrustum.CullBox(m_pCurWater->mins + m_pCurWater->entity->curstate.origin, m_pCurWater->maxs + m_pCurWater->entity->curstate.origin))
 		{
 			// YOU MUST DIE
 			m_pCurWater->draw = false;
@@ -559,6 +558,7 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 				m_pWaterFogSettings.end = m_pWaterEntInfo[j].waterfog_end;
 			}
 		}
+
 		if (ShouldReflect(i))
 		{
 			SetupRefract();
@@ -572,7 +572,8 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 			DrawScene(&m_pWaterParams, false);
 			FinishReflect();
 		}
-		if (ViewInWater())
+
+		if (onlyrenderthiswater)
 			break;
 	}
 
@@ -778,6 +779,8 @@ void CWaterShader::DrawWater(void)
 
 	float flTime = engine_cl->time * 0.5;
 
+	glEnable(GL_DEPTH_CLAMP);
+
 	m_WaterFragmentShader->Bind();
 
 	m_WaterFragmentShader->Uniform3fv(s_WaterShader_locs[watershader_renderorigin], 1, gBSPRenderer.m_vRenderOrigin);
@@ -885,6 +888,8 @@ void CWaterShader::DrawWater(void)
 
 	gBSPRenderer.BindGLTexture(GL_TEXTURE3, 0);
 	gBSPRenderer.BindGLTexture(GL_TEXTURE4, 0);
+
+	glDisable(GL_DEPTH_CLAMP);
 }
 
 /*

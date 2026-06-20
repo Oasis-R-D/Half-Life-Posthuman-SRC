@@ -626,14 +626,9 @@ void R_CalcRefDef(ref_params_t* pparams)
 	gBSPRenderer.GetRenderEnts();
 
 	if (g_iNightVision) 
-	{
 		SetupNightVision(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
-	}
-
-	if (g_iFlashLight)
-	{
+	else if (g_iFlashLight)
 		SetupFlashlight(pparams->vieworg, pparams->viewangles, engine_cl->time, gHUD.m_flTimeDelta);
-	}
 
 	// Set up pre-frame stuff
 	gBSPRenderer.SetupPreFrame(pparams);
