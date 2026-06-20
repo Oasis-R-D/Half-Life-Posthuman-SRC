@@ -73,7 +73,8 @@ void LinkUserMessages()
 	gmsgHunger = REG_USER_MSG("Hunger", -1);
 	gmsgFireMode = REG_USER_MSG("FireMode", -1);
 	gmsgCrossHair = REG_USER_MSG("CrossHair", -1);
-	
+	gmsgConcuss = REG_USER_MSG( "Concuss", 4 );
+
 	// RENDERERS START
 	gmsgSetFog = REG_USER_MSG("SetFog", -1);
 	gmsgLightStyle = REG_USER_MSG("LightStyle", -1);

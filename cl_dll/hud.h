@@ -568,7 +568,7 @@ private:
 	int m_iSpriteCount;
 	int m_iSpriteCountAllRes;
 	float m_flMouseSensitivity;
-	int m_iConcussionEffect;
+	float m_flConcussionEffect;
 
 public:
 	HSPRITE_GOLDSRC  m_hsprCursor;

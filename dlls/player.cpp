@@ -313,13 +313,19 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		case HITGROUP_GENERIC:
 			break;
 		case HITGROUP_HEAD:
-			punchangle = round(health_head/20);
-			pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
-			pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
 			flDamage *= gSkillData.plrHead;
 			health_head += flDamage*2;
 			if (health_head > 100)
 				health_head = 100;
+
+			if (flDamage > 15)
+				Concuss(40, 4);
+			else
+			{
+				punchangle = round(health_head/20);
+				pev->punchangle.x = RANDOM_LONG(-punchangle, punchangle);
+				pev->punchangle.y = RANDOM_LONG(-punchangle, punchangle);
+			}
 
 			FlashingHUDDelay = gpGlobals->time + RANDOM_FLOAT(0.25, 5);
 			break;
@@ -368,11 +374,7 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			break;
 		}
 		
-		if (FClassnameIs(pevAttacker, "monster_training_bot"))
-		{
-		
-		}
-		else
+		if (!FClassnameIs(pevAttacker, "monster_training_bot"))
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
@@ -1023,6 +1025,11 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	WRITE_BYTE(0);
 	MESSAGE_END();
 
+	m_flConcussion = 0;
+	MESSAGE_BEGIN(MSG_ONE, gmsgConcuss, NULL, pev);
+	WRITE_FLOAT(m_flConcussion);				  
+	MESSAGE_END();
+
 	// Adrian: always make the players non-solid in multiplayer when they die
 	if (g_pGameRules->IsMultiplayer())
 	{
@@ -1655,6 +1662,11 @@ void CBasePlayer::StartObserver(Vector vecPosition, Vector vecViewAngle)
 	m_iFOV = m_iClientFOV = 0;
 	MESSAGE_BEGIN(MSG_ONE, gmsgSetFOV, NULL, pev);
 	WRITE_BYTE(0);
+	MESSAGE_END();
+
+	m_flConcussion = 0.0f;
+	MESSAGE_BEGIN(MSG_ONE, gmsgConcuss, NULL, pev);
+	WRITE_FLOAT(0);				  
 	MESSAGE_END();
 
 	// Setup flags
@@ -3537,6 +3549,8 @@ void CBasePlayer::Spawn()
 	m_iClientFOV = -1; // make sure fov reset is sent
 	m_ClientSndRoomtype = -1;
 
+	m_flConcussion = 0.0f;
+
 	m_flNextDecalTime = 0; // let this player decal as soon as he spawns.
 
 	m_flgeigerDelay = gpGlobals->time + 2.0; // wait a few seconds until user-defined message registrations
@@ -3677,6 +3691,8 @@ bool CBasePlayer::Restore(CRestore& restore)
 
 	m_iClientFOV = -1; // Make sure the client gets the right FOV value.
 	m_ClientSndRoomtype = -1;
+
+	m_bClientConcussion = true;
 
 	// Reset room type on level change.
 	if (!FStrEq(restore.GetData().szCurrentMapName, STRING(gpGlobals->mapname)))
@@ -4125,7 +4141,8 @@ void CBasePlayer::ForceClientDllUpdate()
 	m_iClientFOV = -1;
 	m_ClientWeaponBits = 0;
 	m_ClientSndRoomtype = -1;
-
+	m_bClientConcussion = true;
+	
 	for (int i = 0; i < MAX_AMMO_SLOTS; ++i)
 	{
 		m_rgAmmoLast[i] = 0;
@@ -4831,6 +4848,14 @@ void CBasePlayer::InternalSendSingleAmmoUpdate(int ammoIndex)
 	}
 }
 
+void CBasePlayer::Concuss(float intensity, float dur)
+{
+	m_flConcDuration = dur;
+	m_flConcStartTime = gpGlobals->time;
+	m_flConcussion = intensity;
+	m_flConcStartVal = intensity;
+}
+
 /*
 =========================================================
 	UpdateClientData
@@ -4975,8 +5000,9 @@ void CBasePlayer::UpdateClientData()
 		WRITE_BYTE(1);
 		MESSAGE_END();
 	}
-	else // could save a value here to prevent this rerunning
+	else if (FlashingHUDDelay != -1)
 	{
+		FlashingHUDDelay = -1;
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashHUD, NULL, pev);
 		WRITE_BYTE(0);
 		MESSAGE_END();
@@ -5021,6 +5047,21 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_END();
 
 		m_iClientHideHUD = m_iHideHUD;
+	}
+
+	if (m_bClientConcussion == true || m_flConcussion > 0)
+	{
+		m_bClientConcussion = false;
+
+		float timeElapsed = gpGlobals->time - m_flConcStartTime;
+
+		m_flConcussion = m_flConcStartVal - (m_flConcStartVal * (timeElapsed/m_flConcDuration));
+
+		clamp(m_flConcussion, 0.0f, m_flConcStartVal);
+
+		MESSAGE_BEGIN(MSG_ONE, gmsgConcuss, NULL, pev);
+		WRITE_FLOAT(m_flConcussion);				  
+		MESSAGE_END();
 	}
 
 	if (m_iFOV != m_iClientFOV)

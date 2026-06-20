@@ -90,16 +90,6 @@ class CBasePlayer : public CBaseMonster
 {
 
 public:
-	int health_head = 0;
-	int health_chest = 0;
-	int health_stomach = 0;
-	int health_armR = 100;
-	int health_armL = 100;
-	int health_legL = 0;
-	int health_legR = 0;
-	float m_bleedtime = 0;
-	int m_bleedAMNT;
-	Vector hitlocation;
 	// Spectator camera
 	void Observer_FindNextPlayer(bool bReverse);
 	void Observer_HandleButtons();
@@ -404,12 +394,34 @@ public:
 
 	// Post-Human
 	void UpdateCrosshair(double spread, int crosshairtype = 0);
+
 	int CrowbarFlinch;
+
 	float FlashingHUDDelay;
+
 	int Hunger;
 	float HungerTime;
 	float HungerDamageTime;
+
 	double m_dbFireCheckTimer;
+
+	int health_head = 0;
+	int health_chest = 0;
+	int health_stomach = 0;
+	int health_armR = 100;
+	int health_armL = 100;
+	int health_legL = 0;
+	int health_legR = 0;
+	float m_bleedtime = 0;
+	int m_bleedAMNT;
+	Vector hitlocation;
+
+	void CBasePlayer::Concuss(float intensity, float dur);
+	float m_flConcussion;
+	bool m_bClientConcussion;
+	float m_flConcStartVal;
+	float m_flConcStartTime;
+	float m_flConcDuration;
 private:
 	CRope* m_pRope;
 	float m_flLastClimbTime = 0;

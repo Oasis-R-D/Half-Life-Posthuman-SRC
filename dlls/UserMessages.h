@@ -62,6 +62,7 @@ inline int gmsgFlashHUD = 0;
 inline int gmsgHunger = 0;
 inline int gmsgFireMode = 0;
 inline int gmsgCrossHair = 0;
+inline int gmsgConcuss = 0;
 
 // RENDERERS START
 inline int gmsgSetFog = 0;

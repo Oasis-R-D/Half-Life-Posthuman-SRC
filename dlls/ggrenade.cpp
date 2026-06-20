@@ -334,11 +334,13 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					if (dp < 0)
 					{
 						UTIL_ScreenFade(pPlayer, Color, 2, 1, 255, FFADE_IN);
+						pPlayer->Concuss(15, 20);
 						pPlayer->TakeDamage(pev, pev, 2, DMG_SONIC);
 					}
 					else
 					{
 						UTIL_ScreenFade(pPlayer, Color, 1, 0, 255, FFADE_IN);
+						pPlayer->Concuss(15, 10);
 						pPlayer->TakeDamage(pev, pev, 1, DMG_SONIC);
 					}
 					
