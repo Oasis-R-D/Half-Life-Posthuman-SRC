@@ -1448,14 +1448,16 @@ void PE_BloodImpact(event_args_t* args)
 	const char* blood_impact;
 	const char* blood_spray;
 
-	int R, G, B = 0;
-	int directionMult;
+	int R, G, B;
+	R = G = B = 0;
+
+	int directionMult = -1;
 
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
 
-	int BLDAMNT = args->fparam1 / ((skill != 4) ? 2.0 : 4);
-	if (BLDAMNT > 24)
-		BLDAMNT = 24;
+	int BLDAMNT = args->fparam1 / ((skill != 4) ? 2.5 : 4.5);
+	if (BLDAMNT > 20)
+		BLDAMNT = 20;
 
 	switch (args->iparam2)
 	{
@@ -1510,8 +1512,7 @@ void PE_BloodImpact(event_args_t* args)
 	{
 		switch (gEngfuncs.pfnRandomLong(1, 3))
 		{
-		case 1:
-		case 2: directionMult = -1; break;
+		default: directionMult = -1; break;
 		case 3: directionMult = 1; break;
 		}
 
@@ -1528,7 +1529,8 @@ void PE_GibCloud(event_args_t* args)
 	const char* blood_decal;
 	const char* blood_impact;
 
-	int R, G, B = 0;
+	int R, G, B;
+	R = G = B = 0;
 
 	switch (args->iparam2)
 	{

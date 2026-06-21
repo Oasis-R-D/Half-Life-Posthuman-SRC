@@ -750,7 +750,7 @@ void CWaterShader::FinishReflect(void)
 }
 
 static const struct
-{ // TO-DO: HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+{ 
 	const char* name;
 	GLenum minimize, maximize;
 } texModes[] = {

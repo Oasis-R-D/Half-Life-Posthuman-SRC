@@ -80,7 +80,7 @@ const char glsl_particle_fp[] = R"(
 CParticleEngine gParticleEngine;
 
 static const struct
-{ // TO-DO: HOW DO i REMVOE THIS TOP APART AAHGDHADGHADGBJHAD
+{ 
 	const char* name;
 	GLenum minimize, maximize;
 } texModes[] = {
@@ -2348,11 +2348,13 @@ void CParticleEngine::DrawParticles()
 	if (particlebatch.empty())
 		return;
 
+	glEnable(GL_DEPTH_CLAMP);
 	m_ParticleShader->Bind();
 
 	DrawQuadList(particlebatch, psystem);
 
 	GL_ShaderProgram::ResetShaderBind();
+	glDisable(GL_DEPTH_CLAMP);
 }
 
 void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, std::vector<ParticleQuad>, ParticlePairHash>& particlebatch, particle_system_t* psystem)

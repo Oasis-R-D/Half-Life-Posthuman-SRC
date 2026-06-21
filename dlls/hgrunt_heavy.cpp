@@ -834,7 +834,7 @@ void CHGruntHeavy::Shotgun()
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
-#ifndef CLIENT_DLL
+
 	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
@@ -842,7 +842,7 @@ void CHGruntHeavy::Shotgun()
 		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 	}
 	m_cAmmoLoaded--; // take away a bullet!
-#endif
+
 	pev->effects |= EF_MUZZLEFLASH;
 
 	Vector angDir = UTIL_VecToAngles(vecShootDir);
@@ -867,7 +867,7 @@ void CHGruntHeavy::M249()
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iLink, TE_BOUNCE_SHELL);
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
-	#ifndef CLIENT_DLL
+
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
@@ -876,7 +876,7 @@ void CHGruntHeavy::M249()
 	{
 		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_1DEGREES, 1, 556, edict());
 	}
-	#endif
+
 	pev->effects |= EF_MUZZLEFLASH;
 
 	m_cAmmoLoaded--; // take away a bullet!

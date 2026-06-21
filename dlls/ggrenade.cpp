@@ -308,7 +308,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 					pTask->iTask = TASK_FIND_COVER_FROM_ORIGIN;
 					pTask->flData = 3.75f;
 					pMonster->StartTask(pTask);
-					pMonster->m_flDistTooFar = 128;
+					pMonster->m_flDistTooFar = 160;
 					pMonster->m_flNextAttack = 0.5f;
 					pMonster->ClearConditions(bits_COND_SEE_ENEMY);
 
@@ -319,7 +319,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				pMonster->SetConditions(bits_COND_LIGHT_DAMAGE);
 			}
 		}
-		if (pEntity->IsPlayer())
+		else if (pEntity->IsPlayer())
 		{
 			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
 			if (pPlayer != nullptr)

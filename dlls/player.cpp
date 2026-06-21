@@ -5066,7 +5066,7 @@ void CBasePlayer::UpdateClientData()
 
 		m_flConcussion = m_flConcStartVal - (m_flConcStartVal * (timeElapsed/m_flConcDuration));
 
-		clamp(m_flConcussion, 0.0f, m_flConcStartVal);
+		m_flConcussion = clamp(m_flConcussion, 0.0f, m_flConcStartVal);
 
 		MESSAGE_BEGIN(MSG_ONE, gmsgConcuss, NULL, pev);
 		WRITE_FLOAT(m_flConcussion);				  
