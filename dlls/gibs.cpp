@@ -96,7 +96,7 @@ void CoolerGib::EatThink()
 	EMIT_SOUND_DYN(m_pEater->edict(), CHAN_AUTO, sound, 0.8, 1.2, 0, 95+RANDOM_LONG(0,10));
 
 	// VFX
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 1);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, PE_NPC_IMPACT_RANDDIR);
 	UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
 
 	if (m_bloodColor == BLOOD_COLOR_RED)
@@ -230,7 +230,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 
 	}
 	UTIL_VecToAngles(pGib->pev->velocity);
-	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
+	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPC_IMPACT, pGib->m_bloodColor, 0, 0);
 	pGib->LimitVelocity();
 }
 
@@ -278,9 +278,9 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 
 	}
 	UTIL_VecToAngles(pGib->pev->velocity);
-	#ifndef CLIENT_DLL
-	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
-	#endif
+
+	PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPC_IMPACT, pGib->m_bloodColor, 0, 0);
+
 	pGib->LimitVelocity();
 }
 
@@ -373,7 +373,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 			}
 			UTIL_VecToAngles(pGib->pev->velocity);
-			PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPCIMPACTCLUST, pGib->m_bloodColor, 0, 0);
+			PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPC_IMPACT, pGib->m_bloodColor, 0, 0);
 			pGib->LimitVelocity();
 		}
 	}
@@ -424,7 +424,7 @@ void CoolerGib::WaitTillLand()
 	{
 		if (m_cBloodDecals > 0 && UTIL_ShouldShowBlood(m_bloodColor) == true && (RANDOM_LONG(0, 1) == 1))
 		{
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, 0);
 		}
 		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}

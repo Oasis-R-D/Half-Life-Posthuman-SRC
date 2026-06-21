@@ -250,7 +250,7 @@ void CBaseMonster::GibMonster()
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
 	
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLDGIBCLOUD, BloodColor(), 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 
 	if (HasHumanGibs())
 	{
@@ -646,7 +646,7 @@ void CGib::WaitTillLand()
 	{
 		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED && (RANDOM_LONG(0, 1) == 1))
 		{
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, m_bloodColor, 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, 0);
 		}
 		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}
@@ -1188,6 +1188,13 @@ bool CBaseEntity::FVisible(CBaseEntity* pEntity) // TO-DO: find some way for mon
 	if (tr.flFraction == 1.0) // Line of sight is valid
 		return true;
 
+	// Check for around leg area
+	vecTargetOrigin = pEntity->pev->origin + pEntity->pev->maxs.z * 0.125;
+	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
+
+	if (tr.flFraction == 1.0) // Line of sight is valid
+		return true;
+
 	// Check for maxes
 	vecTargetOrigin = pEntity->EyePosition() + pEntity->pev->maxs.x + pEntity->pev->maxs.y; // TO-DO: adding limbs could be nice
 	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
@@ -1640,13 +1647,11 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 		{
 			case HITGROUP_HEAD: fragments = 2; break;
 			case HITGROUP_LEFTARM: 
-			case HITGROUP_RIGHTARM: fragments = RANDOM_LONG(0, 1) ? 1 :  0; break;
+			case HITGROUP_RIGHTARM: fragments = RANDOM_LONG(0, 1); break;
 			case HITGROUP_LEFTLEG: 
 			case HITGROUP_RIGHTLEG: fragments = RANDOM_LONG(0, 2) == 1 ? 1 : 0; break;
 		}
 	}
-
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, fragments, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
 
 	if (!IsAlive())
 	{
@@ -1661,6 +1666,14 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 			m_iMaxDeathBleed--;
 		}
 	}
+
+	if (UTIL_PointContents(ptr->vecEndPos) != CONTENTS_WATER)
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, fragments, PE_NPC_IMPACT, BloodColor(), 0, 0);
+	else
+	{ // TO-DO: water blood cloud vfx
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, 0, PE_NPC_H20_IMPACT, BloodColor(), 0, 0);
+		return; // No decals underwater!
+	}
 	
 	// make blood decal on the wall!
 	TraceResult Bloodtr;
@@ -1668,8 +1681,6 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 	float flNoise;
 	int cCount;
 	int i;
-
-
 
 	if (g_iSkillLevel != SKILL_REALISM)
 	{

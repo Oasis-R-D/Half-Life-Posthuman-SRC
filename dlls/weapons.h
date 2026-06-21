@@ -1094,26 +1094,6 @@ private:
 	unsigned short m_usRpg;
 };
 
-class CRpgRocket : public CGrenade
-{
-public:
-	~CRpgRocket() override;
-
-	bool Save(CSave& save) override;
-	bool Restore(CRestore& restore) override;
-	static TYPEDESCRIPTION m_SaveData[];
-	void Spawn() override;
-	void Precache() override;
-	void EXPORT FollowThink();
-	void EXPORT IgniteThink();
-	void EXPORT RocketTouch(CBaseEntity* pOther);
-	static CRpgRocket* CreateRpgRocket(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner, CRpg* pLauncher);
-
-	int m_iTrail;
-	float m_flIgniteTime;
-	EHANDLE m_pLauncher; // handle back to the launcher that fired me.
-};
-
 #define GAUSS_PRIMARY_CHARGE_VOLUME 256 // how loud gauss is while charging
 #define GAUSS_PRIMARY_FIRE_VOLUME 450	// how loud gauss is when discharged
 
@@ -1849,4 +1829,20 @@ enum offhandgren_e
 	OH_DONOTHING = 0, // hides the hand
 	OH_THROW,
 	OH_GRAB,
+};
+
+class CRpgRocket : public CGrenade
+{
+public:
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
+	void Spawn() override;
+	void Precache() override;
+	void EXPORT FollowThink();
+	void EXPORT IgniteThink();
+	void EXPORT RocketTouch(CBaseEntity* pOther);
+
+	int m_iTrail;
+	float m_flIgniteTime;
 };

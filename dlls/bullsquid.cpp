@@ -116,7 +116,7 @@ void CSquidSpit::Animate()
 
 	oddthink = !oddthink;
 	if (oddthink)
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPC_IMPACT, BLOOD_COLOR_GREEN, 0, 0);
 }
 
 void CSquidSpit::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity) // we should make it like BM:S where there's multiple, like a shotgun

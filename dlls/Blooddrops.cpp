@@ -175,7 +175,7 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 
 	if (!m_isPool)
 	{
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLDIMPACTCLUST, m_BloodType, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + (gpGlobals->v_up * 2), gpGlobals->v_up, 0.0, 0.0, PE_BLD_SPLASH, m_BloodType, 0, 0);
 
 		char dripsnd[256];
 		sprintf(dripsnd, "common/drip_0%d.wav", RANDOM_LONG(1, 7));

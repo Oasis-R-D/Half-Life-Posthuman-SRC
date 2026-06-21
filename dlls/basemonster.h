@@ -162,7 +162,7 @@ public:
 	void EXPORT CorpseFallThink();
 	void EXPORT DeadMonsterThink();
 	void EXPORT MonsterInitThink();
-	void Railed();
+	void PH_additions();
 
 	virtual void StartMonster();
 	virtual CBaseEntity* BestVisibleEnemy();		// finds best visible enemy for attack

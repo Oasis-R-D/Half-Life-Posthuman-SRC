@@ -623,6 +623,9 @@ void CWaterShader::DrawScene(ref_params_t* pparams, bool isrefracting)
 		g_StudioRenderer.StudioDrawModels(false);
 
 		gPropManager.RenderProps();
+
+		if ((m_pCvarWaterShader->value > 1) || isrefracting)
+			gParticleEngine.DrawParticles();
 	}
 
 	// Render any props

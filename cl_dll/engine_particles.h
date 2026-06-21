@@ -25,6 +25,7 @@ extern char bloodsprite[];
 extern char bloodchunks[];
 extern char bloodspray[];
 extern char bloodgibcloud[];
+extern char waterbloodcloud[];
 
 extern char particle_gs[];
 

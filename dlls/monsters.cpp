@@ -513,7 +513,7 @@ CSound* CBaseMonster::PBestScent()
 	return NULL;
 }
 
-void CBaseMonster::Railed() //:troll:
+void CBaseMonster::PH_additions()
 {
 	if (m_iBurnTimer > 0)
 	{
@@ -590,7 +590,7 @@ void CBaseMonster::Railed() //:troll:
 		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
 
 		if (RANDOM_LONG(0, 1) == 1 && BloodColor() != DONT_BLEED)
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0);
 
 		pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 
@@ -604,7 +604,7 @@ void CBaseMonster::Railed() //:troll:
 			m_bRailed = false;
 			pev->velocity = g_vecZero;
 
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam2)
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam2)
 			
 			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
 		}
@@ -663,7 +663,7 @@ void CBaseMonster::DeadMonsterThink()
 			m_bShouldPool = false; // pooling finished
 	}
 
-	Railed(); // Post-Human additions
+	PH_additions();
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 }
 
@@ -675,7 +675,7 @@ void CBaseMonster::MonsterThink()
 {
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 
-	Railed(); // Post-Human additions
+	PH_additions();
 	RunAI();
 
 	float flInterval = StudioFrameAdvance(); // animate

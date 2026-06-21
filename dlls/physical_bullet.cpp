@@ -287,6 +287,11 @@ void CPhysbullet::Precache()
 void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 {	
 	TraceResult tr = UTIL_GetGlobalTrace();
+
+	// Add water hit VFX
+	//if (UTIL_PointContents(m_SpawnPos) == CONTENTS_WATER)
+		//FindWaterSurface();
+
 	if (UTIL_PointContents(tr.vecEndPos) == CONTENTS_SKY)
 	{
 		UTIL_Remove(this);
@@ -479,7 +484,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			if (pev->waterlevel == 0)
 			{
 				pev->angles = tr.vecPlaneNormal;
-				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 0);
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 0);
 			}
 		}
 	}
@@ -573,7 +578,7 @@ void CPhysbullet::FindWaterSurface()
 
 		if (contents == CONTENTS_EMPTY)
 		{
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_Endpos - (dir * tries) + Vector(0, 0, 2), gpGlobals->v_up, 0.0, 0.0, PE_H20IMPACTCLUST, 0, 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_Endpos - (dir * tries) + Vector(0, 0, 2), gpGlobals->v_up, 0.0, 0.0, PE_BULLET_WATERHIT, 0, 0, 0);
 			return;
 		}
 		else if ((contents != CONTENTS_WATER || tries >= bound) && tries > 4) // make it run at least 4 times in case it starts in a wall

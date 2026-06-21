@@ -279,7 +279,7 @@ class CEnvSpit : public CBaseEntity
 		WRITE_BYTE(80);				   // noise ( client will divide by 100 )
 		MESSAGE_END();
 		
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_forward * -24, -gpGlobals->v_forward, 4, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_forward * -24, -gpGlobals->v_forward, 4, 0.0, PE_NPC_IMPACT, BLOOD_COLOR_GREEN, 0, 0);
 
 		UTIL_Remove(this);
 	}
@@ -289,7 +289,7 @@ class CEnvSpit : public CBaseEntity
 		pev->angles = UTIL_VecToAngles(pev->velocity);
 		pev->nextthink = gpGlobals->time + 0.1;
 		if (oddthink)
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_GREEN, 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, gpGlobals->v_forward, 0, 0.0, PE_NPC_IMPACT, BLOOD_COLOR_GREEN, 0, 0);
 		if (pev->dmgtime < gpGlobals->time)
 			UTIL_Remove(this);
 	}

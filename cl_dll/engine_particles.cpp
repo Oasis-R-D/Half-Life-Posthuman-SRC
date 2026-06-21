@@ -155,6 +155,52 @@ pcolg %d
 pcolb %d
 )";
 
+// TO-DO: add damage input
+char waterbloodcloud[] = R"(
+randomdir 1
+systemsize 5
+
+life 4
+lifevar 0.5
+
+fadedelay 0.2
+fadein 0.2
+
+minvel 60
+maxvel 300
+
+maxofs 11
+
+texture blood_core
+rendermode 2
+
+scale 10
+scalevar 2
+scaledampdelay 0.1
+scaledampfactor -20
+
+rotationvel 10
+rotationdamp 0.005
+
+veldamp 10
+veldampdelay 0.01
+
+collision 2
+impactdamp 0.75
+
+gravity 0.0
+mainalpha 0.125
+
+startparticles 5
+
+lightmaps 2
+
+pcolr %d
+pcolg %d
+pcolb %d
+
+)";
+
 char bulletholeglow[] = R"(
 life 0.25
 

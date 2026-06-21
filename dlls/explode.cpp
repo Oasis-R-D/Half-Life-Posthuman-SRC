@@ -254,7 +254,7 @@ void CEnvExplosion::Smoke()
 		WRITE_BYTE(12);					 // framerate
 		MESSAGE_END();
 		*/
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BILLOWSMOKE, 0, 0, 0);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_SMOKE_BILLOW, 0, 0, 0);
 	}
 
 	if ((pev->spawnflags & SF_ENVEXPLOSION_REPEATABLE) == 0)

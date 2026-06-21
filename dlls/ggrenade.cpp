@@ -507,7 +507,7 @@ void CGrenade::ExplSpray()
 		pev->nextthink = 0.1f;
 		if ((pev->flags & FL_ONGROUND) != 0) // Only spawn smoke once on the ground
 		{	
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKE_CLOUD, 0, 0, 0);
 			EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM);
 			pev->nextthink = gpGlobals->time + 0.125f;
 			SetThink(&CGrenade::SUB_Remove);	
@@ -517,7 +517,7 @@ void CGrenade::ExplSpray()
 	{	
 		if (!m_bGeneralBool)
 		{
-			//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKECLOUD, 0, 0, 0);
+			//PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + gpGlobals->v_up * 4, g_vecZero, 0.0, 0.0, PE_SMOKE_CLOUD, 0, 0, 0);
 			//EMIT_SOUND(ENT(pev), CHAN_AUTO, "weapons/smokegrenade-1.wav", 0.8f, ATTN_NORM); // make a 1 second looping sound
 
 			pev->nextthink = gpGlobals->time + 0.25;

@@ -1525,14 +1525,13 @@ TYPEDESCRIPTION CRpg::m_SaveData[] =
 		DEFINE_FIELD(CRpg, m_cActiveRockets, FIELD_INTEGER),
 };
 IMPLEMENT_SAVERESTORE(CRpg, CBasePlayerWeapon);
-
+*/
 TYPEDESCRIPTION CRpgRocket::m_SaveData[] =
 	{
 		DEFINE_FIELD(CRpgRocket, m_flIgniteTime, FIELD_TIME),
-		DEFINE_FIELD(CRpgRocket, m_pLauncher, FIELD_EHANDLE),
+		//DEFINE_FIELD(CRpgRocket, m_pLauncher, FIELD_EHANDLE),
 };
 IMPLEMENT_SAVERESTORE(CRpgRocket, CGrenade);
-*/
 
 TYPEDESCRIPTION CShotgun::m_SaveData[] =
 	{

@@ -490,7 +490,7 @@ void CFlockingBloater::Killed(entvars_t* pevAttacker, int iGib)
 	TraceResult tr;
 
 	pSquad = (CFlockingBloater*)m_pSquadLeader;
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_BLOATERGASEXPL, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_SMOKE_BLOATER, 0, 0, 0);
 	while (pSquad)
 	{
 		pSquad->m_bAggro = true;

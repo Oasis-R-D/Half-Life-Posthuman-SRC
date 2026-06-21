@@ -2126,7 +2126,7 @@ void CBasePlayer::UpdateStatusBar()
 #define CLIMB_PUNCH_X -7		 // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z 7			 // how far to 'punch' client Z axis when climbing
 
-void CBasePlayer::Railed() //:troll:
+void CBasePlayer::PH_additions()
 {
 	if (m_bRailed)
 	{
@@ -2134,7 +2134,7 @@ void CBasePlayer::Railed() //:troll:
 		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
 		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
 		if (RANDOM_LONG(0, 2) == 1 && BloodColor() != DONT_BLEED)
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPCIMPACTCLUST, BloodColor(), 0, 0);
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0);
 
 		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
 		{
@@ -2241,16 +2241,17 @@ void CBasePlayer::PreThink()
 				}
 			}
 
+			// spawn some blood
 			if (RANDOM_LONG(0, 1) == 1)
 			{
 				CPhysblood::BloodCreate(1, 100, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(15), false);
 			}
 			else
-				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 0.0, 0.0, PE_NPCIMPACTCLUST, BLOOD_COLOR_RED, 1, 0);
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + (gpGlobals->v_up * -16), -gpGlobals->v_up, 0.0, 0.0, PE_NPC_IMPACT, BLOOD_COLOR_RED, PE_NPC_IMPACT_ISBLEEDING, 0);
 		}
 	}
 
-	Railed();
+	PH_additions();
 	UpdateShockEffect();
 
 	UTIL_MakeVectors(pev->v_angle); // is this still used?
@@ -4716,13 +4717,13 @@ void CBasePlayer::UpdateCrosshair(double spread, int crosshairtype)
 		Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spreadfixed) + (gpGlobals->v_right * spreadfixed);
 		UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 1);
 
 		// Draw bottom notch
 		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spreadfixed) - (gpGlobals->v_right * spreadfixed);
 		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BLLTIMPACTGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 1);
 	}
 }
 
