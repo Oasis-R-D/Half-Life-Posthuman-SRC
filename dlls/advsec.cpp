@@ -1120,7 +1120,7 @@ void CAdvSec::Spawn()
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
-		m_cClipSize = 9;
+		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
@@ -1132,7 +1132,7 @@ void CAdvSec::Spawn()
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
-		m_cClipSize = 30;
+		m_cClipSize = MP5_MAX_CLIP;
 		m_flDistTooFar = 2048+128;
 		m_flDistLook = 2048+128; //idk if this is needed
 	}

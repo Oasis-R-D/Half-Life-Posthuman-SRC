@@ -253,7 +253,7 @@ void CHGruntHeavy::Spawn()
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
-		m_cClipSize = 9;
+		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
 		{
 			m_flDistTooFar = 384;
@@ -266,26 +266,26 @@ void CHGruntHeavy::Spawn()
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m249.mdl");
-		m_cClipSize = 201;
+		m_cClipSize = M249_MAX_CLIP;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_GRENADELAUNCHER))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_flDistTooFar = 2048+256;
 		m_flDistLook = 2048+256; //idk if this is needed
-		m_cClipSize = 30;
+		m_cClipSize = MP5_MAX_CLIP;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M727))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
 		m_flDistTooFar = 3072;
 		m_flDistLook = 3072; //idk if this is needed
-		m_cClipSize = 30;
+		m_cClipSize = M727_MAX_CLIP;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
-		m_cClipSize = 30;
+		m_cClipSize = MP5_MAX_CLIP;
 		m_flDistTooFar = 2048+192;
 		m_flDistLook = 2048+192; //idk if this is needed
 	}

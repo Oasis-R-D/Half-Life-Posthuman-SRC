@@ -791,13 +791,13 @@ void ChgruntRobo::Spawn()
 	{
 		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		m_flDistTooFar = 1024+512;
-		m_cClipSize = 9;
+		m_cClipSize = SHOTGUN_MAX_CLIP;
 	}
 	else
 	{
 		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_flDistTooFar = 1024+512;
-		m_cClipSize = 30;
+		m_cClipSize = MP5_MAX_CLIP;
 	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;

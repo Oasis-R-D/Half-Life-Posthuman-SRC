@@ -37,7 +37,6 @@ extern DLL_GLOBAL int g_iSkillLevel;
 //=========================================================
 // monster-specific DEFINE's
 //=========================================================
-#define MASSASSIN_MP5_CLIP_SIZE 36 // how many bullets in a clip? - NOTE: 3 round burst sound, so keep as 3 * x!
 #define MASSN_SNIPER_CLIP_SIZE 1
 #define GRUNT_VOL 0.35		 // volume of grunt sounds
 #define GRUNT_ATTN ATTN_NORM // attenutation of grunt sentences
@@ -1011,7 +1010,7 @@ void CMOFAssassin::Spawn()
 	if (FBitSet(pev->weapons, MAssassinWeaponFlag::MP5))
 	{
 		weaponModel = MAssassinWeapon::MP5;
-		m_cClipSize = MASSASSIN_MP5_CLIP_SIZE;
+		m_cClipSize = MP5_MAX_CLIP;
 		m_flDistTooFar = 2048+256;
 		m_flDistLook = 2048+256; //idk if this is needed
 	}
