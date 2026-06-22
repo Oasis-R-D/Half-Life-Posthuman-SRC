@@ -160,10 +160,6 @@ public:
 	void TalkInit()
 	{
 		CTalkMonster::TalkInit();
-		if (FClassnameIs(pev, "monster_zombie_fast"))
-			m_voicePitch = 120;
-		else
-			m_voicePitch = 80;
 
 		// replace with zombie sfx
 		m_szGrp[TLK_ANSWER] = "HG_ANSWER";
@@ -427,12 +423,6 @@ void CZombie::SetYawSpeed()
 
 	ys = 120;
 
-#if 0
-	switch ( m_Activity )
-	{
-	}
-#endif
-
 	pev->yaw_speed = ys;
 }
 
@@ -695,6 +685,7 @@ void CZombie::Precache()
 	PRECACHE_SOUND_ARRAY(pPainSounds);
 
 	UTIL_PrecacheOther("monster_headcrab");
+
 	TalkInit();
 	CTalkMonster::Precache();
 }
@@ -747,10 +738,6 @@ Schedule_t* CZombie::GetScheduleOfType(int Type)
 		return slZbFollow;
 
 	case SCHED_IDLE_STAND:
-		// call base class default so that scientist will talk
-		// when standing during idle
-		psched = CTalkMonster::GetScheduleOfType(Type);
-
 		if (psched == slIdleStand)
 		{
 			// just look straight ahead.
@@ -793,7 +780,6 @@ Schedule_t* CZombie::GetSchedule()
 		{
 			return GetScheduleOfType(SCHED_MOVE_AWAY);
 		}
-		TrySmellTalk();
 		break;
 	}
 
