@@ -974,12 +974,13 @@ void CMOFAssassin::Spawn()
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.massassinHealth;
+		m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
 	else
 	{
 		pev->health = 100;
+		m_flFieldOfView = -0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
-	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
 	m_flNextPainTime = gpGlobals->time;

@@ -433,14 +433,10 @@ public:
 	int m_fireState;
 
 	// POSTHUMAN
-	void AcousticModDist(int pitch = 100, int type = 0);
 	int m_iBurnTimer;
 	bool m_bPrehuman; // Required for some NPCs and player (here because headcrab unlatching uses base entity and not base monster
 
 	int m_iMaxDeathBleed = 6; // How much can the monster bleed after dead (helps avoid mass decal spam on the ground)
-
-	int altviewmodel;
-	int altweaponanim;
 };
 
 inline bool FNullEnt(CBaseEntity* ent) { return (ent == NULL) || FNullEnt(ent->edict()); }

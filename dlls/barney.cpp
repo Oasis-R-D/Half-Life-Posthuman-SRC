@@ -429,14 +429,10 @@ void CBarney::Spawn()
 	
 	SET_MODEL(ENT(pev), "models/barney.mdl");
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		pev->health = gSkillData.barneyHealth;
-	}
 	else
-	{
 		pev->health = 100;
-	}
-	m_cAmmoLoaded = pev->armortype = 17;
+	m_cAmmoLoaded = pev->armortype = GLOCK_MAX_CLIP;
 
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 

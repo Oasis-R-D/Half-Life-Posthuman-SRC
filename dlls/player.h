@@ -395,6 +395,9 @@ public:
 	// Post-Human
 	void UpdateCrosshair(double spread, int crosshairtype = 0);
 
+	int altviewmodel;
+	int altweaponanim;
+
 	int CrowbarFlinch;
 
 	float FlashingHUDDelay;

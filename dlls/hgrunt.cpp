@@ -1029,13 +1029,14 @@ void CHGrunt::Spawn()
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.hgruntHealth;
+		m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
 	else
 	{
 		pev->health = 100;
+		m_flFieldOfView = -0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
-	
-	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
+
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
 	m_flNextPainTime = gpGlobals->time;
@@ -1069,13 +1070,9 @@ void CHGrunt::Spawn()
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
 			m_flDistTooFar = 384;
-		}
 		else
-		{
 			m_flDistTooFar = 1024;
-		}
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
@@ -1112,15 +1109,9 @@ void CHGrunt::Spawn()
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_MEDIC, HEAD_ENGI)));
 			break;
 		}
-		switch (RANDOM_LONG(0, 1))
-		{
-		case 0:
-			SetBodygroup(TORSO_GROUP, TORSO_M249);
-			break;
-		case 1:
-			SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
-			break;
-		}
+
+		SetBodygroup(TORSO_GROUP, RANDOM_LONG(0, 1) ? TORSO_M249 : TORSO_GRUNT);
+
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
 		M_HasHelm = true;
 		m_flDistTooFar = 3072;

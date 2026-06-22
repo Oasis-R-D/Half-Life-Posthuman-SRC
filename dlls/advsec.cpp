@@ -635,28 +635,20 @@ void CAdvSec::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
 	Forget(bits_MEMORY_INCOVER);
+
+	// TO-DO: pev->maxhealth?
 	if (m_hashealthmonitor == true)
 	{
 		if (pev->health <= m_ihealth0)
-		{
 			pev->skin = 0;
-		}
 		else if (pev->health <= m_ihealth25)
-		{
 			pev->skin = 0;
-		}
 		else if (pev->health <= m_ihealth50)
-		{
 			pev->skin = 0;
-		}
 		else if (pev->health <= m_ihealth75)
-		{
 			pev->skin = 0;
-		}
 		else
-		{
 			pev->skin = 0;
-		}
 	}
 	return CSquadMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
@@ -1091,13 +1083,14 @@ void CAdvSec::Spawn()
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		pev->health = gSkillData.hgruntHealth;
+		m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
 	else
 	{
 		pev->health = 100;
+		m_flFieldOfView = -0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
 
-	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 	m_flNextGrenadeCheck = gpGlobals->time + 1;
 	m_flNextPainTime = gpGlobals->time;
@@ -1122,13 +1115,9 @@ void CAdvSec::Spawn()
 		SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
 		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
 			m_flDistTooFar = 384;
-		}
 		else
-		{
 			m_flDistTooFar = 1024;
-		}
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 	{
@@ -1160,7 +1149,6 @@ void CAdvSec::Spawn()
 		m_ihealth75 = round(3/4 * pev->health);
 		m_ihealth50 = round(1/2 * pev->health);
 		m_ihealth25 = round(1/4 * pev->health);
-
 	}
 	MonsterInit();
 }
