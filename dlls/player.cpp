@@ -2224,7 +2224,7 @@ void CBasePlayer::PreThink()
 
 			if (g_iSkillLevel == SKILL_REALISM)
 			{
-				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && m_bleedAMNT >= 14)
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_bleedAMNT >= 14 || m_bleedAMNT >= pev->health))
 				{
 					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
 					m_rgItems[ITEM_TOURNIQUET]--;
@@ -2234,7 +2234,7 @@ void CBasePlayer::PreThink()
 			}
 			else
 			{
-				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && m_bleedAMNT >= 4)
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_bleedAMNT >= 4 || m_bleedAMNT >= pev->health))
 				{
 					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
 					m_rgItems[ITEM_TOURNIQUET]--;
