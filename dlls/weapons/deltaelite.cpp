@@ -163,8 +163,6 @@ void CElite::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	Vector vecDir;
-	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
-	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
 
 	float spread = GetBulletSpread().x;
 	m_flTimeSincePrimary = gpGlobals->time;
@@ -177,7 +175,7 @@ void CElite::PrimaryAttack()
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 35, 6500, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 30, 6500, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
 	}
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)

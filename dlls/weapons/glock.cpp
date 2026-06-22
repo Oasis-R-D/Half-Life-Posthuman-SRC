@@ -254,13 +254,10 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 		{
 			if (!m_iSilenced)
 			{
-			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
-
 				CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 			}
 			else
 			{
-				// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
 				CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
 			}
 		}
@@ -269,12 +266,10 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 	
 			if (!m_iSilenced)
 			{
-			// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1);
 				CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 			}
 			else
 			{
-				// m_pPlayer->FireBullets(1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_9MM, 1, 9);
 				CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 			}
 		}

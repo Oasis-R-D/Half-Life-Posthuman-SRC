@@ -1181,33 +1181,38 @@ bool CBaseEntity::FVisible(CBaseEntity* pEntity) // TO-DO: find some way for mon
 
 	vecLookerOrigin = pev->origin + pev->view_ofs; //look through the caller's 'eyes'
 
-	// Check for heads
-	vecTargetOrigin = pEntity->EyePosition();
-	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
+	if (CVAR_GET_FLOAT("sv_expensive_npcvision") >= 1)
+	{
+		// Check for maxes
+		vecTargetOrigin = pEntity->EyePosition() + pEntity->pev->maxs.x + pEntity->pev->maxs.y; // TO-DO: adding limbs could be nice
+		UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
 
-	if (tr.flFraction == 1.0) // Line of sight is valid
-		return true;
+		if (tr.flFraction == 1.0)
+			return true; // Line of sight is valid
 
-	// Check for around leg area
-	vecTargetOrigin = pEntity->pev->origin + pEntity->pev->maxs.z * 0.125;
-	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
+		// Check for mins
+		vecTargetOrigin = pEntity->EyePosition() + pEntity->pev->mins.x + pEntity->pev->mins.y; // TO-DO: adding limbs could be nice
+		UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
 
-	if (tr.flFraction == 1.0) // Line of sight is valid
-		return true;
+		if (tr.flFraction == 1.0)
+			return true; // Line of sight is valid
 
-	// Check for maxes
-	vecTargetOrigin = pEntity->EyePosition() + pEntity->pev->maxs.x + pEntity->pev->maxs.y; // TO-DO: adding limbs could be nice
-	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
+		// Check for around leg area
+		vecTargetOrigin = pEntity->pev->origin + pEntity->pev->maxs.z * 0.125;
+		UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
 
-	if (tr.flFraction == 1.0)
-		return true; // Line of sight is valid
+		if (tr.flFraction == 1.0) // Line of sight is valid
+			return true;
+	}
+	else
+	{
+		// Check for heads // TO-DO: isn't this extraneous since if the head is visible, the min or max probably is too
+		vecTargetOrigin = pEntity->EyePosition();
+		UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
 
-	// Check for mins
-	vecTargetOrigin = pEntity->EyePosition() + pEntity->pev->mins.x + pEntity->pev->mins.y; // TO-DO: adding limbs could be nice
-	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
-
-	if (tr.flFraction == 1.0)
-		return true; // Line of sight is valid
+		if (tr.flFraction == 1.0) // Line of sight is valid
+			return true;
+	}
 
 	return false;
 }

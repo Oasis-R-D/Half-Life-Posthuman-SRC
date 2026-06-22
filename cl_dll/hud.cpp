@@ -418,6 +418,7 @@ void CHud::Init()
 
 	CVAR_CREATE("cl_muzzlelight", "1", 0);
 	CVAR_CREATE("sv_classictracers", "0", FCVAR_ARCHIVE);
+	CVAR_CREATE("sv_expensive_npcvision", "1", FCVAR_ARCHIVE);
 	CVAR_CREATE("cl_innacuracydebug", "0", 0);
 
 	CVAR_CREATE("hud_classautokill", "1", FCVAR_ARCHIVE | FCVAR_USERINFO); // controls whether or not to suicide immediately on TF class switch
