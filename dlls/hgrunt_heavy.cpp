@@ -255,13 +255,9 @@ void CHGruntHeavy::Spawn()
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
 			m_flDistTooFar = 384;
-		}
 		else
-		{
-			m_flDistTooFar = 1024;
-		}
+			m_flDistTooFar = 2048-256;
 	}
 	else if (FBitSet(pev->weapons, HGRUNT_M249))
 	{
