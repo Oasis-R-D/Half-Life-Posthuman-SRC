@@ -72,6 +72,7 @@ public:
 	void M249();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
+	int PoolAtt() override { return -1; }
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
 

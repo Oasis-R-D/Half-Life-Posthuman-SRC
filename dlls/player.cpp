@@ -3537,8 +3537,8 @@ void CBasePlayer::Spawn()
 	health_head = 0;
 	health_chest = 0;
 	health_stomach = 0;
-	health_armR = 100;
-	health_armL = 100;
+	health_armR = 0;
+	health_armL = 0;
 	health_legL = 0;
 	health_legR = 0;
 	m_iPoolTime = 400;
