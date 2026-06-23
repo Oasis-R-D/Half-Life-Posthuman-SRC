@@ -408,13 +408,17 @@ public:
 
 	double m_dbFireCheckTimer;
 
-	int health_head = 0;
-	int health_chest = 0;
-	int health_stomach = 0;
-	int health_armR = 100;
-	int health_armL = 100;
-	int health_legL = 0;
-	int health_legR = 0;
+	// TO-DO: do this properly (replace these with rgiLimb_Health[CONSTANT])
+	#define health_head rgiLimb_Health[0]
+	#define health_chest rgiLimb_Health[1]
+	#define health_stomach rgiLimb_Health[2]
+	#define health_armR rgiLimb_Health[3]
+	#define health_armL rgiLimb_Health[4]
+	#define health_legL rgiLimb_Health[5]
+	#define health_legR rgiLimb_Health[6]
+
+	int rgiLimb_Health[7] = {0, 0, 0, 0, 0, 0, 0};
+
 	float m_bleedtime = 0;
 	int m_bleedAMNT;
 	Vector hitlocation;

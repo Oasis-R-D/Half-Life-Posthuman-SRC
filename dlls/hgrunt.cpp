@@ -472,7 +472,6 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						flDamage = round(flDamage * 0.1);
 						UTIL_Sparks(ptr->vecEndPos);
 	
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}
 					else if (flDamage > 44 && m_helmDUR > 0)
 					{
@@ -492,7 +491,6 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						flDamage = round(flDamage * 0.2);
 						UTIL_Sparks(ptr->vecEndPos);
 	
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}
 				}
 		

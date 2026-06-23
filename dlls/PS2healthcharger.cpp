@@ -560,27 +560,12 @@ void CItemHealthCharger::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	if (pActivator->TakeHealth(1, DMG_GENERIC))
 	{
 		m_iJuice--;
-		player->health_armL += RANDOM_LONG(1, 3);
-		player->health_armR += RANDOM_LONG(1, 3);
-		player->health_legL -= RANDOM_LONG(1, 3);
-		player->health_legR -= RANDOM_LONG(1, 3);
-		player->health_head -= RANDOM_LONG(1, 3);
-		player->health_chest -= RANDOM_LONG(1, 3);
-		player->health_stomach -= RANDOM_LONG(1, 3);
-		if (player->health_armR > 100)
-			player->health_armR = 100;
-		if (player->health_armL > 100)
-			player->health_armL = 100;
-		if (player->health_legL < 0)
-			player->health_legL = 0;
-		if (player->health_legR < 0)
-			player->health_legR = 0;
-		if (player->health_head < 0)
-			player->health_head = 0;
-		if (player->health_chest < 0)
-			player->health_chest = 0;
-		if (player->health_stomach < 0)
-			player->health_stomach = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			player->rgiLimb_Health[i] -= RANDOM_LONG(1, 3);
+			if (player->rgiLimb_Health[i] < 0)
+				player->rgiLimb_Health[i] = 0;
+		}
 	}
 
 	// govern the rate of charge

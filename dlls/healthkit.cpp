@@ -77,27 +77,14 @@ bool CHealthKit::MyTouch(CBasePlayer* pPlayer)
 		MESSAGE_END();
 
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
-		pPlayer->health_armR += (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_armL += (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_legL -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_legR -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_head -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_chest -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		pPlayer->health_stomach -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
-		if (pPlayer->health_armR > 100)
-			pPlayer->health_armR = 100;
-		if (pPlayer->health_armL > 100)
-			pPlayer->health_armL = 100;
-		if (pPlayer->health_legL < 0)
-			pPlayer->health_legL = 0;
-		if (pPlayer->health_legR < 0)
-			pPlayer->health_legR = 0;
-		if (pPlayer->health_head < 0)
-			pPlayer->health_head = 0;
-		if (pPlayer->health_chest < 0)
-			pPlayer->health_chest = 0;
-		if (pPlayer->health_stomach < 0)
-			pPlayer->health_stomach = 0;
+
+		for (int i = 0; i < 7; i++)
+		{
+			pPlayer->rgiLimb_Health[i] -= (gSkillData.healthkitCapacity + (RANDOM_LONG(3, 10)));
+			if (pPlayer->rgiLimb_Health[i] < 0)
+				pPlayer->rgiLimb_Health[i] = 0;
+		}
+
 		//TODO: incorrect check here, but won't respawn due to respawn delay being -1 in singleplayer
 		if (0 != g_pGameRules->ItemShouldRespawn(this))
 		{
@@ -251,27 +238,12 @@ void CWallHealth::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE us
 	if (player->TakeHealth(1, DMG_GENERIC))
 	{
 		m_iJuice--;
-		player->health_armL += RANDOM_LONG(1, 3);
-		player->health_armR += RANDOM_LONG(1, 3);
-		player->health_legL -= RANDOM_LONG(1, 3);
-		player->health_legR -= RANDOM_LONG(1, 3);
-		player->health_head -= RANDOM_LONG(1, 3);
-		player->health_chest -= RANDOM_LONG(1, 3);
-		player->health_stomach -= RANDOM_LONG(1, 3);
-		if (player->health_armR > 100)
-			player->health_armR = 100;
-		if (player->health_armL > 100)
-			player->health_armL = 100;
-		if (player->health_legL < 0)
-			player->health_legL = 0;
-		if (player->health_legR < 0)
-			player->health_legR = 0;
-		if (player->health_head < 0)
-			player->health_head = 0;
-		if (player->health_chest < 0)
-			player->health_chest = 0;
-		if (player->health_stomach < 0)
-			player->health_stomach = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			player->rgiLimb_Health[i] -= RANDOM_LONG(1, 3);
+			if (player->rgiLimb_Health[i] < 0)
+				player->rgiLimb_Health[i] = 0;
+		}
 	}
 
 	// govern the rate of charge

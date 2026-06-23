@@ -110,14 +110,17 @@ public:
 	int m_iShell;
 	int m_iLink;
 
-	int m_helmDUR = 20;
-	int m_helmvisorDUR = 20;
-	int m_iarmor_health_chest = 20;
-	int m_iarmor_health_stomach = 18;
-	int m_iarmor_health_rightarm = 16;
-	int m_iarmor_health_leftarm = 16;
-	int m_iarmor_health_leftleg = 13;
-	int m_iarmor_health_rightleg = 13;
+	#define m_helmDUR					m_rgiArmor_health[0]
+	#define m_helmvisorDUR				m_rgiArmor_health[1]
+	#define m_iarmor_health_chest		m_rgiArmor_health[2]
+	#define m_iarmor_health_stomach		m_rgiArmor_health[3]
+	#define m_iarmor_health_rightarm	m_rgiArmor_health[4]
+	#define m_iarmor_health_leftarm		m_rgiArmor_health[5]
+	#define m_iarmor_health_leftleg		m_rgiArmor_health[6]
+	#define m_iarmor_health_rightleg	m_rgiArmor_health[7]
+
+	int m_rgiArmor_health[8] = {40, 20, 40, 38, 36, 36, 33, 33};
+
 	int m_idShard;
 
 	static const char* pGruntSentences[];
@@ -172,14 +175,7 @@ TYPEDESCRIPTION CHGruntHeavy::m_SaveData[] =
 		//  DEFINE_FIELD( CShotgun, m_iBrassShell, FIELD_INTEGER ),
 		//  DEFINE_FIELD( CShotgun, m_iShotgunShell, FIELD_INTEGER ),
 		DEFINE_FIELD(CHGruntHeavy, m_iSentence, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_helmDUR, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_helmvisorDUR, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_chest, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_stomach, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_leftarm, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_rightarm, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_leftleg, FIELD_INTEGER),
-		DEFINE_FIELD(CHGruntHeavy, m_iarmor_health_rightleg, FIELD_INTEGER),
+		DEFINE_ARRAY(CHGruntHeavy, m_rgiArmor_health, FIELD_INTEGER, 8),
 };
 
 IMPLEMENT_SAVERESTORE(CHGruntHeavy, CSquadMonster);
@@ -1973,12 +1969,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_helmDUR > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_helmDUR -= 1;
+			m_helmDUR -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.15);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			flDamage -= 25;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_helmDUR <= 0)
 			{
@@ -1999,12 +1996,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_helmvisorDUR > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_helmvisorDUR -= 1;
+			m_helmvisorDUR -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.15);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			flDamage -= 20;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_helmvisorDUR <= 0)
 			{
@@ -2025,12 +2023,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_iarmor_health_chest > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_iarmor_health_chest -= 1;
+			m_iarmor_health_chest -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.1);
-
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			
+			flDamage -= 30;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_chest <= 0)
 			{
@@ -2050,12 +2049,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_iarmor_health_stomach > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_iarmor_health_stomach -= 1;
+			m_iarmor_health_stomach -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.1);
-
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			
+			flDamage -= 25;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_stomach <= 0)
 			{
@@ -2075,12 +2075,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_iarmor_health_leftarm > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_iarmor_health_leftarm -= 1;
+			m_iarmor_health_leftarm -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.05);
-
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			
+			flDamage -= 15;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_leftarm <= 0)
 			{
@@ -2100,12 +2101,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_rightarm > 0)
 		{
-			m_iarmor_health_rightarm -= 1;
+			m_iarmor_health_rightarm -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.05);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			flDamage -= 15;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_rightarm <= 0)
 			{
@@ -2125,12 +2127,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_leftleg > 0)
 		{
-			m_iarmor_health_leftleg -= 1;
+			m_iarmor_health_leftleg -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			flDamage -= 15;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_leftleg <= 0)
 			{
@@ -2150,12 +2153,13 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		if (m_iarmor_health_rightleg > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_iarmor_health_rightleg -= 1;
+			m_iarmor_health_rightleg -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
-			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
+			flDamage -= 15;
+			if (flDamage <= 0)
+				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
 			if (m_iarmor_health_rightleg <= 0)
 			{

@@ -3092,18 +3092,18 @@ void CTriggerLimbDMG::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 		case 3: //Larm
 			if (m_iSet != -1)
 				player->health_armL = m_iSet;
-			player->health_armL /= m_iMulti;
-			player->health_armL -= m_iPlus;
+			player->health_armL *= m_iMulti;
+			player->health_armL += m_iPlus;
 			player->health_armL = round(player->health_armL);
 			break;
 		case 4: //Rarm
 			if (m_iSet != -1)
 				player->health_armR = m_iSet;
-			player->health_armR /= m_iMulti;
-			player->health_armR -= m_iPlus;
+			player->health_armR *= m_iMulti;
+			player->health_armR += m_iPlus;
 			player->health_armR = round(player->health_armR);
 			break;
-		case 5: //Lleg
+		case 5: //Lleg // TO-DO: where is the code?
 			break;
 		case 6: //Rleg
 			break;

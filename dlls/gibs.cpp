@@ -104,27 +104,12 @@ void CoolerGib::EatThink()
 		// tasty!
 		m_pEater->Hunger += RANDOM_LONG(5, 6);
 		m_pEater->TakeHealth(5, DMG_GENERIC);
-		m_pEater->health_armR += RANDOM_LONG(4, 7);
-		m_pEater->health_armL += RANDOM_LONG(4, 7);
-		m_pEater->health_legL -= RANDOM_LONG(4, 7);
-		m_pEater->health_legR -= RANDOM_LONG(4, 7);
-		m_pEater->health_head -= RANDOM_LONG(4, 7);
-		m_pEater->health_chest -= RANDOM_LONG(4, 7);
-		m_pEater->health_stomach -= RANDOM_LONG(4, 7);
-		if (m_pEater->health_armR > 100)
-			m_pEater->health_armR = 100;
-		if (m_pEater->health_armL > 100)
-			m_pEater->health_armL = 100;
-		if (m_pEater->health_legL < 0)
-			m_pEater->health_legL = 0;
-		if (m_pEater->health_legR < 0)
-			m_pEater->health_legR = 0;
-		if (m_pEater->health_head < 0)
-			m_pEater->health_head = 0;
-		if (m_pEater->health_chest < 0)
-			m_pEater->health_chest = 0;
-		if (m_pEater->health_stomach < 0)
-			m_pEater->health_stomach = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(4, 7);
+			if (m_pEater->rgiLimb_Health[i] < 0)
+				m_pEater->rgiLimb_Health[i] = 0;
+		}
 	}
 	else if (m_bloodColor == BLOOD_COLOR_INFECTION)
 	{
@@ -139,27 +124,12 @@ void CoolerGib::EatThink()
 		int increment = RANDOM_LONG(2, 3);
 		m_pEater->Hunger += RANDOM_LONG(2, 3);
 		m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
-		m_pEater->health_armR += RANDOM_LONG(3, 6);
-		m_pEater->health_armL += RANDOM_LONG(3, 6);
-		m_pEater->health_legL -= RANDOM_LONG(3, 6);
-		m_pEater->health_legR -= RANDOM_LONG(3, 6);
-		m_pEater->health_head -= RANDOM_LONG(3, 6);
-		m_pEater->health_chest -= RANDOM_LONG(3, 6);
-		m_pEater->health_stomach -= RANDOM_LONG(3, 6);
-		if (m_pEater->health_armR > 100)
-			m_pEater->health_armR = 100;
-		if (m_pEater->health_armL > 100)
-			m_pEater->health_armL = 100;
-		if (m_pEater->health_legL < 0)
-			m_pEater->health_legL = 0;
-		if (m_pEater->health_legR < 0)
-			m_pEater->health_legR = 0;
-		if (m_pEater->health_head < 0)
-			m_pEater->health_head = 0;
-		if (m_pEater->health_chest < 0)
-			m_pEater->health_chest = 0;
-		if (m_pEater->health_stomach < 0)
-			m_pEater->health_stomach = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(3, 6);
+			if (m_pEater->rgiLimb_Health[i] < 0)
+				m_pEater->rgiLimb_Health[i] = 0;
+		}
 	}
 
 	if (m_pEater->Hunger > 100)

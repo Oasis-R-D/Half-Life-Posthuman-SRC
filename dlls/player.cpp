@@ -131,13 +131,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bleedtime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, Hunger, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_head, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_chest, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_stomach, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_armR, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_armL, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_legL, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, health_legR, FIELD_INTEGER),
+		DEFINE_ARRAY(CBasePlayer, rgiLimb_Health, FIELD_INTEGER, 7), // TO-DO: is this supposed to be 7?
 		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iBurnTimer, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
@@ -347,14 +341,14 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 		case HITGROUP_LEFTARM:
 			flDamage *= gSkillData.plrArm;
 			health_armL -= flDamage*1.25;
-			if (health_armL < 0)
-				health_armL = 0;
+			if (health_armL > 100)
+				health_armL = 100;
 			break;
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
 			health_armR -= flDamage*1.25;
-			if (health_armR < 0)
-				health_armR = 0;
+			if (health_armR > 100)
+				health_armR = 100;
 			break;
 		case HITGROUP_LEFTLEG:
 			flDamage *= gSkillData.plrLeg;
@@ -4692,7 +4686,7 @@ int CBasePlayer::GiveAmmo(int iCount, const char* szName, int iMax)
 
 void CBasePlayer::UpdateCrosshair(double spread, int crosshairtype)
 {
-	GetAutoaimVector(AUTOAIM_10DEGREES); // All guns use 10 degwees now
+	GetAutoaimVector(AUTOAIM_10DEGREES); // All guns use 10 degrees now
 	TraceResult spreadTR;
 	Vector bulletorg;
 	bulletorg = GetGunPosition();
@@ -4898,36 +4892,13 @@ void CBasePlayer::UpdateClientData()
 			{
 				Hunger--;
 				HungerTime = gpGlobals->time + 9;
-				health_armR += RANDOM_LONG(0, 1);
-				health_armL += RANDOM_LONG(0, 1);
-				health_legL -= RANDOM_LONG(0, 1);
-				health_legR -= RANDOM_LONG(0, 1);
-				health_head -= RANDOM_LONG(0, 1);
-				health_chest -= RANDOM_LONG(0, 1);
-				health_stomach -= RANDOM_LONG(0, 1);
-				if (health_armR > 100)
-					health_armR = 100;
-				if (health_armL > 100)
-					health_armL = 100;
-				if (health_legL < 0)
-					health_legL = 0;
-				if (health_legR < 0)
-					health_legR = 0;
-				if (health_head < 0)
-					health_head = 0;
-				if (health_chest < 0)
-					health_chest = 0;
-				if (health_stomach < 0)
-					health_stomach = 0;
-				MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
-				WRITE_BYTE(health_head);
-				WRITE_BYTE(health_chest);
-				WRITE_BYTE(health_stomach);
-				WRITE_BYTE(health_armL);
-				WRITE_BYTE(health_armR);
-				WRITE_BYTE(health_legL);
-				WRITE_BYTE(health_legR);
-				MESSAGE_END();
+
+				for (int i = 0; i < 7; i++)
+				{
+					rgiLimb_Health[i] -= RANDOM_LONG(0, 1);
+					if (rgiLimb_Health[i] < 0)
+						rgiLimb_Health[i] = 0;
+				}
 			}
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgHunger, NULL, pev);

@@ -229,10 +229,10 @@ void CAGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// hit armor
 		if (pev->dmgtime != gpGlobals->time || (RANDOM_LONG(0, 10) < 1))
 		{
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 			UTIL_Sparks(ptr->vecEndPos);
 			pev->dmgtime = gpGlobals->time;
 		}
+
 		flDamage -= 20;
 		if (flDamage <= 0)
 			flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated

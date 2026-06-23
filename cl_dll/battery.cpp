@@ -118,13 +118,13 @@ bool CHudBattery::MsgFunc_LimbDMG(const char* pszName, int iSize, void* pbuf)
 	m_iFlags |= HUD_ACTIVE;
 
 	BEGIN_READ(pbuf, iSize);
-	m_iHealth_head = READ_BYTE();
-	m_iHealth_chest = READ_BYTE();
-	m_iHealth_stmch = READ_BYTE();
-	m_iHealth_Larm = (100 - READ_BYTE());
-	m_iHealth_Rarm = (100 - READ_BYTE());
-	m_iHealth_Lleg = READ_BYTE();
-	m_iHealth_Rleg = READ_BYTE();
+	m_iHealth_head =	READ_BYTE();
+	m_iHealth_chest =	READ_BYTE();
+	m_iHealth_stmch =	READ_BYTE();
+	m_iHealth_Larm =	READ_BYTE();
+	m_iHealth_Rarm =	READ_BYTE();
+	m_iHealth_Lleg =	READ_BYTE();
+	m_iHealth_Rleg =	READ_BYTE();
 	return true;
 }
 

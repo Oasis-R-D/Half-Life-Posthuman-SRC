@@ -1878,7 +1878,6 @@ void CHMiller::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.1);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_helmvisorDUR <= 0)
 			{
@@ -1904,7 +1903,6 @@ void CHMiller::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.05);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_chest <= 0)
 			{
@@ -1929,7 +1927,6 @@ void CHMiller::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir
 				UTIL_Sparks(ptr->vecEndPos);
 			flDamage = round(flDamage * 0.05);
 
-			CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 
 			if (m_iarmor_health_stomach <= 0)
 			{

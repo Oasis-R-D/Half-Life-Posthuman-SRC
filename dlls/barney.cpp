@@ -590,20 +590,18 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						m_helmDUR -= 1;
 						if (m_helmDUR == 0)
 						{
-							SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
+							SetBodygroup(3, HEADWEAR_OFF); // TO-DO: Make this shoot off a helmet at some point :D
 						}
 						flDamage = round(flDamage * 0.2);
 						UTIL_Sparks(ptr->vecEndPos);
 						Vector vecTracerDir = vecDir;
 					
 						vecTracerDir = vecTracerDir * -512;
-
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}
 					else if (flDamage > 44 && m_helmDUR > 0)
 					{
-					m_helmDUR = 0;
-					SetBodygroup(3, HEADWEAR_OFF);
+						m_helmDUR = 0;
+						SetBodygroup(3, HEADWEAR_OFF);
 					}
 				}
 				else
@@ -620,8 +618,6 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 						Vector vecTracerDir = vecDir;
 					
 						vecTracerDir = vecTracerDir * -512;
-
-						CBaseEntity::BulletRic(pevAttacker, vecDir, ptr, bitsDamageType, this); // easier way to handle ricochet
 					}					
 				}
 			}

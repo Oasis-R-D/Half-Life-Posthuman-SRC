@@ -211,7 +211,7 @@ void CM727::PrimaryAttack()
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_8DEGREES);
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	Vector spread = GetBulletSpread();
 	m_flTimeSincePrimary = gpGlobals->time;
@@ -286,7 +286,7 @@ void CM727::WeaponIdle()
 {
 	ResetEmptySound();
 
-	m_pPlayer->GetAutoaimVector(AUTOAIM_8DEGREES);
+	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
