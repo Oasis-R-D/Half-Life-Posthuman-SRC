@@ -626,7 +626,7 @@ void CHGrunt::IdleSound()
 				g_fGruntQuestion = 1;
 				break;
 			case 1: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUESTION", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
 				g_fGruntQuestion = 2;
 				break;
 			case 2: // statement
@@ -1200,7 +1200,7 @@ void CHGrunt::Precache()
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 	PRECACHE_SOUND("weapons/reload3.wav");
 	
-	m_voicePitch = RANDOM_LONG(90, 110);
+	m_voicePitch = RANDOM_LONG(95, 105);
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl");
@@ -2272,6 +2272,13 @@ Schedule_t* CHGrunt::GetSchedule()
 		{
 			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 			{
+				if (FOkToSpeak() && gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
+				{	// Tell player they have been heard
+					pev->dmgtime = gpGlobals->time; // don't repeat often!
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_INVEST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					JustSpoke();
+				}
+
 				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 			}
 		}
