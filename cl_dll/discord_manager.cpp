@@ -1,4 +1,4 @@
-// ================================================== \\
+﻿// ================================================== \\
 // Discord RPC implemenatation
 // Based on code from the Valve Dev Community wiki
 // 
@@ -6,7 +6,7 @@
 // Updated by PackMan09
 // ================================================== \\
 
-// INVESTIGATE: couldn't you use this to enforce only playtesters being able to play? #THESUNISLEAKING
+// TO-DO: couldn't you use this to enforce only playtesters being able to play? #THESUNISLEAKING
 
 #include "hud.h"
 #include "discord_manager.h"
@@ -83,8 +83,8 @@ void DiscordMan_Update(void)
 			break;
 	}
 	
-	// Menu detections, these don't seem to work very well.
-	if (engine_cl->maxclients > 1)
+	
+	if (engine_cl->maxclients > 1) // TO-DO: this probably overwrites the intermission check below!
 	{
 		int playercount = 0;
 		size_t maxplayers = sizeof(engine_cl->players) / sizeof(engine_cl->players[0]);
@@ -95,24 +95,24 @@ void DiscordMan_Update(void)
 		}
 
 		char buffer[64];
-		sprintf(buffer, "MultiPlayer (%d / %d)\n", playercount, engine_cl->maxclients);
+		if (skill == 4)
+			sprintf(buffer, "MultiPlayer %d / %d (Realism)\n", playercount, engine_cl->maxclients);
+		else
+			sprintf(buffer, "MultiPlayer %d / %d\n", playercount, engine_cl->maxclients);
 		State = buffer;
 	}
-	else
+	else if (engine_cl->paused == 1)
 	{
-		if (engine_cl->paused == 1)
-		{
-			char buffer[64];
-			sprintf(buffer, "%s (paused)\n", State.c_str());
-			State = buffer;
-		}
+		char buffer[64];
+		sprintf(buffer, "%s (paused)\n", State.c_str());
+		State = buffer;
 	}
-	if (engine_cl->intermission == 1)
+	else if (engine_cl->intermission == 1)
 	{
 		map = 0;
 		State = "Intermission\n";
 	}
-	if (engine_cls->state != ca_active)
+	else if (engine_cls->state != ca_active)
 	{
 		map = 0;
 		State = "In Main Menus\n";
