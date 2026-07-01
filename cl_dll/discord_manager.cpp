@@ -61,8 +61,12 @@ void DiscordMan_Update(void)
 	snprintf(curImage, sizeof(curImage) - 1, strncmp(gEngfuncs.pfnGetCvarString("rpc_image"), "", sizeof(curImage)) ? gEngfuncs.pfnGetCvarString("rpc_image") : defaultLogo);
 
 	int skill = int(gEngfuncs.pfnGetCvarFloat("skill"));
+	int skill_ovr = int(gEngfuncs.pfnGetCvarFloat("skill_override"));
 	const char* map = curArea;
 	
+	if (skill < skill_ovr)
+		skill = skill_ovr;
+
 	switch (skill)
 	{
 		case 1:
@@ -96,17 +100,19 @@ void DiscordMan_Update(void)
 	}
 	else
 	{
-		if (engine_cl->paused)
+		if (engine_cl->paused == 1)
 		{
-			State = "In Menus\n";
+			char buffer[64];
+			sprintf(buffer, "%s (paused)\n", State.c_str());
+			State = buffer;
 		}
 	}
-	if (engine_cl->intermission)
+	if (engine_cl->intermission == 1)
 	{
 		map = 0;
 		State = "Intermission\n";
 	}
-	if (engine_cls->state == ca_disconnected)
+	if (engine_cls->state != ca_active)
 	{
 		map = 0;
 		State = "In Main Menus\n";
