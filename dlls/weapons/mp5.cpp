@@ -29,8 +29,8 @@ LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 //=========================================================
 //						   MP5EOD
 //=========================================================
-#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.125f	// Applied amount of time each shot adds to the time we must recover from
-#define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+#define	MP5_ACCURACY_SHOT_PENALTY_TIME		0.0625f	// Applied amount of time each shot adds to the time we must recover from
+#define	MP5_ACCURACY_MAXIMUM_PENALTY_TIME	0.075f	// Maximum penalty to deal out
 
 void CMP5::Spawn()
 {
@@ -129,7 +129,7 @@ void CMP5::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CMP5::GetBulletSpread()

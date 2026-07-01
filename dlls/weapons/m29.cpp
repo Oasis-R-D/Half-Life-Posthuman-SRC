@@ -193,7 +193,7 @@ void CM29::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M29_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CM29::GetBulletSpread()

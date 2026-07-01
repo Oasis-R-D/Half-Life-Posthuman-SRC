@@ -4698,7 +4698,7 @@ void CBasePlayer::UpdateCrosshair(double spread, int crosshairtype)
 		spreadfixed = CONE_1DEGREES;
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgCrossHair, NULL, pev);
-	WRITE_FLOAT(spreadfixed);
+	WRITE_FLOAT(spreadfixed*1.25); // multiply by 1.25 to make movements bigger and more intense
 	WRITE_BYTE(crosshairtype);				  
 	MESSAGE_END();
 

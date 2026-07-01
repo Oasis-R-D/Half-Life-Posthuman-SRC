@@ -21,9 +21,9 @@
 #include "player.h"
 #include "physical_bullet.h"
 
-#define PISTOL_FASTEST_REFIRE_TIME				0.15f	// spam clicking firerate
+#define PISTOL_FASTEST_REFIRE_TIME				0.2f	// spam clicking firerate
 #define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	2.25f	// Maximum penalty to deal out
+#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	0.5f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_glock, CGlock);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CGlock);
@@ -170,7 +170,7 @@ void CGlock::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 
 	if (m_iClip <= 0)
 		return;

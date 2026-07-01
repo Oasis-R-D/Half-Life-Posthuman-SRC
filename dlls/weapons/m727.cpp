@@ -27,8 +27,8 @@
 //=========================================================
 // M727
 //=========================================================
-#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.125f	// Applied amount of time each shot adds to the time we must recover from
-#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.5f	// Maximum penalty to deal out
+#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.0625f	// Applied amount of time each shot adds to the time we must recover from
+#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.125f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 
@@ -167,7 +167,7 @@ void CM727::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CM727::GetBulletSpread()
@@ -177,7 +177,7 @@ const Vector& CM727::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_3DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_3DEGREES, ramp, cone );
 	
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_1DEGREES;

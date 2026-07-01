@@ -20,8 +20,8 @@
 #include "decals.h"
 #include "skill.h"
 
-#define	SPTH_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	SPTH_ACCURACY_MAXIMUM_PENALTY_TIME	1.25f	// Maximum penalty to deal out
+#define	SPTH_ACCURACY_SHOT_PENALTY_TIME		0.025f	// Applied amount of time each shot adds to the time we must recover from
+#define	SPTH_ACCURACY_MAXIMUM_PENALTY_TIME	0.625f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_spitthrower, CSpitThrower);
 
@@ -85,7 +85,7 @@ void CSpitThrower::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SPTH_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CSpitThrower::GetBulletSpread()

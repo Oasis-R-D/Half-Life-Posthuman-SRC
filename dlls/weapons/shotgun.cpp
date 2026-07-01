@@ -23,8 +23,8 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
-#define	SG_ACCURACY_SHOT_PENALTY_TIME		1	// Applied amount of time each shot adds to the time we must recover from
-#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f		// Maximum penalty to deal out
+#define	SG_ACCURACY_SHOT_PENALTY_TIME		0.3333f		// Applied amount of time each shot adds to the time we must recover from
+#define	SG_ACCURACY_MAXIMUM_PENALTY_TIME	1.1666f		// Maximum penalty to deal out
 
 // TO-DO: fix shell coming out of weapon on draw if holstered before pumped (play pumping animation)
 LINK_ENTITY_TO_CLASS(weapon_shotgun, CShotgun);
@@ -95,7 +95,7 @@ bool CShotgun::Deploy()
 	if (g_pGameRules->IsMultiplayer())
 		NotFirstDraw = true;
 
-	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME;
+	m_flAccuracyPenalty = SG_ACCURACY_MAXIMUM_PENALTY_TIME/2;
 
 	m_flPumpTime = 0; // Hack, should probably find a way to tell it to pump the gun after the draw is done
 
@@ -126,10 +126,10 @@ void CShotgun::ItemPreFrame()
 	// Check our penalty time decay
 	if ( /*( (m_pPlayer->m_afButtonLast & IN_ATTACK) == 0) &&*/ ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
 	{
-		m_flAccuracyPenalty -= 2*gpGlobals->frametime;
+		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, SG_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CShotgun::GetBulletSpread()
@@ -149,7 +149,7 @@ const Vector& CShotgun::GetBulletSpread()
 	}
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
-		cone = cone + VECTOR_CONE_2DEGREES;
+		cone = cone + VECTOR_CONE_1DEGREES;
 
 	return cone;
 }

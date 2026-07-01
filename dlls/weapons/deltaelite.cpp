@@ -23,8 +23,8 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
-#define	ELITE_ACCURACY_SHOT_PENALTY_TIME	0.5f	// Applied amount of time each shot adds to the time we must recover from
-#define	ELITE_ACCURACY_MAXIMUM_PENALTY_TIME	1.5		// Maximum penalty to deal out
+#define	ELITE_ACCURACY_SHOT_PENALTY_TIME	0.1875f	// Applied amount of time each shot adds to the time we must recover from
+#define	ELITE_ACCURACY_MAXIMUM_PENALTY_TIME	0.375f		// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_elite, CElite);
 LINK_ENTITY_TO_CLASS(weapon_10mmhandgun, CElite);
@@ -111,7 +111,7 @@ void CElite::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, ELITE_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CElite::GetBulletSpread()
@@ -121,7 +121,7 @@ const Vector& CElite::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, ELITE_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( g_vecZero, VECTOR_CONE_4DEGREES, ramp, cone );
+	VectorLerp( g_vecZero, VECTOR_CONE_5DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_2DEGREES;

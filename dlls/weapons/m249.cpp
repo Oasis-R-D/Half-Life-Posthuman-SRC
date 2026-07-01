@@ -22,8 +22,8 @@
 #include "monsters.h"
 #include "physical_bullet.h"
 
-#define	M249_ACCURACY_SHOT_PENALTY_TIME		0.05f	// Applied amount of time each shot adds to the time we must recover from
-#define	M249_ACCURACY_MAXIMUM_PENALTY_TIME	3.5f	// Maximum penalty to deal out
+#define	M249_ACCURACY_SHOT_PENALTY_TIME		0.016666f	// Applied amount of time each shot adds to the time we must recover from
+#define	M249_ACCURACY_MAXIMUM_PENALTY_TIME	1.166666f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_m249, CM249);
 
@@ -130,7 +130,7 @@ void CM249::ItemPreFrame()
 		m_flAccuracyPenalty -= gpGlobals->frametime;
 		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, M249_ACCURACY_MAXIMUM_PENALTY_TIME );
 	}
-	//ALERT(at_console, "m_flAccuracyPenalty: %f \n", m_flAccuracyPenalty);
+
 }
 
 const Vector& CM249::GetBulletSpread()
