@@ -252,18 +252,19 @@ void CBasePlayer::DeathSound()
 	}
 	*/
 
-	// temporarily using pain sounds for death sounds
+	// TO-DO: find proper channel to use
 	switch (RANDOM_LONG(1, 5))
 	{
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_AUTO, "derek/death1.wav", 1, ATTN_NORM);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death2.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_AUTO, "derek/death2.wav", 1, ATTN_NORM);
 		break;
 	case 3:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "derek/death3.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_AUTO, "derek/death3.wav", 1, ATTN_NORM);
 		break;
+	default: break;
 	}
 
 	// play the suit death alarm
@@ -348,13 +349,13 @@ void CBasePlayer::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vec
 			break;
 		case HITGROUP_LEFTARM:
 			flDamage *= gSkillData.plrArm;
-			health_armL -= flDamage*1.25;
+			health_armL += flDamage*1.25;
 			if (health_armL > 100)
 				health_armL = 100;
 			break;
 		case HITGROUP_RIGHTARM:
 			flDamage *= gSkillData.plrArm;
-			health_armR -= flDamage*1.25;
+			health_armR += flDamage*1.25;
 			if (health_armR > 100)
 				health_armR = 100;
 			break;
@@ -468,7 +469,8 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 		return false;
 	}
 
-	Pain();
+	if (flDamage > 5 && (bool)RANDOM_LONG(0,1))
+		Pain();
 
 	// keep track of amount of damage last sustained
 	m_lastDamageAmount = flDamage;
@@ -1084,6 +1086,8 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	m_iBurnTimer = 0;
 	m_bInGrenadeDelay = false;
 	m_bInGrenade = false;
+
+	// TO-DO: make not play sfx
 	FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
 }
 
