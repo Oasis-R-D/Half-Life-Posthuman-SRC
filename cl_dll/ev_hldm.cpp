@@ -478,7 +478,7 @@ void EV_FireGlock1(event_args_t* args)
 		else
 			EV_WeaponAnimation(empty ? GLOCK_SHOOT_EMPTY_SILENCER : GLOCK_SHOOT_SILENCER, 1);
 
-		V_PunchAxis(0, -1.0);
+		V_PunchAxis(0, -1);
 	}
 
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 19, -10, 6);

@@ -252,7 +252,6 @@ void CBasePlayer::DeathSound()
 	}
 	*/
 
-	// TO-DO: find proper channel to use
 	switch (RANDOM_LONG(1, 5))
 	{
 	case 1:
@@ -1087,8 +1086,8 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	m_bInGrenadeDelay = false;
 	m_bInGrenade = false;
 
-	// TO-DO: make not play sfx
-	FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
+	if (m_bLightOn)
+		FlashlightTurnOff(); // Prevents player from moving their flashlight around (dead men don't move no lights)
 }
 
 

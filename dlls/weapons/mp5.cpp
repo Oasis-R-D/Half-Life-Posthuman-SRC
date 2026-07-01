@@ -139,10 +139,10 @@ const Vector& CMP5::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, MP5_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_2DEGREES, VECTOR_CONE_5DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_2DEGREES, VECTOR_CONE_4DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
-		cone = cone + VECTOR_CONE_2DEGREES;
+		cone = cone + VECTOR_CONE_1DEGREES;
 
 	return cone;
 }
@@ -246,7 +246,7 @@ void CMP5::PrimaryAttack()
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, spread.x, spread.y, 1, 69, m_pPlayer->edict());
 	}
 
-	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 0.8 : -0.9, 1);
+	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 1.2 : -0.8, 1);
 	#endif
 
 	int flags;

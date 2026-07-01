@@ -189,7 +189,7 @@ const Vector& CGlock::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_4DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_1DEGREES;
@@ -281,11 +281,11 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
-		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(0.85, 1.00));
+		CBasePlayerWeapon::Recoil(1.33, RANDOM_FLOAT(0.85, 1.00));
 	}
 	else
 	{
-		CBasePlayerWeapon::Recoil(1, RANDOM_FLOAT(1.00, 1.15));
+		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(1.00, 1.15));
 	}
 	#endif
 

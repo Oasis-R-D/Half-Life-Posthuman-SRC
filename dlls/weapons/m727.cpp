@@ -180,7 +180,7 @@ const Vector& CM727::GetBulletSpread()
 	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_3DEGREES, ramp, cone );
 	
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
-		cone = cone + VECTOR_CONE_1DEGREES;
+		cone = cone + VECTOR_CONE_3DEGREES;
 
 	return cone;
 }
