@@ -477,20 +477,17 @@ void CHoundeye::AlertSound()
 //=========================================================
 void CHoundeye::DeathSound()
 {
-	if (m_bRailed == false)
+	switch (RANDOM_LONG(0, 2))
 	{
-		switch (RANDOM_LONG(0, 2))
-		{
-		case 0:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die1.wav", 1, ATTN_NORM);
-			break;
-		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die2.wav", 1, ATTN_NORM);
-			break;
-		case 2:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die3.wav", 1, ATTN_NORM);
-			break;
-		}
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die1.wav", 1, ATTN_NORM);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die2.wav", 1, ATTN_NORM);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "houndeye/he_die3.wav", 1, ATTN_NORM);
+		break;
 	}
 }
 

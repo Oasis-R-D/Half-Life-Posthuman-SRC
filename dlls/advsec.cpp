@@ -1189,10 +1189,7 @@ void CAdvSec::Precache()
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 
 	// get voice pitch
-	if (RANDOM_LONG(0, 1))
-		m_voicePitch = 109 + RANDOM_LONG(0, 7);
-	else
-		m_voicePitch = 100;
+	m_voicePitch = 100 + RANDOM_LONG(-5, 5);
 
 	m_iBrassShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	m_iShotgunShell = PRECACHE_MODEL("models/shotgunshell.mdl");
@@ -1323,34 +1320,32 @@ void CAdvSec::PainSound()
 //=========================================================
 void CAdvSec::DeathSound()
 {
-	if (!m_bRailed)
+	switch (RANDOM_LONG(0, 2))
+	{
+		case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE);
+		break;
+		case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE);
+		break;
+		case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
+		break;
+	}
+
+	if (m_hashealthmonitor)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{
-			case 0:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE);
+		case 0:
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_NORM);
 			break;
-			case 1:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE);
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_NORM);
 			break;
-			case 2:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE);
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_NORM);
 			break;
-		}
-		if (m_hashealthmonitor)
-		{
-			switch (RANDOM_LONG(0, 2))
-			{
-			case 0:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_NORM);
-				break;
-			case 1:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_NORM);
-				break;
-			case 2:
-				EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_NORM);
-				break;
-			}
 		}
 	}
 }
@@ -2318,6 +2313,13 @@ Schedule_t* CAdvSec::GetSchedule()
 		{
 			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 			{
+				if (FOkToSpeak() && gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
+				{	// Tell player they have been heard
+					pev->dmgtime = gpGlobals->time; // don't repeat often!
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_INVEST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+					JustSpoke();
+				}
+
 				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 			}
 		}

@@ -470,21 +470,18 @@ void CPitdrone::PainSound()
 //=========================================================
 void CPitdrone::DeathSound()
 {
-	if (m_bRailed == false)
+	switch (RANDOM_LONG(0, 2))
 	{
-		switch (RANDOM_LONG(0, 2))
-		{
-		case 0:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die1.wav", 1, 1.25);
-			break;
-		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die2.wav", 1, 1.25);
-			break;
-		case 2:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die3.wav", 1, 1.25);
-			break;
-			break;
-		}
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die1.wav", 1, 1.25);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die2.wav", 1, 1.25);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "pitdrone/pit_drone_die3.wav", 1, 1.25);
+		break;
+		break;
 	}
 }
 

@@ -2122,39 +2122,6 @@ void CBasePlayer::UpdateStatusBar()
 
 void CBasePlayer::PH_additions()
 {
-	if (m_bRailed)
-	{
-		TraceResult tr;
-		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
-		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
-		if (RANDOM_LONG(0, 2) == 1 && BloodColor() != DONT_BLEED)
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0);
-
-		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0)
-		{
-			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
-			TakeDamage(pev, pev, 30, DMG_BLAST);
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_EXPLOSIONCLUST, 1, 0, 0);
-			
-			MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, pev->origin);
-			WRITE_BYTE(TE_EXPLOSION);	// This makes a dynamic light and the explosion sprites/sound
-			WRITE_COORD(pev->origin.x); // Send to PAS because of the sound
-			WRITE_COORD(pev->origin.y);
-			WRITE_COORD(pev->origin.z);
-			WRITE_SHORT(g_sModelIndexFireball);
-			WRITE_BYTE(0); // scale * 10
-			WRITE_BYTE(15);					   // framerate
-			WRITE_BYTE(TE_EXPLFLAG_NONE);
-			MESSAGE_END();
-
-			m_flRailChargeTime = 0;
-			m_bRailed = false;
-		}
-	}
-}
-
-void CBasePlayer::PreThink()
-{
 	if (m_dbFireCheckTimer <= gpGlobals->time && m_iBurnTimer > 0)
 	{
 		if(pev->waterlevel > 0) 
@@ -2194,7 +2161,10 @@ void CBasePlayer::PreThink()
 
 		m_dbFireCheckTimer = gpGlobals->time + 0.1;
 	}
+}
 
+void CBasePlayer::PreThink()
+{
 	int buttonsChanged = (m_afButtonLast ^ pev->button); // These buttons have changed this frame
 
 	// Debounced button codes for pressed/released

@@ -120,24 +120,7 @@ void CCrossbowBolt::BoltTouch(CBaseEntity* pOther)
 	if (pOther->pev->takedamage != DAMAGE_NO)
 	{
 		entvars_t* pevOwner = VARS(Owner);
-		/*
-		if ((pOther->pev->flags & FL_MONSTER) != 0)
-		{
-			auto monster = pOther->MyMonsterPointer();
-			if (monster->pev->deadflag == DEAD_DEAD)
-			{
-				monster->pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
-				monster->SetThink(&CBaseMonster::DeadMonsterThink);
-			}
-			monster->m_bRailed = true;
-			monster->m_flRailChargeTime = gpGlobals->time + 1.5;
-		}
-		else if (pOther->IsPlayer())
-		{
-			CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(pOther);
-			pPlayer->m_bRailed = true;
-			pPlayer->m_flRailChargeTime = gpGlobals->time + 1.5;
-		} */
+
 		ClearMultiDamage();
 		pOther->TraceAttack(pevOwner, 200, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_ALWAYSGIB);
 		ApplyMultiDamage(pev, pevOwner);

@@ -207,10 +207,7 @@ void CArcher::BiteSound()
 
 void CArcher::DeathSound()
 {
-	if (m_bRailed == false)
-	{
-		EMIT_ICKY_SOUND(CHAN_VOICE, pDieSounds);
-	}
+	EMIT_ICKY_SOUND(CHAN_VOICE, pDieSounds);
 }
 
 void CArcher::PainSound()

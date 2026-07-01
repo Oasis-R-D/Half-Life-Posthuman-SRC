@@ -118,8 +118,6 @@ public:
 	bool m_bShouldPool = true;
 	int m_iPoolTime; // 10 seconds
 	virtual int PoolAtt() { return -1; }
-	bool m_bRailed = false;
-	float m_flRailChargeTime;
 
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;

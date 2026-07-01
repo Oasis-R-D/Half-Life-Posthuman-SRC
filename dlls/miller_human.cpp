@@ -769,8 +769,7 @@ bool CHMiller::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CHMiller::DeathSound()
 {
-	if (m_bRailed == false)
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
 }
 
 //=========================================================

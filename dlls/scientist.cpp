@@ -813,10 +813,7 @@ void CScientist::PainSound()
 //=========================================================
 void CScientist::DeathSound()
 {
-	if (m_bRailed == false)
-	{
-		PainSound();
-	}
+	PainSound();
 }
 
 

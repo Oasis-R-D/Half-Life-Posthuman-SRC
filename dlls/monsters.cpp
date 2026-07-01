@@ -105,7 +105,6 @@ TYPEDESCRIPTION CBaseMonster::m_SaveData[] =
 		DEFINE_FIELD(CBaseMonster, m_scriptState, FIELD_INTEGER),
 		DEFINE_FIELD(CBaseMonster, m_pCine, FIELD_CLASSPTR),
 		DEFINE_FIELD(CBaseMonster, m_AllowItemDropping, FIELD_BOOLEAN),
-		DEFINE_FIELD(CBaseMonster, m_bRailed, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_bPrehuman, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_bShouldPool, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBaseMonster, m_iPoolTime, FIELD_INTEGER),
@@ -570,7 +569,8 @@ void CBaseMonster::PH_additions()
 		}
 	}
 
-	if (m_flMaxDistTooFar != m_flDistTooFar) // flashbang/blindness recovery
+	// flashbang/blindness recovery
+	if (m_flMaxDistTooFar != m_flDistTooFar)
 	{
 		m_flDistTooFar += 4;
 		if (m_flDistTooFar > m_flMaxDistTooFar)
@@ -581,33 +581,6 @@ void CBaseMonster::PH_additions()
 		m_flDistLook += 4;
 		if (m_flDistLook > m_flMaxDistLook)
 			m_flDistLook = m_flMaxDistLook;
-	}
-
-	if (m_bRailed)
-	{
-		TraceResult tr;
-		UTIL_TraceLine(Center(), Center(), dont_ignore_monsters, edict(), &tr);
-		Vector RandBox = (gpGlobals->v_forward * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_up * RANDOM_FLOAT(-8, 8)) + (gpGlobals->v_right * RANDOM_FLOAT(-8, 8));
-
-		if (RANDOM_LONG(0, 1) == 1 && BloodColor() != DONT_BLEED)
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, RandBox, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0);
-
-		pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
-
-		if (m_flRailChargeTime < gpGlobals->time && m_flRailChargeTime != 0) // Explode
-		{
-			RadiusDamage(pev, pev, 30, CLASS_NONE, DMG_BLAST);
-			CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
-			Killed(pev, GIB_ALWAYS);
-
-			m_flRailChargeTime = 0;
-			m_bRailed = false;
-			pev->velocity = g_vecZero;
-
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), gpGlobals->v_up, 16.0, 0.0, PE_NPC_IMPACT, BloodColor(), 0, 0); // To-Do: spawn X16 (use fparam2)
-			
-			UTIL_BloodDrips(Center(), g_vecZero, BloodColor(), 256);
-		}
 	}
 }
 

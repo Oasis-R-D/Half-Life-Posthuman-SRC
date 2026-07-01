@@ -65,9 +65,6 @@ public:
 	void SetActivity(Activity NewActivity) override; //overriden to change anims
 
 	bool CheckRangeAttack2(float flDot, float flDist) override;
-	void DeathSound() override;
-	void PainSound() override;
-	void IdleSound() override;
 	void Shotgun();
 	void M249();
 	void Killed(entvars_t* pevAttacker, int iGib) override;
@@ -747,66 +744,6 @@ bool CHGruntHeavy::CheckRangeAttack2(float flDot, float flDist)
 
 
 	return m_fThrowGrenade;
-}
-
-//=========================================================
-// DeathSound
-//=========================================================
-void CHGruntHeavy::DeathSound()
-{
-	if (m_bRailed == false)
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/death%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
-}
-
-//=========================================================
-// PainSound
-//=========================================================
-void CHGruntHeavy::PainSound()
-{
-	if (gpGlobals->time > m_flNextPainTime)
-	{
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, UTIL_VarArgs("fgrunt/pain%d.wav", RANDOM_LONG(1, 6)), 1, ATTN_NORM);
-		m_flNextPainTime = gpGlobals->time + 1;
-	}
-}
-
-void CHGruntHeavy::IdleSound()
-{
-	if (FOkToSpeak() && (0 != g_fGruntHeavyQuestion || RANDOM_LONG(0, 1)))
-	{
-		if (0 == g_fGruntHeavyQuestion)
-		{
-			// ask question or make statement
-			switch (RANDOM_LONG(0, 2))
-			{
-			case 0: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CHECK", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntHeavyQuestion = 1;
-				break;
-			case 1: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				g_fGruntHeavyQuestion = 2;
-				break;
-			case 2: // statement
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_IDLE", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			}
-		}
-		else
-		{
-			switch (g_fGruntHeavyQuestion)
-			{
-			case 1: // check in
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_CLEAR", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			case 2: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_ANSWER", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
-				break;
-			}
-			g_fGruntHeavyQuestion = 0;
-		}
-		JustSpoke();
-	}
 }
 
 //=========================================================
