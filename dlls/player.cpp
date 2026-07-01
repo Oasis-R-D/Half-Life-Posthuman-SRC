@@ -145,10 +145,18 @@ LINK_ENTITY_TO_CLASS(player, CBasePlayer);
 
 void CBasePlayer::Pain()
 {
-	int pitch = 95 + RANDOM_LONG(0, 9);
-
+	// TO-DO: what do we do here in prehuman?
 	if (RANDOM_LONG(0, 5) < 2)
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, RANDOM_LONG(0, 1) ? "derek/pain1.wav" : "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch);
+	{
+		int pitch = 99 + RANDOM_LONG(0, 2);
+
+		switch (RANDOM_LONG(0, 2))
+		{
+		case 0: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain1.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		case 1: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		case 2: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain3.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		}
+	}
 }
 
 Vector VecVelocityForDamage(float flDamage)
