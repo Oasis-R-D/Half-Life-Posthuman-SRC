@@ -99,7 +99,7 @@ public:
 	bool m_fThrowGrenade;
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
-	bool M_HasHelm = false;
+	bool m_bHelmet = false;
 	bool m_hasdroppedwpn = false;
 
 	int m_cClipSize;
@@ -166,7 +166,7 @@ TYPEDESCRIPTION CHMiller::m_SaveData[] =
 		//  DEFINE_FIELD( CShotgun, m_iBrassShell, FIELD_INTEGER ),
 		//  DEFINE_FIELD( CShotgun, m_iShotgunShell, FIELD_INTEGER ),
 		DEFINE_FIELD(CHMiller, m_iSentence, FIELD_INTEGER),
-		DEFINE_FIELD(CHMiller, m_helmDUR, FIELD_INTEGER),
+		DEFINE_FIELD(CHMiller, m_iHelmHealth, FIELD_INTEGER),
 		DEFINE_FIELD(CHMiller, m_helmvisorDUR, FIELD_INTEGER),
 		DEFINE_FIELD(CHMiller, m_iarmor_health_chest, FIELD_INTEGER),
 		DEFINE_FIELD(CHMiller, m_iarmor_health_stomach, FIELD_INTEGER),

@@ -89,7 +89,8 @@ public:
 	int m_iShell;
 	int m_iArmor;
 	int m_iHelmet;
-	int m_helmDUR = 3;
+	int m_iHelmHealth;
+
 	CUSTOM_SCHEDULES;
 };
 
@@ -429,9 +430,16 @@ void CBarney::Spawn()
 	
 	SET_MODEL(ENT(pev), "models/barney.mdl");
 	if (g_iSkillLevel != SKILL_REALISM)
+	{
+		m_iHelmHealth = 30;
 		pev->health = gSkillData.barneyHealth;
+	}
 	else
+	{
+		m_iHelmHealth = 100;
 		pev->health = 100;
+	}
+
 	m_cAmmoLoaded = pev->armortype = GLOCK_MAX_CLIP;
 
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
@@ -557,21 +565,10 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(0) != 1)
 			{
-				if (g_iSkillLevel != SKILL_REALISM)
-				{
-					flDamage = round(flDamage * 0.8);
-				}
-				else
-				{
-					flDamage = round(flDamage * 0.7);
-				}
+				flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+
 				if (RANDOM_LONG(0,1) == 1)
 					UTIL_Sparks(ptr->vecEndPos);
-			}
-			else
-			{
-				flDamage = flDamage;
-				break;
 			}
 		}
 		break;
@@ -580,42 +577,19 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(3) != 1)
 			{
-				if (g_iSkillLevel != SKILL_REALISM)
+				m_iHelmHealth -= flDamage;
+				if (m_iHelmHealth <= 0)
 				{
-					if (flDamage < 45 && m_helmDUR > 0)
-					{
-						m_helmDUR -= 1;
-						if (m_helmDUR == 0)
-						{
-							SetBodygroup(3, HEADWEAR_OFF); // TO-DO: Make this shoot off a helmet at some point :D
-						}
-						flDamage = round(flDamage * 0.2);
-						UTIL_Sparks(ptr->vecEndPos);
-						Vector vecTracerDir = vecDir;
-					
-						vecTracerDir = vecTracerDir * -512;
-					}
-					else if (flDamage > 44 && m_helmDUR > 0)
-					{
-						m_helmDUR = 0;
-						SetBodygroup(3, HEADWEAR_OFF);
-					}
+					SetBodygroup(3, HEADWEAR_OFF); // TO-DO: Make this shoot off a helmet at some point :D
 				}
-				else
+
+				// absorb damage
+				flDamage -= g_iSkillLevel == SKILL_REALISM ? 30 : 10;
+				if (flDamage <= 0)
 				{
-					if (m_helmDUR > 0)
-					{
-						m_helmDUR -= 1;
-						if (m_helmDUR == 0)
-						{
-							SetBodygroup(3, HEADWEAR_OFF); // Make this shoot off a helmet at some point :D
-						}
-						flDamage = round(flDamage * 0.2);
-						UTIL_Sparks(ptr->vecEndPos);
-						Vector vecTracerDir = vecDir;
-					
-						vecTracerDir = vecTracerDir * -512;
-					}					
+					UTIL_Ricochet(ptr->vecEndPos, 1.0);
+					flDamage = 0.01;
+					m_bloodColor = DONT_BLEED;
 				}
 			}
 		}
@@ -625,6 +599,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	}
 
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
+	m_bloodColor = BLOOD_COLOR_RED;
 }
 
 

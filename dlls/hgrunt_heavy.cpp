@@ -94,11 +94,11 @@ public:
 	bool m_fThrowGrenade;
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
-	bool M_HasHelm = false;
+	bool m_bHelmet = false;
 	bool m_hasdroppedwpn = false;
 
 	int m_cClipSize;
-	int m_tankhealth = 30;
+	int m_bFuelTankHealth = 30;
 	int m_voicePitch;
 
 	int m_iBrassShell;
@@ -108,7 +108,7 @@ public:
 	int m_iShell;
 	int m_iLink;
 
-	#define m_helmDUR					m_rgiArmor_health[0]
+	#define m_iHelmHealth					m_rgiArmor_health[0]
 	#define m_helmvisorDUR				m_rgiArmor_health[1]
 	#define m_iarmor_health_chest		m_rgiArmor_health[2]
 	#define m_iarmor_health_stomach		m_rgiArmor_health[3]
@@ -1901,13 +1901,12 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	// check for helmet shot
-	if (ptr->iHitgroup == HITGROUP_HEAVY_HELMET)
+	else if (ptr->iHitgroup == HITGROUP_HEAVY_HELMET)
 	{
-		if (m_helmDUR > 0)
+		if (m_iHelmHealth > 0)
 		{
 			m_bloodColor = DONT_BLEED;
-			m_helmDUR -= flDamage;
+			m_iHelmHealth -= flDamage;
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
 
@@ -1915,7 +1914,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			if (flDamage <= 0)
 				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated
 
-			if (m_helmDUR <= 0)
+			if (m_iHelmHealth <= 0)
 			{
 				m_bloodColor = BLOOD_COLOR_RED;
 				// remove armor
@@ -1929,7 +1928,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	if (ptr->iHitgroup == HITGROUP_HEAVY_VISOR)
+	else if (ptr->iHitgroup == HITGROUP_HEAVY_VISOR)
 	{
 		if (m_helmvisorDUR > 0)
 		{
@@ -1956,7 +1955,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	if (ptr->iHitgroup == HITGROUP_CHEST)
+	else if (ptr->iHitgroup == HITGROUP_CHEST)
 	{
 		if (m_iarmor_health_chest > 0)
 		{
@@ -1982,7 +1981,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			flDamage = round(flDamage * 0.75);
 		}
 	}
-	if (ptr->iHitgroup == HITGROUP_STOMACH)
+	else if (ptr->iHitgroup == HITGROUP_STOMACH)
 	{
 		if (m_iarmor_health_stomach > 0)
 		{
@@ -2008,7 +2007,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			flDamage = round(flDamage * 0.75);
 		}
 	}
-	if (ptr->iHitgroup == HITGROUP_LEFTARM)
+	else if (ptr->iHitgroup == HITGROUP_LEFTARM)
 	{
 		if (m_iarmor_health_leftarm > 0)
 		{
@@ -2034,7 +2033,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			flDamage = round(flDamage * 0.75);
 		}
 	}
-	if (ptr->iHitgroup == HITGROUP_RIGHTARM)
+	else if (ptr->iHitgroup == HITGROUP_RIGHTARM)
 	{
 		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_rightarm > 0)
@@ -2060,7 +2059,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			flDamage = round(flDamage * 0.75);
 		}
 	}
-	if (ptr->iHitgroup == HITGROUP_LEFTLEG)
+	else if (ptr->iHitgroup == HITGROUP_LEFTLEG)
 	{
 		m_bloodColor = DONT_BLEED;
 		if (m_iarmor_health_leftleg > 0)
@@ -2086,7 +2085,7 @@ void CHGruntHeavy::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 			flDamage = round(flDamage * 0.75);
 		}
 	}
-	if (ptr->iHitgroup == HITGROUP_RIGHTLEG)
+	else if (ptr->iHitgroup == HITGROUP_RIGHTLEG)
 	{
 		if (m_iarmor_health_rightleg > 0)
 		{

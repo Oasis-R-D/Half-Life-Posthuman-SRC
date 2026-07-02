@@ -144,13 +144,13 @@ public:
 	bool m_fThrowGrenade;
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
-	bool M_HasHelm = false;
+	bool m_bHelmet = false;
 	bool m_hasdroppedwpn = false;
 	bool m_medic = false;
-	bool m_fuel = false;
+	bool m_bFuelTank = false;
 	bool m_bHeavyGrunt = false;
 	int m_cClipSize;
-	int m_tankhealth = 20;
+	int m_bFuelTankHealth = 20;
 	int m_voicePitch;
 
 	int m_iBrassShell;
@@ -160,7 +160,7 @@ public:
 	int m_iShell;
 	int m_iLink;
 
-	int m_helmDUR;
+	int m_iHelmHealth;
 
 	static const char* pGruntSentences[];
 };

@@ -344,7 +344,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
-				pGrunt->M_HasHelm = true;
+				pGrunt->m_bHelmet = true;
 			break;
 			case 1: // shotgunner
 				pGrunt->pev->weapons = HGRUNT_SHOTGUN;
@@ -352,7 +352,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				{
 				case 0:
 					pGrunt->SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_HELM_5, HEAD_HELM_6)));
-					pGrunt->M_HasHelm = true;
+					pGrunt->m_bHelmet = true;
 					break;
 				case 1:
 					pGrunt->SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
@@ -396,7 +396,7 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 				}
 				pGrunt->SetBodygroup(TORSO_GROUP, TORSO_M249);
 				pGrunt->pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
-				pGrunt->M_HasHelm = true;
+				pGrunt->m_bHelmet = true;
 			break;
 			}
 

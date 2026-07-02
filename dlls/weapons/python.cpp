@@ -198,6 +198,8 @@ void CPython::PrimaryAttack()
 	{
 		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	}
+
+	CBasePlayerWeapon::Recoil(4, 0);
 	#endif
 
 	int flags;
@@ -214,11 +216,8 @@ void CPython::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	m_flNextPrimaryAttack = 0.125;
+	m_flNextPrimaryAttack = 0.33;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-#ifndef CLIENT_DLL
-		CBasePlayerWeapon::Recoil(4, 0);
-#endif
 }
 
 

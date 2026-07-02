@@ -83,10 +83,10 @@ TYPEDESCRIPTION CHGrunt::m_SaveData[] =
 		DEFINE_FIELD(CHGrunt, m_cClipSize, FIELD_INTEGER),
 		DEFINE_FIELD(CHGrunt, m_voicePitch, FIELD_INTEGER),
 		DEFINE_FIELD(CHGrunt, m_iSentence, FIELD_INTEGER),
-		DEFINE_FIELD(CHGrunt, m_helmDUR, FIELD_INTEGER),
-		DEFINE_FIELD(CHGrunt, m_tankhealth, FIELD_INTEGER),
-		DEFINE_FIELD(CHGrunt, M_HasHelm, FIELD_BOOLEAN),
-		DEFINE_FIELD(CHGrunt, m_fuel, FIELD_BOOLEAN),
+		DEFINE_FIELD(CHGrunt, m_iHelmHealth, FIELD_INTEGER),
+		DEFINE_FIELD(CHGrunt, m_bFuelTankHealth, FIELD_INTEGER),
+		DEFINE_FIELD(CHGrunt, m_bHelmet, FIELD_BOOLEAN),
+		DEFINE_FIELD(CHGrunt, m_bFuelTank, FIELD_BOOLEAN),
 		DEFINE_FIELD(CHGrunt, m_medic, FIELD_BOOLEAN),
 };
 
@@ -446,7 +446,6 @@ bool CHGrunt::CheckRangeAttack2(float flDot, float flDist)
 //=========================================================
 void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	
 	// don't count headshots if they have a gasmask! (makes it seem armored)
 	if (ptr->iHitgroup == 0 && GetBodygroup(HEAD_GROUP) > HEAD_GASMASK_BLACK)
 	{
@@ -458,61 +457,43 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
 		{
-			if (M_HasHelm == true)
+			if (m_bHelmet == true)
 			{
-				if (g_iSkillLevel != SKILL_REALISM)
+				if (m_iHelmHealth > 0)
 				{
-					if (flDamage < 45 && m_helmDUR > 0)
+					m_iHelmHealth -= flDamage;
+					if (m_iHelmHealth <= 0)
 					{
-						m_helmDUR -= 1;
-						if (m_helmDUR == 0)
-						{
-						 // Figure out something to do here
-						}
-						flDamage = round(flDamage * 0.1);
-						UTIL_Sparks(ptr->vecEndPos);
-	
-					}
-					else if (flDamage > 44 && m_helmDUR > 0)
-					{
-						m_helmDUR = 0;
 						// Figure out something to do here
 					}
-				}
-				else
-				{
-					if (m_helmDUR > 0)
+					// absorb damage
+					flDamage -= g_iSkillLevel == SKILL_REALISM ? 30 : 10;
+					if (flDamage <= 0)
 					{
-						m_helmDUR -= 1;
-						if (m_helmDUR == 0)
-						{
-						 // Figure out something to do here
-						}
-						flDamage = round(flDamage * 0.2);
-						UTIL_Sparks(ptr->vecEndPos);
-	
+						UTIL_Ricochet(ptr->vecEndPos, 1.0);
+						flDamage = 0.01;
+						m_bloodColor = DONT_BLEED;
 					}
-				}
-		
+	
+				}	
 			}
 		}
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
-	if (ptr->iHitgroup == HITGROUP_PROPANETANK)
+	else if (ptr->iHitgroup == HITGROUP_PROPANETANK)
 	{
 		ptr->iHitgroup = HITGROUP_STOMACH;
-		if (m_fuel == true)
+		if (m_bFuelTank == true)
 		{
 			m_bloodColor = DONT_BLEED;
 			UTIL_Sparks(ptr->vecEndPos);
-			m_tankhealth -= round(1.25 * flDamage);
-			if (m_tankhealth <= 0)
+			m_bFuelTankHealth -= round(1.25 * flDamage);
+			if (m_bFuelTankHealth <= 0)
 			{
 				pev->health = 2;
 				SetBodygroup(TORSO_GROUP, TORSO_ENGI); // make exploded variant
-				pev->dmg = 0;
-				// TO-DO: use railcannon explosion vfx
+
 				MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 				WRITE_BYTE(TE_EXPLOSION);
 				WRITE_COORD(ptr->vecEndPos.x);
@@ -523,27 +504,23 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 				WRITE_BYTE(15); // framerate
 				WRITE_BYTE(TE_EXPLFLAG_NONE);
 				MESSAGE_END();
-				m_fuel = false;
+				m_bFuelTank = false;
 
 				// TO-DO: USE THE EVENT FOR THIS INSTEAD
 				CPhysblood::BloodCreate(8, 350, ptr->vecEndPos, -vecDir, 1, BLOOD_COLOR_RED, false, UTIL_DegreesToRadCone(360)); // mainly to create blood hit FX
 			}
-			flDamage *= 0.25;
+			return;
 		}
 		
 	}
+	
+	// separate so fuel tank hits get blocked by armor
 	if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
-			if (g_iSkillLevel != SKILL_REALISM)
-			{
-				flDamage = round(flDamage * 0.8);
-			}
-			else
-			{
-				flDamage = round(flDamage * 0.7);
-			}
+			flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
 		}
@@ -1023,14 +1000,15 @@ void CHGrunt::Spawn()
 	m_bloodColor = BLOOD_COLOR_RED;
 	pev->effects = 0;
 
-	m_helmDUR = 3;
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
+		m_iHelmHealth = 30;
 		pev->health = gSkillData.hgruntHealth;
 		m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
 	else
 	{
+		m_iHelmHealth = 100;
 		pev->health = 100;
 		m_flFieldOfView = -0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	}
@@ -1058,7 +1036,7 @@ void CHGrunt::Spawn()
 		{
 		case 0:
 			SetBodygroup(HEAD_GROUP, (RANDOM_LONG(HEAD_HELM_5, HEAD_HELM_6)));
-			M_HasHelm = true;
+			m_bHelmet = true;
 			break;
 		case 1:
 			SetBodygroup(HEAD_GROUP, HEAD_SHOTGUN);
@@ -1111,7 +1089,7 @@ void CHGrunt::Spawn()
 		SetBodygroup(TORSO_GROUP, RANDOM_LONG(0, 1) ? TORSO_M249 : TORSO_GRUNT);
 
 		pev->weaponmodel = MAKE_STRING("models/h_m727.mdl");
-		M_HasHelm = true;
+		m_bHelmet = true;
 		m_flDistTooFar = 3072;
 		m_flDistLook = 3072; //idk if this is needed
 		m_cClipSize = M727_MAX_CLIP;
@@ -1129,7 +1107,7 @@ void CHGrunt::Spawn()
 		}
 		SetBodygroup(TORSO_GROUP, TORSO_GRUNT);
 		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
-		M_HasHelm = true;
+		m_bHelmet = true;
 		m_cClipSize = MP5_MAX_CLIP;
 		m_flDistTooFar = 2048+192;
 		m_flDistLook = 2048+192; //idk if this is needed
@@ -1147,7 +1125,7 @@ void CHGrunt::Spawn()
 		case 0:
 			SetBodygroup(ARMOR_GROUP, ARMOR_ENGI);
 			SetBodygroup(TORSO_GROUP, TORSO_ENGI);
-			m_fuel = true;
+			m_bFuelTank = true;
 			break;
 		case 1:
 			SetBodygroup(TORSO_GROUP, TORSO_MED);

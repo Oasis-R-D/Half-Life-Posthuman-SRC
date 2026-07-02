@@ -635,14 +635,8 @@ void CMOFAssassin::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
-			if (g_iSkillLevel != SKILL_REALISM)
-			{
-				flDamage = round(flDamage * 0.85);
-			}
-			else
-			{
-				flDamage = round(flDamage * 0.75);
-			}
+			flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.85 : 0.75));
+
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
 		}

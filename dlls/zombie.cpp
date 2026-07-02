@@ -70,44 +70,41 @@ public:
 	{
 		if (ptr->iHitgroup == HITGROUP_HEAD)
 		{
-			if (pev->body != 1)
+			if (pev->body != 1) // should be 0?
 			{
 				m_bloodColor = BLOOD_COLOR_YELLOW;
 				m_iHeadCrabHealth -= flDamage;
 				flDamage = flDamage * 0.7;
 				if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
 				{
+					// kill host
 					pev->health = 5;
 					flDamage = 25;
 				}
-				else if (m_iHeadCrabHealth < -15 && pev->body != 1)
+				else if (m_iHeadCrabHealth < -15)
 				{
-					pev->body = 1;
+					// did enough damage to gib
+
+					pev->body = 1; // should be 0?
+
+					// kill host
 					pev->health = 5;
 					flDamage = 25;
+
 					// spawn the headcrab gibs
 					EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 0.85f, 0.9f);
 					CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
 				}
 			}
-			else
-				m_bloodColor = BLOOD_COLOR_RED;
 		}
-
-		if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
+		else if (ptr->iHitgroup == HITGROUP_CHEST || ptr->iHitgroup == HITGROUP_STOMACH)
 		{
 			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
 				if (FClassnameIs(pev, "monster_zombie_barney") || FClassnameIs(pev, "monster_zombie_soldier"))
 				{
-					if (g_iSkillLevel != SKILL_REALISM)
-					{
-						flDamage = round(flDamage * 0.8);
-					}
-					else
-					{
-						flDamage = round(flDamage * 0.7);
-					}
+					flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+
 					if (RANDOM_LONG(0, 1) == 1)
 						UTIL_Sparks(ptr->vecEndPos);
 				}

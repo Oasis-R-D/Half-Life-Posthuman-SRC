@@ -610,10 +610,10 @@ void CAdvSec::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	if (ptr->iHitgroup == 11)
 	{
 		// make sure we're wearing one
-		if (GetBodygroup(1) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
+		if (GetBodygroup(HEAD_GROUP) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH)) != 0)
 		{
 			// absorb damage
-			flDamage -= 20;
+			flDamage -= g_iSkillLevel == SKILL_REALISM ? 30 : 10;
 			if (flDamage <= 0)
 			{
 				UTIL_Ricochet(ptr->vecEndPos, 1.0);
@@ -623,6 +623,7 @@ void CAdvSec::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		// it's head shot anyways
 		ptr->iHitgroup = HITGROUP_HEAD;
 	}
+
 	CSquadMonster::TraceAttack(pevAttacker, flDamage, vecDir, ptr, bitsDamageType);
 }
 

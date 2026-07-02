@@ -510,25 +510,13 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		{
 			if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 			{
+				flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
 
-				if (g_iSkillLevel != SKILL_REALISM)
-				{
-					flDamage = round(flDamage * 0.8);
-				}
-				else
-				{
-					flDamage = round(flDamage * 0.7);
-				}
 				if (RANDOM_LONG(0, 1) == 1)
 					UTIL_Sparks(ptr->vecEndPos);
 			}
 		}
 	}
-
-	Vector vecOrigin = ptr->vecEndPos;
-	int BLDAMNT;
-
-	BLDAMNT = floor(flDamage / 3.33);
 
 	if (0 != pev->takedamage)
 	{
@@ -556,55 +544,36 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		}
 
 		m_LastHitGroup = ptr->iHitgroup;
-		if (g_iSkillLevel != SKILL_REALISM)
+
+		switch (ptr->iHitgroup)
 		{
-			switch (ptr->iHitgroup)
-			{
-			case HITGROUP_HEAD:
-				flDamage *= gSkillData.monHead;
-				break;
-			case HITGROUP_CHEST:
-				flDamage *= gSkillData.monChest;
-				break;
-			case HITGROUP_STOMACH:
-				flDamage *= gSkillData.monStomach;
-				break;
-			case HITGROUP_LEFTARM:
-			case HITGROUP_RIGHTARM:
-			case HITGROUP_LEFTLEG:
-			case HITGROUP_RIGHTLEG:
-				flDamage *= 0.5; // normally 0.75
-				break;
-			}
-		}
-		else
-		{
-			switch (ptr->iHitgroup)
-			{
-			case HITGROUP_HEAD:
-				flDamage *= 6;
-				break;
-			case HITGROUP_CHEST:
-				flDamage *= 1.125;
-				break;
-			case HITGROUP_STOMACH:
-				flDamage *= 1;
-				break;
-			case HITGROUP_LEFTARM:
-			case HITGROUP_RIGHTARM:
-				flDamage *= 0.5;
-				break;
-			case HITGROUP_LEFTLEG:
-			case HITGROUP_RIGHTLEG:
-				flDamage *= 0.5;
-				break;
-			}
+		case HITGROUP_HEAD:
+			flDamage *= gSkillData.monHead;
+			break;
+		case HITGROUP_CHEST:
+			flDamage *= gSkillData.monChest;
+			break;
+		case HITGROUP_STOMACH:
+			flDamage *= gSkillData.monStomach;
+			break;
+		case HITGROUP_LEFTARM:
+		case HITGROUP_RIGHTARM:
+		case HITGROUP_LEFTLEG:
+		case HITGROUP_RIGHTLEG:
+			flDamage *= 0.5; // normally 0.75
+			break;
 		}
 
 		if (BloodColor() != DONT_BLEED)
 		{
 			SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 			TraceBleed(floor(flDamage/2.33), vecDir, ptr, bitsDamageType);
+
+			Vector vecOrigin = ptr->vecEndPos;
+			int BLDAMNT;
+
+			BLDAMNT = floor(flDamage / 3);
+
 			//Spawn blud dwops UwU
 			CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, BloodColor());
 		}
