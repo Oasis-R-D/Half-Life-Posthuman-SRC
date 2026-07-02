@@ -152,9 +152,9 @@ void CBasePlayer::Pain()
 
 		switch (RANDOM_LONG(0, 2))
 		{
-		case 0: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain1.wav", 1.0, ATTN_NORM, 0, pitch); break;
-		case 1: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch); break;
-		case 2: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "derek/pain3.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		case 0: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, m_bPrehuman ? "derek/pain1_pre.wav" : "derek/pain1.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		case 1: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, m_bPrehuman ? "derek/pain2_pre.wav" : "derek/pain2.wav", 1.0, ATTN_NORM, 0, pitch); break;
+		case 2: EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, m_bPrehuman ? "derek/pain3_pre.wav" : "derek/pain3.wav", 1.0, ATTN_NORM, 0, pitch); break;
 		}
 	}
 }

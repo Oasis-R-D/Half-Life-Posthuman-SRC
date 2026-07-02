@@ -932,7 +932,7 @@ void StartFrame()
 void ClientPrecache()
 {
 	// setup precaches always needed
-	PRECACHE_MODEL("sprites/ballsmoke.spr");
+	PRECACHE_MODEL("sprites/ballsmoke.spr"); // TO-DO: precache in hgrunt or use particles instead
 	PRECACHE_SOUND("player/sprayer.wav"); // spray paint sound for PreAlpha
 
 	// PRECACHE_SOUND("player/pl_jumpland2.wav");		// UNDONE: play 2x step sound
@@ -1017,19 +1017,16 @@ void ClientPrecache()
 	PRECACHE_SOUND("common/bodysplat.wav");
 
 	// player pain sounds
-	PRECACHE_SOUND("player/pl_pain2.wav");
-	PRECACHE_SOUND("player/pl_pain4.wav");
-	PRECACHE_SOUND("player/pl_pain5.wav");
-	PRECACHE_SOUND("player/pl_pain6.wav");
-	PRECACHE_SOUND("player/pl_pain7.wav");
 	PRECACHE_SOUND("derek/pain1.wav");
-	PRECACHE_SOUND("derek/pain3.wav"); // hah! Get forked perfectionists!!!!! -your friendly neighborhood perfectionist PM
 	PRECACHE_SOUND("derek/pain2.wav");
+	PRECACHE_SOUND("derek/pain3.wav");
+	PRECACHE_SOUND("derek/pain1_pre.wav");
+	PRECACHE_SOUND("derek/pain2_pre.wav");
+	PRECACHE_SOUND("derek/pain3_pre.wav");
 
 	PRECACHE_MODEL("models/player.mdl");
 
 	// hud sounds
-
 	PRECACHE_SOUND("common/wpn_hudoff.wav");
 	PRECACHE_SOUND("common/wpn_hudon.wav");
 	PRECACHE_SOUND("common/wpn_moveselect.wav");
@@ -1041,8 +1038,8 @@ void ClientPrecache()
 	PRECACHE_SOUND("common/wpn_select1.wav");
 	PRECACHE_SOUND("common/wpn_select2.wav");
 	PRECACHE_SOUND("common/wpn_select3.wav");
+	
 	// geiger sounds
-
 	PRECACHE_SOUND("player/geiger6.wav");
 	PRECACHE_SOUND("player/geiger5.wav");
 	PRECACHE_SOUND("player/geiger4.wav");
@@ -1051,10 +1048,9 @@ void ClientPrecache()
 	PRECACHE_SOUND("player/geiger1.wav");
 
 	// derek literally fucking dying
-
 	PRECACHE_SOUND("derek/death1.wav");
-	PRECACHE_SOUND("derek/death3.wav"); //  :3
 	PRECACHE_SOUND("derek/death2.wav");
+	PRECACHE_SOUND("derek/death3.wav");
 
 	if (giPrecacheGrunt)
 		UTIL_PrecacheOther("monster_human_grunt");
