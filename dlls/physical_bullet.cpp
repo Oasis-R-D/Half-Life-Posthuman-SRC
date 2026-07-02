@@ -48,10 +48,10 @@ void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, u
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
-		pBullet->m_muzzlevelocity = BLLTspeed;
+		pBullet->m_iMuzzleVel = BLLTspeed;
 		pBullet->m_BulletDamage = BLLTdamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
-		pBullet->m_direction = vecDir;
+		pBullet->m_vecDir = vecDir;
 		pBullet->m_Spread = vecSpread;
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
 		pBullet->m_Gravity = BLLTGravity;
@@ -93,13 +93,11 @@ void CPhysbullet::Spawn()
 		z = x * x + y * y;
 	} while (z > 1);
 
-	m_direction = m_direction + x * m_Spread * gpGlobals->v_right + y * m_SpreadVert * gpGlobals->v_up;
+	m_vecDir = m_vecDir + x * m_Spread * gpGlobals->v_right + y * m_SpreadVert * gpGlobals->v_up;
 					
-	pev->velocity = m_direction * m_muzzlevelocity; // Applies spread and velocity
+	pev->velocity = m_vecDir * m_iMuzzleVel; // Applies spread and velocity
 	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
-	pev->angles = UTIL_VecToAngles(m_direction);
-
-	m_haswizzed = false;
+	pev->angles = UTIL_VecToAngles(m_vecDir);
 
 	pev->rendercolor = Vector(255, 255, 255);
 	pev->rendermode = kRenderTransAdd;	
@@ -117,7 +115,7 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.23f, 0.27f);
 			}
 			
-			m_distpenetrate = 24;
+			m_flPenetrationPow = 24;
 			break;
 		case 762:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
@@ -130,7 +128,7 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.31f, 0.35f);
 			}
 
-			m_distpenetrate = 32;
+			m_flPenetrationPow = 32;
 			break;
 		case 12:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
@@ -143,7 +141,7 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.13f, 0.17f);
 			}
 
-			m_distpenetrate = 10;
+			m_flPenetrationPow = 10;
 			break;
 		case 357:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
@@ -156,7 +154,7 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.28f, 0.32f);
 			}
 
-			m_distpenetrate = 18;
+			m_flPenetrationPow = 18;
 			break;
 		case 44:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
@@ -169,11 +167,11 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.32f, 0.33f);
 			}
 
-			m_distpenetrate = 16;
+			m_flPenetrationPow = 16;
 			break;
 		case 69:
 			SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-			m_distpenetrate = 0;
+			m_flPenetrationPow = 0;
 			pev->rendermode = kRenderNormal;
 			break;
 		case 420:
@@ -187,7 +185,7 @@ void CPhysbullet::Spawn()
 				pev->scale = 0.5;
 			}
 
-			m_distpenetrate = 32;
+			m_flPenetrationPow = 32;
 			pev->rendercolor = Vector(255, 70, 170);
 			break;
 		case 10:
@@ -201,7 +199,7 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.20f, 0.22f);
 			}
 
-			m_distpenetrate = 18;
+			m_flPenetrationPow = 18;
 			break;
 		default:
 		case 9:
@@ -215,15 +213,15 @@ void CPhysbullet::Spawn()
 				pev->scale = RANDOM_FLOAT(0.18f, 0.22f);
 			}
 
-			m_distpenetrate = 16;
+			m_flPenetrationPow = 16;
 			break;
 	}
 
 	if (m_bsubsonic)
-		m_distpenetrate = round(m_distpenetrate * 0.75f);
+		m_flPenetrationPow = round(m_flPenetrationPow * 0.75f);
 
 	if (m_fPenoverride != NULL)
-		m_distpenetrate = m_fPenoverride;
+		m_flPenetrationPow = m_fPenoverride;
 
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
@@ -301,7 +299,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	m_Endpos = pev->origin; // where bullet hit
 
 	// Add water hit VFX
-	if (pev->waterlevel != 0 || UTIL_PointContents(m_Endpos - m_direction * 1) == CONTENTS_WATER)
+	if (pev->waterlevel != 0 || UTIL_PointContents(m_Endpos - m_vecDir * 1) == CONTENTS_WATER)
 		FindWaterSurface();
 
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
@@ -311,7 +309,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		Owner = this->edict();
 	}
 
-	if (m_distpenetrate > 0) // penetrate (ask your mother what that means)
+	if (m_flPenetrationPow > 0) // penetrate (ask your mother what that means)
 	{
 		TraceResult beam_tr;
 		TraceResult beam_tr2;
@@ -321,9 +319,9 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		do // Raymarching (works better than the tau cannons trace back method)
 		{
 			i += 1;
-			UTIL_TraceLine(tr.vecEndPos + m_direction * 1, tr.vecEndPos + m_direction * i, dont_ignore_monsters, dont_ignore_glass, NULL, &beam_tr2);
+			UTIL_TraceLine(tr.vecEndPos + m_vecDir * 1, tr.vecEndPos + m_vecDir * i, dont_ignore_monsters, dont_ignore_glass, NULL, &beam_tr2);
 		}
-		while (1 == beam_tr2.fAllSolid && i <= m_distpenetrate);
+		while (1 == beam_tr2.fAllSolid && i <= m_flPenetrationPow);
 
 		if (0 == beam_tr2.fAllSolid) // Raymarch found da way
 		{
@@ -333,64 +331,52 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			m_SpawnPos = beam_tr.vecEndPos;															// where bullet comes out of wall
 
 			// Multiply dist by the penetration multiplier
-			float mat_mult = TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * i);
+			float mat_mult = TEXTURETYPE_Penetration(&tr, tr.vecEndPos, tr.vecEndPos + m_vecDir * i);
 			p = i * mat_mult;
 			
-			if (p < m_distpenetrate && m_distpenetrate > 0)
+			if (p < m_flPenetrationPow && m_flPenetrationPow > 0)
 			{
 				// Prevent inf penetration
-				m_distpenetrate = V_max(m_distpenetrate - p, 0);
+				m_flPenetrationPow = V_max(m_flPenetrationPow - p, 0);
 				m_BulletDamage = V_max(m_BulletDamage - round(0.125 * p), 2);
-				m_muzzlevelocity = V_max(m_muzzlevelocity - 10 * p, 1000);
+				m_iMuzzleVel = V_max(m_iMuzzleVel - 10 * p, 1000);
 
-				//ALERT(at_console, "new dist pen %f\n", m_distpenetrate);
-				//ALERT(at_console, "penetrated: %f units + mult\n\n", p);
+				if (pev->gravity < 75)
+					pev->gravity *= 3 * mat_mult;
 
-				// Fire penetrated bullet
-				Vector spawnpos = tr.vecEndPos + (m_direction * (i+1));
-				CPhysbullet::BulletCreate(1, m_BulletDamage, m_muzzlevelocity, spawnpos, m_direction, 0, 0, m_Gravity < 75 ? m_Gravity * 3 * mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
+				//CPhysbullet::BulletCreate(1, m_BulletDamage, m_iMuzzleVel, spawnpos, m_vecDir, 0, 0, m_Gravity < 75 ? m_Gravity * 3 * mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
 
 				// Damage
 				if (DAMAGE_NO != pOther->pev->takedamage)
 				{
+					m_pIgnore = pOther;
+
 					ClearMultiDamage();
 					pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(owner->pev, owner->pev);
 				}
 
-				/*
-				if (pOther->BloodColor() != DONT_BLEED && !g_pGameRules->IsMultiplayer())
-				{
-					int BLDAMNT;
-					Vector vecOrigin = beam_tr.vecEndPos - (-m_direction) * 4;
-					BLDAMNT = round(m_BulletDamage / 2);
-					SpawnBlood(vecOrigin, pOther->BloodColor(), m_BulletDamage/2); // a little surface blood.
-					TraceBleed(m_BulletDamage/2, -m_direction, &beam_tr, DMG_BULLET);
-				}
-				*/
-
 				// VFX
-				DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
-				DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
-
 				if (pOther->IsBSPModel())
 				{
+
 					char material = TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_MONSTER_12MM);
 
-					// ALERT(at_console, "char is %c \0", material);
+					DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
+					DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
 
 					// entry
 					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-					WRITE_BYTE(TE_IMPACTVFX);
-					WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
-					WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
-					WRITE_COORD(0);
-					WRITE_COORD(0);
-					WRITE_BYTE(material); // (count) (use as mat type?)
-					WRITE_BYTE(0);		  // (bullethole decal texture index)
+						WRITE_BYTE(TE_IMPACTVFX);
+						WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
+						WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
+						WRITE_COORD(0);
+						WRITE_COORD(0);
+						WRITE_BYTE(material); // (count) (use as mat type?)
+						WRITE_BYTE(0);		  // (bullethole decal texture index)
 					MESSAGE_END();
 
-					// exit (disabled for being unperformant)
+					// exit
 					/*
 					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 					WRITE_BYTE(TE_IMPACTVFX);
@@ -403,50 +389,50 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 					MESSAGE_END(); */
 				}
 
-				// Remove original bullet
-				UTIL_Remove(this);
+				m_SpawnPos = tr.vecEndPos + (m_vecDir * (i+1));
+				pev->origin = m_SpawnPos;
+				m_bTryPen = true;
+
 				return;
 			}
-			/*else
-			{
-				ALERT(at_console, "too thick! Size: %f units + mult\n", p);
-			}*/
 		}
 	}
 	else
 	{
 		ALERT(at_console, "pen below 0!\n");
-		m_distpenetrate = 0;
+		m_flPenetrationPow = 0;
 	}
+
+	DecalGunshot(&tr, BULLET_MONSTER_9MM);
 
 	// ricochet
 	if (pOther->IsBSPModel())
 	{
 		// if what we hit is static architecture, can stay around for a while.
-		Vector vecDir = m_direction;
+		Vector vecDir = m_vecDir;
 
 		// See if we should reflect off this surface
 		float hitDot = -DotProduct(tr.vecPlaneNormal, vecDir);
 			
-		if ((hitDot < 0.0871) && (m_muzzlevelocity > 2500)) // 85 degrees
+		if ((hitDot < 0.0871) && (m_iMuzzleVel > 2500)) // 85 degrees
 		{
 			Vector vReflection = (2.0f * tr.vecPlaneNormal * hitDot) + vecDir;
-			
-			m_distpenetrate *= 10 * hitDot;
-			m_BulletDamage -= round(50 * hitDot);
 
-			CPhysbullet::BulletCreate(1, m_BulletDamage/3, m_muzzlevelocity * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, 1.0 /* fall more */, m_Flare, Owner, m_bsubsonic, m_distpenetrate, pOther->pev->takedamage ? pOther : nullptr);
+			//CPhysbullet::BulletCreate(1, m_BulletDamage/3, m_iMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			if (DAMAGE_NO != pOther->pev->takedamage)
 			{
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, m_BulletDamage - round(50 * hitDot), pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 				ApplyMultiDamage(owner->pev, owner->pev);
 			}
 
-			// Remove original bullet
-			UTIL_Remove(this);
+			m_vecDir = vReflection;
+			m_iMuzzleVel *= 0.75;
+			m_flPenetrationPow *= 10 * hitDot;
+			m_BulletDamage /= 1.5;
+			m_bTryRefl = true;
 			return;
 		}
 	}
@@ -468,7 +454,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	{
 		if (pOther->IsBSPModel())
 		{
-			char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_direction * 2, BULLET_PLAYER_9MM);
+			char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_vecDir * 2, BULLET_PLAYER_9MM);
 			//ALERT(at_console, "char is %c \0", material);
 
 			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
@@ -489,16 +475,15 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		}
 	}
 
-	DecalGunshot(&tr, BULLET_MONSTER_9MM);
-	
 	UTIL_Remove(this);
 }
 
 void CPhysbullet::AirThink()
 {
-	pev->angles = UTIL_VecToAngles(m_direction);
-	pev->nextthink = gpGlobals->time + 0.1; // was 0.05f
+	pev->angles = UTIL_VecToAngles(m_vecDir);
+	pev->nextthink = gpGlobals->time + 0.01; // was 0.05f
 
+	/* // TO-DO: optimize!!
 	if (!m_haswizzed && !m_bsubsonic)
 	{
 		CBaseEntity* m_ent = NULL;
@@ -511,10 +496,11 @@ void CPhysbullet::AirThink()
 			}
 		}
 	}
+	*/
 
 	if (pev->renderamt < 225 && !m_bsubsonic) // fade in
 	{
-		pev->renderamt += 75;
+		pev->renderamt += 7.5;
 	}
 
 	// WIND
@@ -530,15 +516,27 @@ void CPhysbullet::AirThink()
 	}
 	// WIND END
 
-	m_distpenetrate -= 1.0;
-	if (pev->waterlevel != 0)
+	// Update pos/vel for penetrations and ricochet
+	if (m_bTryRefl)
 	{
-		m_distpenetrate -= 0.5; // loses even more penetration when under the water
-
-		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
+		pev->velocity = m_vecDir * m_iMuzzleVel;
+		pev->angles = UTIL_VecToAngles( pev->velocity );
+		m_bTryRefl = false;
+	}
+	else if (m_bTryPen)
+	{
+		UTIL_SetOrigin(pev, m_SpawnPos);
+		pev->origin = m_SpawnPos;
+		pev->velocity = m_vecDir * m_iMuzzleVel;
+		pev->angles = UTIL_VecToAngles( pev->velocity );
+		m_bTryPen = false;
 	}
 
-	if (m_distpenetrate == 0)
+	m_flPenetrationPow -= 0.1;
+	if (pev->waterlevel != 0)
+		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
+
+	if (m_flPenetrationPow <= 0)
 		UTIL_Remove(this);
 }
 

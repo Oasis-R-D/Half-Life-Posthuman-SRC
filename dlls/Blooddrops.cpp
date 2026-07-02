@@ -44,7 +44,7 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 			pBlood->pev->classname = MAKE_STRING("blooddrop");
 			pBlood->m_BloodDropVel = BLDSpeed;
 			pBlood->m_SpawnPos = VecSpawnPos;
-			pBlood->m_direction = vecDir;
+			pBlood->m_vecDir = vecDir;
 			pBlood->m_Spread = spread;
 			pBlood->m_Gravity = BLLTGravity;
 			pBlood->m_BloodType = BloodType;
@@ -104,7 +104,7 @@ void CPhysblood::Spawn()
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, m_SpawnPos);
 	// TO-DO: use radial spread, this is not the proper way to do spread
-	pev->velocity = ((m_direction + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
+	pev->velocity = ((m_vecDir + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_BloodDropVel) * m_opposite; // Applies spread and velocity, also applies the chance to have the entry wound droplets
 	pev->gravity = m_Gravity;
 	pev->owner = NULL;
 	

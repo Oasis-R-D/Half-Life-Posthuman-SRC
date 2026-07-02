@@ -34,21 +34,24 @@ public:
 
 	CBaseEntity* m_pIgnore;
 	int m_Flare;
-	unsigned int m_muzzlevelocity;
+	unsigned int m_iMuzzleVel;
 
 	Vector m_SpawnPos;
-	Vector m_direction;
+	Vector m_vecDir;
 
 	double m_Spread;
 	double m_SpreadVert;
 	unsigned int m_BulletDamage;
 	double m_Gravity;
-	double m_distpenetrate;
+	double m_flPenetrationPow;
 
 	bool m_bsubsonic;
 
 private:
 	bool m_haswizzed;
+	bool m_bTryRefl;
+	bool m_bTryPen;
+
 	double m_fPenoverride;
 	Vector m_Endpos;
 };

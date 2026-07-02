@@ -26,7 +26,7 @@ private:
 	int m_BloodType; // Always B positive!!!
 	int m_opposite;
 	Vector m_SpawnPos;
-	Vector m_direction;
+	Vector m_vecDir;
 	float m_Spread;
 	float m_Gravity;
 	bool m_isgib;
