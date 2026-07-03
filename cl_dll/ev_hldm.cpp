@@ -53,6 +53,8 @@ static int tracerCount[MAX_PLAYERS];
 #include "pm_shared.h"
 
 void V_PunchAxis(int axis, float punch);
+void V_PunchAxisAdd(int axis, float punch);
+
 void VectorAngles(const float* forward, float* angles);
 
 extern cvar_t* cl_lw;
@@ -747,7 +749,8 @@ void EV_FireM727(event_args_t* args)
 		EV_MuzzleFlash();
 		EV_WeaponAnimation(M727_SHOOT1 + gEngfuncs.pfnRandomLong(0, 2), 0);
 
-		V_PunchAxis(gEngfuncs.pfnRandomFloat(0, 1), gEngfuncs.pfnRandomFloat(-1, 1));
+		V_PunchAxisAdd(0, gEngfuncs.pfnRandomFloat(-1.5, -0.5));
+		V_PunchAxisAdd(1, gEngfuncs.pfnRandomFloat(-1.5, 1.5));
 	}
 
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -5, 6);

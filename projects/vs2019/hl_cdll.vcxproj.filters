@@ -372,9 +372,6 @@
     <ClCompile Include="..\..\cl_dll\engine_particles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\sledgehammer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\weapons\railcannon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -403,6 +400,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\weapons\deltaelite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\weapons\sledgehammer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

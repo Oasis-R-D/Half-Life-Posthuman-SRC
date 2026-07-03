@@ -269,7 +269,7 @@ void CM249::Shoot(bool alt)
 		}
 	}
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_REALISM ? 0.085 : 0.06);
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + (g_iSkillLevel != SKILL_REALISM  && !alt ? 0.085 : 0.06);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
 

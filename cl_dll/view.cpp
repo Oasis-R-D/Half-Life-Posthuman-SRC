@@ -1880,6 +1880,18 @@ void V_PunchAxis(int axis, float punch)
 
 /*
 =============
+V_PunchAxisAdd
+
+Client side punch effect
+=============
+*/
+void V_PunchAxisAdd(int axis, float punch)
+{
+	ev_punchangle[axis] += punch;
+}
+
+/*
+=============
 V_Init
 =============
 */

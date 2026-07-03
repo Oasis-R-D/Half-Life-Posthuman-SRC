@@ -234,8 +234,8 @@ void CM727::PrimaryAttack()
 		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
 	}
 
-	TestSprayPat(M727_MAX_CLIP - m_iClip);
-	//CBasePlayerWeapon::Recoil(0.85, 1.2);
+	//TestSprayPat(M727_MAX_CLIP - m_iClip);
+	CBasePlayerWeapon::Recoil(1.0, 1.2);
 	#endif
 
 	int flags;
