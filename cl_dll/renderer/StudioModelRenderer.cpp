@@ -2746,9 +2746,6 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 		m_dModelPerEntityData.ambientlight = glm::vec4(m_pLighting.ambientlight.x, m_pLighting.ambientlight.y, m_pLighting.ambientlight.z, 0);
 		m_dModelPerEntityData.diffuselight = glm::vec4(m_pLighting.diffuselight.x, m_pLighting.diffuselight.y, m_pLighting.diffuselight.z, 0);
 
-		gEngfuncs.Con_DPrintf("amb: %f %f %f \n diff: %f %f %f \n", m_pLighting.ambientlight.x, m_pLighting.ambientlight.y, m_pLighting.ambientlight.z, m_pLighting.diffuselight.x, m_pLighting.diffuselight.y, m_pLighting.diffuselight.z);
-		//
-
 		m_dModelPerEntityData.int_values.x = m_iNumModelLights;
 
 		for (int i = 0; i < m_iNumModelLights; i++)

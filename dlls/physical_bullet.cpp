@@ -185,7 +185,7 @@ void CPhysbullet::Spawn()
 				pev->scale = 0.5;
 			}
 
-			m_flPenetrationPow = 32;
+			m_flPenetrationPow = 128;
 			pev->rendercolor = Vector(255, 70, 170);
 			break;
 		case 10:
