@@ -100,24 +100,43 @@ bool CShotgun::Deploy()
 	m_flPumpTime = 0; // Hack, should probably find a way to tell it to pump the gun after the draw is done
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgFireMode, NULL, m_pPlayer->pev);
-	WRITE_SHORT((bool)m_iFiremode ? 3 : 4);
+		WRITE_SHORT((bool)m_iFiremode ? 3 : 4);	
+	MESSAGE_END();
+
 	if (g_iSkillLevel == SKILL_REALISM)
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
 		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
-	MESSAGE_END();
+
+	bool ret;
+
+	m_fInSpecialReload = 0;
 
 	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
 	{
 		if (!NotFirstDraw)
-			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");								// Change it to the training SG model
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
+		{
+			ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");// Change it to the training SG model
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.75;
+			return ret;
+		}	
+
+		ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
+		return ret;
 	}
 	else
 	{
 		if (!NotFirstDraw)
-			return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
-		return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+		{
+			ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.75;
+			return ret;
+		}
+
+		ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
+		return ret;
 	}
 }
 
@@ -349,8 +368,10 @@ void CShotgun::SecondaryAttack()
 
 void CShotgun::TertiaryAttack()
 {
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = 1.03; // TO-DO: exact value
-	m_flTimeWeaponIdle = m_flNextTertiaryAttack = gpGlobals->time + 1.13;
+	m_flNextPrimaryAttack = GetNextAttackDelay(1.03);
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.03;
+	m_flNextTertiaryAttack = gpGlobals->time + 1.13;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
 
 	SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_SEMI_TO_PUMP: SHOTGUN_PUMP_TO_SEMI);
 
@@ -366,6 +387,8 @@ void CShotgun::TertiaryAttack()
 		m_iCrossHairType = CROSSHAIR_NOCENTER;
 	else
 		m_iCrossHairType = (bool)m_iFiremode ? CROSSHAIR_DUCKBILL : CROSSHAIR_NOCENTER;
+
+	m_fInSpecialReload = 0;
 }
 
 void CShotgun::Reload()
@@ -387,6 +410,7 @@ void CShotgun::Reload()
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.6;
 			m_flNextPrimaryAttack = GetNextAttackDelay(1.6);
 			m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.6;
+			m_flNextTertiaryAttack = gpGlobals->time + 1.6;
 			m_fInSpecialReload = 2;
 		}
 		else
@@ -396,6 +420,7 @@ void CShotgun::Reload()
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.37;
 			m_flNextPrimaryAttack = GetNextAttackDelay(0.37);
 			m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.37;
+			m_flNextTertiaryAttack = gpGlobals->time + 0.37;
 			m_fInSpecialReload = 1;
 		}
 		return;
@@ -422,9 +447,6 @@ void CShotgun::Reload()
 	}
 	else
 	{
-		// Add them to the clip
-		//m_iClip += 1;
-		//m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
 		m_fInSpecialReload = 1;
 	}
 }
@@ -438,7 +460,7 @@ void CShotgun::WeaponIdle()
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{
-		if (m_iClip == 0 && m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		if (/*m_iClip == 0 &&*/ m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 		{
 			Reload();
 		}
