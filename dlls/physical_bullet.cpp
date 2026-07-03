@@ -481,7 +481,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 void CPhysbullet::AirThink()
 {
 	pev->angles = UTIL_VecToAngles(m_vecDir);
-	pev->nextthink = gpGlobals->time + 0.01; // was 0.05f
+	pev->nextthink = gpGlobals->time + 0.01;
 
 	/* // TO-DO: optimize!!
 	if (!m_haswizzed && !m_bsubsonic)
@@ -500,11 +500,11 @@ void CPhysbullet::AirThink()
 
 	if (pev->renderamt < 225 && !m_bsubsonic) // fade in
 	{
-		pev->renderamt += 7.5;
+		pev->renderamt += 22.5;
 	}
 
 	// WIND
-	float flWindVel = 8;
+	float flWindVel = 2;
 	float flwindmult = 0.25;
 
 	double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once

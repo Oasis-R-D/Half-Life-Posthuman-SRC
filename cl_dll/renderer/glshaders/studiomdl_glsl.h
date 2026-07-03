@@ -225,7 +225,7 @@ char glsl330_studiomdl_vert[] = R"(
 		vertexspecularcolor = vec4(specularlighting, 1);
 	}
 
-	void Vertex_NoLight()
+	void Vertex_NoLight() // TO-DO: this is pretty overbrightened, might want to lower a little
 	{
 		vertexdiffusecolor = vec4(1.0);
 		vertexspecularcolor = vec4(1.0); // remove for funny

@@ -2745,6 +2745,8 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 		m_dModelPerEntityData.lightdir = glm::vec4(m_pLighting.lightdir.x, m_pLighting.lightdir.y, m_pLighting.lightdir.z, 0);
 		m_dModelPerEntityData.ambientlight = glm::vec4(m_pLighting.ambientlight.x, m_pLighting.ambientlight.y, m_pLighting.ambientlight.z, 0);
 		m_dModelPerEntityData.diffuselight = glm::vec4(m_pLighting.diffuselight.x, m_pLighting.diffuselight.y, m_pLighting.diffuselight.z, 0);
+
+		gEngfuncs.Con_DPrintf("amb: %f %f %f \n diff: %f %f %f \n", m_pLighting.ambientlight.x, m_pLighting.ambientlight.y, m_pLighting.ambientlight.z, m_pLighting.diffuselight.x, m_pLighting.diffuselight.y, m_pLighting.diffuselight.z);
 		//
 
 		m_dModelPerEntityData.int_values.x = m_iNumModelLights;
@@ -2863,6 +2865,22 @@ void CStudioModelRenderer::StudioSetupLighting(void)
 
 	if (!iret)
 	{
+		// Just returning 0 for all seems to fix the issue below. Probably breaks something else?
+		m_pLighting.diffuselight.x = 0;
+		m_pLighting.diffuselight.y = 0;
+		m_pLighting.diffuselight.z = 0;
+
+		m_pLighting.ambientlight.x = 0;
+		m_pLighting.ambientlight.y = 0;
+		m_pLighting.ambientlight.z = 0;
+
+		m_pLighting.lightdir.x = m_pCvarSkyVecX->value;
+		m_pLighting.lightdir.y = m_pCvarSkyVecY->value;
+		m_pLighting.lightdir.z = m_pCvarSkyVecZ->value;
+
+		return;
+		/*
+		// TO-DO: fix this making pitch black rooms do fullbright
 		m_pLighting.diffuselight.x = ((float)m_pCvarSkyColorX->value / 255) * 0.55;
 		m_pLighting.diffuselight.y = ((float)m_pCvarSkyColorY->value / 255) * 0.55;
 		m_pLighting.diffuselight.z = ((float)m_pCvarSkyColorZ->value / 255) * 0.55;
@@ -2871,10 +2889,8 @@ void CStudioModelRenderer::StudioSetupLighting(void)
 		m_pLighting.ambientlight.y = ((float)m_pCvarSkyColorY->value / 255) * 0.45;
 		m_pLighting.ambientlight.z = ((float)m_pCvarSkyColorZ->value / 255) * 0.45;
 
-		m_pLighting.lightdir.x = m_pCvarSkyVecX->value;
-		m_pLighting.lightdir.y = m_pCvarSkyVecY->value;
-		m_pLighting.lightdir.z = m_pCvarSkyVecZ->value;
 		return;
+		*/
 	}
 
 	m_pLighting.diffuselight = color * 0.55;

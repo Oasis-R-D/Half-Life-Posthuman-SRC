@@ -681,17 +681,19 @@ FuncHook(R_MuzzleFlash, void, float* pos1, int type)
 	if (!pTemp)
 		return;
 	
+	float ft = engine_cl->time - engine_cl->oldtime;
+	
 	pTemp->entity.curstate.rendermode = kRenderTransAdd;
 	pTemp->entity.curstate.renderamt = 255;
 	pTemp->entity.curstate.framerate = 10;
 	pTemp->entity.curstate.renderfx = 0;
-	pTemp->die = engine_cl->time + 0.025; // die at next frame
+	pTemp->die = engine_cl->time + V_max(0.03, ft); // die at next frame
 	pTemp->entity.curstate.frame = gEngfuncs.pfnRandomLong(0, pTemp->frameMax);
 	pTemp->flags |= FTENT_SPRANIMATE | FTENT_SPRANIMATELOOP;
 	pTemp->entity.curstate.scale = scale;
 	
 	if (index == 0)
-		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 20); // rifle flash
+		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 35); // rifle flash
 	else
 		pTemp->entity.angles[2] = gEngfuncs.pfnRandomLong(0, 359);
 	

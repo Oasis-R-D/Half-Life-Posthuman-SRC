@@ -112,7 +112,7 @@ public:
 	void ClipSize(int clipsize);
 	void PrescheduleThink() override;
 	void SpeakSentence();
-	void Killed(entvars_t* pevAttacker, int iGib) override;
+	void GibMonster() override;
 
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
@@ -145,7 +145,6 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool m_bHelmet = false;
-	bool m_hasdroppedwpn = false;
 	bool m_medic = false;
 	bool m_bFuelTank = false;
 	bool m_bHeavyGrunt = false;

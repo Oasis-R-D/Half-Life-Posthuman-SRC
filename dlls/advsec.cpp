@@ -275,11 +275,11 @@ int CAdvSec::IRelationship(CBaseEntity* pTarget)
 //=========================================================
 void CAdvSec::GibMonster()
 {
-	Vector vecGunPos;
-	Vector vecGunAngles;
-
 	if (GetBodygroup(2) != 2)
 	{ // throw a gun if the grunt has one
+		Vector vecGunPos;
+		Vector vecGunAngles;
+
 		GetAttachment(0, vecGunPos, vecGunAngles);
 
 		CBaseEntity* pGun;
