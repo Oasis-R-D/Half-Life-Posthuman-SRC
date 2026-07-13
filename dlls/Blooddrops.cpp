@@ -30,9 +30,7 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 	if (UTIL_ShouldShowBlood(BloodType) == true && UTIL_GetFreeEdictCount() > BLDamnt)
 	{
 		if (isgib == false && BLDamnt > 12)
-		{
 			BLDamnt = 12;
-		}
 
 		if ((g_iSkillLevel == SKILL_REALISM || g_pGameRules->IsMultiplayer()) && BLDamnt > 2)
 			BLDamnt /= 2;
@@ -75,10 +73,7 @@ void CPhysblood::Spawn()
 	{
 		pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
 		if (m_BloodDropVel > 0 && m_randomspeed == true)
-		{
 			m_BloodDropVel -= RANDOM_LONG(0, 375);
-		}
-
 	}
 	else
 	{
@@ -89,15 +84,11 @@ void CPhysblood::Spawn()
 			pev->scale = RANDOM_FLOAT(0.35f, 0.6f); // makes the ones going towards the player smaller
 		}
 		else
-		{
 			pev->scale = RANDOM_FLOAT(0.4f, 0.65f);
-		}
 	}
 
 	if (m_isgib == true)
-	{
 		pev->scale = RANDOM_FLOAT(0.30f, 0.40f);
-	}
 
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
@@ -149,29 +140,19 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 	TraceResult tr = UTIL_GetGlobalTrace();
 
 	if (m_BloodType == BLOOD_COLOR_RED)
-	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BLOODSPRAY1, DECAL_BLOODSPRAY6), 6);
-	}
 	else if (m_BloodType == BLOOD_COLOR_YELLOW)
-	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_ABLOODSPRAY1, DECAL_YBLOOD6_2), 6);
-	}
 	else if (m_BloodType == BLOOD_COLOR_GREEN)
-	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_XBLOODSPRAY1, DECAL_XBLOODSPRAY7), 6);
-	}
 	else if (m_BloodType == BLOOD_COLOR_INFECTION)
-	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOODSPRAY1, DECAL_BBLOODSPRAY3), 6);
-	}
 	else if (m_BloodType == NULL) // add decal?
 	{
-		//UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3), 6);
+		// UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_WBLOODSPRAY1, DECAL_WBLOODSPRAY3), 6);
 	}
 	else // also good for catching errors with monster blood types
-	{
 		UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_NBLOODSPRAY1, DECAL_NBLOODSPRAY6), 6);
-	}
 
 	if (!m_isPool)
 	{
@@ -187,7 +168,7 @@ void CPhysblood::DropTouch(CBaseEntity* pOther)
 
 void CPhysblood::AirThink()
 {
-	pev->nextthink = gpGlobals->time + 0.05f;
+	pev->nextthink = gpGlobals->time + 0.01f;
 	
 	/* // WAS HEALING WATER
 	if (m_BloodType == BLOOD_COLOR_INFECTION && !m_isPool)

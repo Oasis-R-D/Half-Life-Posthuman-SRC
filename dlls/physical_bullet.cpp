@@ -83,7 +83,7 @@ void CPhysbullet::Spawn()
 	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
 
 	pev->solid = SOLID_BBOX;
-	UTIL_SetOrigin(pev, m_SpawnPos); // TO-DO: now that there's no +4 in direction, will need to delay the trail starting somehow
+	UTIL_SetOrigin(pev, m_SpawnPos);
 
 	float x, y, z;
 	do
@@ -224,12 +224,9 @@ void CPhysbullet::Spawn()
 		m_flPenetrationPow = m_fPenoverride;
 
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
-	if (owner != nullptr) // shouldn't happen since the spawn nullptr check, here Justin Case.
+	if (owner != nullptr && owner->IsPlayer()) // shouldn't happen since the spawn nullptr check, here Justin Case.
 	{
-		if (owner->IsPlayer())
-		{
-			pev->renderamt = 0;
-		}
+		pev->renderamt = 0;
 	}
 
 	if (m_bsubsonic)
@@ -286,10 +283,6 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 {	
 	TraceResult tr = UTIL_GetGlobalTrace();
 
-	// Add water hit VFX
-	//if (UTIL_PointContents(m_SpawnPos) == CONTENTS_WATER)
-		//FindWaterSurface();
-
 	if (UTIL_PointContents(tr.vecEndPos) == CONTENTS_SKY)
 	{
 		UTIL_Remove(this);
@@ -309,7 +302,8 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		Owner = this->edict();
 	}
 
-	if (m_flPenetrationPow > 0) // penetrate (ask your mother what that means)
+	// penetrate
+	if (m_flPenetrationPow > 0) 
 	{
 		TraceResult beam_tr;
 		TraceResult beam_tr2;
@@ -450,28 +444,25 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 		ApplyMultiDamage(owner->pev, owner->pev);
 	}
-	else
+	else if (pOther->IsBSPModel())
 	{
-		if (pOther->IsBSPModel())
-		{
-			char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_vecDir * 2, BULLET_PLAYER_9MM);
-			//ALERT(at_console, "char is %c \0", material);
+		char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_vecDir * 2, BULLET_PLAYER_9MM);
+		//ALERT(at_console, "char is %c \0", material);
 
-			MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-			WRITE_BYTE(TE_IMPACTVFX);
-			WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
-			WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
-			WRITE_COORD(0);
-			WRITE_COORD(0);
-			WRITE_BYTE(material); // (count) (use as mat type?)
-			WRITE_BYTE(0); // (bullethole decal texture index)
-			MESSAGE_END();
+		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
+		WRITE_BYTE(TE_IMPACTVFX);
+		WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
+		WRITE_COORD_VECTOR(-1 * pev->velocity.Normalize());							// dir
+		WRITE_COORD(0);
+		WRITE_COORD(0);
+		WRITE_BYTE(material); // (count) (use as mat type?)
+		WRITE_BYTE(0); // (bullethole decal texture index)
+		MESSAGE_END();
 			
-			if (pev->waterlevel == 0)
-			{
-				pev->angles = tr.vecPlaneNormal;
-				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 0);
-			}
+		if (pev->waterlevel == 0)
+		{
+			pev->angles = tr.vecPlaneNormal;
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 0);
 		}
 	}
 
@@ -498,22 +489,18 @@ void CPhysbullet::AirThink()
 	}
 	*/
 
-	if (pev->renderamt < 225 && !m_bsubsonic) // fade in
-	{
+	// fade in
+	if (pev->renderamt < 225 && !m_bsubsonic) 
 		pev->renderamt += 22.5;
-	}
 
 	// WIND
-	float flWindVel = 2;
+	float flWindVel = 6;
 	float flwindmult = 0.25;
 
 	double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
 
-	for (int i = 0; i < 3; i++)
-	{
-		pev->velocity = pev->velocity + (gpGlobals->v_up * calculatedWind);
-		pev->velocity = pev->velocity + (gpGlobals->v_right * calculatedWind);
-	}
+	pev->velocity = pev->velocity + (gpGlobals->v_up * calculatedWind);
+	pev->velocity = pev->velocity + (gpGlobals->v_right * calculatedWind);
 	// WIND END
 
 	// Update pos/vel for penetrations and ricochet
