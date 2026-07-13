@@ -406,7 +406,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);
 
 	// ricochet
-	if (pOther->IsBSPModel())
+	if (pOther->IsBSPModel() && pev->gravity < 10)
 	{
 		// if what we hit is static architecture, can stay around for a while.
 		Vector vecDir = m_vecDir;
