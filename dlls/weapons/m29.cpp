@@ -23,9 +23,9 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
-#define	M29_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
-#define firerate 0.25
+#define	M29_ACCURACY_SHOT_PENALTY_TIME		0.33f	// Applied amount of time each shot adds to the time we must recover from
+#define	M29_ACCURACY_MAXIMUM_PENALTY_TIME	0.75f	// Maximum penalty to deal out
+#define firerate 0.25f
 
 extern bool CanAttack(float attack_time, float curtime, bool isPredicted);
 
@@ -100,7 +100,7 @@ bool CM29::Deploy()
 	if (g_pGameRules->IsMultiplayer())
 		NotFirstDraw = true;
 
-	m_iCrossHairType = CROSSHAIR_NOCENTER;
+	m_iCrossHairType = CROSSHAIR_DUCKBILL;
 	m_flAccuracyPenalty = M29_ACCURACY_MAXIMUM_PENALTY_TIME;
 
 	CalculateAmmo();
@@ -203,7 +203,7 @@ const Vector& CM29::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M29_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( g_vecZero, VECTOR_CONE_5DEGREES, ramp, cone );
+	VectorLerp( g_vecZero, VECTOR_CONE_10DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_2DEGREES;
@@ -255,11 +255,11 @@ void CM29::Shoot(int gunnumb)
 #ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, spread, spread, 1, 44, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
 	}
 	CBasePlayerWeapon::Recoil(2, 1);
 #endif
