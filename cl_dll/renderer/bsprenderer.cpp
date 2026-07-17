@@ -2558,6 +2558,10 @@ void CBSPRenderer::SurfaceToChain(clientmsurface_t* psurfbase, clientmsurface_t*
 		}
 	}
 
+	// TO-DO: fixes Blue-Shift levels, replace with a missing texture?
+	if (!(clientmsurface_t*)m_pSurfaces[pbrushface->index].regtexture)
+		return; 
+
 	s->texturechain = (clientmsurface_t*)m_pSurfaces[pbrushface->index].regtexture->texturechain;
 	m_pSurfaces[pbrushface->index].regtexture->texturechain = (msurface_t*)s;
 };
