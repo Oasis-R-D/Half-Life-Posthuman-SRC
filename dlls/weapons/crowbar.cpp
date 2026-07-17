@@ -199,7 +199,7 @@ void CCrowbar::Hit(bool type, int hand)
 
 				if (FClassnameIs(pHit->pev, "monster_headcrab_super"))
 				{
-					m_pPlayer->Hunger += 5;
+					m_pPlayer->m_iHunger += 5;
 					m_pPlayer->TakeHealth(20, DMG_GENERIC);
 
 					for (int i = 0; i < 7; i++)
@@ -210,8 +210,8 @@ void CCrowbar::Hit(bool type, int hand)
 					}
 				}
 
-				if (m_pPlayer->Hunger > 100)
-					m_pPlayer->Hunger = 100;
+				if (m_pPlayer->m_iHunger > 100)
+					m_pPlayer->m_iHunger = 100;
 			}
 		}
 

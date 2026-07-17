@@ -2884,10 +2884,10 @@ void CTriggerHunger::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE
 		return;
 	auto player = (CBasePlayer*)pActivator;
 	if (m_iSet != -1)
-		player->Hunger = m_iSet;
-	player->Hunger *= m_iMulti;
-	player->Hunger += m_iPlus;
-	player->Hunger = round(player->Hunger);
+		player->m_iHunger = m_iSet;
+	player->m_iHunger *= m_iMulti;
+	player->m_iHunger += m_iPlus;
+	player->m_iHunger = round(player->m_iHunger);
 }
 
 bool CTriggerHunger::KeyValue(KeyValueData* pkvd)
@@ -3158,6 +3158,16 @@ void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 	{
 		case 0:
 			pCaller->m_bPrehuman = PreHuman;
+			if (pCaller->IsPlayer())
+			{
+				auto player = (CBasePlayer*)pCaller;
+						
+				if (player->FlashlightIsOn())
+					player->FlashlightTurnOff();
+
+				player->m_iHunger = 100;
+			}
+
 			break;
 		case 1:
 			if (FStringNull(pev->target))
@@ -3180,6 +3190,8 @@ void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 						
 						if (player->FlashlightIsOn())
 							player->FlashlightTurnOff();
+
+						player->m_iHunger = 100;
 					}
 					pTarget->m_bPrehuman = PreHuman;
 				}
@@ -3201,7 +3213,9 @@ void CTriggerPreHuman::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 					
 					if (player->FlashlightIsOn())
 						player->FlashlightTurnOff();
-					pTarget->m_bPrehuman = PreHuman;
+
+					player->m_iHunger = 100;
+					player->m_bPrehuman = PreHuman;
 				}
 			}
 			break;

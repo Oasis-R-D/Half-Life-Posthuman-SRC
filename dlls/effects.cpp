@@ -2610,9 +2610,9 @@ void CItemSoda::CanTouch(CBaseEntity* pOther)
 		return;
 
 	player->TakeHealth(1, DMG_GENERIC); // a bit of health.
-	player->Hunger += 2;
-	if (player->Hunger > 100)
-		player->Hunger = 100;
+	player->m_iHunger += 2;
+	if (player->m_iHunger > 100)
+		player->m_iHunger = 100;
 
 	if (!FNullEnt(pev->owner))
 	{
