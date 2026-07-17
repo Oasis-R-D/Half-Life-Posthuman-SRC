@@ -402,8 +402,7 @@ public:
 
 	float FlashingHUDDelay;
 
-	int Hunger;
-	float HungerTime;
+	int m_iHunger;
 	float HungerDamageTime;
 
 	double m_dbFireCheckTimer;
