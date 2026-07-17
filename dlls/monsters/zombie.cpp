@@ -735,6 +735,9 @@ Schedule_t* CZombie::GetScheduleOfType(int Type)
 		return slZbFollow;
 
 	case SCHED_IDLE_STAND:
+		// Use CBaseMonster here to prevent idle talking
+		psched = CBaseMonster::GetScheduleOfType(Type);
+
 		if (psched == slIdleStand)
 		{
 			// just look straight ahead.
