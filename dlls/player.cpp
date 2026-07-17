@@ -4857,12 +4857,12 @@ void CBasePlayer::UpdateClientData()
 {
 	if (HasSuit())
 	{
-		if (!g_pGameRules->IsMultiplayer() && !m_bPrehuman)
+		if (!g_pGameRules->IsMultiplayer())
 		{
 			if (m_iHunger <= 0 && HungerDamageTime < gpGlobals->time)
 			{
-					TakeDamage(CWorld::World->pev, CWorld::World->pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
-					HungerDamageTime = gpGlobals->time + 9;
+				TakeDamage(CWorld::World->pev, CWorld::World->pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
+				HungerDamageTime = gpGlobals->time + 9;
 			}
 			else if (m_iHunger <= 10 && HungerDamageTime < gpGlobals->time)
 			{

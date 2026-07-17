@@ -80,7 +80,7 @@ void CPhysbullet::Spawn()
 {
 	Precache();
 
-	pev->movetype = MOVETYPE_BOUNCE; // makes it have gravity
+	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 
 	pev->solid = SOLID_BBOX;
 	UTIL_SetOrigin(pev, m_SpawnPos);
@@ -383,6 +383,9 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 					MESSAGE_END(); */
 				}
 
+				pev->movetype = MOVETYPE_NONE;
+				SetTouch(NULL);
+
 				m_SpawnPos = tr.vecEndPos + (m_vecDir * (i+1));
 				pev->origin = m_SpawnPos;
 				m_bTryPen = true;
@@ -399,7 +402,8 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 	DecalGunshot(&tr, BULLET_MONSTER_9MM);
 
-	// ricochet
+	// ricochet (disabled due to issues)
+#if 0
 	if (pOther->IsBSPModel() && pev->gravity < 10)
 	{
 		// if what we hit is static architecture, can stay around for a while.
@@ -430,6 +434,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			return;
 		}
 	}
+#endif
 
 	// Did not penetrate or bounce, normal collision
 
@@ -512,6 +517,9 @@ void CPhysbullet::AirThink()
 	}
 	else if (m_bTryPen)
 	{
+		pev->movetype = MOVETYPE_TOSS;
+		SetTouch(&CPhysbullet::BulletImpact);
+
 		UTIL_SetOrigin(pev, m_SpawnPos);
 		pev->origin = m_SpawnPos;
 		pev->velocity = m_vecDir * m_iMuzzleVel;
