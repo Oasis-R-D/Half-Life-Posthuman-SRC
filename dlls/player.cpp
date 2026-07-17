@@ -130,7 +130,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bleedtime, FIELD_TIME),
-		DEFINE_FIELD(CBasePlayer, m_iHunger, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, Hunger, FIELD_INTEGER),
 		DEFINE_ARRAY(CBasePlayer, rgiLimb_Health, FIELD_INTEGER, 7), // TO-DO: is this supposed to be 7?
 		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iBurnTimer, FIELD_INTEGER),
@@ -2195,7 +2195,7 @@ void CBasePlayer::PreThink()
 			--m_bleedAMNT;
 			m_bleedtime = gpGlobals->time + 1;
 
-			m_iHunger -= 1;
+			Hunger -= 1;
 
 			if (g_iSkillLevel == SKILL_REALISM)
 			{
@@ -3592,7 +3592,7 @@ void CBasePlayer::Spawn()
 	m_lastx = m_lasty = 0;
 	m_bIsClimbing = false; // ROPEUPD
 	m_flNextChatTime = gpGlobals->time;
-	m_iHunger = 100;
+	Hunger = 100;
 	m_iSpeedOverride = -1;
 	m_bNoMove = m_bNoSprint = false;
 	g_pGameRules->PlayerSpawn(this);
@@ -4243,7 +4243,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	case 69:
 	{
 		m_bPrehuman = !m_bPrehuman;
-		m_iHunger = 100;
 		ALERT(at_notice, "bPrehuman Toggled!\n");
 		break;
 	}
@@ -4857,23 +4856,23 @@ void CBasePlayer::UpdateClientData()
 {
 	if (HasSuit())
 	{
-		if (!g_pGameRules->IsMultiplayer() && !m_bPrehuman)
+		if (!g_pGameRules->IsMultiplayer())
 		{
-			if (m_iHunger <= 0 && HungerDamageTime < gpGlobals->time)
+			if (Hunger <= 0 && HungerDamageTime < gpGlobals->time)
 			{
 					TakeDamage(CWorld::World->pev, CWorld::World->pev, 2, DMG_HUNGER | DMG_IGNOREARMOR);
 					HungerDamageTime = gpGlobals->time + 9;
 			}
-			else if (m_iHunger <= 10 && HungerDamageTime < gpGlobals->time)
+			else if (Hunger <= 10 && HungerDamageTime < gpGlobals->time)
 			{
 				TakeDamage(CWorld::World->pev, CWorld::World->pev, 1, DMG_HUNGER | DMG_IGNOREARMOR);
 				HungerDamageTime = gpGlobals->time + 9;
 			}
 
-			if (m_flHungryTime < gpGlobals->time && m_iHunger > 0 && m_iHunger <= 100)
+			if (HungerTime < gpGlobals->time && Hunger > 0 && Hunger <= 100)
 			{
-				m_iHunger--;
-				m_flHungryTime = gpGlobals->time + 9;
+				Hunger--;
+				HungerTime = gpGlobals->time + 9;
 
 				for (int i = 0; i < 7; i++)
 				{
@@ -4884,7 +4883,7 @@ void CBasePlayer::UpdateClientData()
 			}
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgHunger, NULL, pev);
-			WRITE_SHORT(m_iHunger);
+			WRITE_SHORT(Hunger);
 			MESSAGE_END();
 		}
 
@@ -4908,7 +4907,7 @@ void CBasePlayer::UpdateClientData()
 			}
 		}
 
-		if (m_iHunger <= 10 && !m_bPrehuman)
+		if (Hunger <= 10 && !m_bPrehuman)
 		{
 			CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)

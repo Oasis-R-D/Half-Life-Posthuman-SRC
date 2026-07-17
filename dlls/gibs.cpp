@@ -61,7 +61,7 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 	if (pWpn && (gpGlobals->time < pWpn->m_flNextOffhandAttack || pWpn->IsDual()))
 		return;
 
-	if (pPlayer->m_iHunger > 97)
+	if (pPlayer->Hunger > 97)
 	{
 		EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "player/eatfail.wav", 0.85, 1.2);
 		return;
@@ -102,7 +102,7 @@ void CoolerGib::EatThink()
 	if (m_bloodColor == BLOOD_COLOR_RED)
 	{
 		// tasty!
-		m_pEater->m_iHunger += RANDOM_LONG(5, 6);
+		m_pEater->Hunger += RANDOM_LONG(5, 6);
 		m_pEater->TakeHealth(5, DMG_GENERIC);
 		for (int i = 0; i < 7; i++)
 		{
@@ -114,15 +114,15 @@ void CoolerGib::EatThink()
 	else if (m_bloodColor == BLOOD_COLOR_INFECTION)
 	{
 		m_pEater->TakeDamage(CWorld::World->pev, CWorld::World->pev, gSkillData.funghoulDmgBite/2, DMG_FUNGUS);
-		m_pEater->m_iHunger -= RANDOM_LONG(1, 3);
-		if (m_pEater->m_iHunger < 0)
-			m_pEater->m_iHunger = 0;
+		m_pEater->Hunger -= RANDOM_LONG(1, 3);
+		if (m_pEater->Hunger < 0)
+			m_pEater->Hunger = 0;
 	}
 	else if (m_bloodColor != DONT_BLEED)
 	{
 		// slop!
 		int increment = RANDOM_LONG(2, 3);
-		m_pEater->m_iHunger += RANDOM_LONG(2, 3);
+		m_pEater->Hunger += RANDOM_LONG(2, 3);
 		m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
 		for (int i = 0; i < 7; i++)
 		{
@@ -132,8 +132,8 @@ void CoolerGib::EatThink()
 		}
 	}
 
-	if (m_pEater->m_iHunger > 100)
-		m_pEater->m_iHunger = 100;
+	if (m_pEater->Hunger > 100)
+		m_pEater->Hunger = 100;
 
 	m_pEater->m_bNoMove = false;
 
