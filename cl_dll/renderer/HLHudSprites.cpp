@@ -405,10 +405,10 @@ void DrawCrosshair()
 	AngleVectors(angles, &forward, &right, &up);
 	point = global_refdef.vieworg + forward * 50;
 	screen = gBSPRenderer.TriWorldToScreen(point);
-
-	float frametime = engine_cl->time - engine_cl->oldtime;
+	
 	if (gOldCrosshairSpreadNum > 0 && gOldCrosshairSpreadNum < 1.0)
-	{
+	{	
+		float frametime = engine_cl->time - engine_cl->oldtime;
 		gCrosshairSpreadNum = dlerp(gOldCrosshairSpreadNum, gCrosshairSpreadNum, 5*frametime);
 	}
 	gOldCrosshairSpreadNum = gCrosshairSpreadNum;

@@ -2734,7 +2734,8 @@ void CWarpBall::Precache()
 	PRECACHE_MODEL("sprites/XFlare1.spr");
 	PRECACHE_MODEL("sprites/lgtning.spr");
 	PRECACHE_SOUND("debris/alien_teleport.wav");
-	UTIL_PrecacheOther(STRING(m_iszWarpTarget));
+	if (!FStringNull(m_iszWarpTarget))
+		UTIL_PrecacheOther(STRING(m_iszWarpTarget));
 }
 
 void CWarpBall::Spawn()
