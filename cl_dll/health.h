@@ -69,9 +69,9 @@ public:
 	float m_fFade;
 
 private:
-	HSPRITE_GOLDSRC  m_hHealthtext;
-	HSPRITE_GOLDSRC  m_hSprite;
-	HSPRITE_GOLDSRC  m_hDamage;
+	HSPRITE_GOLDSRC m_hHealthtext;
+	HSPRITE_GOLDSRC m_hSprite;
+	HSPRITE_GOLDSRC m_hDamage;
 
 	DAMAGE_IMAGE m_dmg[NUM_DMG_TYPES];
 	int m_bitsDamage;

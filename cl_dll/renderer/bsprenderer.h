@@ -178,6 +178,7 @@ public:
 
 public:
 	void DrawDecals(bool m_bTransPass = false);
+	void BlendDecals(int src, int dest, bool m_bTransPass, size_t decalvertlist_buffer_size, std::unordered_map<GLuint, std::vector<DecalVert_t>> &decalbatch, int lastdecalvertbuffersize);
 	void LoadDecals(void);
 	void DeleteDecals(void);
 	void DecalVertsLight(DecalVert_t* v, clientmsurface_t* psurf, int vertCount);

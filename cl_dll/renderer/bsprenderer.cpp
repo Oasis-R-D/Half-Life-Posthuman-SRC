@@ -4093,10 +4093,14 @@ DrawDecals
 
 ====================
 */
+
+// TO-DO: have multiple batches, one for each type of decal
+// TO-DO: fix issue where decal texture sometimes breaks at certain cam positions and angles
 void CBSPRenderer::DrawDecals(bool m_bTransPass)
 {
 	CreateCachedDecals();
 
+	// no decals to draw
 	if (m_pDecals.empty() && m_pStaticDecals.empty())
 	{
 		return;
@@ -4108,25 +4112,24 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 	for (int i = 0; i < m_pDecals.size(); i++)
 	{
 		//char name[64];
-		//strcpy(name, m_pDecals[i].get()->texinfo->szName); // TO-DO: find some way to get this into decalbatch for second "for (auto texture : decalbatch)"
+		//strcpy(name, m_pDecals[i].get()->texinfo->szName);
 
 		std::vector<DecalVert_t> decalvertlist;
 		DrawSingleDecal(m_pDecals[i].get(), decalvertlist, m_bTransPass, &needsbufferupdate);
 		auto& row = decalbatch[m_pDecals[i].get()->texinfo->gl_texid];
 		row.insert(row.end(), std::begin(decalvertlist), std::end(decalvertlist));
 	}
+
+	// Shouldn't happen
 	if (decalbatch.empty())
 		return;
 
 	std::vector<DecalVert_t> decalvertlist_buffer;
 	for (auto texture : decalbatch)
-	{
 		decalvertlist_buffer.insert(decalvertlist_buffer.end(), std::begin(texture.second), std::end(texture.second));
-	}
+
 	if (decalvertlist_buffer.size() >= (2 << 19))
 		gEngfuncs.Con_Printf("[TRINITY] WARNING!! Decal vertice count has reached its limit !! (maximum of 524.288 vertices space stored in gpu buffer)");
-
-	m_pDecalVAO->BindVAO();
 
 	static bool updated_base_buffer = false; //this is so ugly
 
@@ -4142,31 +4145,39 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
 		}
 	}
-	else
+	else if (!decalvertlist_buffer.empty())
 	{
-		if (!decalvertlist_buffer.empty())
+		if (lastdecalvertbuffersize_trans != decalvertlist_buffer.size() || needsbufferupdate || updated_base_buffer)
 		{
-			if (lastdecalvertbuffersize_trans != decalvertlist_buffer.size() || needsbufferupdate || updated_base_buffer)
-			{
-				updated_base_buffer = false;
-				lastdecalvertbuffersize_trans = decalvertlist_buffer.size();
-				m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-				m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * lastdecalvertbuffersize, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
-			}
+			updated_base_buffer = false;
+			lastdecalvertbuffersize_trans = decalvertlist_buffer.size();
+			m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * lastdecalvertbuffersize, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
 		}
 	}
 
 
+	BlendDecals(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, m_bTransPass, decalvertlist_buffer.size(), decalbatch, lastdecalvertbuffersize);
+}
+
+/*
+====================
+BlendDecals
+
+====================
+*/
+void CBSPRenderer::BlendDecals(int src, int dest, bool m_bTransPass, size_t decalvertlist_buffer_size, std::unordered_map<GLuint, std::vector<DecalVert_t>> &decalbatch, int lastdecalvertbuffersize)
+{
+	m_pDecalVAO->BindVAO();
 	m_DecalShader->Bind();
 
 	BindGLTexture(LIGHTMAP_TEXUNIT, m_iEngineLightmapIndex);
-
 
 	glDepthFunc(GL_LEQUAL);
 	g_GlobalGLState.SetDepthWrite(false);
 
 	g_GlobalGLState.SetBlend(true);
-	g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	g_GlobalGLState.SetBlendFunc(src, dest);
 
 	glPolygonOffset(-1, -1);
 	g_GlobalGLState.SetPolygonOffsetFill(true);
@@ -4191,7 +4202,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 		m_DecalShader->Uniform1i(m_DecalShader_locs[decal_wireframe], 1);
 
-		glDrawArrays(GL_TRIANGLES, 0, decalvertlist_buffer.size());
+		glDrawArrays(GL_TRIANGLES, 0, decalvertlist_buffer_size);
 
 		m_DecalShader->Uniform1i(m_DecalShader_locs[decal_wireframe], 0);
 
@@ -4206,7 +4217,6 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 	g_GlobalGLState.SetPolygonOffsetFill(false);
 
 	GL_VertexArrayObject::ResetVAOBinding();
-
 }
 
 /*

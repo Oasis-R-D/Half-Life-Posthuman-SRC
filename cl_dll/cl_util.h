@@ -176,7 +176,7 @@ inline void UnpackRGB(int& r, int& g, int& b, unsigned long ulRGB)
 	b = ulRGB & 0xFF;
 }
 
-HSPRITE_GOLDSRC  LoadSprite(const char* pszName);
+HSPRITE_GOLDSRC LoadSprite(const char* pszName);
 
 
 // frac should always be multiplied by frametime
