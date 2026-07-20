@@ -868,7 +868,7 @@ void CBSPRenderer::GetAdditionalLights(void)
 	if (m_bGotAdditional)
 		return;
 
-	for (const auto mdl_light : gPropManager.m_pModelLights)
+	for (const auto& mdl_light : gPropManager.m_pModelLights)
 	{
 		if (IsInPotentiallyVisibleSet(mdl_light.visframe))
 		{
@@ -3944,7 +3944,7 @@ CreateCachedDecals
 */
 void CBSPRenderer::CreateCachedDecals(void)
 {
-	for (auto decal : gPropManager.m_pDecals)
+	for (const auto& decal : gPropManager.m_pDecals)
 	{
 		pmtrace_t pTrace;
 		EV_SetTraceHull(2);
@@ -4005,7 +4005,7 @@ void CBSPRenderer::DrawSingleDecal(customdecal_t* decal, std::vector<DecalVert_t
 		{
 			if (IsEntityTransparent(ppoly->entity) && !m_bTransPass)
 				continue;
-			else if (!IsEntityTransparent(ppoly->entity) && m_bTransPass && (!ppoly->entity->curstate.effects & FL_MIRROR) )
+			else if (!IsEntityTransparent(ppoly->entity) && m_bTransPass && (ppoly->entity->curstate.effects & FL_MIRROR) == 0 )
 				continue;
 
 			if (IsEntityMoved(ppoly->entity))
@@ -5187,7 +5187,6 @@ CL_AllocDLight
 */
 cl_dlight_t* CBSPRenderer::CL_AllocDLight(int key)
 {
-	int i;
 	float time = engine_cl->time;
 
 	// first look for an exact key match

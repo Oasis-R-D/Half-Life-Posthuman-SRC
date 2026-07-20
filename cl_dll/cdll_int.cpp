@@ -1009,7 +1009,7 @@ void RestoreDecals(const char* savefile)
 	FILE* pFile = fopen(szPath, "rb");
 	if (!pFile)
 		return;
-	fseek(pFile, -sizeof(long), SEEK_END);
+	fseek(pFile, -(long)sizeof(long), SEEK_END);
 	fread(&pStart, sizeof(long), 1, pFile);
 	fseek(pFile, pStart, SEEK_SET);
 	fread(&message, sizeof(message), 1, pFile);
@@ -1050,7 +1050,7 @@ void SaveDecals(const char* savefile)
 	int clearstring = 0;
 	int i = 0;
 	int j = 0;
-	if (gBSPRenderer.m_pDecals.size() == 0 && gBSPRenderer.m_pDecals.size() == 0)
+	if (gBSPRenderer.m_pDecals.size() == 0)
 		return;
 
 	_snprintf(szPath, sizeof(szPath), "%s/SAVE/%s", gEngfuncs.pfnGetGameDirectory(), savefile);

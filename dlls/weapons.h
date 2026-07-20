@@ -413,7 +413,7 @@ public:
 	float m_flLastFireTime;
 
 	// POST-HUMAN
-	virtual const Vector& GetBulletSpread() { return Vector(0.0, 0., 0.0); } // 5 degrees
+	virtual const Vector& GetBulletSpread() { return g_vecZero; } // 5 degrees
 	void ShootGrenade(int type);// called by CBasePlayerWeapons ItemPostFrame()
 	void AcousticMod(int type = 0, int pitchBIG = 100, int pitchMED = 100, int pitchSML = 100);
 

@@ -219,6 +219,7 @@ float EV_HLDM_PlayTextureSound(int idx, pmtrace_t* ptr, float* vecSrc, float* ve
 		cnt = 2;
 		break;
 	case CHAR_TEX_IMPEN:
+		return 0;
 		break;
 	}
 
@@ -537,10 +538,9 @@ void EV_FireShotGunDouble(event_args_t* args)
 	Vector angles;
 	Vector velocity;
 
-	int j;
 	Vector ShellVelocity;
 	Vector ShellOrigin;
-	int shell;
+
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
@@ -571,7 +571,7 @@ void EV_FireShotGunSingle(event_args_t* args)
 
 	Vector ShellVelocity;
 	Vector ShellOrigin;
-	int shell;
+
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
@@ -600,10 +600,9 @@ void EV_FireShotGunDoubleSEMI(event_args_t* args)
 	Vector angles;
 	Vector velocity;
 
-	int j;
 	Vector ShellVelocity;
 	Vector ShellOrigin;
-	int shell;
+
 	Vector vecSrc, vecAiming;
 	Vector up, right, forward;
 
@@ -709,8 +708,8 @@ void EV_FireM249(event_args_t* args)
 	const char* sound;
 	switch (gEngfuncs.pfnRandomLong(0, 1))
 	{
-	case 0: sound = "weapons/saw_fire1.wav"; break;
-	case 1: sound = "weapons/saw_fire2.wav"; break;
+		case 0: sound = "weapons/saw_fire1.wav"; break;
+		case 1: sound = "weapons/saw_fire2.wav"; break;
 	}
 
 	gEngfuncs.pEventAPI->EV_PlaySound(

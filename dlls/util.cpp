@@ -1751,7 +1751,7 @@ double UTIL_Round(double roundee, int roundto)
 	while (roundto2 > 0)
 	{
 		roundto2 -= 1;
-		power * 10;
+		power *= 10;
 	}
 	roundee *= power;
 	roundee = round(roundee);

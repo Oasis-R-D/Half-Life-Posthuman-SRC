@@ -43,7 +43,7 @@ DECLARE_MESSAGE(m_Flash, Hunger)
 
 bool CHudFlashlight::Init()
 {
-	m_fHungerState == HUNGERSTATE_IDLEOUT;
+	m_fHungerState = HUNGERSTATE_IDLEOUT;
 	m_iOldHunger = -1;
 	m_fFade = 0;
 	m_fOn = false;

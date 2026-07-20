@@ -738,8 +738,6 @@ LINK_ENTITY_TO_CLASS(func_tank, CFuncTankGun);
 
 void CFuncTankGun::Fire(const Vector& barrelEnd, const Vector& forward, entvars_t* pevAttacker)
 {
-	int i;
-
 	if (m_fireLast != 0)
 	{
 		// FireBullets needs gpGlobals->v_up, etc.

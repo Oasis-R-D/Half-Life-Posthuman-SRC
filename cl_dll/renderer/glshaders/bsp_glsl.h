@@ -195,10 +195,10 @@ const char glsl330_world_fp[] = R"(
 		vec2 moments = texture(shadowMap, projCoord).xy;
 		
 		float p = step(linearfragdepth, moments.x); 
-		float variance = max(moments.y - sqr(moments.x), 0.00002);	//(variance = σ² = E[X²]−(E[X])²)
+		float variance = max(moments.y - sqr(moments.x), 0.00002);	//(variance = σ^2 = E[X^2]−(E[X])^2)
 		
 		float d = linearfragdepth - moments.x;						//(d "distance" = t = X - μ)
-		float pMax = variance  / ( variance + sqr(d) );				//(pMax = ( σ² / (σ² + t²) )
+		float pMax = variance  / ( variance + sqr(d) );				//(pMax = ( σ^2 / (σ^2 + t^2) )
 		
 		return min(max(p, pMax), 1.0);
 	}

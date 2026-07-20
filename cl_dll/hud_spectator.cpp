@@ -1077,7 +1077,7 @@ void CHudSpectator::HandleButtonsDown(int ButtonPressed)
 
 			if (g_iUser1 == OBS_ROAMING)
 			{
-				gEngfuncs.SetViewAngles(vJumpAngles);
+				engine_cl->viewangles = vJumpAngles;
 				iJumpSpectator = true;
 			}
 			// release directed mode if player wants to see another player
@@ -1181,7 +1181,7 @@ void CHudSpectator::SetModes(int iNewMainMode, int iNewInsetMode)
 			if (0 != g_iUser2)
 			{
 				V_GetChasePos(g_iUser2, v_cl_angles, vJumpOrigin, vJumpAngles);
-				gEngfuncs.SetViewAngles(vJumpAngles);
+				engine_cl->viewangles = vJumpAngles;
 				iJumpSpectator = true;
 			}
 			break;

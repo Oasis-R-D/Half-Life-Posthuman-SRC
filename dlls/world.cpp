@@ -204,7 +204,7 @@ void CDecal::TriggerDecal(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 	// this is set up as a USE function for infodecals that have targetnames, so that the
 	// decal doesn't get applied until it is fired. (usually by a scripted sequence)
 	TraceResult trace;
-	int entityIndex;
+	//int entityIndex;
 
 	UTIL_TraceLine(pev->origin - Vector(5, 5, 5), pev->origin + Vector(5, 5, 5), ignore_monsters, ENT(pev), &trace);
 
@@ -549,7 +549,7 @@ void SaveGlobalState(SAVERESTOREDATA* pSaveData)
 	}
 	else
 	{ // check for all autosave files in "SAVE/"
-		int cursavenum;
+		//int cursavenum;
 		char dir[128];
 		GET_GAME_DIR(dir);
 		strcat(dir, "/SAVE/autosave.sav");

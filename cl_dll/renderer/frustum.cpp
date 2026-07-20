@@ -31,7 +31,7 @@ CalcFov
 float FrustumCheck::CalcFov(float flFovX, float flWidth, float flHeight)
 {
 	float a;
-	float x, half_fov_y;
+	float x;
 
 	if (flFovX < 1 || flFovX > 179)
 	{
