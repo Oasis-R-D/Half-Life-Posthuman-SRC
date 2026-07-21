@@ -662,7 +662,7 @@ void CPropManager::LoadEntVars(void)
 				strcpy(szLightTarget, pValue);
 
 				int j = 0;
-				for (auto bspent2 : m_pBSPEntities)
+				for (const auto& bspent2 : m_pBSPEntities)
 				{
 					pValue = ValueForKey(&m_pBSPEntities[j], "classname");
 
@@ -722,17 +722,13 @@ SetupVBO
 */
 void CPropManager::SetupVBO(void)
 {
-	if (m_pStaticModelBuffer)
-		delete m_pStaticModelBuffer;
+	delete m_pStaticModelBuffer;
 
-	if (m_pStaticModelVAO)
-		delete m_pStaticModelVAO;
+	delete m_pStaticModelVAO;
 
-	if (m_pCableVertsBuffer)
-		delete m_pCableVertsBuffer;
+	delete m_pCableVertsBuffer;
 
-	if (m_pCableVertsVAO)
-		delete m_pCableVertsVAO;
+	delete m_pCableVertsVAO;
 
 	m_pStaticModelBuffer = nullptr;
 

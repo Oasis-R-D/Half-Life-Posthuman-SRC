@@ -635,7 +635,7 @@ void CLightning::StrikeUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TY
 }
 
 
-bool IsPointEntity(CBaseEntity* pEnt)
+static bool IsPointEntity(CBaseEntity* pEnt)
 {
 	if (0 == pEnt->pev->modelindex)
 		return true;
@@ -3262,7 +3262,7 @@ void CFire::BurnThink()
 
 		} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
 
-		CFire::FireCreate(VecFireSpread, m_fRadius, (m_iActiveTime / 10) * RANDOM_FLOAT(0.75, 1.2), iBurnAmnt + RANDOM_LONG(-1, 0), m_pIgnore, m_fHeight, false, true);
+		CFire::FireCreate(VecFireSpread, m_fRadius, ((float)m_iActiveTime / 10) * RANDOM_FLOAT(0.75, 1.2), iBurnAmnt + RANDOM_LONG(-1, 0), m_pIgnore, m_fHeight, false, true);
 		m_iActiveTime *= 0.95;
 	}
 }
@@ -3338,7 +3338,7 @@ bool CClientFog ::KeyValue(KeyValueData* pkvd)
 		return CBaseEntity::KeyValue(pkvd);
 }
 
-void CClientFog ::Spawn()
+void CClientFog::Spawn()
 {
 	pev->effects |= EF_NODRAW;
 
