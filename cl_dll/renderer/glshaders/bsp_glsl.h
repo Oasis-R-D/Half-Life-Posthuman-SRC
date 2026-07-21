@@ -276,9 +276,9 @@ const char glsl330_world_fp[] = R"(
 	void DiscardLightFragment()
 	{
 		if(!onlyshadow)
-				gl_FragColor = vec4(0, 0, 0, 0);
-			else
-				gl_FragColor = vec4(1, 1, 1, 1);
+			gl_FragColor = vec4(0, 0, 0, 0);
+		else
+			gl_FragColor = vec4(1, 1, 1, 1);
 	}
 
 	void frag_HandleSunShadow()
@@ -407,9 +407,15 @@ const char glsl330_world_fp[] = R"(
 	{
 		float dist = length(renderorigin - fragPos);
 
+		// Linear
 		float fogFactor = (fogend - dist) / (fogend - fogstart);
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+		// Exponential Squared
+		//float density = 0.01;
+		//float fogFactor = exp(-density * dist);
+		//fogFactor = exp2(-density * density * dist * dist);
 		
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
 		return fogFactor;
 	}
 
@@ -442,8 +448,8 @@ const char glsl330_world_fp[] = R"(
 		//fog
 		if(fog_active)
 		{
-			lightmap_pixel.rgb = mix( lightmap_pixel.rgb, fogcolor, 1.0 - GetFogFactor() );
-			basetex_pixel.rgb = mix(basetex_pixel.rgb, fogcolor, 1.0 - GetFogFactor() );
+			lightmap_pixel.rgb = mix( fogcolor, lightmap_pixel.rgb, GetFogFactor() );
+			basetex_pixel.rgb =	 mix( fogcolor, basetex_pixel.rgb,  GetFogFactor() );
 		}
 
 		if(detailtexture)
@@ -478,7 +484,7 @@ const char glsl330_world_fp[] = R"(
 		//fog
 		if(fog_active)
 		{
-			basetex_pixel.rgb = mix( basetex_pixel.rgb, fogcolor, 1.0 - GetFogFactor() );
+			basetex_pixel.rgb = mix( fogcolor, basetex_pixel.rgb, GetFogFactor() );
 		}
 		
 		//MOD SPECIFIC: nightvision
@@ -515,7 +521,7 @@ const char glsl330_world_fp[] = R"(
 
 		//fog
 		if(fog_active)
-			lightmap_pixel.rgb = mix( lightmap_pixel.rgb, fogcolor, 1.0 - GetFogFactor() );
+			lightmap_pixel.rgb = mix( fogcolor, lightmap_pixel.rgb, GetFogFactor() );
 
 		if(detailtexture)
 			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));

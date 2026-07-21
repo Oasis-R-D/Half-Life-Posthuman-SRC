@@ -125,6 +125,10 @@ struct skilldata_t
 	float funghoulDmgSlash;
 	float funghoulDmgBite;
 
+	float panthereyeHealth;
+	float panthereyeDmgClaw;
+	float panthereyeDmgLeap;
+
 	// Player Weapons
 	float plrDmgCrowbar;
 	float plrDmgSledge;

@@ -354,6 +354,11 @@ DECLARE_SKILL_CVARS(funghoul_health);
 DECLARE_SKILL_CVARS(funghoul_dmg_slash);
 DECLARE_SKILL_CVARS(funghoul_dmg_bite);
 
+// Panthereye
+DECLARE_SKILL_CVARS(panthereye_health);
+DECLARE_SKILL_CVARS(panthereye_dmg_claw);
+DECLARE_SKILL_CVARS(panthereye_dmg_leap);
+
 // PLAYER WEAPONS
 
 // M727
@@ -913,6 +918,11 @@ void GameDLLInit()
 	REGISTER_SKILL_CVARS(funghoul_health);
 	REGISTER_SKILL_CVARS(funghoul_dmg_slash);
 	REGISTER_SKILL_CVARS(funghoul_dmg_bite);
+
+	// Panthereye
+	REGISTER_SKILL_CVARS(panthereye_health);
+	REGISTER_SKILL_CVARS(panthereye_dmg_claw);
+	REGISTER_SKILL_CVARS(panthereye_dmg_leap);
 
 	// PLAYER WEAPONS
 

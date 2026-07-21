@@ -317,6 +317,7 @@ void CGameRules::RefreshSkillData()
 	gSkillData.babyvoltigoreHealth = GetSkillCvar("sk_babyvoltigore_health");
 	gSkillData.babyvoltigoreDmgPunch = GetSkillCvar("sk_babyvoltigore_dmg_punch");
 
+	// Funghoul
 	gSkillData.funghoulHealth = GetSkillCvar("sk_funghoul_health");
 	gSkillData.funghoulDmgSlash = GetSkillCvar("sk_funghoul_dmg_slash");
 	gSkillData.funghoulDmgBite = GetSkillCvar("sk_funghoul_dmg_bite");
@@ -329,6 +330,11 @@ void CGameRules::RefreshSkillData()
 
 	// Sentry Turret
 	gSkillData.sentryHealth = GetSkillCvar("sk_sentry_health");
+
+	// Panthereye
+	gSkillData.panthereyeHealth = GetSkillCvar("sk_panthereye_health");
+	gSkillData.panthereyeDmgClaw = GetSkillCvar("sk_panthereye_dmg_claw");
+	gSkillData.panthereyeDmgLeap = GetSkillCvar("sk_panthereye_dmg_leap");
 
 	// PLAYER WEAPONS
 
