@@ -1432,9 +1432,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 		iCurFace++;
 	}
 
-	if (m_pBSP_VAO)
-		delete m_pBSP_VAO;
-
+	delete m_pBSP_VAO;
 	m_pBSP_VAO = new GL_VertexArrayObject();
 	m_pBSP_VAO->BindVAO();
 

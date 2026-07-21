@@ -445,11 +445,26 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 	if (DAMAGE_NO != pOther->pev->takedamage)
 	{
+		Vector Dir = pev->velocity.Normalize();
+
 		ClearMultiDamage();
-		pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+		pOther->TraceAttack(owner->pev, m_BulletDamage, Dir, &tr, DMG_BULLET | DMG_NEVERGIB);
 		ApplyMultiDamage(owner->pev, owner->pev);
+
+		if (pOther->pev->movetype == MOVETYPE_PUSHSTEP)
+		{
+			Vector2D pushVel = Dir.Make2D() * m_flPenetrationPow;
+			pOther->pev->velocity.x += pushVel.x;
+			pOther->pev->velocity.y += pushVel.y;
+		}
 	}
-	else if (pOther->IsBSPModel())
+	else if (pev->waterlevel == 0)
+	{
+		pev->angles = tr.vecPlaneNormal;
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 0);
+	}
+
+	if (pOther->IsBSPModel())
 	{
 		char material = TEXTURETYPE_PlaySound(&tr, tr.vecEndPos, tr.vecEndPos + m_vecDir * 2, BULLET_PLAYER_9MM);
 		//ALERT(at_console, "char is %c \0", material);
@@ -463,12 +478,6 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		WRITE_BYTE(material); // (count) (use as mat type?)
 		WRITE_BYTE(0); // (bullethole decal texture index)
 		MESSAGE_END();
-			
-		if (pev->waterlevel == 0)
-		{
-			pev->angles = tr.vecPlaneNormal;
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal * 0.5f, tr.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 0);
-		}
 	}
 
 	UTIL_Remove(this);
@@ -539,17 +548,10 @@ int CPhysbullet::ShouldCollide(CBaseEntity* pentTouched)
 {
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (pentTouched->IsBullet() || pentTouched == owner)
-	{
 		return 0;
-	}
-
-	if (m_pIgnore)
-	{
-		if (pentTouched == m_pIgnore)
-		{
-			return 0;
-		}
-	}
+	
+	if (m_pIgnore && pentTouched == m_pIgnore)
+		return 0;
 
 	return 1;
 }
