@@ -71,22 +71,26 @@ bool CHudFlashlight::VidInit()
 	int HUD_flash_full = gHUD.GetSpriteIndex("flash_full");
 	int HUD_flash_beam = gHUD.GetSpriteIndex("flash_beam");
 	int HUD_hunger_background = gHUD.GetSpriteIndex("hungerbarbg");
-	//int HUD_hunger_bar = gHUD.GetSpriteIndex("hungerbar");
+	int HUD_hunger_bar = gHUD.GetSpriteIndex("hungerbar");
 
 	m_hSprite1 = gHUD.GetSprite(HUD_flash_empty);
 	m_hSprite2 = gHUD.GetSprite(HUD_flash_full);
 	m_hBeam = gHUD.GetSprite(HUD_flash_beam);
 
 	m_hHungBG = gHUD.GetSprite(HUD_hunger_background);
+	m_hHungBar = gHUD.GetSprite(HUD_hunger_bar);
 
 	m_prc1 = &gHUD.GetSpriteRect(HUD_flash_empty);
 	m_prc2 = &gHUD.GetSpriteRect(HUD_flash_full);
 	m_prcBeam = &gHUD.GetSpriteRect(HUD_flash_beam);
 
 	m_prcHungBG = &gHUD.GetSpriteRect(HUD_hunger_background);
+	m_prcHungBar = &gHUD.GetSpriteRect(HUD_hunger_bar);
 
 	m_iWidth = m_prc2->right - m_prc2->left;
 	m_iHungWidth = m_prcHungBG->right - m_prcHungBG->left;
+	m_iHungHeight = m_prcHungBG->top - m_prcHungBG->bottom;
+	m_iHungBarWidth = 2 * (m_prcHungBar->right - m_prcHungBar->left);
 
 	return true;
 }
@@ -295,18 +299,18 @@ bool CHudFlashlight::Draw(float flTime)
 		SPR_DrawHoles(0, x, y, m_prcHungBG);
 
 		// draw the flashlight energy level
-		/*
-		x = ScreenWidth - m_iHungWidth - m_iHungWidth / 2;
-		int iOffset = m_iHungWidth * (1.0 - ((float)m_iHunger) / 100.0);
-		if (iOffset < m_iHungWidth)
+		int iOffset = m_iHungBarWidth * (1.0 - ((float)m_iHunger / 100.0));
+		if (iOffset < m_iHungBarWidth)
 		{
-			rc = *m_prc2;
+			x = ScreenWidth - (m_iHungBarWidth) - (m_iHungBarWidth/180);
+			y = (m_iHungHeight*0.33333) / -2;
+
+			rc = *m_prcHungBar;
 			rc.left += iOffset;
 
-			SPR_Set(m_hSprite2, r, g, b);
-			SPR_DrawAdditive(0, x + iOffset, y, &rc);
+			SPR_Set(m_hHungBar, 255, 255, 255);
+			SPR_DrawAdditive(0, x - iOffset, y, &rc);
 		}
-		*/
 	}
 
 	return true;

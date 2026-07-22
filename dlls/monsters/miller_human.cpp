@@ -1557,7 +1557,7 @@ Schedule_t* CHMiller::GetSchedule()
 									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
 									 (!m_hEnemy->IsMachine(m_hEnemy)))
 								// monster
-								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONSTER", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 
 							JustSpoke();
 						}

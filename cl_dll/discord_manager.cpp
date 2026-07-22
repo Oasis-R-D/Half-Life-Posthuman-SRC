@@ -6,8 +6,6 @@
 // Updated by PackMan09
 // ================================================== \\
 
-// TO-DO: couldn't you use this to enforce only playtesters being able to play? #THESUNISLEAKING
-
 #include "hud.h"
 #include "discord_manager.h"
 #include <string>

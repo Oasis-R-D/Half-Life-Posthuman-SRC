@@ -1579,7 +1579,7 @@ Schedule_t* CHGruntHeavy::GetSchedule()
 									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
 									 (!m_hEnemy->IsMachine(m_hEnemy)))
 								// monster
-								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONSTER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 
 							JustSpoke();
 						}
