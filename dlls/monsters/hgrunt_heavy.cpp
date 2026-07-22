@@ -108,7 +108,7 @@ public:
 	int m_iShell;
 	int m_iLink;
 
-	#define m_iHelmHealth					m_rgiArmor_health[0]
+	#define m_iHelmHealth				m_rgiArmor_health[0]
 	#define m_helmvisorDUR				m_rgiArmor_health[1]
 	#define m_iarmor_health_chest		m_rgiArmor_health[2]
 	#define m_iarmor_health_stomach		m_rgiArmor_health[3]
@@ -243,9 +243,9 @@ void CHGruntHeavy::Spawn()
 		pev->weapons = HGRUNT_M249 | HGRUNT_HANDGRENADE;
 	}
 
+	SetBodygroup(2, 2); // no weapon bodygroups used
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
-		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
 		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 		m_cClipSize = SHOTGUN_MAX_CLIP;
 		if (g_iSkillLevel != SKILL_REALISM)
