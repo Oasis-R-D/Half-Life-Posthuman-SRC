@@ -1398,7 +1398,7 @@ FuncHook(R_KillAttachedTents, void, int client)
 		return;
 	}
 
-	for (int i = 0; i < gpTempEnts.size(); i++)
+	for (unsigned int i = 0; i < gpTempEnts.size(); i++)
 	{
 		auto tempent = gpTempEnts[i].get();
 		if (tempent->flags & FTENT_PLYRATTACHMENT)
@@ -1952,15 +1952,18 @@ void Hook_TriApi()
 	InstallTriApiHook(FogParams);
 }
 
-
+#pragma warning(disable : 4996, justification : "needed for stealing client state")
 void Hook_gEngfuncs_Functions()
 {
 	// sowwy goldsrc but i gotta steal your client state
 
+	
 	size_t address = (size_t)gEngfuncs.GetViewModel();
 	size_t viewent_offset = offsetof(client_state_s, viewent);
 	client_state_s* clientState = (client_state_s*)(address - viewent_offset);
 	engine_cl = clientState; 
+
+	
 	if (engine_cl->time != gEngfuncs.GetClientTime())
 	{
 		gEngfuncs.pfnClientCmd("escape\n");
@@ -1971,6 +1974,8 @@ void Hook_gEngfuncs_Functions()
 	//lets monitor all functions that the goldsrc engine can call
 	Hook_EFX();
 	Hook_TriApi();
+
+	#pragma warning(default : 4996)
 }
 
 void Hook_IEngineStudio_Functions()

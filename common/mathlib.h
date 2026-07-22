@@ -206,6 +206,8 @@ inline float clampSine( float val, float minVal, float maxVal )
 		else
 			return val;
 	}
+	
+	return val;
 }
 
 inline float RemapValClamped( float val, float A, float B, float C, float D)

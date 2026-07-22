@@ -60,4 +60,6 @@ float GetSkillCvar(const char* pName)
 			skillLevel--;
 		}
 	}
+			
+	return 0;
 }

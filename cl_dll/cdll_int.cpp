@@ -265,7 +265,7 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 		auto size = GetModuleSize(engineBase);
 		if (windowPptr == nullptr)
 		{
-			for (int i = 0; i < size; i += 4)
+			for (unsigned int i = 0; i < size; i += 4)
 			{
 				auto* ptr = (SDL_Window**)((uint8_t*)engineBase + i);
 				if (*ptr == oldHlWindow)
@@ -996,7 +996,6 @@ void RestoreDecals(const char* savefile)
 {
 	char szPath[512];
 	char message[16];
-	char name[64];
 	long pStart;
 	int numdecals;
 	int numstaticdecals;

@@ -88,7 +88,7 @@ void DiscordMan_Update(void)
 	{
 		int playercount = 0;
 		size_t maxplayers = sizeof(engine_cl->players) / sizeof(engine_cl->players[0]);
-		for (int i = 0; i < maxplayers; i++)
+		for (unsigned int i = 0; i < maxplayers; i++)
 		{
 			if (engine_cl->players[i].userid != NULL)
 				playercount++;

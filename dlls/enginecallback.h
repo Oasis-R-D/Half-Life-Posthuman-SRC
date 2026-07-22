@@ -73,7 +73,7 @@ inline Vector RANDOM_VECTOR(double min, double max)
 }
 #define GETPLAYERAUTHID (*g_engfuncs.pfnGetPlayerAuthId)
 
-inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float* pOrigin = NULL, edict_t* ed = NULL)
+inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float* pOrigin = 0, edict_t* ed = NULL)
 {
 	(*g_engfuncs.pfnMessageBegin)(msg_dest, msg_type, pOrigin, ed);
 }

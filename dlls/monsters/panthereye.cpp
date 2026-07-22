@@ -226,8 +226,8 @@ void CDiablo::Spawn()
 	pev->solid = SOLID_BBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_YELLOW;
-	pev->health = gSkillData.panthereyeHealth;
-	pev->view_ofs		= Vector ( 0, 0, 60 );// position of the eyes relative to monster's origin.
+	pev->health = g_iSkillLevel != SKILL_REALISM ? gSkillData.panthereyeHealth : 120;
+	pev->view_ofs = Vector ( 0, 0, 60 );// position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.5;
 	m_MonsterState = MONSTERSTATE_NONE;
 
@@ -405,7 +405,7 @@ void CDiablo::HandleAnimEvent(MonsterEvent_t* pEvent)
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "panthereye/pa_attack1.wav", 1.0, ATTN_NORM, 0, pitch);
 			UTIL_MakeVectors(pev->angles);
 			pHurtNormal->pev->velocity = pHurtNormal->pev->velocity + gpGlobals->v_forward * 100 + gpGlobals->v_up * 200;
-			pHurtNormal->TakeDamage(pev, pev, gSkillData.panthereyeDmgClaw, DMG_SLASH);
+			pHurtNormal->TakeDamage(pev, pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.panthereyeDmgClaw : 50, DMG_SLASH);
 			StrikeSFX(true);
 		}
 		else
@@ -425,7 +425,7 @@ void CDiablo::HandleAnimEvent(MonsterEvent_t* pEvent)
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "panthereye/pa_attack1.wav", 1.0, ATTN_NORM, 0, pitch);
 			UTIL_MakeVectors(pev->angles);
 			pHurtBas->pev->velocity = pHurtBas->pev->velocity + gpGlobals->v_forward * 75 + gpGlobals->v_up * 75;
-			pHurtBas->TakeDamage(pev, pev, gSkillData.panthereyeDmgClaw * 0.6, DMG_SLASH);
+			pHurtBas->TakeDamage(pev, pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.panthereyeDmgClaw * 0.6 : 35, DMG_SLASH);
 			StrikeSFX(true);
 		}
 		else
@@ -445,7 +445,7 @@ void CDiablo::HandleAnimEvent(MonsterEvent_t* pEvent)
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "panthereye/pa_attack1.wav", 1.0, ATTN_NORM, 0, pitch);
 			UTIL_MakeVectors(pev->angles);
 			pHurtLoin->pev->velocity = pHurtLoin->pev->velocity + gpGlobals->v_forward * 100 + gpGlobals->v_up * 200;
-			pHurtLoin->TakeDamage(pev, pev, gSkillData.panthereyeDmgClaw, DMG_SLASH);
+			pHurtLoin->TakeDamage(pev, pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.panthereyeDmgClaw : 50, DMG_SLASH);
 			StrikeSFX(true);
 		}
 		else
@@ -768,15 +768,18 @@ void CDiablo::RunTask(Task_t* pTask)
 void CDiablo::LeapTouch(CBaseEntity* pOther)
 {
 	if (!FClassnameIs(pOther->pev, "monster_panthereye"))
-		pOther->TakeDamage(pev, pev, gSkillData.panthereyeDmgLeap, DMG_SLASH);
+		pOther->TakeDamage(pev, pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.panthereyeDmgLeap : 75, DMG_SLASH);
 
-	pOther->pev->velocity = pOther->pev->velocity + pev->velocity;
-	pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 200;
+	// only launch dead NPCs, player or headcrabs
+	if (pOther->pev->health <= 0 || pOther->IsPlayer() || FClassnameIs(pOther->pev, "monster_headcrab"))
+	{
+		pOther->pev->velocity = pOther->pev->velocity + pev->velocity;
+		pOther->pev->velocity = pOther->pev->velocity + gpGlobals->v_up * 200;
+	}
 
 	//SetBits(pev->flags, FL_ONGROUND);
 	pev->movetype = MOVETYPE_STEP;
 	SetTouch(NULL);
-
 }
 
 void CDiablo::Jump()
