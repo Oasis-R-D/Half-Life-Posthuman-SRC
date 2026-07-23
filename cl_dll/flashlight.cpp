@@ -90,7 +90,7 @@ bool CHudFlashlight::VidInit()
 	m_iWidth = m_prc2->right - m_prc2->left;
 	m_iHungWidth = m_prcHungBG->right - m_prcHungBG->left;
 	m_iHungHeight = m_prcHungBG->top - m_prcHungBG->bottom;
-	m_iHungBarWidth = 2 * (m_prcHungBar->right - m_prcHungBar->left);
+	m_iHungBarWidth = (m_prcHungBar->right - m_prcHungBar->left);
 
 	return true;
 }
@@ -302,14 +302,14 @@ bool CHudFlashlight::Draw(float flTime)
 		int iOffset = m_iHungBarWidth * (1.0 - ((float)m_iHunger / 100.0));
 		if (iOffset < m_iHungBarWidth)
 		{
-			x = ScreenWidth - (m_iHungBarWidth) - (m_iHungBarWidth/180);
+			x = ScreenWidth - m_iHungBarWidth;
 			y = (m_iHungHeight*0.33333) / -2;
 
 			rc = *m_prcHungBar;
 			rc.left += iOffset;
 
 			SPR_Set(m_hHungBar, 255, 255, 255);
-			SPR_DrawAdditive(0, x - iOffset, y, &rc);
+			SPR_DrawAdditive(0, x + iOffset, y, &rc);
 		}
 	}
 
