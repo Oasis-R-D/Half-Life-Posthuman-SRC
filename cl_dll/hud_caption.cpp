@@ -117,13 +117,9 @@ int CHudCaption::MsgFunc_Caption(const char *pszName, int iSize, void *pbuf)
 
 	const char* captionName = READ_STRING();
 	const Caption_t* caption = CaptionLookup(captionName);
-
-	gEngfuncs.Con_DPrintf(captionName);
 	
 	if (!caption)
 		return 1;
-
-	gEngfuncs.Con_DPrintf(caption->message.c_str());
 
 	sub.caption = caption;
 

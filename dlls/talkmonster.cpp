@@ -1138,14 +1138,14 @@ void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, flo
 	CTalkMonster::g_talkWaitTime = gpGlobals->time + duration + 2.0;
 	if (pszSentence[0] == '!')
 	{
-		if (subtitle)
+		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
 			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration)+1 );
 		else
 			EMIT_SOUND_DYN( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch() );
 	}
 	else
 	{
-		if (subtitle)
+		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
 			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration)+1 );
 		else
 			SENTENCEG_PlayRndSz( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch() );

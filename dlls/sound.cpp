@@ -1210,7 +1210,7 @@ static int SENTENCEG_PlayRndSzImpl( edict_t *entity, const char *szgroupname, fl
 	int ipick = USENTENCEG_Pick( isentenceg, name );
 	if( ipick >= 0 && name[0] )
 	{
-		if (subtitle)
+		if ((entity->v.flags & FL_DOCAPTIONS) != 0 || subtitle)
 			EMIT_SOUND_DYN_SUB( entity, channel ? channel : CHAN_VOICE, name, volume, attenuation, flags, pitch, holdTime );
 		else
 			EMIT_SOUND_DYN( entity, channel ? channel : CHAN_VOICE, name, volume, attenuation, flags, pitch );
@@ -1424,13 +1424,12 @@ int SENTENCEG_Lookup(const char* sample, char* sentencenum)
 
 static bool EMIT_SOUND_DYN_IMPL(edict_t *entity, int channel, const char *sample, float volume, float attenuation, int flags, int pitch, bool subtitle = false, int holdTime = 0)
 {
-	UTIL_ShowCaption(sample, holdTime, false);
 	if( sample && *sample == '!' )
 	{
 		char name[32];
 		if( SENTENCEG_Lookup( sample, name ) >= 0 )
 		{
-			if (subtitle)
+			if ((entity->v.flags & FL_DOCAPTIONS) != 0 || subtitle)
 				UTIL_ShowCaption(sample, holdTime, false);
 			EMIT_SOUND_DYN2( entity, channel, name, volume, attenuation, flags, pitch );
 			return true;
@@ -1450,7 +1449,7 @@ static bool EMIT_SOUND_DYN_IMPL(edict_t *entity, int channel, const char *sample
 
 bool EMIT_SOUND_DYN( edict_t *entity, int channel, const char *sample, float volume, float attenuation, int flags, int pitch )
 {
-	return EMIT_SOUND_DYN_IMPL(entity, channel, sample, volume, attenuation, flags, pitch, true, 1);
+	return EMIT_SOUND_DYN_IMPL(entity, channel, sample, volume, attenuation, flags, pitch);
 }
 
 bool EMIT_SOUND_DYN_SUB(edict_t *entity, int channel, const char *sample, float volume, float attenuation, int flags, int pitch , int holdTime)

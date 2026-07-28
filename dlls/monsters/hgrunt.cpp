@@ -1054,6 +1054,8 @@ void CHGrunt::Spawn()
 	SET_MODEL(ENT(pev), "models/hgrunt_opfor.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
+	pev->flags |= FL_DOCAPTIONS;
+
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_RED;

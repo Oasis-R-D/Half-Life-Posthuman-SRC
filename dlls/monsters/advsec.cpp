@@ -1074,8 +1074,11 @@ void CAdvSec::Spawn()
 	{
 		// TO-DO: add following
 	}
+
 	SET_MODEL(ENT(pev), "models/advsec.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
+
+	pev->flags |= FL_DOCAPTIONS;
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;

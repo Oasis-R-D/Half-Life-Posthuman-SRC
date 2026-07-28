@@ -36,6 +36,7 @@
 #define FL_FROZEN (1 << 12)		   // Player is frozen for 3rd person camera
 #define FL_FAKECLIENT (1 << 13)	   // JAC: fake client, simulated server side; don't send network messages to them
 #define FL_DUCKING (1 << 14)	   // Player flag -- Player is fully crouched
+#define FL_DOCAPTIONS (1 << 14)	   // reuse since player doesn't have captions
 #define FL_FLOAT (1 << 15)		   // Apply floating force to this entity when in water
 #define FL_GRAPHED (1 << 16)	   // worldgraph has this ent listed as something that blocks a connection
 

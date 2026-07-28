@@ -429,6 +429,10 @@ void CBarney::Spawn()
 	}
 	
 	SET_MODEL(ENT(pev), "models/barney.mdl");
+	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
+
+	pev->flags |= FL_DOCAPTIONS;
+
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		m_iHelmHealth = 30;
@@ -441,8 +445,6 @@ void CBarney::Spawn()
 	}
 
 	m_cAmmoLoaded = pev->armortype = GLOCK_MAX_CLIP;
-
-	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
