@@ -64,7 +64,7 @@ extern void DrawCrosshair();
 #define SPR_GetList (*gEngfuncs.pfnSPR_GetList)
 
 extern void FillRGBA(float x, float y, float w, float h, int r, int g, int b, int a);
-
+extern void FillRGBA2(float x, float y, float w, float h, int r, int g, int b, int a);
 
 // ScreenHeight returns the height of the screen, in pixels
 #define ScreenHeight (gHUD.m_scrinfo.iHeight)

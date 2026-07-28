@@ -306,7 +306,7 @@ bool CHudCaption::Draw(float flTime)
 
 	const int width = maxLineWidth + SUB_BORDER_LENGTH*2;
 	const int height = overallLineCount * lineHeight + (sub_count-1) * distanceBetweenSubs + SUB_BORDER_LENGTH*2;
-	FillRGBA(xpos - SUB_BORDER_LENGTH, ypos - SUB_BORDER_LENGTH, width, height, 0, 0, 0, 255 * 0.6);
+	FillRGBA2(xpos - SUB_BORDER_LENGTH, ypos - SUB_BORDER_LENGTH, width, height, 0, 0, 0, 192);
 
 	for (i=0; i<sub_count; ++i)
 	{
@@ -483,67 +483,41 @@ bool CHudCaption::ParseCaptionsFile()
 			strncpy(captionName, pfile + currentTokenStart, tokenLength);
 			captionName[tokenLength] = '\0';
 
-			// This code is left for compatibility with existing mods. We should define caption profiles in captions_profiles.txt now instead!
-			if (tokenLength == 2 && IsLatinLowerCase(captionName[0]) && IsLatinLowerCase(captionName[1]))
-			{
-				char firstLetter = captionName[0];
-				char secondLetter = captionName[1];
-				CaptionProfile_t* existingProfile = CaptionProfileLookup(firstLetter, secondLetter);
-				if (existingProfile)
-				{
-					gEngfuncs.Con_Printf("Redefining caption profile with ID '%c%c'!.\n", firstLetter, secondLetter);
-					ParseCaptionColor(pfile, i, length, *existingProfile);
-					ReportParsedCaptionProfile(*existingProfile);
-				}
-				else
-				{
-					CaptionProfile_t profile;
-					profile.firstLetter = firstLetter;
-					profile.secondLetter = secondLetter;
-					ParseCaptionColor(pfile, i, length, profile);
-					profiles.push_back(profile);
-					ReportParsedCaptionProfile(profile);
-				}
-			}
-			//
-			else
-			{
-				Caption_t caption(captionName);
+			Caption_t caption(captionName);
 
-				do {
-					SkipSpacesAndTabs(pfile, i, length);
-					currentTokenStart = i;
-					ConsumeNonSpaceCharacters(pfile, i, length);
-
-					tokenLength = i-currentTokenStart;
-				} while (ParseFloatParameter(pfile, currentTokenStart, tokenLength, caption));
-
-				if (tokenLength != 2 || !IsLatinLowerCase(pfile[currentTokenStart]) || !IsLatinLowerCase(pfile[currentTokenStart+1]))
-				{
-					gEngfuncs.Con_Printf("invalid caption profile for \"%s\"! Must be 2 lowercase latin characters\n", caption.name);
-					ConsumeLine(pfile, i, length);
-					continue;
-				}
-
-				char firstLetter = pfile[currentTokenStart];
-				char secondLetter = pfile[currentTokenStart+1];
-				caption.profile = CaptionProfileLookup(firstLetter, secondLetter);
-
-				if (!caption.profile)
-				{
-					gEngfuncs.Con_Printf("Could not find a caption profile '%c%c' for %s\n", firstLetter, secondLetter, caption.name);
-				}
-
+			do {
 				SkipSpacesAndTabs(pfile, i, length);
 				currentTokenStart = i;
-				ConsumeLine(pfile, i, length);
+				ConsumeNonSpaceCharacters(pfile, i, length);
 
 				tokenLength = i-currentTokenStart;
+			} while (ParseFloatParameter(pfile, currentTokenStart, tokenLength, caption));
 
-				caption.message = std::string(pfile + currentTokenStart, tokenLength);
-				captions.push_back(caption);
-				//gEngfuncs.Con_DPrintf("Parsed a caption. Name: %s. Profile: %c%c. Text: %s\n", caption.name, caption.profile->firstLetter, caption.profile->secondLetter, caption.message);
+			if (tokenLength != 2 || !IsLatinLowerCase(pfile[currentTokenStart]) || !IsLatinLowerCase(pfile[currentTokenStart+1]))
+			{
+				gEngfuncs.Con_Printf("invalid caption profile for \"%s\"! Must be 2 lowercase latin characters\n", caption.name);
+				ConsumeLine(pfile, i, length);
+				continue;
 			}
+
+			char firstLetter = pfile[currentTokenStart];
+			char secondLetter = pfile[currentTokenStart+1];
+			caption.profile = CaptionProfileLookup(firstLetter, secondLetter);
+
+			if (!caption.profile)
+			{
+				gEngfuncs.Con_Printf("Could not find a caption profile '%c%c' for %s\n", firstLetter, secondLetter, caption.name);
+			}
+
+			SkipSpacesAndTabs(pfile, i, length);
+			currentTokenStart = i;
+			ConsumeLine(pfile, i, length);
+
+			tokenLength = i-currentTokenStart;
+
+			caption.message = std::string(pfile + currentTokenStart, tokenLength);
+			captions.push_back(caption);
+			//gEngfuncs.Con_DPrintf("Parsed a caption. Name: %s. Profile: %c%c. Text: %s\n", caption.name, caption.profile->firstLetter, caption.profile->secondLetter, caption.message);
 		}
 	}
 	std::sort(captions.begin(), captions.end(), CaptionCompare());

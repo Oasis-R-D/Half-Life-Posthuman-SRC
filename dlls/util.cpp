@@ -2711,7 +2711,7 @@ void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio)
 		holdTime = 255;
 
 	MESSAGE_BEGIN( MSG_ALL, gmsgCaption );
-		WRITE_BYTE(holdTime);
+		WRITE_BYTE(holdTime * 2);
 		WRITE_BYTE(radio ? 1 : 0);
 		WRITE_STRING(messageId);
 	MESSAGE_END();
