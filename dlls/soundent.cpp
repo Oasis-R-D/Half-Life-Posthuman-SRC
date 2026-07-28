@@ -365,3 +365,57 @@ int CSoundEnt::ClientSoundIndex(edict_t* pClient)
 
 	return iReturn;
 }
+
+#define SF_SOUNDMARK_FIREONCE 1
+
+class CEnvSoundMark : public CBaseEntity
+{
+public:
+	void Spawn() override;
+	bool KeyValue(KeyValueData* pkvd) override;
+	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value) override;
+
+	int GetType() const { return pev->impulse ? pev->impulse : bits_SOUND_DANGER; }
+	int GetRadius() const { return pev->button > 0 ? pev->button : 384; }
+	float GetDuration() const { return pev->frags > 0 ? pev->frags : 0.3; }
+};
+
+LINK_ENTITY_TO_CLASS( env_soundmark, CEnvSoundMark )
+
+void CEnvSoundMark::Spawn()
+{
+	pev->effects |= EF_NODRAW;
+}
+
+bool CEnvSoundMark::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "type"))
+	{
+		pev->impulse = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "radius"))
+	{
+		pev->button = atoi(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "duration"))
+	{
+		pev->frags = atof(pkvd->szValue);
+		return true;
+	}
+	else if (FStrEq(pkvd->szKeyName, "position"))
+	{
+		pev->message = ALLOC_STRING(pkvd->szValue);
+		return true;
+	}
+
+	return false;
+}
+
+void CEnvSoundMark::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	CSoundEnt::InsertSound(GetType(), pev->origin, GetRadius(), GetDuration());
+	if (FBitSet(pev->spawnflags, SF_SOUNDMARK_FIREONCE))
+		UTIL_Remove(this);
+}

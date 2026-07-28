@@ -5894,6 +5894,101 @@ void CDeadHEV::Spawn()
 	MonsterInitDead();
 }
 
+class CPlayerHasThing : public CPointEntity
+{
+public:
+	bool KeyValue( KeyValueData *pkvd ) override
+	{
+		if (FStrEq(pkvd->szKeyName, "pass_target"))
+		{
+			m_PassTarget = ALLOC_STRING(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "fail_target"))
+		{
+			m_FailTarget = ALLOC_STRING(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else
+			return CPointEntity::KeyValue(pkvd);
+	}
+
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override
+	{
+		CBasePlayer* pPlayer = (CBasePlayer*)pActivator;
+		if (!pPlayer) {
+			return;
+		}
+		const bool success = HasThing(pPlayer);
+		if (success && !FStringNull(m_PassTarget)) {
+			FireTargets(STRING(m_PassTarget), pActivator, this, USE_TOGGLE, 0);
+		}
+		if (!success && !FStringNull(m_FailTarget)) {
+			FireTargets(STRING(m_FailTarget), pActivator, this, USE_TOGGLE, 0);
+		}
+	}
+
+	int	ObjectCaps() override { return CPointEntity::ObjectCaps() | FCAP_MASTER; }
+
+	virtual bool HasThing(CBasePlayer* pPlayer) = 0;
+
+	bool Save( CSave &save ) override;
+	bool Restore( CRestore &restore ) override;
+	static TYPEDESCRIPTION m_SaveData[];
+protected:
+	string_t m_PassTarget;
+	string_t m_FailTarget;
+};
+
+TYPEDESCRIPTION	CPlayerHasThing::m_SaveData[] =
+{
+	DEFINE_FIELD( CPlayerHasThing, m_PassTarget, FIELD_STRING ),
+	DEFINE_FIELD( CPlayerHasThing, m_FailTarget, FIELD_STRING ),
+};
+
+IMPLEMENT_SAVERESTORE( CPlayerHasThing, CPointEntity )
+
+class CPlayerHasWeapon : public CPlayerHasThing
+{
+public:
+	bool KeyValue( KeyValueData *pkvd ) override
+	{
+		if (FStrEq(pkvd->szKeyName, "weapon_name"))
+		{
+			m_WeaponName = ALLOC_STRING(pkvd->szValue);
+			return true;
+		}
+		else
+			CPlayerHasThing::KeyValue(pkvd);
+	}
+
+	bool HasThing(CBasePlayer* pPlayer) override {
+		return HasWeapon(pPlayer, m_WeaponName);
+	}
+
+	bool Save( CSave &save ) override;
+	bool Restore( CRestore &restore ) override;
+	static TYPEDESCRIPTION m_SaveData[];
+private:
+	bool HasWeapon(CBasePlayer* pPlayer, string_t weaponName) {
+		if (FStringNull(weaponName)) {
+			return pPlayer->HasWeapons();
+		} else {
+			return pPlayer->HasNamedPlayerItem(STRING(weaponName));
+		}
+	}
+
+	string_t m_WeaponName;
+};
+
+TYPEDESCRIPTION	CPlayerHasWeapon::m_SaveData[] =
+{
+	DEFINE_FIELD( CPlayerHasWeapon, m_WeaponName, FIELD_STRING ),
+};
+
+IMPLEMENT_SAVERESTORE( CPlayerHasWeapon, CPlayerHasThing )
+
+LINK_ENTITY_TO_CLASS( player_hasweapon, CPlayerHasWeapon )
 
 class CStripWeapons : public CPointEntity
 {

@@ -39,7 +39,7 @@
 	WaveHeight(string) : "Default Wave Height"
 	MaxRange(string) : "Max viewable distance" : "4096"
 	chaptertitle(string) : "Chapter Title Message"
-	rpc_chapter(string) : "RPC Chapter" : : "Area name to display in Discord. Map file name if empty (make sure to include map name! "[MAP 1]" for example.)
+	rpc_chapter(string) : "RPC Chapter" : : "Chapter name to display in Discord. Map file name if empty (make sure to include map name! MAP 1 for example.)"
 	rpc_image(string) : "RPC Image" : : "Image to display in Discord. Options are: ph_boxart, ph_logo (default), ph_menu_fx, ord_logo"
 	startdark(choices) : "Level Fade In" : 0 =
 	[	
@@ -292,25 +292,28 @@
 		0: "Nothing"
 		1: "Battery"
 		2: "Healthkit"
-		3: "9mm Handgun"
-		4: "9mm Clip"
-		5: "Machine Gun"
-		6: "Machine Gun Clip"
-		7: "Machine Gun Grenades"
-		8: "Shotgun"
-		9: "Shotgun Shells"
+		3: "Glock 17"
+		4: "Glock 17 Clip"
+		5: "MP5"
+		6: "MP5 Clip"
+		7: "M203 Grenades"
+		8: "Spas-12"
+		9: "12 Gauge Shells"
 		10: "Railcannon"
 		11: "Railcannon bolt"
-		12: "357"
-		13: "357 clip"
-		14: "RPG"
-		15: "RPG Clip"
-		16: "Gauss clip"
-		17: "Hand grenade"
-		18: "Tripmine"
-		19: "Satchel Charge"
-		20: "Snark"
-		21: "Hornet Gun"
+		12: "Python"
+		13: "Python clip"
+		14: "Baby HeadCrab Pickup"
+		15: "Colt M727"
+		16: "Colt M727 Clip"
+		17: "FN M249 Para"
+		18: "556 Belt"
+		19: "HC-DE"
+		20: "NPC HeadCrab"
+		21: "NPC HeadCrab Fast"
+		22: "NPC HeadCrab Poison"
+		23: "NPC ShockRoach"
+		24: "Grenade Swap PickUp"
 	]
 	explodemagnitude(integer) : "Explode Magnitude (0=none)" : 0
 ]
@@ -1376,8 +1379,8 @@
 	[
 		0: "None"
 		1: "9mm"
-		2: "MP5"
-		3: "12mm"
+		2: "556"
+		3: "12g"
 	]
 ]
 
@@ -1398,6 +1401,13 @@
 [
 	iMagnitude(Integer) : "Explosion Magnitude" : 100
 ]
+
+@SolidClass base(BaseTank, ZHLT) = func_tankflame : "Brush Flamethrower Turret"
+[
+	firesize(Integer) : "Fire VFX Size" : 8
+	firespeed(Integer) : "Flame Speed" : 450
+]
+
 
 @SolidClass base(Trackchange, ZHLT) = func_trackautochange : "Automatic track changing platform"
 [
@@ -1519,15 +1529,17 @@
 
     waterfog_end(integer) : "Fog end" : 600
 
-    watertex_scale(string) : "Base water tex scale" : "0.9"
+    watertex_scale(string) : "texture opacity" : "0.5"
 
-    reflection_scale(string) : "Reflection Scale" : "1.0"
+    reflection_scale(string) : "Reflection Scale" : "2.4"
 
-    refraction_scale(string) : "Refraction Scale" : "2.4"
+    refraction_scale(string) : "Refraction Scale" : "1.4"
 
-    normal_scale(string) : "Ripple Tex scale" : "0.13"
+    normal_scale(string) : "Normal opacity" : "0.07"
 
-    fresnel(string) : "Fresnel" : "0.5"
+    fresnel(string) : "Fresnel" : "5.0"
+	
+	normal(string) : "Normal (gfx/textures/water)" : "noisy"
 ]
 
 //
@@ -1706,6 +1718,8 @@
 @PointClass size(-24 -24 -4, 24 24 4) color(255 255 0) studio("halflife/models/info_node.mdl") = info_node : "ai node" []
 
 @PointClass size(-32 -32 0, 32 32 64) color(255 255 0) studio("halflife/models/info_node_air.mdl") = info_node_air : "ai air node" []
+
+@PointClass base(Targetname) size(-2 -2 -1, 2 2 72) color(32 128 32) = info_hordespawn : "hodespawner spawn" []
 
 @PointClass base(Targetname) studio("halflife/models/info_node.mdl") = info_null : "info_null (spotlight target)" []
 
@@ -1900,7 +1914,6 @@
 [
 	netname(string) : "First node" : ""
 ]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/floater.mdl") = monster_bloater : "Bloater" []
 @PointClass base(Monster, Sequence) size(-32 -32 0, 32 32 64) studio("models/bullsquid.mdl") sequence(7) = monster_bullchicken : "BullChicken" []
 @PointClass base(Monster, Sequence) size(-3 -3 0, 3 3 3) studio("models/roach.mdl") = monster_cockroach : "Cockroach" []
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 16) studio("models/aflock.mdl") = monster_flyer_flock : "Flock of Flyers" 
@@ -1949,26 +1962,60 @@
 		76 : "deadtable"
 	]
 ]
-@PointClass base(Appearflags,RenderFields, Angles) size(-16 -16 0, 16 16 72) studio("models/hgrunt.mdl") = monster_hgrunt_dead : "Dead Human Grunt" 
+@PointClass base(Appearflags,RenderFields, Angles) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_hgrunt_dead : "Dead Human Grunt" 
 [
-      pose(Choices) : "Pose" : 0 =
+    pose(Choices) : "Pose" : 0 =
 	[
 		0 : "On stomach"
 		1 : "On side"
-		2 : "Seated"
+		2 : "On stomach 2"
+		3 : "Seated"
+		4 : "Crevice"
+		5 : "Back"
+		6 : "Back look up"
 	]
-	body(Choices) : "Body" : 0 =
+	torso(Choices) : "Torso" : 0 =
 	[
-		0 : "Grunt with Gun"
-		1 : "Commander with Gun"
-		2 : "Grunt no Gun"
-		3 : "Commander no Gun"
+		0 : "Regular"
+		1 : "556 belts"
+		2 : "ShotShell belts"
+		3 : "Engineer"
+		4 : "Medic"
 	]
-	sequence(Choices) : "Animation Sequence (editor)" : 44 =
+	head(Choices) : "Head" : 0 =
 	[
-		44 : "deadstomach"
-		45 : "deadside"
-		46 : "deadsitting"
+		0 : "Gasmask White"
+		1 : "Gasmask Black"
+		2 : "Helmet 1"
+		3 : "Helmet 2"
+		4 : "Helmet 3"
+		5 : "Helmet 4"
+		6 : "Helmet 5"
+		7 : "Helmet 6"
+		8 : "Helmet 7"
+		9 : "Commander"
+		10 : "Balaclava"
+		11 : "M249 1"
+		12 : "M249 2"
+		13 : "M203 1"
+		14 : "M203 2"
+		15 : "Medic White"
+		16 : "Medic Black"
+		17 : "Engineer"
+		18 : "OG M203"
+		19 : "Gloveless OG M203"
+		20 : "OG No Helm"
+		21 : "Gloveless No Helm"
+	]
+	sequence(Choices) : "Animation Sequence (editor)" : 43 =
+	[
+		43 : "On stomach"
+		44 : "On side"
+		48 : "On stomach 2"
+		45 : "Seated"
+		49 : "Crevice"
+		46 : "Back"
+		47 : "Back look up"
 	]
 ]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 36) studio("models/houndeye.mdl") = monster_houndeye : "Houndeye" 
@@ -1980,7 +2027,7 @@
 	]
 ]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/hassassin.mdl") = monster_human_assassin : "Female Assassin" []
-@PointClass base(Monster) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_human_grunt : "Human Grunt (camo)" 
+@PointClass base(Monster) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_human_grunt : "Human Grunt" 
 [
 	spawnflags(Flags) =
 	[
@@ -3104,7 +3151,7 @@
         10 : "Shotgun + HG"
     ]
 ]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/lucigast.mdl") = monster_znull : "Corrupted" []
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio("models/lucigast.mdl") = monster_lucigast : "Corrupted" []
 @PointClass base(Monster) iconsprite("halflife/sprites/info_monstarget.spr") size(-16 -16 0, 16 16 36) = info_monstarget : "monsters attack me"
 [
 	Max_hits(integer) : "Max hits" : -1
@@ -3238,10 +3285,55 @@
     ]
     standgroundrange(string) : "Stand Ground Range" : "0.0"
 ]
+
+@PointClass base(Monster, Sequence) studio("models/blkop_apache.mdl") = monster_blkop_apache : "Black Ops Apache" 
+[
+  spawnflags(Flags) = 
+  [
+    8 : "NoWreckage"  : 0
+    64 : "Start Inactive" : 0
+  ]
+]
+
+@PointClass base(Monster, Sequence) studio("models/blkop_osprey.mdl") = monster_blkop_osprey : "Black Ops Osprey"
+[
+  spawnflags(Flags) = 
+  [
+    64 : "Start Inactive" : 0
+  ]
+]
+
 @PointClass base(Monster, Sequence) studio("models/pit_drone.mdl") = monster_pitdrone : "PitDrone, sniper BullSquid"
 [
-initammo(string) : "Initial Ammo" : 6
+	initammo(string) : "Initial Ammo" : 6
 ]
+
+@PointClass base(Monster, Sequence) studio("models/baby_voltigore.mdl") = monster_alien_babyvoltigore : "Baby Voltigore" 
+[
+  netname(string) : "Squad Name"
+  spawnflags(Flags) =
+  [
+    32 : "SquadLeader" : 0
+  ]
+]
+
+@PointClass base(Monster, Sequence) studio("models/voltigore.mdl") = monster_alien_voltigore : "Voltigore" 
+[
+  netname(string) : "Squad Name"
+  spawnflags(Flags) =
+  [
+    32 : "SquadLeader" : 0
+  ]
+]
+
+@PointClass base(Monster, Sequence) studio("models/islave.mdl") = monster_alien_slave_dead : "Dead Vortigaunt" 
+[
+      pose(Choices) : "Pose" : 0 =
+  [
+    0 : "On Stomach"
+  ]
+]
+
 @PointClass base(Appearflags,RenderFields, Angles) size(-16 -16 0, 16 16 72) studio("models/advsec.mdl") = monster_advsec_dead : "Dead AdvSec" 
 [
       pose(Choices) : "Pose" : 0 =
@@ -3396,6 +3488,112 @@ initammo(string) : "Initial Ammo" : 6
 		81 : "plunger"
 	]
 ]
+
+@PointClass base(Monster) size(-16 -16 0, 16 16 72) studio("models/hgrunt_opfor.mdl") = monster_miller_human : "Miller stage 0-1" 
+[
+	spawnflags(Flags) =
+	[
+		32 : "SquadLeader" : 0
+	]
+	netname(string) : "Squad Name"
+	weapons(Choices) : "Weapons" : 1 =
+	[
+		1 : "9mmAR"
+		3 : "9mmAR + RPG"
+		5 : "9mmAR + GL"
+		8 : "Shotgun"
+		10 : "Shotgun + RPG"
+		16 : M249
+		18 : "M249 + RPG"
+		32 : "M727"
+		34 : "M727 + RPG"
+	]
+	sequence(Choices) : "Animation Sequence (editor)" : 11 =
+	[
+		0 : "walk1"
+		1 : "run"
+		2 : "victorydance"
+		3 : "cower"
+		4 : "smflinch"
+		5 : "leftlegsmflinch"
+		6 : "rightlegsmflinch"
+		7 : "rightarmflinch"
+		8 : "leftarmflinch"
+		9 : "launchgrenade"
+		10 : "throwgrenade"
+		11 : "idle1"
+		12 : "idle2"
+		13 : "combatidle"
+		14 : "frontkick"
+		15 : "crouching_idle"
+		16 : "crouching_wait"
+		17 : "crouching_mp5"
+		18 : "standing_mp5"
+		19 : "reload_mp5"
+		20 : "crouching_shotgun"
+		21 : "standing_shotgun"
+		22 : "reload_shotgun"
+		23 : "advance_signal"
+		24 : "flank_signal"
+		25 : "retreat_signal"
+		26 : "drop_grenade"
+		27 : "limpingwalk"
+		28 : "limpingrun"
+		29 : "180L"
+		30 : "180R"
+		31 : "strafeleft"
+		32 : "straferight"
+		33 : "dieback1"
+		34 : "dieforward"
+		35 : "diesimple"
+		36 : "diebackwards"
+		37 : "dieheadshot"
+		38 : "diegutshot"
+		39 : "barnacled1"
+		40 : "barnacled2"
+		41 : "barnacled3"
+		42 : "barnacled4"
+		43 : "dead_on_stomach"
+		44 : "deadstomach"
+		45 : "deadside"
+		46 : "deadsitting"
+		47 : "repel_jump"
+		48 : "repel_repel"
+		49 : "repel_shoot"
+		50 : "repel_land"
+		51 : "repel_die"
+		52 : "dragholeidle"
+		53 : "draghole"
+		54 : "bustwall"
+		55 : "hoprail"
+		56 : "converse1"
+		57 : "converse2"
+		58 : "startleleft"
+		59 : "startleright"
+		60 : "divecover"
+		61 : "defuse"
+		62 : "corner1"
+		63 : "corner2"
+		64 : "stonetoss"
+		65 : "cliffdie"
+		66 : "diveaside_idle"
+		67 : "diveaside"
+		68 : "kneeldive_idle"
+		69 : "kneeldive"
+		70 : "WM_button"
+		71 : "WM_moatjump"
+		72 : "bustwindow"
+		73 : "dragleft"
+		74 : "dragright"
+		75 : "trackwave"
+		76 : "trackdive"
+		77 : "flyback"
+		78 : "impaled"
+		79 : "jumptracks"
+		80 : "pipetoss"
+		81 : "plunger"
+	]
+]
 @PointClass iconsprite("halflife/sprites/info_info.spr") base() = info_info : "comment, does nothing in game" : "http://twhl.info/wiki.php?id=148" []
 @PointClass base(Targetname, Angles) studio("halflife/models/env_bulletshooter.mdl") size(-16 -16 -16, 16 16 16) color(255 265 0) = env_bulletshooter : "Bullet shooter" 
 [
@@ -3429,15 +3627,434 @@ initammo(string) : "Initial Ammo" : 6
 ]
 @PointClass base(Targetname, Angles, Weapon) studio("models/w_grenade.mdl") size(-16 -16 -16, 16 16 16) color(255 265 0) = ammo_grenade : "Grenades" 
 [
-	amount(integer) : "Amount of grenades" : 1
+	amount(integer) : "Amount of grenades" : 3
 	grentype(choices) : "Grenade type" : 0 =
 	[
 		0 : "F1 frag"
 		1 : "Impact"
+		2 : "M82 Stun"
+		3 : "HopWire"
+		4 : "AOE of some sort"
 	]
 	spawnflags(flags) =
 	[
 		1: "Random Direction" : 0
 		4: "From Player camera" : 0
+	]
+]
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 16) studio("models/floater.mdl") = monster_bloater_flock : "Flock of Bloaters" 
+[
+	iFlockSize(Integer) : "Flock Size" : 8
+	flFlockRadius(Integer) : "Flock Radius" : 128
+]
+
+@PointClass base(Targetname) color(100 0 0) = trigger_plyrhuman : "Pre-Human Status Controller"
+[
+	PreHuman(choices) : "State" : 0 = 
+	[
+		0 : "Post-Human"
+		1 : "Pre-Human"
+	]
+	Type(choices) : "Target Type" : 0 = 
+	[
+		0 : "Change Activator"
+		1 : "Change Target Ents"
+		2 : "Change all players"
+	]
+]
+
+@PointClass base(Targetname) color(255 200 0) = trigger_plyrwpns : "Weapon Status Controller"
+[
+	Status(choices) : "State" : 0 = 
+	[
+		0 : "POST - Live"
+		1 : "POST - Train"
+		2 : "PRE - Live"
+		3 : "PRE - Train"
+	]
+	Type(choices) : "Target Type" : 0 = 
+	[
+		0 : "Change Activator"
+		1 : "Change all players"
+	]
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_electrified_wire : "Electrified Wire"
+[
+  segments(integer) : "Segments" : 16
+  sparkfrequency(integer) : "Spark Frequency" : 3
+  bodysparkfrequency(integer) : "Body Spark Frequency" : 3
+  lightningfrequency(integer) : "Lightning Frequency" : 3
+  xforce(integer) : "X Force" : 80000
+  yforce(integer) : "Y Force" : 80000
+  zforce(integer) : "Z Force" : 80000
+  disable(choices) :"Disable Use" : 0 =
+  [
+    0: "Not Disabled"
+    1: "Disabled"
+  ]
+  endingmodel(studio) : "Ending Model" : "models/wire_copper16.mdl"
+  bodymodel(studio) : "Body Model" : "models/wire_black16.mdl"
+]
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_rope : "Rope"
+[
+  segments(integer) : "Segments" : 16
+  disable(choices) :"Disable Use" : 0 =
+  [
+    0: "Not Disabled"
+    1: "Disabled"
+  ]
+  endingmodel(studio) : "Ending Model" : "models/rope16.mdl"
+  bodymodel(studio) : "Body Model" : "models/rope16.mdl"
+]
+
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) studio("halflife/models/hordemaker.mdl")= hordemaker : "Horde Maker"
+[
+	target(string) : "Target On Release" 
+	monstertype(string) : "Monster Type"
+	netname(string) : "Childrens' Name"
+	nodename(string) : "spawner names"
+	spawnflags(Flags) = 
+	[
+		1 : "Start ON" 	: 0
+		2 : "Check View" : 0
+		4 : "Cyclic" : 0
+		8 : "MonsterClip" : 0
+		16 : "Pre-Human" : 0
+		32 : "Aware" : 0
+		64 : "Use nodes" : 1
+	]
+
+	// how many monsters the monstermaker can create (-1 = unlimited)
+	monstercount(integer) : "Number of Monsters" : -1
+	
+	// if delay is -1, new monster will be made when last monster dies.
+	// else, delay is how often (seconds) a new monster will be dookied out.
+	delay(string) : "Frequency" : "5"
+
+	// maximum number of live children allowed at one time. (New ones will not be made until one dies)
+	// -1 no limit
+	m_imaxlivechildren(integer) : "Max live children" : 5
+	checkdist(string) : "Check Radius" : "256.0"
+]
+
+@PointClass base(Targetname) studio("halflife/models/env_blood.mdl") size(-16 -16 -16, 16 16 16) color(255 128 0) = env_fire : "Fire Spawner" 
+[
+	activetime(string) : "Active time" : "10.0"
+	particles(integer) : "Particle amnt" : 2
+	spreaddelay(string) : "Spread Delay" : "8.0"
+	//spawnflags(flags) =
+]
+
+// RENDERER START
+===============env_elight:
+@PointClass base(Targetname) iconsprite("sprites/lightbulb.spr") size(-16 -16 -16, 16 16 16) = env_elight : "Model light"
+[
+  renderamt(integer) : "Radius ( 1-25)" : 15
+  rendercolor(color255) : "Render Color" : "255 255 255"
+  spawnflags(flags) =
+  [
+    1 : "Start On" : 1
+  ]
+]
+
+Description:
+Spawns a light that only affects models, it gives per-vertex cal-
+culated lighting on models for extra detail. This is the only way
+you'll get per-vertex lighting on models.
+
+===============env_spotlight:
+@PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = env_spotlight : "SpotLight"
+[
+  renderamt(integer) : "Radius" : 15
+  rendercolor(color255) : "Render Color" : "255 255 255"
+  scale(string) : "Cone size" : "20"
+
+  body(integer) : "Texture Index" : 0
+
+  sequence(Choices) : "Disable Shadowmaps" : 0 =
+  [ 
+      0 : "No"
+      1 : "Yes"
+  ]
+
+  spawnflags(flags) =
+  [
+    1 : "Start On" : 1
+  ]
+]
+
+Description:
+Spawns a spotlight in your level not unlike the flashlight, howe-
+ver be aware that it is not shadowed.
+
+===============env_decal:
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) color(230 230 255) = env_decal: "Decal Entity" 
+[
+  message(string) : "Decal Texture"
+
+  spawnflags(flags) =
+  [
+    1 : "Wait for Trigger" : 1
+  ]
+]
+
+Description:
+The env_decal entity will spawn a decal on the wall it's been pa-
+sted onto, specify the texture regardless of grouping.
+
+===============env_fog:
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = env_fog : "Client Fog" 
+[
+  startdist(string) : "Start Distance" : "1"
+  enddist(integer) : "End Distance" : 1500
+  rendercolor(color255) : "Fog Color (R G B)" : "0 0 0"
+
+  affectsky(Choices) : "Don't Fog Sky" : 0 =
+  [ 
+      0 : "No"
+      1 : "Yes"
+  ]
+
+  spawnflags(flags) =
+  [
+    1 : "Start On" : 1
+  ]
+]
+
+Description:
+Your standard fog entity, but here you can specify wether the fog
+will fog the skybox also. This will cut out fog distance optimiz-
+ation though, so I would only recommend using it in less stressi-
+ing maps.
+
+===============env_particle_system:
+@PointClass base(Targetname, Angles) = env_particle_system: "Particle System"
+[
+	spawnflags(flags) =
+	[
+		1: "Start On" : 0
+		2: "Remove on Fire" : 0
+	]
+
+	message(string) : "Definition File" : "your_particle_script_here.txt"
+  	frags(Choices) : "Script Type" : 0 =
+  	[
+  	    0 : "System Script"
+  	    1 : "Cluster Script"
+  	]
+]
+
+Description:
+All particle scripts are loaded from *modfolder*/scripts/particl-
+es/. Here you simply need to specify the script name. You can al-
+so specify wether this is a single script, or a cluster file con-
+taining the names of multiple particle scripts.
+
+===============3D Sky:
+@PointClass base(Targetname) size(-4 -4 -4, 4 4 4) color(200 100 50) = envpos_sky : "Sky Marker" 
+[
+  startdist(string) : "Start Distance" : "1"
+  enddist(integer) : "End Distance" : 1500
+  rendercolor(color255) : "Fog Color (R G B)" : "0 0 0"
+  affectsky(Choices) : "Don't Fog Skybox" : 0 =
+  [ 
+      0 : "No"
+      1 : "Yes"
+  ]
+]
+@PointClass base(Targetname) size(-4 -4 -4, 4 4 4) color(200 100 50) = envpos_world : "Sky World Marker" 
+[
+ health(string) : "Size" : "16"
+]
+
+Description:
+Only solid entities and client-side managed item_generics will be
+shown in a 3D sky, and only if their Render FX is set to 70. 
+
+The envpos_sky entity should be put in the skybox you want to use
+for the map, while the envpos_world should be located inside the
+world where the player interacts.
+
+===============info_light_origin
+@PointClass base(Targetname) size(-4 -4 -4, 4 4 4) color(200 100 50) = info_light_origin : "Entity Light Origin Marker" []
+
+===============func_mirror
+@SolidClass base(Targetname, Global, Appearflags, RenderFields, ZHLT) = func_mirror : "Mirror" []
+
+Description:
+Every side should be null except the reflecty part of the mirror. See the Trinity SDK doc for more detail.
+
+// RENDERER END
+
+@PointClass iconsprite("sprites/env.spr") = env_customize : "Change entity properties"
+[
+	//* Leave this blank to have it take effect as soon as the level starts.
+	targetname(target_source) : "Name"
+	//* You can also specify a classname here, e.g. monster_barney.
+	target(string) : "Target to affect [LE]"
+	//* If the target is a classname, the game picks a random monster of that type from within this
+	//* search radius. This has no effect if the target is anything except a classname.
+	m_flRadius(integer) : "Search Radius" : 512
+	//*	  Set Part # for the submodel groups, submodel actually changes the model (Part # must be defined!! [most models only have 1 so set it to 0 for those])
+	//*   Note that this entity can only change their appearance- for example, grunts who had shotguns will still fire shotgun rounds.
+	body(choices) : "Part number" : -1 =
+	[
+		-1 : "No change"
+	]
+	armorvalue(choices) : "Submodel" : -1 =
+	[
+		-1 : "No change"
+	]
+	//*   <b>Scientists and Human Grunts:</b> 1 = black skin.
+	//*   <b>Bullsquids, Houndeyes, Slaves:</b> 1 = eyes shut.
+	//*   <b>Ichthyosaur:</b> 0-4 = different eye positions.
+	skin(choices) : "Set skin" : -1 =
+	[
+		-1 : "No change"
+		-2 : "Toggle 0/1"
+		0  : "Skin 0 (normal)"
+		1  : "Skin 1"
+		2  : "Skin 2"
+		3  : "Skin 3"
+	]
+	//* If the target is a brush entity with a switchable texture (one with both a +0 version and
+	//* a +A version), then this switches between the two versions.
+	//*   If the entity has switchable texlights on it, this will also turn those lights on and off.
+	frame(choices) : "Set brush texture" : -1 =
+	[
+		-1 : "No change"
+		-2 : "Toggle 0/1"
+		0  : "Texture 0 (normal)"
+		1  : "Texture 1 (alternate)"
+		//* With this set, triggering the env_customize On makes the target
+		//* use its normal texture, and Off makes it use the alternate one.
+		4: "On/Off based on usetype"
+		//* The opposite of the previous setting; On sets the alternate texture,
+		//* Off sets the normal one.
+		5: "Off/On based on usetype"
+	]
+	//* Use this setting with caution - a lot of a monster's behaviour is
+	//* determined by its model. (You should be safe if the new model is just
+	//* a set of different textures.)
+	m_iszModel(string) : "Set model (e.g. models/can.mdl)"
+	m_bloodColor(choices) : "Blood Color" : 0 =
+	[
+		0 : "No change"
+		-1 : "Don't Bleed"
+		247 : "Red (Human)"
+		195 : "Yellow (Xen)"
+		176 : "Green (Rx)"
+		43 : "Funghoul"
+	]
+	//* Change the pitch of the monster's voice (100 = normal pitch, higher numbers = higher pitch)
+	m_voicePitch(choices) : "Voice Pitch (100 = normal)" : -1 =
+	[
+		-1 : "No change"
+	]
+	//*   >1 = fast
+	//*   1 = normal speed
+	//*   0..1 = slow
+	//*   0 = stop
+	//*   -1 = no change
+	m_fFramerate(string) : "Frame rate (-1 = no change)" : "-1"
+	//* Sets:
+	//*   <b>agrunt.mdl</b>: head position (45..-45)
+	//*	<b>hgrunt.mdl</b>: head position (70..-70)
+	//*   <b>barney.mdl, gman.mdl, islave.mdl, scientist.mdl</b>: head position (60..-60)
+	//*   <b>apache.mdl</b>: gun yaw (90..-90)
+	//*   <b>barnacle.mdl</b>: tongue length (0..-1024)
+	//*   <b>garg.mdl</b>: body yaw (60..-60)
+	//*   <b>osprey.mdl</b>: rotor angle (0..-90)
+	//*   <b>icky.mdl</b>: tail position (45..-45)
+	//*   <b>miniturret.mdl, sentry.mdl, turret.mdl</b>: gun yaw (0..360)
+	m_fController0(choices) : "Bone controller 0" : 0 =
+	[
+		0 : "No change"
+		1024 : "Set to 0"
+	]
+	//* Sets:
+	//*   <b>apache.mdl</b>: gun pitch (45..-10)
+	//*   <b>(mini)turret.mdl</b>: gun pitch (15..-90)
+	//*   <b>sentry.mdl</b>: gun pitch (60..-60)
+	//*   <b>garg.mdl</b>: body pitch (35..-35)
+	m_fController1(choices) : "Bone controller 1" : 0 =
+	[
+		0 : "No change"
+		1024 : "Set to 0"
+	]
+	//* Hgrunt up/down dir
+	m_fController2(string) : "Blend 1" : "0"
+	//* unused by default
+	m_fController3(string) : "Blend 2" : "0"
+	//* If you want the entity to be partly transparent, use @env_render instead.
+	m_iVisible(choices) : "Visibility" : 0 =
+	[
+		0: "No change"
+		1: "Visible"
+		2: "Invisible"
+		3: "Toggle"
+		//* Trigger the env_customize On for visible, and Off for invisible.
+		4: "On/Off based on usetype"
+		//* Trigger the env_customize Off for visible, and On for invisible.
+		5: "Off/On based on usetype"
+	]
+	//* Currently, this will cause problems if used to solidify a non-monster,
+	//* non-brush entity.
+	//*   Note that a @func_ladder will still act as a ladder if you make it
+	//* non-solid.
+	m_iSolid(choices) : "Solidity" : 0 =
+	[
+		0: "No change"
+		1: "Solid"
+		2: "Not Solid"
+		3: "Toggle"
+		//* Trigger the env_customize On for solid, and Off for non-solid.
+		4: "On/Off based on usetype"
+		//* Trigger the env_customize Off for solid, and On for non-solid.
+		5: "Off/On based on usetype"
+	]
+	m_iPrisoner(choices) : "Prisoner" : 0 =
+	[
+		0: "No change"
+		1: "Yes"
+		2: "No"
+		3: "Toggle"
+		//* Trigger the env_customize On for a prisoner, and Off for a non-prisoner.
+		4: "On/Off based on usetype"
+		//* Trigger the env_customize Off for a prisoner, and On for a non-prisoner.
+		5: "Off/On based on usetype"
+	]
+	m_iMonsterClip(choices) : "MonsterClip flag" : 0 =
+	[
+		0: "No change"
+		1: "On"
+		2: "Off"
+		3: "Toggle"
+		//* Trigger the env_customize On to use Monsterclip, and Off to not use it.
+		4: "On/Off based on usetype"
+		//* Trigger the env_customize Off to use Monsterclip, and On to not use it.
+		5: "Off/On based on usetype"
+	]
+	//* Applies to barneys, scientists, "Friendly until hurt" and "Friendly
+	//* until provoked" monsters, and overrides these monsters' usual liking
+	//* for the player- e.g. as if the player had shot them.
+	m_iProvoked(choices) : "Angry At Player" : 0 =
+	[
+		0: "No change"
+		1: "Yes"
+		2: "No"
+		3: "Toggle"
+		//* Trigger the env_customize On to be angry, and Off to calm down.
+		4: "On/Off based on usetype"
+		//* Trigger the env_customize Off to be angry, and On to calm down.
+		5: "Off/On based on usetype"
+	]
+	spawnflags(flags) =
+	[
+		1: "Affect corpses" : 0
+		2: "Once Only" : 0
+		4: "Debug" : 0
 	]
 ]

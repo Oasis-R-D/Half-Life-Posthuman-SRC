@@ -348,6 +348,7 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 		case 5: // BRICK
 			flMultiplier = 10;
 			maxvel = 1500;
+			break;
 		case 6: // SIGNAL FLARE?
 			flMultiplier = 6.5f;
 			maxvel = 1000;
