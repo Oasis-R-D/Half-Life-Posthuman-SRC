@@ -440,7 +440,7 @@ bool CBaseToggle::IsLockedByMaster()
 	return !FStringNull(m_sMaster) && !UTIL_IsMasterTriggered(m_sMaster, m_hActivator);
 }
 
-void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float volume, float attenuation)
+void CBaseToggle::PlaySentence(const char *pszSentence, float duration, float volume, float attenuation , bool subtitle)
 {
 	ASSERT(pszSentence != nullptr);
 
@@ -449,20 +449,30 @@ void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float vo
 		return;
 	}
 
-	PlaySentenceCore(pszSentence, duration, volume, attenuation);
+	PlaySentenceCore(pszSentence, duration, volume, attenuation, subtitle);
 }
 
-void CBaseToggle::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation)
+void CBaseToggle::PlaySentenceCore(const char *pszSentence, float duration, float volume, float attenuation , bool subtitle)
 {
 	if (pszSentence[0] == '!')
-		EMIT_SOUND_DYN(edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM);
+	{
+		if (subtitle)
+			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration)+1 );
+		else
+			EMIT_SOUND_DYN( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM );
+	}
 	else
-		SENTENCEG_PlayRndSz(edict(), pszSentence, volume, attenuation, 0, PITCH_NORM);
+	{
+		if (subtitle)
+			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration)+1 );
+		else
+			SENTENCEG_PlayRndSz( edict(), pszSentence, volume, attenuation, 0, PITCH_NORM );
+	}
 }
 
 void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener)
 {
-	PlaySentence(pszSentence, duration, volume, attenuation);
+	PlaySentence(pszSentence, duration, volume, attenuation, true);
 }
 
 

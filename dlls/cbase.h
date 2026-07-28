@@ -247,8 +247,8 @@ public:
 	virtual int GetToggleState() { return TS_AT_TOP; }
 	virtual void AddPoints(int score, bool bAllowNegativeScore) {}
 	virtual void AddPointsToTeam(int score, bool bAllowNegativeScore) {}
-	virtual bool AddPlayerItem(CBasePlayerItem* pItem) { return 0; }
-	virtual bool RemovePlayerItem(CBasePlayerItem* pItem) { return 0; }
+	virtual bool AddPlayerItem(CBasePlayerItem* pItem) { return false; }
+	virtual bool RemovePlayerItem(CBasePlayerItem* pItem) { return false; }
 	virtual int GiveAmmo(int iAmount, const char* szName, int iMax) { return -1; }
 	virtual float GetDelay() { return 0; }
 	virtual bool IsMoving() { return pev->velocity != g_vecZero; }
@@ -627,7 +627,7 @@ public:
 	virtual CBaseToggle* MyTogglePointer() { return this; }
 
 	// monsters use this, but so could buttons for instance
-	virtual void PlaySentence(const char* pszSentence, float duration, float volume, float attenuation);
+	virtual void PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle = false);
 	virtual void PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener);
 	virtual void SentenceStop();
 	virtual bool IsAllowedToSpeak() { return false; }
@@ -643,7 +643,7 @@ public:
 						// deactivated.
 	
 protected:
-	virtual void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation);
+	virtual void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle);
 };
 #define SetMoveDone(a) m_pfnCallWhenMoveDone = static_cast<void (CBaseToggle::*)()>(a)
 

@@ -75,6 +75,7 @@ inline int gmsgCreateDLight = 0;
 inline int gmsgFreeEnt = 0;
 inline int gmsgCreateSystem = 0;
 inline int gmsgWaterInfo = 0;
+inline int gmsgCaption = 0;
 // RENDERERS END
 
 inline int gmsgTempEntities = 0;

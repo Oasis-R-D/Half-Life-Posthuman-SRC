@@ -256,6 +256,7 @@ inline void UTIL_MakeVectorsPrivate(const Vector& vecAngles, float* p_vForward, 
 //RENDERERS START
 extern void			UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType );
 extern void			UTIL_StudioDecal( Vector normal, Vector position, const char *name, int entindex );
+extern void			UTIL_ShowCaption(const char* messageId, int holdTime, bool radio);
 //RENDERERS END
 
 extern void UTIL_MakeAimVectors(const Vector& vecAngles); // like MakeVectors, but assumes pitch isn't inverted
@@ -501,7 +502,8 @@ void USENTENCEG_InitLRU(unsigned char* plru, int count);
 void SENTENCEG_Init();
 void SENTENCEG_Stop(edict_t* entity, int isentenceg, int ipick);
 int SENTENCEG_PlayRndI(edict_t* entity, int isentenceg, float volume, float attenuation, int flags, int pitch);
-int SENTENCEG_PlayRndSz(edict_t* entity, const char* szrootname, float volume, float attenuation, int flags, int pitch);
+int SENTENCEG_PlayRndSz( edict_t *entity, const char *szgroupname, float volume, float attenuation, int flags, int pitch, int channel = NULL );
+int SENTENCEG_PlayRndSzSub(edict_t* entity, const char* szgroupname, float volume, float attenuation, int flags, int pitch, int holdTime);
 int SENTENCEG_PlaySequentialSz(edict_t* entity, const char* szrootname, float volume, float attenuation, int flags, int pitch, int ipick, bool freset);
 int SENTENCEG_GetIndex(const char* szrootname);
 int SENTENCEG_Lookup(const char* sample, char* sentencenum);
@@ -518,8 +520,11 @@ float TEXTURETYPE_Penetration(TraceResult* ptr, Vector vecSrc, Vector vecEnd);
 // EMIT_SOUND_DYN with pitch != 100 should be used sparingly, as it's not quite as
 // fast as EMIT_SOUND (the pitchshift mixer is not native coded).
 
-void EMIT_SOUND_DYN(edict_t* entity, int channel, const char* sample, float volume, float attenuation,
-	int flags, int pitch);
+bool EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
+						   int flags, int pitch);
+
+bool EMIT_SOUND_DYN_SUB(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
+						   int flags, int pitch, int holdTime);
 
 
 inline void EMIT_SOUND(edict_t* entity, int channel, const char* sample, float volume, float attenuation)

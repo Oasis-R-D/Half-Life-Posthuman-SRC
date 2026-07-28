@@ -1126,20 +1126,30 @@ void CTalkMonster::PlayScriptedSentence(const char* pszSentence, float duration,
 
 	ClearConditions(bits_COND_CLIENT_PUSH); // Forget about moving!  I've got something to say!
 	m_useTime = gpGlobals->time + duration;
-	PlaySentence(pszSentence, duration, volume, attenuation);
+	PlaySentence(pszSentence, duration, volume, attenuation, true);
 
 	m_hTalkTarget = pListener;
 }
 
-void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation)
+void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle)
 {
 	Talk(duration);
 
 	CTalkMonster::g_talkWaitTime = gpGlobals->time + duration + 2.0;
 	if (pszSentence[0] == '!')
-		EMIT_SOUND_DYN(edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch());
+	{
+		if (subtitle)
+			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration)+1 );
+		else
+			EMIT_SOUND_DYN( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch() );
+	}
 	else
-		SENTENCEG_PlayRndSz(edict(), pszSentence, volume, attenuation, 0, GetVoicePitch());
+	{
+		if (subtitle)
+			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration)+1 );
+		else
+			SENTENCEG_PlayRndSz( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch() );
+	}
 
 	// If you say anything, don't greet the player - you may have already spoken to them
 	SetBits(m_bitsSaid, bit_saidHelloPlayer);

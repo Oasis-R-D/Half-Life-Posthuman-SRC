@@ -86,6 +86,7 @@ void LinkUserMessages()
 	gmsgSkyMark_World = REG_USER_MSG("SkyMark_W", -1);
 	gmsgCreateSystem = REG_USER_MSG("Particle", -1);
 	gmsgWaterInfo = REG_USER_MSG("WaterInfo", -1);
+	gmsgCaption = REG_USER_MSG("Caption", -1);
 	// RENDERERS END
 
 

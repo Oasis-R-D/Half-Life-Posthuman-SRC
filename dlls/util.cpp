@@ -2696,4 +2696,24 @@ void UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType
 	WRITE_LONG(0);
 	MESSAGE_END();
 }
+
+void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio)
+{
+	if (!messageId || !*messageId)
+		return;
+
+	if (*messageId == '!')
+	{
+		messageId = messageId+1;
+	}
+
+	if (holdTime > 255)
+		holdTime = 255;
+
+	MESSAGE_BEGIN( MSG_ALL, gmsgCaption );
+		WRITE_BYTE(holdTime);
+		WRITE_BYTE(radio ? 1 : 0);
+		WRITE_STRING(messageId);
+	MESSAGE_END();
+}
 //RENDERERS END

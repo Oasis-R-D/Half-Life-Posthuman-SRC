@@ -105,6 +105,8 @@ cvar_t* cl_rollmultvm = nullptr;
 cvar_t* cl_bobtilt = nullptr;
 cvar_t* r_decals = nullptr;
 
+cvar_t* cl_subtitles = NULL;
+
 void ShutdownInput();
 
 //DECLARE_MESSAGE(m_Logo, Logo)
@@ -446,12 +448,15 @@ void CHud::Init()
 	default_fov = CVAR_CREATE("default_fov", "90", FCVAR_ARCHIVE);
 	m_pCvarStealMouse = CVAR_CREATE("hud_capturemouse", "1", FCVAR_ARCHIVE);
 	m_pCvarDraw = CVAR_CREATE("hud_draw", "1", FCVAR_ARCHIVE);
+	m_pCvarShowPos = CVAR_CREATE( "cl_showpos", "0", FCVAR_ARCHIVE );
 	cl_lw = gEngfuncs.pfnGetCvarPointer("cl_lw");
 	cl_rollangle = CVAR_CREATE("cl_rollangle", "10.0", FCVAR_ARCHIVE);
 	cl_rollspeed = CVAR_CREATE("cl_rollspeed", "700", FCVAR_ARCHIVE);
 	cl_rollmultvm = CVAR_CREATE("cl_rollvmmult", "2.0", FCVAR_ARCHIVE);
 	cl_bobtilt = CVAR_CREATE("cl_bobtilt", "0", FCVAR_ARCHIVE);
 	r_decals = gEngfuncs.pfnGetCvarPointer("r_decals");
+
+	cl_subtitles = CVAR_CREATE( "cl_subtitles", "1", FCVAR_ARCHIVE );
 
 	m_pSpriteList = NULL;
 
@@ -488,6 +493,8 @@ void CHud::Init()
 	GetClientVoiceMgr()->Init(&g_VoiceStatusHelper, (vgui::Panel**)&gViewPort);
 
 	m_Menu.Init();
+
+	m_Caption.Init();
 
 	MsgFunc_ResetHUD(0, 0, NULL);
 
@@ -645,6 +652,9 @@ void CHud::VidInit()
 	m_AmmoSecondary.VidInit();
 	m_TextMessage.VidInit();
 	m_StatusIcons.VidInit();
+
+	m_Caption.VidInit();
+
 	GetClientVoiceMgr()->VidInit();
 	#ifdef TRINITY
 	// RENDERERS START

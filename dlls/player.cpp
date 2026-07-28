@@ -5902,12 +5902,12 @@ public:
 		if (FStrEq(pkvd->szKeyName, "pass_target"))
 		{
 			m_PassTarget = ALLOC_STRING(pkvd->szValue);
-			pkvd->fHandled = true;
+			return true;
 		}
 		else if (FStrEq(pkvd->szKeyName, "fail_target"))
 		{
 			m_FailTarget = ALLOC_STRING(pkvd->szValue);
-			pkvd->fHandled = true;
+			return true;
 		}
 		else
 			return CPointEntity::KeyValue(pkvd);
@@ -5959,7 +5959,7 @@ public:
 			return true;
 		}
 		else
-			CPlayerHasThing::KeyValue(pkvd);
+			return CPlayerHasThing::KeyValue(pkvd);
 	}
 
 	bool HasThing(CBasePlayer* pPlayer) override {

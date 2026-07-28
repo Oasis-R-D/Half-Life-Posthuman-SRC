@@ -17,6 +17,7 @@
 //
 #include "hud.h"
 #include "cl_util.h"
+#include "text_utils.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -86,6 +87,28 @@ void CHud::Think()
 		m_iFOV = gHUD.m_Spectator.GetFOV(); // default_fov->value;
 	}
 }
+
+int safe_snprintf(char *buffer, int buffersize, const char *format, ...)
+{
+	va_list	args;
+	int	result;
+
+	if( buffersize <= 0 )
+		return -1;
+
+	va_start( args, format );
+	result = _vsnprintf( buffer, buffersize, format, args );
+	va_end( args );
+
+	if( result >= buffersize )
+	{
+		buffer[buffersize - 1] = '\0';
+		return -1;
+	}
+
+	return result;
+}
+
 // Redraw
 // step through the local data,  placing the appropriate graphics & text as appropriate
 // returns 1 if they've changed, 0 otherwise
@@ -136,6 +159,8 @@ bool CHud::Redraw(float flTime, bool intermission)
 
 	// if no redrawing is necessary
 	// return 0;
+
+	m_Caption.Update(flTime, m_flTimeDelta);
 
 	// draw all registered HUD elements
 	if (0 != m_pCvarDraw->value)
@@ -201,6 +226,33 @@ bool CHud::Redraw(float flTime, bool intermission)
 		SPR_DrawAdditive( 0, mx, my, NULL );
 	}
 	*/
+
+	if (m_pCvarShowPos && m_pCvarShowPos->value > 0)
+	{
+		extern Vector v_origin, v_angles;
+
+		cl_entity_t* pl = gEngfuncs.GetLocalPlayer();
+
+		const Vector pos = m_pCvarShowPos->value == 2 ? pl->origin : v_origin;
+		const Vector ang = m_pCvarShowPos->value == 2 ? pl->angles : v_angles;
+		const char* posType = m_pCvarShowPos->value == 2 ? "ent" : "view";
+
+		const int x = ScreenWidth/2;
+		int y = 4;
+		const int textHeight = ConsoleText::LineHeight();
+		char posBuf[256];
+
+		safe_snprintf(posBuf, sizeof(posBuf), "pos (%s): %.2f %.2f %.2f", posType, pos.x, pos.y, pos.z);
+		ConsoleText::DrawString(x, y, ScreenWidth, posBuf, 255, 255, 255);
+		y += textHeight;
+
+		safe_snprintf(posBuf, sizeof(posBuf), "ang (%s): %.2f %.2f %.2f", posType, ang.x, ang.y, ang.z);
+		ConsoleText::DrawString(x, y, ScreenWidth, posBuf, 255, 255, 255);
+		y += textHeight;
+
+		safe_snprintf(posBuf, sizeof(posBuf), "velocity: %.2f", m_velocity.Length());
+		ConsoleText::DrawString(x, y, ScreenWidth, posBuf, 255, 255, 255);
+	}
 
 	return true;
 }
@@ -441,4 +493,170 @@ int CHud::DrawHudNumberReverse(int x, int y, int number, int flags, int r, int g
 	}
 
 	return x;
+}
+
+
+int CHud::ConsoleText::DrawString(int xpos, int ypos, int iMaxX, const char *szString, int r, int g, int b, int length)
+{
+	char buf[512] = {0};
+	const char* str = buf;
+
+	if (length < 0) {
+		str = szString;
+	} else {
+		length = V_min(length, sizeof(buf) - 1);
+		strncpy(buf, szString, length);
+		buf[length] = '\0';
+	}
+
+	gEngfuncs.pfnDrawSetTextColor(r / 255.0f, g / 255.0f, b / 255.0f);
+	return DrawConsoleString(xpos, ypos, str);
+}
+
+int CHud::ConsoleText::DrawString(int xpos, int ypos, const char *szString, int r, int g, int b, int length)
+{
+	return DrawString(xpos, ypos, ScreenWidth, szString, r, g, b, length);
+}
+
+int CHud::ConsoleText::DrawNumberString(int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b)
+{
+	char szString[32];
+	sprintf( szString, "%d", iNumber );
+	return DrawStringReverse( xpos, ypos, iMinX, szString, r, g, b );
+}
+
+int CHud::ConsoleText::DrawFloatNumberString(int xpos, int ypos, int iMinX, float number, int r, int g, int b)
+{
+	char szString[32];
+	sprintf( szString, "%g", number );
+	return DrawStringReverse( xpos, ypos, iMinX, szString, r, g, b );
+}
+
+int CHud::ConsoleText::DrawStringReverse(int x, int ypos, int iMinX, const char *szString, int r, int g, int b, int length)
+{
+	x -= LineWidth(szString, length);
+	if (x < iMinX)
+		x = iMinX;
+	return DrawString(x, ypos, ScreenWidth, szString, r, g, b, length);
+}
+
+int CHud::ConsoleText::LineWidth(const char *szString, int length)
+{
+	char buf[1024] = {0};
+	const char* str = buf;
+
+	if (length < 0) {
+		str = szString;
+	} else {
+		length = V_min(length, sizeof(buf) - 1);
+		strncpy(buf, szString, length);
+		buf[length] = '\0';
+	}
+
+	int width, height;
+	gEngfuncs.pfnDrawConsoleStringLen(str, &width, &height);
+	return width;
+}
+
+int CHud::ConsoleText::WidestCharacterWidth()
+{
+	int width, height;
+	gEngfuncs.pfnDrawConsoleStringLen("M", &width, &height);
+	return width;
+}
+
+int CHud::ConsoleText::LineHeight()
+{
+	int width, height;
+	gEngfuncs.pfnDrawConsoleStringLen("YAW", &width, &height);
+	return height;
+}
+
+int CHud::ConsoleText::DrawMultiLineString(const char *str, int xpos, int ypos, int xmax, const int LineHeight, int r, int g, int b)
+{
+	const char *ch = str;
+	while(*ch)
+	{
+		const char *next_line = ch;
+		for(; *next_line != '\n' && *next_line != '\0'; next_line++)
+			;
+
+		const int lineLength = next_line - ch;
+		if (lineLength > 0)
+		{
+			const int lineWidth = CHud::UtfText::LineWidth(ch, lineLength);
+			const int numberOfLines = (lineWidth + xmax - xpos - 1) / (xmax - xpos);
+
+			int lineLengthRest = lineLength;
+			for (int i=0; i<numberOfLines; ++i)
+			{
+				int renderLineLength = i == 0 ? (lineLength - lineLength/numberOfLines * (numberOfLines-1)) : V_min(lineLength/numberOfLines, lineLengthRest);
+				if (renderLineLength > 0)
+				{
+					while(isalpha(ch[renderLineLength]) || ch[renderLineLength] == '_' || isdigit(ch[renderLineLength]))
+						renderLineLength++;
+					if (ch[renderLineLength] == '\'' && isalpha(ch[renderLineLength+1]))
+						renderLineLength += 2;
+					if (ch[renderLineLength] == '"')
+						renderLineLength++;
+					if (ch[renderLineLength] == ':')
+						renderLineLength++;
+
+					lineLengthRest -= renderLineLength;
+
+					if (i > 0)
+					{
+						while(isspace(*ch))
+						{
+							++ch;
+							--renderLineLength;
+						}
+					}
+
+					CHud::UtfText::DrawString( xpos, ypos, xmax, ch, r, g, b, renderLineLength );
+					ypos += LineHeight;
+					ch += renderLineLength;
+				}
+			}
+		}
+
+		ch = next_line;
+		if (*ch == '\n')
+			ch++;
+	}
+	return ypos;
+}
+
+std::vector<std::pair<int, int>> CHud::ConsoleText::CalcLineOffsets(const char* str, int maxwidth)
+{
+	std::vector<std::pair<int, int>> lineOffsets;
+
+	WordBoundaries boundaries = SplitIntoWordBoundaries(str);
+
+	unsigned int startWordIndex = 0;
+	for (unsigned int j=0; j<boundaries.size();)
+	{
+		const int width = CHud::UtfText::LineWidth(str + boundaries[startWordIndex].wordStart, boundaries[j].wordEnd - boundaries[startWordIndex].wordStart);
+		if (width > maxwidth) {
+			if (j == startWordIndex) {
+				lineOffsets.push_back(std::make_pair(boundaries[startWordIndex].wordStart, boundaries[startWordIndex].wordEnd));
+				startWordIndex = ++j;
+			} else {
+				lineOffsets.push_back(std::make_pair(boundaries[startWordIndex].wordStart, boundaries[j-1].wordEnd));
+				startWordIndex = j;
+			}
+		} else {
+			if (j == boundaries.size() - 1) {
+				lineOffsets.push_back(std::make_pair(boundaries[startWordIndex].wordStart, boundaries[j].wordEnd));
+			}
+			else if (boundaries[j].newline){
+				lineOffsets.push_back(std::make_pair(boundaries[startWordIndex].wordStart, boundaries[j].wordEnd));
+				startWordIndex = j+1;
+			}
+
+			++j;
+		}
+	}
+
+	return lineOffsets;
 }

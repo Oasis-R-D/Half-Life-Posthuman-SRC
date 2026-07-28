@@ -30,6 +30,7 @@
 #include "common_types.h"
 #include "cl_dll.h"
 #include "ammo.h"
+#include <string>
 
 // RENDERERS START
 #include "..\renderer\frustum.h"
@@ -241,6 +242,77 @@ public:
 private:
 	HSPRITE_GOLDSRC m_hSprite;
 	int m_iPos;
+};
+
+
+struct CaptionProfile_t
+{
+	char firstLetter;
+	char secondLetter;
+	int r, g, b;
+};
+
+struct Caption_t
+{
+	Caption_t();
+	Caption_t(const char* captionName);
+	char name[32];
+	const CaptionProfile_t* profile;
+	std::string message;
+	float delay;
+	float duration;
+};
+
+#define SUB_MAX_LINES 5
+
+struct Subtitle_t
+{
+	const Caption_t* caption;
+	int lineOffsets[SUB_MAX_LINES];
+	int lineEndOffsets[SUB_MAX_LINES];
+	int r, g, b;
+	float timeLeft;
+	float timeBeforeStart;
+	int lineCount;
+	bool radio;
+};
+
+class CHudCaption : public CHudBase
+{
+public:
+	bool Init() override;
+	bool VidInit() override;
+	void Update(float flTime, float flTimeDelta);
+	bool Draw(float flTime) override;
+	void Reset() override;
+
+	int MsgFunc_Caption( const char *pszName, int iSize, void *pbuf );
+	void AddSubtitle(const Subtitle_t& sub);
+	void CalculateLineOffsets(Subtitle_t& sub);
+	void RecalculateLineOffsets();
+
+	void UserCmd_DumpCaptions();
+
+	bool ParseCaptionsProfilesFile();
+	bool ParseCaptionsFile();
+	const Caption_t* CaptionLookup(const char* name);
+
+protected:
+	bool ParseFloatParameter(char* pfile, int& currentTokenStart, unsigned int& tokenLength, Caption_t &caption);
+
+	CaptionProfile_t *CaptionProfileLookup(char firstLetter, char secondLetter);
+
+	CaptionProfile_t defaultProfile;
+	std::vector<CaptionProfile_t> profiles;
+	Caption_t defaultCaption;
+	std::vector<Caption_t> captions;
+
+	Subtitle_t subtitles[4];
+	int sub_count;
+	bool captionsInit;
+	HSPRITE_GOLDSRC m_hVoiceIcon;
+	int voiceIconWidth;
+	int voiceIconHeight;
 };
 
 //
@@ -581,6 +653,7 @@ public:
 	double m_flTimeDelta; // the difference between flTime and fOldTime
 	Vector m_vecOrigin;
 	Vector m_vecAngles;
+	Vector m_velocity;
 	int m_iKeyBits;
 	int m_iHideHUDDisplay;
 	int m_iFOV;
@@ -588,6 +661,7 @@ public:
 	int m_iRes;
 	cvar_t* m_pCvarStealMouse;
 	cvar_t* m_pCvarDraw;
+	cvar_t* m_pCvarShowPos;
 
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b);
@@ -597,6 +671,20 @@ public:
 	int DrawHudNumberString(int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b);
 	int GetNumWidth(int iNumber, int iFlags);
 
+	struct ConsoleText
+	{
+		static int DrawString( int xpos, int ypos, int iMaxX, const char *szString, int r, int g, int b, int length = -1 );
+		static int DrawString( int xpos, int ypos, const char *szString, int r, int g, int b, int length = -1 );
+		static int DrawNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
+		static int DrawFloatNumberString( int xpos, int ypos, int iMinX, float number, int r, int g, int b );
+		static int DrawStringReverse( int xpos, int ypos, int iMinX, const char *szString, int r, int g, int b, int length = -1 );
+		static int LineWidth( const char *szString, int length = -1 );
+		static int WidestCharacterWidth();
+		static int LineHeight();
+		static int DrawMultiLineString(const char* str, int xpos, int ypos, int xmax, const int LineHeight, int r, int g, int b);
+		static std::vector<std::pair<int, int>> CalcLineOffsets(const char* str, int maxwidth);
+	};
+
 	int GetHudNumberWidth(int number, int width, int flags);
 	int DrawHudNumberReverse(int x, int y, int number, int flags, int r, int g, int b);
 
@@ -604,6 +692,8 @@ public:
 	{
 		return (m_iWeaponBits & (1ULL << id)) != 0;
 	}
+
+	typedef ConsoleText UtfText;
 
 	bool HasSuit() const
 	{
@@ -653,6 +743,7 @@ public:
 	CHudAmmoSecondary m_AmmoSecondary;
 	CHudTextMessage m_TextMessage;
 	CHudStatusIcons m_StatusIcons;
+	CHudCaption		m_Caption;
 
 	void Init();
 	void VidInit();

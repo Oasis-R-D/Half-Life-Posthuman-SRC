@@ -30,7 +30,7 @@ This file contains "stubs" of class member implementations so that we can predic
 #include "soundent.h"
 #include "skill.h"
 
-void EMIT_SOUND_DYN(edict_t* entity, int channel, const char* sample, float volume, float attenuation, int flags, int pitch) {}
+bool EMIT_SOUND_DYN(edict_t* entity, int channel, const char* sample, float volume, float attenuation, int flags, int pitch) { return false; }
 
 // CBaseEntity Stubs
 bool CBaseEntity::TakeHealth(float flHealth, int bitsDamageType) { return true; }
@@ -78,8 +78,8 @@ void ClientPrint(entvars_t* client, int msg_dest, const char* msg_name, const ch
 bool CBaseToggle::Restore(class CRestore&) { return true; }
 bool CBaseToggle::Save(class CSave&) { return true; }
 bool CBaseToggle::KeyValue(struct KeyValueData_s*) { return false; }
-void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float volume, float attenuation) {}
-void CBaseToggle::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation) {}
+void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle) {}
+void CBaseToggle::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle) {}
 void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener) {}
 void CBaseToggle::SentenceStop() {}
 

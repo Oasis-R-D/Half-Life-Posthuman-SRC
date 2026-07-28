@@ -405,6 +405,12 @@
     <ClCompile Include="..\..\dlls\weapons\sledgehammer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\hud_caption.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game_shared\parsetext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -781,6 +787,18 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.h">
       <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\arraysize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\parsetext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\template_property_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\text_utils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
