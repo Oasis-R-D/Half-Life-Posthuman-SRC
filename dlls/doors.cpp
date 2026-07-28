@@ -161,7 +161,7 @@ void PlayLockSounds(entvars_t* pev, locksound_t* pls, bool flocked, bool fbutton
 			// play next 'door locked' sentence in group
 			int iprev = pls->iLockedSentence;
 
-			pls->iLockedSentence = SENTENCEG_PlaySequentialSz(ENT(pev), STRING(pls->sLockedSentence),
+			pls->iLockedSentence = SENTENCEG_PlaySequentialSzSub(ENT(pev), STRING(pls->sLockedSentence),
 				0.85, ATTN_NORM, 0, 100, pls->iLockedSentence, false);
 			pls->iUnlockedSentence = 0;
 

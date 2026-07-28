@@ -1176,7 +1176,7 @@ int SENTENCEG_GetIndex(const char* szgroupname)
 // the sound before playback is done (see SENTENCEG_Stop).
 
 int SENTENCEG_PlayRndI(edict_t* entity, int isentenceg,
-	float volume, float attenuation, int flags, int pitch)
+	float volume, float attenuation, int flags, int pitch, bool captions, int capLength)
 {
 	char name[64];
 	int ipick;
@@ -1188,7 +1188,11 @@ int SENTENCEG_PlayRndI(edict_t* entity, int isentenceg,
 
 	ipick = USENTENCEG_Pick(isentenceg, name);
 	if (ipick > 0 && name)
-		EMIT_SOUND_DYN(entity, CHAN_VOICE, name, volume, attenuation, flags, pitch);
+		if (captions)
+			EMIT_SOUND_DYN(entity, CHAN_VOICE, name, volume, attenuation, flags, pitch);
+		else
+			EMIT_SOUND_DYN_SUB(entity, CHAN_VOICE, name, volume, attenuation, flags, pitch, capLength);
+
 	return ipick;
 }
 
@@ -1253,6 +1257,27 @@ int SENTENCEG_PlaySequentialSz(edict_t* entity, const char* szgroupname,
 	return ipicknext;
 }
 
+int SENTENCEG_PlaySequentialSzSub(edict_t* entity, const char* szgroupname,
+	float volume, float attenuation, int flags, int pitch, int ipick, bool freset)
+{
+	char name[64];
+	int ipicknext;
+	int isentenceg;
+
+	if (!fSentencesInit)
+		return -1;
+
+	name[0] = 0;
+
+	isentenceg = SENTENCEG_GetIndex(szgroupname);
+	if (isentenceg < 0)
+		return -1;
+
+	ipicknext = USENTENCEG_PickSequential(isentenceg, name, ipick, freset);
+	if (ipicknext >= 0 && '\0' != name[0])
+		EMIT_SOUND_DYN_SUB(entity, CHAN_VOICE, name, volume, attenuation, flags, pitch, 4);
+	return ipicknext;
+}
 
 // for this entity, for the given sentence within the sentence group, stop
 // the sentence.
@@ -1483,7 +1508,7 @@ void EMIT_SOUND_SUIT(edict_t* entity, const char* sample)
 		pitch = RANDOM_LONG(0, 6) + 98;
 
 	if (fvol > 0.05)
-		EMIT_SOUND_DYN(entity, CHAN_STATIC, sample, fvol, ATTN_NORM, 0, pitch);
+		EMIT_SOUND_DYN_SUB(entity, CHAN_STATIC, sample, fvol, ATTN_NORM, 0, pitch, 6);
 }
 
 // play a sentence, randomly selected from the passed in group id, over the HEV suit speaker
@@ -1498,7 +1523,7 @@ void EMIT_GROUPID_SUIT(edict_t* entity, int isentenceg)
 		pitch = RANDOM_LONG(0, 6) + 98;
 
 	if (fvol > 0.05)
-		SENTENCEG_PlayRndI(entity, isentenceg, fvol, ATTN_NORM, 0, pitch);
+		SENTENCEG_PlayRndI(entity, isentenceg, fvol, ATTN_NORM, 0, pitch, true, 6);
 }
 
 // play a sentence, randomly selected from the passed in groupname
@@ -2086,6 +2111,7 @@ void CSpeaker::Spawn()
 	Precache();
 }
 
+#define ANNOUNCE_CAPTION_DUR 5
 #define ANNOUNCE_MINUTES_MIN 0.25
 #define ANNOUNCE_MINUTES_MAX 2.25
 
@@ -2145,7 +2171,7 @@ void CSpeaker::SpeakerThink()
 	{
 		// make random announcement from sentence group
 
-		if (SENTENCEG_PlayRndSz(ENT(pev), szSoundFile, flvolume, flattenuation, flags, pitch) < 0)
+		if (SENTENCEG_PlayRndSzSub(ENT(pev), szSoundFile, flvolume, flattenuation, flags, pitch, ANNOUNCE_CAPTION_DUR) < 0)
 			ALERT(at_console, "Level Design Error!\nSPEAKER has bad sentence group name: %s\n", szSoundFile);
 
 		// set next announcement time for random 15 to 135 second delay
