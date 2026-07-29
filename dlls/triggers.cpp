@@ -3244,7 +3244,6 @@ public:
 	void Spawn() override;
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
 	bool KeyValue(KeyValueData* pkvd) override;
-	bool Training;
 	int usetype;
 };
 LINK_ENTITY_TO_CLASS(trigger_plyrwpns, CTriggerWeapons);
@@ -3263,7 +3262,7 @@ void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 			if (pCaller->IsPlayer())
 			{
 				auto player = (CBasePlayer*)pCaller;
-				player->m_iWeaponStatus = Training;
+				player->m_iWeaponStatus = m_bPrehuman;
 			}
 		break;
 		case 1:
@@ -3278,7 +3277,7 @@ void CTriggerWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYP
 				{
 					auto player = (CBasePlayer*)pTarget;
 					ALERT(at_aiconsole, "Found: %s, training (%s)\n", STRING(pTarget->pev->classname), STRING(pev->target));
-					player->m_iWeaponStatus = Training;
+					player->m_iWeaponStatus = m_bPrehuman;
 				}
 			}
 		break;
@@ -3289,7 +3288,7 @@ bool CTriggerWeapons::KeyValue(KeyValueData* pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "Status"))
 	{
-		Training = atoi(pkvd->szValue);
+		m_bPrehuman = (bool)atoi(pkvd->szValue);
 		return true;
 	}
 	else if (FStrEq(pkvd->szKeyName, "Type"))

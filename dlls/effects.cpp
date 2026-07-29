@@ -2061,11 +2061,8 @@ bool CPhysShooter::KeyValue(KeyValueData* pkvd)
 		m_iTracerType = atoi(pkvd->szValue);
 		switch (m_iTracerType)
 		{
-		case 7: // secret
+		case 6: // secret
 			SetTracer(420);
-			break;
-		case 6: // rubber bullet
-			SetTracer(69);
 			break;
 		case 5:
 			SetTracer(12);

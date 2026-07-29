@@ -604,7 +604,10 @@ void ChgruntRobo::Shoot()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_5DEGREES, 2048, BULLET_MONSTER_MP5, 2, 1); // shoot +-2.5 degrees
 
-	CPhysbullet::BulletCreate(1, 2, 4000, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_5DEGREES, 0.9, 69, edict());
+	if (g_iSkillLevel != SKILL_REALISM)
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_10DEGREES, CONE_5DEGREES, 0.66, 9, edict());
+	else
+		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_6DEGREES, 1, 9, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -633,7 +636,10 @@ void ChgruntRobo::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1, 1); // shoot +-5 degrees
 
-	CPhysbullet::BulletCreate(3, 2, 3500, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 0.9, 69, edict());
+	if (g_iSkillLevel != SKILL_REALISM)
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_8DEGREES, CONE_6DEGREES, 0.75, 12, edict());
+	else
+		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 

@@ -176,12 +176,10 @@ public:
 	bool m_bNoMove; // disables moving, (friction and other forces still applied!)
 	bool m_bLightOn;
 	int m_iSpeedOverride = -1;
-	int m_iWeaponStatus; // Bullet or rubber bullet or prehuman or prehuman and rubber
+	bool m_iWeaponStatus; // Bullet or rubber bullet or prehuman or prehuman and rubber
 	////////////////////
-	//	0 == POST - Live
-	//	1 == POST - Train
-	//	2 == PRE - Live
-	//	3 == PRE - Train
+	//	0 == POST
+	//	1 == PREHUMAN
 	////////////////////
 
 	float m_tSneaking;

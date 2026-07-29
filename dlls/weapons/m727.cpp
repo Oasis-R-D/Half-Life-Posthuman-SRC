@@ -218,20 +218,13 @@ void CM727::PrimaryAttack()
 	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
-	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		if (g_iSkillLevel != SKILL_REALISM)
-		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
-		}
-		else
-		{
-			CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
-		}
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 4000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
 	}
 
 	//TestSprayPat(M727_MAX_CLIP - m_iClip);

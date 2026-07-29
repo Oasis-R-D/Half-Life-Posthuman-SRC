@@ -248,35 +248,28 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 	vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
 #ifndef CLIENT_DLL
-	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		if (g_iSkillLevel != SKILL_REALISM)
+		if (!m_iSilenced)
 		{
-			if (!m_iSilenced)
-			{
-				CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
-			}
-			else
-			{
-				CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
-			}
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 		}
-		else // realism diff (hardcoded damages to prevent cheaters)
+		else
 		{
-	
-			if (!m_iSilenced)
-			{
-				CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
-			}
-			else
-			{
-				CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
-			}
+			CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
 		}
 	}
-	else
+	else // realism diff (hardcoded damages to prevent cheaters)
 	{
-		CPhysbullet::BulletCreate(1, g_iSkillLevel == SKILL_REALISM ? 10 : 3, 3750, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 69, m_pPlayer->edict());
+	
+		if (!m_iSilenced)
+		{
+			CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+		}
+		else
+		{
+			CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+		}
 	}
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)

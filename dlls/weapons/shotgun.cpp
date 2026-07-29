@@ -112,32 +112,16 @@ bool CShotgun::Deploy()
 
 	m_fInSpecialReload = 0;
 
-	if (m_pPlayer->m_iWeaponStatus == 1 || m_pPlayer->m_iWeaponStatus == 3) // training
+	if (!NotFirstDraw)
 	{
-		if (!NotFirstDraw)
-		{
-			ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");// Change it to the training SG model
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.75;
-			return ret;
-		}	
-
-		ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");	// Change it to the training SG model
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
+		ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.75;
 		return ret;
 	}
-	else
-	{
-		if (!NotFirstDraw)
-		{
-			ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW_FIRST, "shotgun");
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.75;
-			return ret;
-		}
 
-		ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
-		return ret;
-	}
+	ret = DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", (bool)m_iFiremode ? SHOTGUN_DRAW_SEMI : SHOTGUN_DRAW, "shotgun");
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.13;
+	return ret;
 }
 
 void CShotgun::ItemPreFrame()
@@ -219,20 +203,13 @@ void CShotgun::PrimaryAttack()
 	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
-	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		if (g_iSkillLevel != SKILL_REALISM)
-		{
-			CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
-		}
-		else
-		{
-			CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
-		}
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(3, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, spread, spread, 1, 69, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
 	}
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
@@ -324,14 +301,7 @@ void CShotgun::SecondaryAttack()
 	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
-	if (m_pPlayer->m_iWeaponStatus == 0 || m_pPlayer->m_iWeaponStatus == 2)
-	{
-		CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
-	}
-	else
-	{
-		CPhysbullet::BulletCreate(6, g_iSkillLevel == SKILL_REALISM ? 3.33f : 1, 3750, vecSrc, vecAiming, CONE_4DEGREES, CONE_3DEGREES, 1, 69, m_pPlayer->edict());
-	}
+	CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
 	{
