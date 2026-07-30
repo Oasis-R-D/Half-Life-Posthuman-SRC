@@ -85,7 +85,7 @@ bool CHudCaption::VidInit()
 			}
 		}
 	}
-	m_hVoiceIcon = SPR_Load("sprites/voiceicon.spr");
+	m_hVoiceIcon = SPR_Load("sprites/radioicon.spr");
 	voiceIconWidth = SPR_Width(m_hVoiceIcon, 0);
 	voiceIconHeight = SPR_Height(m_hVoiceIcon, 0);
 	RecalculateLineOffsets();
@@ -304,7 +304,7 @@ bool CHudCaption::Draw(float flTime)
 
 	const int width = SUB_MAX_XPOS - SUB_START_XPOS + SUB_BORDER_LENGTH*2;
 	const int height = overallLineCount * lineHeight + (sub_count-1) * distanceBetweenSubs + SUB_BORDER_LENGTH*2;
-	FillRGBA2(xpos - SUB_BORDER_LENGTH, ypos - SUB_BORDER_LENGTH, width, height, 0, 0, 0, 192);
+	FillRGBA2((float)xpos - SUB_BORDER_LENGTH, (float)ypos - SUB_BORDER_LENGTH, width, height, 0, 0, 0, 192);
 
 	for (i=0; i<sub_count; ++i)
 	{
