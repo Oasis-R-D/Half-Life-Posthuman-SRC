@@ -228,7 +228,6 @@ void CSpriteRenderer::QuadifySpriteEnt(cl_entity_t* e)
 			if (parent->model->type == mod_studio && e->curstate.body > 0)
 			{
 				int num = bound(1, e->curstate.body, MAXSTUDIOATTACHMENTS);
-				//gEngfuncs.Con_DPrintf("att = (%f %f %f) ent = (%f %f %f)\n", parent->attachment[1].x, parent->attachment[1].y, parent->attachment[1].z, origin.x, origin.y, origin.z);
 				VectorCopy(parent->attachment[num - 1], origin); // parent->attachment[num - 1] is always model org
 			}
 			else

@@ -1881,18 +1881,16 @@ void CStudioModelRenderer::StudioDrawModel(int flags)
 	m_ModelBones_Buffer->Bind(GL_BufferHandler::UniformBuffer);
 	m_ModelBones_Buffer->BindRange(GL_BufferHandler::UniformBuffer, m_ModelShader->GetUBOIndex("BonesUBO"), m_pCurrentStudioEntData->bonearrayoffset1, sizeof(matrix3x4_t) * m_pStudioHeader->numbones);
 
-	if (flags & STUDIO_EVENTS)
-	{
-		StudioCalcAttachments();
-		StudioClientEvents();
-
+	StudioCalcAttachments();
+	if (m_pCurrentEntity->index > 0)
+	{	
 		// copy attachments into global entity array
-		if (m_pCurrentEntity->index > 0)
-		{
-			cl_entity_t* ent = gEngfuncs.GetEntityByIndex(m_pCurrentEntity->index);
-			memcpy(ent->attachment, m_pCurrentEntity->attachment, sizeof(Vector) * 4);
-		}
+		cl_entity_t* ent = gEngfuncs.GetEntityByIndex(m_pCurrentEntity->index);
+		memcpy(ent->attachment, m_pCurrentEntity->attachment, sizeof(Vector) * 4);
 	}
+
+	if (flags & STUDIO_EVENTS)
+		StudioClientEvents();
 
 	StudioSetupLighting();
 	StudioEntityLight();
