@@ -100,8 +100,8 @@ void CHudCaption::Reset()
 	sub_count = 0;
 }
 
-#define SUB_START_XPOS (ScreenWidth / 20)
-#define SUB_MAX_XPOS (ScreenWidth - ScreenWidth/20)
+#define SUB_START_XPOS (ScreenWidth / 3)
+#define SUB_MAX_XPOS (ScreenWidth - ScreenWidth/3)
 #define SUB_BORDER_LENGTH (ScreenWidth/160)
 
 int CHudCaption::MsgFunc_Caption(const char *pszName, int iSize, void *pbuf)
@@ -190,21 +190,27 @@ void CHudCaption::CalculateLineOffsets(Subtitle_t &sub)
 	{
 		const int width = CHud::UtfText::LineWidth(str + boundaries[startWordIndex].wordStart, boundaries[j].wordEnd - boundaries[startWordIndex].wordStart);
 		if (width > xmax) {
-			if (j == startWordIndex) {
+			if (j == startWordIndex) 
+			{
 				sub.lineOffsets[sub.lineCount] = boundaries[startWordIndex].wordStart;
 				sub.lineEndOffsets[sub.lineCount] = boundaries[startWordIndex].wordEnd;
 				sub.lineCount++;
 
 				startWordIndex = ++j;
-			} else {
+			} 
+			else
+			{
 				sub.lineOffsets[sub.lineCount] = boundaries[startWordIndex].wordStart;
 				sub.lineEndOffsets[sub.lineCount] = boundaries[j-1].wordEnd;
 				sub.lineCount++;
 
 				startWordIndex = j;
 			}
-		} else {
-			if (j == boundaries.size() - 1) {
+		} 
+		else
+		{
+			if (j == boundaries.size() - 1)
+			{
 				sub.lineOffsets[sub.lineCount] = boundaries[startWordIndex].wordStart;
 				sub.lineEndOffsets[sub.lineCount] = boundaries[j].wordEnd;
 				sub.lineCount++;
@@ -280,20 +286,12 @@ bool CHudCaption::Draw(float flTime)
 	int i, j;
 
 	int overallLineCount = 0;
-	int maxLineWidth = 0;
 	for (i=0; i<sub_count; ++i)
 	{
 		if (subtitles[i].timeBeforeStart > 0)
 			continue;
 
 		overallLineCount += subtitles[i].lineCount;
-		for (j=0; j<subtitles[i].lineCount; ++j)
-		{
-			const int lineWidth = CHud::UtfText::LineWidth(subtitles[i].caption->message.c_str() + subtitles[i].lineOffsets[j], subtitles[i].lineEndOffsets[j] - subtitles[i].lineOffsets[j]);
-
-			if (lineWidth > maxLineWidth)
-				maxLineWidth = lineWidth;
-		}
 	}
 
 	if (overallLineCount == 0)
@@ -304,7 +302,7 @@ bool CHudCaption::Draw(float flTime)
 	if (cl_subtitles->value == 0)
 		return false;
 
-	const int width = maxLineWidth + SUB_BORDER_LENGTH*2;
+	const int width = SUB_MAX_XPOS - SUB_START_XPOS + SUB_BORDER_LENGTH*2;
 	const int height = overallLineCount * lineHeight + (sub_count-1) * distanceBetweenSubs + SUB_BORDER_LENGTH*2;
 	FillRGBA2(xpos - SUB_BORDER_LENGTH, ypos - SUB_BORDER_LENGTH, width, height, 0, 0, 0, 192);
 
