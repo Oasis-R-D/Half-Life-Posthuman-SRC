@@ -627,8 +627,8 @@ public:
 	virtual CBaseToggle* MyTogglePointer() { return this; }
 
 	// monsters use this, but so could buttons for instance
-	virtual void PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle = false);
-	virtual void PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener);
+	virtual void PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle = false, bool radioIcon = false);
+	virtual void PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener, bool radioIcon = false);
 	virtual void SentenceStop();
 	virtual bool IsAllowedToSpeak() { return false; }
 
@@ -643,7 +643,7 @@ public:
 						// deactivated.
 	
 protected:
-	virtual void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle);
+	virtual void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon = false);
 };
 #define SetMoveDone(a) m_pfnCallWhenMoveDone = static_cast<void (CBaseToggle::*)()>(a)
 

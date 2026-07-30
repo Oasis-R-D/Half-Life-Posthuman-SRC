@@ -440,7 +440,7 @@ bool CBaseToggle::IsLockedByMaster()
 	return !FStringNull(m_sMaster) && !UTIL_IsMasterTriggered(m_sMaster, m_hActivator);
 }
 
-void CBaseToggle::PlaySentence(const char *pszSentence, float duration, float volume, float attenuation , bool subtitle)
+void CBaseToggle::PlaySentence(const char *pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon)
 {
 	ASSERT(pszSentence != nullptr);
 
@@ -449,30 +449,30 @@ void CBaseToggle::PlaySentence(const char *pszSentence, float duration, float vo
 		return;
 	}
 
-	PlaySentenceCore(pszSentence, duration, volume, attenuation, subtitle);
+	PlaySentenceCore(pszSentence, duration, volume, attenuation, subtitle, radioIcon);
 }
 
-void CBaseToggle::PlaySentenceCore(const char *pszSentence, float duration, float volume, float attenuation , bool subtitle)
+void CBaseToggle::PlaySentenceCore(const char *pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon)
 {
 	if (pszSentence[0] == '!')
 	{
 		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
-			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration * 1.2 + 1) );
+			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration * 1.2 + 1), radioIcon );
 		else
 			EMIT_SOUND_DYN( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, PITCH_NORM );
 	}
 	else
 	{
 		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
-			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration * 1.2 + 1) );
+			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, PITCH_NORM, ceil(duration * 1.2 + 1), radioIcon );
 		else
 			SENTENCEG_PlayRndSz( edict(), pszSentence, volume, attenuation, 0, PITCH_NORM );
 	}
 }
 
-void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener)
+void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener, bool radioIcon)
 {
-	PlaySentence(pszSentence, duration, volume, attenuation, true);
+	PlaySentence(pszSentence, duration, volume, attenuation, true, radioIcon);
 }
 
 

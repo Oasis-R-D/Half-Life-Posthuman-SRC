@@ -1119,19 +1119,19 @@ bool CTalkMonster::FIdleSpeak()
 	return false;
 }
 
-void CTalkMonster::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener)
+void CTalkMonster::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener, bool radioIcon)
 {
 	if (!bConcurrent)
 		ShutUpFriends();
 
 	ClearConditions(bits_COND_CLIENT_PUSH); // Forget about moving!  I've got something to say!
 	m_useTime = gpGlobals->time + duration;
-	PlaySentence(pszSentence, duration, volume, attenuation, true);
+	PlaySentence(pszSentence, duration, volume, attenuation, true, radioIcon);
 
 	m_hTalkTarget = pListener;
 }
 
-void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle)
+void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon)
 {
 	Talk(duration);
 
@@ -1139,14 +1139,14 @@ void CTalkMonster::PlaySentenceCore(const char* pszSentence, float duration, flo
 	if (pszSentence[0] == '!')
 	{
 		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
-			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration * 1.2 + 1) );
+			EMIT_SOUND_DYN_SUB( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration * 1.2 + 1), radioIcon);
 		else
 			EMIT_SOUND_DYN( edict(), CHAN_VOICE, pszSentence, volume, attenuation, 0, GetVoicePitch() );
 	}
 	else
 	{
 		if ((pev->flags & FL_DOCAPTIONS) != 0 || subtitle)
-			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration * 1.2 + 1) );
+			SENTENCEG_PlayRndSzSub( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch(), ceil(duration * 1.2 + 1), radioIcon );
 		else
 			SENTENCEG_PlayRndSz( edict(), pszSentence, volume, attenuation, 0, GetVoicePitch() );
 	}

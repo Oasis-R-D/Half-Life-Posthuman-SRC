@@ -110,10 +110,10 @@ public:
 	bool CanPlaySentence(bool fDisregardState) override;
 
 protected:
-	void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle) override;
+	void PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon = false) override;
 
 public:
-	void PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener) override;
+	void PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener, bool radioIcon = false) override;
 	bool KeyValue(KeyValueData* pkvd) override;
 
 	// AI functions

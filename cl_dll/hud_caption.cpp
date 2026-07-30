@@ -315,7 +315,7 @@ bool CHudCaption::Draw(float flTime)
 				continue;
 			}
 
-			if (j == 0 && m_hVoiceIcon != 0 && sub.radio)
+			if (j == 0 && sub.radio && m_hVoiceIcon != 0)
 			{
 				SPR_Set( m_hVoiceIcon, sub.r, sub.g, sub.b );
 				SPR_DrawAdditive( 0, xpos-SUB_BORDER_LENGTH-voiceIconWidth-V_max(voiceIconWidth/8, 1), ypos + lineHeight/2 - voiceIconWidth/2, NULL );

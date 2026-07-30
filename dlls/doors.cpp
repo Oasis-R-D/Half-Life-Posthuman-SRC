@@ -162,7 +162,7 @@ void PlayLockSounds(entvars_t* pev, locksound_t* pls, bool flocked, bool fbutton
 			int iprev = pls->iLockedSentence;
 
 			pls->iLockedSentence = SENTENCEG_PlaySequentialSzSub(ENT(pev), STRING(pls->sLockedSentence),
-				0.85, ATTN_NORM, 0, 100, pls->iLockedSentence, false);
+				0.85, ATTN_NORM, 0, 100, pls->iLockedSentence, false, false); // TO-DO: add radio icon bool
 			pls->iUnlockedSentence = 0;
 
 			// make sure we don't keep calling last sentence in list

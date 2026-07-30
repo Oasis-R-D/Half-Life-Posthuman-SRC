@@ -78,9 +78,9 @@ void ClientPrint(entvars_t* client, int msg_dest, const char* msg_name, const ch
 bool CBaseToggle::Restore(class CRestore&) { return true; }
 bool CBaseToggle::Save(class CSave&) { return true; }
 bool CBaseToggle::KeyValue(struct KeyValueData_s*) { return false; }
-void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle) {}
-void CBaseToggle::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle) {}
-void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener) {}
+void CBaseToggle::PlaySentence(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon) {}
+void CBaseToggle::PlaySentenceCore(const char* pszSentence, float duration, float volume, float attenuation, bool subtitle, bool radioIcon) {}
+void CBaseToggle::PlayScriptedSentence(const char* pszSentence, float duration, float volume, float attenuation, bool bConcurrent, CBaseEntity* pListener, bool radioIcon) {}
 void CBaseToggle::SentenceStop() {}
 
 // CGrenade Stubs
