@@ -216,6 +216,7 @@ void CSpriteRenderer::QuadifySpriteEnt(cl_entity_t* e)
 	r_blend = CL_FxBlend(e);
 
 	// do movewith
+	// TO-DO: this don't work (assuming the server sided sprite code uses this)
 	if (e->curstate.aiment > 0 && e->curstate.movetype == MOVETYPE_FOLLOW)
 	{
 		cl_entity_t* parent;
@@ -227,7 +228,8 @@ void CSpriteRenderer::QuadifySpriteEnt(cl_entity_t* e)
 			if (parent->model->type == mod_studio && e->curstate.body > 0)
 			{
 				int num = bound(1, e->curstate.body, MAXSTUDIOATTACHMENTS);
-				VectorCopy(parent->attachment[num - 1], origin);
+				//gEngfuncs.Con_DPrintf("att = (%f %f %f) ent = (%f %f %f)\n", parent->attachment[1].x, parent->attachment[1].y, parent->attachment[1].z, origin.x, origin.y, origin.z);
+				VectorCopy(parent->attachment[num - 1], origin); // parent->attachment[num - 1] is always model org
 			}
 			else
 				VectorCopy(parent->origin, origin);
