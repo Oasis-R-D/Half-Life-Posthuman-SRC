@@ -130,6 +130,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\cbase.cpp" />
     <ClCompile Include="..\..\dlls\client.cpp" />
     <ClCompile Include="..\..\dlls\combat.cpp" />
+    <ClCompile Include="..\..\dlls\fire.cpp" />
     <ClCompile Include="..\..\dlls\monsters\advsec.cpp" />
     <ClCompile Include="..\..\dlls\monsters\aflock.cpp" />
     <ClCompile Include="..\..\dlls\monsters\agrunt.cpp" />
@@ -306,6 +307,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\dlls\enginecallback.h" />
     <ClInclude Include="..\..\dlls\explode.h" />
     <ClInclude Include="..\..\dlls\extdll.h" />
+    <ClInclude Include="..\..\dlls\fire.h" />
     <ClInclude Include="..\..\dlls\flyingmonster.h" />
     <ClInclude Include="..\..\dlls\func_break.h" />
     <ClInclude Include="..\..\dlls\gamerules.h" />

@@ -1,8 +1,291 @@
+/*
+*
+//
+/// Copyright PackMail Industries 2026-2026, no rights reserved. (I'll sue you breh)
+//
+*
+*/
+
+/*
+
+===== fire.cpp ==========================================================
+
+  implementation of voxel based fire in GoldSource
+
+*/
+
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
 #include "monsters.h"
+#include "weapons.h"
 #include "soundent.h"
 #include "decals.h"
+
+// C++ STD stuff
 #include <vector>
+#include <iterator>
+#include <memory>
+
 #include "fire.h"
+
+CFireManager* FireManager;
+
+CFireManager::CFireManager()
+{
+	if (FireManager)
+	{
+		ALERT(at_error, "Do not create multiple instances of FireManager\n");
+		return;
+	}
+
+	FireManager = this;
+}
+
+CFireManager::~CFireManager()
+{
+	if (FireManager != this)
+	{
+		return;
+	}
+
+	FireManager = nullptr;
+}
+
+void CFireManager::Spawn()
+{
+	Precache();
+
+	pev->nextthink = gpGlobals->time + 0.1;
+	SetThink(&CFireManager::ManagerThink);
+}
+
+void CFireManager::Precache()
+{
+	// Flag this entity for removal if it's not the actual FireManager entity.
+	if (FireManager != this)
+	{
+		UTIL_Remove(this);
+		return;
+	}
+
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/mediumfire_loop.wav");
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/ember_loop.wav");
+	PRECACHE_SOUND("soundscape_knockoffs/levels/Sector I/carfire_loop.wav");
+}
+
+// Does std::erase_if()
+void CFireManager::RemoveDead()
+{
+	auto lambda = [](const auto& obj)
+	{ return !obj || obj->heat <= 0; };
+
+	voxels.erase
+	(
+        std::remove_if
+		(
+			voxels.begin(), 
+			voxels.end(), 
+			lambda
+		),
+
+		voxels.end()
+    );
+}
+
+
+bool CFireManager::MergeFirePoints(Vector pos, int heat) 
+{
+	if (!voxels.empty())
+	{
+		for (auto& voxel : voxels)
+		{
+			if (voxel && voxel->origin == pos)
+			{
+				voxel->heat += heat;
+				return true;
+			}
+		}
+	}
+
+
+	// check tempvoxels aswell
+	for (auto& tempvoxel : tempvoxels)
+	{
+		if (tempvoxel && tempvoxel->origin == pos)
+		{
+			tempvoxel->heat += heat;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void CFireManager::AddFire(Vector pos, int heat)
+{	
+	// Check to make sure we aren't trying to add fire where fire already is
+	if (!MergeFirePoints(pos, heat))
+	{
+		auto newFire = std::make_unique<CFireVoxel>();
+		newFire->origin = pos;
+		newFire->heat = heat;
+		newFire->thinktime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.1);
+		newFire->spreadTime = gpGlobals->time + RANDOM_FLOAT(0.5, 1);
+		tempvoxels.push_back(std::move(newFire));
+		ALERT(at_console, "NEW FIRE: heat %d\n", heat);
+	}
+}
+
+void CFireManager::MergeInTemp()
+{
+	voxels.reserve(voxels.size() + tempvoxels.size());
+    voxels.insert(voxels.end(), std::make_move_iterator(tempvoxels.begin()), std::make_move_iterator(tempvoxels.end()));
+
+	tempvoxels.clear();
+	tempvoxels.reserve(2); // hold some space
+
+	if (!tempvoxels.empty())
+		ALERT(at_error, "CFireManager: data leftover in tempvoxels!\n");
+}
+
+void CFireManager::ManagerThink()
+{
+	// move in added voxels from last think
+	MergeInTemp();
+
+	// nothing to simulate
+	if (voxels.empty())
+	{
+		pev->nextthink = gpGlobals->time + 0.25;
+		return;
+	}
+	
+	pev->nextthink = gpGlobals->time;
+
+	// destroy dead fires this frame
+	RemoveDead();
+
+	for (const auto& voxel : voxels)
+	{
+		if (voxel->thinktime > gpGlobals->time)
+			continue;
+
+		voxel->Think();
+	}
+}
+
+// Spawn fire in a ball
+void CFireManager::FireExplosion(Vector pos, int radius, int heat)
+{
+	int firesize = sv_firesize.value; // spread out more
+	firesize *= 2;
+	int totalDist = radius * firesize;
+
+	for (int i = -radius; i < radius; i++)
+	{
+		for (int j = -radius; j < radius; j++)
+		{
+			Vector newPos = pos + Vector(j * firesize, i * firesize, 0);
+			float dist = (newPos-pos).Length();
+
+			if (dist > totalDist)
+				continue;
+
+			AddFire(newPos, (dist / totalDist) * heat);
+		}
+	}
+}
+
+//=========================================================
+// Per voxel functions
+//=========================================================
+
+void CFireVoxel::Think()
+{
+	const int firesize = sv_firesize.value;
+	thinktime = gpGlobals->time + 0.1;
+
+	SpawnParticles(firesize*0.66);
+	
+	// don't run spread code while falling
+	if (CheckFall((firesize / 2) + 2))
+		return;
+
+	heat -= 1;
+
+	if (spreadTime > gpGlobals->time || heat < 160)
+		return;
+
+	// spread
+	Vector VecFireSpread;
+	int times = 0;
+	int opp1, opp2, count;
+		
+	do {
+		if (times >= 10) // don't spawn if it isn't finding any good spots
+		{
+			//ALERT(at_warning, "Env_Fire: couldn't spawn fire!\n");
+			return;
+		}
+		times += 1;
+
+		opp1 = RANDOM_LONG(-1, 0);
+		opp2 = RANDOM_LONG(-1, 0);
+		
+		if (opp1 == 0)
+			opp1 = 1;
+		if (opp2 == 0)
+			opp2 = 1;
+			
+		// spreads in 8 directions
+		VecFireSpread = origin;
+		VecFireSpread.x += firesize * opp1;
+		VecFireSpread.y += firesize * opp2;
+	} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
+
+	spreadTime = gpGlobals->time + RANDOM_LONG(4, 10);
+
+	FireManager->AddFire(VecFireSpread, 150);
+	heat -= 150;
+}
+
+const void CFireVoxel::SpawnParticles(int size)
+{	// Spawn visuals
+	Vector VecflameOrg = origin;
+	VecflameOrg.x += RANDOM_LONG(-size, size);
+	VecflameOrg.y += RANDOM_LONG(-size, size);
+	VecflameOrg.z += RANDOM_LONG(-size,	   0);
+
+	//if (RANDOM_LONG(0, heat) < 50)
+		//return;
+
+	if (heat < 1000)
+		PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
+	else
+	{
+		heat = V_min(heat, 1250);
+		PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 1);
+	}
+}
+
+bool CFireVoxel::CheckFall(float size)
+{
+	Vector newOrigin = origin - Vector(0, 0, size);
+
+	TraceResult GroundCheck;
+	UTIL_TraceLine(origin, newOrigin, ignore_monsters, NULL, &GroundCheck);
+
+	if (GroundCheck.flFraction != 1)
+		return false;
+
+	// Either merge the fire with the one below or move it
+	if (!FireManager->MergeFirePoints(newOrigin, heat))
+		origin = newOrigin;
+	else
+		heat = 0;
+
+	heat -= 3; // falling is very bad
+
+	return true;
+}

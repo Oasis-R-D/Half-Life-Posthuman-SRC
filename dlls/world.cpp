@@ -34,6 +34,7 @@
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
 #include "UserMessages.h"
+#include "fire.h"
 
 CGlobalState gGlobalState;
 
@@ -674,6 +675,14 @@ void CWorld::Precache()
 	{
 		ALERT(at_console, "**COULD NOT CREATE SOUNDENT**\n");
 	}
+	
+	CFireManager* pFireMan = GetClassPtr((CFireManager*)NULL);
+	pFireMan->Spawn();
+
+	if (!pFireMan)
+	{
+		ALERT(at_console, "**COULD NOT CREATE FIRE MANAGER**\n");
+	}
 
 	InitBodyQue();
 
@@ -704,15 +713,8 @@ void CWorld::Precache()
 	PRECACHE_SOUND("common/bodydrop4.wav");
 
 	g_Language = (int)CVAR_GET_FLOAT("sv_language");
-	if (g_Language == LANGUAGE_GERMAN)
-	{
-		PRECACHE_MODEL("models/germangibs.mdl");
-	}
-	else
-	{
-		PRECACHE_MODEL("models/hgibs.mdl");
-		PRECACHE_MODEL("models/agibs.mdl");
-	}
+	PRECACHE_MODEL("models/hgibs.mdl");
+	PRECACHE_MODEL("models/agibs.mdl");
 
 	PRECACHE_SOUND("weapons/ric1.wav");
 	PRECACHE_SOUND("weapons/ric2.wav");

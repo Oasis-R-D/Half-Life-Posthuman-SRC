@@ -54,16 +54,8 @@ void CGib::SpawnHeadGib(entvars_t* pevVictim)
 {
 	CGib* pGib = GetClassPtr((CGib*)NULL);
 
-	if (g_Language == LANGUAGE_GERMAN)
-	{
-		pGib->Spawn("models/germangibs.mdl"); // throw one head
-		pGib->pev->body = 0;
-	}
-	else
-	{
-		pGib->Spawn("models/hgibs.mdl"); // throw one head
-		pGib->pev->body = 0;
-	}
+	pGib->Spawn("models/hgibs.mdl"); // throw one head
+	pGib->pev->body = 0;
 
 	if (pevVictim)
 	{
@@ -129,30 +121,22 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, const GibData& gibDa
 	{
 		CGib* pGib = GetClassPtr((CGib*)NULL);
 
-		if (g_Language == LANGUAGE_GERMAN)
+		pGib->Spawn(gibData.ModelName);
+
+		if (pLimitTracking)
 		{
-			pGib->Spawn("models/germangibs.mdl");
-			pGib->pev->body = RANDOM_LONG(0, GERMAN_GIB_COUNT - 1);
+			if (pLimitTracking[currentBody] >= gibData.Limits[currentBody].MaxGibs)
+			{
+				++currentBody;
+			}
+
+			pGib->pev->body = currentBody;
+
+			++pLimitTracking[currentBody];
 		}
 		else
 		{
-			pGib->Spawn(gibData.ModelName);
-
-			if (pLimitTracking)
-			{
-				if (pLimitTracking[currentBody] >= gibData.Limits[currentBody].MaxGibs)
-				{
-					++currentBody;
-				}
-
-				pGib->pev->body = currentBody;
-
-				++pLimitTracking[currentBody];
-			}
-			else
-			{
-				pGib->pev->body = RANDOM_LONG(gibData.FirstSubModel, gibData.SubModelCount - 1);
-			}
+			pGib->pev->body = RANDOM_LONG(gibData.FirstSubModel, gibData.SubModelCount - 1);
 		}
 
 		if (pevVictim)
@@ -644,7 +628,7 @@ void CGib::WaitTillLand()
 	}
 	else
 	{
-		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED && (RANDOM_LONG(0, 1) == 1))
+		if (m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED && (RANDOM_LONG(0, 1) == 1))
 		{
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin, g_vecZero, 0.0, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, 0);
 		}
@@ -673,7 +657,7 @@ void CGib::BounceGibTouch(CBaseEntity* pOther)
 	}
 	else
 	{
-		if (g_Language != LANGUAGE_GERMAN && m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED)
+		if (m_cBloodDecals > 0 && m_bloodColor != DONT_BLEED)
 		{
 			vecSpot = pev->origin + Vector(0, 0, 8); //move up a bit, and trace down.
 			UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -24), ignore_monsters, ENT(pev), &tr);

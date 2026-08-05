@@ -28,7 +28,8 @@
 #include "physical_bullet.h"
 #include "player.h"
 #include "shake.h"
-#include "effects.h"
+#include "effects.h" // probably can be removed once fire is fully added
+#include "fire.h"
 
 //===================grenade
 
@@ -190,7 +191,12 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
+	FireManager->FireExplosion(translateToFireSpace(pev->origin), 2, 800);
+
+	// OLD METHOD
+
 	// Counteract the + 1 in RadiusDamage.
+	/*
 	Vector origin = pev->origin;
 	origin.z -= 1;
 
@@ -230,6 +236,7 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 			CFire::FireCreate(Spawn, 32, 18.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
 		}
 	}
+	*/
 
 	if (RANDOM_FLOAT(0, 1) < 0.5)
 	{
