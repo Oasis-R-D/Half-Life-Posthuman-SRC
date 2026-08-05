@@ -46,7 +46,7 @@ std::vector<int> g_liValidNodes;
 
 std::vector<entvars_t*> g_rgInfoHordeSpawns;
 
-inline bool IsEntityValid( CBaseEntity *entity )
+static inline bool IsEntityValid( CBaseEntity *entity )
 {
 	if (entity == NULL)
 		return false;
@@ -57,13 +57,13 @@ inline bool IsEntityValid( CBaseEntity *entity )
 	if (FStrEq( STRING( entity->pev->netname ), "" ))
 		return false;
 
-	if (entity->pev->flags & FL_DORMANT)
+	if ((entity->pev->flags & FL_DORMANT) != 0)
 		return false;
 	
 	return true;
 }
 
-CBasePlayer* GetClosestPlayer(Vector pos)
+static CBasePlayer* GetClosestPlayer(Vector pos)
 {
 	CBasePlayer *closePlayer = NULL;
 	float closeDistSq = 999999999999.9f;
@@ -89,6 +89,7 @@ CBasePlayer* GetClosestPlayer(Vector pos)
 	return closePlayer;
 }
 
+// TO-DO: make vector array of origins so we can remove the spawns after initialization
 //=========================================================
 // HordeMaker - this ent creates monsters during the game.
 //=========================================================
@@ -104,9 +105,7 @@ public:
 		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 
 		if (Height.flFraction == 1.0) // is the ceiling tall enough?
-		{
 			g_rgInfoHordeSpawns.push_back(pev); // valid node, add to list
-		}
 		else
 		{
 			ALERT(at_error, "info_hordespawn %s ceiling too low at %f,%f,%f", STRING(pev->classname), pev->origin.x, pev->origin.y, pev->origin.z);
@@ -146,6 +145,7 @@ public:
 	int m_cNumMonsters; // max number of monsters this ent can create
 
 	float m_fCheckDist;
+	float m_fMaxDistForChecks;
 
 	int m_cLiveChildren;	// how many monsters made by this monster maker that are currently alive
 	int m_iMaxLiveChildren; // max number of monsters that this maker may have out at one time.
@@ -158,13 +158,16 @@ LINK_ENTITY_TO_CLASS(hordemaker, CHordeMaker);
 
 TYPEDESCRIPTION CHordeMaker::m_SaveData[] =
 	{
-		DEFINE_FIELD(CHordeMaker, m_iszMonsterClassname, FIELD_STRING),
-		DEFINE_FIELD(CHordeMaker, m_iszSpawnerName, FIELD_STRING),
-		DEFINE_FIELD(CHordeMaker, m_cNumMonsters, FIELD_INTEGER),
-		DEFINE_FIELD(CHordeMaker, m_cLiveChildren, FIELD_INTEGER),
-		DEFINE_FIELD(CHordeMaker, m_iMaxLiveChildren, FIELD_INTEGER),
-		DEFINE_FIELD(CHordeMaker, m_fActive, FIELD_BOOLEAN),
-		DEFINE_FIELD(CHordeMaker, m_fFadeChildren, FIELD_BOOLEAN),
+		DEFINE_FIELD(CHordeMaker, m_iszMonsterClassname,	FIELD_STRING),
+		DEFINE_FIELD(CHordeMaker, m_iszSpawnerName,			FIELD_STRING),
+		DEFINE_FIELD(CHordeMaker, m_cNumMonsters,			FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_cLiveChildren,			FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_iMaxLiveChildren,		FIELD_INTEGER),
+		DEFINE_FIELD(CHordeMaker, m_fActive,				FIELD_BOOLEAN),
+		DEFINE_FIELD(CHordeMaker, m_fFadeChildren,			FIELD_BOOLEAN),
+
+		DEFINE_FIELD(CHordeMaker, m_fMaxDistForChecks,		FIELD_FLOAT),
+		DEFINE_FIELD(CHordeMaker, m_fCheckDist,				FIELD_FLOAT),
 };
 
 
@@ -197,6 +200,11 @@ bool CHordeMaker::KeyValue(KeyValueData* pkvd)
 		m_iszSpawnerName = ALLOC_STRING(pkvd->szValue);
 		return true;
 	}
+	else if (FStrEq(pkvd->szKeyName, "maxdistforchecks"))
+	{
+		m_fMaxDistForChecks = atof(pkvd->szValue);
+		return true;
+	}
 
 	return CBaseMonster::KeyValue(pkvd);
 }
@@ -211,13 +219,9 @@ void CHordeMaker::Spawn()
 	if (!FStringNull(pev->targetname))
 	{
 		if ((pev->spawnflags & SF_HORDEMAKER_CYCLIC) != 0)
-		{
 			SetUse(&CHordeMaker::CyclicUse); // drop one monster each time we fire
-		}
 		else
-		{
 			SetUse(&CHordeMaker::ToggleUse); // so can be turned on/off
-		}
 
 		if (FBitSet(pev->spawnflags, SF_HORDEMAKER_START_ON))
 		{ // start making monsters as soon as monstermaker spawns
@@ -238,13 +242,9 @@ void CHordeMaker::Spawn()
 	}
 
 	if (m_cNumMonsters == 1)
-	{
 		m_fFadeChildren = false;
-	}
 	else
-	{
 		m_fFadeChildren = true;
-	}	
 }
 
 void CHordeMaker::Precache()
@@ -260,9 +260,7 @@ void CHordeMaker::Precache()
 void CHordeMaker::MakeMonster()
 {	
 	if (m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren)
-	{ 
 		return; // not allowed to make a new one yet. Too many live ones out right now.
-	}
 
 	if ((pev->spawnflags & SF_HORDEMAKER_USENODES) != 0)
 	{
@@ -285,9 +283,7 @@ void CHordeMaker::MakeMonster()
 
 					UTIL_TraceLine(Height.vecEndPos, Height.vecEndPos + gpGlobals->v_up * 72, ignore_monsters, dont_ignore_glass, NULL, &Height);
 					if (Height.flFraction == 1.0) // is the ceiling tall enough?
-					{
 						g_liValidNodes.push_back(i); // valid node, add to list
-					}
 				}
 			}
 		}
@@ -365,12 +361,13 @@ void CHordeMaker::MakeMonster()
 
 	CBasePlayer* pPlayer = dynamic_cast<CBasePlayer*>(CBaseEntity::Instance(FIND_CLIENT_IN_PVS(edict())));
 
-	if ((pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
+	if (pPlayer && (pev->spawnflags & SF_HORDEMAKER_EXPENSIVECHECK) != 0)
 	{
 		TraceResult sightline;
 		Vector checkspot = VecSpawn + Vector(0, 0, 32);
 
-		if (pPlayer)
+		// player exists and isn't close enough to the spawn to matter
+		if (m_fMaxDistForChecks == -1 || (pPlayer->pev->origin - checkspot).Length() < m_fMaxDistForChecks)
 		{
 			UTIL_TraceLine(checkspot, pPlayer->EyePosition(), ignore_monsters, ignore_glass, NULL, &sightline);
 			if (sightline.flFraction == 1.0)
@@ -415,9 +412,7 @@ void CHordeMaker::MakeMonster()
 	
 	CBaseEntity* ent = CBaseEntity::Instance(pent);
 	if ((pev->spawnflags & SF_HORDEMAKER_PREHUMAN) != 0)
-	{
 		ent->m_bPrehuman = true;
-	}
 	
 	if ((pev->spawnflags & SF_HORDEMAKER_AWARE) != 0 && pPlayer)
 	{
@@ -441,10 +436,8 @@ void CHordeMaker::MakeMonster()
 	pevCreate->owner = edict();
 
 	if (!FStringNull(pev->netname))
-	{
 		// if I have a netname (overloaded), give the child monster that name as a targetname
 		pevCreate->targetname = pev->netname;
-	}
 
 	m_cLiveChildren++; // count this monster
 	m_cNumMonsters--;
@@ -507,12 +500,8 @@ void CHordeMaker::DeathNotice(entvars_t* pevChild)
 	m_cLiveChildren--;
 
 	if (!m_fFadeChildren)
-	{
 		pevChild->owner = NULL;
-	}
 
 	if (m_cLiveChildren == 0 && m_cNumMonsters == 0) // no more can spawn or are spawned
-	{
 		UTIL_Remove(this);
-	}
 }

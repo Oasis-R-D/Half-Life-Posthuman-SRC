@@ -2739,7 +2739,7 @@ void CBasePlayer::CheckTimeBasedDamage()
 				break;
 			case itbd_Fungus:
 				TakeDamage(pev, pev, POISON_DAMAGE, DMG_GENERIC);
-				bDuration = POISON_DURATION * ((g_iSkillLevel == SKILL_REALISM) ? 4 : 2);
+				bDuration = POISON_DURATION * 1.5;
 				break;
 			default:
 				bDuration = 0;
