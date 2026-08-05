@@ -348,7 +348,7 @@ pcolb %d
 
 gravity 1
 
-startparticles 1
+startparticles %d
 
 lightmaps 0
 )";

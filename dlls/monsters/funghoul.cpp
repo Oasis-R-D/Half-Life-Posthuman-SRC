@@ -239,6 +239,7 @@ public:
 	Schedule_t* GetSchedule() override;
 	Schedule_t* GetScheduleOfType(int Type) override;
 
+	void GibMonster() override;
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 
 	void RunTask(Task_t* pTask) override;
@@ -1136,6 +1137,26 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 		return CBaseMonster::GetScheduleOfType(Type);
 }
 
+//=========================================================
+// GibMonster - create some gore and get rid of a monster's
+// model.
+//=========================================================
+void CFunghoul::GibMonster()
+{
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
+	
+	if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
+	{
+		g_vecAttackDir = gpGlobals->v_up;
+		CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
+	}
+
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
+
+	SetThink(&CBaseMonster::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
+}
+
 void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 {
 	if (m_pGonomeGuts)
@@ -1187,7 +1208,7 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 		pOwner->DeathNotice(pev);
 	}
 
-	if (RANDOM_LONG(0, 2) >= 1)
+	if (RANDOM_LONG(0, 2) >= 1 || pev->health < GIB_HEALTH_VALUE)
 	{
 		CallGibMonster();
 		return;
@@ -1214,6 +1235,7 @@ void CFunghoul::RunTask(Task_t* pTask)
 			TaskComplete();
 		}
 	}
+	break;
 	case TASK_TOCRAWL:
 	{
 		if (m_fSequenceFinished)

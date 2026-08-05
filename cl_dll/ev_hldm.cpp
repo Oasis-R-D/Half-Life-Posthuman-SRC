@@ -1444,6 +1444,96 @@ void EV_Acoustic(event_args_t* args)
 
 #pragma region PARTICLES
 
+void PE_BloodImpact(event_args_t* args);
+void PE_UnderwaterBloodImpact(event_args_t* args);
+void PE_GibCloud(event_args_t* args);
+
+void EV_Particles(event_args_t* args)
+{
+	int idx;
+	idx = args->entindex;
+
+	switch (args->iparam1) // particle type
+	{
+		case PE_MUZZLESMK:
+		{
+			Vector Origin;
+			Vector Dir;
+
+			EV_Acoustic(args);
+			if (args->bparam1 != 1) // not func_tank
+			{
+				Origin = engine_cl->viewent.attachment[0];
+				Dir = args->origin;
+			}
+			else // func_tank
+			{
+				Origin = args->origin;
+				Dir = args->angles;
+			}
+
+			switch (args->iparam2)
+			{
+				default:
+				case 0: gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0); break;
+				case 1: // shotgun?
+					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+					if (args->bparam2 != 1)
+						gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+					else
+					{
+						gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
+						gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
+					}
+					break;
+				case 2: gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0); break;
+			}
+		}
+		break;
+		case PE_EXPLOSIONCLUST:
+			switch (args->iparam2)
+			{
+				default:
+				case 0: gParticleEngine.CreateCluster("expl_fireball_cluster.txt", args->origin, args->origin, 0);
+					break;
+				case 1: gParticleEngine.CreateCluster("expl_he_cluster.txt", args->origin, args->origin, 0);
+					break;
+				case 2: gParticleEngine.CreateCluster("expl_flash_cluster.txt", args->origin, args->origin, 0);
+					break;
+			}
+			break;
+		case PE_NPC_IMPACT: PE_BloodImpact(args); break;
+		case PE_NPC_H20_IMPACT: PE_UnderwaterBloodImpact(args); break;
+		case PE_SMOKE_BLOATER: gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0); break;
+		case PE_SMOKE_FUNGHOUL: gParticleEngine.CreateCluster("engine_funghoul_cluster.txt", args->origin, g_vecZero, 0); break;
+		case PE_BLD_SPLASH: // phys blood hit the ground
+			switch (args->iparam2)
+			{
+				case BLOOD_COLOR_RED:		gParticleEngine.CreateSystem("engine_blood_impact.txt", args->origin, gpGlobals->v_up, 0);			break;
+				case BLOOD_COLOR_YELLOW:	gParticleEngine.CreateSystem("engine_blood_impact_alien.txt", args->origin, gpGlobals->v_up, 0);	break;
+				case BLOOD_COLOR_GREEN:		gParticleEngine.CreateSystem("engine_blood_impact_rx.txt", args->origin, gpGlobals->v_up, 0);		break;
+				case BLOOD_COLOR_INFECTION: gParticleEngine.CreateSystem("engine_blood_impact_fung.txt", args->origin, gpGlobals->v_up, 0);		break;
+			}
+			break;
+		case PE_BULLET_WATERHIT: gParticleEngine.CreateCluster("water_impact_cluster.txt", args->origin, Vector(0,0,1), 0); break;
+		case PE_BULLET_HITGLOW: // glowing bullet impact 'crater'
+		{
+			if (args->bparam2 != 1)
+				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
+			else if (EV_IsLocal(idx))
+				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
+			break;
+		}
+		case PE_BLD_EXPLCLOUD: PE_GibCloud(args); break;
+		case PE_SMOKE_CLOUD: gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0); break;
+		case PE_FIRE: // fire
+			if (args->bparam2 != 1) gParticleEngine.CreateSystem("flames.txt", args->origin, gpGlobals->v_up, 0);
+			else					gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
+			break;
+		case PE_SMOKE_BILLOW: gParticleEngine.CreateSystem("engine_smoke.txt", args->origin, gpGlobals->v_up, 0); break;
+	}
+}
+
 void PE_BloodImpact(event_args_t* args)
 {
 	const char* blood_decal;
@@ -1522,7 +1612,7 @@ void PE_BloodImpact(event_args_t* args)
 		}
 
 		// TO-DO: randomly goes wrong way at light speed sometimes
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, args->bparam2, gEngfuncs.pfnRandomLong(0, 1), blood_decal, blood_impact, R, G, B), args->origin, args->angles * directionMult, 0);
+		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, args->bparam2, gEngfuncs.pfnRandomLong(0, 1), blood_decal, blood_impact, R, G, B, 1), args->origin, args->angles * directionMult, 0);
 	}
 }
 
@@ -1597,94 +1687,6 @@ void PE_GibCloud(event_args_t* args)
 	}
 
 	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodgibcloud, R, G, B), args->origin, g_vecZero, 0);
-	for (int i = 0; i < 20; i++)
-	{
-		gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 1, gEngfuncs.pfnRandomLong(0, 1), blood_decal, blood_impact, R, G, B), args->origin, g_vecZero, 0);
-	}
-}
-
-void EV_Particles(event_args_t* args)
-{
-	int idx;
-	idx = args->entindex;
-
-	switch (args->iparam1) // particle type
-	{
-		case PE_MUZZLESMK:
-		{
-			Vector Origin;
-			Vector Dir;
-
-			EV_Acoustic(args);
-			if (args->bparam1 != 1) // not func_tank
-			{
-				Origin = engine_cl->viewent.attachment[0];
-				Dir = args->origin;
-			}
-			else // func_tank
-			{
-				Origin = args->origin;
-				Dir = args->angles;
-			}
-
-			switch (args->iparam2)
-			{
-				default:
-				case 0: gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0); break;
-				case 1: // shotgun?
-					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
-					if (args->bparam2 != 1)
-						gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
-					else
-					{
-						gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
-						gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
-					}
-					break;
-				case 2: gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0); break;
-			}
-		}
-		break;
-		case PE_EXPLOSIONCLUST:
-			switch (args->iparam2)
-			{
-				default:
-				case 0: gParticleEngine.CreateCluster("expl_fireball_cluster.txt", args->origin, args->origin, 0);
-					break;
-				case 1: gParticleEngine.CreateCluster("expl_he_cluster.txt", args->origin, args->origin, 0);
-					break;
-				case 2: gParticleEngine.CreateCluster("expl_flash_cluster.txt", args->origin, args->origin, 0);
-					break;
-			}
-			break;
-		case PE_NPC_IMPACT: PE_BloodImpact(args); break;
-		case PE_NPC_H20_IMPACT: PE_UnderwaterBloodImpact(args); break;
-		case PE_SMOKE_BLOATER: gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0); break;
-		case PE_BLD_SPLASH: // phys blood hit the ground
-			switch (args->iparam2)
-			{
-				case BLOOD_COLOR_RED:		gParticleEngine.CreateSystem("engine_blood_impact.txt", args->origin, gpGlobals->v_up, 0);			break;
-				case BLOOD_COLOR_YELLOW:	gParticleEngine.CreateSystem("engine_blood_impact_alien.txt", args->origin, gpGlobals->v_up, 0);	break;
-				case BLOOD_COLOR_GREEN:		gParticleEngine.CreateSystem("engine_blood_impact_rx.txt", args->origin, gpGlobals->v_up, 0);		break;
-				case BLOOD_COLOR_INFECTION: gParticleEngine.CreateSystem("engine_blood_impact_fung.txt", args->origin, gpGlobals->v_up, 0);		break;
-			}
-			break;
-		case PE_BULLET_WATERHIT: gParticleEngine.CreateCluster("water_impact_cluster.txt", args->origin, Vector(0,0,1), 0); break;
-		case PE_BULLET_HITGLOW: // glowing bullet impact 'crater'
-		{
-			if (args->bparam2 != 1)
-				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
-			else if (EV_IsLocal(idx))
-				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
-			break;
-		}
-		case PE_BLD_EXPLCLOUD: PE_GibCloud(args); break;
-		case PE_SMOKE_CLOUD: gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0); break;
-		case PE_FIRE: // fire
-			if (args->bparam2 != 1) gParticleEngine.CreateSystem("flames.txt", args->origin, gpGlobals->v_up, 0);
-			else					gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
-			break;
-		case PE_SMOKE_BILLOW: gParticleEngine.CreateSystem("engine_smoke.txt", args->origin, gpGlobals->v_up, 0); break;
-	}
+	gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(bloodspray, 1, gEngfuncs.pfnRandomLong(0, 1), blood_decal, blood_impact, R, G, B, 20), args->origin, g_vecZero, 0);
 }
 #pragma endregion

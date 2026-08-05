@@ -34,4 +34,3 @@ extern char particle_bulletdripimpact[];
 extern char particle_muzzleflash[];
 
 extern char particle_explosion[];
-

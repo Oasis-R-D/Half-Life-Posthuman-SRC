@@ -207,6 +207,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 
 		// copy owner's blood color
 		pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
+		pGib->m_lifeTime = gpGlobals->time + (pGib->m_bloodColor != BLOOD_COLOR_INFECTION ? 20 : 10);
 
 		if (pevVictim->health > -50)
 		{
@@ -262,6 +263,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 
 		// copy owner's blood color
 		pGib->m_bloodColor = (CBaseEntity::Instance(pevVictim))->BloodColor();
+		pGib->m_lifeTime = gpGlobals->time + (pGib->m_bloodColor != BLOOD_COLOR_INFECTION ? 25 : 13);
 
 		if (pevVictim->health > -50)
 		{
@@ -352,6 +354,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 
 			// copy owner's blood color
 			pGib->m_bloodColor = pVictim->BloodColor();
+			pGib->m_lifeTime = gpGlobals->time + (pGib->m_bloodColor != BLOOD_COLOR_INFECTION ? 25 : 10);
 
 			if (pevVictim->health > -50)
 				pGib->pev->velocity = pGib->pev->velocity * 0.7;
@@ -550,7 +553,6 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
 	pev->nextthink = gpGlobals->time + 0.1;
-	m_lifeTime = gpGlobals->time + 25;
 	SetThink(&CoolerGib::WaitTillLand);
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
