@@ -18,6 +18,8 @@ using gibMap = std::vector<gib_data_t>;
 // TO-DO: fix alien gibs being tiny (make small ones headcrab only)
 extern gibMap xenian_gibmap;
 
+extern gibMap headcrab_gibmap;
+
 extern gibMap human_gibmap;
 
 extern gibMap pitdrone_gibmap;		

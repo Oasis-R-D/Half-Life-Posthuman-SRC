@@ -25,6 +25,13 @@ gibMap xenian_gibmap =
 		gib_data_t{"models/agibs.mdl", 5, 1},
 };
 
+gibMap headcrab_gibmap =
+{		// 			MDL 			   BG # TYPE
+		gib_data_t{"models/agibs.mdl", 2, 1},
+		gib_data_t{"models/agibs.mdl", 4, 1},
+		gib_data_t{"models/agibs.mdl", 5, 1},
+};
+
 gibMap human_gibmap =
 {		// 			MDL 			   BG # TYPE
 		gib_data_t{"models/hgibs.mdl", 0, 1, 1},

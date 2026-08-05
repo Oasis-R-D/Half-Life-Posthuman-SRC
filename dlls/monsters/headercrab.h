@@ -103,6 +103,8 @@ public:
 	virtual float GetSoundVolue() { return 1.0; }
 	Schedule_t* GetScheduleOfType(int Type) override;
 
+	const gibMap* getGibData() override { return &headcrab_gibmap; }
+
 	CUSTOM_SCHEDULES;
 
 	static const char* pIdleSounds[];
@@ -133,4 +135,6 @@ public:
 			Killed(pev, GIB_NORMAL);
 		CHeadCrab::MonsterThink();
 	}
+	
+	const gibMap* getGibData() override { return &headcrab_gibmap; }
 };
