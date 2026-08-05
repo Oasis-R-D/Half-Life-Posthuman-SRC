@@ -1,11 +1,21 @@
+#include "extdll.h"
+#include "util.h"
+#include "cbase.h"
+#include "monsters.h"
+#include "soundent.h"
+#include "decals.h"
+#include "Blooddrops.h"
+#include "weapons.h"
 #include "gibs.h"
+#include <vector>
 
 LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
+
 // START NPC GIB LISTS
 // TYPES: 0 || null - default, 1 - head, 2 - sticky
 
 // TO-DO: fix alien gibs being tiny (make small ones headcrab only)
-std::vector<gib_data_t> xenian_gibmap =
+gibMap xenian_gibmap =
 {		// 			MDL 			   BG # TYPE
 		gib_data_t{"models/agibs.mdl", 0, 1},
 		gib_data_t{"models/agibs.mdl", 1, 1},
@@ -15,7 +25,7 @@ std::vector<gib_data_t> xenian_gibmap =
 		gib_data_t{"models/agibs.mdl", 5, 1},
 };
 
-std::vector<gib_data_t> human_gibmap =
+gibMap human_gibmap =
 {		// 			MDL 			   BG # TYPE
 		gib_data_t{"models/hgibs.mdl", 0, 1, 1},
 		gib_data_t{"models/hgibs.mdl", 1, 1},
@@ -25,7 +35,7 @@ std::vector<gib_data_t> human_gibmap =
 		gib_data_t{"models/hgibs.mdl", 5, 1},
 };
 
-std::vector<gib_data_t> pitdrone_gibmap =
+gibMap pitdrone_gibmap =
 {		// 			MDL 			   		    BG # TYPE
 		gib_data_t{"models/pit_drone_gibs.mdl", 0, 2},  // claws
 		gib_data_t{"models/pit_drone_gibs.mdl", 1, 1},  // tentacle 1
@@ -34,9 +44,22 @@ std::vector<gib_data_t> pitdrone_gibmap =
 		gib_data_t{"models/pit_drone_gibs.mdl", 4, 1},  // tail
 		gib_data_t{"models/pit_drone_gibs.mdl", 5, 1},  // generic?
 		gib_data_t{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
-};				
+};		
 
-std::vector<gib_data_t> funghoul_gibmap =
+gibMap voltigore_gibmap =
+{		// 			MDL 			   BG # TYPE
+		gib_data_t{"models/vgibs.mdl", 0, 1},
+		gib_data_t{"models/vgibs.mdl", 1, 1},
+		gib_data_t{"models/vgibs.mdl", 2, 1},
+		gib_data_t{"models/vgibs.mdl", 3, 1},
+		gib_data_t{"models/vgibs.mdl", 4, 2},
+		gib_data_t{"models/vgibs.mdl", 5, 1},
+		gib_data_t{"models/vgibs.mdl", 6, 2},
+		gib_data_t{"models/vgibs.mdl", 7, 1},
+		gib_data_t{"models/vgibs.mdl", 8, 2},
+};	
+
+gibMap funghoul_gibmap =
 {		// 			MDL 			       BG # TYPE
 		gib_data_t{"models/fung_gibs.mdl", 0, 1, 1},
 		gib_data_t{"models/fung_gibs.mdl", 1, 1},
@@ -256,24 +279,22 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 
 void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 {
-	int i, p, amnt, body;
-	CBaseEntity* pVictim = CBaseEntity::Instance(pevVictim);
-	std::vector<gib_data_t> gibmap = GetNPCgibs(pVictim);
-	int size = gibmap.size();
+	int p, amnt, body, type;
 
-	for (i = 0; i < size; i++) // loops through rows
+	CBaseMonster* pVictim = CBaseEntity::Instance(pevVictim)->MyMonsterPointer();
+	
+	const gibMap* ptr_gibmap = pVictim->getGibData();
+	for (const auto& data : *ptr_gibmap)
 	{
-		int type = 0;
-		amnt = gibmap[i].amount;
-		body = gibmap[i].body;
-		if (gibmap[i].type != 0)
-			type = gibmap[i].type;
+		amnt = data.amount;
+		body = data.body;
+		type = data.type ? data.type : 0;
 
-		for (p = 0; p < amnt; p++) // spawns amount dictated in the row's third collumn
+		for (p = 0; p < amnt; p++) // spawn amount dictated in the row's third collumn
 		{
 			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
-			pGib->Spawn(gibmap[i].gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
-			pGib->m_gdType = gibmap[i];
+			pGib->Spawn(data.gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
+
 			if (pVictim)
 			{
 				pGib->m_pGibbed = pVictim;
@@ -291,57 +312,50 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 					SpawnStickyGibs(pevVictim, pGib);
 					break;
 			}
+
 			if (type != 0)
 				continue; // loop back if it uses diff spawn type
 
-			if (pevVictim) // probably uneeded
+			// spawn the gib somewhere in the monster's bounding volume
+			if (spawnposOVRDE == g_vecZero) // this will make npcs directly at the origin not gib properly
 			{
-				// spawn the gib somewhere in the monster's bounding volume
-				if (spawnposOVRDE == g_vecZero) // this will make npcs directly at the origin not gib properly
-				{
-					pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
-					pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
-					pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
-				}
-				else
-				{
-					pGib->pev->origin.x = spawnposOVRDE.x + RANDOM_FLOAT(-4, 4);
-					pGib->pev->origin.y = spawnposOVRDE.y + RANDOM_FLOAT(-4, 4);
-					pGib->pev->origin.z = spawnposOVRDE.z + RANDOM_FLOAT(-4, 4);
-				}
-
-				// make the gib fly away from the attack vector
-				pGib->pev->velocity = g_vecAttackDir * -1;
-
-				// mix in some noise
-				pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
-				pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
-				pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
-
-				pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
-
-				pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
-				pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
-
-				// copy owner's blood color
-				pGib->m_bloodColor = pVictim->BloodColor();
-
-				if (pevVictim->health > -50)
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 0.7;
-				}
-				else if (pevVictim->health > -200)
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 2;
-				}
-				else
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 4;
-				}
-
-				pGib->pev->solid = SOLID_BBOX;
-				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
+				pGib->pev->origin.x = pevVictim->absmin.x + pevVictim->size.x * (RANDOM_FLOAT(0, 1));
+				pGib->pev->origin.y = pevVictim->absmin.y + pevVictim->size.y * (RANDOM_FLOAT(0, 1));
+				pGib->pev->origin.z = pevVictim->absmin.z + pevVictim->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
 			}
+			else
+			{
+				pGib->pev->origin.x = spawnposOVRDE.x + RANDOM_FLOAT(-4, 4);
+				pGib->pev->origin.y = spawnposOVRDE.y + RANDOM_FLOAT(-4, 4);
+				pGib->pev->origin.z = spawnposOVRDE.z + RANDOM_FLOAT(-4, 4);
+			}
+
+			// make the gib fly away from the attack vector
+			pGib->pev->velocity = g_vecAttackDir * -1;
+
+			// mix in some noise
+			pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
+			pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
+			pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
+
+			pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
+
+			pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
+			pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
+
+			// copy owner's blood color
+			pGib->m_bloodColor = pVictim->BloodColor();
+
+			if (pevVictim->health > -50)
+				pGib->pev->velocity = pGib->pev->velocity * 0.7;
+			else if (pevVictim->health > -200)
+				pGib->pev->velocity = pGib->pev->velocity * 2;
+			else
+				pGib->pev->velocity = pGib->pev->velocity * 4;
+
+			pGib->pev->solid = SOLID_BBOX;
+			UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
+
 			UTIL_VecToAngles(pGib->pev->velocity);
 			PLAYBACK_EVENT_FULL(0, pGib->edict(), g_sParticleEvent, 0.0, pGib->pev->origin, -gpGlobals->v_forward, 0.0, 0.0, PE_NPC_IMPACT, pGib->m_bloodColor, 0, 0);
 			pGib->LimitVelocity();
@@ -534,36 +548,13 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 	SetTouch(&CoolerGib::BounceGibTouch);
 }
 
-std::vector<gib_data_t> CoolerGib::GetNPCgibs(CBaseEntity* pVictim)
-{
-	if (FClassnameIs(pVictim->pev, "monster_pitdrone"))
-		return pitdrone_gibmap;
-	else if (pVictim->Classify() == CLASS_FUNGAL) // this won't work once more fungus npcs are added
-		return funghoul_gibmap;
-	else 
-	{
-		switch (pVictim->BloodColor())
-		{
-			default:
-			case BLOOD_COLOR_RED:
-				return human_gibmap;
-				break;
-			case BLOOD_COLOR_YELLOW:
-			case BLOOD_COLOR_GREEN:
-				return xenian_gibmap;
-				break;
-		}
-	}
-}
-
 int CoolerGib::ShouldCollide(CBaseEntity* pentTouched)
 {
 	if (pentTouched->IsPlayer())
 		return 1;
+
 	if (!pentTouched->IsBSPModel())
-	{
 		return 0;
-	}
 
 	return 1;
 }

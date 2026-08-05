@@ -27,7 +27,7 @@
 #include "decals.h"
 #include "soundent.h"
 #include "game.h"
-#include "gibs.h"
+
 #define SQUID_SPRINT_DIST 256 // how close the squid has to get before starting to sprint and refusing to swerve
 
 int iSpikeTrail;
@@ -265,6 +265,8 @@ public:
 
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
+
+	const gibMap* getGibData() override { return &pitdrone_gibmap; }
 
 	CUSTOM_SCHEDULES;
 	static TYPEDESCRIPTION m_SaveData[];

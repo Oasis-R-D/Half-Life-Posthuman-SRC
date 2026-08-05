@@ -16,8 +16,6 @@
 // Funghoul
 //=========================================================
 
-// 112, 8, 32 could be a good blood color
-
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -247,6 +245,8 @@ public:
 	void StartTask(Task_t* pTask) override;
 
 	void SetActivity(Activity NewActivity) override;
+
+	const gibMap* getGibData() override { return &funghoul_gibmap; }
 
 	CUSTOM_SCHEDULES;
 
@@ -877,10 +877,10 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 	case GONOME_AE_ATTACK_GRAB_START:
 	{
-		CBaseEntity* pHurt = CheckTraceHullAttack(74, gSkillData.funghoulDmgSlash/2, DMG_SLASH | DMG_FUNGUS);
+		CBaseEntity* pHurt = CheckTraceHullAttack(74, gSkillData.funghoulDmgSlash/3, DMG_SLASH);
 		if (pHurt && pHurt->IsAlive())
 		{
-			m_PlayerLocked = pHurt; // use to moniter distance
+			m_PlayerLocked = pHurt; // use to monitor distance
 			if (pHurt->IsPlayer())
 			{
 				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
@@ -903,9 +903,6 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 		}
 		else
 		{
-			if (!pHurt)
-			{
-			}
 			EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, pAttackMissSounds[RANDOM_LONG(0, ARRAYSIZE(pAttackMissSounds) - 1)], 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG(-5, 5));
 		}
 	}
@@ -932,12 +929,12 @@ void CFunghoul::Spawn()
 	Precache();
 
 	SET_MODEL(ENT(pev), "models/funghoul.mdl");
-	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
+	UTIL_SetSize(pev, Vector(-10, -10, 0), Vector(10, 10, 68));
 
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_STEP;
-	m_bloodColor = BLOOD_COLOR_INFECTION; // TO-DO: custom color (replaces blue?)
-	pev->health = g_iSkillLevel == SKILL_REALISM ? 90 : gSkillData.funghoulHealth;
+	m_bloodColor = BLOOD_COLOR_INFECTION;
+	pev->health = g_iSkillLevel == SKILL_REALISM ? 80 : gSkillData.funghoulHealth;
 	pev->view_ofs = VEC_VIEW; // position of the eyes relative to monster's origin.
 	m_flFieldOfView = 0.75;	  // indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -1174,7 +1171,36 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 
 	m_PlayerLocked = nullptr;
 
-	CBaseMonster::Killed(pevAttacker, iGib);
+	// Better for hordes with collisions set to off on death
+	pev->solid = SOLID_NOT;
+
+	Remember(bits_MEMORY_KILLED);
+
+	m_IdealMonsterState = MONSTERSTATE_DEAD;
+	// Make sure this condition is fired too (TakeDamage breaks out before this happens on death)
+	SetConditions(bits_COND_LIGHT_DAMAGE);
+
+	// tell owner ( if any ) that we're dead.This is mostly for MonsterMaker functionality.
+	CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
+	if (pOwner)
+	{
+		pOwner->DeathNotice(pev);
+	}
+
+	if (RANDOM_LONG(0, 2) >= 1)
+	{
+		CallGibMonster();
+		return;
+	}
+	else if ((pev->flags & FL_MONSTER) != 0)
+	{
+		SetTouch(NULL);
+		BecomeDead();
+	}
+
+	//pev->enemy = ENT( pevAttacker );//why? (sjb)
+
+	m_IdealMonsterState = MONSTERSTATE_DEAD;
 }
 
 void CFunghoul::RunTask(Task_t* pTask)

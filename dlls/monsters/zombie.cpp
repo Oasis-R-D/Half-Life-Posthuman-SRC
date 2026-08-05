@@ -28,7 +28,7 @@
 #include "soundent.h"
 #include "game.h"
 #include "headercrab.h"
-#include "gibs.h"
+
 //=========================================================
 // Monster's Anim Events Go Here
 //=========================================================

@@ -15,6 +15,10 @@
 
 #pragma once
 
+#ifndef CLIENT_DLL
+	#include "gibs.h"
+#endif
+
 //
 // generic Monster
 //
@@ -32,8 +36,6 @@ public:
 		SCRIPT_WALK_TO_MARK,
 		SCRIPT_RUN_TO_MARK,
 	} SCRIPTSTATE;
-
-
 
 	// these fields have been added in the process of reworking the state machine. (sjb)
 	EHANDLE m_hEnemy;	  // the entity that the monster is fighting.
@@ -118,6 +120,11 @@ public:
 	bool m_bShouldPool = true;
 	int m_iPoolTime; // 10 seconds
 	virtual int PoolAtt() { return -1; }
+
+#ifndef CLIENT_DLL
+	// Gets the NPC's gib model, override per NPC if they need a special type
+	virtual const gibMap* getGibData() { return (HasHumanGibs() ? &human_gibmap : &xenian_gibmap); }
+#endif
 
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;

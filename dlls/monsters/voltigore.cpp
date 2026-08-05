@@ -28,6 +28,7 @@
 #include "hornet.h"
 #include "decals.h"
 #include "Blooddrops.h"
+
 //=========================================================
 // monster-specific schedule types
 //=========================================================
@@ -378,6 +379,8 @@ public:
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
 	static TYPEDESCRIPTION m_SaveData[];
+
+	const gibMap* getGibData() override { return &voltigore_gibmap; }
 
 	static const char* pAttackHitSounds[];
 	static const char* pAttackMissSounds[];
@@ -1409,21 +1412,6 @@ void COFVoltigore::DeathGibThink()
 	}
 }
 
-const GibLimit VoltigoreGibLimits[] =
-	{
-		{1},
-		{1},
-		{1},
-		{1},
-		{2},
-		{1},
-		{2},
-		{1},
-		{2},
-};
-
-const GibData VoltigoreGibs = {"models/vgibs.mdl", 0, 9, VoltigoreGibLimits};
-
 void COFVoltigore::GibMonster()
 {
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
@@ -1439,12 +1427,8 @@ void COFVoltigore::GibMonster()
 	SetThink(&CBaseMonster::SUB_Remove);
 	pev->nextthink = gpGlobals->time + 0.15;
 
-	//Note: the original didn't have the violence check
-	if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
-	{
-		//Gib spawning has been rewritten so the logic for limiting gib submodels is generalized
-		CGib::SpawnRandomGibs(pev, 12, VoltigoreGibs); // Throw alien gibs
-	}
+	//Gib spawning has been rewritten so the logic for limiting gib submodels is generalized
+	CoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
 }
 
 void COFVoltigore::Killed(entvars_t* pevAttacker, int iGib)

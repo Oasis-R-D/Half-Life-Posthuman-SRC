@@ -618,11 +618,11 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	}
 	#endif
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);

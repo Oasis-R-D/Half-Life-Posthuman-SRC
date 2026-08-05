@@ -31,7 +31,7 @@
 #include "func_break.h"
 #include "Blooddrops.h"
 #include "physical_bullet.h"
-#include "gibs.h"
+
 extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
 #define GERMAN_GIB_COUNT 4
@@ -213,7 +213,7 @@ void CGib::SpawnRandomGibs(entvars_t* pevVictim, int cGibs, bool human)
 
 bool CBaseMonster::HasHumanGibs()
 {
-	if (BloodColor() == BLOOD_COLOR_RED)
+	if (BloodColor() == BLOOD_COLOR_RED || BloodColor() == BLOOD_COLOR_INFECTION)
 		return true;
 
 	return false;
@@ -250,13 +250,12 @@ void CBaseMonster::GibMonster()
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
 	
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
-
 	if (HasHumanGibs())
 	{
 		if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 		{
 			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 		}
 		gibbed = true;
 	}
@@ -265,6 +264,7 @@ void CBaseMonster::GibMonster()
 		if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
 		{
 			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
+			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 		}
 		gibbed = true;
 	}

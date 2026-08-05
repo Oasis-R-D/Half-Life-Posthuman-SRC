@@ -1,12 +1,3 @@
-
-#include "extdll.h"
-#include "util.h"
-#include "cbase.h"
-#include "monsters.h"
-#include "soundent.h"
-#include "decals.h"
-#include "Blooddrops.h"
-#include "weapons.h"
 #include <string>
 
 #pragma once
@@ -18,6 +9,22 @@ struct gib_data_t
     int amount;
     int type = 0;
 };
+
+using gibMap = std::vector<gib_data_t>;
+
+// START NPC GIB LISTS
+// TYPES: 0 || null - default, 1 - head, 2 - sticky
+
+// TO-DO: fix alien gibs being tiny (make small ones headcrab only)
+extern gibMap xenian_gibmap;
+
+extern gibMap human_gibmap;
+
+extern gibMap pitdrone_gibmap;		
+
+extern gibMap voltigore_gibmap;	
+
+extern gibMap funghoul_gibmap;
 
 //
 // A gib is ONLY a chunk of a body, NOT a piece of wood/metal/rocks/etc.
@@ -38,13 +45,12 @@ public:
 	static void SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib);
 	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = g_vecZero);
 	static void SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib);
-	static std::vector<gib_data_t> GetNPCgibs(CBaseEntity* pevVictim);	
+
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 
 	bool m_bDisableFade;
 	CBaseEntity* m_pGibbed;
 	CBasePlayer* m_pEater;
-	gib_data_t m_gdType;
 	int m_bloodColor;
 	int m_cBloodDecals = 4; // how many blood decals this gib can place (1 per bounce until none remain).
 	float m_lifeTime;
