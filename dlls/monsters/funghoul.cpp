@@ -45,7 +45,7 @@
 #define FUNGHOUL_ADVSEC 2
 #define FUNGHOUL_SPITTER 3
 
-#define LIMBBREAK_THRESH 20
+#define LIMBBREAK_THRESH 5
 
 #pragma region projectile
 class CFunghoulGuts : public CBaseEntity
@@ -66,7 +66,7 @@ public:
 
 	static void Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
 
-	static CFunghoulGuts* GonomeGutsCreate(const Vector& origin);
+	static CFunghoulGuts* FunghoulGutsCreate(const Vector& origin);
 
 	void Launch(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity);
 
@@ -167,7 +167,7 @@ void CFunghoulGuts::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVeloci
 	}
 }
 
-CFunghoulGuts* CFunghoulGuts::GonomeGutsCreate(const Vector& origin)
+CFunghoulGuts* CFunghoulGuts::FunghoulGutsCreate(const Vector& origin)
 {
 	auto pGuts = GetClassPtr<CFunghoulGuts>(nullptr);
 	pGuts->Spawn();
@@ -219,12 +219,14 @@ public:
 	void PainSound() override;
 	void AlertSound() override;
 	void IdleSound() override;
+	void GoreSound();
 
 	static const char* pIdleSounds[];
 	static const char* pAlertSounds[];
 	static const char* pPainSounds[];
 	static const char* pAttackHitSounds[];
 	static const char* pAttackMissSounds[];
+	static const char* pLimbBreakSFX[];
 
 	// No range attacks
 	bool CheckRangeAttack1(float flDot, float flDist) override;
@@ -263,7 +265,7 @@ public:
 	float m_flNextThrowTime;
 
 	//TODO: needs to be EHANDLE, save/restored or a save during a windup will cause problems
-	CFunghoulGuts* m_pGonomeGuts;
+	CFunghoulGuts* m_pFunghoulGuts;
 	EHANDLE m_PlayerLocked;
 };
 
@@ -328,6 +330,12 @@ const char* CFunghoul::pPainSounds[] =
 		"funghoul/gonome_pain2.wav",
 		"funghoul/gonome_pain3.wav",
 		"funghoul/gonome_pain4.wav",
+};
+
+const char* CFunghoul::pLimbBreakSFX[] =
+	{
+		"funghoul/limb_torn1.wav",
+		"funghoul/limb_torn2.wav",
 };
 
 //=========================================================
@@ -500,7 +508,7 @@ void CFunghoul::SetYawSpeed()
 // TraceAttack fully overwritten to reduce blood amount (performance in large hordes)
 void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
-	if ((bitsDamageType & DMG_FUNGUS) != 0)
+	if ((bitsDamageType & (DMG_FUNGUS | DMG_NERVEGAS)) != 0)
 	{
 		return;
 	}
@@ -525,19 +533,40 @@ void CFunghoul::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 		{
 		case HITGROUP_LEFTARM:
 			m_iArmLh += flDamage;
+			if (m_iArmLh != -1 && m_iArmLh > LIMBBREAK_THRESH)
+			{
+				m_iArmLh = -1;
+				GoreSound();
+			}
 			break;
 		case HITGROUP_RIGHTARM:
 			m_iArmRh += flDamage;
+			if (m_iArmRh != -1 && m_iArmRh > LIMBBREAK_THRESH)
+			{
+				m_iArmRh = -1;
+				GoreSound();
+			}
 			break;
 		case HITGROUP_LEFTLEG:
 			m_iLegLh += flDamage;
+			if (m_iLegLh != -1 && m_iLegLh > LIMBBREAK_THRESH)
+			{
+				m_iLegLh = -1;
+				GoreSound();
+			}
 			break;
 		case HITGROUP_RIGHTLEG:
+			
 			m_iLegRh += flDamage;
+			if (m_iLegRh != -1 && m_iLegRh > LIMBBREAK_THRESH)
+			{
+				m_iLegRh = -1;
+				GoreSound();
+			}
 			break;
 		}
 
-		if (m_iLegRh > LIMBBREAK_THRESH ||m_iLegLh > LIMBBREAK_THRESH)
+		if (m_iLegRh == -1 || m_iLegLh == -1)
 		{
 			if (!m_bCrawling)
 				SetConditions(bits_COND_SPECIAL1);
@@ -649,6 +678,14 @@ void CFunghoul::IdleSound()
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, pIdleSounds[RANDOM_LONG(0, ARRAYSIZE(pIdleSounds) - 1)], 1.0, ATTN_NORM, 0, pitch);
 }
 
+void CFunghoul::GoreSound()
+{
+	int pitch = 100 + RANDOM_LONG(-5, 5);
+
+	// Play a random gore sound
+	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, pLimbBreakSFX[RANDOM_LONG(0, ARRAYSIZE(pLimbBreakSFX) - 1)], 1.0, ATTN_NORM, 0, pitch);
+}
+
 void CFunghoul::MonsterThink()
 {
 	if (m_iType == FUNGHOUL_INFECTOR && m_PlayerLocked)
@@ -684,15 +721,9 @@ void CFunghoul::MonsterThink()
 			{
 				if (monster->IsAlive())
 				{
-					monster->PushEnemy(this, pev->origin);
-					monster->m_movementGoal = MOVEGOAL_NONE;
-					monster->m_flDistLook = 128;
-					monster->m_flDistTooFar = 128;
 					Vector towardsP = pev->origin - monster->pev->origin;
 					if (towardsP.Length2D() > 64) // player escaped
 					{
-						monster->m_flDistLook = 1024;
-						monster->m_flDistTooFar = 1024;
 						TaskFail();
 						m_PlayerLocked = NULL;
 					}
@@ -813,16 +844,16 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			Vector vecGutsPos, vecGutsAngles;
 			GetAttachment(0, vecGutsPos, vecGutsAngles);
 
-			if (!m_pGonomeGuts)
+			if (!m_pFunghoulGuts)
 			{
-				m_pGonomeGuts = CFunghoulGuts::GonomeGutsCreate(vecGutsPos);
+				m_pFunghoulGuts = CFunghoulGuts::FunghoulGutsCreate(vecGutsPos);
 			}
 
 			//Attach to hand for throwing
-			m_pGonomeGuts->pev->skin = entindex();
-			m_pGonomeGuts->pev->body = 1;
-			m_pGonomeGuts->pev->aiment = edict();
-			m_pGonomeGuts->pev->movetype = MOVETYPE_FOLLOW;
+			m_pFunghoulGuts->pev->skin = entindex();
+			m_pFunghoulGuts->pev->body = 1;
+			m_pFunghoulGuts->pev->aiment = edict();
+			m_pFunghoulGuts->pev->movetype = MOVETYPE_FOLLOW;
 
 			auto direction = (m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs - vecGutsPos).Normalize();
 
@@ -846,10 +877,8 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 			UTIL_MakeVectors(pev->angles);
 
-			if (!m_pGonomeGuts)
-			{
-				m_pGonomeGuts = CFunghoulGuts::GonomeGutsCreate(vecGutsPos);
-			}
+			if (!m_pFunghoulGuts)
+				m_pFunghoulGuts = CFunghoulGuts::FunghoulGutsCreate(vecGutsPos);
 
 			auto direction = (m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs - vecGutsPos).Normalize();
 
@@ -861,19 +890,17 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			UTIL_BloodDrips(vecGutsPos, direction, BLOOD_COLOR_RED, 35);
 
 			//Detach from owner
-			m_pGonomeGuts->pev->skin = 0;
-			m_pGonomeGuts->pev->body = 0;
-			m_pGonomeGuts->pev->aiment = nullptr;
-			m_pGonomeGuts->pev->movetype = MOVETYPE_FLY;
+			m_pFunghoulGuts->pev->skin = 0;
+			m_pFunghoulGuts->pev->body = 0;
+			m_pFunghoulGuts->pev->aiment = nullptr;
+			m_pFunghoulGuts->pev->movetype = MOVETYPE_FLY;
 
-			m_pGonomeGuts->Launch(pev, vecGutsPos, direction * 900);
+			m_pFunghoulGuts->Launch(pev, vecGutsPos, direction * 900);
 		}
 		else
-		{
-			UTIL_Remove(m_pGonomeGuts);
-		}
+			UTIL_Remove(m_pFunghoulGuts);
 
-		m_pGonomeGuts = nullptr;
+		m_pFunghoulGuts = nullptr;
 	}
 	break;
 	case GONOME_AE_ATTACK_GRAB_START:
@@ -886,7 +913,7 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 			{
 				CBasePlayer* player = dynamic_cast<CBasePlayer*>(pHurt);
 				player->m_iSpeedOverride = 30;
-				player->pev->velocity = player->pev->velocity * 0.5;
+				player->pev->velocity = player->pev->velocity + 10 * ((pev->origin + gpGlobals->v_forward * 10) - player->pev->origin);
 			}
 			else if ((pHurt->pev->flags & FL_MONSTER) != 0)
 			{
@@ -894,9 +921,8 @@ void CFunghoul::HandleAnimEvent(MonsterEvent_t* pEvent)
 				if (monster)
 				{
 					monster->m_hEnemy = this;
-					monster->m_movementGoal = MOVEGOAL_NONE;
-					monster->m_flDistLook = 128;
-					monster->m_flDistTooFar = 128;
+					monster->m_flDistLook = 256;
+					monster->m_flDistTooFar = 256;
 				}
 			}
 
@@ -942,7 +968,7 @@ void CFunghoul::Spawn()
 	m_afCapability = bits_CAP_DOORS_GROUP;
 
 	m_flNextThrowTime = gpGlobals->time;
-	m_pGonomeGuts = nullptr;
+	m_pFunghoulGuts = nullptr;
 	m_PlayerLocked = nullptr;
 
 	m_flDistTooFar = 3072;
@@ -995,6 +1021,9 @@ void CFunghoul::Precache()
 	for (i = 0; i < ARRAYSIZE(pPainSounds); i++)
 		PRECACHE_SOUND((char*)pPainSounds[i]);
 
+	for (i = 0; i < ARRAYSIZE(pLimbBreakSFX); i++)
+		PRECACHE_SOUND((char*)pLimbBreakSFX[i]);
+
 	PRECACHE_SOUND("funghoul/gonome_death2.wav");
 	PRECACHE_SOUND("funghoul/gonome_death3.wav");
 	PRECACHE_SOUND("funghoul/gonome_death4.wav");
@@ -1017,8 +1046,6 @@ void CFunghoul::Precache()
 //=========================================================
 // AI Schedules Specific to this monster
 //=========================================================
-
-
 
 int CFunghoul::IgnoreConditions()
 {
@@ -1052,7 +1079,7 @@ bool CFunghoul::CheckMeleeAttack2(float flDot, float flDist)
 	if (m_iType != FUNGHOUL_INFECTOR)
 		return false;
 
-	if (flDist <= 48.0 && flDot >= 0.7 && m_hEnemy)
+	if (flDist <= 64.0 && flDot >= 0.7 && m_hEnemy)
 	{
 		return (m_hEnemy->pev->flags & FL_ONGROUND) != 0;
 	}
@@ -1072,7 +1099,6 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 	{
 		return false;
 	}
-
 
 	if (flDist > 64.0 && flDist <= 784.0 && flDot >= 0.5 && gpGlobals->time >= m_flNextThrowTime)
 	{
@@ -1151,6 +1177,8 @@ void CFunghoul::GibMonster()
 		CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
 	}
 
+	::RadiusDamage(pev->origin, pev, pev, 10, 100, CLASS_FUNGAL, DMG_NERVEGAS);
+
 	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 
 	SetThink(&CBaseMonster::SUB_Remove);
@@ -1159,10 +1187,10 @@ void CFunghoul::GibMonster()
 
 void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 {
-	if (m_pGonomeGuts)
+	if (m_pFunghoulGuts)
 	{
-		UTIL_Remove(m_pGonomeGuts);
-		m_pGonomeGuts = nullptr;
+		UTIL_Remove(m_pFunghoulGuts);
+		m_pFunghoulGuts = nullptr;
 	}
 
 	if (m_PlayerLocked)
@@ -1256,10 +1284,10 @@ void CFunghoul::StartTask(Task_t* pTask)
 	{
 	case TASK_GONOME_GET_PATH_TO_ENEMY_CORPSE:
 	{
-		if (m_pGonomeGuts)
+		if (m_pFunghoulGuts)
 		{
-			UTIL_Remove(m_pGonomeGuts);
-			m_pGonomeGuts = nullptr;
+			UTIL_Remove(m_pFunghoulGuts);
+			m_pFunghoulGuts = nullptr;
 		}
 
 		UTIL_MakeVectors(pev->angles);
@@ -1351,10 +1379,10 @@ void CFunghoul::SetActivity(Activity NewActivity)
 	int iSequence = ACTIVITY_NOT_AVAILABLE;
 	void* pmodel = GET_MODEL_PTR(ENT(pev));
 
-	if (NewActivity != ACT_RANGE_ATTACK1 && m_pGonomeGuts)
+	if (NewActivity != ACT_RANGE_ATTACK1 && m_pFunghoulGuts)
 	{
-		UTIL_Remove(m_pGonomeGuts);
-		m_pGonomeGuts = nullptr;
+		UTIL_Remove(m_pFunghoulGuts);
+		m_pFunghoulGuts = nullptr;
 	}
 
 	switch (NewActivity)
