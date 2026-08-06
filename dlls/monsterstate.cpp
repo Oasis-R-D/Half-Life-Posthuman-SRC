@@ -105,8 +105,6 @@ void CBaseMonster::RunAI()
 
 	MaintainSchedule();
 
-	ManageWeaponBurst();
-
 	// if the monster didn't use these conditions during the above call to MaintainSchedule() or CheckAITrigger()
 	// we throw them out cause we don't want them sitting around through the lifespan of a schedule
 	// that doesn't use them.

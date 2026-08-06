@@ -640,12 +640,25 @@ void CBaseMonster::DeadMonsterThink()
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 }
 
+void CBaseMonster::CallMonsterThink()
+{
+	if (pev->fuser1 < gpGlobals->time)
+	{
+		pev->fuser1 = gpGlobals->time + 0.1;
+		this->MonsterThink();
+	}
+	
+	ManageWeaponBurst();
+	pev->nextthink = gpGlobals->time;
+}
+
 //=========================================================
 // Monster Think - calls out to core AI functions and handles this
 // monster's specific animation events
 //=========================================================
 void CBaseMonster::MonsterThink()
 {
+	// this is still here since it's used for dead monster thinks
 	pev->nextthink = gpGlobals->time + 0.1; // keep monster thinking.
 
 	PH_additions();

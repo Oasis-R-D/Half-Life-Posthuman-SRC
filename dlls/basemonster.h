@@ -158,7 +158,7 @@ public:
 
 	// stuff written for new state machine
 	virtual void MonsterThink();
-	void EXPORT CallMonsterThink() { this->MonsterThink(); }
+	void EXPORT CallMonsterThink();
 	virtual int IRelationship(CBaseEntity* pTarget);
 	virtual void MonsterInit();
 	virtual void MonsterInitDead(); // Call after animation/pose is set up

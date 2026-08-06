@@ -205,7 +205,7 @@ typedef struct entvars_s
 	int iuser2;
 	int iuser3;
 	int iuser4;
-	float fuser1;
+	float fuser1; // player ALTVM and monster think time
 	float fuser2;
 	float fuser3;
 	float fuser4;
