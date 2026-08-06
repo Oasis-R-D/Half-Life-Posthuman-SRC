@@ -21,6 +21,7 @@
 #include "weapons.h"
 #include "soundent.h"
 #include "decals.h"
+#include "UserMessages.h"
 
 // C++ STD stuff
 #include <vector>
@@ -133,7 +134,19 @@ void CFireManager::AddFire(Vector pos, int heat)
 		newFire->thinktime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.1);
 		newFire->spreadTime = gpGlobals->time + RANDOM_FLOAT(0.5, 1);
 		tempvoxels.push_back(std::move(newFire));
-		ALERT(at_console, "NEW FIRE: heat %d\n", heat);
+
+		if (RANDOM_LONG(0, 2) == 0)
+			return;
+
+		TraceResult GroundCheck;
+		Vector newPos = pos;
+		newPos.x += RANDOM_FLOAT(-8, 8);
+		newPos.y += RANDOM_FLOAT(-8, 8);
+		UTIL_TraceLine(newPos, newPos-Vector(0,0,sv_firesize.value*1.5), ignore_monsters, NULL, &GroundCheck);
+		if (RANDOM_LONG(0,1))
+			UTIL_DecalTrace(&GroundCheck, RANDOM_LONG(DECAL_SMALLSCORCH1, DECAL_SMALLSCORCH3), sv_firesize.value*1.5);
+		else
+			UTIL_DecalTrace(&GroundCheck, RANDOM_LONG(DECAL_SCORCH1, DECAL_SCORCH1), sv_firesize.value*1.5);
 	}
 }
 
@@ -157,7 +170,7 @@ void CFireManager::ManagerThink()
 	// nothing to simulate
 	if (voxels.empty())
 	{
-		pev->nextthink = gpGlobals->time + 0.25;
+		pev->nextthink = gpGlobals->time + 0.5;
 		return;
 	}
 	
@@ -204,7 +217,7 @@ void CFireManager::FireExplosion(Vector pos, int radius, int heat)
 void CFireVoxel::Think()
 {
 	const int firesize = sv_firesize.value;
-	thinktime = gpGlobals->time + 0.1;
+	thinktime = gpGlobals->time + 0.125;
 
 	SpawnParticles(firesize*0.66);
 	
@@ -220,7 +233,7 @@ void CFireVoxel::Think()
 	// spread
 	Vector VecFireSpread;
 	int times = 0;
-	int opp1, opp2, count;
+	int opp1, opp2;
 		
 	do {
 		if (times >= 10) // don't spawn if it isn't finding any good spots
