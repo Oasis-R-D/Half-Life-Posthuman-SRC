@@ -449,7 +449,7 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case HGRUNT_AE_BURST1:
+	case HGRUNT_AE_BURSTSTART:
 	{
 		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 		{
@@ -479,7 +479,7 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 
 	case HGRUNT_AE_BURST2:
-	case HGRUNT_AE_BURST3:
+	case HGRUNT_AE_BURSTSTOP:
 	{
 		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
 			Shoot();

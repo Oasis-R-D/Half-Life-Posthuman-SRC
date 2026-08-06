@@ -50,9 +50,9 @@ extern DLL_GLOBAL int g_iSkillLevel;
 //=========================================================
 #define MASSASSIN_AE_RELOAD (2)
 #define MASSASSIN_AE_KICK (3)
-#define MASSASSIN_AE_BURST1 (4)
+#define MASSASSIN_AE_BURSTSTART (4)
 #define MASSASSIN_AE_BURST2 (5)
-#define MASSASSIN_AE_BURST3 (6)
+#define MASSASSIN_AE_BURSTSTOP (6)
 #define MASSASSIN_AE_GREN_TOSS (7)
 #define MASSASSIN_AE_GREN_LAUNCH (8)
 #define MASSASSIN_AE_GREN_DROP (9)
@@ -153,6 +153,7 @@ public:
 	void PainSound() override;
 	void IdleSound() override;
 	Vector GetGunPosition() override;
+	void ManageWeaponBurst() override;
 	void Shoot();
 	void PrescheduleThink() override;
 	void GibMonster() override;
@@ -767,6 +768,14 @@ Vector CMOFAssassin::GetGunPosition()
 	}
 }
 
+void CMOFAssassin::ManageWeaponBurst()
+{
+	if (pev->armorvalue == -1 || m_Activity != ACT_RANGE_ATTACK1 || pev->armorvalue > gpGlobals->time)
+		return;
+
+	Shoot();
+}
+
 //=========================================================
 // Shoot
 //=========================================================
@@ -789,6 +798,10 @@ void CMOFAssassin::Shoot()
 
 	if (FBitSet(pev->weapons, MAssassinWeaponFlag::MP5))
 	{
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
 		Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40, 90) + gpGlobals->v_up * RANDOM_FLOAT(75, 200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 		EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL);
 		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
@@ -801,10 +814,12 @@ void CMOFAssassin::Shoot()
 		{
 			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
 		}
-
+		pev->armorvalue = gpGlobals->time + 0.075;
 	}
 	else
 	{
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sniper_fire.wav", 1, ATTN_GUN);
+
 		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_1DEGREES, 2048, BULLET_PLAYER_556);
 
 		if (g_iSkillLevel != SKILL_REALISM)
@@ -815,6 +830,7 @@ void CMOFAssassin::Shoot()
 		{
 			CPhysbullet::BulletCreate(1, 45, 6500, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
 		}
+		pev->armorvalue = -1;
 	}
 
 	pev->effects |= EF_MUZZLEFLASH;
@@ -900,35 +916,18 @@ void CMOFAssassin::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case MASSASSIN_AE_BURST1:
+	case MASSASSIN_AE_BURSTSTART:
 	{
-		Shoot();
-
-		if (FBitSet(pev->weapons, MAssassinWeaponFlag::MP5))
-		{
-			// the first round of the three round burst plays the sound and puts a sound in the world sound list.
-			if (RANDOM_LONG(0, 1))
-			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_GUN);
-			}
-			else
-			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
-			}
-		}
-		else
-		{
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sniper_fire.wav", 1, ATTN_GUN);
-		}
+		pev->armorvalue = gpGlobals->time;
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
-
-	case MASSASSIN_AE_BURST2:
-	case MASSASSIN_AE_BURST3:
-		Shoot();
-		break;
+	case MASSASSIN_AE_BURSTSTOP:
+	{
+		pev->armorvalue = -1;
+	}
+	break;
 
 	case MASSASSIN_AE_KICK:
 	{

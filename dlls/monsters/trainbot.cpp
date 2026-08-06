@@ -585,6 +585,31 @@ Vector ChgruntRobo::GetGunPosition()
 	}
 }
 
+void ChgruntRobo::ManageWeaponBurst()
+{
+	if (pev->armorvalue == -1 || m_Activity != ACT_RANGE_ATTACK1 || pev->armorvalue > gpGlobals->time)
+		return;
+
+	if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+	{
+		Shoot();
+
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		pev->armorvalue = gpGlobals->time + 0.075;
+	}
+	else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+	{
+		Shotgun();
+
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
+
+		pev->armorvalue = -1;
+	}
+}
+
 //=========================================================
 // Shoot
 //=========================================================
@@ -704,33 +729,19 @@ void ChgruntRobo::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case HGRUNT_AE_BURST1:
+	case HGRUNT_AE_BURSTSTART:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-		{
-			Shoot();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_NORM);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_NORM);
-		}
-		else
-		{
-			Shotgun();
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_NORM);
-		}
+		pev->armorvalue = gpGlobals->time;
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
-
-	case HGRUNT_AE_BURST2:
-	case HGRUNT_AE_BURST3:
+	case HGRUNT_AE_BURSTSTOP:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-			Shoot();
+		pev->armorvalue = -1;
 	}
 	break;
+
 	case HGRUNT_AE_KICK:
 	{
 		CBaseEntity* pHurt = Kick();
@@ -795,17 +806,20 @@ void ChgruntRobo::Spawn()
 	if (pev->weapons == 0)
 		pev->weapons = HGRUNT_9MMAR | HGRUNT_HANDGRENADE;
 
+	SetBodygroup(GUN_GROUP, GUN_NONE);
+
 	if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
 	{
-		SetBodygroup(GUN_GROUP, GUN_SHOTGUN);
+		
 		m_flDistTooFar = 1024+512;
 		m_cClipSize = SHOTGUN_MAX_CLIP;
+		pev->weaponmodel = MAKE_STRING("models/h_spas.mdl");
 	}
 	else
 	{
-		SetBodygroup(GUN_GROUP, GUN_MP5);
 		m_flDistTooFar = 1024+512;
 		m_cClipSize = MP5_MAX_CLIP;
+		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 	}
 	m_cAmmoLoaded = m_cClipSize;
 	CTalkMonster::g_talkWaitTime = 0;
@@ -825,6 +839,8 @@ void ChgruntRobo::ClipSize(int clipsize)
 void ChgruntRobo::Precache()
 {
 	PRECACHE_MODEL("models/train_bot.mdl");
+	PRECACHE_MODEL("models/h_mp5.mdl");
+	PRECACHE_MODEL("models/h_spas.mdl");
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");
 	PRECACHE_SOUND("hgrunt/gr_mgun2.wav");

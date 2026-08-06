@@ -168,6 +168,7 @@ public:
 	void EXPORT DeadMonsterThink();
 	void EXPORT MonsterInitThink();
 	void PH_additions();
+	virtual void ManageWeaponBurst() {};
 
 	virtual void StartMonster();
 	virtual CBaseEntity* BestVisibleEnemy();		// finds best visible enemy for attack

@@ -459,7 +459,7 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case HGRUNT_AE_BURST1:
+	case HGRUNT_AE_BURSTSTART:
 	{
 		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 		{
@@ -489,7 +489,7 @@ void CHMiller::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 
 	case HGRUNT_AE_BURST2:
-	case HGRUNT_AE_BURST3:
+	case HGRUNT_AE_BURSTSTOP:
 	{
 		if (FBitSet(pev->weapons, MILLER_HUM_9MMAR))
 			Shoot();

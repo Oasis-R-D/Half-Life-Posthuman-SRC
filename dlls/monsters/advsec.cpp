@@ -70,9 +70,9 @@ int g_fAdvSecQuestion; // true if an idle grunt asked a question. Cleared when s
 //=========================================================
 #define HGRUNT_AE_RELOAD (2)
 #define HGRUNT_AE_KICK (3)
-#define HGRUNT_AE_BURST1 (4)
+#define HGRUNT_AE_BURSTSTART (4)
 #define HGRUNT_AE_BURST2 (5)
-#define HGRUNT_AE_BURST3 (6)
+#define HGRUNT_AE_BURSTSTOP (6)
 #define HGRUNT_AE_GREN_TOSS (7)
 #define HGRUNT_AE_GREN_LAUNCH (8)
 #define HGRUNT_AE_GREN_DROP (9)
@@ -133,6 +133,7 @@ public:
 	void PainSound() override;
 	void IdleSound() override;
 	Vector GetGunPosition() override;
+	void ManageWeaponBurst() override;
 	void Shoot();
 	void Railcannon();
 	void Shotgun();
@@ -806,6 +807,39 @@ Vector CAdvSec::GetGunPosition()
 	}
 }
 
+void CAdvSec::ManageWeaponBurst()
+{
+	if (pev->armorvalue == -1 || m_Activity != ACT_RANGE_ATTACK1 || pev->armorvalue > gpGlobals->time)
+		return;
+
+	if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+	{
+		Shoot();
+
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		pev->armorvalue = gpGlobals->time + 0.075;
+	}
+	else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+	{
+		Shotgun();
+
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
+
+		pev->armorvalue = -1;
+	}
+	else if (FBitSet(pev->weapons, ADVSEC_RAILCANNON))
+	{
+		Railcannon();
+
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/xbow_fire1.wav", 1, ATTN_GUN);
+
+		pev->armorvalue = -1;
+	}
+}
+
 //=========================================================
 // Shoot
 //=========================================================
@@ -993,43 +1027,18 @@ void CAdvSec::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case HGRUNT_AE_BURST1:
+	case HGRUNT_AE_BURSTSTART:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-		{
-			Shoot();
-
-			// the first round of the three round burst plays the sound and puts a sound in the world sound list.
-			if (RANDOM_LONG(0, 1))
-			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_GUN);
-			}
-			else
-			{
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
-			}
-		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
-		{
-			Shotgun();
-
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
-		}
-		else
-		{
-			Railcannon();
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/xbow_fire1.wav", 1, ATTN_GUN);
-		
-		}
+		pev->armorvalue = gpGlobals->time;
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
-
-	case HGRUNT_AE_BURST2: // what's going on here?
-	case HGRUNT_AE_BURST3:
-		Shoot();
-		break;
+	case HGRUNT_AE_BURSTSTOP:
+	{
+		pev->armorvalue = -1;
+	}
+	break;
 
 	case HGRUNT_AE_KICK:
 	{

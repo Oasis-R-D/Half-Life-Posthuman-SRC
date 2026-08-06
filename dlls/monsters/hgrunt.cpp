@@ -687,6 +687,51 @@ Vector CHGrunt::GetGunPosition()
 	}
 }
 
+void CHGrunt::ManageWeaponBurst()
+{
+	if (pev->armorvalue == -1 || m_Activity != ACT_RANGE_ATTACK1 || pev->armorvalue > gpGlobals->time)
+		return;
+
+	if (FBitSet(pev->weapons, HGRUNT_9MMAR))
+	{
+		Shoot();
+
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/hks%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		pev->armorvalue = gpGlobals->time + 0.075;
+	}
+	else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
+	{
+		Shotgun();
+
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
+
+		pev->armorvalue = -1;
+	}
+	else if (FBitSet(pev->weapons, HGRUNT_M727))
+	{
+		ShootM727();
+
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/727_hks%d.wav", RANDOM_LONG(1, 3));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		pev->armorvalue = gpGlobals->time + (g_iSkillLevel == SKILL_REALISM ? 0.0727 : 0.1);
+	}
+	else
+	{
+		M249();
+
+		char wpnsnd2[256];
+		sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		pev->armorvalue = gpGlobals->time + (g_iSkillLevel != SKILL_REALISM ? 0.085 : 0.06);
+	}
+}
+
 //=========================================================
 // Shoot
 //=========================================================
@@ -823,10 +868,6 @@ void CHGrunt::M249()
 
 	Vector angDir = UTIL_VecToAngles(vecShootDir);
 	SetBlending(0, angDir.x);
-
-	char wpnsnd2[256];
-	sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
 }
 
 //=========================================================
@@ -972,47 +1013,19 @@ void CHGrunt::HandleAnimEvent(MonsterEvent_t* pEvent)
 	}
 	break;
 
-	case HGRUNT_AE_BURST1:
+	case HGRUNT_AE_BURSTSTART:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-		{
-			Shoot();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_GUN);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
-		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
-		{
-			Shotgun();
-			EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/sbarrel1.wav", 1, ATTN_GUN);
-		}
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
-		{
-			ShootM727();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_1.wav", 1, ATTN_GUN);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_2.wav", 1, ATTN_GUN);
-		}
-		else
-			M249();
+		pev->armorvalue = gpGlobals->time;
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
-
-	case HGRUNT_AE_BURST2:
-	case HGRUNT_AE_BURST3:
+	case HGRUNT_AE_BURSTSTOP:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-			Shoot();
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
-			ShootM727();
-		else
-			M249();
+		pev->armorvalue = -1;
 	}
 	break;
+
 	case HGRUNT_AE_KICK:
 	{
 		CBaseEntity* pHurt = Kick();

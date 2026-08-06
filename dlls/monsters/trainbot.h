@@ -35,9 +35,9 @@
 //=========================================================
 #define HGRUNT_AE_RELOAD (2)
 #define HGRUNT_AE_KICK (3)
-#define HGRUNT_AE_BURST1 (4)
+#define HGRUNT_AE_BURSTSTART (4)
 #define HGRUNT_AE_BURST2 (5)
-#define HGRUNT_AE_BURST3 (6)
+#define HGRUNT_AE_BURSTSTOP (6)
 #define HGRUNT_AE_GREN_TOSS (7)
 #define HGRUNT_AE_GREN_LAUNCH (8)
 #define HGRUNT_AE_GREN_DROP (9)
@@ -65,6 +65,7 @@ public:
 	void PainSound() override;
 	void IdleSound() override;
 	Vector GetGunPosition() override;
+	void ManageWeaponBurst() override;
 	void Shoot();
 	void Shotgun();
 	void ClipSize(int clipsize);

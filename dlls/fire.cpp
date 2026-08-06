@@ -152,11 +152,14 @@ void CFireManager::AddFire(Vector pos, int heat)
 
 void CFireManager::MergeInTemp()
 {
+	if (tempvoxels.empty())
+		return;
+
 	voxels.reserve(voxels.size() + tempvoxels.size());
     voxels.insert(voxels.end(), std::make_move_iterator(tempvoxels.begin()), std::make_move_iterator(tempvoxels.end()));
 
 	tempvoxels.clear();
-	tempvoxels.reserve(2); // hold some space
+	tempvoxels.reserve(2); // hold some space // TO-DO: verify capacity() is only 2
 
 	if (!tempvoxels.empty())
 		ALERT(at_error, "CFireManager: data leftover in tempvoxels!\n");
