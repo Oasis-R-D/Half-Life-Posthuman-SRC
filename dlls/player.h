@@ -229,7 +229,6 @@ public:
 	//	void Think() override;
 	virtual void Jump();
 	virtual void Duck();
-	void PH_additions();
 	virtual void PreThink();
 	virtual void PostThink();
 	Vector GetGunPosition() override;
@@ -402,8 +401,6 @@ public:
 
 	int m_iHunger;
 	float HungerDamageTime;
-
-	double m_dbFireCheckTimer;
 
 	// TO-DO: do this properly (replace these with rgiLimb_Health[CONSTANT])
 	#define health_head rgiLimb_Health[0]

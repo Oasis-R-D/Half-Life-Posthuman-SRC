@@ -39,7 +39,7 @@ void CPhysblood::BloodCreate(unsigned int BLDamnt, int BLDSpeed, Vector VecSpawn
 		{
 			// Create a new entity with CPhysblood private data
 			CPhysblood* pBlood = GetClassPtr((CPhysblood*)NULL);
-			pBlood->pev->classname = MAKE_STRING("blooddrop");
+			pBlood->pev->classname = MAKE_STRING("phys_blood");
 			pBlood->m_BloodDropVel = BLDSpeed;
 			pBlood->m_SpawnPos = VecSpawnPos;
 			pBlood->m_vecDir = vecDir;

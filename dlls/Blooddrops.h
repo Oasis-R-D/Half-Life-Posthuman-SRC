@@ -33,5 +33,4 @@ private:
 	bool m_isPool;
 	bool m_hashealed = false;
 	bool m_randomspeed = false;
-
 };

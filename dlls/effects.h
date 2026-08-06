@@ -219,6 +219,7 @@ public:
 	Vector m_firePosition;
 };
 
+/*
 //=======================
 //  Fire entity
 //=======================
@@ -258,6 +259,7 @@ public:
 public:
 	static CFire* FireCreate(Vector origin, double size, float activetime, int maxsize, CBaseEntity* dontburn, float heightoverride = NULL, bool blue = false, bool ignorecheck = false);
 };
+*/
 
 // RENDERERS START
 //=======================

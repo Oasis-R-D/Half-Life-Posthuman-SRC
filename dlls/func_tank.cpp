@@ -15,7 +15,7 @@
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
-#include "effects.h"
+#include "fire.h"
 #include "weapons.h"
 #include "explode.h"
 
@@ -1036,14 +1036,7 @@ void CFuncTankFlame::Fire(const Vector& barrelEnd, const Vector& forward, entvar
 
 				dir = dir + x * gTankSpread[m_spread].x * gpGlobals->v_right + y * gTankSpread[m_spread].x * gpGlobals->v_up;
 
-				CFire* pFire = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 16 + RANDOM_FLOAT(-2.0, 2.0), m_iBulletDamage, this, 16);
-				pFire->pev->velocity = dir * (pev->armorvalue + (cos(gpGlobals->time) * (-64)));
-
-				if (RANDOM_LONG(0, 1))
-				{
-					CFire* pFire2 = CFire::FireCreate(barrelEnd + (forward * 4), pev->impulse, 3, m_iBulletDamage, this, 16, true);
-					pFire2->pev->velocity = pFire->pev->velocity;
-				}
+				CFireProjectile::FireShoot(1, 200, pev->armorvalue + (cos(gpGlobals->time) * (-64)), barrelEnd + (forward * 4), dir, 0.5);
 			}
 			CFuncTank::Fire(barrelEnd, forward, pev);
 		}

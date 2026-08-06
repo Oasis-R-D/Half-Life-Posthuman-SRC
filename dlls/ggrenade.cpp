@@ -193,62 +193,6 @@ void CGrenade::ExplodeIncen(TraceResult* pTrace)
 
 	FireManager->FireExplosion(translateToFireSpace(pev->origin), 2, 800);
 
-	// OLD METHOD
-
-	// Counteract the + 1 in RadiusDamage.
-	/*
-	Vector origin = pev->origin;
-	origin.z -= 1;
-
-	CFire::FireCreate(pev->origin, 48, 20, 3, this, 16);
-
-	for (int i = 0; i < 4; i++)
-	{
-		Vector Spawn;
-		int times = 0;
-
-		do {
-			if (times >= 50) // don't spawn if it isn't finding any good spots
-			{
-				ALERT(at_warning, "Incendiary grenade couldn't spawn fire!\n");
-				break;
-			}
-
-			times += 1;
-			
-			Spawn = pev->origin;
-			Spawn.x += 32 * RANDOM_LONG(-2, 2);
-			Spawn.y += 32 * RANDOM_LONG(-2, 2);
-			
-			CBaseEntity* pList[2];
-			int count;
-
-			count = UTIL_EntitiesInBox(pList, 2, Spawn - Vector(32, 32, 0), Spawn + Vector(32, 32, 32), FL_FIRE);
-			if (0 != count) // don't spawn monsters near players or other monsters
-			{
-				continue;
-			}
-
-		} while (UTIL_PointContents(Spawn) == CONTENTS_SOLID || UTIL_PointContents(Spawn) == CONTENTS_WATER);
-
-		if (times < 50)
-		{
-			CFire::FireCreate(Spawn, 32, 18.5 + RANDOM_FLOAT(-1.0, 0.5), 1, this, 4);
-		}
-	}
-	*/
-
-	if (RANDOM_FLOAT(0, 1) < 0.5)
-	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH1);
-	}
-	else
-	{
-		UTIL_DecalTrace(pTrace, DECAL_SCORCH2);
-	}
-
-	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);
-
 	pev->effects |= EF_NODRAW;
 	pev->velocity = g_vecZero;
 
@@ -595,7 +539,7 @@ void CGrenade::BounceTouch(CBaseEntity* pOther)
 		}
 		
 		if (m_iGrenType == 6 && pev->waterlevel == 0 && pOther->pev->waterlevel == 0)
-			pOther->m_iBurnTimer += 50;
+			pOther->pev->iuser4 += 50;
 
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
 	}

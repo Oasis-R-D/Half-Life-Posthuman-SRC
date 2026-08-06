@@ -433,7 +433,6 @@ public:
 	int m_fireState;
 
 	// POSTHUMAN
-	int m_iBurnTimer;
 	bool m_bPrehuman; // Required for some NPCs and player // TO-DO: can probably be moved to monster now
 
 	int m_iMaxDeathBleed = 6; // How much can the monster bleed after dead (helps avoid mass decal spam on the ground)

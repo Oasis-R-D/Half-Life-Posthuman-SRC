@@ -204,7 +204,7 @@ typedef struct entvars_s
 	int iuser1;
 	int iuser2;
 	int iuser3;
-	int iuser4;
+	int iuser4;	  // Entity on fire timer
 	float fuser1; // player ALTVM and monster think time
 	float fuser2;
 	float fuser3;

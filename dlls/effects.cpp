@@ -2977,7 +2977,7 @@ class CEnvBarrel : public CGrenade
 };
 
 LINK_ENTITY_TO_CLASS(env_barrel, CEnvBarrel);
-
+/*
 //=======================
 //  Fire entity
 //=======================
@@ -3043,7 +3043,7 @@ void CFire::Spawn()
 {
 	Precache();
 
-	m_iBurnTimer = -16;
+	pev->iuser4 = -16;
 	m_bSoundPlaying = false;
 	strcpy(m_caSound, "");
 	pev->movetype = MOVETYPE_TOSS;
@@ -3076,7 +3076,7 @@ bool FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 	// iterate on all entities in the vicinity.
 	while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecSrc, flRadius)) != NULL)
 	{
-		if ((pEntity == pEntIgnore && pEntIgnore->m_iBurnTimer > 0) || pEntity->m_iBurnTimer == -16)
+		if ((pEntity == pEntIgnore && pEntIgnore->pev->iuser4 > 0) || pEntity->pev->iuser4 == -16)
 			continue;
 
 		if (pEntity->pev->takedamage != DAMAGE_NO)
@@ -3088,7 +3088,7 @@ bool FireRadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_t* pevAtta
 			}
 
 			if (pEntity->pev->deadflag == DEAD_NO && pEntity->pev->waterlevel == 0)
-				pEntity->m_iBurnTimer += 33;
+				pEntity->pev->iuser4 += 33;
 
 			// blast's don't travel into or out of water
 			if (bInWater && pEntity->pev->waterlevel == 0)
@@ -3292,6 +3292,8 @@ TYPEDESCRIPTION CFire::m_SaveData[] =
 };
 
 IMPLEMENT_SAVERESTORE(CFire, CBaseEntity);
+
+*/
 
 // RENDERERS START
 //=======================

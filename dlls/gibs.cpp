@@ -7,6 +7,7 @@
 #include "Blooddrops.h"
 #include "weapons.h"
 #include "gibs.h"
+#include "fire.h"
 #include <vector>
 
 LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
@@ -16,64 +17,64 @@ LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
 
 // TO-DO: fix alien gibs being tiny (make small ones headcrab only)
 gibMap xenian_gibmap =
-{		// 			MDL 			   BG # TYPE
-		gib_data_t{"models/agibs.mdl", 0, 1},
-		gib_data_t{"models/agibs.mdl", 1, 1},
-		gib_data_t{"models/agibs.mdl", 2, 1},
-		gib_data_t{"models/agibs.mdl", 3, 1},
-		gib_data_t{"models/agibs.mdl", 4, 1},
-		gib_data_t{"models/agibs.mdl", 5, 1},
+{		//MDL 			     BG # TYPE
+		{"models/agibs.mdl", 0, 1},
+		{"models/agibs.mdl", 1, 1},
+		{"models/agibs.mdl", 2, 1},
+		{"models/agibs.mdl", 3, 1},
+		{"models/agibs.mdl", 4, 1},
+		{"models/agibs.mdl", 5, 1},
 };
 
 gibMap headcrab_gibmap =
-{		// 			MDL 			   BG # TYPE
-		gib_data_t{"models/agibs.mdl", 2, 1},
-		gib_data_t{"models/agibs.mdl", 4, 1},
-		gib_data_t{"models/agibs.mdl", 5, 1},
+{		//MDL 			     BG # TYPE
+		{"models/agibs.mdl", 2, 1},
+		{"models/agibs.mdl", 4, 1},
+		{"models/agibs.mdl", 5, 1},
 };
 
 gibMap human_gibmap =
-{		// 			MDL 			   BG # TYPE
-		gib_data_t{"models/hgibs.mdl", 0, 1, 1},
-		gib_data_t{"models/hgibs.mdl", 1, 1},
-		gib_data_t{"models/hgibs.mdl", 2, 1},
-		gib_data_t{"models/hgibs.mdl", 3, 1},
-		gib_data_t{"models/hgibs.mdl", 4, 1},
-		gib_data_t{"models/hgibs.mdl", 5, 1},
+{		//MDL 			     BG # TYPE
+		{"models/hgibs.mdl", 0, 1, 1},
+		{"models/hgibs.mdl", 1, 1},
+		{"models/hgibs.mdl", 2, 1},
+		{"models/hgibs.mdl", 3, 1},
+		{"models/hgibs.mdl", 4, 1},
+		{"models/hgibs.mdl", 5, 1},
 };
 
 gibMap pitdrone_gibmap =
-{		// 			MDL 			   		    BG # TYPE
-		gib_data_t{"models/pit_drone_gibs.mdl", 0, 2},  // claws
-		gib_data_t{"models/pit_drone_gibs.mdl", 1, 1},  // tentacle 1
-		gib_data_t{"models/pit_drone_gibs.mdl", 2, 1},  // tentacle 2
-		gib_data_t{"models/pit_drone_gibs.mdl", 3, 2},  // knee?
-		gib_data_t{"models/pit_drone_gibs.mdl", 4, 1},  // tail
-		gib_data_t{"models/pit_drone_gibs.mdl", 5, 1},  // generic?
-		gib_data_t{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
+{		//MDL 			   		      BG # TYPE
+		{"models/pit_drone_gibs.mdl", 0, 2},  // claws
+		{"models/pit_drone_gibs.mdl", 1, 1},  // tentacle 1
+		{"models/pit_drone_gibs.mdl", 2, 1},  // tentacle 2
+		{"models/pit_drone_gibs.mdl", 3, 2},  // knee?
+		{"models/pit_drone_gibs.mdl", 4, 1},  // tail
+		{"models/pit_drone_gibs.mdl", 5, 1},  // generic?
+		{"models/pit_drone_gibs.mdl", 6, 1},  // back spike
 };		
 
 gibMap voltigore_gibmap =
-{		// 			MDL 			   BG # TYPE
-		gib_data_t{"models/vgibs.mdl", 0, 1},
-		gib_data_t{"models/vgibs.mdl", 1, 1},
-		gib_data_t{"models/vgibs.mdl", 2, 1},
-		gib_data_t{"models/vgibs.mdl", 3, 1},
-		gib_data_t{"models/vgibs.mdl", 4, 2},
-		gib_data_t{"models/vgibs.mdl", 5, 1},
-		gib_data_t{"models/vgibs.mdl", 6, 2},
-		gib_data_t{"models/vgibs.mdl", 7, 1},
-		gib_data_t{"models/vgibs.mdl", 8, 2},
+{		//MDL 			     BG # TYPE
+		{"models/vgibs.mdl", 0, 1},
+		{"models/vgibs.mdl", 1, 1},
+		{"models/vgibs.mdl", 2, 1},
+		{"models/vgibs.mdl", 3, 1},
+		{"models/vgibs.mdl", 4, 2},
+		{"models/vgibs.mdl", 5, 1},
+		{"models/vgibs.mdl", 6, 2},
+		{"models/vgibs.mdl", 7, 1},
+		{"models/vgibs.mdl", 8, 2},
 };	
 
 gibMap funghoul_gibmap =
-{		// 			MDL 			       BG # TYPE
-		gib_data_t{"models/fung_gibs.mdl", 0, 1, 1},
-		gib_data_t{"models/fung_gibs.mdl", 1, 1},
-		gib_data_t{"models/fung_gibs.mdl", 2, 1},
-		gib_data_t{"models/fung_gibs.mdl", 3, 1},
-		gib_data_t{"models/fung_gibs.mdl", 4, 1},
-		gib_data_t{"models/fung_gibs.mdl", 5, 1},
+{		//MDL 			         BG # TYPE
+		{"models/fung_gibs.mdl", 0, 1, 1},
+		{"models/fung_gibs.mdl", 1, 1},
+		{"models/fung_gibs.mdl", 2, 1},
+		{"models/fung_gibs.mdl", 3, 1},
+		{"models/fung_gibs.mdl", 4, 1},
+		{"models/fung_gibs.mdl", 5, 1},
 };
 
 void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
@@ -309,8 +310,8 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 			{
 				pGib->m_pGibbed = pVictim;
 
-				if (pVictim->m_iBurnTimer > 0)
-					pGib->m_iBurnTimer = (RANDOM_LONG(0, pVictim->m_iBurnTimer));
+				if (pVictim->pev->iuser4 > 0)
+					pGib->pev->iuser4 = (RANDOM_LONG(0, pVictim->pev->iuser4));
 			}
 
 			switch (type)
@@ -424,48 +425,43 @@ void CoolerGib::WaitTillLand()
 		pev->nextthink = gpGlobals->time + 0.25; // WAS 0.1
 	}
 
-	if (m_nextBurnLogic < gpGlobals->time && m_iBurnTimer > 0)
+	if (m_nextBurnLogic < gpGlobals->time && pev->iuser4 > 0)
 	{
-		if(pev->waterlevel > 0) 
-			m_iBurnTimer = 0;
-
-		if (m_iBurnTimer > 200)
-			m_iBurnTimer = 200;
-
-		int max = 1; // max particles / 4
-
-		int iBurnAmnt = ceil(m_iBurnTimer/10);
-		if (iBurnAmnt > max) 
-			iBurnAmnt = max;
-			
-		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
+		if (pev->waterlevel > 0)
+			pev->iuser4 = 0;
+		else
 		{
-			Vector VecflameOrg = pev->origin;
-			VecflameOrg.x += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.y += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.z += -2 + 2 * (RANDOM_FLOAT(0, 0.5)) + 1;
+			int max = 1; // max particles / 4
 
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
-		}
+			int iBurnAmnt = ceil(pev->iuser4 / 10);
+			if (iBurnAmnt > max)
+				iBurnAmnt = max;
 
-		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
-		{
-			if (RANDOM_LONG(0, 4) == 4)
+			for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
 			{
-				Vector VecSpreadOrg = Center();
-				VecSpreadOrg.z = pev->absmin.z + 5;
+				Vector VecflameOrg = pev->origin;
+				VecflameOrg.x += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+				VecflameOrg.y += -3 + 3 * (RANDOM_FLOAT(0.25, 0.75));
+				VecflameOrg.z += -2 + 2 * (RANDOM_FLOAT(0, 0.5)) + 1;
 
-				// make sure there isn't already fire there
-				CBaseEntity* pList[2];
-				int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
-				if (0 == count) // don't spawn monsters near players or other monsters
+				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
+			}
+
+			if ((trunc(pev->iuser4 / 10) * 10) == pev->iuser4)
+			{
+				if (RANDOM_LONG(0, 4) == 4)
 				{
-					CFire::FireCreate(VecSpreadOrg, 8, 10, 1, this); // spread fire around, cause chaos
+					Vector VecSpreadOrg = Center();
+					VecSpreadOrg.z = pev->absmin.z + 5;
+
+					FireManager->AddFire(VecSpreadOrg, 100);
 				}
 			}
+			// ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", pev->iuser4, pev->health, iBurnAmnt);
+			pev->iuser4--;
+			
 		}
-		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
-		m_iBurnTimer--;
+		
 		m_nextBurnLogic = gpGlobals->time + 0.1;
 	}
 }

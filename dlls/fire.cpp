@@ -224,8 +224,10 @@ void CFireVoxel::Think()
 
 	SpawnParticles(firesize*0.66);
 	
+	DealDamage(firesize); 
+
 	// don't run spread code while falling
-	if (CheckFall((firesize / 2) + 2))
+	if (CheckFall(((float)firesize / 2) + 2))
 		return;
 
 	heat -= 1;
@@ -266,6 +268,37 @@ void CFireVoxel::Think()
 	heat -= 150;
 }
 
+void FireRadiusDamage2(Vector vecSrc, float flDamage, float flRadius)
+{
+	CBaseEntity* pEntity = NULL;
+	TraceResult tr;
+	Vector vecSpot;
+
+	// iterate on all entities in the vicinity.
+	while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecSrc, flRadius)) != NULL)
+	{
+		if (pEntity->pev->iuser4 == -16)
+			continue;
+
+		if (pEntity->pev->takedamage != DAMAGE_NO)
+		{
+			if (pEntity->pev->deadflag == DEAD_NO && pEntity->pev->waterlevel == 0)
+				pEntity->pev->iuser4 += 33;
+
+			pEntity->TakeDamage(FireManager->pev, FireManager->pev, flDamage, DMG_BURN);
+		}
+	}
+}
+
+void CFireVoxel::DealDamage(int size)
+{
+	if (dmgTime > gpGlobals->time)
+		return;
+
+	::FireRadiusDamage2(origin, 5, (float)size * 0.75);
+	dmgTime = gpGlobals->time + 0.5;
+}
+
 const void CFireVoxel::SpawnParticles(int size)
 {	// Spawn visuals
 	Vector VecflameOrg = origin;
@@ -304,4 +337,84 @@ bool CFireVoxel::CheckFall(float size)
 	heat -= 3; // falling is very bad
 
 	return true;
+}
+
+//=========================================================
+// Projectile
+//=========================================================
+
+LINK_ENTITY_TO_CLASS(phys_fire, CFireProjectile);
+void CFireProjectile::FireShoot(unsigned int BLDamnt, int heat, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, float spread)
+{
+	for (unsigned int i = 0; i < BLDamnt; i++) // Allows multishot
+	{
+		// Create a new entity with CFireProjectile private data
+		CFireProjectile* pBlood = GetClassPtr((CFireProjectile*)NULL);
+		pBlood->pev->classname = MAKE_STRING("phys_fire");
+		pBlood->m_vecVel = BLDSpeed;
+		pBlood->m_SpawnPos = VecSpawnPos;
+		pBlood->m_vecDir = vecDir;
+		pBlood->m_Spread = spread;
+		pBlood->m_Gravity = BLLTGravity;
+		pBlood->pev->dmg = heat;
+		pBlood->Spawn();
+	}
+}
+
+void CFireProjectile::Spawn()
+{
+	Precache();
+
+	//SET_MODEL(ENT(pev), "sprites/blood.spr");
+
+	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
+	pev->solid = SOLID_BBOX;
+
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	UTIL_SetOrigin(pev, m_SpawnPos);
+
+	// TO-DO: use radial spread, this is not the proper way to do spread
+	pev->velocity = ((m_vecDir + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_vecVel); // Applies spread and velocity, also applies the chance to have the entry wound droplets
+	pev->gravity = m_Gravity;
+	pev->owner = NULL;
+
+	SetTouch(&CFireProjectile::DropTouch);
+	SetThink(&CFireProjectile::AirThink);
+	pev->nextthink = gpGlobals->time;
+}
+
+void CFireProjectile::Precache()
+{
+	//PRECACHE_MODEL("sprites/blood.spr");
+}
+
+void CFireProjectile::DropTouch(CBaseEntity* pOther)
+{
+	Vector org = UTIL_GetGlobalTrace().vecEndPos;
+	translateToFireSpace(org);
+
+	FireManager->AddFire(org, pev->dmg);
+
+	UTIL_Remove(this);
+}
+
+void CFireProjectile::AirThink()
+{
+	pev->nextthink = gpGlobals->time + 0.1f;
+
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, pev->origin + pev->velocity * 0.1, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
+
+	if (pev->waterlevel == 0)
+		return;
+
+	SetThink(&CFireProjectile::SUB_Remove);
+	pev->nextthink = gpGlobals->time;
+}
+
+int CFireProjectile::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched->IsBSPModel())
+		return 1;
+	else
+		return 0;
 }

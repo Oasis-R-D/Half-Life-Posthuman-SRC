@@ -133,7 +133,6 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iHunger, FIELD_INTEGER),
 		DEFINE_ARRAY(CBasePlayer, rgiLimb_Health, FIELD_INTEGER, 7), // TO-DO: is this supposed to be 7?
 		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, m_iBurnTimer, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
@@ -1082,7 +1081,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 	}
 	pev->maxspeed = 384;
 	m_bleedAMNT = 0;
-	m_iBurnTimer = 0;
+	pev->iuser4 = 0;
 	m_bInGrenadeDelay = false;
 	m_bInGrenade = false;
 
@@ -2130,49 +2129,6 @@ void CBasePlayer::UpdateStatusBar()
 #define CLIMB_SPEED_DEC 15		 // climbing deceleration rate
 #define CLIMB_PUNCH_X -7		 // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z 7			 // how far to 'punch' client Z axis when climbing
-
-void CBasePlayer::PH_additions()
-{
-	if (m_dbFireCheckTimer <= gpGlobals->time && m_iBurnTimer > 0)
-	{
-		if(pev->waterlevel > 0) 
-			m_iBurnTimer = 0;
-
-		if (m_iBurnTimer > 100)
-			m_iBurnTimer = 100;
-
-		int max = 1; // max particles / 4
-
-		int iBurnAmnt = ceil(m_iBurnTimer/10);
-		if (iBurnAmnt > 1) 
-			iBurnAmnt = 1;
-			
-		for (int i = 0; i < iBurnAmnt; i++) // spawns particle - EACH SPAWNS 4
-		{
-			Vector VecflameOrg;
-			VecflameOrg.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0.25, 0.75));
-			VecflameOrg.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 0.5)) + 1;
-
-			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
-		}
-
-		if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
-		{
-			if (pev->velocity.Length() > 200) // Deplete faster if you are moving
-			{
-				m_iBurnTimer -= 3; 
-				if (m_iBurnTimer < 0)
-					m_iBurnTimer = 1;
-			}
-			TakeDamage(CWorld::World->pev, CWorld::World->pev, gSkillData.plrFire, DMG_BURN);
-		}
-		//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
-		m_iBurnTimer--;
-
-		m_dbFireCheckTimer = gpGlobals->time + 0.1;
-	}
-}
 
 void CBasePlayer::PreThink()
 {

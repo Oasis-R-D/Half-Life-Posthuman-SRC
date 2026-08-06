@@ -14,10 +14,13 @@ public:
 	
 	float spreadTime;
 
+	float dmgTime;
+
 	int heat;
 
 private:
 	const void SpawnParticles(int size);
+	void DealDamage(int size);
 	bool CheckFall(float size);
 };
 
@@ -55,3 +58,22 @@ inline Vector translateToFireSpace(Vector& vec)
 }
 
 extern CFireManager* FireManager;
+
+class CFireProjectile : public CBaseEntity
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	int ShouldCollide(CBaseEntity* pentTouched) override;
+	int ObjectCaps() override { return FCAP_DONT_SAVE; }
+	void EXPORT AirThink();
+	void EXPORT DropTouch(CBaseEntity* pOther);
+	static void FireShoot(unsigned int BLDamnt, int heat, int BLDSpeed, Vector VecSpawnPos, Vector vecDir, float BLLTGravity, float spread = 0); // add damage, spread and owner so entities calling this can give it the proper stuff
+
+private:
+	int m_vecVel;
+	Vector m_SpawnPos;
+	Vector m_vecDir;
+	float m_Spread;
+	float m_Gravity;
+};

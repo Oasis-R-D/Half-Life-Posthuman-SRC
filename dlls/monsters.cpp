@@ -514,14 +514,10 @@ CSound* CBaseMonster::PBestScent()
 
 void CBaseMonster::PH_additions()
 {
-	if (m_iBurnTimer > 0)
+	if (pev->iuser4 > 0)
 	{
 		if(pev->waterlevel > 0) 
-			m_iBurnTimer = 0;
-
-		if (m_iBurnTimer > 200)
-			m_iBurnTimer = 200;
-
+			pev->iuser4 = 0;
 		else
 		{
 			int max; // max particles / 4
@@ -533,7 +529,7 @@ void CBaseMonster::PH_additions()
 				case NODE_LARGE_HULL: max = 4; break;
 			}
 
-			int iBurnAmnt = ceil(m_iBurnTimer/10);
+			int iBurnAmnt = ceil(pev->iuser4/10);
 			if (iBurnAmnt > max) 
 				iBurnAmnt = max;
 			
@@ -547,25 +543,8 @@ void CBaseMonster::PH_additions()
 				PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
 			}
 
-			if ((trunc(m_iBurnTimer/10) * 10) == m_iBurnTimer)
-			{
-				TakeDamage(pev, pev, 5, DMG_BURN);
-				if (RANDOM_LONG(0, 4) == 4)
-				{
-					Vector VecSpreadOrg = Center();
-					VecSpreadOrg.z = pev->absmin.z + 5;
-
-					// make sure there isn't already fire there
-					CBaseEntity* pList[2];
-					int count = UTIL_EntitiesInBox(pList, 2, VecSpreadOrg - Vector(12, 12, 0), VecSpreadOrg + Vector(12, 12, 8), FL_FIRE);
-					if (0 == count) // don't spawn monsters near players or other monsters
-					{
-						CFire::FireCreate(VecSpreadOrg, 24, 10, max, this); // spread fire around, cause chaos
-					}
-				}
-			}
-			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", m_iBurnTimer, pev->health, iBurnAmnt);
-			m_iBurnTimer--;
+			//ALERT(at_console, "burn: %d health: %f particleamnt: %i\n", pev->iuser4, pev->health, iBurnAmnt);
+			pev->iuser4--;
 		}
 	}
 
