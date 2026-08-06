@@ -851,8 +851,7 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	newpunch.y *= -2.0; // left/right (was originally inverted for some reason)
 
 	Vector newCLpunch = Vector((float*)&ev_punchangle) * -1;
-	newCLpunch.x *= 2.0; // up
-	newCLpunch.y *= -2.0; // left/right (was originally inverted for some reason)
+	newCLpunch.y *= -1; // left/right (was originally inverted for some reason)
 
 	// Add server side punch
 	VectorAdd(pparams->viewangles, pparams->punchangle, pparams->viewangles);

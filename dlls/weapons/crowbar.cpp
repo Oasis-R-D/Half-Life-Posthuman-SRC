@@ -176,14 +176,14 @@ void CCrowbar::Hit(bool type, int hand)
 		ClearMultiDamage();
 		if (type == false)
 		{
-			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pHit->TraceAttack(m_pPlayer->pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.plrDmgCrowbar : 50, gpGlobals->v_forward, &tr, DMG_CLUB);
 			#ifndef CLIENT_DLL
 			CBasePlayerWeapon::Recoil(0, 2); // TO-DO: make it go the direction of the hand
 			#endif
 		}
 		else
 		{
-			pHit->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar * 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pHit->TraceAttack(m_pPlayer->pev, g_iSkillLevel != SKILL_REALISM ? gSkillData.plrDmgCrowbar * 2 : 70, gpGlobals->v_forward, &tr, DMG_CLUB);
 			#ifndef CLIENT_DLL
 			CBasePlayerWeapon::Recoil(1, 0); // TO-DO: make it go the direction of the hand
 			#endif
