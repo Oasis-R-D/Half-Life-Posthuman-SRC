@@ -44,7 +44,7 @@ public:
 	void Init(void);
 	void Shutdown(void);
 	void VidInit(void);
-	void Restore(void);
+	const void Restore(void);
 	void ClearEntities(void);
 
 	void AddEntity(cl_entity_t* entity);

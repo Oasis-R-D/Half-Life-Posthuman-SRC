@@ -136,14 +136,15 @@ void CoolerGib::EatThink()
 		m_pEater->TakeHealth(5, DMG_GENERIC);
 		for (int i = 0; i < 7; i++)
 		{
-			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(4, 7);
+			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(7, 12);
 			if (m_pEater->rgiLimb_Health[i] < 0)
 				m_pEater->rgiLimb_Health[i] = 0;
 		}
 	}
 	else if (m_bloodColor == BLOOD_COLOR_INFECTION)
 	{
-		m_pEater->TakeDamage(CWorld::World->pev, CWorld::World->pev, gSkillData.funghoulDmgBite/2, DMG_FUNGUS);
+		// straight poison!
+		m_pEater->TakeDamage(CWorld::World->pev, CWorld::World->pev, 2, DMG_FUNGUS);
 		m_pEater->m_iHunger -= RANDOM_LONG(1, 3);
 		if (m_pEater->m_iHunger < 0)
 			m_pEater->m_iHunger = 0;
@@ -156,7 +157,7 @@ void CoolerGib::EatThink()
 		m_pEater->TakeHealth(increment + 1, DMG_GENERIC);
 		for (int i = 0; i < 7; i++)
 		{
-			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(3, 6);
+			m_pEater->rgiLimb_Health[i] -= RANDOM_LONG(4, 8);
 			if (m_pEater->rgiLimb_Health[i] < 0)
 				m_pEater->rgiLimb_Health[i] = 0;
 		}

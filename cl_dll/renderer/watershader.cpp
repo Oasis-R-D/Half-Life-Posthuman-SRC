@@ -231,7 +231,7 @@ Restore
 
 ====================
 */
-void CWaterShader::Restore(void)
+const void CWaterShader::Restore(void)
 {
 	if (m_pCvarWaterShader->value < 1)
 		return;
@@ -399,7 +399,7 @@ void CWaterShader::AddEntity(cl_entity_t* entity)
 
 	GL_TextureHandler::gl_texturecreationinfo_t waternormal_texinfo =
 		{
-			std::string(), GL_TextureHandler::_2DTexture, GL_RGB8, m_pCvarWaterResolution->value, m_pCvarWaterResolution->value, 0, GL_RGB, GL_UNSIGNED_BYTE};
+			std::string(), GL_TextureHandler::_2DTexture, GL_RGB8, (int)m_pCvarWaterResolution->value, (int)m_pCvarWaterResolution->value, 0, GL_RGB, GL_UNSIGNED_BYTE};
 
 	pWater->reflect = new GL_TextureHandler(&waternormal_texinfo);
 	pWater->refract = new GL_TextureHandler(&waternormal_texinfo);
