@@ -593,11 +593,6 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			vecSpitOffset = (pev->origin + vecSpitOffset);
 			Vector vecSpitDir = (m_vecTossVelocity).Normalize();
 
-			m_vecTossVelocity.x += RANDOM_FLOAT(-0.025, 0.025);
-			m_vecTossVelocity.y += RANDOM_FLOAT(-0.025, 0.025);
-			m_vecTossVelocity.z += RANDOM_FLOAT(-0.025, 0.025);
-
-
 			// do stuff for this event.
 			AttackSound();
 
@@ -617,9 +612,9 @@ void CBullsquid::HandleAnimEvent(MonsterEvent_t* pEvent)
 			MESSAGE_END();
 			constexpr float bull_spits = 10;
 
-			for (int i = 0; i < bull_spits; i++) // TO-DO: fix not shooting at proper position (check not checking)
+			for (int i = 0; i < bull_spits; i++)
 			{
-					CSquidSpit::Shoot(pev, vecSpitOffset, m_vecTossVelocity);
+				CSquidSpit::Shoot(pev, vecSpitOffset, m_vecTossVelocity);
 			}
 
 			//ALERT(at_console, "should I have attacked: %d\n", (int)m_fThrowGrenade);
