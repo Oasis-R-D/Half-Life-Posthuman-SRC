@@ -74,7 +74,7 @@ public:
 			{
 				m_bloodColor = BLOOD_COLOR_YELLOW;
 				m_iHeadCrabHealth -= flDamage;
-				flDamage = flDamage * 0.7;
+				flDamage = flDamage * 0.5;
 				if (m_iHeadCrabHealth <= 0 && m_iHeadCrabHealth >= -15)
 				{
 					// kill host
@@ -116,7 +116,7 @@ public:
 	}
 	void Killed(entvars_t* pevAttacker, int iGib)
 	{
-		if (m_iHeadCrabHealth > 2 && pev->body == 0)
+		if (pev->deadflag <= DEAD_DYING && m_iHeadCrabHealth > 2 && pev->body == 0)
 		{
 			if (RANDOM_LONG(0, 2) == 0) //33% of unlatching occuring
 			{
