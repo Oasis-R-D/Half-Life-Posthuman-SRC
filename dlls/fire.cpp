@@ -30,7 +30,12 @@
 
 #include "fire.h"
 
+
+
+
 CFireManager* FireManager;
+
+#pragma region FireManager
 
 CFireManager::CFireManager()
 {
@@ -94,6 +99,19 @@ void CFireManager::RemoveDead()
     );
 }
 
+void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
+{
+	if (voxels.empty())
+		return;
+
+	for (auto& voxel : voxels)
+	{
+		if (voxel && (voxel->origin-pos).LengthSquared() < radiusSquared)
+		{
+			voxel->heat -= heat;
+		}
+	}
+}
 
 bool CFireManager::MergeFirePoints(Vector pos, int heat) 
 {
@@ -214,7 +232,8 @@ void CFireManager::FireExplosion(Vector pos, int radius, int heat)
 }
 
 //=========================================================
-// Per voxel functions
+#pragma endregion
+#pragma region Per voxel functions
 //=========================================================
 
 void CFireVoxel::Think()
@@ -340,7 +359,8 @@ bool CFireVoxel::CheckFall(float size)
 }
 
 //=========================================================
-// Projectile
+#pragma endregion
+#pragma region Projectile
 //=========================================================
 
 LINK_ENTITY_TO_CLASS(phys_fire, CFireProjectile);
@@ -418,3 +438,5 @@ int CFireProjectile::ShouldCollide(CBaseEntity* pentTouched)
 	else
 		return 0;
 }
+
+#pragma endregion

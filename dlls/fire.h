@@ -35,6 +35,7 @@ public:
 	
 	
 	void AddFire(Vector pos, int heat);
+	void ExtinguishFire(Vector pos, int heat, int radiusSquared);
 	void EXPORT ManagerThink();
 	bool MergeFirePoints(Vector pos, int heat);
 	void FireExplosion(Vector pos, int radius, int heat);

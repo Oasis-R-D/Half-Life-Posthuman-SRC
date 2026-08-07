@@ -17,8 +17,13 @@
 #include "cbase.h"
 #include "weapons.h"
 #include "player.h"
-#include "decals.h"
 #include "skill.h"
+
+// only needed by projectile
+#ifndef CLIENT_DLL
+	#include "decals.h"
+	#include "fire.h"
+#endif
 
 #define	SPTH_ACCURACY_SHOT_PENALTY_TIME		0.025f	// Applied amount of time each shot adds to the time we must recover from
 #define	SPTH_ACCURACY_MAXIMUM_PENALTY_TIME	0.625f	// Maximum penalty to deal out
@@ -197,6 +202,8 @@ class CSpitAmmo : public CBasePlayerAmmo
 
 LINK_ENTITY_TO_CLASS(ammo_spit, CSpitAmmo);
 
+#ifndef CLIENT_DLL
+
 class CEnvSpit : public CBaseEntity
 {	
 	Vector m_SpreadVect;
@@ -259,7 +266,13 @@ class CEnvSpit : public CBaseEntity
 			ClearMultiDamage();
 			pOther->TraceAttack(VARS(pev->owner), damage, pev->velocity.Normalize(), &tr, (DMG_ACID | DMG_ALWAYSGIB));
 			ApplyMultiDamage(pev, VARS(pev->owner));
+
+			pOther->pev->iuser4 -= 5;
+			if (pOther->pev->iuser4 < 0)
+				pOther->pev->iuser4 = 0;
 		}
+		else
+			FireManager->ExtinguishFire(tr.vecEndPos, 100, 1024);
 
 		// make a splat on the wall
 		UTIL_DecalTrace(&tr, DECAL_SPIT1 + RANDOM_LONG(0, 1));
@@ -304,3 +317,5 @@ class CEnvSpit : public CBaseEntity
 };
 
 LINK_ENTITY_TO_CLASS(env_spit, CEnvSpit);
+
+#endif

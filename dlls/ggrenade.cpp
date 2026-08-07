@@ -255,10 +255,6 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 				
 				if (sightline.flFraction == 1.0)
 				{
-					Task_t* pTask;
-					pTask->iTask = TASK_FIND_COVER_FROM_ORIGIN;
-					pTask->flData = 3.75f;
-					pMonster->StartTask(pTask);
 					pMonster->m_flDistTooFar = 160;
 					pMonster->m_flNextAttack = 0.5f;
 					pMonster->ClearConditions(bits_COND_SEE_ENEMY);
