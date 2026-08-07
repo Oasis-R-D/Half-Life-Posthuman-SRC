@@ -264,7 +264,7 @@ int CBullsquid::IgnoreConditions()
 	if (gpGlobals->time - m_flLastHurtTime <= 20)
 	{
 		// haven't been hurt in 20 seconds, so let the squid care about stink.
-		iIgnore = bits_COND_SMELL | bits_COND_SMELL_FOOD;
+		iIgnore |= bits_COND_SMELL | bits_COND_SMELL_FOOD;
 	}
 
 	if (m_hEnemy != NULL)
@@ -272,7 +272,7 @@ int CBullsquid::IgnoreConditions()
 		if (FClassnameIs(m_hEnemy->pev, "monster_headcrab"))
 		{
 			// (Unless after a tasty headcrab)
-			iIgnore = bits_COND_SMELL | bits_COND_SMELL_FOOD;
+			iIgnore |= bits_COND_SMELL | bits_COND_SMELL_FOOD;
 		}
 	}
 
@@ -745,7 +745,8 @@ void CBullsquid::Spawn()
 		pev->health = 125;
 	}
 
-	m_flFieldOfView = 0.2; // indicates the width of this monster's forward view cone ( as a dotproduct result )
+	m_flFieldOfView = VIEW_FIELD_WIDE; // indicates the width of this monster's forward view cone ( as a dotproduct result )
+
 	m_MonsterState = MONSTERSTATE_NONE;
 
 	m_fCanThreatDisplay = true;
@@ -894,7 +895,7 @@ Schedule_t slSquidRangeAttack1[] =
 // Chase enemy schedule
 Task_t tlSquidChaseEnemy1[] =
 	{
-		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_RANGE_ATTACK1}, // !!!OEM - this will stop nasty squid oscillation.
+		{TASK_SET_FAIL_SCHEDULE, (float)SCHED_CHASE_ENEMY_FAILED},
 		{TASK_GET_PATH_TO_ENEMY, (float)0},
 		{TASK_RUN_PATH, (float)0},
 		{TASK_WAIT_FOR_MOVEMENT, (float)0},

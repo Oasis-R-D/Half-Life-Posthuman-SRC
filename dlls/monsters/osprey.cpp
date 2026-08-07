@@ -408,7 +408,9 @@ CBaseMonster* COsprey::MakeGrunt(Vector vecSrc)
 			pBeam->pev->nextthink = gpGlobals->time + -4096.0 * tr.flFraction / pGrunt->pev->velocity.z + 0.5;
 
 			// ALERT( at_console, "%d at %.0f %.0f %.0f\n", i, m_vecOrigin[i].x, m_vecOrigin[i].y, m_vecOrigin[i].z );
-			pGrunt->m_vecLastPosition = m_vecOrigin[i];
+
+			// Should fix Hgrunts on C2A5E(?) running off 
+			pGrunt->m_vecLastPosition = tr.vecEndPos + Vector(RANDOM_FLOAT(-128, 128), RANDOM_FLOAT(-128, 128), 0.0f);
 			m_hGrunt[i] = pGrunt;
 			return pGrunt;
 		}

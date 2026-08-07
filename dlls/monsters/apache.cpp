@@ -585,6 +585,21 @@ void CApache::HuntThink()
 	Vector vecEst = (gpGlobals->v_forward * 800 + pev->velocity).Normalize();
 	// ALERT( at_console, "%d %d %d %4.2f\n", pev->angles.x < 0, DotProduct( pev->velocity, gpGlobals->v_forward ) > -100, m_flNextRocket < gpGlobals->time, DotProduct( m_vecTarget, vecEst ) );
 
+	auto allyInRange = [this](const Vector& vecLocation, float flDist)
+	{
+		CBaseEntity* pEntity = nullptr;
+		while ((pEntity = UTIL_FindEntityInSphere(pEntity, vecLocation, flDist)) != nullptr)
+		{
+			CBaseMonster* monster = pEntity->MyMonsterPointer();
+			if (monster != nullptr && FBitSet(monster->pev->flags, FL_MONSTER|FL_CLIENT) && monster->pev->deadflag != DEAD_DEAD && IRelationship(monster) == R_AL)
+			{
+				ALERT(at_aiconsole, "%s: Ally %s at search radius.\n", STRING(pev->classname), STRING(monster->pev->classname));
+				return true;
+			}
+		}
+		return false;
+	};
+
 	if ((m_iRockets % 2) == 1)
 	{
 		FireRocket();
@@ -608,7 +623,16 @@ void CApache::HuntThink()
 
 					UTIL_TraceLine(pev->origin, pev->origin + vecEst * 4096, ignore_monsters, edict(), &tr);
 					if ((tr.vecEndPos - m_posTarget).Length() < 512)
-						FireRocket();
+					{
+						if (!allyInRange(tr.vecEndPos + Vector(0, 0, 32), 256.0f))
+						{
+							FireRocket();
+						}
+						else
+						{
+							m_flNextRocket = gpGlobals->time + 1.0f;
+						}
+					}
 				}
 			}
 			else

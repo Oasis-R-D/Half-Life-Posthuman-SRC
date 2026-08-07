@@ -203,8 +203,7 @@ void CHeadCrab::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 			// How fast does the headcrab need to travel to reach that height given gravity?
 			float height = (m_hEnemy->pev->origin.z + m_hEnemy->pev->view_ofs.z - pev->origin.z);
-			if (height < 16)
-				height = 16;
+			height = clamp(height, 16.0f, 120.0f);
 			float speed = sqrt(2 * gravity * height);
 			float time = speed / gravity;
 
