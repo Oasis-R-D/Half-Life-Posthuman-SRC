@@ -133,26 +133,25 @@ typedef void (CBaseEntity::*USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCalle
 // For CLASSIFY
 #define CLASS_NONE 0
 #define CLASS_MACHINE 1
-#define CLASS_PLAYER 2 //YOU!
-#define CLASS_HUMAN_PASSIVE 3 //ENEMY BMRF STAFF
-#define CLASS_HUMAN_MILITARY 4 //HECU
+#define CLASS_PLAYER 2
+#define CLASS_BMRF_STAFF 3
+#define CLASS_HECU 4
 #define CLASS_ALIEN_MILITARY 5 //AGRUNT
 #define CLASS_ALIEN_PASSIVE 6 //BOIDS?
 #define CLASS_ALIEN_MONSTER 7 //HOUNDEYE <3
 #define CLASS_ALIEN_PREY 8 //ENEMY HC
 #define CLASS_ALIEN_PREDATOR 9 //BULLSQUID
 #define CLASS_INSECT 10
-#define CLASS_PLAYER_ALLY 11
+#define CLASS_PLAYER_ALLY 11 // GENERIC MONSTER AND PLAYER MONSTER
 #define CLASS_PLAYER_BIOWEAPON 12 // hornets and snarks.launched by players
 #define CLASS_ALIEN_BIOWEAPON 13  // hornets and snarks.launched by the alien menace
 #define CLASS_DISLIKE_ALL 14
 #define CLASS_VEHICLE 15
-#define CLASS_HASSN 16 // Black Operations
-#define CLASS_HUMAN_ALLY 17 //FRIENDLY BMRF STAFF
-#define CLASS_RACE_X 18 // Race X military
-#define CLASS_OHTHEMISERY 19 // Everybody wants to be my nemesis!
-#define CLASS_HALLUCINATION 20 // Lucigast and friends
-#define CLASS_FUNGAL 21 // Funghoul and friends
+#define CLASS_BLACKOPS 16 // Black Operations
+#define CLASS_RACE_X 17 // Race X military
+#define CLASS_TARGET 18 // Everybody wants to be my nemesis!
+#define CLASS_HALLUCINATION 19 // Lucigast and friends
+#define CLASS_FUNGAL 20 // Funghoul and friends
 
 class CBaseEntity;
 class CBaseToggle;

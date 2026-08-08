@@ -544,7 +544,7 @@ void ChgruntRobo::CheckAmmo()
 //=========================================================
 int ChgruntRobo::Classify()
 {
-	return CLASS_HUMAN_PASSIVE;
+	return CLASS_BMRF_STAFF;
 }
 
 //=========================================================

@@ -1904,7 +1904,7 @@ Schedule_t* CShockTrooper::GetSchedule()
 							SENTENCEG_PlayRndSz(ENT(pev), "ST_ALERT", ShockTrooper_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 						else if ((m_hEnemy != NULL) &&
 								 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-								 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
+								 (m_hEnemy->Classify() != CLASS_BMRF_STAFF) &&
 								 (!m_hEnemy->IsMachine(m_hEnemy)))
 							// monster
 							SENTENCEG_PlayRndSz(ENT(pev), "ST_MONST", ShockTrooper_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
@@ -2305,7 +2305,7 @@ class CDeadShockTrooper : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return CLASS_HECU; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 

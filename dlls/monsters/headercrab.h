@@ -26,6 +26,7 @@ public:
 	void IdleSound() override;
 	void AlertSound() override;
 	void PrescheduleThink() override;
+	int IRelationship(CBaseEntity* pTarget) override;
 	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	bool CheckRangeAttack1(float flDot, float flDist) override;

@@ -193,7 +193,7 @@ void CCrowbar::Hit(bool type, int hand)
 		if (pHit->pev->deadflag != DEAD_NO)
 		{
 			if (pHit->Classify() == CLASS_ALIEN_MONSTER || pHit->Classify() == CLASS_ALIEN_MILITARY ||
-				pHit->Classify() == CLASS_HUMAN_MILITARY || pHit->Classify() == CLASS_HUMAN_PASSIVE || pHit->Classify() == CLASS_PLAYER )
+				pHit->Classify() == CLASS_HECU || pHit->Classify() == CLASS_BMRF_STAFF || pHit->Classify() == CLASS_PLAYER )
 			{
 				pHit->Killed(m_pPlayer->pev, GIB_ALWAYS);
 

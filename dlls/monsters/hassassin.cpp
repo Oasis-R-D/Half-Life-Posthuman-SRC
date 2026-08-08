@@ -157,7 +157,7 @@ int CHAssassin::ISoundMask()
 //=========================================================
 int CHAssassin::Classify()
 {
-	return CLASS_HASSN;
+	return CLASS_BLACKOPS;
 }
 
 //=========================================================

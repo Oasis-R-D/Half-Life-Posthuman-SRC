@@ -1189,12 +1189,12 @@ int CSentry::Classify()
 	if (!FClassnameIs(pev, "monster_sentry_blackops"))
 	{
 		if (m_iOn || m_iAutoStart)
-			return CLASS_HUMAN_MILITARY;
+			return CLASS_HECU;
 	}
 	else
 	{
 		if (m_iOn || m_iAutoStart)
-			return CLASS_HASSN;
+			return CLASS_BLACKOPS;
 	}
 	return CLASS_NONE;
 }

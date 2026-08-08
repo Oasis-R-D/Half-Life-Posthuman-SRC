@@ -2319,31 +2319,30 @@ bool CBaseMonster::TaskIsRunning()
 //=========================================================
 int CBaseMonster::IRelationship(CBaseEntity* pTarget)
 {
-	static int iEnemy[22][22] =
-		{   // 					 NONE	 MACH	 PLYR	 HPASS	 HMIL	 AMIL	 APASS	 AMONST	APREY	 APRED	 INSECT	PLRALY	PBWPN	ABWPN   HATEALL	VHCL	HASSN	HFRND  RX	TRGT HALLUC FUNG
-			/*NONE*/			{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO, R_NO}, //NONE
-			/*MACHINE*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_DL}, //Turrets and the platform??????
-			/*PLAYER*/			{R_NO,   R_DL,   R_NO,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_AL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_AL, R_HT,	R_NM, R_NM, R_DL}, //PLAYER (duh)
-			/*HUMANPASSIVE*/	{R_NO,   R_FR,   R_DL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_AL, R_FR,	R_NM, R_NO, R_DL}, //BMRF STAFF (ENEMY)
-			/*HUMANMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_NO,   R_HT,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_HT, R_HT,	R_NM, R_NO, R_DL}, //HECU + Apache + Osprey + Sentry
-			/*ALIENMILITAR*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_HT,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL, R_HT,	R_NM, R_NO, R_DL}, //VORTS AND AGRUNTS
-			/*ALIENPASSIVE*/	{R_NO,   R_FR,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO, R_DL}, //BOIDS?
-			/*ALIENMONSTER*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_DL}, //HOUNDEYE <3
-			/*ALIENPREY*/		{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_AL,     R_FR,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_DL}, //CRABS (ENEMY)
-			/*ALIENPREDATO*/	{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_NO,   R_NO,    R_NO, R_HT,     R_DL,   R_NO,  R_HT,   R_NO,   R_NO,   R_DL,	R_NO,	R_DL,	R_NO, R_NO,	R_NM, R_NO, R_DL}, //BULLSQUID
-			/*INSECT*/			{R_FR,   R_FR,   R_FR,    R_FR,  R_FR,   R_NO,   R_FR,    R_FR, R_FR,     R_FR,   R_NO,  R_FR,   R_NO,   R_NO,   R_DL,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO, R_DL}, //ROACH
-			/*PLAYERALLY*/		{R_NO,   R_DL,   R_AL,    R_HT,	 R_HT,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_AL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_AL, R_DL,	R_NM, R_NO, R_DL}, //CRABS (FRIENDLY)
-			/*PBIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_DL}, //Unused
-			/*ABIOWEAPON*/		{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_AL,   R_NO,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_NO,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_DL}, //HORNETS
-			/*DISLIKEALL*/		{R_DL,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_NO,	R_NO,	R_DL,	R_NO, R_DL,	R_NM, R_NO, R_DL}, //SUPERCRABS
-  /*vehicleforsomereason*/		{R_NO,   R_NO,   R_NO,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_NO,	R_NO,	R_NO,	R_NO, R_NO,	R_NO, R_NO, R_NO}, //NONE (PROBABLY BREAKS SOMETHING IF USED)
-			/*HASSN*/			{R_NO,   R_DL,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_NO,	R_NO, R_HT,	R_NM, R_NO, R_DL}, //bkacj ops (duh) + Black ops Sentry + Apache + Osprey
-			/*HUMANFRIEND*/		{R_NO,   R_DL,   R_AL,    R_AL,  R_HT,   R_HT,   R_NO,    R_HT, R_DL,     R_DL,   R_NO,  R_DL,   R_NO,   R_NO,   R_DL,	R_NO,	R_HT,	R_NO, R_DL,	R_NM, R_NO, R_DL}, //BMRF STAFF (FRIENDLY
-			/*Xmil*/			{R_NO,   R_DL,   R_HT,    R_DL,  R_HT,   R_HT,   R_DL,    R_DL, R_DL,     R_NO,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_AL,	R_NM, R_NO, R_DL}, //Race X (Shock trooper and pitdrone)
-			/*target*/			{R_NM,   R_NM,   R_NM,    R_NM,  R_NM,   R_NM,   R_NM,    R_NM, R_NM,     R_NM,   R_NM,  R_NM,   R_NM,   R_NM,   R_NM,	R_NO,	R_NM,	R_NM, R_NM,	R_NM, R_NM, R_NM}, //info_monstarget
-	/*HALLUCINATION*/			{R_NO,   R_NO,   R_NM,    R_NO,  R_NO,   R_NO,   R_NO,    R_NO, R_NO,     R_NO,   R_NO,  R_NO,   R_NO,   R_NO,   R_NO,	R_NO,	R_NO,	R_NO, R_NO,	R_NM, R_NO, R_NO}, //Lucigast and friends
-			/*FUNGAL*/			{R_NO,   R_NO,   R_DL,    R_DL,  R_DL,   R_DL,   R_DL,    R_DL, R_DL,     R_DL,   R_NO,  R_DL,   R_DL,   R_DL,   R_DL,	R_NO,	R_DL,	R_DL, R_DL,	R_NM, R_NO, R_AL}  //FUNGAL
-
+	static int iEnemy[21][21] =
+	{// 				  NONE  MACH  PLYR  BMRF  HMIL  AMIL  APAS  XEN   PREY  PRED  BUGS  ALLY  PWPN  AWPN   DL   VHCL  ASSN   RX   TRGT  GHST  FUNG
+	/*NONE*/			{ R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO }, //NONE
+	/*MACHINE*/			{ R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //Turrets and the platform??????
+	/*PLAYER*/			{ R_NO, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_AL, R_DL, R_DL, R_DL, R_NO, R_DL, R_HT, R_NM, R_HT, R_DL }, //PLAYER (duh)
+	/*BMRF*/			{ R_NO, R_FR, R_DL, R_AL, R_HT, R_HT, R_NO, R_HT, R_DL, R_DL, R_NO, R_DL, R_NO, R_NO, R_DL, R_NO, R_HT, R_FR, R_NM, R_NO, R_DL }, //BMRF STAFF (ENEMY)
+	/*HUMANMILITAR*/	{ R_NO, R_DL, R_DL, R_DL, R_NO, R_HT, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_NO, R_NO, R_DL, R_NO, R_DL, R_HT, R_NM, R_NO, R_DL }, //HECU + Apache + Osprey + Sentry
+	/*ALIENMILITAR*/	{ R_NO, R_DL, R_DL, R_DL, R_HT, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL, R_NO, R_NO, R_DL, R_NO, R_DL, R_HT, R_NM, R_NO, R_DL }, //VORTS AND AGRUNTS
+	/*ALIENPASSIVE*/	{ R_NO, R_FR, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL, R_NO, R_NO, R_NO, R_NM, R_NO, R_DL }, //BOIDS?
+	/*ALIENMONSTER*/	{ R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_DL, R_NO, R_NO, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //HOUNDEYE <3
+	/*ALIENPREY*/		{ R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_AL, R_FR, R_NO, R_DL, R_NO, R_NO, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //CRABS (ENEMY)
+	/*ALIENPREDATO*/	{ R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_NO, R_HT, R_DL, R_NO, R_HT, R_NO, R_NO, R_DL, R_NO, R_DL, R_NO, R_NM, R_NO, R_DL }, //BULLSQUID
+	/*INSECT*/			{ R_FR, R_FR, R_FR, R_FR, R_FR, R_FR, R_FR, R_FR, R_FR, R_FR, R_NO, R_FR, R_NO, R_NO, R_DL, R_NO, R_NO, R_FR, R_NM, R_NO, R_DL }, //ROACH
+	/*PLAYERALLY*/		{ R_NO, R_DL, R_AL, R_HT, R_HT, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_AL, R_NO, R_NO, R_DL, R_NO, R_HT, R_DL, R_NM, R_NO, R_DL }, //CRABS (FRIENDLY)
+	/*PBIOWEAPON*/		{ R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_NO, R_DL, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //Unused
+	/*ABIOWEAPON*/		{ R_NO, R_NO, R_DL, R_DL, R_DL, R_AL, R_NO, R_DL, R_DL, R_NO, R_NO, R_DL, R_DL, R_NO, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //HORNETS
+	/*DISLIKEALL*/		{ R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_NO, R_NO, R_DL, R_DL, R_NM, R_NO, R_DL }, //SUPERCRABS
+	/*VEHICLE*/			{ R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO }, //NONE (PROBABLY BREAKS SOMETHING IF USED)
+	/*HASSN*/			{ R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_NO, R_HT, R_NM, R_NO, R_DL }, //bkacj ops (duh) + Black ops Sentry + Apache + Osprey
+	/*RACE X*/			{ R_NO, R_DL, R_HT, R_DL, R_HT, R_HT, R_DL, R_DL, R_DL, R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_AL, R_NM, R_NO, R_DL }, //Race X (Shock trooper and pitdrone)
+	/*TARGET*/			{ R_NO, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NM, R_NO, R_NM, R_NM, R_NM, R_NM, R_NM }, //info_monstarget
+	/*HALLUCINATION*/	{ R_NO, R_NO, R_HT, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NO, R_NM, R_AL, R_NO }, //Lucigast and friends
+	/*FUNGUS*/			{ R_NO, R_NO, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_DL, R_DL, R_NO, R_DL, R_DL, R_NM, R_NO, R_AL }  //FUNGAL
+	};
 /*
 R_AL(ALLY) pals. Good alternative to R_NO when applicable.
 R_FR(FEAR) will run from
@@ -2352,7 +2351,7 @@ R_DL(DISLIKE) will attack
 R_HT(HATE) will attack this character instead of any visible DISLIKED characters
 R_NM(NEMESIS)  A monster Will ALWAYS attack its nemsis, no matter what
 */
-		};
+		
 
 	return iEnemy[Classify()][pTarget->Classify()];
 }

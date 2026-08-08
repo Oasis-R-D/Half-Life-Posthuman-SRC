@@ -395,14 +395,7 @@ void CHMiller::SetYawSpeed()
 //=========================================================
 int CHMiller::Classify()
 {
-	if (m_bPrehuman == false)
-	{
-		return CLASS_HUMAN_PASSIVE;
-	}
-	else
-	{
-		return CLASS_HUMAN_ALLY; // probably not a good idea to make him friendly under any circumstance
-	}
+	return CLASS_BMRF_STAFF;
 }
 
 //=========================================================
@@ -1554,7 +1547,7 @@ Schedule_t* CHMiller::GetSchedule()
 								SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);
 							else if ((m_hEnemy != NULL) &&
 									 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-									 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
+									 (m_hEnemy->Classify() != CLASS_BMRF_STAFF) &&
 									 (!m_hEnemy->IsMachine(m_hEnemy)))
 								// monster
 								SENTENCEG_PlayRndSz(ENT(pev), "HG_MONSTER", MILLER_HUM_SENTENCE_VOLUME, MILLER_ATTN, 0, m_voicePitch);

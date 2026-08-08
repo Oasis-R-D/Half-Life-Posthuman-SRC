@@ -268,6 +268,9 @@ int CAdvSec::IRelationship(CBaseEntity* pTarget)
 		return R_NM;
 	}
 
+	if (pTarget->Classify() == CLASS_PLAYER && m_bPrehuman)
+		return R_AL;
+
 	return CSquadMonster::IRelationship(pTarget);
 }
 
@@ -759,14 +762,7 @@ void CAdvSec::CheckAmmo()
 //=========================================================
 int CAdvSec::Classify()
 {
-	if (m_bPrehuman == false)
-	{
-		return CLASS_HUMAN_PASSIVE;
-	}
-	else
-	{
-		return CLASS_HUMAN_ALLY;
-	}
+	return CLASS_BMRF_STAFF;
 }
 
 //=========================================================
@@ -2171,7 +2167,7 @@ Schedule_t* CAdvSec::GetSchedule()
 							SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 						else if ((m_hEnemy != NULL) &&
 								 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-								 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
+								 (m_hEnemy->Classify() != CLASS_BMRF_STAFF) &&
 								 (!m_hEnemy->IsMachine(m_hEnemy)))
 							// monster
 							SENTENCEG_PlayRndSz(ENT(pev), "HG_MONSTER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
@@ -2557,7 +2553,7 @@ class CDeadAdvSec : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_PASSIVE; }
+	int Classify() override { return CLASS_BMRF_STAFF; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 

@@ -727,7 +727,7 @@ void CMOFAssassin::CheckAmmo()
 //=========================================================
 int CMOFAssassin::Classify()
 {
-	return CLASS_HASSN;
+	return CLASS_BLACKOPS;
 }
 
 //=========================================================
@@ -2286,7 +2286,7 @@ class CDeadMOFAssassin : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HASSN; }
+	int Classify() override { return CLASS_BLACKOPS; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 

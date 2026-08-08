@@ -47,7 +47,7 @@ public:
 
 	void Spawn() override;
 	void Precache() override;
-	int Classify() override { return (m_bBlackOps ? CLASS_HASSN : CLASS_HUMAN_MILITARY); }
+	int Classify() override { return (m_bBlackOps ? CLASS_BLACKOPS : CLASS_HECU); }
 	int BloodColor() override { return DONT_BLEED; }
 	void Killed(entvars_t* pevAttacker, int iGib) override;
 

@@ -45,6 +45,7 @@ public:
 	void Spawn() override;
 	void Precache() override;
 	void SetYawSpeed() override;
+	int IRelationship(CBaseEntity* pTarget) override;
 	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	int IgnoreConditions() override;
@@ -395,19 +396,24 @@ DEFINE_CUSTOM_SCHEDULES(CZombie){
 IMPLEMENT_CUSTOM_SCHEDULES(CZombie, CTalkMonster);
 
 //=========================================================
+// IRelationship - overridden because Alien Grunts are
+// Human Grunt's nemesis.
+//=========================================================
+int CZombie::IRelationship(CBaseEntity* pTarget)
+{
+	if (pTarget->Classify() == CLASS_PLAYER && !m_bPrehuman)
+		return R_AL;
+
+	return CTalkMonster::IRelationship(pTarget);
+}
+
+//=========================================================
 // Classify - indicates this monster's place in the
 // relationship table.
 //=========================================================
 int CZombie::Classify()
 {
-	if (!m_bPrehuman)
-	{
-		return CLASS_PLAYER_ALLY;
-	}
-	else
-	{
-		return CLASS_ALIEN_PREY;
-	}
+	return CLASS_ALIEN_PREY;
 }
 
 //=========================================================

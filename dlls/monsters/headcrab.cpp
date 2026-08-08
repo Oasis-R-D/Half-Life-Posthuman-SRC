@@ -116,19 +116,24 @@ const char* CHeadCrab::pBiteSounds[] =
 };
 
 //=========================================================
+// IRelationship - overridden because Alien Grunts are
+// Human Grunt's nemesis.
+//=========================================================
+int CHeadCrab::IRelationship(CBaseEntity* pTarget)
+{
+	if (pTarget->Classify() == CLASS_PLAYER && !m_bPrehuman)
+		return R_AL;
+
+	return CBaseMonster::IRelationship(pTarget);
+}
+
+//=========================================================
 // Classify - indicates this monster's place in the
 // relationship table.
 //=========================================================
 int CHeadCrab::Classify()
 {
-	if (!m_bPrehuman)
-	{
-		return CLASS_PLAYER_ALLY;
-	}
-	else
-	{
-		return CLASS_ALIEN_PREY;
-	}
+	return CLASS_ALIEN_PREY;
 }
 
 //=========================================================

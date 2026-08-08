@@ -56,7 +56,7 @@ LINK_ENTITY_TO_CLASS(info_monstarget, CTarget);
 //=========================================================
 int CTarget::Classify()
 {
-	return CLASS_OHTHEMISERY; // Everyone's nemesis
+	return CLASS_TARGET; // Everyone's nemesis
 }
 
 bool CTarget::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)

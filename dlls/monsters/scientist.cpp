@@ -65,6 +65,7 @@ public:
 	void Precache() override;
 
 	void SetYawSpeed() override;
+	int IRelationship(CBaseEntity* pTarget) override;
 	int Classify() override;
 	void HandleAnimEvent(MonsterEvent_t* pEvent) override;
 	void RunTask(Task_t* pTask) override;
@@ -561,19 +562,24 @@ void CScientist::RunTask(Task_t* pTask)
 }
 
 //=========================================================
+// IRelationship - overridden because Alien Grunts are
+// Human Grunt's nemesis.
+//=========================================================
+int CScientist::IRelationship(CBaseEntity* pTarget)
+{
+	if (pTarget->Classify() == CLASS_PLAYER && m_bPrehuman)
+		return R_AL;
+
+	return CTalkMonster::IRelationship(pTarget);
+}
+
+//=========================================================
 // Classify - indicates this monster's place in the
 // relationship table.
 //=========================================================
 int CScientist::Classify()
 {
-	if (!m_bPrehuman)
-	{
-		return CLASS_HUMAN_PASSIVE;
-	}
-	else
-	{
-		return CLASS_HUMAN_ALLY;
-	}
+	return CLASS_BMRF_STAFF;
 }
 
 
@@ -1290,7 +1296,7 @@ void CSittingScientist::Precache()
 //=========================================================
 int CSittingScientist::Classify()
 {
-	return CLASS_HUMAN_PASSIVE;
+	return CLASS_BMRF_STAFF;
 }
 
 

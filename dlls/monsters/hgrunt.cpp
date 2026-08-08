@@ -646,7 +646,7 @@ void CHGrunt::CheckAmmo()
 //=========================================================
 int CHGrunt::Classify()
 {
-	return CLASS_HUMAN_MILITARY;
+	return CLASS_HECU;
 }
 
 //=========================================================
@@ -2171,7 +2171,7 @@ Schedule_t* CHGrunt::GetSchedule()
 							SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
 						else if ((m_hEnemy != NULL) &&
 								 (m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
-								 (m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
+								 (m_hEnemy->Classify() != CLASS_BMRF_STAFF) &&
 								 (!m_hEnemy->IsMachine(m_hEnemy)))
 							// monster
 							SENTENCEG_PlayRndSz(ENT(pev), "HG_MONSTER", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
@@ -2557,7 +2557,7 @@ class CDeadHGrunt : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return CLASS_HECU; }
 
 	bool KeyValue(KeyValueData* pkvd) override;
 

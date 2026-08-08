@@ -3995,14 +3995,14 @@ void CBasePlayer::FlashlightTurnOn()
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
 		{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY ||
-				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HECU ||
+				pEntity->Classify() == CLASS_BLACKOPS || pEntity->Classify() == CLASS_BMRF_STAFF || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
 				pEntity->pev->renderfx = kRenderFxLightMultiplier;
 				pEntity->pev->rendercolor = Vector(255, 0, 0);
 			}
-			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
+			else if (pEntity->Classify() == CLASS_PLAYER_ALLY) // TO-DO: replace this to a call to IRelationship
 			{
 				pEntity->pev->renderfx = kRenderFxAlly;
 				pEntity->pev->rendercolor = Vector(128, 128, 128);
@@ -4040,8 +4040,8 @@ void CBasePlayer::FlashlightTurnOff()
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
 		{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HUMAN_MILITARY ||
-				pEntity->Classify() == CLASS_HASSN || pEntity->Classify() == CLASS_HUMAN_PASSIVE || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
+			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HECU ||
+				pEntity->Classify() == CLASS_BLACKOPS || pEntity->Classify() == CLASS_BMRF_STAFF || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
 				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
 			{
 				pEntity->pev->renderfx = kRenderFxNone;
@@ -4848,7 +4848,7 @@ void CBasePlayer::UpdateClientData()
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 4096)) != NULL)
 			{
 				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_HECU || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
 					pEntity->Classify() == CLASS_RACE_X	&& pEntity->BloodColor() != DONT_BLEED)
 				{
 					pEntity->pev->renderfx = kRenderFxLightMultiplier;
@@ -4868,7 +4868,7 @@ void CBasePlayer::UpdateClientData()
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
 				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_HECU || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
 					pEntity->Classify() == CLASS_RACE_X	&& pEntity->BloodColor() != DONT_BLEED)
 					{
 						pEntity->pev->renderfx = kRenderFxLightMultiplier;
@@ -4882,7 +4882,7 @@ void CBasePlayer::UpdateClientData()
 			while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 1024)) != NULL)
 			{
 				if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER ||
-					pEntity->Classify() == CLASS_HUMAN_MILITARY || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
+					pEntity->Classify() == CLASS_HECU || pEntity->Classify() == CLASS_ALIEN_PREDATOR || 
 					pEntity->Classify() == CLASS_RACE_X	&& pEntity->BloodColor() != DONT_BLEED)
 					{
 						pEntity->pev->renderfx = kRenderFxNone;
@@ -5796,7 +5796,7 @@ class CDeadHEV : public CBaseMonster
 {
 public:
 	void Spawn() override;
-	int Classify() override { return CLASS_HUMAN_MILITARY; }
+	int Classify() override { return CLASS_HECU; } // why does this have a class?
 
 	bool KeyValue(KeyValueData* pkvd) override;
 
