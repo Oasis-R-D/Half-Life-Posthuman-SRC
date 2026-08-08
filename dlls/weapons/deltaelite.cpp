@@ -23,8 +23,8 @@
 #include "UserMessages.h"
 #include "physical_bullet.h"
 
-#define	ELITE_ACCURACY_SHOT_PENALTY_TIME	0.1875f	// Applied amount of time each shot adds to the time we must recover from
-#define	ELITE_ACCURACY_MAXIMUM_PENALTY_TIME	0.375f		// Maximum penalty to deal out
+#define	ELITE_ACCURACY_SHOT_PENALTY_TIME	0.2f	// Applied amount of time each shot adds to the time we must recover from
+#define	ELITE_ACCURACY_MAXIMUM_PENALTY_TIME	0.2f		// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_elite, CElite);
 LINK_ENTITY_TO_CLASS(weapon_10mmhandgun, CElite);
@@ -106,12 +106,8 @@ void CElite::Holster()
 void CElite::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
-	{
-		m_flAccuracyPenalty -= gpGlobals->frametime;
-		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, ELITE_ACCURACY_MAXIMUM_PENALTY_TIME );
-	}
-
+	m_flAccuracyPenalty -= gpGlobals->frametime;
+	m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, ELITE_ACCURACY_MAXIMUM_PENALTY_TIME );
 }
 
 const Vector& CElite::GetBulletSpread()
@@ -121,7 +117,7 @@ const Vector& CElite::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, ELITE_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( g_vecZero, VECTOR_CONE_5DEGREES, ramp, cone );
+	VectorLerp( g_vecZero, VECTOR_CONE_8DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_2DEGREES;
@@ -200,7 +196,6 @@ void CElite::PrimaryAttack()
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireElite, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
-	AcousticMod(); 
 	
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

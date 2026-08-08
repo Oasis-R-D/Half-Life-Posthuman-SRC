@@ -23,7 +23,7 @@
 
 #define PISTOL_FASTEST_REFIRE_TIME				0.2f	// spam clicking firerate
 #define	PISTOL_ACCURACY_SHOT_PENALTY_TIME		0.25f	// Applied amount of time each shot adds to the time we must recover from
-#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	0.5f	// Maximum penalty to deal out
+#define	PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME	0.1f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_glock, CGlock);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CGlock);
@@ -165,12 +165,8 @@ void CGlock::ItemPostFrame()
 void CGlock::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
-	{
-		m_flAccuracyPenalty -= gpGlobals->frametime;
-		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
-	}
-
+	m_flAccuracyPenalty -= gpGlobals->frametime;
+	m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME );
 
 	if (m_iClip <= 0)
 		return;

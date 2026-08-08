@@ -1033,6 +1033,8 @@ void CFunghoul::Precache()
 	for (i = 0; i < ARRAYSIZE(pLimbBreakSFX); i++)
 		PRECACHE_SOUND((char*)pLimbBreakSFX[i]);
 
+	PRECACHE_SOUND("funghoul/explosion.wav");
+
 	PRECACHE_SOUND("funghoul/gonome_death2.wav");
 	PRECACHE_SOUND("funghoul/gonome_death3.wav");
 	PRECACHE_SOUND("funghoul/gonome_death4.wav");
@@ -1172,7 +1174,7 @@ Schedule_t* CFunghoul::GetScheduleOfType(int Type)
 //=========================================================
 void CFunghoul::GibMonster()
 {
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "funghoul/explosion.wav", 1, ATTN_NORM);
 	
 	if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 	{
@@ -1182,7 +1184,7 @@ void CFunghoul::GibMonster()
 
 	if (m_iType == FUNGHOUL_BOOMER)
 	{
-		::RadiusDamage(pev->origin, pev, pev, 10, 128, CLASS_FUNGAL, DMG_NERVEGAS);
+		::RadiusDamage(pev->origin, pev, pev, 10, 96, CLASS_FUNGAL, DMG_NERVEGAS);
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_SMOKE_FUNGHOUL, 0, 0, 0);
 	}
 	else

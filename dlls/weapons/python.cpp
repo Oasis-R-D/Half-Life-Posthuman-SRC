@@ -24,7 +24,7 @@
 #include "physical_bullet.h"
 
 #define	PYTHON_ACCURACY_SHOT_PENALTY_TIME		0.5f	// Applied amount of time each shot adds to the time we must recover from
-#define	PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME	1.5		// Maximum penalty to deal out
+#define	PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME	0.5		// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_python, CPython);
 LINK_ENTITY_TO_CLASS(weapon_357, CPython);
@@ -117,12 +117,8 @@ void CPython::SecondaryAttack()
 void CPython::ItemPreFrame()
 {
 	// Check our penalty time decay
-	if ( ( m_flTimeSincePrimary + m_flNextPrimaryAttack < gpGlobals->time ) )
-	{
-		m_flAccuracyPenalty -= gpGlobals->frametime;
-		m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME );
-	}
-
+	m_flAccuracyPenalty -= gpGlobals->frametime;
+	m_flAccuracyPenalty = clamp( m_flAccuracyPenalty, 0.0f, PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME );
 }
 
 const Vector& CPython::GetBulletSpread()
@@ -132,10 +128,10 @@ const Vector& CPython::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, PYTHON_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( g_vecZero, VECTOR_CONE_6DEGREES, ramp, cone );
+	VectorLerp( g_vecZero, VECTOR_CONE_10DEGREES, ramp, cone );
 
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
-		cone = cone + VECTOR_CONE_1DEGREES;
+		cone = cone + VECTOR_CONE_2DEGREES;
 
 	return cone;
 }
@@ -210,13 +206,12 @@ void CPython::PrimaryAttack()
 #endif
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFirePython, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
-	AcousticMod(); 
 	
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
 
-	m_flNextPrimaryAttack = 0.33;
+	m_flNextPrimaryAttack = 0.3;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
