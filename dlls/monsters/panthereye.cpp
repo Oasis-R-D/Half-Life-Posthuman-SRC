@@ -602,18 +602,15 @@ Schedule_t* CDiablo::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 		ASSERT(pSound != NULL);
-		if (pSound)
+		if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 		{
-			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
-			{
-				if (gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
-				{	// Tell player they have been heard
-					pev->dmgtime = gpGlobals->time; // don't repeat often!
-					// TO-DO: SFX
-				}
-
-				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			if (gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
+			{	// Tell player they have been heard
+				pev->dmgtime = gpGlobals->time; // don't repeat often!
+				// TO-DO: SFX
 			}
+
+			return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 		}
 	}
 

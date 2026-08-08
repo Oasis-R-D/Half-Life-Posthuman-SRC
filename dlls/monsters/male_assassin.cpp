@@ -2060,12 +2060,9 @@ Schedule_t* CMOFAssassin::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 		ASSERT(pSound != NULL);
-		if (pSound)
+		if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 		{
-			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
-			{
-				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
-			}
+			return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 		}
 	}
 

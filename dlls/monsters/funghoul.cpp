@@ -44,6 +44,7 @@
 #define FUNGHOUL_INFECTOR 1
 #define FUNGHOUL_ADVSEC 2
 #define FUNGHOUL_SPITTER 3
+#define FUNGHOUL_BOOMER 4
 
 #define LIMBBREAK_THRESH 5
 
@@ -287,6 +288,7 @@ LINK_ENTITY_TO_CLASS(monster_funghoul, CFunghoul); // gonome but only melee
 LINK_ENTITY_TO_CLASS(monster_funghoul_infector, CFunghoul); // Attacking holds player and does damage over time (player can escape by fighting the pull, stumbles funghoul)
 LINK_ENTITY_TO_CLASS(monster_funghoul_spitter, CFunghoul); // gonome
 LINK_ENTITY_TO_CLASS(monster_funghoul_advsec, CFunghoul); // gonome melee but tankier
+LINK_ENTITY_TO_CLASS(monster_funghoul_boomer, CFunghoul); // gonome melee but tankier
 
 //=========================================================
 // monster-specific schedule types
@@ -346,7 +348,7 @@ const char* CFunghoul::pLimbBreakSFX[] =
 Task_t tlFunghoulGrab[] =
 	{
 		{TASK_STOP_MOVING, 0},
-		{TASK_SET_FAIL_SCHEDULE, (float) SCHED_FUNGHOUL_STAGGER }, // TO-DO: flinch
+		{TASK_SET_FAIL_SCHEDULE, (float) SCHED_FUNGHOUL_STAGGER },
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_MELEE_ATTACK2},
 		{TASK_FACE_ENEMY, (float)0},
@@ -631,7 +633,6 @@ bool CFunghoul::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, floa
 		PainSound();
 	return CBaseMonster::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 }
-
 
 // alert friends in radius
 void CFunghoul::CallForHelp(float flDist, EHANDLE hEnemy, Vector& vecLocation)
@@ -974,21 +975,29 @@ void CFunghoul::Spawn()
 	m_flDistTooFar = 3072;
 	m_flDistLook = 3072; //idk if this is needed
 
-	// only have to compare the strings 3 times instead of every attack
+	// check if it's a special variant
 	if (FClassnameIs(pev, "monster_funghoul_advsec"))
 	{
 		m_iType = FUNGHOUL_ADVSEC;
 		pev->body = 2;
+	}
+	else if (FClassnameIs(pev, "monster_funghoul_spitter"))
+	{
+		m_iType = FUNGHOUL_SPITTER;
+		pev->body = 3;
 	}
 	else if (FClassnameIs(pev, "monster_funghoul_infector"))
 	{
 		m_iType = FUNGHOUL_INFECTOR;
 		pev->body = 4;
 	}
-	else if (FClassnameIs(pev, "monster_funghoul_spitter"))
+	else if (FClassnameIs(pev, "monster_funghoul_boomer"))
 	{
-		m_iType = FUNGHOUL_SPITTER;
-		pev->body = 3;
+		CallForHelp(512, m_hEnemy, pev->origin);
+		pev->health *= 0.4;
+		m_iType = FUNGHOUL_BOOMER;
+		pev->body = 4;
+		pev->skin = 1;
 	}
 
 	MonsterInit();
@@ -1125,23 +1134,17 @@ bool CFunghoul::CheckRangeAttack1(float flDot, float flDist)
 //=========================================================
 Schedule_t* CFunghoul::GetSchedule()
 {
+	// Leg(s) has been gibbed
 	if (HasConditions(bits_COND_SPECIAL1))
-	{
 		return GetScheduleOfType(SCHED_FUNGHOUL_TOCRAWL);
-	}
 
 	if (HasConditions(bits_COND_HEAR_SOUND) && !HasConditions(bits_COND_SEE_ENEMY)) // investigate sounds
 	{
 		CSound* pSound;
 		pSound = PBestSound();
 		ASSERT(pSound != NULL);
-		if (pSound)
-		{
-			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
-			{
-				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
-			}
-		}
+		if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
+			return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 	}
 
 	return CBaseMonster::GetSchedule();
@@ -1177,9 +1180,13 @@ void CFunghoul::GibMonster()
 		CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
 	}
 
-	::RadiusDamage(pev->origin, pev, pev, 10, 100, CLASS_FUNGAL, DMG_NERVEGAS);
-
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
+	if (m_iType == FUNGHOUL_BOOMER)
+	{
+		::RadiusDamage(pev->origin, pev, pev, 10, 128, CLASS_FUNGAL, DMG_NERVEGAS);
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_SMOKE_FUNGHOUL, 0, 0, 0);
+	}
+	else
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 
 	SetThink(&CBaseMonster::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
@@ -1236,7 +1243,7 @@ void CFunghoul::Killed(entvars_t* pevAttacker, int iGib)
 		pOwner->DeathNotice(pev);
 	}
 
-	if (RANDOM_LONG(0, 2) >= 1 || pev->health < GIB_HEALTH_VALUE)
+	if (m_iType == FUNGHOUL_BOOMER || RANDOM_LONG(0, 2) >= 1 || ShouldGibMonster(iGib))
 	{
 		CallGibMonster();
 		return;

@@ -2320,19 +2320,16 @@ Schedule_t* CAdvSec::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 		ASSERT(pSound != NULL);
-		if (pSound)
+		if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
 		{
-			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT | bits_SOUND_PLAYER) != 0) // Hear an enemy
-			{
-				if (FOkToSpeak() && gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
-				{	// Tell player they have been heard
-					pev->dmgtime = gpGlobals->time; // don't repeat often!
-					SENTENCEG_PlayRndSz(ENT(pev), "HG_INVEST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
-					JustSpoke();
-				}
-
-				return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
+			if (FOkToSpeak() && gpGlobals->time > pev->dmgtime + 20 && RANDOM_LONG(0,3) == 3)
+			{	// Tell player they have been heard
+				pev->dmgtime = gpGlobals->time; // don't repeat often!
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_INVEST", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+				JustSpoke();
 			}
+
+			return GetScheduleOfType(SCHED_INVESTIGATE_SOUND);
 		}
 	}
 
