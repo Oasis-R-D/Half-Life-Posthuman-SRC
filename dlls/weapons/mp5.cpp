@@ -230,14 +230,28 @@ void CMP5::PrimaryAttack()
 	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
+	/*
+	bullet_data_t bulletdata;
+	bulletdata.muzzlevel = 6000;
+	bulletdata.org = vecSrc;
+	bulletdata.dir = vecAiming;
+	bulletdata.spread = spread.x;
+	bulletdata.vertspread = spread.y;
+	bulletdata.pShooter = m_pPlayer->edict();
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, spread.x, spread.y, 0.66f, 9, m_pPlayer->edict());
+		bulletdata.damage = gSkillData.plrDmgMP5;
+		bulletdata.gravity = 0.66f;
 	}
 	else
-	{
+		bulletdata.damage = 25;
+	CPhysbullet::BulletCreate(&bulletdata);
+	*/
+
+	if (g_iSkillLevel != SKILL_REALISM)
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, spread.x, spread.y, 0.66f, 9, m_pPlayer->edict());
+	else
 		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, spread.x, spread.y, 1, 9, m_pPlayer->edict());
-	}
 
 	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 1.2 : -0.8, 1);
 	#endif

@@ -421,7 +421,7 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 		UTIL_MakeVectors(pev->angles);
 		//CGrenade::ShootTimed(pev, GetGunPosition(), m_vecTossVelocity, 3.5);
 		
-		CBaseEntity* pRocket = CBaseEntity::Create("rpg_rocket", vecSrc, pev->angles, edict());
+		CBaseEntity* pRocket = CBaseEntity::Create("rpg_rocket", vecSrc, UTIL_VecToAngles(m_hEnemy->BodyTarget(vecSrc)-vecSrc), edict());
 		m_fThrowGrenade = false;
 		m_flNextGrenadeCheck = gpGlobals->time + 15; // wait 15 before even looking again to see if a rpg can be fired.
 													// !!!LATER - when in a group, only try to throw grenade if ordered.
@@ -451,44 +451,17 @@ void CHGruntHeavy::HandleAnimEvent(MonsterEvent_t* pEvent)
 
 	case HGRUNT_AE_BURSTSTART:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-		{
-			Shoot();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun1.wav", 1, ATTN_GUN);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_mgun2.wav", 1, ATTN_GUN);
-		}
-		else if (FBitSet(pev->weapons, HGRUNT_SHOTGUN))
-		{
-			Shotgun();
-		}
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
-		{
-			ShootM727();
-			if (RANDOM_LONG(0, 1)) // the first round of the three round burst plays the sound and puts a sound in the world sound list.
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_1.wav", 1, ATTN_GUN);
-			else
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, "hgrunt/gr_727_2.wav", 1, ATTN_GUN);
-		}
-		else
-			M249();
+		pev->armorvalue = gpGlobals->time;
 
 		CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, 384, 0.3);
 	}
 	break;
-
-	case HGRUNT_AE_BURST2:
 	case HGRUNT_AE_BURSTSTOP:
 	{
-		if (FBitSet(pev->weapons, HGRUNT_9MMAR))
-			Shoot();
-		else if (FBitSet(pev->weapons, HGRUNT_M727))
-			ShootM727();
-		else
-			M249();
+		pev->armorvalue = -1;
 	}
 	break;
+
 	case HGRUNT_AE_KICK:
 	{
 		CBaseEntity* pHurt = Kick();
@@ -773,6 +746,7 @@ void CHGruntHeavy::Shotgun()
 	{
 		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 	}
+
 	m_cAmmoLoaded--; // take away a bullet!
 
 	pev->effects |= EF_MUZZLEFLASH;
@@ -1050,6 +1024,12 @@ Task_t tlGruntHeavySignalSuppress[] =
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_RANGE_ATTACK1, (float)0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
 };
 
 Schedule_t slGruntHeavySignalSuppress[] =
@@ -1070,6 +1050,12 @@ Schedule_t slGruntHeavySignalSuppress[] =
 Task_t tlGruntHeavySuppress[] =
 	{
 		{TASK_STOP_MOVING, 0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_RANGE_ATTACK1, (float)0},
@@ -1297,6 +1283,9 @@ Task_t tlGruntHeavyRangeAttack1A[] =
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_RANGE_ATTACK1, (float)0},
+		{TASK_FACE_ENEMY, (float)0},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
 };
 
 Schedule_t slGruntHeavyRangeAttack1A[] =
@@ -1324,6 +1313,9 @@ Task_t tlGruntHeavyRangeAttack1B[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_PLAY_SEQUENCE_FACE_ENEMY, (float)ACT_IDLE_ANGRY},
+		{TASK_GRUNT_CHECK_FIRE, (float)0},
+		{TASK_RANGE_ATTACK1, (float)0},
+		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_RANGE_ATTACK1, (float)0},
 		{TASK_FACE_ENEMY, (float)0},
@@ -1363,7 +1355,7 @@ Task_t tlGruntHeavyRangeAttack2[] =
 		{TASK_FACE_ENEMY, (float)0},
 		{TASK_GRUNT_CHECK_FIRE, (float)0},
 		{TASK_PLAY_SEQUENCE, (float)ACT_RANGE_ATTACK2},
-		{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY}, // don't run immediately after throwing grenade.
+		//{TASK_SET_SCHEDULE, (float)SCHED_GRUNT_HEAVY_WAIT_FACE_ENEMY}, // don't run immediately after throwing grenade.
 };
 
 Schedule_t slGruntHeavyRangeAttack2[] =

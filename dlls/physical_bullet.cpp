@@ -49,17 +49,42 @@ void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, u
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
 		pBullet->m_iMuzzleVel = BLLTspeed;
-		pBullet->m_BulletDamage = BLLTdamage;
+		pBullet->pev->dmg = BLLTdamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_vecDir = vecDir;
 		pBullet->m_Spread = vecSpread;
 		pBullet->m_SpreadVert = vecSpreadvert; // Shotgun duckbill choke
-		pBullet->m_Gravity = BLLTGravity;
+		pBullet->pev->gravity = BLLTGravity;
 		pBullet->m_Flare = BLLTtype; // tracer type
 		pBullet->m_bsubsonic = subsonic;
 		pBullet->m_fPenoverride = maxpenoverride; // for penetration
 		pBullet->Owner = (shooter != nullptr) ? shooter : pBullet->edict();
 		pBullet->m_pIgnore = (pIgnore != nullptr) ? pIgnore : pBullet;
+		pBullet->pev->owner = NULL;
+
+		pBullet->Spawn();
+	}
+}
+
+void CPhysbullet::BulletCreate(bullet_data_t* data)
+{
+	for (unsigned int i = 0; i < data->amount; i++) // Allows multishot
+	{
+		// Create a new entity with CPhysbullet private data
+		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
+		pBullet->pev->classname = MAKE_STRING("phys_bullet");
+		pBullet->m_iMuzzleVel = data->muzzlevel;
+		pBullet->pev->dmg = data->damage;
+		pBullet->m_SpawnPos = data->org;
+		pBullet->m_vecDir = data->dir;
+		pBullet->m_Spread = data->spread;
+		pBullet->m_SpreadVert = data->vertspread; // Shotgun duckbill choke
+		pBullet->pev->gravity = data->gravity;
+		pBullet->m_Flare = data->type; // tracer type
+		pBullet->m_bsubsonic = data->subsonic;
+		pBullet->m_fPenoverride = data->penetrate_override; // for penetration
+		pBullet->Owner = (data->pShooter != nullptr) ? data->pShooter : pBullet->edict();
+		pBullet->m_pIgnore = (data->pIgnore != NULL) ? data->pIgnore : pBullet;
 		pBullet->pev->owner = NULL;
 
 		pBullet->Spawn();
@@ -96,7 +121,6 @@ void CPhysbullet::Spawn()
 	m_vecDir = m_vecDir + x * m_Spread * gpGlobals->v_right + y * m_SpreadVert * gpGlobals->v_up;
 					
 	pev->velocity = m_vecDir * m_iMuzzleVel; // Applies spread and velocity
-	pev->gravity = m_Gravity; // sets the gravity (bullet drop)
 	pev->angles = UTIL_VecToAngles(m_vecDir);
 
 	pev->rendercolor = Vector(255, 255, 255);
@@ -332,13 +356,8 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			{
 				// Prevent inf penetration
 				m_flPenetrationPow = V_max(m_flPenetrationPow - p, 0);
-				m_BulletDamage = V_max(m_BulletDamage - round(0.125 * p), 2);
-				m_iMuzzleVel = V_max(m_iMuzzleVel - 10 * p, 1000);
-
-				if (pev->gravity < 75)
-					pev->gravity *= 3 * mat_mult;
-
-				//CPhysbullet::BulletCreate(1, m_BulletDamage, m_iMuzzleVel, spawnpos, m_vecDir, 0, 0, m_Gravity < 75 ? m_Gravity * 3 * mat_mult : m_Gravity, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage == DAMAGE_YES ? pOther : nullptr);
+				pev->dmg = V_max(pev->dmg - round(0.125 * p), 2);
+				m_iMuzzleVel = V_max(m_iMuzzleVel - 100 * p, 1000);
 
 				// Damage
 				if (DAMAGE_NO != pOther->pev->takedamage)
@@ -346,14 +365,13 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 					m_pIgnore = pOther;
 
 					ClearMultiDamage();
-					pOther->TraceAttack(owner->pev, m_BulletDamage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+					pOther->TraceAttack(owner->pev, pev->dmg, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 					ApplyMultiDamage(owner->pev, owner->pev);
 				}
 
 				// VFX
 				if (pOther->IsBSPModel())
 				{
-
 					char material = TEXTURETYPE_PlaySound(&tr, m_SpawnPos, m_Endpos, BULLET_MONSTER_12MM);
 
 					DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
@@ -416,20 +434,20 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		{
 			Vector vReflection = (2.0f * tr.vecPlaneNormal * hitDot) + vecDir;
 
-			//CPhysbullet::BulletCreate(1, m_BulletDamage/3, m_iMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
+			//CPhysbullet::BulletCreate(1, pev->dmg/3, m_iMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			if (DAMAGE_NO != pOther->pev->takedamage)
 			{
 				ClearMultiDamage();
-				pOther->TraceAttack(owner->pev, m_BulletDamage - round(50 * hitDot), pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
+				pOther->TraceAttack(owner->pev, pev->dmg - round(50 * hitDot), pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB);
 				ApplyMultiDamage(owner->pev, owner->pev);
 			}
 
 			m_vecDir = vReflection;
 			m_iMuzzleVel *= 0.75;
 			m_flPenetrationPow *= 10 * hitDot;
-			m_BulletDamage /= 1.5;
+			pev->dmg /= 1.5;
 			m_bTryRefl = true;
 			return;
 		}
@@ -448,7 +466,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		Vector Dir = pev->velocity.Normalize();
 
 		ClearMultiDamage();
-		pOther->TraceAttack(owner->pev, m_BulletDamage, Dir, &tr, DMG_BULLET | DMG_NEVERGIB);
+		pOther->TraceAttack(owner->pev, pev->dmg, Dir, &tr, DMG_BULLET | DMG_NEVERGIB);
 		ApplyMultiDamage(owner->pev, owner->pev);
 
 		if (pOther->pev->movetype == MOVETYPE_PUSHSTEP)

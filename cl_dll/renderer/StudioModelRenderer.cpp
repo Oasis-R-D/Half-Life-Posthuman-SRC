@@ -2501,16 +2501,15 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	}
 	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
 	{
+		/* // this seemingly does nothing
 		int oldfx = m_pCurrentEntity->curstate.renderfx;
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
 		m_bChromeShell = 0;
 		StudioRenderFinal();
+		*/
 
 		m_bChromeShell = 2;
-
-		m_pCurrentEntity->curstate.renderfx = oldfx;
-		StudioRenderFinal();
-
+			StudioRenderFinal();
 		m_bChromeShell = 0;
 	}
 	else
@@ -2731,7 +2730,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_dModelPerEntityData.modelmatrix = gBSPRenderer.m_ModelMatrix;
 	m_dModelPerEntityData.int_values.y = m_bChromeShell;
-	m_dModelPerEntityData.int_values.z = m_bExternalEntity;
+	m_dModelPerEntityData.int_values.z = (int)m_bExternalEntity;
 
 	auto colors = m_pCurrentEntity->curstate.rendercolor;
 

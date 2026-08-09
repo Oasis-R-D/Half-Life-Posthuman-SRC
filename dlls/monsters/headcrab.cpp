@@ -452,6 +452,7 @@ bool CHeadCrab::CheckRangeAttack2(float flDot, float flDist)
 bool CHeadCrab::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
 {
 	// Don't take any acid damage -- BigMomma's mortar is acid
+	// TO-DO: breaks bullsquid spit!
 	if ((bitsDamageType & DMG_ACID) != 0)
 		flDamage = 0;
 
