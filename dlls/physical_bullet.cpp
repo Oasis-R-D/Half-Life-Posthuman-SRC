@@ -193,11 +193,6 @@ void CPhysbullet::Spawn()
 
 			m_flPenetrationPow = 16;
 			break;
-		case 69:
-			SET_MODEL(ENT(pev), "models/rubber_bullet.mdl");
-			m_flPenetrationPow = 0;
-			pev->rendermode = kRenderNormal;
-			break;
 		case 420:
 			if (CVAR_GET_FLOAT("sv_classictracers") >= 1)
 			{
@@ -281,7 +276,6 @@ void CPhysbullet::Spawn()
 
 void CPhysbullet::Precache()
 {
-	PRECACHE_MODEL("models/rubber_bullet.mdl");
 	PRECACHE_MODEL("sprites/tracer_9mm.spr");
 	PRECACHE_MODEL("sprites/tracer_556mm.spr");
 	PRECACHE_MODEL("sprites/tracer_357magnum.spr");
