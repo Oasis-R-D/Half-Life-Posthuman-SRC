@@ -896,16 +896,11 @@ bool CApache::FireGun()
 	{
 #if 1
 		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
-		#ifndef CLIENT_DLL
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
 			CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
-		}
 		else
-		{
 			CPhysbullet::BulletCreate(2, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
-		}
-		#endif
+
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
 #else
 		static float flNext;

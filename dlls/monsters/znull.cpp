@@ -159,9 +159,9 @@ void CLucigast::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDi
 	BLDAMNT = round(flDamage / 2.5);
 	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 	TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-#ifndef CLIENT_DLL
+
 	CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 0.5, m_bloodColor);
-#endif
+
 	flDamage = 5;
 	AddMultiDamage(pevAttacker, this, 5, bitsDamageType);
 }
@@ -170,9 +170,8 @@ void CLucigast::Killed(entvars_t* pevAttacker, int iGib)
 {
 	CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
 	if (pOwner)
-	{
 		pOwner->DeathNotice(pev);
-	}
+
 	int pitch = 95 + RANDOM_LONG(0, 9);
 	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, RANDOM_SOUND_ARRAY(pDeathSounds), 1.0, ATTN_NORM, 0, pitch);
 	for (int i = 0; i < 15; i++)
@@ -190,12 +189,12 @@ void CLucigast::Killed(entvars_t* pevAttacker, int iGib)
 		// WRITE_BYTE(RANDOM_LONG(0, 255));
 		MESSAGE_END();
 	}
-#ifndef CLIENT_DLL
-	CPhysblood::BloodCreate(16, 350, pev->origin + gpGlobals->v_up * 32, gpGlobals->v_up, 0.5, m_bloodColor);
-	CPhysblood::BloodCreate(16, 350, pev->origin + gpGlobals->v_up * 32, gpGlobals->v_up, 0.5, m_bloodColor);
-#endif
+
+	CPhysblood::BloodCreate(32, 350, pev->origin + gpGlobals->v_up * 32, gpGlobals->v_up, 0.5, m_bloodColor);
+
 	UTIL_Remove(this);
 }
+
 void CLucigast::PainSound()
 {
 	m_bloodColor = (byte)RANDOM_LONG(0, 255);

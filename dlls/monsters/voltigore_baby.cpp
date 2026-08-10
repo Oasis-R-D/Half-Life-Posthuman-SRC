@@ -221,11 +221,8 @@ void COFBabyVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vecto
 			{
 				SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 				TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-				//Spawn blud dwops UwU
-				#ifndef CLIENT_DLL
-				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
-				#endif
 
+				CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
 			}
 		}
 	}

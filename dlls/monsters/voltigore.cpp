@@ -500,11 +500,8 @@ void COFVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				{
 					SpawnBlood(vecOrigin, blood, flDamage); // a little surface blood.
 					TraceBleed(flDamage, vecDir, ptr, bitsDamageType);
-					//Spawn blud dwops UwU
-					#ifndef CLIENT_DLL
-					CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
-					#endif
 
+					CPhysblood::BloodCreate(BLDAMNT, 350, vecOrigin, vecDir, 1, blood);
 				}
 			}
 		}
@@ -516,6 +513,7 @@ void COFVoltigore::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector ve
 				UTIL_Sparks(ptr->vecEndPos);
 				pev->dmgtime = gpGlobals->time;
 			}
+
 			flDamage -= 20;
 			if (flDamage <= 0)
 				flDamage = 0.2; // don't hurt the monster much, but allow bits_COND_LIGHT_DAMAGE to be generated

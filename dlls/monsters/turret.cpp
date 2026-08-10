@@ -34,7 +34,9 @@ extern Vector VecBModelOrigin(entvars_t* pevBModel);
 
 #define TURRET_SHOTS 2
 #define TURRET_RANGE (100 * 12)
-#define TURRET_SPREAD Vector(0, 0, 0)
+#define TURRET_SPREAD CONE_2DEGREES
+#define MINITURRET_SPREAD CONE_5DEGREES
+#define SENTRY_SPREAD CONE_2DEGREES
 #define TURRET_TURNRATE 30 //angles per 0.1 second
 #define TURRET_MAXWAIT 15  // seconds turret will stay active w/o a target
 #define TURRET_MAXSPIN 5   // seconds turret barrel will spin w/o a target
@@ -615,16 +617,12 @@ void CBaseTurret::ActiveThink()
 void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
-	#ifndef CLIENT_DLL
+
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
-	#endif
+		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
+
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
@@ -633,16 +631,12 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1);
-	#ifndef CLIENT_DLL
+
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-	CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
-	#endif
+		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
+
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
@@ -1174,6 +1168,9 @@ public:
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void EXPORT SentryTouch(CBaseEntity* pOther);
 	void EXPORT SentryDeath();
+
+private:
+	int m_iShell;
 };
 
 LINK_ENTITY_TO_CLASS(monster_sentry, CSentry);
@@ -1181,6 +1178,7 @@ LINK_ENTITY_TO_CLASS(monster_sentry_blackops, CSentry);
 void CSentry::Precache()
 {
 	CBaseTurret::Precache();
+	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell
 	PRECACHE_MODEL("models/sentry.mdl");
 }
 
@@ -1231,16 +1229,16 @@ void CSentry::Spawn()
 void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 {
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_MP5, 1);
-	#ifndef CLIENT_DLL
+	Vector vecShellPos, unused;
+	GetAttachment(2, vecShellPos, unused);
+
+	EjectBrass(vecShellPos, gpGlobals->v_right * RANDOM_FLOAT(-40, -90) + gpGlobals->v_up * RANDOM_FLOAT(10, 66), m_vecCurAngles.y, m_iShell, TE_BOUNCE_SHELL);
+
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
 	else
-	{
 		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
-	}
-	#endif
+
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:

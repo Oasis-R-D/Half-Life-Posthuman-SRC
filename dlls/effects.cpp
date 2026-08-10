@@ -1975,9 +1975,7 @@ Vector CBloodSpray::BloodPosition(CBaseEntity* pActivator)
 
 void CBloodSpray::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
-	#ifndef CLIENT_DLL
 	CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
-	#endif
 
 	if ((pev->spawnflags & SF_BLOOD_DECAL) != 0)
 	{
@@ -2161,18 +2159,9 @@ Vector CPhysShooter::BloodPosition(CBaseEntity* pActivator)
 void CPhysShooter::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (m_iPenetration >= 0)
-	{
-#ifndef CLIENT_DLL
-	//CPhysblood::BloodCreate(BloodAmount(), m_ibloodvel, BloodPosition(pActivator), Direction(), 1, Color(), true, m_fspread, m_bSpeedRNG);
-	CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic, m_iPenetration);
-#endif
-	}
+		CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic, m_iPenetration);
 	else
-	{
-#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic);	
-#endif	
-	}
+		CPhysbullet::BulletCreate(BulletAmount(), m_iDamage, m_ibulletvel, BloodPosition(pActivator), Direction(), m_fspread, m_fspread, m_fGravity, Tracer(), edict(), m_bSubsonic);	
 }
 
 // Screen shake

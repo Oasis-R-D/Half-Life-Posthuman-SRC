@@ -1606,7 +1606,7 @@ void CBaseEntity::TraceBleed(float flDamage, Vector vecDir, TraceResult* ptr, in
 	if (UTIL_PointContents(ptr->vecEndPos) != CONTENTS_WATER)
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, fragments, PE_NPC_IMPACT, BloodColor(), 0, 0);
 	else
-	{ // TO-DO: water blood cloud vfx
+	{
 		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, ptr->vecEndPos, -vecDir, flDamage, 0, PE_NPC_H20_IMPACT, BloodColor(), 0, 0);
 		return; // No decals underwater!
 	}
