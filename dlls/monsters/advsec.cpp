@@ -719,7 +719,7 @@ void CAdvSec::IdleSound()
 				g_fAdvSecQuestion = 1;
 				break;
 			case 1: // question
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUEST", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
+				SENTENCEG_PlayRndSz(ENT(pev), "HG_QUESTION", HGRUNT_SENTENCE_VOLUME, ATTN_NORM, 0, m_voicePitch);
 				g_fAdvSecQuestion = 2;
 				break;
 			case 2: // statement

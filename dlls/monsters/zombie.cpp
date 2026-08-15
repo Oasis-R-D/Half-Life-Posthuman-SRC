@@ -161,7 +161,7 @@ public:
 
 		// replace with zombie sfx
 		m_szGrp[TLK_ANSWER] = "HG_ANSWER";
-		m_szGrp[TLK_QUESTION] = "HG_QUEST";
+		m_szGrp[TLK_QUESTION] = "HG_QUESTION";
 		m_szGrp[TLK_IDLE] = "HG_IDLE";
 		m_szGrp[TLK_STARE] = "HG_CHECK";
 		m_szGrp[TLK_USE] = "HG_TAUNT";

@@ -127,7 +127,6 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 		}
 	}
 
-
 	// check tempvoxels aswell
 	for (auto& tempvoxel : tempvoxels)
 	{
