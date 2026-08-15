@@ -1467,6 +1467,9 @@ static bool EMIT_SOUND_DYN_IMPL(edict_t *entity, int channel, const char *sample
 	}
 	else
 	{
+		if (subtitle)
+			UTIL_ShowCaption(sample, holdTime, radioIcon);
+
 		EMIT_SOUND_DYN2( entity, channel, sample, volume, attenuation, flags, pitch );
 		return true;
 	}

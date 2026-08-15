@@ -170,7 +170,7 @@ public:
 	bool m_fStanding;
 	bool m_fFirstEncounter; // only put on the handsign show in the squad's first encounter.
 	bool m_bPrehuman;
-	bool m_hashealthmonitor = false;
+	bool m_bHasEKG = false;
 	int m_cClipSize;
 	int m_ihealth100;
 	int m_ihealth75;
@@ -642,7 +642,7 @@ bool CAdvSec::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 	Forget(bits_MEMORY_INCOVER);
 
 	// TO-DO: pev->maxhealth?
-	if (m_hashealthmonitor == true)
+	if (m_bHasEKG)
 	{
 		if (pev->health <= m_ihealth0)
 			pev->skin = 0;
@@ -1151,11 +1151,11 @@ void CAdvSec::Spawn()
 	CTalkMonster::g_talkWaitTime = 0;
 	if (RANDOM_LONG(0, 2) == 2)
 	{
-		m_hashealthmonitor = true;
+		m_bHasEKG = true;
 		m_ihealth100 = pev->health;
-		m_ihealth75 = round(3/4 * pev->health);
-		m_ihealth50 = round(1/2 * pev->health);
-		m_ihealth25 = round(1/4 * pev->health);
+		m_ihealth75 = round(3.0/4 * pev->health);
+		m_ihealth50 = round(1.0/2 * pev->health);
+		m_ihealth25 = round(1.0/4 * pev->health);
 	}
 	MonsterInit();
 }
@@ -1340,18 +1340,18 @@ void CAdvSec::DeathSound()
 		break;
 	}
 
-	if (m_hashealthmonitor)
+	if (m_bHasEKG)
 	{
 		switch (RANDOM_LONG(0, 2))
 		{
 		case 0:
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_NORM);
+			EMIT_SOUND_DYN_SUB(ENT(pev), CHAN_AUTO, "advsec/flatline1.wav", 1, ATTN_NORM, 0, 100, 5, true);
 			break;
 		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_NORM);
+			EMIT_SOUND_DYN_SUB(ENT(pev), CHAN_AUTO, "advsec/flatline2.wav", 1, ATTN_NORM, 0, 100, 5, true);
 			break;
 		case 2:
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_NORM);
+			EMIT_SOUND_DYN_SUB(ENT(pev), CHAN_AUTO, "advsec/flatline3.wav", 1, ATTN_NORM, 0, 100, 5, true);
 			break;
 		}
 	}

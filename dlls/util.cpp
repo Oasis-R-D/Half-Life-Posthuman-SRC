@@ -2707,6 +2707,8 @@ void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio)
 	if (holdTime > 255)
 		holdTime = 255;
 
+	//ALERT(at_console, "PATH: %s\n", messageId);
+
 	MESSAGE_BEGIN( MSG_ALL, gmsgCaption );
 		WRITE_BYTE(holdTime * 2);
 		WRITE_BYTE(radio ? 1 : 0);
