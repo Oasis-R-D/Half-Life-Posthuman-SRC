@@ -2100,6 +2100,8 @@ void CBaseMonster::MoveExecute(CBaseEntity* pTargetEnt, const Vector& vecDir, fl
 	if (m_IdealActivity != m_movementActivity)
 		m_IdealActivity = m_movementActivity;
 
+	const Vector originBeforeMove = pev->origin;
+
 	float flTotal = m_flGroundSpeed * pev->framerate * flInterval;
 	float flStep;
 	while (flTotal > 0.001)
@@ -2108,6 +2110,19 @@ void CBaseMonster::MoveExecute(CBaseEntity* pTargetEnt, const Vector& vecDir, fl
 		flStep = V_min(16.0f, flTotal);
 		UTIL_MoveToOrigin(ENT(pev), m_Route[m_iRouteIndex].vecLocation, flStep, MOVE_NORMAL);
 		flTotal -= flStep;
+	}
+
+	// Sometimes monster thinks he can move, but he won't
+	if (m_flGroundSpeed > 0.0f && flInterval > 0.0f && pev->origin == originBeforeMove)
+	{
+		ALERT(at_aiconsole, "%s: didn't move after move execute\n", STRING(pev->classname));
+		Vector velocity = m_Route[m_iRouteIndex].vecLocation - pev->origin;
+		velocity.z = 0.0f;
+		velocity = velocity.Normalize();
+		velocity = velocity * m_flGroundSpeed;
+		pev->velocity = pev->velocity + velocity;
+
+		//TaskFail("didn't move after move execute");
 	}
 	// ALERT( at_console, "dist %f\n", m_flGroundSpeed * pev->framerate * flInterval );
 }
