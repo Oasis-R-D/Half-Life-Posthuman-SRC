@@ -743,9 +743,7 @@ void CHGruntHeavy::Shotgun()
 	if (g_iSkillLevel != SKILL_REALISM)
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
-	{
 		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
-	}
 
 	m_cAmmoLoaded--; // take away a bullet!
 
@@ -775,13 +773,9 @@ void CHGruntHeavy::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
-	}
 	else
-	{
 		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_1DEGREES, 1, 556, edict());
-	}
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -1266,7 +1260,6 @@ Schedule_t slGruntHeavySweep[] =
 
 //=========================================================
 // primary range attack. Overriden because base class stops attacking when the enemy is occluded.
-// grunt's grenade toss requires the enemy be occluded.
 //=========================================================
 Task_t tlGruntHeavyRangeAttack1A[] =
 	{
@@ -1295,7 +1288,6 @@ Schedule_t slGruntHeavyRangeAttack1A[] =
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_HEAVY_DAMAGE |
-				bits_COND_ENEMY_OCCLUDED |
 				bits_COND_HEAR_SOUND |
 				bits_COND_GRUNT_NOFIRE |
 				bits_COND_NO_AMMO_LOADED,
@@ -1336,7 +1328,6 @@ Schedule_t slGruntHeavyRangeAttack1B[] =
 			bits_COND_NEW_ENEMY |
 				bits_COND_ENEMY_DEAD |
 				bits_COND_HEAVY_DAMAGE |
-				bits_COND_ENEMY_OCCLUDED |
 				bits_COND_NO_AMMO_LOADED |
 				bits_COND_GRUNT_NOFIRE |
 				bits_COND_HEAR_SOUND,
