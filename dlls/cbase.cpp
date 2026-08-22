@@ -169,22 +169,16 @@ int DispatchSpawn(edict_t* pent)
 				return -1; // return that this entity should be deleted
 			if ((pEntity->pev->flags & FL_KILLME) != 0)
 				return -1;
-			if (FBitSet(pEntity->pev->spawnflags, SF_NOTINHARD))
+
+			// Difficulty flags
+			if (   (g_iSkillLevel == 1 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_EASY	))
+				|| (g_iSkillLevel == 2 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_NORMAL	))
+				|| (g_iSkillLevel == 3 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_HARD	))
+				|| (g_iSkillLevel == 4 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_REALISM)))
 			{
-				if (g_iSkillLevel == SKILL_REALISM)
-				{
-					return -1;
-				}
-			}
-			if (FBitSet(pEntity->pev->spawnflags, SF_ONLYINHARD))
-			{
-				if (g_iSkillLevel != SKILL_REALISM)
-				{
-					return -1;
-				}
+				return -1;
 			}
 		}
-
 
 		// Handle global stuff here
 		if (pEntity && !FStringNull(pEntity->pev->globalname))
