@@ -171,10 +171,10 @@ int DispatchSpawn(edict_t* pent)
 				return -1;
 
 			// Difficulty flags
-			if (   (g_iSkillLevel == 1 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_EASY	))
-				|| (g_iSkillLevel == 2 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_NORMAL	))
-				|| (g_iSkillLevel == 3 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_HARD	))
-				|| (g_iSkillLevel == 4 && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_REALISM)))
+			if (   (g_iSkillLevel == SKILL_EASY    && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_EASY	))
+				|| (g_iSkillLevel == SKILL_MEDIUM  && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_NORMAL	))
+				|| (g_iSkillLevel == SKILL_HARD	   && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_HARD	))
+				|| (g_iSkillLevel == SKILL_REALISM && FBitSet(pEntity->pev->spawnflags, SF_NOTIN_REALISM)))
 			{
 				return -1;
 			}
