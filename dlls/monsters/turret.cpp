@@ -99,7 +99,7 @@ public:
 
 	// other functions
 	void SetTurretAnim(TURRET_ANIM anim);
-	bool MoveTurret();
+	virtual bool MoveTurret();
 	virtual void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) {}
 
 	float m_flMaxSpin; // Max time to spin the barrel w/o a target
@@ -207,9 +207,19 @@ public:
 	void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) override;
 };
 
+class CXenTurret : public CBaseTurret
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	// other functions
+	void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) override;
+	bool MoveTurret() override;
+};
 
 LINK_ENTITY_TO_CLASS(monster_turret, CTurret);
 LINK_ENTITY_TO_CLASS(monster_miniturret, CMiniTurret);
+LINK_ENTITY_TO_CLASS(monster_xentry, CXenTurret);
 
 bool CBaseTurret::KeyValue(KeyValueData* pkvd)
 {
@@ -348,6 +358,118 @@ void CMiniTurret::Precache()
 	PRECACHE_SOUND("weapons/hks1.wav");
 	PRECACHE_SOUND("weapons/hks2.wav");
 	PRECACHE_SOUND("weapons/hks3.wav");
+}
+
+
+void CXenTurret::Spawn()
+{
+	Precache();
+	SET_MODEL(ENT(pev), "models/sphere.mdl");
+	pev->health = gSkillData.miniturretHealth;
+	m_HackedGunPos = Vector(0, 0, 6.5);
+	m_flMaxSpin = 0;
+	pev->view_ofs.z = 6;
+
+	CBaseTurret::Spawn();
+	m_iRetractHeight = 12;
+	m_iDeployHeight = 12;
+	m_iMinPitch = -90;
+	UTIL_SetSize(pev, Vector(-16, -16, -m_iRetractHeight), Vector(16, 16, m_iRetractHeight));
+
+	SetThink(&CXenTurret::Initialize);
+	pev->nextthink = gpGlobals->time + 0.3;
+}
+
+
+void CXenTurret::Precache()
+{
+	CBaseTurret::Precache();
+	PRECACHE_MODEL("models/sphere.mdl");
+	PRECACHE_SOUND("weapons/hks1.wav");
+	PRECACHE_SOUND("weapons/hks2.wav");
+	PRECACHE_SOUND("weapons/hks3.wav");
+}
+
+bool CXenTurret::MoveTurret()
+{
+	bool state = false;
+	// any x movement?
+
+	if (m_vecCurAngles.x != m_vecGoalAngles.x)
+	{
+		float flDir = m_vecGoalAngles.x > m_vecCurAngles.x ? 1 : -1;
+
+		m_vecCurAngles.x += 0.1 * m_fTurnRate * flDir;
+
+		// if we started below the goal, and now we're past, peg to goal
+		if (flDir == 1)
+		{
+			if (m_vecCurAngles.x > m_vecGoalAngles.x)
+				m_vecCurAngles.x = m_vecGoalAngles.x;
+		}
+		else
+		{
+			if (m_vecCurAngles.x < m_vecGoalAngles.x)
+				m_vecCurAngles.x = m_vecGoalAngles.x;
+		}
+
+		if (m_iOrientation == 0)
+			pev->angles.x = -m_vecCurAngles.x;
+		else
+			pev->angles.x = m_vecCurAngles.x;
+		state = true;
+	}
+
+	if (m_vecCurAngles.y != m_vecGoalAngles.y)
+	{
+		float flDir = m_vecGoalAngles.y > m_vecCurAngles.y ? 1 : -1;
+		float flDist = fabs(m_vecGoalAngles.y - m_vecCurAngles.y);
+
+		if (flDist > 180)
+		{
+			flDist = 360 - flDist;
+			flDir = -flDir;
+		}
+		if (flDist > 30)
+		{
+			if (m_fTurnRate < m_iBaseTurnRate * 10)
+			{
+				m_fTurnRate += m_iBaseTurnRate;
+			}
+		}
+		else if (m_fTurnRate > 45)
+		{
+			m_fTurnRate -= m_iBaseTurnRate;
+		}
+		else
+		{
+			m_fTurnRate += m_iBaseTurnRate;
+		}
+
+		m_vecCurAngles.y += 0.1 * m_fTurnRate * flDir;
+
+		if (m_vecCurAngles.y < 0)
+			m_vecCurAngles.y += 360;
+		else if (m_vecCurAngles.y >= 360)
+			m_vecCurAngles.y -= 360;
+
+		if (flDist < (0.05 * m_iBaseTurnRate))
+			m_vecCurAngles.y = m_vecGoalAngles.y;
+
+		//ALERT(at_console, "%.2f -> %.2f\n", m_vecCurAngles.y, y);
+		if (m_iOrientation == 0)
+			pev->angles.y = m_vecCurAngles.y;
+		else
+			pev->angles.y = 180 - m_vecCurAngles.y;
+		state = true;
+	}
+
+	if (!state)
+		m_fTurnRate = m_iBaseTurnRate;
+
+	//ALERT(at_console, "(%.2f, %.2f)->(%.2f, %.2f)\n", m_vecCurAngles.x,
+	//	m_vecCurAngles.y, m_vecGoalAngles.x, m_vecGoalAngles.y);
+	return state;
 }
 
 void CBaseTurret::Initialize()
@@ -505,7 +627,7 @@ void CBaseTurret::ActiveThink()
 
 	Vector vec = UTIL_VecToAngles(vecMidEnemy - vecMid);
 
-	// Current enmey is not visible.
+	// Current enemy is not visible.
 	if (!fEnemyVisible || (flDistToEnemy > TURRET_RANGE))
 	{
 		if (0 == m_flLastSight)
@@ -550,13 +672,13 @@ void CBaseTurret::ActiveThink()
 	{
 		Vector vecSrc, vecAng;
 		GetAttachment(0, vecSrc, vecAng);
+		if (FClassnameIs(pev, "monster_xentry"))
+			vecSrc = pev->origin + pev->view_ofs;
 		SetTurretAnim(TURRET_ANIM_FIRE);
 		Shoot(vecSrc, gpGlobals->v_forward);
 	}
 	else
-	{
 		SetTurretAnim(TURRET_ANIM_SPIN);
-	}
 
 	//move the gun
 	if (m_fBeserk)
@@ -652,6 +774,44 @@ void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
 
+void CXenTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
+{
+	// Create a new entity with CPhysbullet private data
+	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
+	pBullet->pev->classname = MAKE_STRING("phys_bullet");
+	pBullet->m_iMuzzleVel = 3000;
+	pBullet->m_SpawnPos = vecSrc;
+	pBullet->m_vecDir = vecDirToEnemy;
+	pBullet->m_Spread = MINITURRET_SPREAD;
+	pBullet->m_SpreadVert = 0; // Shotgun duckbill choke
+	pBullet->pev->gravity = 0;
+	if (g_iSkillLevel != SKILL_REALISM)
+		pBullet->pev->dmg = gSkillData.monDmg9MM;
+	else
+		pBullet->pev->dmg = 25;
+	pBullet->m_Flare = 9; // tracer type
+	pBullet->m_bsubsonic = false;
+	pBullet->Owner = edict();
+	pBullet->m_pIgnore = this;
+	pBullet->pev->owner = NULL;
+
+	pBullet->Spawn();
+	pBullet->pev->rendercolor = Vector(255, 32, 16);
+
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_GUN);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_GUN);
+		break;
+	case 2:
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_GUN);
+		break;
+	}
+	pev->effects = pev->effects | EF_MUZZLEFLASH;
+}
 
 void CBaseTurret::Deploy()
 {

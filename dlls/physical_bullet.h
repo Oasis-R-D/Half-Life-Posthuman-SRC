@@ -68,6 +68,6 @@ private:
 	bool m_bTryRefl;
 	bool m_bTryPen;
 
-	double m_fPenoverride;
+	double m_fPenoverride = NULL;
 	Vector m_Endpos;
 };
