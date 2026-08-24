@@ -75,6 +75,10 @@ cvar_t sk_apache_health1 = {"sk_apache_health1", "0"};
 cvar_t sk_apache_health2 = {"sk_apache_health2", "0"};
 cvar_t sk_apache_health3 = {"sk_apache_health3", "0"};
 
+// Archer
+DECLARE_SKILL_CVARS(archer_health);
+DECLARE_SKILL_CVARS(archer_shake);
+
 // Barney
 cvar_t sk_barney_health1 = {"sk_barney_health1", "0"};
 cvar_t sk_barney_health2 = {"sk_barney_health2", "0"};
@@ -641,6 +645,12 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_apache_health2); // {"sk_apache_health2","0"};
 	CVAR_REGISTER(&sk_apache_health3); // {"sk_apache_health3","0"};
 
+
+	// Archer
+	REGISTER_SKILL_CVARS(archer_health);
+	REGISTER_SKILL_CVARS(archer_shake);
+
+
 	// Barney
 	CVAR_REGISTER(&sk_barney_health1); // {"sk_barney_health1","0"};
 	CVAR_REGISTER(&sk_barney_health2); // {"sk_barney_health2","0"};
@@ -730,6 +740,8 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_hgrunt_gspeed1);
 	CVAR_REGISTER(&sk_hgrunt_gspeed2);
 	CVAR_REGISTER(&sk_hgrunt_gspeed3);
+
+
 	//massn
 	CVAR_REGISTER(&sk_massassin_health1); // {"sk_massassin_health1","0"};
 	CVAR_REGISTER(&sk_massassin_health2); // {"sk_massassin_health2","0"};
@@ -746,6 +758,7 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_plr_556_bullet1);
 	CVAR_REGISTER(&sk_plr_556_bullet2);
 	CVAR_REGISTER(&sk_plr_556_bullet3);
+
 
 	// Houndeye
 	CVAR_REGISTER(&sk_houndeye_health1); // {"sk_houndeye_health1","0"};
@@ -783,7 +796,6 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_ichthyosaur_shake1); // {"sk_ichthyosaur_health3","0"};
 	CVAR_REGISTER(&sk_ichthyosaur_shake2); // {"sk_ichthyosaur_health3","0"};
 	CVAR_REGISTER(&sk_ichthyosaur_shake3); // {"sk_ichthyosaur_health3","0"};
-
 
 
 	// Leech
@@ -840,7 +852,6 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_snark_dmg_pop1); // {"sk_snark_dmg_pop1","0"};
 	CVAR_REGISTER(&sk_snark_dmg_pop2); // {"sk_snark_dmg_pop2","0"};
 	CVAR_REGISTER(&sk_snark_dmg_pop3); // {"sk_snark_dmg_pop3","0"};
-
 
 
 	// Zombie

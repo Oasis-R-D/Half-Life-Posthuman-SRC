@@ -198,12 +198,16 @@ void CGameRules::RefreshSkillData()
 
 	ALERT(at_console, "\nGAME SKILL LEVEL: %d\n", iSkill);
 
-	//Agrunt
+	// Agrunt
 	gSkillData.agruntHealth = GetSkillCvar("sk_agrunt_health");
 	gSkillData.agruntDmgPunch = GetSkillCvar("sk_agrunt_dmg_punch");
 
 	// Apache
 	gSkillData.apacheHealth = GetSkillCvar("sk_apache_health");
+
+	// Archer
+	gSkillData.archerHealth = GetSkillCvar("sk_archer_health");
+	gSkillData.archerDmgShake = GetSkillCvar("sk_archer_shake");
 
 	// Barney
 	gSkillData.barneyHealth = GetSkillCvar("sk_barney_health");

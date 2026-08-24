@@ -31,17 +31,165 @@
 #include "weapons.h"
 #include "physical_bullet.h" // TO-DO: actual projectile
 
-#define SEARCH_RETRY 16
+//=========================================================
+// Bullsquid's spit projectile
+//=========================================================
+class CArcherSpike : public CBaseEntity
+{
+	int m_iTrail;
+public:
+	void Precache() override;
+	void Spawn() override;
 
-#define ICHTHYOSAUR_SPEED 150
+	int Classify() override { return CLASS_NONE; }
 
-#define EYE_MAD 0
-#define EYE_BASE 1
-#define EYE_CLOSED 2
-#define EYE_BACK 3
-#define EYE_LOOK 4
+	static void Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, Vector vecAngles);
+	void EXPORT SpikeTouch(CBaseEntity* pOther);
+	void EXPORT BubbleThink();
 
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+	static TYPEDESCRIPTION m_SaveData[];
 
+	int m_maxFrame;
+};
+
+LINK_ENTITY_TO_CLASS(archerspike, CArcherSpike);
+
+TYPEDESCRIPTION CArcherSpike::m_SaveData[] =
+	{
+		DEFINE_FIELD(CArcherSpike, m_maxFrame, FIELD_INTEGER),
+};
+
+IMPLEMENT_SAVERESTORE(CArcherSpike, CBaseEntity);
+
+void CArcherSpike::BubbleThink()
+{
+	if (pev->waterlevel != 0)
+		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
+	else if (m_iTrail != -1)
+	{
+		// TRAIL START
+		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+		WRITE_BYTE(TE_BEAMFOLLOW);
+		WRITE_SHORT(entindex());		 // entity
+		WRITE_SHORT(m_iTrail);			 // model
+		WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
+		WRITE_BYTE(2);					 // width
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(128);				 // r, g, b
+		WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
+		MESSAGE_END();
+		m_iTrail = -1; // don't repeat
+	}
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+void CArcherSpike::Precache()
+{
+	PRECACHE_MODEL("models/pit_drone_spike.mdl");
+	PRECACHE_SOUND("weapons/xbow_hitbod1.wav");
+	PRECACHE_SOUND("weapons/xbow_hit1.wav");
+
+	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
+}
+
+void CArcherSpike::Spawn()
+{
+	pev->movetype = MOVETYPE_FLY;
+	pev->classname = MAKE_STRING("archerspike");
+
+	pev->solid = SOLID_BBOX;
+	pev->takedamage = DAMAGE_YES;
+	pev->flags |= FL_MONSTER;
+	pev->health = 1;
+
+	SET_MODEL(ENT(pev), "models/pit_drone_spike.mdl");
+	pev->frame = 0;
+	pev->scale = 0.5;
+
+	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
+
+	m_maxFrame = (float)MODEL_FRAMES(pev->modelindex) - 1;
+
+	SetThink(&CArcherSpike::BubbleThink);
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	SetTouch(&CArcherSpike::SpikeTouch);
+}
+
+void CArcherSpike::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, Vector vecAngles)
+{
+	CArcherSpike* pSpit = GetClassPtr((CArcherSpike*)NULL);
+
+	pSpit->pev->angles = vecAngles;
+	UTIL_SetOrigin(pSpit->pev, vecStart);
+
+	pSpit->Spawn();
+
+	pSpit->pev->velocity = vecVelocity;
+	pSpit->pev->owner = ENT(pevOwner);
+}
+
+void CArcherSpike::SpikeTouch(CBaseEntity* pOther)
+{
+	// splat sound
+	int iPitch = RANDOM_FLOAT(120, 140);
+
+	if (0 == pOther->pev->takedamage)
+	{
+		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hit1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
+	}
+	else
+	{
+		if (g_iSkillLevel != SKILL_REALISM)
+		{
+			pOther->TakeDamage(pev, pev, gSkillData.pitdroneDmgSpit, DMG_SLASH);
+		}
+		else
+		{
+			pOther->TakeDamage(pev, pev, 40, DMG_SLASH);
+		}
+		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hitbod1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
+	}
+
+	SetTouch(nullptr);
+
+	//Stick it in the world for a bit
+	//TODO: maybe stick it on any entity that reports FL_WORLDBRUSH too?
+	if (0 == strcmp("worldspawn", STRING(pOther->pev->classname)))
+	{
+		const auto vecDir = pev->velocity.Normalize();
+
+		const auto vecOrigin = pev->origin - vecDir * 6;
+
+		UTIL_SetOrigin(pev, vecOrigin);
+
+		auto v41 = UTIL_VecToAngles(vecDir);
+
+		pev->angles = UTIL_VecToAngles(vecDir);
+		pev->solid = SOLID_NOT;
+		pev->movetype = MOVETYPE_FLY;
+
+		pev->angles.z = RANDOM_LONG(0, 360);
+
+		pev->velocity = g_vecZero;
+		pev->avelocity = g_vecZero;
+
+		SetThink(&CBaseEntity::SUB_FadeOut);
+		pev->nextthink = gpGlobals->time + 90.0;
+	}
+	else
+	{
+		//Hit something else, remove
+		SetThink(&CBaseEntity::SUB_Remove);
+		pev->nextthink = gpGlobals->time + 0.1;
+	}
+}
+
+#define ICHTHYOSAUR_SPEED 100
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -124,6 +272,7 @@ public:
 	void BiteSound();
 	void DeathSound() override;
 	void PainSound() override;
+	bool FVisible(CBaseEntity* pEntity) override;
 };
 
 LINK_ENTITY_TO_CLASS(monster_archer, CArcher);
@@ -143,6 +292,30 @@ TYPEDESCRIPTION CArcher::m_SaveData[] =
 
 IMPLEMENT_SAVERESTORE(CArcher, CFlyingMonster);
 
+//=========================================================
+// FVisible - returns true if a line can be traced from
+// the caller's eyes to the target
+//=========================================================
+bool CArcher::FVisible(CBaseEntity* pEntity)
+{
+	TraceResult tr;
+	Vector vecLookerOrigin;
+	Vector vecTargetOrigin;
+
+	if (FBitSet(pEntity->pev->flags, FL_NOTARGET))
+		return false;
+
+	vecLookerOrigin = pev->origin + pev->view_ofs; //look through the caller's 'eyes'
+
+	// Check for heads // TO-DO: isn't this extraneous since if the head is visible, the min or max probably is too
+	vecTargetOrigin = pEntity->EyePosition();
+	UTIL_TraceLine(vecLookerOrigin, vecTargetOrigin, ignore_monsters, ignore_glass, ENT(pev) /*pentIgnore*/, &tr);
+
+	if (tr.flFraction == 1.0) // Line of sight is valid
+		return true;
+
+	return false;
+}
 
 const char* CArcher::pIdleSounds[] =
 	{
@@ -282,7 +455,8 @@ static Schedule_t slArchCircleEnemy[] =
 				bits_COND_LIGHT_DAMAGE |
 				bits_COND_HEAVY_DAMAGE |
 				bits_COND_CAN_MELEE_ATTACK1 |
-				bits_COND_CAN_RANGE_ATTACK1,
+				bits_COND_CAN_RANGE_ATTACK1 |
+				bits_COND_CAN_RANGE_ATTACK2,
 			0,
 			"CircleEnemy"},
 };
@@ -373,7 +547,7 @@ void CArcher::CombatUse(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE 
 //=========================================================
 bool CArcher::CheckRangeAttack1(float flDot, float flDist)
 {
-	if (flDot > -0.7 && (m_bOnAttack || (flDist <= 192 && m_idealDist <= 192)))
+	if (flDot > -0.7 && (m_bOnAttack || (flDist <= 192 && m_idealDist <= 192)) && flDist < 192)
 	{
 		return true;
 	}
@@ -387,7 +561,7 @@ bool CArcher::CheckRangeAttack1(float flDot, float flDist)
 //=========================================================
 bool CArcher::CheckRangeAttack2(float flDot, float flDist)
 {
-	if (flDot > 0.5 && flDist > 64 && flDist <= 2048)
+	if (flDot > 0.5 && flDist > 64 && flDist <= 1280)
 	{
 		return true;
 	}
@@ -435,7 +609,7 @@ void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 	case ICHTHYOSAUR_AE_SHAKE_RIGHT:
 	{
-		if (m_hEnemy != NULL && FVisible(m_hEnemy))
+		if (m_hEnemy != NULL && CBaseEntity::FVisible(m_hEnemy))
 		{
 			CBaseEntity* pHurt = m_hEnemy;
 
@@ -458,7 +632,7 @@ void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 					pHurt->pev->angles.z = 0;
 					pHurt->pev->fixangle = 1;
 				}
-				pHurt->TakeDamage(pev, pev, gSkillData.ichthyosaurDmgShake, DMG_SLASH);
+				pHurt->TakeDamage(pev, pev, gSkillData.archerDmgShake, DMG_SLASH);
 			}
 		}
 		BiteSound();
@@ -468,16 +642,25 @@ void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 	break;
 	case ARCHER_AE_SHOOT:
 	{
-		Vector vecShootOrigin = GetGunPosition();
-		Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
-
-		UTIL_MakeVectors(pev->angles);
-
-		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, 0, CONE_1DEGREES, 1, 556, edict());
-
 		//char wpnsnd2[256];
 		//sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
 		//EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
+
+		Vector vecSpitOffset;
+		Vector vecSpitDir;
+
+		UTIL_MakeVectors(pev->angles);
+
+		// !!!HACKHACK - the spot at which the spit originates (in front of the mouth) was measured in 3ds and hardcoded here.
+		// we should be able to read the position of bones at runtime for this info.
+		vecSpitOffset = GetGunPosition();
+		if (m_hEnemy) // fixes crash
+			vecSpitDir = ((m_hEnemy->pev->origin + m_hEnemy->pev->view_ofs) - vecSpitOffset).Normalize();
+		else
+			vecSpitDir = gpGlobals->v_forward;
+
+		CArcherSpike::Shoot(pev, vecSpitOffset, vecSpitDir * 900, UTIL_VecToAngles(vecSpitDir));
+		m_bOnAttack = true;
 	}
 	break;
 	default:
@@ -507,7 +690,7 @@ void CArcher::Spawn()
 	m_bloodColor = BLOOD_COLOR_YELLOW;
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		pev->health = round(gSkillData.ichthyosaurHealth/3);
+		pev->health = gSkillData.archerHealth;
 	}
 	else
 	{
@@ -544,6 +727,8 @@ void CArcher::Spawn()
 //=========================================================
 void CArcher::Precache()
 {
+	UTIL_PrecacheOther("archerspike");
+
 	PRECACHE_MODEL("models/archer.mdl");
 
 	PRECACHE_SOUND_ARRAY(pIdleSounds);
@@ -571,7 +756,7 @@ Schedule_t* CArcher::GetSchedule()
 		return GetScheduleOfType(SCHED_IDLE_WALK);
 
 	case MONSTERSTATE_COMBAT:
-		m_flMaxSpeed = 400;
+		m_flMaxSpeed = 266;
 		// eat them
 		if (HasConditions(bits_COND_CAN_MELEE_ATTACK1))
 		{
@@ -583,7 +768,7 @@ Schedule_t* CArcher::GetSchedule()
 			return GetScheduleOfType(SCHED_RANGE_ATTACK2);
 		}
 		// chase them down and eat them
-		if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
+		if (HasConditions(bits_COND_CAN_RANGE_ATTACK1) && m_hEnemy->pev->waterlevel > 0)
 		{
 			return GetScheduleOfType(SCHED_CHASE_ENEMY);
 		}
@@ -591,7 +776,7 @@ Schedule_t* CArcher::GetSchedule()
 		{
 			m_bOnAttack = true;
 		}
-		if (pev->health < pev->max_health - 20)
+		if (pev->health < pev->max_health - 5)
 		{
 			m_bOnAttack = true;
 		}
@@ -780,11 +965,11 @@ void CArcher::RunTask(Task_t* pTask)
 		pev->velocity = pev->velocity * 0.8;
 		if (pev->waterlevel > 1 && pev->velocity.z < 64)
 		{
-			pev->velocity.z += 8;
+			pev->velocity.z += 4;
 		}
 		else
 		{
-			pev->velocity.z -= 8;
+			pev->velocity.z -= 4;
 		}
 		// ALERT( at_console, "%f\n", pev->velocity.z );
 		break;
@@ -983,7 +1168,7 @@ void CArcher::Swim()
 
 	if (m_bOnAttack && m_flightSpeed < m_flMaxSpeed)
 	{
-		m_flightSpeed += 40;
+		m_flightSpeed += 25;
 	}
 	if (m_flightSpeed < 180)
 	{
