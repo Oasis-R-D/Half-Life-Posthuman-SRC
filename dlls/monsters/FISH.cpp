@@ -29,6 +29,7 @@
 #include "animation.h"
 #include "effects.h"
 #include "weapons.h"
+#include "physical_bullet.h" // TO-DO: actual projectile
 
 #define SEARCH_RETRY 16
 
@@ -75,6 +76,7 @@ public:
 
 	bool CheckMeleeAttack1(float flDot, float flDist) override;
 	bool CheckRangeAttack1(float flDot, float flDist) override;
+	bool CheckRangeAttack2(float flDot, float flDist) override;
 
 	float ChangeYaw(int speed) override;
 	Activity GetStoppedActivity() override;
@@ -380,6 +382,19 @@ bool CArcher::CheckRangeAttack1(float flDot, float flDist)
 }
 
 //=========================================================
+// CheckRangeAttack2  - fire projectile
+//
+//=========================================================
+bool CArcher::CheckRangeAttack2(float flDot, float flDist)
+{
+	if (flDot > 0.5 && flDist > 64 && flDist <= 2048)
+	{
+		return true;
+	}
+	return false;
+}
+
+//=========================================================
 // SetYawSpeed - allows each sequence to have a different
 // turn rate associated with it.
 //=========================================================
@@ -407,8 +422,7 @@ void CArcher::BecomeDead()
 }
 
 #define ICHTHYOSAUR_AE_SHAKE_RIGHT 1
-#define ICHTHYOSAUR_AE_SHAKE_LEFT 2
-
+#define ARCHER_AE_SHOOT 2
 
 //=========================================================
 // HandleAnimEvent - catches the monster-specific messages
@@ -420,7 +434,6 @@ void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 	switch (pEvent->event)
 	{
 	case ICHTHYOSAUR_AE_SHAKE_RIGHT:
-	case ICHTHYOSAUR_AE_SHAKE_LEFT:
 	{
 		if (m_hEnemy != NULL && FVisible(m_hEnemy))
 		{
@@ -451,6 +464,20 @@ void CArcher::HandleAnimEvent(MonsterEvent_t* pEvent)
 		BiteSound();
 
 		bDidAttack = true;
+	}
+	break;
+	case ARCHER_AE_SHOOT:
+	{
+		Vector vecShootOrigin = GetGunPosition();
+		Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
+
+		UTIL_MakeVectors(pev->angles);
+
+		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, 0, CONE_1DEGREES, 1, 556, edict());
+
+		//char wpnsnd2[256];
+		//sprintf(wpnsnd2, "weapons/saw_fire%d.wav", RANDOM_LONG(1, 2));
+		//EMIT_SOUND(ENT(pev), CHAN_WEAPON, wpnsnd2, 1, ATTN_GUN);
 	}
 	break;
 	default:
@@ -484,8 +511,9 @@ void CArcher::Spawn()
 	}
 	else
 	{
-		pev->health = 50;
+		pev->health = 225;
 	}
+	m_HackedGunPos = Vector(0, 6, 4);
 	pev->view_ofs = Vector(0, 0, 16);
 	m_flFieldOfView = VIEW_FIELD_WIDE;
 	m_MonsterState = MONSTERSTATE_NONE;
@@ -493,7 +521,7 @@ void CArcher::Spawn()
 	SetFlyingSpeed(ICHTHYOSAUR_SPEED);
 	SetFlyingMomentum(2.5); // Set momentum constant
 
-	m_afCapability = bits_CAP_SWIM;
+	m_afCapability = bits_CAP_RANGE_ATTACK1 | bits_CAP_SWIM;
 
 	MonsterInit();
 
@@ -549,10 +577,15 @@ Schedule_t* CArcher::GetSchedule()
 		{
 			return GetScheduleOfType(SCHED_MELEE_ATTACK1);
 		}
+		// fire bolts
+		if (HasConditions(bits_COND_CAN_RANGE_ATTACK2))
+		{
+			return GetScheduleOfType(SCHED_RANGE_ATTACK2);
+		}
 		// chase them down and eat them
 		if (HasConditions(bits_COND_CAN_RANGE_ATTACK1))
 		{
-			return GetScheduleOfType(SCHED_RANGE_ATTACK1);
+			return GetScheduleOfType(SCHED_CHASE_ENEMY);
 		}
 		if (HasConditions(bits_COND_HEAVY_DAMAGE))
 		{
@@ -591,6 +624,8 @@ Schedule_t* CArcher::GetScheduleOfType(int Type)
 		}
 
 		return slArchTwitchDie;
+	case SCHED_CHASE_ENEMY:
+		AttackSound();
 	}
 
 	return CBaseMonster::GetScheduleOfType(Type);

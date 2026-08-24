@@ -215,6 +215,7 @@ public:
 	// other functions
 	void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) override;
 	bool MoveTurret() override;
+	void Ping() override;
 };
 
 LINK_ENTITY_TO_CLASS(monster_turret, CTurret);
@@ -388,6 +389,7 @@ void CXenTurret::Precache()
 	PRECACHE_SOUND("weapons/hks1.wav");
 	PRECACHE_SOUND("weapons/hks2.wav");
 	PRECACHE_SOUND("weapons/hks3.wav");
+	PRECACHE_SOUND("ambience/alien_buzzer.wav");
 }
 
 bool CXenTurret::MoveTurret()
@@ -554,6 +556,17 @@ void CBaseTurret::Ping()
 	}
 }
 
+void CXenTurret::Ping()
+{
+	// make the pinging noise every second while searching
+	if (m_flPingTime == 0)
+		m_flPingTime = gpGlobals->time + 1;
+	else if (m_flPingTime <= gpGlobals->time)
+	{
+		m_flPingTime = gpGlobals->time + 1;
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "ambience/alien_buzzer.wav", 1, ATTN_NORM);
+	}
+}
 
 void CBaseTurret::EyeOn()
 {
