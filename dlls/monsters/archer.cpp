@@ -67,22 +67,6 @@ void CArcherSpike::BubbleThink()
 {
 	if (pev->waterlevel != 0)
 		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
-	else if (m_iTrail != -1)
-	{
-		// TRAIL START
-		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
-		WRITE_BYTE(TE_BEAMFOLLOW);
-		WRITE_SHORT(entindex());		 // entity
-		WRITE_SHORT(m_iTrail);			 // model
-		WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
-		WRITE_BYTE(2);					 // width
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(128);				 // r, g, b
-		WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
-		MESSAGE_END();
-		m_iTrail = -1; // don't repeat
-	}
 
 	pev->nextthink = gpGlobals->time + 0.1;
 }
@@ -118,6 +102,19 @@ void CArcherSpike::Spawn()
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	SetTouch(&CArcherSpike::SpikeTouch);
+
+	// TRAIL START
+	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+	WRITE_BYTE(TE_BEAMFOLLOW);
+	WRITE_SHORT(entindex());		 // entity
+	WRITE_SHORT(m_iTrail);			 // model
+	WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
+	WRITE_BYTE(2);					 // width
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(128);				 // r, g, b
+	WRITE_BYTE(RANDOM_LONG(60, 80)); // brightness
+	MESSAGE_END();
 }
 
 void CArcherSpike::Shoot(entvars_t* pevOwner, Vector vecStart, Vector vecVelocity, Vector vecAngles)
