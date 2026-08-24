@@ -135,13 +135,13 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\dlls\monsters\aflock.cpp" />
     <ClCompile Include="..\..\dlls\monsters\agrunt.cpp" />
     <ClCompile Include="..\..\dlls\monsters\apache.cpp" />
+    <ClCompile Include="..\..\dlls\monsters\archer.cpp" />
     <ClCompile Include="..\..\dlls\monsters\barnacle.cpp" />
     <ClCompile Include="..\..\dlls\monsters\barney.cpp" />
     <ClCompile Include="..\..\dlls\monsters\bigmomma.cpp" />
     <ClCompile Include="..\..\dlls\monsters\bloater.cpp" />
     <ClCompile Include="..\..\dlls\monsters\bullsquid.cpp" />
     <ClCompile Include="..\..\dlls\monsters\controller.cpp" />
-    <ClCompile Include="..\..\dlls\monsters\FISH.cpp" />
     <ClCompile Include="..\..\dlls\monsters\funghoul.cpp" />
     <ClCompile Include="..\..\dlls\monsters\gargantua.cpp" />
     <ClCompile Include="..\..\dlls\monsters\genericmonster.cpp" />

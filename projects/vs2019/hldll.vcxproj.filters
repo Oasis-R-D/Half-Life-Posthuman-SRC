@@ -357,9 +357,6 @@
     <ClCompile Include="..\..\dlls\monsters\controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\monsters\FISH.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\monsters\funghoul.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -469,6 +466,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\fire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\monsters\archer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
