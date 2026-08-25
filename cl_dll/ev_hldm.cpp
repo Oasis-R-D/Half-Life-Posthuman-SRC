@@ -748,8 +748,8 @@ void EV_FireM727(event_args_t* args)
 		EV_MuzzleFlash();
 		EV_WeaponAnimation(M727_SHOOT1 + gEngfuncs.pfnRandomLong(0, 2), 0);
 
-		V_PunchAxisAdd(0, gEngfuncs.pfnRandomFloat(-1.5, -0.5));
-		V_PunchAxisAdd(1, gEngfuncs.pfnRandomFloat(-1.5, 1.5));
+		V_PunchAxisAdd(0, 0.5);
+		V_PunchAxisAdd(1, gEngfuncs.pfnRandomFloat(-1, 1));
 	}
 
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -5, 6);

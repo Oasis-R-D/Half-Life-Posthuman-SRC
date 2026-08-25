@@ -219,16 +219,12 @@ void CM727::PrimaryAttack()
 
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
-	}
 	else
-	{
 		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
-	}
 
 	//TestSprayPat(M727_MAX_CLIP - m_iClip);
-	CBasePlayerWeapon::Recoil(1.0, 1.2);
+	CBasePlayerWeapon::Recoil(1.0, 1.1);
 	#endif
 
 	int flags;

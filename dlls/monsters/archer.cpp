@@ -136,19 +136,13 @@ void CArcherSpike::SpikeTouch(CBaseEntity* pOther)
 	int iPitch = RANDOM_FLOAT(120, 140);
 
 	if (0 == pOther->pev->takedamage)
-	{
 		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hit1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
-	}
 	else
 	{
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
 			pOther->TakeDamage(pev, pev, gSkillData.pitdroneDmgSpit, DMG_SLASH);
-		}
 		else
-		{
 			pOther->TakeDamage(pev, pev, 40, DMG_SLASH);
-		}
 		EMIT_SOUND_DYN(edict(), CHAN_VOICE, "weapons/xbow_hitbod1.wav", VOL_NORM, ATTN_NORM, 0, iPitch);
 	}
 
