@@ -413,8 +413,8 @@ public:
 
 	int rgiLimb_Health[7] = {0, 0, 0, 0, 0, 0, 0};
 
-	float m_bleedtime = 0;
-	int m_bleedAMNT;
+	float m_fBleedTime = 0;
+	int m_iBleedAmount;
 	Vector hitlocation;
 
 	void CBasePlayer::Concuss(float intensity, float dur);

@@ -129,10 +129,10 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 
 		DEFINE_FIELD(CBasePlayer, FlashingHUDDelay, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_fRadImmuneTime, FIELD_TIME),
-		DEFINE_FIELD(CBasePlayer, m_bleedtime, FIELD_TIME),
+		DEFINE_FIELD(CBasePlayer, m_fBleedTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_iHunger, FIELD_INTEGER),
 		DEFINE_ARRAY(CBasePlayer, rgiLimb_Health, FIELD_INTEGER, 7), // TO-DO: is this supposed to be 7?
-		DEFINE_FIELD(CBasePlayer, m_bleedAMNT, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iBleedAmount, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
@@ -275,7 +275,7 @@ void CBasePlayer::DeathSound()
 
 bool CBasePlayer::TakeHealth(float flHealth, int bitsDamageType)
 {
-	m_bleedAMNT = 0;
+	m_iBleedAmount = 0;
 	return CBaseMonster::TakeHealth(flHealth, bitsDamageType);
 }
 
@@ -675,7 +675,7 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 		// give morphine shot if not given recently
 		SetSuitUpdate("!HEV_HEAL7", false, SUIT_NEXT_IN_30MIN); // morphine shot
-		m_bleedAMNT = 0;
+		m_iBleedAmount = 0;
 	}
 
 	if (fTookDamage && !ftrivial && fcritical && flHealthPrev < 75)
@@ -709,29 +709,28 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 
 void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vector EXCTDMGlocation)
 {
-/////////////////////////
-	if (g_iSkillLevel != SKILL_REALISM)
+	int bleedAmnt = 0;
+
+	if (g_iSkillLevel == SKILL_EASY)
 	{
 		switch (m_LastHitGroup)
 		{
 		case HITGROUP_HEAD:
-			m_bleedAMNT = 8;
+			bleedAmnt = 15;
 			break;
 		case HITGROUP_GENERIC:
 		case HITGROUP_CHEST:
-			m_bleedAMNT = 5;
+			bleedAmnt = 10;
 			break;
 		case HITGROUP_STOMACH:
-			m_bleedAMNT = 4;
+			bleedAmnt = 7;
 			break;
 		case HITGROUP_LEFTARM:
 		case HITGROUP_RIGHTARM:
 		case HITGROUP_RIGHTLEG:
 		case HITGROUP_LEFTLEG:
 			if (flDamage > 6)
-			{
-				m_bleedAMNT = 3;
-			}
+				bleedAmnt = 5;
 			break;
 		}
 	}
@@ -740,26 +739,27 @@ void CBasePlayer::Bleed(float flDamage, int bitsDamageType, int DMGlocation, Vec
 		switch (m_LastHitGroup)
 		{
 		case HITGROUP_HEAD:
-			m_bleedAMNT = 20;
+			bleedAmnt = 20;
 			break;
 		case HITGROUP_GENERIC:
 		case HITGROUP_CHEST:
-			m_bleedAMNT = 15;
+			bleedAmnt = 15;
 			break;
 		case HITGROUP_STOMACH:
-			m_bleedAMNT = 12;
+			bleedAmnt = 12;
 			break;
 		case HITGROUP_LEFTARM:
 		case HITGROUP_RIGHTARM:
 		case HITGROUP_RIGHTLEG:
 		case HITGROUP_LEFTLEG:
-			m_bleedAMNT = 10;
+			bleedAmnt = 10;
 			break;
 		}
 	}
-/////////////////////////
 
-	m_bleedtime = gpGlobals->time + 1;
+	m_iBleedAmount = V_max(bleedAmnt, m_iBleedAmount);
+
+	m_fBleedTime = gpGlobals->time + 1;
 }
 //=========================================================
 // PackDeadPlayerItems - call this when a player dies to
@@ -1080,7 +1080,7 @@ void CBasePlayer::Killed(entvars_t* pevAttacker, int iGib)
 		UTIL_ScreenFade(this, Vector(0, 0, 0), 1.0f, 0, 255, FFADE_OUT | FFADE_STAYOUT);
 	}
 	pev->maxspeed = 384;
-	m_bleedAMNT = 0;
+	m_iBleedAmount = 0;
 	pev->iuser4 = 0;
 	m_bInGrenadeDelay = false;
 	m_bInGrenade = false;
@@ -2144,18 +2144,18 @@ void CBasePlayer::PreThink()
 	if (g_fGameOver)
 		return; // intermission or finale
 
-	if (m_bleedAMNT > 0)
+	if (m_iBleedAmount > 0)
 	{
-		if (m_bleedtime <= gpGlobals->time)
+		if (m_fBleedTime <= gpGlobals->time)
 		{
-			--m_bleedAMNT;
-			m_bleedtime = gpGlobals->time + 1;
+			--m_iBleedAmount;
+			m_fBleedTime = gpGlobals->time + 1;
 
 			m_iHunger -= 1;
 
 			if (g_iSkillLevel == SKILL_REALISM)
 			{
-				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_bleedAMNT >= 14 || m_bleedAMNT >= pev->health))
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_iBleedAmount >= 14 || m_iBleedAmount >= pev->health))
 				{
 					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
 					m_rgItems[ITEM_TOURNIQUET]--;
@@ -2165,7 +2165,7 @@ void CBasePlayer::PreThink()
 			}
 			else
 			{
-				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_bleedAMNT >= 4 || m_bleedAMNT >= pev->health))
+				if ((0 != m_rgItems[ITEM_TOURNIQUET]) && (m_iBleedAmount >= 4 || m_iBleedAmount >= pev->health))
 				{
 					SetSuitUpdate("!HEV_HEAL1", false, SUIT_NEXT_IN_30SEC); // apply TOURNIQUET
 					m_rgItems[ITEM_TOURNIQUET]--;
