@@ -82,8 +82,6 @@ model_t* cl_sprite_shell;
 
 extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
-double sqrt(double x);
-
 //==========================
 //	stristr
 //
@@ -626,7 +624,7 @@ void R_CalcRefDef(ref_params_t* pparams)
 	gBSPRenderer.GetRenderEnts();
 
 	if (g_iNightVision) 
-		SetupNightVision(pparams->vieworg, pparams->viewangles, gEngfuncs.GetClientTime(), gHUD.m_flTimeDelta);
+		SetupNightVision(pparams->vieworg, pparams->viewangles, engine_cl->time, gHUD.m_flTimeDelta);
 	else if (g_iFlashLight)
 		SetupFlashlight(pparams->vieworg, pparams->viewangles, engine_cl->time, gHUD.m_flTimeDelta);
 
@@ -667,9 +665,10 @@ void R_DrawMultiViews()
 void R_DrawMainView()
 {
 	glEnable(GL_DEPTH_CLAMP);
-	glClearColor(gHUD.m_pSkyFogSettings.color.x, gHUD.m_pSkyFogSettings.color.y, gHUD.m_pSkyFogSettings.color.z, 1.0);
+	gEngfuncs.Con_DPrintf("%f %f %f\n", gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	glClearColor(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
+	
 	glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
 	
@@ -761,14 +760,14 @@ int V_FadeAlpha()
 
 	if (time > engine_cl->sf.fadeReset && time > engine_cl->sf.fadeEnd)
 	{
-		if (!engine_cl->sf.fadeFlags & FFADE_STAYOUT)
+		if ((engine_cl->sf.fadeFlags & FFADE_STAYOUT) == 0)
 			return 0;
 	}
 
-	if (engine_cl->sf.fadeFlags & FFADE_STAYOUT)
+	if ((engine_cl->sf.fadeFlags & FFADE_STAYOUT) != 0)
 	{
 		alpha = engine_cl->sf.fadealpha;
-		if ((engine_cl->sf.fadeFlags & FFADE_OUT) && engine_cl->sf.fadeTotalEnd > time)
+		if (((engine_cl->sf.fadeFlags & FFADE_OUT) != 0) && engine_cl->sf.fadeTotalEnd > time)
 		{
 			alpha += engine_cl->sf.fadeSpeed * (engine_cl->sf.fadeTotalEnd - time);
 		}
