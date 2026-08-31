@@ -448,8 +448,8 @@ const char glsl330_world_fp[] = R"(
 		//fog
 		if(fog_active)
 		{
-			lightmap_pixel.rgb = mix( fogcolor, lightmap_pixel.rgb, GetFogFactor() );
-			basetex_pixel.rgb =	 mix( fogcolor, basetex_pixel.rgb,  GetFogFactor() );
+			lightmap_pixel.rgb = mix( fogcolor * 0.5, lightmap_pixel.rgb, GetFogFactor() );
+			basetex_pixel.rgb =	 mix( fogcolor * 0.5, basetex_pixel.rgb,  GetFogFactor() );
 		}
 
 		if(detailtexture)
@@ -521,7 +521,7 @@ const char glsl330_world_fp[] = R"(
 
 		//fog
 		if(fog_active)
-			lightmap_pixel.rgb = mix( vec3(1, 1, 1), lightmap_pixel.rgb, GetFogFactor() );
+			lightmap_pixel.rgb = mix( fogcolor, lightmap_pixel.rgb, pow(GetFogFactor(), 0.5) );
 
 		if(detailtexture)
 			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));

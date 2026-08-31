@@ -665,7 +665,6 @@ void R_DrawMultiViews()
 void R_DrawMainView()
 {
 	glEnable(GL_DEPTH_CLAMP);
-	gEngfuncs.Con_DPrintf("%f %f %f\n", gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
 	
