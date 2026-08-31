@@ -666,6 +666,10 @@ void R_DrawMultiViews()
 
 void R_DrawMainView()
 {
+	glEnable(GL_DEPTH_CLAMP);
+	glClearColor(gHUD.m_pSkyFogSettings.color.x, gHUD.m_pSkyFogSettings.color.y, gHUD.m_pSkyFogSettings.color.z, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
 	
