@@ -5239,6 +5239,7 @@ void CBasePlayer ::ClearEffects(void)
 	WRITE_SHORT(0);
 	WRITE_SHORT(0);
 	WRITE_SHORT(0);
+	WRITE_SHORT(0);
 	MESSAGE_END();
 }
 

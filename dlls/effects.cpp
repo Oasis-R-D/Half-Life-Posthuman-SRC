@@ -3313,7 +3313,7 @@ bool CClientFog ::KeyValue(KeyValueData* pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "affectsky"))
 	{
-		m_bDontAffectSky = atoi(pkvd->szValue);
+		m_bDontAffectSky = !atoi(pkvd->szValue);
 		pkvd->fHandled = true;
 	}
 

@@ -197,7 +197,8 @@ bool CHud ::MsgFunc_SetFog(const char* pszName, int iSize, void* pbuf)
 	gHUD.m_pFogSettings.color.z = (float)READ_SHORT() / 255;
 	gHUD.m_pFogSettings.start = READ_SHORT();
 	gHUD.m_pFogSettings.end = READ_SHORT();
-	gHUD.m_pFogSettings.affectsky = (READ_SHORT() == 1) ? false : true;
+	//gHUD.m_pFogSettings.affectsky = (READ_SHORT() == 1) ? false : true;
+	gHUD.m_pFogSettings.affectsky = READ_SHORT();
 
 	if (gHUD.m_pFogSettings.end < 1 && gHUD.m_pFogSettings.start < 1)
 		gHUD.m_pFogSettings.active = false;
