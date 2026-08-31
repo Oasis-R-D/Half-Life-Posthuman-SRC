@@ -411,9 +411,8 @@ const char glsl330_world_fp[] = R"(
 		float fogFactor = (fogend - dist) / (fogend - fogstart);
 
 		// Exponential Squared
-		//float density = 0.01;
-		//float fogFactor = exp(-density * dist);
-		//fogFactor = exp2(-density * density * dist * dist);
+		//float density = 0.001;
+		//float fogFactor = exp(-density * density * dist * dist);
 		
 		fogFactor = clamp(fogFactor, 0.0, 1.0);
 		return fogFactor;
@@ -521,7 +520,10 @@ const char glsl330_world_fp[] = R"(
 
 		//fog
 		if(fog_active)
-			lightmap_pixel.rgb = mix( fogcolor, lightmap_pixel.rgb, pow(GetFogFactor(), 0.5) );
+			lightmap_pixel.rgb = mix( fogcolor * 0.5, lightmap_pixel.rgb, clamp(GetFogFactor() - length(lightmap_pixel.rgb), 0, 1) );
+
+		//if(fog_active)
+			//lightmap_pixel.rgb = mix( fogcolor * clamp(length(lightmap_pixel.rgb), 0, 1), lightmap_pixel.rgb, GetFogFactor() );
 
 		if(detailtexture)
 			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));
