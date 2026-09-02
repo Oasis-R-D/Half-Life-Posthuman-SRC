@@ -48,6 +48,9 @@ private:
 
 	std::map<Vector, std::unique_ptr<CFireVoxel>> voxelMap;
 	std::vector<std::pair<Vector, std::unique_ptr<CFireVoxel>>> voxelTemp;
+
+	std::vector<std::unique_ptr<CFireVoxel>> voxels;
+	std::vector<std::unique_ptr<CFireVoxel>> tempvoxels;
 };
 
 inline Vector translateToFireSpace(Vector& vec)

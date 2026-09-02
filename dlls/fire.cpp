@@ -104,14 +104,14 @@ void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 	{
 		for (const auto& voxFire : voxelMap)
 		{
-			if (voxFire && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
-				voxFire->second->heat -= heat;
+			if (voxFire && (voxFire.second->origin - pos).LengthSquared() < radiusSquared)
+				voxFire.second->heat -= heat;
 		}
 	}
 	else
 	{
 		auto& voxFire = voxelMap.find(pos);
-		if (voxFire != voxFire.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
+		if (voxFire != voxelMap.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
 			voxFire->second->heat -= heat;
 	}
 }
@@ -126,7 +126,7 @@ void CFireManager::AddFire(Vector pos, int heat)
 		newFire->heat = heat;
 		newFire->thinktime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.1);
 		newFire->spreadTime = gpGlobals->time + RANDOM_FLOAT(0.5, 1);
-		voxelTemp.push_back(emplace_back(pos, std::move(newFire)));
+		voxelTemp.emplace_back(pos, std::move(newFire));
 
 		if (RANDOM_LONG(0, 2) == 0)
 			return;
@@ -167,9 +167,9 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 	if (!voxelMap.empty())
 	{
 		auto& voxFire = voxelMap.find(pos);
-		if (voxFire != voxFire.end())
+		if (voxFire != voxelMap.end())
 
-		if (voxFire != voxFire.end())
+		if (voxFire != voxelMap.end())
 		{
 			voxFire->second->heat += heat;
 			return true;
@@ -179,9 +179,9 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 	// check voxelTemp aswell
 	for (auto& tempvoxel : voxelTemp)
 	{
-		if (tempvoxel->first == pos && tempvoxel->origin == pos)
+		if (tempvoxel.first == pos && tempvoxel->origin == pos)
 		{
-			tempvoxel->heat += heat;
+			tempvoxel.heat += heat;
 			return true;
 		}
 	}
@@ -208,8 +208,8 @@ void CFireManager::ManagerThink()
 
 	for (const auto& voxFire : voxelMap)
 	{
-		if (voxFire->second->thinktime <= gpGlobals->time)
-			voxFire->second->Think();
+		if (voxFire.second->thinktime <= gpGlobals->time)
+			voxFire.second->Think();
 	}
 }
 
