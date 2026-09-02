@@ -44,6 +44,8 @@ CFireManager::CFireManager()
 	}
 
 	FireManager = this;
+
+	voxelTemp.reserve(10);
 }
 
 CFireManager::~CFireManager()
@@ -79,22 +81,13 @@ void CFireManager::Precache()
 // Does std::erase_if()
 void CFireManager::RemoveDead()
 {
-	// TO-DO: xmemory issue could be here
-
-	auto lambda = [](const auto& obj)
-	{ return obj.second->heat <= 0; };
-
-	voxelMap.erase
-	(
-        std::remove_if
-		(
-			voxelMap.begin(), 
-			voxelMap.end(), 
-			lambda
-		),
-
-		voxelMap.end()
-    );
+	for (auto it = voxelMap.begin(); it != voxelMap.end();)
+	{
+		if (!it->second || it->second->heat <= 0)
+			it = voxelMap.erase(it);
+		else
+			++it;
+	}
 }
 
 void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
@@ -112,9 +105,8 @@ void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 	}
 	else
 	{
-		// TO-DO: xmemory issue could be here (equal sign)
-		auto& voxFire = voxelMap.find(pos);
-		if (voxFire != voxelMap.end() && (voxFire.second->origin - pos).LengthSquared() < radiusSquared)
+		auto voxFire = voxelMap.find(pos);
+		if (voxFire != voxelMap.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
 			voxFire->second->heat -= heat;
 	}
 }
@@ -124,7 +116,6 @@ void CFireManager::AddFire(Vector pos, int heat)
 	// Check to make sure we aren't trying to add fire where fire already is
 	if (!MergeFirePoints(pos, heat))
 	{
-		// TO-DO: xmemory issue could be here (emplace_back)
 		auto newFire = std::make_unique<CFireVoxel>();
 		newFire->origin = pos;
 		newFire->heat = heat;
@@ -147,15 +138,6 @@ void CFireManager::AddFire(Vector pos, int heat)
 	}
 }
 
-void CFireManager::MoveFire(Vector pos_original, Vector pos_new)
-{
-	// TO-DO: xmemory issue could be here (equal sign)
-	auto node = voxelMap.extract(pos_original);
-	node.key() = pos_new;
-	node.mapped()->origin = pos_new;
-	voxelMap.insert(std::move(node));
-}
-
 void CFireManager::MergeInTemp()
 {
 	if (voxelTemp.empty())
@@ -163,29 +145,35 @@ void CFireManager::MergeInTemp()
 
 	voxelMap.insert(std::make_move_iterator(voxelTemp.begin()), std::make_move_iterator(voxelTemp.end()));
 
-	if (!voxelTemp.empty())
-		ALERT(at_error, "CFireManager: data leftover in voxelTemp!\n");
+	voxelTemp.clear();
+	voxelTemp.reserve(10); // hold some space // TO-DO: verify capacity() is only 2
+
+	if (voxelTemp.size() > 10)
+		ALERT(at_error, "CFireManager: data leftover (%zu) in voxelTemp!\n", voxelTemp.size());
 }
 
 bool CFireManager::MergeFirePoints(Vector pos, int heat) 
 {
 	if (!voxelMap.empty())
 	{
-		auto& voxFire = voxelMap.find(pos);
+		auto voxFire = voxelMap.find(pos);
 		if (voxFire != voxelMap.end())
 		{
-			voxFire.second->heat += heat;
+			voxFire->second->heat += heat;
 			return true;
 		}
 	}
 
 	// check voxelTemp aswell
-	for (auto& tempvoxel : voxelTemp)
+	if (!voxelTemp.empty())
 	{
-		if (tempvoxel.first == pos)
+		for (auto& tempvoxel : voxelTemp)
 		{
-			tempvoxel.second->heat += heat;
-			return true;
+			if (tempvoxel.second && tempvoxel.first == pos)
+			{
+				tempvoxel.second->heat += heat;
+				return true;
+			}
 		}
 	}
 
@@ -353,14 +341,13 @@ bool CFireVoxel::CheckFall(float size)
 
 	if (GroundCheck.flFraction != 1)
 		return false;
-
-	// Either merge the fire with the one below or move it
-	if (!FireManager->MergeFirePoints(newOrigin, heat))
-		FireManager->MoveFire(origin, newOrigin);
-	else
-		heat = 0;
-
+	
 	heat -= 3; // falling is very bad
+
+	FireManager->AddFire(newOrigin, heat);
+	
+	// mark for death
+	heat = 0;
 
 	return true;
 }

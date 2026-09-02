@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game.h"
-
+#include <map>
 
 class CFireVoxel
 {
@@ -39,8 +39,6 @@ public:
 	void EXPORT ManagerThink();
 	bool MergeFirePoints(Vector pos, int heat);
 	void FireExplosion(Vector pos, int radius, int heat);
-
-	void MoveFire(Vector pos_original, Vector pos_new);
 private:
 	void MergeInTemp();
 	void RemoveDead();
