@@ -35,18 +35,19 @@ public:
 	
 	
 	void AddFire(Vector pos, int heat);
-	void ExtinguishFire(Vector pos, int heat, int radiusSquared);
+	void ExtinguishFire(Vector pos, int heat, int radiusSquared = 0);
 	void EXPORT ManagerThink();
 	bool MergeFirePoints(Vector pos, int heat);
 	void FireExplosion(Vector pos, int radius, int heat);
 
+	void MoveFire(Vector pos_original, Vector pos_new);
 private:
 	void MergeInTemp();
 	void RemoveDead();
 	
 
-	std::vector<std::unique_ptr<CFireVoxel>> voxels;
-	std::vector<std::unique_ptr<CFireVoxel>> tempvoxels;
+	std::map<Vector, std::unique_ptr<CFireVoxel>> voxelMap;
+	std::vector<std::pair<Vector, std::unique_ptr<CFireVoxel>>> voxelTemp;
 };
 
 inline Vector translateToFireSpace(Vector& vec)

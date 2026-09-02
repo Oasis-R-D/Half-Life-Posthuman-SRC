@@ -27,11 +27,9 @@
 #include <vector>
 #include <iterator>
 #include <memory>
+#include <map>
 
 #include "fire.h"
-
-
-
 
 CFireManager* FireManager;
 
@@ -41,7 +39,7 @@ CFireManager::CFireManager()
 {
 	if (FireManager)
 	{
-		ALERT(at_error, "Do not create multiple instances of FireManager\n");
+		ALERT(at_error, "Do not create multiple instances of FireManager::\n");
 		return;
 	}
 
@@ -51,9 +49,7 @@ CFireManager::CFireManager()
 CFireManager::~CFireManager()
 {
 	if (FireManager != this)
-	{
 		return;
-	}
 
 	FireManager = nullptr;
 }
@@ -86,58 +82,38 @@ void CFireManager::RemoveDead()
 	auto lambda = [](const auto& obj)
 	{ return !obj || obj->heat <= 0; };
 
-	voxels.erase
+	voxelMap.erase
 	(
         std::remove_if
 		(
-			voxels.begin(), 
-			voxels.end(), 
+			voxelMap.begin(), 
+			voxelMap.end(), 
 			lambda
 		),
 
-		voxels.end()
+		voxelMap.end()
     );
 }
 
 void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 {
-	if (voxels.empty())
+	if (voxelMap.empty())
 		return;
 
-	for (auto& voxel : voxels)
+	if (radiusSquared > 0)
 	{
-		if (voxel && (voxel->origin-pos).LengthSquared() < radiusSquared)
+		for (const auto& voxFire : voxelMap)
 		{
-			voxel->heat -= heat;
+			if (voxFire && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
+				voxFire->second->heat -= heat;
 		}
 	}
-}
-
-bool CFireManager::MergeFirePoints(Vector pos, int heat) 
-{
-	if (!voxels.empty())
+	else
 	{
-		for (auto& voxel : voxels)
-		{
-			if (voxel && voxel->origin == pos)
-			{
-				voxel->heat += heat;
-				return true;
-			}
-		}
+		auto& voxFire = voxelMap.find(pos);
+		if (voxFire != voxFire.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
+			voxFire->second->heat -= heat;
 	}
-
-	// check tempvoxels aswell
-	for (auto& tempvoxel : tempvoxels)
-	{
-		if (tempvoxel && tempvoxel->origin == pos)
-		{
-			tempvoxel->heat += heat;
-			return true;
-		}
-	}
-
-	return false;
 }
 
 void CFireManager::AddFire(Vector pos, int heat)
@@ -150,7 +126,7 @@ void CFireManager::AddFire(Vector pos, int heat)
 		newFire->heat = heat;
 		newFire->thinktime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.1);
 		newFire->spreadTime = gpGlobals->time + RANDOM_FLOAT(0.5, 1);
-		tempvoxels.push_back(std::move(newFire));
+		voxelTemp.push_back(emplace_back(pos, std::move(newFire)));
 
 		if (RANDOM_LONG(0, 2) == 0)
 			return;
@@ -167,28 +143,59 @@ void CFireManager::AddFire(Vector pos, int heat)
 	}
 }
 
+void CFireManager::MoveFire(Vector pos_original, Vector pos_new)
+{
+	auto node = voxelMap.extract(pos_original);
+	node.key() = pos_new;
+	node.mapped()->origin = pos_new;
+	voxelMap.insert(std::move(node));
+}
+
 void CFireManager::MergeInTemp()
 {
-	if (tempvoxels.empty())
+	if (voxelTemp.empty())
 		return;
 
-	voxels.reserve(voxels.size() + tempvoxels.size());
-    voxels.insert(voxels.end(), std::make_move_iterator(tempvoxels.begin()), std::make_move_iterator(tempvoxels.end()));
+	voxelMap.insert(std::make_move_iterator(voxelTemp.begin()), std::make_move_iterator(voxelTemp.end()));
 
-	tempvoxels.clear();
-	tempvoxels.reserve(2); // hold some space // TO-DO: verify capacity() is only 2
+	if (!voxelTemp.empty())
+		ALERT(at_error, "CFireManager: data leftover in voxelTemp!\n");
+}
 
-	if (!tempvoxels.empty())
-		ALERT(at_error, "CFireManager: data leftover in tempvoxels!\n");
+bool CFireManager::MergeFirePoints(Vector pos, int heat) 
+{
+	if (!voxelMap.empty())
+	{
+		auto& voxFire = voxelMap.find(pos);
+		if (voxFire != voxFire.end())
+
+		if (voxFire != voxFire.end())
+		{
+			voxFire->second->heat += heat;
+			return true;
+		}
+	}
+
+	// check voxelTemp aswell
+	for (auto& tempvoxel : voxelTemp)
+	{
+		if (tempvoxel->first == pos && tempvoxel->origin == pos)
+		{
+			tempvoxel->heat += heat;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CFireManager::ManagerThink()
 {
-	// move in added voxels from last think
+	// move in fire added from last think or elsewhere
 	MergeInTemp();
 
 	// nothing to simulate
-	if (voxels.empty())
+	if (voxelMap.empty())
 	{
 		pev->nextthink = gpGlobals->time + 0.5;
 		return;
@@ -199,12 +206,10 @@ void CFireManager::ManagerThink()
 	// destroy dead fires this frame
 	RemoveDead();
 
-	for (const auto& voxel : voxels)
+	for (const auto& voxFire : voxelMap)
 	{
-		if (voxel->thinktime > gpGlobals->time)
-			continue;
-
-		voxel->Think();
+		if (voxFire->second->thinktime <= gpGlobals->time)
+			voxFire->second->Think();
 	}
 }
 
@@ -348,7 +353,7 @@ bool CFireVoxel::CheckFall(float size)
 
 	// Either merge the fire with the one below or move it
 	if (!FireManager->MergeFirePoints(newOrigin, heat))
-		origin = newOrigin;
+		FireManager->MoveFire(Vector origin, newOrigin);
 	else
 		heat = 0;
 
