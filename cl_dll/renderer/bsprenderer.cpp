@@ -4100,9 +4100,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 	// no decals to draw
 	if (m_pDecals.empty() && m_pStaticDecals.empty())
-	{
 		return;
-	}
 
 	std::unordered_map<GLuint, std::vector<DecalVert_t>> decalbatch;
 
@@ -4123,7 +4121,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 		return;
 
 	std::vector<DecalVert_t> decalvertlist_buffer;
-	for (auto texture : decalbatch)
+	for (const auto& texture : decalbatch)
 		decalvertlist_buffer.insert(decalvertlist_buffer.end(), std::begin(texture.second), std::end(texture.second));
 
 	if (decalvertlist_buffer.size() >= (2 << 19))
@@ -4153,7 +4151,6 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * lastdecalvertbuffersize, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
 		}
 	}
-
 
 	BlendDecals(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, m_bTransPass, decalvertlist_buffer.size(), decalbatch, lastdecalvertbuffersize);
 }
