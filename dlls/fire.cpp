@@ -104,7 +104,7 @@ void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 	{
 		for (const auto& voxFire : voxelMap)
 		{
-			if (voxFire && (voxFire.second->origin - pos).LengthSquared() < radiusSquared)
+			if ((voxFire.second->origin - pos).LengthSquared() < radiusSquared)
 				voxFire.second->heat -= heat;
 		}
 	}
