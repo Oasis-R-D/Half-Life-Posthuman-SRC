@@ -168,8 +168,6 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 	{
 		auto& voxFire = voxelMap.find(pos);
 		if (voxFire != voxelMap.end())
-
-		if (voxFire != voxelMap.end())
 		{
 			voxFire->second->heat += heat;
 			return true;
