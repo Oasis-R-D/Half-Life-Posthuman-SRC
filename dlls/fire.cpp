@@ -80,7 +80,7 @@ void CFireManager::Precache()
 void CFireManager::RemoveDead()
 {
 	auto lambda = [](const auto& obj)
-	{ return !obj || obj->heat <= 0; };
+	{ return obj.second->heat <= 0; };
 
 	voxelMap.erase
 	(
