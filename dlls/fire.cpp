@@ -79,6 +79,8 @@ void CFireManager::Precache()
 // Does std::erase_if()
 void CFireManager::RemoveDead()
 {
+	// TO-DO: xmemory issue could be here
+
 	auto lambda = [](const auto& obj)
 	{ return obj.second->heat <= 0; };
 
@@ -112,7 +114,7 @@ void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 	{
 		// TO-DO: xmemory issue could be here (equal sign)
 		auto& voxFire = voxelMap.find(pos);
-		if (voxFire != voxelMap.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
+		if (voxFire != voxelMap.end() && (voxFire.second->origin - pos).LengthSquared() < radiusSquared)
 			voxFire->second->heat -= heat;
 	}
 }
@@ -172,7 +174,7 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 		auto& voxFire = voxelMap.find(pos);
 		if (voxFire != voxelMap.end())
 		{
-			voxFire->second->heat += heat;
+			voxFire.second->heat += heat;
 			return true;
 		}
 	}
