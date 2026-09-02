@@ -179,9 +179,9 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 	// check voxelTemp aswell
 	for (auto& tempvoxel : voxelTemp)
 	{
-		if (tempvoxel.first == pos && tempvoxel->origin == pos)
+		if (tempvoxel.first == pos)
 		{
-			tempvoxel.heat += heat;
+			tempvoxel.second->heat += heat;
 			return true;
 		}
 	}
@@ -353,7 +353,7 @@ bool CFireVoxel::CheckFall(float size)
 
 	// Either merge the fire with the one below or move it
 	if (!FireManager->MergeFirePoints(newOrigin, heat))
-		FireManager->MoveFire(Vector origin, newOrigin);
+		FireManager->MoveFire(origin, newOrigin);
 	else
 		heat = 0;
 
