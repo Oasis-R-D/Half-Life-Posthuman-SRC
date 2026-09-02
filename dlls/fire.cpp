@@ -110,6 +110,7 @@ void CFireManager::ExtinguishFire(Vector pos, int heat, int radiusSquared)
 	}
 	else
 	{
+		// TO-DO: xmemory issue could be here (equal sign)
 		auto& voxFire = voxelMap.find(pos);
 		if (voxFire != voxelMap.end() && (voxFire->second->origin - pos).LengthSquared() < radiusSquared)
 			voxFire->second->heat -= heat;
@@ -121,6 +122,7 @@ void CFireManager::AddFire(Vector pos, int heat)
 	// Check to make sure we aren't trying to add fire where fire already is
 	if (!MergeFirePoints(pos, heat))
 	{
+		// TO-DO: xmemory issue could be here (emplace_back)
 		auto newFire = std::make_unique<CFireVoxel>();
 		newFire->origin = pos;
 		newFire->heat = heat;
@@ -145,6 +147,7 @@ void CFireManager::AddFire(Vector pos, int heat)
 
 void CFireManager::MoveFire(Vector pos_original, Vector pos_new)
 {
+	// TO-DO: xmemory issue could be here (equal sign)
 	auto node = voxelMap.extract(pos_original);
 	node.key() = pos_new;
 	node.mapped()->origin = pos_new;
