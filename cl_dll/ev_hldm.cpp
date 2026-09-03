@@ -1555,7 +1555,7 @@ void PE_BloodImpact(event_args_t* args)
 	{
 		case BLOOD_COLOR_RED:
 			R = 160;
-			blood_decal = "bloodspot";
+			blood_decal = "~bloodspot";
 			blood_impact = "engine_blood_impact.txt";
 			blood_spray = "blood_effects_cluster.txt";
 			break;
@@ -1571,7 +1571,7 @@ void PE_BloodImpact(event_args_t* args)
 			R = 185;
 			G = 235;
 			B = 85;
-			blood_decal = "xbloodspot";
+			blood_decal = "~xbloodspot";
 			blood_impact = "engine_blood_impact_rx.txt";
 			blood_spray = "blood_effects_cluster_rx.txt";
 			break;
@@ -1579,7 +1579,7 @@ void PE_BloodImpact(event_args_t* args)
 			R = 128;
 			G = 54;
 			B = 32;
-			blood_decal = "Bbloodspot";
+			blood_decal = "~Bbloodspot";
 			blood_impact = "engine_blood_impact_fung.txt";
 			blood_spray = "blood_effects_cluster_fung.txt";
 			break;
@@ -1659,7 +1659,7 @@ void PE_GibCloud(event_args_t* args)
 	{
 		case BLOOD_COLOR_RED:
 			R = 160;
-			blood_decal = "bloodspot";
+			blood_decal = "~bloodspot";
 			blood_impact = "engine_blood_impact.txt";
 			break;
 		case BLOOD_COLOR_YELLOW:
@@ -1673,14 +1673,14 @@ void PE_GibCloud(event_args_t* args)
 			R = 185;
 			G = 235;
 			B = 85;
-			blood_decal = "xbloodspot";
+			blood_decal = "~xbloodspot";
 			blood_impact = "engine_blood_impact_rx.txt";
 			break;
 		case BLOOD_COLOR_INFECTION:
 			R = 128;
 			G = 54;
 			B = 32;
-			blood_decal = "Bbloodspot";
+			blood_decal = "~Bbloodspot";
 			blood_impact = "engine_blood_impact_fung.txt";
 			break;
 		default: return; break;

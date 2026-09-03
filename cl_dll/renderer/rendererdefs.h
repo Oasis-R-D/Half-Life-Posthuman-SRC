@@ -459,6 +459,8 @@ typedef struct customdecal_s
 	float angle;
 	float radius;
 	float life;
+
+	int type;
 } customdecal_t;
 
 struct decal_msg_cache

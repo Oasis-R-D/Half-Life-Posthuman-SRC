@@ -3293,6 +3293,26 @@ customdecal_t* CBSPRenderer::AllocDecal(void)
 
 /*
 ====================
+GetDecalType
+
+====================
+*/
+int CBSPRenderer::GetDecalType(char modifier)
+{
+	switch (modifier)
+	{
+		default:  return DECAL_NOTYPE;  break;
+		case '!': return DECAL_WET;		break;
+		case '~': return DECAL_NVWET;	break;
+		case '+': return DECAL_GLOW;	break;
+		case '{':
+				  gEngfuncs.Con_Printf("WARNING: GetDecalType receiving transparency symbol ('{')!");
+				  return DECAL_NOTYPE;	break;
+	}
+}
+
+/*
+====================
 AllocStaticDecal
 
 ====================
@@ -3455,6 +3475,10 @@ void CBSPRenderer::CreateDecal(Vector endpos, Vector pnormal, const char* name, 
 
 				pDecal->angle = angle;
 				pDecal->radius = radius;
+				if (gTextureLoader.m_pWAD_Decals[i].texinfo->szName[1] == '{')
+					pDecal->type = GetDecalType(gTextureLoader.m_pWAD_Decals[i].texinfo->szName[2]);
+				else
+					pDecal->type = GetDecalType(gTextureLoader.m_pWAD_Decals[i].texinfo->szName[1]);
 
 				RecursiveCreateDecal(engine_cl->worldmodel->nodes, gTextureLoader.m_pWAD_Decals[i].texinfo, pDecal, endpos, pnormal, angle);
 
@@ -4102,57 +4126,93 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 	if (m_pDecals.empty() && m_pStaticDecals.empty())
 		return;
 
-	std::unordered_map<GLuint, std::vector<DecalVert_t>> decalbatch;
+	std::unordered_map<GLuint, std::vector<DecalVert_t>> decalbatch[4];
 
 	bool needsbufferupdate = false;
 	for (int i = 0; i < m_pDecals.size(); i++)
 	{
-		//char name[64];
-		//strcpy(name, m_pDecals[i].get()->texinfo->szName);
-
 		std::vector<DecalVert_t> decalvertlist;
 		DrawSingleDecal(m_pDecals[i].get(), decalvertlist, m_bTransPass, &needsbufferupdate);
-		auto& row = decalbatch[m_pDecals[i].get()->texinfo->gl_texid];
+		auto& row = decalbatch[m_pDecals[i].get()->type][m_pDecals[i].get()->texinfo->gl_texid];
 		row.insert(row.end(), std::begin(decalvertlist), std::end(decalvertlist));
 	}
 
-	// Shouldn't happen
-	if (decalbatch.empty())
-		return;
+	// TO-DO: SLOP BEGIN
+	std::array<size_t, 4> count_opaque{};
 
-	std::vector<DecalVert_t> decalvertlist_buffer;
-	for (const auto& texture : decalbatch)
-		decalvertlist_buffer.insert(decalvertlist_buffer.end(), std::begin(texture.second), std::end(texture.second));
-
-	if (decalvertlist_buffer.size() >= (2 << 19))
-		gEngfuncs.Con_Printf("[TRINITY] WARNING!! Decal vertice count has reached its limit !! (maximum of 524.288 vertices space stored in gpu buffer)");
-
-	static bool updated_base_buffer = false; //this is so ugly
-
-	static int lastdecalvertbuffersize = 0;
-	static int lastdecalvertbuffersize_trans = 0;
-	if(!m_bTransPass)
+	for (int i = 0; i < 4; ++i)
 	{
-		if (lastdecalvertbuffersize != decalvertlist_buffer.size() || needsbufferupdate)
-		{
-			updated_base_buffer = true;
-			lastdecalvertbuffersize = decalvertlist_buffer.size();
-			m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
-		}
-	}
-	else if (!decalvertlist_buffer.empty())
-	{
-		if (lastdecalvertbuffersize_trans != decalvertlist_buffer.size() || needsbufferupdate || updated_base_buffer)
-		{
-			updated_base_buffer = false;
-			lastdecalvertbuffersize_trans = decalvertlist_buffer.size();
-			m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-			m_pDecalsBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, sizeof(DecalVert_t) * lastdecalvertbuffersize, sizeof(DecalVert_t) * V_min(decalvertlist_buffer.size(), 2 << 19), decalvertlist_buffer.data());
-		}
-	}
+		std::vector<DecalVert_t> verts;
 
-	BlendDecals(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, m_bTransPass, decalvertlist_buffer.size(), decalbatch, lastdecalvertbuffersize);
+		for (const auto& decal : decalbatch[i])
+		{
+			verts.insert(
+				verts.end(),
+				decal.second.begin(),
+				decal.second.end()
+			);
+		}
+
+		const size_t count = V_min(verts.size(), 2 << 19);
+
+		if (m_bTransPass)
+		{
+			const size_t offset = count_opaque[i];
+
+			if (count > 0 && (offset + count) <= (2 << 19))
+			{
+				m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+				m_pDecalsBuffer->BufferSubData(
+					GL_BufferHandler::ArrayBuffer,
+					sizeof(DecalVert_t) * offset,
+					sizeof(DecalVert_t) * count,
+					verts.data()
+				);
+			}
+		}
+		else
+		{
+			count_opaque[i] = count;
+
+			if (count > 0)
+			{
+				m_pDecalsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
+				m_pDecalsBuffer->BufferSubData(
+					GL_BufferHandler::ArrayBuffer,
+					0,
+					sizeof(DecalVert_t) * count,
+					verts.data()
+				);
+			}
+		}
+		// SLOP END
+
+		int src = GL_SRC_ALPHA;
+		int dst = GL_ONE_MINUS_SRC_ALPHA;
+		switch (i)
+		{
+		case DECAL_WET:
+			src = GL_DST_COLOR;
+			break;
+		case DECAL_NVWET:
+			if (g_iNightVision)
+				src = GL_ONE;
+			else
+				src = GL_DST_COLOR;
+			break;
+		case DECAL_GLOW:
+			src = GL_ONE;
+			break;
+		}
+
+		BlendDecals(
+			src, dst,
+			m_bTransPass,
+			count,
+			decalbatch[i],
+			count_opaque[i]
+		);
+	}
 }
 
 /*

@@ -1049,6 +1049,7 @@ void SaveDecals(const char* savefile)
 	int clearstring = 0;
 	int i = 0;
 	int j = 0;
+
 	if (gBSPRenderer.m_pDecals.size() == 0)
 		return;
 

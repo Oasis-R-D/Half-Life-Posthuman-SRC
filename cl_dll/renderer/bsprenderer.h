@@ -198,6 +198,15 @@ public:
 	void CreateCachedDecals(void);
 	void DrawSingleDecal(customdecal_t* decal, std::vector<DecalVert_t>& decalvertlist, bool m_bTransPass = false, bool *bNeedsBufferUpdate = nullptr);
 
+	int GetDecalType(char modifier);
+	enum DecalTypes
+	{
+		DECAL_NOTYPE = 0,
+		DECAL_WET,
+		DECAL_NVWET,
+		DECAL_GLOW,
+	};
+
 	customdecal_t* AllocDecal(void);
 	customdecal_t* AllocStaticDecal(void);
 
