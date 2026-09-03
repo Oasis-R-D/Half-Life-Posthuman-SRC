@@ -343,8 +343,9 @@ bool CFireVoxel::CheckFall(float size)
 		return false;
 	
 	heat -= 3; // falling is very bad
-
-	FireManager->AddFire(newOrigin, heat);
+	
+	if (UTIL_PointContents(newOrigin) != CONTENTS_WATER)
+		FireManager->AddFire(newOrigin, heat);
 	
 	// mark for death
 	heat = 0;
@@ -369,7 +370,7 @@ void CFireProjectile::FireShoot(unsigned int BLDamnt, int heat, int BLDSpeed, Ve
 		pBlood->m_SpawnPos = VecSpawnPos;
 		pBlood->m_vecDir = vecDir;
 		pBlood->m_Spread = spread;
-		pBlood->m_Gravity = BLLTGravity;
+		pBlood->pev->gravity = BLLTGravity;
 		pBlood->pev->dmg = heat;
 		pBlood->Spawn();
 	}
@@ -386,8 +387,7 @@ void CFireProjectile::Spawn()
 	UTIL_SetOrigin(pev, m_SpawnPos);
 
 	// TO-DO: use radial spread, this is not the proper way to do spread
-	pev->velocity = ((m_vecDir + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_vecVel); // Applies spread and velocity, also applies the chance to have the entry wound droplets
-	pev->gravity = m_Gravity;
+	pev->velocity = ((m_vecDir + RANDOM_VECTOR(-m_Spread, m_Spread)) * m_vecVel); // Applies spread and velocity
 	pev->owner = NULL;
 
 	SetTouch(&CFireProjectile::DropTouch);

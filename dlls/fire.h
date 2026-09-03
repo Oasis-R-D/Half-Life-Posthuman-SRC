@@ -75,5 +75,4 @@ private:
 	Vector m_SpawnPos;
 	Vector m_vecDir;
 	float m_Spread;
-	float m_Gravity;
 };
