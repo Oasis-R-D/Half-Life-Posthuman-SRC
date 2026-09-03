@@ -379,8 +379,6 @@ void CFireProjectile::Spawn()
 {
 	Precache();
 
-	//SET_MODEL(ENT(pev), "sprites/blood.spr");
-
 	pev->movetype = MOVETYPE_TOSS; // makes it have gravity
 	pev->solid = SOLID_BBOX;
 
@@ -399,7 +397,6 @@ void CFireProjectile::Spawn()
 
 void CFireProjectile::Precache()
 {
-	//PRECACHE_MODEL("sprites/blood.spr");
 }
 
 void CFireProjectile::DropTouch(CBaseEntity* pOther)
@@ -424,7 +421,7 @@ void CFireProjectile::AirThink()
 	SetThink(&CFireProjectile::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
-
+/*
 int CFireProjectile::ShouldCollide(CBaseEntity* pentTouched)
 {
 	if (pentTouched->IsBSPModel())
@@ -432,5 +429,5 @@ int CFireProjectile::ShouldCollide(CBaseEntity* pentTouched)
 	else
 		return 0;
 }
-
+*/
 #pragma endregion
