@@ -497,8 +497,9 @@ void DLLEXPORT HUD_Init()
 	Scheme_Init();
 
 	// SALSATOBIAS: ugly but just set them to lowest values on startup, atleast until we have a good default value
-	gEngfuncs.Cvar_SetValue("texgamma", 1.0);
-	gEngfuncs.Cvar_SetValue("lightgamma", 1.0);
+	// TO-DO: doing this makes the settings unable to be changed at all
+	//gEngfuncs.Cvar_SetValue("texgamma", 1.0);
+	//gEngfuncs.Cvar_SetValue("lightgamma", 1.0);
 }
 
 

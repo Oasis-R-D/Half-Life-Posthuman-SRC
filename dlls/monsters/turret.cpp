@@ -102,6 +102,14 @@ public:
 	virtual bool MoveTurret();
 	virtual void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) {}
 
+	// SFX
+	virtual const char* SFX_Active();
+	virtual const char* SFX_Deploy();
+	virtual const char* SFX_SpinUp();
+	virtual const char* SFX_SpinDown();
+	virtual const char* SFX_Alert();
+	virtual void SFX_Death();
+
 	float m_flMaxSpin; // Max time to spin the barrel w/o a target
 	bool m_iSpin;
 
@@ -216,6 +224,10 @@ public:
 	void Shoot(Vector& vecSrc, Vector& vecDirToEnemy) override;
 	bool MoveTurret() override;
 	void Ping() override;
+
+	const char* SFX_Deploy() override;
+	const char* SFX_Alert() override;
+	void SFX_Death() override;
 };
 
 LINK_ENTITY_TO_CLASS(monster_turret, CTurret);
@@ -280,6 +292,42 @@ void CBaseTurret::Spawn()
 	// m_flSightRange = TURRET_RANGE;
 }
 
+const char* CBaseTurret::SFX_Active()
+{
+	return "turret/tu_active2.wav";
+}
+
+const char* CBaseTurret::SFX_Deploy()
+{
+	return "turret/tu_deploy.wav";
+}
+
+const char* CBaseTurret::SFX_SpinUp()
+{
+	return "turret/tu_spinup.wav";
+}
+
+const char* CBaseTurret::SFX_SpinDown()
+{
+	return "turret/tu_spindown.wav";
+}
+
+const char* CBaseTurret::SFX_Alert()
+{
+	return "turret/tu_alert.wav";
+}
+
+void CBaseTurret::SFX_Death()
+{
+	float flRndSound = RANDOM_FLOAT(0, 1);
+
+	if (flRndSound <= 0.33)
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die.wav", 1.0, ATTN_NORM);
+	else if (flRndSound <= 0.66)
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die2.wav", 1.0, ATTN_NORM);
+	else
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die3.wav", 1.0, ATTN_NORM);
+}
 
 void CBaseTurret::Precache()
 {
@@ -289,11 +337,9 @@ void CBaseTurret::Precache()
 	PRECACHE_SOUND("turret/tu_die.wav");
 	PRECACHE_SOUND("turret/tu_die2.wav");
 	PRECACHE_SOUND("turret/tu_die3.wav");
-	// PRECACHE_SOUND ("turret/tu_retract.wav"); // just use deploy sound to save memory
 	PRECACHE_SOUND("turret/tu_deploy.wav");
 	PRECACHE_SOUND("turret/tu_spinup.wav");
 	PRECACHE_SOUND("turret/tu_spindown.wav");
-	PRECACHE_SOUND("turret/tu_search.wav");
 	PRECACHE_SOUND("turret/tu_alert.wav");
 }
 
@@ -382,6 +428,28 @@ void CXenTurret::Spawn()
 }
 
 
+const char* CXenTurret::SFX_Deploy()
+{
+	return "ambience/alien_hollow.wav";
+}
+
+const char* CXenTurret::SFX_Alert()
+{
+	return  "ambience/alien_frantic.wav";
+}
+
+void CXenTurret::SFX_Death()
+{
+	float flRndSound = RANDOM_FLOAT(0, 1);
+
+	if (flRndSound <= 0.33)
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die.wav", 1.0, ATTN_NORM);
+	else if (flRndSound <= 0.66)
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die2.wav", 1.0, ATTN_NORM);
+	else
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die3.wav", 1.0, ATTN_NORM);
+}
+
 void CXenTurret::Precache()
 {
 	CBaseTurret::Precache();
@@ -390,6 +458,8 @@ void CXenTurret::Precache()
 	PRECACHE_SOUND("weapons/hks2.wav");
 	PRECACHE_SOUND("weapons/hks3.wav");
 	PRECACHE_SOUND("ambience/alien_buzzer.wav");
+	PRECACHE_SOUND("ambience/alien_hollow.wav");
+	PRECACHE_SOUND("ambience/alien_frantic.wav");
 }
 
 bool CXenTurret::MoveTurret()
@@ -560,10 +630,10 @@ void CXenTurret::Ping()
 {
 	// make the pinging noise every second while searching
 	if (m_flPingTime == 0)
-		m_flPingTime = gpGlobals->time + 1;
+		m_flPingTime = gpGlobals->time + 1.33;
 	else if (m_flPingTime <= gpGlobals->time)
 	{
-		m_flPingTime = gpGlobals->time + 1;
+		m_flPingTime = gpGlobals->time + 1.33;
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "ambience/alien_buzzer.wav", 1, ATTN_NORM);
 	}
 }
@@ -823,6 +893,7 @@ void CXenTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_GUN);
 		break;
 	}
+
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
 
@@ -835,7 +906,7 @@ void CBaseTurret::Deploy()
 	{
 		m_iOn = true;
 		SetTurretAnim(TURRET_ANIM_DEPLOY);
-		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_deploy.wav", TURRET_MACHINE_VOLUME, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_BODY, SFX_Deploy(), TURRET_MACHINE_VOLUME, ATTN_NORM);
 		SUB_UseTargets(this, USE_ON, 0);
 	}
 
@@ -885,7 +956,7 @@ void CBaseTurret::Retire()
 		else if (pev->sequence != TURRET_ANIM_RETIRE)
 		{
 			SetTurretAnim(TURRET_ANIM_RETIRE);
-			EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, "turret/tu_deploy.wav", TURRET_MACHINE_VOLUME, ATTN_NORM, 0, 120);
+			EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, SFX_Deploy(), TURRET_MACHINE_VOLUME, ATTN_NORM, 0, 120);
 			SUB_UseTargets(this, USE_OFF, 0);
 		}
 		else if (m_fSequenceFinished)
@@ -925,7 +996,7 @@ void CTurret::SpinUpCall()
 		if (!m_iStartSpin)
 		{
 			pev->nextthink = gpGlobals->time + 1.0; // spinup delay
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_spinup.wav", TURRET_MACHINE_VOLUME, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_BODY, SFX_SpinUp(), TURRET_MACHINE_VOLUME, ATTN_NORM);
 			m_iStartSpin = true;
 			pev->framerate = 0.1;
 		}
@@ -933,7 +1004,7 @@ void CTurret::SpinUpCall()
 		else if (pev->framerate >= 1.0)
 		{
 			pev->nextthink = gpGlobals->time + 0.1; // retarget delay
-			EMIT_SOUND(ENT(pev), CHAN_STATIC, "turret/tu_active2.wav", TURRET_MACHINE_VOLUME, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_STATIC, SFX_Active(), TURRET_MACHINE_VOLUME, ATTN_NORM);
 			SetThink(&CTurret::ActiveThink);
 			m_iStartSpin = false;
 			m_iSpin = true;
@@ -958,8 +1029,8 @@ void CTurret::SpinDownCall()
 		SetTurretAnim(TURRET_ANIM_SPIN);
 		if (pev->framerate == 1.0)
 		{
-			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, "turret/tu_active2.wav", 0, 0, SND_STOP, 100);
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "turret/tu_spindown.wav", TURRET_MACHINE_VOLUME, ATTN_NORM);
+			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, SFX_Active(), 0, 0, SND_STOP, 100);
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, SFX_SpinDown(), TURRET_MACHINE_VOLUME, ATTN_NORM);
 		}
 		pev->framerate -= 0.02;
 		if (pev->framerate <= 0)
@@ -1100,7 +1171,7 @@ void CBaseTurret::AutoSearchThink()
 	if (m_hEnemy != NULL)
 	{
 		SetThink(&CBaseTurret::Deploy);
-		EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_alert.wav", TURRET_MACHINE_VOLUME, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_BODY, SFX_Alert(), TURRET_MACHINE_VOLUME, ATTN_NORM);
 	}
 }
 
@@ -1116,16 +1187,9 @@ void CBaseTurret::TurretDeath()
 	{
 		pev->deadflag = DEAD_DEAD;
 
-		float flRndSound = RANDOM_FLOAT(0, 1);
+		SFX_Death();
 
-		if (flRndSound <= 0.33)
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die.wav", 1.0, ATTN_NORM);
-		else if (flRndSound <= 0.66)
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die2.wav", 1.0, ATTN_NORM);
-		else
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die3.wav", 1.0, ATTN_NORM);
-
-		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, "turret/tu_active2.wav", 0, 0, SND_STOP, 100);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, SFX_Active(), 0, 0, SND_STOP, 100);
 
 		if (m_iOrientation == 0)
 			m_vecGoalAngles.x = -15;
@@ -1171,8 +1235,6 @@ void CBaseTurret::TurretDeath()
 	}
 }
 
-
-
 void CBaseTurret::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir, TraceResult* ptr, int bitsDamageType)
 {
 	if (ptr->iHitgroup == 10)
@@ -1210,7 +1272,7 @@ bool CBaseTurret::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 		pev->takedamage = DAMAGE_NO;
 		pev->dmgtime = gpGlobals->time;
 
-		ClearBits(pev->flags, FL_MONSTER); // why are they set in the first place???
+		ClearBits(pev->flags, FL_MONSTER);
 
 		SetUse(NULL);
 		SetThink(&CBaseTurret::TurretDeath);
@@ -1480,16 +1542,9 @@ void CSentry::SentryDeath()
 	{
 		pev->deadflag = DEAD_DEAD;
 
-		float flRndSound = RANDOM_FLOAT(0, 1);
+		SFX_Death();
 
-		if (flRndSound <= 0.33)
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die.wav", 1.0, ATTN_NORM);
-		else if (flRndSound <= 0.66)
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die2.wav", 1.0, ATTN_NORM);
-		else
-			EMIT_SOUND(ENT(pev), CHAN_BODY, "turret/tu_die3.wav", 1.0, ATTN_NORM);
-
-		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, "turret/tu_active2.wav", 0, 0, SND_STOP, 100);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, SFX_Active(), 0, 0, SND_STOP, 100);
 
 		SetBoneController(0, 0);
 		SetBoneController(1, 0);

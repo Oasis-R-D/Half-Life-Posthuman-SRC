@@ -487,6 +487,7 @@ const char glsl330_world_fp[] = R"(
 		}
 		
 		//MOD SPECIFIC: nightvision
+		// TO-DO: the red tint is supposed to be a screen effect, this is a temp fix
 		if(nightvision)
 		{
 			basetex_pixel.rgb *= vec3(1.1, 0.1, 0.1);
@@ -530,6 +531,7 @@ const char glsl330_world_fp[] = R"(
 
 		gl_FragColor = vec4(lightmap_pixel.rgb, lightmap_pixel.a * float(renderamt) / 255);
 		//MOD SPECIFIC: nightvision
+		// TO-DO: the red tint is supposed to be a screen effect, this is a temp fix
 		if(nightvision)
 		{
 			gl_FragColor = vec4(lightmap_pixel.rgb * vec3(1.1, 0.1, 0.1), lightmap_pixel.a * float(renderamt) / 255);
