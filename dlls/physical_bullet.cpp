@@ -40,6 +40,8 @@
 // OVERLOADS SOME ENTVARS:
 // speed - the ideal magnitude of my velocity
 
+int iTrailSprite;
+
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
 void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
@@ -264,7 +266,7 @@ void CPhysbullet::Spawn()
 	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 	WRITE_BYTE(TE_BEAMFOLLOW);
 	WRITE_SHORT(entindex());		 // entity
-	WRITE_SHORT(m_iTrail);			 // model
+	WRITE_SHORT(iTrailSprite);			 // model
 	WRITE_BYTE(RANDOM_LONG(2, 3));	 // life
 	WRITE_BYTE(1);					 // width
 	WRITE_BYTE(128);				 // r, g, b
@@ -282,7 +284,9 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_44magnum.spr");
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_MODEL("sprites/tracer_classic.spr"); // TFC laser pistol projectile
-	m_iTrail = PRECACHE_MODEL("sprites/RCtrail.spr");
+
+	if (!iTrailSprite)
+		iTrailSprite = PRECACHE_MODEL("sprites/RCtrail.spr");
 	
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 

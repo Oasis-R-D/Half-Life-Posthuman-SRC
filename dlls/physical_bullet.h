@@ -33,7 +33,6 @@ struct bullet_data_t
 // speed - the ideal magnitude of my velocity
 class CPhysbullet : public CBaseEntity
 {
-	int m_iTrail;
 public:
 	static void BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
 	static void BulletCreate(bullet_data_t* data); // add damage, spread and owner so entities calling this can give it the proper stuff

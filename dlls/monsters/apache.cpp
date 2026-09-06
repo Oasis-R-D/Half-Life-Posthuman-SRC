@@ -84,7 +84,6 @@ class CApache : public CBaseMonster
 	float m_flGoalSpeed;
 
 	int m_iDoSmokePuff;
-	CBeam* m_pBeam;
 };
 LINK_ENTITY_TO_CLASS(monster_apache, CApache);
 LINK_ENTITY_TO_CLASS(monster_blkops_apache, CApache);
@@ -106,7 +105,6 @@ TYPEDESCRIPTION CApache::m_SaveData[] =
 		//	DEFINE_FIELD( CApache, m_iSpriteTexture, FIELD_INTEGER ),
 		//	DEFINE_FIELD( CApache, m_iExplode, FIELD_INTEGER ),
 		//	DEFINE_FIELD( CApache, m_iBodyGibs, FIELD_INTEGER ),
-		DEFINE_FIELD(CApache, m_pBeam, FIELD_CLASSPTR),
 		DEFINE_FIELD(CApache, m_flGoalSpeed, FIELD_FLOAT),
 		DEFINE_FIELD(CApache, m_iDoSmokePuff, FIELD_INTEGER),
 };
@@ -573,11 +571,10 @@ void CApache::HuntThink()
 	// ALERT( at_console, "%.0f %.0f %.0f\n", gpGlobals->time, m_flLastSeen, m_flPrevSeen );
 	if ((m_flLastSeen + 1 > gpGlobals->time) && (m_flPrevSeen + 2 < gpGlobals->time))
 	{
-		if (FireGun())
+		if (FireGun() && m_flGoalSpeed > 400)
 		{
 			// slow down if we're fireing
-			if (m_flGoalSpeed > 400)
-				m_flGoalSpeed = 400;
+			m_flGoalSpeed = 400;
 		}
 	}
 
@@ -892,50 +889,21 @@ bool CApache::FireGun()
 	GetAttachment(0, posBarrel, angBarrel);
 	Vector vecGun = (posBarrel - posGun).Normalize();
 
-	if (DotProduct(vecGun, vecTarget) > 0.98)
+	if (DotProduct(vecGun, vecTarget) > 0.965)
 	{
-#if 1
 		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
 		if (g_iSkillLevel != SKILL_REALISM)
-			CPhysbullet::BulletCreate(2, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
+			CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 		else
-			CPhysbullet::BulletCreate(2, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
+			CPhysbullet::BulletCreate(1, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
-#else
-		static float flNext;
-		TraceResult tr;
-		UTIL_TraceLine(posGun, posGun + vecGun * 8192, dont_ignore_monsters, ENT(pev), &tr);
 
-		if (!m_pBeam)
-		{
-			m_pBeam = CBeam::BeamCreate("sprites/lgtning.spr", 80);
-			m_pBeam->PointEntInit(pev->origin, entindex());
-			m_pBeam->SetEndAttachment(1);
-			m_pBeam->SetColor(255, 180, 96);
-			m_pBeam->SetBrightness(192);
-		}
-
-		if (flNext < gpGlobals->time)
-		{
-			flNext = gpGlobals->time + 0.5;
-			m_pBeam->SetStartPos(tr.vecEndPos);
-		}
-#endif
 		return true;
 	}
-	else
-	{
-		if (m_pBeam)
-		{
-			UTIL_Remove(m_pBeam);
-			m_pBeam = NULL;
-		}
-	}
+
 	return false;
 }
-
-
 
 void CApache::ShowDamage()
 {

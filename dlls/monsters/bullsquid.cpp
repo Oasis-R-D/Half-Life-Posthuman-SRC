@@ -158,20 +158,7 @@ void CSquidSpit::Touch(CBaseEntity* pOther)
 		UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 10, dont_ignore_monsters, ENT(pev), &tr);
 		UTIL_DecalTrace(&tr, DECAL_SPIT1 + RANDOM_LONG(0, 1));
 
-		// make some flecks
-		MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, tr.vecEndPos);
-		WRITE_BYTE(TE_SPRITE_SPRAY);
-		WRITE_COORD(tr.vecEndPos.x); // pos
-		WRITE_COORD(tr.vecEndPos.y);
-		WRITE_COORD(tr.vecEndPos.z);
-		WRITE_COORD(tr.vecPlaneNormal.x); // dir
-		WRITE_COORD(tr.vecPlaneNormal.y);
-		WRITE_COORD(tr.vecPlaneNormal.z);
-		WRITE_SHORT(iSquidSpitSprite); // model
-		WRITE_BYTE(5);				   // count
-		WRITE_BYTE(30);				   // speed
-		WRITE_BYTE(80);				   // noise ( client will divide by 100 )
-		MESSAGE_END();
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, tr.vecEndPos + tr.vecPlaneNormal, tr.vecPlaneNormal*2.5, 0, 0.0, PE_NPC_IMPACT, BLOOD_COLOR_GREEN, 0, 0);
 	}
 	else
 	{
@@ -759,7 +746,8 @@ void CBullsquid::Precache()
 
 	PRECACHE_MODEL("sprites/bigspit.spr"); // spit projectile.
 
-	iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
+	if (!iSquidSpitSprite)
+		iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
 
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 
