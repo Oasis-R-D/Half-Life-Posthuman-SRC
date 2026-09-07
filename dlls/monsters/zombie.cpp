@@ -94,7 +94,7 @@ public:
 
 					// spawn the headcrab gibs
 					EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 0.85f, 0.9f);
-					CoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
+					CCoolerGib::SpawnRandomGibs(pev, pev->origin + Vector(0, 0, 68));
 				}
 			}
 		}

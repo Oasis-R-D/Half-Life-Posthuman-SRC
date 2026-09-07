@@ -285,8 +285,7 @@ void CPhysbullet::Precache()
 	PRECACHE_MODEL("sprites/tracer_12g.spr");
 	PRECACHE_MODEL("sprites/tracer_classic.spr"); // TFC laser pistol projectile
 
-	if (!iTrailSprite)
-		iTrailSprite = PRECACHE_MODEL("sprites/RCtrail.spr");
+	iTrailSprite = PRECACHE_MODEL("sprites/RCtrail.spr");
 	
 	PRECACHE_SOUND_ARRAY(pNearMissSounds);
 

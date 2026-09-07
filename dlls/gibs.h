@@ -31,7 +31,7 @@ extern gibMap funghoul_gibmap;
 //
 // A gib is ONLY a chunk of a body, NOT a piece of wood/metal/rocks/etc.
 //
-class CoolerGib : public CBaseEntity
+class CCoolerGib : public CBaseEntity
 {
 public:
 	void Spawn(const char* szGibModel, int body = 0);
@@ -44,9 +44,9 @@ public:
 
 	int ObjectCaps() override { return (CBaseEntity::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE | FCAP_IMPULSE_USE; }
 	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
-	static void SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib);
+	static void SpawnHeadGib(entvars_t* pevVictim, CCoolerGib* pGib);
 	static void SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE = g_vecZero);
-	static void SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib);
+	static void SpawnStickyGibs(entvars_t* pevVictim, CCoolerGib* pGib);
 
 	int ShouldCollide(CBaseEntity* pentTouched) override;
 

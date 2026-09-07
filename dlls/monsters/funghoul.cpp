@@ -1179,7 +1179,7 @@ void CFunghoul::GibMonster()
 	if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 	{
 		g_vecAttackDir = gpGlobals->v_up;
-		CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
+		CCoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
 	}
 
 	if (m_iType == FUNGHOUL_BOOMER)

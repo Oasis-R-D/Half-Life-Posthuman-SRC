@@ -23,6 +23,8 @@
 #ifndef CLIENT_DLL
 	#include "decals.h"
 	#include "fire.h"
+
+	int iSquidSpitSprite;
 #endif
 
 #define	SPTH_ACCURACY_SHOT_PENALTY_TIME		0.025f	// Applied amount of time each shot adds to the time we must recover from
@@ -35,11 +37,17 @@ void CSpitThrower::Precache()
 	PRECACHE_MODEL("models/v_spitthrower.mdl");
 	PRECACHE_MODEL("models/w_spitthrower.mdl");
 	PRECACHE_MODEL("models/p_9mmhandgun.mdl");
-	PRECACHE_MODEL("models/spit.mdl");
+	
 
 	PRECACHE_SOUND("weapons/sptthrwr_loop.wav");
 
-	UTIL_PrecacheOther("monster_bullchicken");
+#ifndef CLIENT_DLL
+	PRECACHE_SOUND("bullchicken/bc_spithit1.wav");
+	PRECACHE_SOUND("bullchicken/bc_spithit2.wav");
+	PRECACHE_SOUND("bullchicken/bc_acid1.wav");
+	PRECACHE_MODEL("models/spit.mdl");
+	iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
+#endif
 }
 
 void CSpitThrower::Spawn()
@@ -207,11 +215,9 @@ LINK_ENTITY_TO_CLASS(ammo_spit, CSpitAmmo);
 class CEnvSpit : public CBaseEntity
 {	
 	Vector m_SpreadVect;
-	int iSquidSpitSprite;
 	bool oddthink;
 	void Spawn()
 	{
-		iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
 		SET_MODEL(edict(), "models/spit.mdl");
 		pev->solid = SOLID_BBOX;
 		pev->movetype = MOVETYPE_BOUNCE;

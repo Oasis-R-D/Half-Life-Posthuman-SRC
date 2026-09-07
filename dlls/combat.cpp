@@ -238,7 +238,7 @@ void CBaseMonster::GibMonster()
 	{
 		if (CVAR_GET_FLOAT("violence_hgibs") != 0) // Only the player will ever get here
 		{
-			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
+			CCoolerGib::SpawnRandomGibs(pev, g_vecZero); // throw some human gibs.
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 		}
 		gibbed = true;
@@ -247,7 +247,7 @@ void CBaseMonster::GibMonster()
 	{
 		if (CVAR_GET_FLOAT("violence_agibs") != 0) // Should never get here, but someone might call it directly
 		{
-			CoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
+			CCoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
 			PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, Center(), g_vecZero, 0.0, 0.0, PE_BLD_EXPLCLOUD, BloodColor(), 0, 0);
 		}
 		gibbed = true;

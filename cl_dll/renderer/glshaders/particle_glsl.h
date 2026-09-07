@@ -14,8 +14,6 @@ char glsl_particle_vp[] = R"(
 		gl_Position = projviewmatrix * vec4(aPosition, 1);
 	}
 
-
-
 )";
 
 const char glsl_particle_fp[] = R"(
@@ -27,6 +25,7 @@ const char glsl_particle_fp[] = R"(
 
 	void main()
 	{
+		// TO-DO: fade clipping edges if a setting is applied to the system!
 		gl_FragColor = texture(texture0, frag_texcoord) * frag_color;
 	}
 

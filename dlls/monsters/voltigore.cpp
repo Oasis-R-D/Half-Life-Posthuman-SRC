@@ -1426,7 +1426,7 @@ void COFVoltigore::GibMonster()
 	pev->nextthink = gpGlobals->time + 0.15;
 
 	//Gib spawning has been rewritten so the logic for limiting gib submodels is generalized
-	CoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
+	CCoolerGib::SpawnRandomGibs(pev, g_vecZero); // Throw alien gibs
 }
 
 void COFVoltigore::Killed(entvars_t* pevAttacker, int iGib)

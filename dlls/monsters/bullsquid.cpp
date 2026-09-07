@@ -32,7 +32,9 @@
 
 #define SQUID_SPRINT_DIST 256
  // ^^^^ how close the squid has to get before starting to sprint and refusing to swerve
-int iSquidSpitSprite;
+
+// from spitthrower.cpp
+extern int iSquidSpitSprite;
 
 
 //=========================================================
@@ -745,9 +747,6 @@ void CBullsquid::Precache()
 	PRECACHE_MODEL("models/bullsquid.mdl");
 
 	PRECACHE_MODEL("sprites/bigspit.spr"); // spit projectile.
-
-	if (!iSquidSpitSprite)
-		iSquidSpitSprite = PRECACHE_MODEL("sprites/tinyspit.spr"); // client side spittle.
 
 	PRECACHE_SOUND("zombie/claw_miss2.wav"); // because we use the basemonster SWIPE animation event
 

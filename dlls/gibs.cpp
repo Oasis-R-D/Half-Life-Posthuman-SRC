@@ -10,7 +10,7 @@
 #include "fire.h"
 #include <vector>
 
-LINK_ENTITY_TO_CLASS(cool_gib, CoolerGib);
+LINK_ENTITY_TO_CLASS(cool_gib, CCoolerGib);
 
 // START NPC GIB LISTS
 // TYPES: 0 || null - default, 1 - head, 2 - sticky
@@ -77,7 +77,7 @@ gibMap funghoul_gibmap =
 		{"models/fung_gibs.mdl", 5, 1},
 };
 
-void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+void CCoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
 	if (!pActivator->IsPlayer() || m_pEater && pev->velocity == g_vecZero)
 		return;
@@ -107,19 +107,19 @@ void CoolerGib::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useT
 
 	m_bDisableFade = true;
 	m_pEater = pPlayer;
-	SetThink(&CoolerGib::PickUpThink);
+	SetThink(&CCoolerGib::PickUpThink);
 	pev->nextthink = gpGlobals->time + 0.333; // delay before "grabbed"
 }
 
-void CoolerGib::PickUpThink()
+void CCoolerGib::PickUpThink()
 {
 	pev->effects |= EF_NODRAW;
 	pev->solid = SOLID_NOT;
-	SetThink(&CoolerGib::EatThink);
+	SetThink(&CCoolerGib::EatThink);
 	pev->nextthink = gpGlobals->time + 0.3; // delay before "eaten"
 }
 
-void CoolerGib::EatThink()
+void CCoolerGib::EatThink()
 {
 	// play sound (TO-DO: make positioned propery?)
 	const char* sound = 0;
@@ -127,7 +127,8 @@ void CoolerGib::EatThink()
 	EMIT_SOUND_DYN(m_pEater->edict(), CHAN_AUTO, sound, 0.8, 1.2, 0, 95+RANDOM_LONG(0,10));
 
 	// VFX
-	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), m_pEater->pev->angles, 8, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, PE_NPC_IMPACT_RANDDIR);
+	UTIL_MakeVectors(m_pEater->pev->v_angle);
+	PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, m_pEater->Center(), gpGlobals->v_forward, 32, 0.0, PE_NPC_IMPACT, m_bloodColor, 0, 0);
 	UTIL_BloodDrips(m_pEater->Center(), m_pEater->pev->angles, m_bloodColor, 8);
 
 	if (m_bloodColor == BLOOD_COLOR_RED)
@@ -169,12 +170,12 @@ void CoolerGib::EatThink()
 
 	m_pEater->m_bNoMove = false;
 
-	SetThink(&CoolerGib::SUB_Remove);
+	SetThink(&CCoolerGib::SUB_Remove);
 	pev->nextthink = gpGlobals->time;
 }
 
 // HACKHACK -- The gib velocity equations don't work
-void CoolerGib::LimitVelocity()
+void CCoolerGib::LimitVelocity()
 {
 	float length = pev->velocity.Length();
 
@@ -185,7 +186,7 @@ void CoolerGib::LimitVelocity()
 }
 
 
-void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
+void CCoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CCoolerGib* pGib)
 {
 	if (pevVictim)
 	{
@@ -228,7 +229,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 		pGib->pev->movetype = MOVETYPE_TOSS;
 		pGib->pev->solid = SOLID_BBOX;
 		UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
-		pGib->SetTouch(&CoolerGib::StickyGibTouch);
+		pGib->SetTouch(&CCoolerGib::StickyGibTouch);
 		pGib->SetThink(NULL);
 
 	}
@@ -237,7 +238,7 @@ void CoolerGib::SpawnStickyGibs(entvars_t* pevVictim, CoolerGib* pGib)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
+void CCoolerGib::SpawnHeadGib(entvars_t* pevVictim, CCoolerGib* pGib)
 {
 	if (pevVictim)
 	{
@@ -288,7 +289,7 @@ void CoolerGib::SpawnHeadGib(entvars_t* pevVictim, CoolerGib* pGib)
 	pGib->LimitVelocity();
 }
 
-void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
+void CCoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 {
 	int p, amnt, body, type;
 
@@ -303,7 +304,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 
 		for (p = 0; p < amnt; p++) // spawn amount dictated in the row's third collumn
 		{
-			CoolerGib* pGib = GetClassPtr((CoolerGib*)NULL);
+			CCoolerGib* pGib = GetClassPtr((CCoolerGib*)NULL);
 			pGib->Spawn(data.gib_mdlname.c_str(), body); // spawns gib with model at collumn 1 and body at collumn 2
 
 			if (pVictim)
@@ -381,7 +382,7 @@ void CoolerGib::SpawnRandomGibs(entvars_t* pevVictim, Vector spawnposOVRDE)
 // bouncing to emit their scent. That's what this function
 // does.
 //=========================================================
-void CoolerGib::WaitTillLand()
+void CCoolerGib::WaitTillLand()
 {
 	if (!IsInWorld())
 	{
@@ -411,7 +412,7 @@ void CoolerGib::WaitTillLand()
 		// - hasn't been 25 seconds
 		// - told not to
 		if (!m_bDisableFade && m_lifeTime < gpGlobals->time)
-			SetThink(&CoolerGib::SUB_StartFadeOut);
+			SetThink(&CCoolerGib::SUB_StartFadeOut);
 
 		pev->nextthink = gpGlobals->time;
 		m_bLanded = true;
@@ -469,7 +470,7 @@ void CoolerGib::WaitTillLand()
 //
 // Gib bounces on the ground or wall, sponges some blood down, too!
 //
-void CoolerGib::BounceGibTouch(CBaseEntity* pOther)
+void CCoolerGib::BounceGibTouch(CBaseEntity* pOther)
 {
 	Vector vecSpot;
 	TraceResult tr;
@@ -502,12 +503,12 @@ void CoolerGib::BounceGibTouch(CBaseEntity* pOther)
 //
 // Sticky gib puts blood on the wall and stays put.
 //
-void CoolerGib::StickyGibTouch(CBaseEntity* pOther)
+void CCoolerGib::StickyGibTouch(CBaseEntity* pOther)
 {
 	Vector vecSpot;
 	TraceResult tr;
 
-	SetThink(&CoolerGib::SUB_Remove); // TO-DO: make fall off the wall after a bit)
+	SetThink(&CCoolerGib::SUB_Remove); // TO-DO: make fall off the wall after a bit)
 	pev->nextthink = gpGlobals->time + 10;
 
 	if (!FClassnameIs(pOther->pev, "worldspawn"))
@@ -530,7 +531,7 @@ void CoolerGib::StickyGibTouch(CBaseEntity* pOther)
 //
 // Throw a chunk
 //
-void CoolerGib::Spawn(const char* szGibModel, int body)
+void CCoolerGib::Spawn(const char* szGibModel, int body)
 {
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->friction = 0.55; // deading the bounce a bit
@@ -550,11 +551,11 @@ void CoolerGib::Spawn(const char* szGibModel, int body)
 
 	UTIL_SetSize(pev, Vector(-4, -4, -4), Vector(4, 4, 4));
 	pev->nextthink = gpGlobals->time + 0.1;
-	SetThink(&CoolerGib::WaitTillLand);
-	SetTouch(&CoolerGib::BounceGibTouch);
+	SetThink(&CCoolerGib::WaitTillLand);
+	SetTouch(&CCoolerGib::BounceGibTouch);
 }
 
-int CoolerGib::ShouldCollide(CBaseEntity* pentTouched)
+int CCoolerGib::ShouldCollide(CBaseEntity* pentTouched)
 {
 	if (pentTouched->IsPlayer())
 		return 1;
