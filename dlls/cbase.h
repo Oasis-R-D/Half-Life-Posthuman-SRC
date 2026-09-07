@@ -37,6 +37,7 @@ enum MuzzleSmokeType
 };
 
 // bparam1
+#define PE_MUZZLESMK_ISTANK 1
 #define PE_NPC_IMPACT_ISBLEEDING 1
 
 // bparam2

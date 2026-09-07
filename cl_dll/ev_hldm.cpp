@@ -1477,13 +1477,13 @@ void EV_Particles(event_args_t* args)
 				default:
 				case 0: gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0); break;
 				case 1: // shotgun?
-					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0);
+					gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0);
 					if (args->bparam2 != 1)
-						gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, args->origin, 0);
+						gParticleEngine.CreateSystem("engine_shotgun_puff.txt", Origin, Dir, 0);
 					else
 					{
-						gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, args->origin, 0);
-						gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, args->origin, 0); // Double the smoke
+						gParticleEngine.CreateSystem("engine_shotgun_puff2.txt", Origin, Dir, 0);
+						gParticleEngine.CreateSystem("engine_muzzle_smoke.txt", Origin, Dir, 0); // Double the smoke
 					}
 					break;
 				case 2: gParticleEngine.CreateCluster("railcannon_muzzle_cluster.txt", Origin, Dir, 0); break;

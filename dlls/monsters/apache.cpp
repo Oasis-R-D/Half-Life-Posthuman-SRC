@@ -897,8 +897,9 @@ bool CApache::FireGun()
 		else
 			CPhysbullet::BulletCreate(1, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3);
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
 
+		PLAYBACK_EVENT_FULL(0, 0, g_sParticleEvent, 0.0, posGun+vecGun*76, g_vecZero, AC_LOUD, 0.0, PE_MUZZLESMK, PE_MS_NORMAL, PE_MUZZLESMK_ISTANK, 0);
 		return true;
 	}
 

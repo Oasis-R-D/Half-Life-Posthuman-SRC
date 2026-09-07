@@ -1458,7 +1458,7 @@ Task_t tlOFMAssassinGrenadeCover1[] =
 	{
 		{TASK_STOP_MOVING, (float)0},
 		{TASK_FIND_COVER_FROM_ENEMY, (float)99},
-		{TASK_FIND_FAR_NODE_COVER_FROM_ENEMY, (float)384},
+		{TASK_FIND_NEAR_NODE_COVER_FROM_ENEMY, (float)384},
 		{TASK_PLAY_SEQUENCE, (float)ACT_SPECIAL_ATTACK1},
 		{TASK_CLEAR_MOVE_WAIT, (float)0},
 		{TASK_RUN_PATH, (float)0},
