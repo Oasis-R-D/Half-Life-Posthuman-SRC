@@ -803,8 +803,10 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 		pGrenade->pev->nextthink = gpGlobals->time;
 		pGrenade->pev->velocity = Vector(0, 0, 0);
 	}
+
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
+
 	switch (type)
 	{
 		case 0: // High Explosive
@@ -872,17 +874,15 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 
 	if (time == -1)
 	{
-			// make monsters afaid of it while in the air
-			pGrenade->SetThink(&CGrenade::DangerSoundThink);
-			pGrenade->pev->nextthink = gpGlobals->time;
+		// make monsters afaid of it while in the air
+		pGrenade->SetThink(&CGrenade::DangerSoundThink);
+		pGrenade->pev->nextthink = gpGlobals->time;
 
-			// Explode on contact
-			pGrenade->SetTouch(&CGrenade::ExplodeTouch);
+		// Explode on contact
+		pGrenade->SetTouch(&CGrenade::ExplodeTouch);
 	}
 	else
-	{
 		pGrenade->pev->nextthink = gpGlobals->time + 0.1;
-	}
 
 	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
 	pGrenade->pev->framerate = 1.0;
@@ -904,13 +904,9 @@ CGrenade* CGrenade::ShootSatchelCharge(entvars_t* pevOwner, Vector vecStart, Vec
 	UTIL_SetSize(pGrenade->pev, Vector(0, 0, 0), Vector(0, 0, 0));
 
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		pGrenade->pev->dmg = 200;
-	}
 	else
-	{
 		pGrenade->pev->dmg = 260;
-	}
 
 	UTIL_SetOrigin(pGrenade->pev, vecStart);
 	pGrenade->pev->velocity = vecVelocity;
