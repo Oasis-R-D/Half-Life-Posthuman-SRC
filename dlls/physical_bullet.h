@@ -12,8 +12,8 @@
 
 struct bullet_data_t
 {
-    unsigned int amount = 1;
-    unsigned int damage = 0;
+    int amount = 1;
+    int damage = 0;
 	unsigned int muzzlevel = 5;
 	int type = 9;
 	Vector org;
@@ -23,7 +23,7 @@ struct bullet_data_t
 	float gravity = 1.0;
 	edict_t* pShooter;
 	bool subsonic = false;
-	float penetrate_override = 0;
+	float penetrate_override = -1;
 	CBaseEntity* pIgnore = NULL;
 };
 
@@ -34,7 +34,7 @@ struct bullet_data_t
 class CPhysbullet : public CBaseEntity
 {
 public:
-	static void BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = NULL, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BulletCreate(int BLLTamnt, int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = -1, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
 	static void BulletCreate(bullet_data_t* data); // add damage, spread and owner so entities calling this can give it the proper stuff
 	void Spawn() override;
 	void Precache() override;

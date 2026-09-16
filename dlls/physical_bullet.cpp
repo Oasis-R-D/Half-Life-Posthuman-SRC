@@ -43,9 +43,9 @@
 int iTrailSprite;
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
+void CPhysbullet::BulletCreate(int BLLTamnt, int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
-	for (unsigned int i = 0; i < BLLTamnt; i++) // Allows multishot
+	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -70,7 +70,7 @@ void CPhysbullet::BulletCreate(unsigned int BLLTamnt, unsigned int BLLTdamage, u
 
 void CPhysbullet::BulletCreate(bullet_data_t* data)
 {
-	for (unsigned int i = 0; i < data->amount; i++) // Allows multishot
+	for (int i = 0; i < data->amount; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
@@ -238,17 +238,14 @@ void CPhysbullet::Spawn()
 			break;
 	}
 
-	if (m_bsubsonic)
+	if (m_bsubsonic) // subsonic rounds have less velocity
 		m_flPenetrationPow = round(m_flPenetrationPow * 0.75f);
 
-	if (m_fPenoverride != NULL)
+	if (m_fPenoverride != -1)
 		m_flPenetrationPow = m_fPenoverride;
 
-	CBaseEntity* owner = CBaseEntity::Instance(Owner);
-	if (owner != nullptr && owner->IsPlayer()) // shouldn't happen since the spawn nullptr check, here Justin Case.
-	{
+	if (CBaseEntity::Instance(Owner)->IsPlayer())
 		pev->renderamt = 0;
-	}
 
 	if (m_bsubsonic)
 		pev->renderamt = 5;
@@ -331,7 +328,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		double p;
 		int i = 0;
 
-		do // Raymarching (works better than the tau cannons trace back method)
+		do // Raymarching
 		{
 			i += 1;
 			UTIL_TraceLine(tr.vecEndPos + m_vecDir * 1, tr.vecEndPos + m_vecDir * i, dont_ignore_monsters, dont_ignore_glass, NULL, &beam_tr2);
@@ -374,7 +371,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 					DecalGunshot(&tr, BULLET_MONSTER_12MM);		 // Entry decal  - 12mm is the heavy decal
 					DecalGunshot(&beam_tr, BULLET_MONSTER_12MM); // Exit decal - 12 mm is the heavy decal
 
-					// entry
+					// entry (no exit due to msg limit)
 					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
 						WRITE_BYTE(TE_IMPACTVFX);
 						WRITE_COORD_VECTOR(tr.vecEndPos + (-1 * pev->velocity.Normalize()) * 0.1f); // org
@@ -384,18 +381,6 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 						WRITE_BYTE(material); // (count) (use as mat type?)
 						WRITE_BYTE(0);		  // (bullethole decal texture index)
 					MESSAGE_END();
-
-					// exit
-					/*
-					MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, pev->origin);
-					WRITE_BYTE(TE_IMPACTVFX);
-					WRITE_COORD_VECTOR(beam_tr.vecEndPos + (pev->velocity.Normalize()) * 0.1f); // org
-					WRITE_COORD_VECTOR(pev->velocity.Normalize());							// dir
-					WRITE_COORD(0);
-					WRITE_COORD(0);
-					WRITE_BYTE(material); // (count) (use as mat type?)
-					WRITE_BYTE(0);		  // (bullethole decal texture index)
-					MESSAGE_END(); */
 				}
 
 				pev->movetype = MOVETYPE_NONE;
