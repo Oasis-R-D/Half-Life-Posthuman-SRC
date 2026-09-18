@@ -415,15 +415,11 @@ void CShotgun::WeaponIdle()
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{
 		if (m_iClip == 0 && m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
-		{
 			Reload();
-		}
 		else if (m_fInSpecialReload != 0)
 		{
 			if (m_iClip != 9 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
-			{
 				Reload();
-			}
 			else
 			{
 				SendWeaponAnim(m_iFiremode == 1 ? SHOTGUN_RELOAD_END_SEMI : SHOTGUN_RELOAD_END);

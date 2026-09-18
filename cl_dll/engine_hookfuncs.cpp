@@ -342,7 +342,7 @@ FuncHook(R_BloodStream, void, float* org, float* dir, int pcolor, int speed)
 	OrigR_BloodStream(org, dir, pcolor, speed);
 }
 
-#define SHARD_VOLUME 12.0f // on shard ever n^3 units
+#define SHARD_VOLUME 24.0 // on shard every n^3 units
 FuncHook(R_BreakModel, void, float* pos, float* size, float* dir, float random, float life, int count, int modelIndex, char flags)
 {
 	int i, frameCount;
