@@ -153,7 +153,7 @@ const char glsl330_world_fp[] = R"(
 
 	uniform int sunshadow_fadedist;
 	uniform int sunshadow_strength;
-	
+
 	uniform bool lightmap_pass;
 	uniform bool texture_pass;
 	uniform bool spotlight;
@@ -189,7 +189,6 @@ const char glsl330_world_fp[] = R"(
 
 	float sampleShadowVariance(sampler2D shadowMap, vec2 projCoord)
 	{
-		
 		float linearfragdepth = length(fragPos - light_pos) / light_radius;
 
 		vec2 moments = texture(shadowMap, projCoord).xy;
@@ -210,20 +209,17 @@ const char glsl330_world_fp[] = R"(
 
 	float sampleSunShadow(sampler2D shadowMap, vec2 projCoord)
 	{
-		
 		float linearfragdepth = length(fragPos - light_pos) / light_radius;
 
 		vec2 moments = texture(shadowMap, projCoord).xy;
 
-		float depthDifference = linearfragdepth - moments.x;
-		
-		float shadow = depthDifference > 0.0 ? 1.0 : 0.0;
-		
 		float fadeDistance = float(sunshadow_fadedist) / 1000.0;
+		float depthDifference = linearfragdepth - moments.x;
 		float shadowFade = 1.0 - smoothstep(0.0, fadeDistance, abs(depthDifference));
 		
+		float shadow = depthDifference > 0.0 ? 1.0 : 0.0;
 		shadow *= shadowFade;
-		
+
 		return 1.0 - shadow;
 	}
 
@@ -231,6 +227,7 @@ const char glsl330_world_fp[] = R"(
 	{
 		float shadow = 0.0;
 		vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
 		//5x5 kernel
 		for(int x = -2; x <= 2; ++x)
 		{
@@ -239,17 +236,15 @@ const char glsl330_world_fp[] = R"(
 		        shadow += sampleSunShadow(shadowMap, projCoord + vec2(x, y) * texelSize);        
 		    }    
 		}
+
 		return max(shadow / 25.0, 1.0 - float(sunshadow_strength) / 100.0);
 	}
 
 	float sampleCubeShadowVariance(samplerCube shadowMap, vec3 projCoord)
-	{ 
-
+	{
 		float linearfragdepth = length(fragPos - light_pos) / light_radius;
 
 		vec2 moments = texture(shadowMap, projCoord).xy;
-		
-		float bias = 0.002;
 
 		float p = step(linearfragdepth + 0.002, moments.x);
 		float variance = max(moments.y - sqr(moments.x), 0.00002);
@@ -293,29 +288,30 @@ const char glsl330_world_fp[] = R"(
 		}
 
 		vec3 projCoord = projTexCoord.xyz / projTexCoord.w;
+
 		projCoord.xyz *= 0.5;
 		projCoord.xyz += 0.5;
 
-		if (projCoord.x < 0.0 || projCoord.x > 1.0 ||
-			projCoord.y < 0.0 || projCoord.y > 1.0 ||
-			projCoord.z < 0.0 || projCoord.z > 1.0 ) 
+		if(projCoord.x < 0.0 || projCoord.x > 1.0 ||
+		   projCoord.y < 0.0 || projCoord.y > 1.0 ||
+		   projCoord.z < 0.0 || projCoord.z > 1.0)
 		{
 			gl_FragColor = vec4(1, 1, 1, 1);
 			return;
 		}
 
-		float shadowpixel = sampleSunShadowPCF(shadow_texture, projCoord.xy);
+		float shadowpixel = sampleSunShadowPCF(
+			shadow_texture,
+			projCoord.xy
+		);
 
-		vec4 shadowPixel = vec4(vec3( shadowpixel ), 1);
-
-		gl_FragColor = shadowPixel;
-
-		
+		gl_FragColor = vec4(vec3(shadowpixel), 1);
 	}
 
 	void frag_HandleSpotlight()
 	{
 		float dotprod = dot(-fragNormal, fragPos - light_pos);
+
 		if(dotprod <= 0.0)
 		{
 			DiscardLightFragment();
@@ -323,14 +319,15 @@ const char glsl330_world_fp[] = R"(
 		}
 
 		vec3 projCoord = projTexCoord.xyz / projTexCoord.w;
+
 		projCoord.xyz *= 0.5;
 		projCoord.xyz += 0.5;
 		vec4 pixel = texture2D(spotlight_texture, projCoord.xy);
 		pixel.rgb *= pixel.w;
 
-		if (projCoord.x < 0.0 || projCoord.x > 1.0 ||
-			projCoord.y < 0.0 || projCoord.y > 1.0 ||
-			projCoord.z < 0.0 || projCoord.z > 1.0 ) 
+		if(projCoord.x < 0.0 || projCoord.x > 1.0 ||
+		   projCoord.y < 0.0 || projCoord.y > 1.0 ||
+		   projCoord.z < 0.0 || projCoord.z > 1.0)
 		{
 			DiscardLightFragment();
 			return;
@@ -343,23 +340,22 @@ const char glsl330_world_fp[] = R"(
 				gl_FragColor = vec4(0, 0, 0, 0);
 			else
 				gl_FragColor = vec4(1, 1, 1, 1);
+
 			return;
 		}
 
 		float attenuation = 1.0 - (distance / light_radius);
-		
 
 		if(shadow)
 		{
 			float shadowPixel = sampleShadowVariance(shadow_texture, projCoord.xy);
 			
 			pixel.rgb *= vec3(shadowPixel);
-		}		
-		
+		}
+
 		attenuation = clamp(attenuation, 0.0, 1.0);
-		
+
 		pixel.rgb *= vec3(attenuation);
-		
 		pixel.rgb *= light_color;
 
 		gl_FragColor = pixel;
@@ -368,6 +364,7 @@ const char glsl330_world_fp[] = R"(
 	void frag_HandleDynLight()
 	{
 		float dotprod = dot(-fragNormal, fragPos - light_pos);
+
 		if(dotprod <= 0.0)
 		{
 			DiscardLightFragment();
@@ -380,7 +377,7 @@ const char glsl330_world_fp[] = R"(
 			DiscardLightFragment();
 			return;
 		}
-		
+
 		float attenuation = 1.0 - (distance / light_radius);
 
 		attenuation = clamp(attenuation, 0.0, 1.0);
@@ -396,26 +393,36 @@ const char glsl330_world_fp[] = R"(
 			else
 				attenuation = mix(1, shadow, attenuation);
 		}
-		
+
 		if(!onlyshadow)
 			gl_FragColor = vec4( vec3(light_color * attenuation), 1);
 		else
 			gl_FragColor = vec4( vec3(attenuation), 1);
 	}
 
+	// returns 0 for silent hill, 1 for a fog free experience
 	float GetFogFactor()
 	{
-		float dist = length(renderorigin - fragPos);
+		float dist = length(fragPos - renderorigin);
 
-		// Linear
-		float fogFactor = (fogend - dist) / (fogend - fogstart);
+		float fogRange = fogend - fogstart;
 
-		// Exponential Squared
-		//float density = 0.001;
-		//float fogFactor = exp(-density * density * dist * dist);
-		
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
-		return fogFactor;
+		if(fogRange <= 0.0)
+			return dist < fogstart ? 1.0 : 0.0;
+
+		float fogFactor = (fogend - dist) / fogRange;
+
+		return clamp(fogFactor, 0.0, 1.0);
+	}
+
+	vec3 ApplyFog(vec3 color)
+	{
+		if(!fog_active)
+			return color;
+
+		float fogFactor = GetFogFactor();
+
+		return mix(fogcolor, color, fogFactor);
 	}
 
 	void frag_HandleWireframe()
@@ -436,56 +443,63 @@ const char glsl330_world_fp[] = R"(
 		if(basetex_pixel.a < 0.5)
 			discard;
 
-		basetex_pixel.a *= float(renderamt) / 255;
+		basetex_pixel.a *= float(renderamt) / 255.0;
 
 		vec4 lightmap_pixel = texture2D(lightmap_texture, frag_texcoord_lightmap);
 
-		//gamma
-		lightmap_pixel.rgb = pow(lightmap_pixel.rgb, vec3( clamp(1.0 / lightgamma, 0.1, 5) ) );
-		basetex_pixel.rgb = pow(basetex_pixel.rgb, vec3( clamp(1.0 / texgamma, 0.1, 5) ) );
+		// Gamma
+		lightmap_pixel.rgb = pow(
+			lightmap_pixel.rgb,
+			vec3(clamp(1.0 / lightgamma, 0.1, 5.0))
+		);
 
-		//fog
-		if(fog_active)
-		{
-			lightmap_pixel.rgb = mix( fogcolor * 0.5, lightmap_pixel.rgb, GetFogFactor() );
-			basetex_pixel.rgb =	 mix( fogcolor * 0.5, basetex_pixel.rgb,  GetFogFactor() );
-		}
+		basetex_pixel.rgb = pow(
+			basetex_pixel.rgb,
+			vec3(clamp(1.0 / texgamma, 0.1, 5.0))
+		);
 
 		if(detailtexture)
 		{
-			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));
+			lightmap_pixel.rgb *= pow(
+				texture(
+					detail_texture,
+					frag_texcoord_detailtexture
+				).rgb,
+				vec3(dt_opacity)
+			);
 		}
 
-		gl_FragColor = (basetex_pixel * lightmap_pixel) * 2;
-		gl_FragColor.a = basetex_pixel.a;
+		vec3 finalColor = (basetex_pixel.rgb * lightmap_pixel.rgb) * 2.0;
+		finalColor = ApplyFog(finalColor);
 
+		gl_FragColor = vec4(
+			finalColor,
+			basetex_pixel.a
+		);
 	}
 
 	void frag_HandleTexturePass()
 	{
 		vec4 basetex_pixel = texture2D(base_texture, frag_texcoord_texture); 
 
-		//alpha test
+		// Alpha test
 		if(basetex_pixel.a < 0.5)
 			discard;
 
-		//gamma
-		basetex_pixel.rgb = pow(basetex_pixel.rgb, vec3( clamp(1.0 / texgamma, 0.1, 5) ) );
+		// Gamma
+		basetex_pixel.rgb = pow(
+			basetex_pixel.rgb,
+			vec3(clamp(1.0 / texgamma, 0.1, 5.0))
+		);
 
-		//entity render vars
+		// Entity render vars
 		if(!scrollingpolys)
 		{
-			basetex_pixel.rgb *= vec3(rendercolor) / 255;
+			basetex_pixel.rgb *= vec3(rendercolor) / 255.0;
 		}
 
-		basetex_pixel.a *= float(renderamt) / 255;
+		basetex_pixel.a *= float(renderamt) / 255.0;
 
-		//fog
-		if(fog_active)
-		{
-			basetex_pixel.rgb = mix( fogcolor * 0.5, basetex_pixel.rgb, GetFogFactor() );
-		}
-		
 		//MOD SPECIFIC: nightvision
 		// TO-DO: the red tint is supposed to be a screen effect, this is a temp fix
 		if(nightvision)
@@ -493,10 +507,9 @@ const char glsl330_world_fp[] = R"(
 			basetex_pixel.rgb *= vec3(1.1, 0.1, 0.1);
 		}
 
-		gl_FragColor = basetex_pixel;
-		
-		gl_FragColor.a = basetex_pixel.a;
+		basetex_pixel.rgb = ApplyFog(basetex_pixel.rgb);
 
+		gl_FragColor = basetex_pixel;
 	}
 
 	void frag_HandleLightmapPass()
@@ -507,6 +520,7 @@ const char glsl330_world_fp[] = R"(
 			gl_FragColor = vec4(0.65, 0.65, 0.65, 1);
 			return;
 		}
+
 		if(alphatest)
 		{
 			vec4 basetex_pixel = texture2D(base_texture, frag_texcoord_texture);
@@ -514,33 +528,53 @@ const char glsl330_world_fp[] = R"(
 				discard;
 		}
 
-		vec4 lightmap_pixel = texture2D(lightmap_texture, frag_texcoord_lightmap);
+		vec4 lightmap_pixel = texture2D(
+			lightmap_texture,
+			frag_texcoord_lightmap
+		);
 
-		//gamma
-		lightmap_pixel.rgb = pow(lightmap_pixel.rgb, vec3( clamp(1.0 / lightgamma, 0.1, 5) ) );
+		// Gamma
+		lightmap_pixel.rgb = pow(
+			lightmap_pixel.rgb,
+			vec3(clamp(1.0 / lightgamma, 0.1, 5.0))
+		);
 
-		//fog
-		if(fog_active)
-			lightmap_pixel.rgb = mix( fogcolor * 0.5, lightmap_pixel.rgb, clamp(GetFogFactor() - length(lightmap_pixel.rgb), 0, 1) );
 
-		//if(fog_active)
-			//lightmap_pixel.rgb = mix( fogcolor * clamp(length(lightmap_pixel.rgb), 0, 1), lightmap_pixel.rgb, GetFogFactor() );
+		lightmap_pixel.rgb = ApplyFog(lightmap_pixel.rgb);
 
+		// TO-DO: do before fog?
 		if(detailtexture)
-			lightmap_pixel.rgb *= pow(texture(detail_texture, frag_texcoord_detailtexture).rgb, vec3(dt_opacity));
+		{
+			lightmap_pixel.rgb *= pow(
+				texture(
+					detail_texture,
+					frag_texcoord_detailtexture
+				).rgb,
+				vec3(dt_opacity)
+			);
+		}
 
-		gl_FragColor = vec4(lightmap_pixel.rgb, lightmap_pixel.a * float(renderamt) / 255);
-		//MOD SPECIFIC: nightvision
-		// TO-DO: the red tint is supposed to be a screen effect, this is a temp fix
+		float finalAlpha = lightmap_pixel.a *
+			float(renderamt) / 255.0;
+
 		if(nightvision)
 		{
-			gl_FragColor = vec4(lightmap_pixel.rgb * vec3(1.1, 0.1, 0.1), lightmap_pixel.a * float(renderamt) / 255);
+			gl_FragColor = vec4(
+				lightmap_pixel.rgb * vec3(1.1, 0.1, 0.1),
+				finalAlpha
+			);
+		}
+		else
+		{
+			gl_FragColor = vec4(
+				lightmap_pixel.rgb,
+				finalAlpha
+			);
 		}
 	}
 
 	void main()
 	{
-
 		if(wireframe)
 		{
 			frag_HandleWireframe();
@@ -570,5 +604,4 @@ const char glsl330_world_fp[] = R"(
 			frag_HandleLightmapPass();
 		}
 	}
-
 )";

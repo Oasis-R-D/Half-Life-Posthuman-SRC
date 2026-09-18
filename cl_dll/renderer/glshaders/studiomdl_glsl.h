@@ -332,14 +332,19 @@ char glsl330_studiomdl_frag[] = R"(
 	uniform bool studiodecal;
 	uniform vec2 decalsize;
 
+	// returns 0 for silent hill, 1 for a fog free experience
 	float GetFogFactor()
 	{
-		float dist = length(renderorigin.xyz - fragPos);
+		float dist = length(fragPos - renderorigin.xyz);
 
-		float fogFactor = (fogend_n_fogactive_n_lightdebug.x - dist) / (fogend_n_fogactive_n_lightdebug.x - fogcolor_n_fogstart.w);
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
-		
-		return fogFactor;
+		float fogRange = fogend_n_fogactive_n_lightdebug.x - fogcolor_n_fogstart.w;
+
+		if(fogRange <= 0.0)
+			return dist < fogcolor_n_fogstart.w ? 1.0 : 0.0;
+
+		float fogFactor = (fogend_n_fogactive_n_lightdebug.x - dist) / fogRange;
+
+		return clamp(fogFactor, 0.0, 1.0);
 	}
 
 	void frag_HandleWireframe()
