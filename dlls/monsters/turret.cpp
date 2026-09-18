@@ -1205,7 +1205,14 @@ void CBaseTurret::TurretDeath()
 
 	if (pev->dmgtime + RANDOM_FLOAT(0, 2) > gpGlobals->time)
 	{
+		Vector smokeLocation;
+		smokeLocation.x = (pev->absmin.x, pev->absmax.x);
+		smokeLocation.y = (pev->absmin.y, pev->absmax.y);
+		smokeLocation.z = pev->origin.z - m_iOrientation * 64;
+		UTIL_Particle("engine_sentry_smoke.txt", smokeLocation, g_vecZero, 0);
+
 		// lots of smoke
+		/*
 		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 		WRITE_BYTE(TE_SMOKE);
 		WRITE_COORD(RANDOM_FLOAT(pev->absmin.x, pev->absmax.x));
@@ -1215,6 +1222,7 @@ void CBaseTurret::TurretDeath()
 		WRITE_BYTE(25);						 // scale * 10
 		WRITE_BYTE(10 - m_iOrientation * 5); // framerate
 		MESSAGE_END();
+		*/
 	}
 
 	if (pev->dmgtime + RANDOM_FLOAT(0, 5) > gpGlobals->time)
@@ -1564,6 +1572,12 @@ void CSentry::SentryDeath()
 
 	if (pev->dmgtime + RANDOM_FLOAT(0, 2) > gpGlobals->time)
 	{
+		vecSrc.x = (vecSrc.x + RANDOM_FLOAT(-16, 16));
+		vecSrc.y = (vecSrc.y + RANDOM_FLOAT(-16, 16));
+		vecSrc.z = vecSrc.z - 32;
+		UTIL_Particle("engine_sentry_smoke.txt", vecSrc, g_vecZero, 0);
+
+		/*
 		// lots of smoke
 		MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
 		WRITE_BYTE(TE_SMOKE);
@@ -1574,6 +1588,7 @@ void CSentry::SentryDeath()
 		WRITE_BYTE(15); // scale * 10
 		WRITE_BYTE(8);	// framerate
 		MESSAGE_END();
+		*/
 	}
 
 	if (pev->dmgtime + RANDOM_FLOAT(0, 8) > gpGlobals->time)

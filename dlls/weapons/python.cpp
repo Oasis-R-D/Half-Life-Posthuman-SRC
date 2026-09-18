@@ -188,11 +188,11 @@ void CPython::PrimaryAttack()
 	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 6000, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	}
 	else
 	{
-		CPhysbullet::BulletCreate(1, 35, 7500, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 40, 6000, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	}
 
 	CBasePlayerWeapon::Recoil(4, 0);
