@@ -989,30 +989,29 @@ void CMOFAssassin::Spawn()
 		m_iAssassinHead = RANDOM_LONG(MAssassinHead::White, MAssassinHead::ThermalVision);
 	}
 
-	auto weaponModel = MAssassinWeapon::None;
-
 	if (FBitSet(pev->weapons, MAssassinWeaponFlag::MP5))
 	{
-		weaponModel = MAssassinWeapon::MP5;
+		pev->weaponmodel = MAKE_STRING("models/h_mp5.mdl");
 		m_cClipSize = MP5_MAX_CLIP;
 		m_flDistTooFar = 2048+256;
 		m_flDistLook = 2048+256; //idk if this is needed
+		SetBodygroup(MAssassinBodygroup::Weapons, MAssassinWeapon::None);
 	}
 	else if (FBitSet(pev->weapons, MAssassinWeaponFlag::SniperRifle))
 	{
-		weaponModel = MAssassinWeapon::SniperRifle;
 		m_cClipSize = MASSN_SNIPER_CLIP_SIZE;
 		m_flDistTooFar = 4096.0;
 		m_flDistLook = 4096.0; //idk if this is needed
+		SetBodygroup(MAssassinBodygroup::Weapons,  MAssassinWeapon::SniperRifle);
 	}
 	else
 	{
-		weaponModel = MAssassinWeapon::None;
 		m_cClipSize = 0;
+		SetBodygroup(MAssassinBodygroup::Weapons, MAssassinWeapon::None);
 	}
 
 	SetBodygroup(MAssassinBodygroup::Heads, m_iAssassinHead);
-	SetBodygroup(MAssassinBodygroup::Weapons, weaponModel);
+	
 
 	m_cAmmoLoaded = m_cClipSize;
 
@@ -1033,6 +1032,8 @@ void CMOFAssassin::Spawn()
 void CMOFAssassin::Precache()
 {
 	PRECACHE_MODEL("models/massn.mdl");
+
+	PRECACHE_MODEL("models/h_mp5.mdl");
 
 	PRECACHE_SOUND("hgrunt/gr_mgun1.wav");
 	PRECACHE_SOUND("hgrunt/gr_mgun2.wav");
