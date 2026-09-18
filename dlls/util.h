@@ -256,7 +256,7 @@ inline void UTIL_MakeVectorsPrivate(const Vector& vecAngles, float* p_vForward, 
 //RENDERERS START
 extern void			UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType );
 extern void			UTIL_StudioDecal( Vector normal, Vector position, const char *name, int entindex );
-extern void			UTIL_ShowCaption(const char* messageId, int holdTime, bool radio);
+extern void			UTIL_ShowCaption(const char* messageId, int holdTime, bool radio, Vector origin);
 //RENDERERS END
 
 extern void UTIL_MakeAimVectors(const Vector& vecAngles); // like MakeVectors, but assumes pitch isn't inverted

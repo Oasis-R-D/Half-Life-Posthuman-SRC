@@ -2694,7 +2694,7 @@ void UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType
 	MESSAGE_END();
 }
 
-void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio)
+void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio, Vector origin)
 {
 	if (!messageId || !*messageId)
 		return;
@@ -2709,7 +2709,7 @@ void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio)
 
 	//ALERT(at_console, "PATH: %s\n", messageId);
 
-	MESSAGE_BEGIN( MSG_ALL, gmsgCaption );
+	MESSAGE_BEGIN( MSG_PAS, gmsgCaption, origin );
 		WRITE_BYTE(holdTime * 2);
 		WRITE_BYTE(radio ? 1 : 0);
 		WRITE_STRING(messageId);

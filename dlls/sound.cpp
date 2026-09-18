@@ -551,7 +551,7 @@ void CAmbientGeneric::ToggleUse(CBaseEntity* pActivator, CBaseEntity* pCaller, U
 	}
 
 	if (!m_fLooping) // TO-DO: this seems unoptimized, why not just add a bool for this?
-		UTIL_ShowCaption(szSoundFile, 0, true);
+		UTIL_ShowCaption(szSoundFile, 0, true, pev->origin);
 
 	// Directly change pitch if arg passed. Only works if sound is already playing.
 	if (useType == USE_SET && m_fActive) // Momentary buttons will pass down a float in here
@@ -1455,7 +1455,7 @@ static bool EMIT_SOUND_DYN_IMPL(edict_t *entity, int channel, const char *sample
 		if( SENTENCEG_Lookup( sample, name ) >= 0 )
 		{
 			if ((entity->v.flags & FL_DOCAPTIONS) != 0 || subtitle)
-				UTIL_ShowCaption(sample, holdTime, radioIcon);
+				UTIL_ShowCaption(sample, holdTime, radioIcon, entity->v.origin);
 			EMIT_SOUND_DYN2( entity, channel, name, volume, attenuation, flags, pitch );
 			return true;
 		}
@@ -1468,7 +1468,7 @@ static bool EMIT_SOUND_DYN_IMPL(edict_t *entity, int channel, const char *sample
 	else
 	{
 		if (subtitle)
-			UTIL_ShowCaption(sample, holdTime, radioIcon);
+			UTIL_ShowCaption(sample, holdTime, radioIcon, entity->v.origin);
 
 		EMIT_SOUND_DYN2( entity, channel, sample, volume, attenuation, flags, pitch );
 		return true;
