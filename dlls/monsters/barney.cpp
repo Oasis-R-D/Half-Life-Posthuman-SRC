@@ -355,18 +355,14 @@ void CBarney::BarneyFirePistol()
 	{
 	case SKILL_EASY: cone = CONE_8DEGREES; break;
 	case SKILL_MEDIUM: cone = CONE_5DEGREES; break;
-	case SKILL_HARD: case SKILL_REALISM: cone = CONE_3DEGREES; break;
+	default: cone = CONE_3DEGREES; break;
 	}
 	//FireBullets(1, vecShootOrigin, vecShootDir, cone, 1024, BULLET_MONSTER_9MM, 1);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 5640, vecShootOrigin, vecShootDir, cone, cone, 0.66, 9, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, 25, 5640, vecShootOrigin, vecShootDir, cone, cone, 1, 9, edict());
 
 	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, "barney/ba_attack2.wav", 1, ATTN_GUN, 0, 100 + pitchShift);
 
@@ -573,7 +569,7 @@ void CBarney::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 		{
 			if (GetBodygroup(0) != 1)
 			{
-				flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+				flDamage = round(flDamage * RANDOM_FLOAT(0.85, 0.95));
 
 				if (RANDOM_LONG(0,1) == 1)
 					UTIL_Sparks(ptr->vecEndPos);

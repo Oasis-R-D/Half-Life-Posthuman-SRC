@@ -90,9 +90,7 @@ void CM29::CalculateAmmo()
 		m_iCylL_ammo -= 1;
 	}
 	else
-	{
 		m_iCylR_ammo = m_iCylL_ammo = (m_iClip / 2);
-	}
 }
 
 bool CM29::Deploy()
@@ -213,11 +211,6 @@ const Vector& CM29::GetBulletSpread()
 
 void CM29::Shoot(int gunnumb)
 {
-	float spread = GetBulletSpread().x;
-
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += M29_ACCURACY_SHOT_PENALTY_TIME;
-
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
@@ -235,33 +228,29 @@ void CM29::Shoot(int gunnumb)
 #else
 	flags = 0;
 #endif
-	Vector vecDir;
 
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, gunnumb, 0, 0, 0);
-
-	Vector vecSrc;
-	if (gunnumb == 0)
-	{
-		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * 7.5;
-	}
-	else
-	{
-		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * -7.5;
-	}
-	
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireM29, 0.0, g_vecZero, g_vecZero, 0, 0, gunnumb, 0, 0, 0);
 
 #ifndef CLIENT_DLL
-	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6000, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
-	}
+	Vector vecSrc;
+	if (gunnumb == 0)
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * 7.5;
 	else
-	{
-		CPhysbullet::BulletCreate(1, 50, 6000, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
-	}
+		vecSrc = m_pPlayer->GetGunPosition() + gpGlobals->v_right * -7.5;
+	
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	const float spread = GetBulletSpread().x;
+
+	if (g_iSkillLevel != SKILL_REALISM)
+		CPhysbullet::BulletCreate(1, round(gSkillData.plrDmg357*1.25), 6480, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
+	else
+		CPhysbullet::BulletCreate(1, 50, 6480, vecSrc, vecAiming, spread, spread/3, 1, 44, m_pPlayer->edict());
+
 	CBasePlayerWeapon::Recoil(2, 1);
 #endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M29_ACCURACY_SHOT_PENALTY_TIME;
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0); // no ammo

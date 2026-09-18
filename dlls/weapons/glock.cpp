@@ -208,9 +208,6 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 		return;
 	}
 
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += PISTOL_ACCURACY_SHOT_PENALTY_TIME;
-
 	m_iClip--;
 
 	int flags;
@@ -238,45 +235,33 @@ void CGlock::GlockFire(float flSpread, float flCycleTime)
 		m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 	}
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecAiming;
-
-	vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-
 #ifndef CLIENT_DLL
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
 		if (!m_iSilenced)
-		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 6000, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
-		}
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg9MM, 5640, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict());
 		else
-		{
-			CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 6333, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
-		}
-	}
-	else // realism diff (hardcoded damages to prevent cheaters)
-	{
-	
-		if (!m_iSilenced)
-		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
-		}
-		else
-		{
-			CPhysbullet::BulletCreate(1, 26, 6100, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
-		}
-	}
-
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(1.33, RANDOM_FLOAT(0.85, 1.00));
+			CPhysbullet::BulletCreate(1, (gSkillData.plrDmg9MM + 2), 5328, vecSrc, vecAiming, flSpread, flSpread, 0.66, 9, m_pPlayer->edict(), true);
 	}
 	else
 	{
-		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(1.00, 1.15));
+		if (!m_iSilenced)
+			CPhysbullet::BulletCreate(1, 25, 5640, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
+		else
+			CPhysbullet::BulletCreate(1, 24, 5328, vecSrc, vecAiming, CONE_1DEGREES, CONE_1DEGREES, 1, 9, m_pPlayer->edict());
 	}
-	#endif
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		CBasePlayerWeapon::Recoil(1.33, RANDOM_FLOAT(0.85, 1.00));
+	else
+		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(1.00, 1.15));
+#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PISTOL_ACCURACY_SHOT_PENALTY_TIME;
 
 	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireGlock1, 0.0, g_vecZero, g_vecZero, 0.0, 0.0, 0, 0, (m_iClip == 0) ? 1 : 0, (int)m_iSilenced);
 

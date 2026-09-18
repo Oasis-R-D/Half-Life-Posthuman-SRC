@@ -519,7 +519,7 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	{
 		if ((bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST)) != 0)
 		{
-			flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+			flDamage = round(flDamage * RANDOM_FLOAT(0.85, 0.95));
 
 			if (RANDOM_LONG(0,1) == 1)
 				UTIL_Sparks(ptr->vecEndPos);
@@ -738,9 +738,7 @@ void CHGrunt::ManageWeaponBurst()
 void CHGrunt::Shoot()
 {
 	if (m_hEnemy == NULL)
-	{
 		return;
-	}
 
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
@@ -752,13 +750,9 @@ void CHGrunt::Shoot()
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5, 1); // shoot +-5 degrees
 
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 0.66, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6297.6f, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 0.66, 9, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 1, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, 25, 6297.6f, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_5DEGREES, 1, 9, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -774,9 +768,7 @@ void CHGrunt::Shoot()
 void CHGrunt::ShootM727()
 {
 	if (m_hEnemy == NULL)
-	{
 		return;
-	}
 
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
@@ -787,13 +779,9 @@ void CHGrunt::ShootM727()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_7DEGREES, 2048, BULLET_MONSTER_727, 1); // shoot +-3.5 degrees
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 7000, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_3DEGREES, 0.66, 556, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgM727, 12600, vecShootOrigin, vecShootDir, CONE_3DEGREES, CONE_3DEGREES, 0.66, 556, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 1, 556, edict());
-	}
+		CPhysbullet::BulletCreate(1, 34, 12600, vecShootOrigin, vecShootDir, CONE_4DEGREES, CONE_3DEGREES, 1, 556, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -808,9 +796,7 @@ void CHGrunt::ShootM727()
 void CHGrunt::Shotgun()
 {
 	if (m_hEnemy == NULL)
-	{
 		return;
-	}
 
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
@@ -823,11 +809,9 @@ void CHGrunt::Shotgun()
 	//FireBullets(9, vecShootOrigin, vecShootDir, VECTOR_CONE_15DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 1); // shoot +-7.5 degrees
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5760, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
-	}
+		CPhysbullet::BulletCreate(9, 11, 5760, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -855,13 +839,10 @@ void CHGrunt::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 	//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_20DEGREES, 2048, BULLET_MONSTER_MP5, 1);
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 0.66, 556, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 13636.8f, vecShootOrigin, vecShootDir, CONE_15DEGREES, CONE_10DEGREES, 0.66, 556, edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 1, 556, edict());
-	}
+		CPhysbullet::BulletCreate(1, 34, 13636.8f, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_2DEGREES, 1, 556, edict());
+
 	pev->effects |= EF_MUZZLEFLASH;
 
 	m_cAmmoLoaded--; // take away a bullet!

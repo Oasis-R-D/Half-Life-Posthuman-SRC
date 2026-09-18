@@ -152,37 +152,26 @@ void CElite::PrimaryAttack()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-
-	Vector vecDir;
-
 	float spread = GetBulletSpread().x;
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += ELITE_ACCURACY_SHOT_PENALTY_TIME;
 
-	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg10MM, 6500, vecSrc, vecAiming, spread, spread, 0.66f, 10, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg10MM, 5880, vecSrc, vecAiming, spread, spread, 0.66f, 10, m_pPlayer->edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 30, 6500, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, 30, 5880, vecSrc, vecAiming, spread, spread, 1, 10, m_pPlayer->edict());
 
 	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
 		CBasePlayerWeapon::Recoil(1.5, RANDOM_FLOAT(0.85, 1.00));
-	}
 	else
-	{
 		CBasePlayerWeapon::Recoil(2, RANDOM_FLOAT(1.00, 1.15));
-	}
-	#endif
+#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += ELITE_ACCURACY_SHOT_PENALTY_TIME;
 
 	int flags;
 #if defined(CLIENT_WEAPONS)
@@ -195,7 +184,7 @@ void CElite::PrimaryAttack()
 	Vector vecShellVelocity = m_pPlayer->pev->velocity + gpGlobals->v_right * RANDOM_FLOAT(50, 70) + gpGlobals->v_up * RANDOM_FLOAT(100, 150) + gpGlobals->v_forward * 25;
 	EjectBrass(pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_up * -10 + gpGlobals->v_forward * 19 + gpGlobals->v_right * 6, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL); 
 
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireElite, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFireElite, 0.0, g_vecZero, g_vecZero, 0, 0, 0, 0, 0, 0);
 	
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

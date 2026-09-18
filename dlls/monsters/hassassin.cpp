@@ -229,17 +229,11 @@ void CHAssassin::Shoot()
 	//FireBullets(1, vecShootOrigin, vecShootDir, Vector(m_flDiviation, m_flDiviation, m_flDiviation), 2048, BULLET_MONSTER_9MM); // shoot +-8 degrees
 
 	if (g_iSkillLevel == SKILL_EASY)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6333, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation/2), 0.5, 9, edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 5328, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation/2), 0.5, 9, edict());
 	else if (g_iSkillLevel == SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, 22, 5250, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
-	}
+		CPhysbullet::BulletCreate(1, 22, 5328, vecShootOrigin, vecShootDir, m_flDiviation, (m_flDiviation - 0.01), 0.66, 9, edict(), true);
 	else
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM-1, 5250, vecShootOrigin, vecShootDir, m_flDiviation,(m_flDiviation/2), 0.5, 9, edict(), true);
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM-1, 5328, vecShootOrigin, vecShootDir, m_flDiviation,(m_flDiviation/2), 0.5, 9, edict(), true);
 
 	switch (RANDOM_LONG(0, 1))
 	{

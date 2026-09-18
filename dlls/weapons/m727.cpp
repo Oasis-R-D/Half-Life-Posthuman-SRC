@@ -27,8 +27,8 @@
 //=========================================================
 // M727
 //=========================================================
-#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.0625f	// Applied amount of time each shot adds to the time we must recover from
-#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.125f	// Maximum penalty to deal out
+#define	M727_ACCURACY_SHOT_PENALTY_TIME		0.073f	// Applied amount of time each shot adds to the time we must recover from
+#define	M727_ACCURACY_MAXIMUM_PENALTY_TIME	0.073f	// Maximum penalty to deal out
 
 LINK_ENTITY_TO_CLASS(weapon_m727, CM727);
 
@@ -177,7 +177,7 @@ const Vector& CM727::GetBulletSpread()
 	float ramp = RemapValClamped(m_flAccuracyPenalty, 0.0f, M727_ACCURACY_MAXIMUM_PENALTY_TIME, 0.0f, 1.0f ); 
 
 	// We lerp from very accurate to inaccurate over time
-	VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_3DEGREES, ramp, cone );
+	VectorLerp( VECTOR_CONE_1DEGREES/2, VECTOR_CONE_4DEGREES, ramp, cone );
 	
 	if ((m_pPlayer->m_afButtonLast & IN_RUN) != 0 && m_pPlayer->pev->velocity.Length() > 100)
 		cone = cone + VECTOR_CONE_3DEGREES;
@@ -210,22 +210,22 @@ void CM727::PrimaryAttack()
 
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-
 	Vector spread = GetBulletSpread();
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
 
-	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 7000, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgM727, 12600, vecSrc, vecAiming, spread.x, spread.y, 0.66, 556, m_pPlayer->edict());
 	else
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
+		CPhysbullet::BulletCreate(1, 34, 12600, vecSrc, vecAiming, spread.x, spread.y, 1, 556, m_pPlayer->edict());
 
 	//TestSprayPat(M727_MAX_CLIP - m_iClip);
 	CBasePlayerWeapon::Recoil(1.0, 1.1);
-	#endif
+#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M727_ACCURACY_SHOT_PENALTY_TIME;
 
 	int flags;
 #if defined(CLIENT_WEAPONS)

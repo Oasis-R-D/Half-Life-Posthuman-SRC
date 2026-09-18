@@ -824,9 +824,9 @@ void CTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 12600, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
 	else
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 34, 12600, vecSrc, vecDirToEnemy, TURRET_SPREAD, 0, 0.66, 9, edict());
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
@@ -838,9 +838,9 @@ void CMiniTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	//FireBullets(1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6297.6f, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
 	else
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 6297.6f, vecSrc, vecDirToEnemy, MINITURRET_SPREAD, 0, 0.66, 9, edict());
 
 	switch (RANDOM_LONG(0, 2))
 	{
@@ -862,7 +862,7 @@ void CXenTurret::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	// Create a new entity with CPhysbullet private data
 	CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 	pBullet->pev->classname = MAKE_STRING("phys_bullet");
-	pBullet->m_iMuzzleVel = 3000;
+	pBullet->m_fMuzzleVel = 4500;
 	pBullet->m_SpawnPos = vecSrc;
 	pBullet->m_vecDir = vecDirToEnemy;
 	pBullet->m_Spread = MINITURRET_SPREAD;
@@ -1478,9 +1478,9 @@ void CSentry::Shoot(Vector& vecSrc, Vector& vecDirToEnemy)
 	EjectBrass(vecShellPos, gpGlobals->v_right * RANDOM_FLOAT(-40, -90) + gpGlobals->v_up * RANDOM_FLOAT(10, 66), m_vecCurAngles.y, m_iShell, TE_BOUNCE_SHELL);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmg9MM, 6297.6f, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 	else
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
+		CPhysbullet::BulletCreate(1, 25, 6297.6f, vecSrc, vecDirToEnemy, CONE_2DEGREES, 0, 0.66, 9, edict());
 
 	switch (RANDOM_LONG(0, 2))
 	{

@@ -693,15 +693,14 @@ void CEagle::PrimaryAttack()
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	const float spread = GetBulletSpread().x;
 
-	const float flSpread = GetBulletSpread().x;
-	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(6, 48, 7000, vecSrc, vecAiming, flSpread, flSpread, 0.75, 420, m_pPlayer->edict());
+	CPhysbullet::BulletCreate(6, 48, 4800, vecSrc, vecAiming, spread, spread, 0.75, 420, m_pPlayer->edict());
 	CBasePlayerWeapon::Recoil(5, 10);
-	#endif
+#endif
 
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += DG_ACCURACY_SHOT_PENALTY_TIME;

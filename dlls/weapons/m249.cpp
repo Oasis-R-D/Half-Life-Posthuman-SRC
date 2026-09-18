@@ -221,31 +221,24 @@ void CM249::Shoot(bool alt)
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	const float spread = GetBulletSpread().x;
 
-	float vecSpread;
-
-	vecSpread = GetBulletSpread().x;
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
-
-	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 7000, vecSrc, vecAiming, vecSpread, vecSpread * (alt? 0.33 : 0.8), 0.75, 556, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5 + 1, 13636.8f, vecSrc, vecAiming, spread, spread * (alt? 0.33 : 0.8), 0.75, 556, m_pPlayer->edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 34, 7000, vecSrc, vecAiming, vecSpread * 0.75, vecSpread * 0.75, 1, 556, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, 34, 13636.8f, vecSrc, vecAiming, spread * 0.75, spread * 0.75, 1, 556, m_pPlayer->edict());
 
 	if (alt)
 		CBasePlayerWeapon::Recoil(0.65, clampSine(cos(2*gpGlobals->time+RANDOM_FLOAT(-0.33, 0.33))*2, 0.7, 1.75), true);
 	else
 		CBasePlayerWeapon::Recoil(0.65, 1.125);
-	#endif
+#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += M249_ACCURACY_SHOT_PENALTY_TIME;
 
 	int flags;
 #if defined(CLIENT_WEAPONS)

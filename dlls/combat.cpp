@@ -950,14 +950,28 @@ bool CBaseMonster::DeadTakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacke
 
 float CBaseMonster::DamageForce(float damage)
 {
-	float force = damage * ((32 * 32 * 72.0) / (pev->size.x * pev->size.y * pev->size.z)) * 5;
-
-	if (force > 1000.0)
+	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		force = 1000.0;
-	}
+		float force = damage * (73728 / (pev->size.x * pev->size.y * pev->size.z)) * 5;
 
-	return force;
+		if (force > 1000.0)
+		{
+			force = 1000.0;
+		}
+
+		return force;
+	}
+	else
+	{
+		float force = damage * (41472 / (pev->size.x * pev->size.y * pev->size.z)) * 5;
+
+		if (force > 1000.0)
+		{
+			force = 1000.0;
+		}
+
+		return force;
+	}
 }
 
 //

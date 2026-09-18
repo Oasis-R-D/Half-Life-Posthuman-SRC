@@ -193,33 +193,23 @@ void CShotgun::PrimaryAttack()
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
-	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-
-	float spread = GetBulletSpread().x;
-	float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
-
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += SG_ACCURACY_SHOT_PENALTY_TIME;
 
 	#ifndef CLIENT_DLL
+	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 4 + gpGlobals->v_up * -8;
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	const float spread = GetBulletSpread().x;
+
 	if (g_iSkillLevel != SKILL_REALISM)
 	{
-		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
+		const float spreadvert = m_iFiremode == 0 ? GetBulletSpread().x : CONE_2DEGREES;
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5760, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
 	}
 	else
-	{
-		CPhysbullet::BulletCreate(9, 11, 5750, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
-	}
+		CPhysbullet::BulletCreate(9, 11, 5760, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
 
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(3, 2);
-	}
-	else
-	{
-		CBasePlayerWeapon::Recoil(4, 2);
-	}
+	CBasePlayerWeapon::Recoil((m_pPlayer->pev->button & IN_DUCK) != 0 ? 3 : 4, 2);
 	#endif
 
 
@@ -290,28 +280,22 @@ void CShotgun::SecondaryAttack()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-	m_flTimeSincePrimary = gpGlobals->time;
-
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-	float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
-	float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
+	const float spread = m_iFiremode == 0 ? CONE_10DEGREES : CONE_20DEGREES;
+	const float spreadvert = m_iFiremode == 0 ? CONE_10DEGREES : CONE_2DEGREES;
+
+	CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5760, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
+
+	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
+		CBasePlayerWeapon::Recoil(7, 4);
+	else
+		CBasePlayerWeapon::Recoil(10, 5);
+#endif
 
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += 2 * SG_ACCURACY_SHOT_PENALTY_TIME;
-
-	#ifndef CLIENT_DLL
-	CPhysbullet::BulletCreate(12, gSkillData.plrDmgBuckshot, 5750, vecSrc, vecAiming, spread, spreadvert, 0.8, 12, m_pPlayer->edict());
-
-	if ((m_pPlayer->pev->button & IN_DUCK) != 0)
-	{
-		CBasePlayerWeapon::Recoil(7, 4);
-	}
-	else
-	{
-		CBasePlayerWeapon::Recoil(10, 5);
-	}
-	#endif
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
@@ -430,7 +414,7 @@ void CShotgun::WeaponIdle()
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{
-		if (/*m_iClip == 0 &&*/ m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		if (m_iClip == 0 && m_fInSpecialReload == 0 && 0 != m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 		{
 			Reload();
 		}

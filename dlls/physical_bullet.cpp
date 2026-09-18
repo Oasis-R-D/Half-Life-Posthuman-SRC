@@ -43,14 +43,14 @@
 int iTrailSprite;
 
 LINK_ENTITY_TO_CLASS(phys_bullet, CPhysbullet);
-void CPhysbullet::BulletCreate(int BLLTamnt, int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
+void CPhysbullet::BulletCreate(int BLLTamnt, int BLLTdamage, float BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic, float maxpenoverride, CBaseEntity* pIgnore)
 {
 	for (int i = 0; i < BLLTamnt; i++) // Allows multishot
 	{
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
-		pBullet->m_iMuzzleVel = BLLTspeed;
+		pBullet->m_fMuzzleVel = g_iSkillLevel != SKILL_REALISM ? BLLTspeed : BLLTspeed * 2.5;
 		pBullet->pev->dmg = BLLTdamage;
 		pBullet->m_SpawnPos = VecSpawnPos;
 		pBullet->m_vecDir = vecDir;
@@ -75,7 +75,7 @@ void CPhysbullet::BulletCreate(bullet_data_t* data)
 		// Create a new entity with CPhysbullet private data
 		CPhysbullet* pBullet = GetClassPtr((CPhysbullet*)NULL);
 		pBullet->pev->classname = MAKE_STRING("phys_bullet");
-		pBullet->m_iMuzzleVel = data->muzzlevel;
+		pBullet->m_fMuzzleVel = data->muzzlevel;
 		pBullet->pev->dmg = data->damage;
 		pBullet->m_SpawnPos = data->org;
 		pBullet->m_vecDir = data->dir;
@@ -122,7 +122,7 @@ void CPhysbullet::Spawn()
 
 	m_vecDir = m_vecDir + x * m_Spread * gpGlobals->v_right + y * m_SpreadVert * gpGlobals->v_up;
 					
-	pev->velocity = m_vecDir * m_iMuzzleVel; // Applies spread and velocity
+	pev->velocity = m_vecDir * m_fMuzzleVel; // Applies spread and velocity
 	pev->angles = UTIL_VecToAngles(m_vecDir);
 
 	pev->rendercolor = Vector(255, 255, 255);
@@ -351,7 +351,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 				// Prevent inf penetration
 				m_flPenetrationPow = V_max(m_flPenetrationPow - p, 0);
 				pev->dmg = V_max(pev->dmg - round(0.125 * p), 2);
-				m_iMuzzleVel = V_max(m_iMuzzleVel - 100 * p, 1000);
+				m_fMuzzleVel = V_max(m_fMuzzleVel - 100 * p, 1000);
 
 				// Damage
 				if (DAMAGE_NO != pOther->pev->takedamage)
@@ -412,11 +412,11 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		// See if we should reflect off this surface
 		float hitDot = -DotProduct(tr.vecPlaneNormal, vecDir);
 			
-		if ((hitDot < 0.0871) && (m_iMuzzleVel > 2500)) // 85 degrees
+		if ((hitDot < 0.0871) && (m_fMuzzleVel > 2500)) // 85 degrees
 		{
 			Vector vReflection = (2.0f * tr.vecPlaneNormal * hitDot) + vecDir;
 
-			//CPhysbullet::BulletCreate(1, pev->dmg/3, m_iMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
+			//CPhysbullet::BulletCreate(1, pev->dmg/3, m_fMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
 
 			// Damage
 			if (DAMAGE_NO != pOther->pev->takedamage)
@@ -427,7 +427,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 			}
 
 			m_vecDir = vReflection;
-			m_iMuzzleVel *= 0.75;
+			m_fMuzzleVel *= 0.75;
 			m_flPenetrationPow *= 10 * hitDot;
 			pev->dmg /= 1.5;
 			m_bTryRefl = true;
@@ -520,7 +520,7 @@ void CPhysbullet::AirThink()
 	// Update pos/vel for penetrations and ricochet
 	if (m_bTryRefl)
 	{
-		pev->velocity = m_vecDir * m_iMuzzleVel;
+		pev->velocity = m_vecDir * m_fMuzzleVel;
 		pev->angles = UTIL_VecToAngles( pev->velocity );
 		m_bTryRefl = false;
 	}
@@ -531,7 +531,7 @@ void CPhysbullet::AirThink()
 
 		UTIL_SetOrigin(pev, m_SpawnPos);
 		pev->origin = m_SpawnPos;
-		pev->velocity = m_vecDir * m_iMuzzleVel;
+		pev->velocity = m_vecDir * m_fMuzzleVel;
 		pev->angles = UTIL_VecToAngles( pev->velocity );
 		m_bTryPen = false;
 	}

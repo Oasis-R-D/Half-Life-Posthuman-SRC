@@ -171,32 +171,23 @@ void CPython::PrimaryAttack()
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
+	const float spread = GetBulletSpread().x;
 
-	Vector vecDir;
-	//vecDir = m_pPlayer->FireBulletsPlayer(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1, 0, m_pPlayer->pev, m_pPlayer->random_seed);
-	//m_pPlayer->FireBullets(1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 1);
-
-	float spread = GetBulletSpread().x;
-	m_flTimeSincePrimary = gpGlobals->time;
-	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
-
-	#ifndef CLIENT_DLL
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 6000, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmg357, 6240, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 	else
-	{
-		CPhysbullet::BulletCreate(1, 40, 6000, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
-	}
+		CPhysbullet::BulletCreate(1, 40, 6240, vecSrc, vecAiming, spread, spread, 0.8, 357, m_pPlayer->edict());
 
 	CBasePlayerWeapon::Recoil(4, 0);
-	#endif
+#endif
+
+	m_flTimeSincePrimary = gpGlobals->time;
+	m_flAccuracyPenalty += PYTHON_ACCURACY_SHOT_PENALTY_TIME;
 
 	int flags;
 #if defined(CLIENT_WEAPONS)
@@ -205,7 +196,7 @@ void CPython::PrimaryAttack()
 	flags = 0;
 #endif
 
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFirePython, 0.0, g_vecZero, g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usFirePython, 0.0, g_vecZero, g_vecZero, 0, 0, 0, 0, 0, 0);
 	
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

@@ -5246,7 +5246,7 @@ void CBasePlayer ::ClearEffects(void)
 // Thanks BUzer // yeah THANKS buddy *kisses you*.
 void CBasePlayer ::SendInitMessages(void)
 {
-	CVAR_SET_FLOAT("sv_maxvelocity", 9999); // ugly but required for crossbow bolts and physbullets
+	CVAR_SET_FLOAT("sv_maxvelocity", 40000); // ugly but required for railcannon bolts and physbullets
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);
 	CBaseEntity* pEntity;
 

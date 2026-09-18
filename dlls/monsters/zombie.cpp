@@ -104,7 +104,7 @@ public:
 			{
 				if (FClassnameIs(pev, "monster_zombie_barney") || FClassnameIs(pev, "monster_zombie_soldier"))
 				{
-					flDamage = round(flDamage * (g_iSkillLevel != SKILL_REALISM ? 0.8 : 0.7));
+					flDamage = round(flDamage * RANDOM_FLOAT(0.85, 0.95));
 
 					if (RANDOM_LONG(0, 1) == 1)
 						UTIL_Sparks(ptr->vecEndPos);

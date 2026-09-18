@@ -222,39 +222,21 @@ void CMP5::PrimaryAttack()
 
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1); // player "shoot" animation
 
+#ifndef CLIENT_DLL
 	Vector vecSrc = m_pPlayer->GetGunPosition(); // + gpGlobals->v_forward * 20 + gpGlobals->v_right * 5.3 + gpGlobals->v_up * -9.25;
 	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
-	Vector spread = GetBulletSpread();
+	const float spread = GetBulletSpread().x;
+
+	if (g_iSkillLevel != SKILL_REALISM)
+		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6297.6f, vecSrc, vecAiming, spread, spread, 0.66f, 9, m_pPlayer->edict());
+	else
+		CPhysbullet::BulletCreate(1, 25, 6297.6f, vecSrc, vecAiming, spread, spread, 1, 9, m_pPlayer->edict());
+
+	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 1.2 : -0.8, 1);
+#endif
 
 	m_flTimeSincePrimary = gpGlobals->time;
 	m_flAccuracyPenalty += MP5_ACCURACY_SHOT_PENALTY_TIME;
-
-	#ifndef CLIENT_DLL
-	/*
-	bullet_data_t bulletdata;
-	bulletdata.muzzlevel = 6000;
-	bulletdata.org = vecSrc;
-	bulletdata.dir = vecAiming;
-	bulletdata.spread = spread.x;
-	bulletdata.vertspread = spread.y;
-	bulletdata.pShooter = m_pPlayer->edict();
-	if (g_iSkillLevel != SKILL_REALISM)
-	{
-		bulletdata.damage = gSkillData.plrDmgMP5;
-		bulletdata.gravity = 0.66f;
-	}
-	else
-		bulletdata.damage = 25;
-	CPhysbullet::BulletCreate(&bulletdata);
-	*/
-
-	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.plrDmgMP5, 6000, vecSrc, vecAiming, spread.x, spread.y, 0.66f, 9, m_pPlayer->edict());
-	else
-		CPhysbullet::BulletCreate(1, 25, 6000, vecSrc, vecAiming, spread.x, spread.y, 1, 9, m_pPlayer->edict());
-
-	CBasePlayerWeapon::Recoil((m_iClip % 2 == 0 || RANDOM_LONG(0,1) == 0) ? 1.2 : -0.8, 1);
-	#endif
 
 	int flags;
 #if defined(CLIENT_WEAPONS)
@@ -284,9 +266,7 @@ void CMP5::PrimaryAttack()
 		}
 	}
 	else
-	{
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.075);
-	}
 
 	if (m_flNextPrimaryAttack < UTIL_WeaponTimeBase())
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.075;

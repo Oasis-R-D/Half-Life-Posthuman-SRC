@@ -891,11 +891,10 @@ bool CApache::FireGun()
 
 	if (DotProduct(vecGun, vecTarget) > 0.965)
 	{
-		//FireBullets(1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1);
 		if (g_iSkillLevel != SKILL_REALISM)
-			CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
+			CPhysbullet::BulletCreate(1, gSkillData.monDmg12MM, 12676.8f, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
 		else
-			CPhysbullet::BulletCreate(1, 25, 7000, posGun, vecGun, CONE_7DEGREES, CONE_7DEGREES, 0.25, 357, edict());
+			CPhysbullet::BulletCreate(1, 25, 12676.8f, posGun, vecGun, CONE_6DEGREES, CONE_6DEGREES, 0.25, 357, edict());
 
 		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "turret/tu_fire1.wav", 1, ATTN_GUN);
 

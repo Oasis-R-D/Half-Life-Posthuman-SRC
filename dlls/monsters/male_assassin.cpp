@@ -782,14 +782,10 @@ void CMOFAssassin::ManageWeaponBurst()
 void CMOFAssassin::Shoot()
 {
 	if (m_hEnemy == NULL)
-	{
 		return;
-	}
 
 	if (FBitSet(pev->weapons, MAssassinWeaponFlag::SniperRifle) && gpGlobals->time - m_flLastShot <= 0.11)
-	{
 		return;
-	}
 
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
@@ -807,13 +803,10 @@ void CMOFAssassin::Shoot()
 		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5); // shoot +-5 degrees
 
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
-			CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 0.66, 9, edict());
-		}
+			CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 6297.6f, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 0.66, 9, edict());
 		else
-		{
-			CPhysbullet::BulletCreate(1, 25, 6000, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
-		}
+			CPhysbullet::BulletCreate(1, 25, 6297.6f, vecShootOrigin, vecShootDir, CONE_5DEGREES, CONE_3DEGREES, 1, 9, edict());
+
 		pev->armorvalue = gpGlobals->time + 0.075;
 	}
 	else
@@ -823,13 +816,10 @@ void CMOFAssassin::Shoot()
 		//FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_1DEGREES, 2048, BULLET_PLAYER_556);
 
 		if (g_iSkillLevel != SKILL_REALISM)
-		{
-			CPhysbullet::BulletCreate(1, gSkillData.plrDmg556, 8000, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 0.75, 762, edict());
-		}
+			CPhysbullet::BulletCreate(1, gSkillData.plrDmg556, 12240, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_1DEGREES, 0.75, 762, edict());
 		else
-		{
-			CPhysbullet::BulletCreate(1, 45, 6500, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
-		}
+			CPhysbullet::BulletCreate(1, 45, 12240, vecShootOrigin, vecShootDir, CONE_1DEGREES, CONE_2DEGREES, 1, 762, edict());
+
 		pev->armorvalue = -1;
 	}
 

@@ -727,9 +727,7 @@ bool CHGruntHeavy::CheckRangeAttack2(float flDot, float flDist)
 void CHGruntHeavy::Shotgun()
 {
 	if (m_hEnemy == NULL)
-	{
 		return;
-	}
 
 	Vector vecShootOrigin = GetGunPosition();
 	Vector vecShootDir = ShootAtEnemy(vecShootOrigin);
@@ -741,9 +739,9 @@ void CHGruntHeavy::Shotgun()
 	EjectBrass(vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iShotgunShell, TE_BOUNCE_SHOTSHELL);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5750, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
+		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5760, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_6DEGREES, 0.75, 12, edict());
 	else
-		CPhysbullet::BulletCreate(9, 11, 5750, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
+		CPhysbullet::BulletCreate(9, 11, 5760, vecShootOrigin, vecShootDir, CONE_2DEGREES, CONE_2DEGREES, 1, 12, edict());
 
 	m_cAmmoLoaded--; // take away a bullet!
 
@@ -773,9 +771,9 @@ void CHGruntHeavy::M249()
 	EjectBrass(vecShootOrigin, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL);
 
 	if (g_iSkillLevel != SKILL_REALISM)
-		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 7000, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
+		CPhysbullet::BulletCreate(1, gSkillData.monDmgMP5, 13636.8f, vecShootOrigin, vecShootDir, CONE_7DEGREES, CONE_1DEGREES, 0.66, 556, edict());
 	else
-		CPhysbullet::BulletCreate(1, 34, 7000, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_1DEGREES, 1, 556, edict());
+		CPhysbullet::BulletCreate(1, 34, 13636.8f, vecShootOrigin, vecShootDir, CONE_6DEGREES, CONE_1DEGREES, 1, 556, edict());
 
 	pev->effects |= EF_MUZZLEFLASH;
 

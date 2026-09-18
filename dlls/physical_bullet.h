@@ -14,7 +14,7 @@ struct bullet_data_t
 {
     int amount = 1;
     int damage = 0;
-	unsigned int muzzlevel = 5;
+	float muzzlevel = 5;
 	int type = 9;
 	Vector org;
 	Vector dir;
@@ -34,7 +34,7 @@ struct bullet_data_t
 class CPhysbullet : public CBaseEntity
 {
 public:
-	static void BulletCreate(int BLLTamnt, int BLLTdamage, unsigned int BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = -1, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
+	static void BulletCreate(int BLLTamnt, int BLLTdamage, float BLLTspeed, Vector VecSpawnPos, Vector vecDir, float vecSpread, float vecSpreadvert, float BLLTGravity, int BLLTtype, edict_t *shooter, bool subsonic = false, float maxpenoverride = -1, CBaseEntity* pIgnore = nullptr); // add damage, spread and owner so entities calling this can give it the proper stuff
 	static void BulletCreate(bullet_data_t* data); // add damage, spread and owner so entities calling this can give it the proper stuff
 	void Spawn() override;
 	void Precache() override;
@@ -51,7 +51,7 @@ public:
 
 	CBaseEntity* m_pIgnore;
 	int m_Flare;
-	unsigned int m_iMuzzleVel;
+	float m_fMuzzleVel;
 
 	Vector m_SpawnPos;
 	Vector m_vecDir;
