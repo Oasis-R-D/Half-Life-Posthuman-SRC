@@ -411,6 +411,9 @@
     <ClCompile Include="..\..\game_shared\parsetext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\memory_hunt.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -799,6 +802,9 @@
     </ClInclude>
     <ClInclude Include="..\..\game_shared\text_utils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\memory_hunt.h">
+      <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

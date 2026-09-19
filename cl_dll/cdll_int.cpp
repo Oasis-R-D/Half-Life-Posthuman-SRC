@@ -55,6 +55,7 @@
 
 #include "studio.h"
 #include "../renderer/StudioModelRenderer.h"
+#include "memory_hunt.h"
 
 extern engine_studio_api_t IEngineStudio;
 // RENDERERS END
@@ -183,30 +184,22 @@ void LoadWindowIcon()
 	delete[] buffer;
 }
 
-size_t GetModuleSize(HMODULE hModule)
+
+extern int restore_numleafs;
+extern bool should_reset_numleafs;
+
+//lets restore numleafs as early as possible, 
+// because somewhere, somehow, it affects server's ability to transition levels correctly...
+void (*original_VGUI2_ResetCurrentTexture)() = nullptr;
+static void _cdecl our_VGUI2_ResetCurrentTexture()
 {
-	if (!hModule)
-		return 0;
+	if (restore_numleafs && engine_cl->worldmodel && should_reset_numleafs)
+		engine_cl->worldmodel->numleafs = restore_numleafs;
 
-	// Base pointer
-	auto base = reinterpret_cast<BYTE*>(hModule);
+	should_reset_numleafs = false;
 
-	// DOS header
-	auto dosHeader = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
-	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
-		return 0;
-
-	// NT headers
-	auto ntHeader = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dosHeader->e_lfanew);
-	if (ntHeader->Signature != IMAGE_NT_SIGNATURE)
-		return 0;
-
-	// Size of the image in memory
-	return ntHeader->OptionalHeader.SizeOfImage;
+	original_VGUI2_ResetCurrentTexture();
 }
-
-
-
 int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 {
 	gEngfuncs = *pEnginefuncs;
@@ -338,6 +331,15 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 
 	memcpy(&gEngfuncs, pEnginefuncs, sizeof(cl_enginefunc_t));
 
+	auto engineBase = GetModuleHandleA("hw.dll");
+
+	void* func;
+	func = findCallnJmpFunction((uint8_t*)gEngfuncs.pTriAPI->Begin, nullptr);
+	assert(func);
+	MH_Initialize();
+	MH_CreateHook(func, our_VGUI2_ResetCurrentTexture, (void**)&original_VGUI2_ResetCurrentTexture);
+	MH_EnableHook(func);
+
 	Hook_gEngfuncs_Functions();
 
 	const bool result = CL_InitClient();
@@ -351,51 +353,6 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 
 	return 1;
 }
-
-
-bool is_readable_memory(const MEMORY_BASIC_INFORMATION& mbi)
-{
-	if (mbi.State != MEM_COMMIT)
-		return false;
-	DWORD prot = mbi.Protect & ~PAGE_GUARD & ~PAGE_NOCACHE;
-	if (prot == 0)
-		return false;
-
-	return (prot & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) != 0;
-}
-
-std::uintptr_t findPatternInModule(uint8_t* hModule, size_t iSize, const char* pattern)
-{
-	if (!hModule || !pattern)
-		return 0;
-
-	BYTE* base = hModule;
-	SIZE_T size = iSize;
-	SIZE_T patlen = strlen(pattern);
-
-	SIZE_T offset = 0;
-	while (offset < size)
-	{
-		MEMORY_BASIC_INFORMATION mbi;
-		if (!VirtualQuery(base + offset, &mbi, sizeof(mbi)))
-			break;
-		if (is_readable_memory(mbi))
-		{
-			SIZE_T regionSize = std::min<SIZE_T>(mbi.RegionSize, size - offset);
-			BYTE* regionBase = reinterpret_cast<BYTE*>(mbi.BaseAddress);
-			for (SIZE_T i = 0; i + patlen <= regionSize; ++i)
-			{
-				if (memcmp(regionBase + i, pattern, patlen) == 0)
-				{
-					return reinterpret_cast<std::uintptr_t>(regionBase + i);
-				}
-			}
-		}
-		offset += mbi.RegionSize;
-	}
-	return 0;
-}
-
 
 void FindEngineCLS()
 {
@@ -429,7 +386,7 @@ void FindEngineCLS()
 
 		const char* find = "\\topcolor\\0\\bottomcolor\\0\\rate\\2500\\cl_updaterate\\20\\cl_lw\\1\\cl_lc\\1";
 		const char* name = "\\name\\";
-		std::uintptr_t found = findPatternInModule((uint8_t*)engineBase, size, find);
+		std::uintptr_t found = findPatternInModule((uint8_t*)engineBase, size, (byte*)find, strlen(find));
 		int i = 1;
 		while (true)
 		{
@@ -557,9 +514,6 @@ int DLLEXPORT HUD_Redraw(float time, int intermission)
 
 	return 1;
 }
-
-
-extern int restore_numleafs;
 
 /*
 ==========================
@@ -745,8 +699,8 @@ void pfnFrameRender2(void) //(called in SCR_UpdateScreen in the end before GL_En
 {
 	// gEngfuncs.Con_Printf("%s", __func__);
 
-	if (restore_numleafs && engine_cl->worldmodel)
-		engine_cl->worldmodel->numleafs = restore_numleafs;
+	//if (restore_numleafs && engine_cl->worldmodel)
+	//	engine_cl->worldmodel->numleafs = restore_numleafs;
 }
 
 

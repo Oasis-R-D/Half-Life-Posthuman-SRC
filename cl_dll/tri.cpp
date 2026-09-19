@@ -193,6 +193,7 @@ salsa: anything can be rendered here, transparent or not
 */
 
 extern ref_params_t* r_refdef;
+bool should_reset_numleafs = false;
 
 void DLLEXPORT HUD_DrawNormalTriangles()
 {
@@ -215,6 +216,7 @@ void DLLEXPORT HUD_DrawNormalTriangles()
 	GL_VertexArrayObject::ResetVAOBinding();
 
 	r_refdef->onlyClientDraw = 0; // for sound
+	should_reset_numleafs = true;
 }
 
 /*

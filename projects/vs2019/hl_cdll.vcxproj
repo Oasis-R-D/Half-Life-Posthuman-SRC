@@ -73,7 +73,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc16\vgui.lib;wsock32.lib;..\..\lib\public\sdl2.lib;opengl32.lib;..\..\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc16\vgui.lib;wsock32.lib;..\..\lib\public\sdl2.lib;opengl32.lib;..\..\discord-rpc.lib;..\..\lib\libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
       <DelayLoadDLLs>discord-rpc.dll</DelayLoadDLLs>
@@ -112,7 +112,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc16\vgui.lib;wsock32.lib;..\..\lib\public\sdl2.lib;opengl32.lib;..\..\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc16\vgui.lib;wsock32.lib;..\..\lib\public\sdl2.lib;opengl32.lib;..\..\discord-rpc.lib;..\..\lib\libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
       <DelayLoadDLLs>discord-rpc.dll</DelayLoadDLLs>
@@ -160,6 +160,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\cl_dll\inputw32.cpp" />
     <ClCompile Include="..\..\cl_dll\interpolation.cpp" />
     <ClCompile Include="..\..\cl_dll\in_camera.cpp" />
+    <ClCompile Include="..\..\cl_dll\memory_hunt.cpp" />
     <ClCompile Include="..\..\cl_dll\menu.cpp" />
     <ClCompile Include="..\..\cl_dll\message.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\BSPModelGen.cpp" />
@@ -255,6 +256,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\cl_dll\interpolation.h" />
     <ClInclude Include="..\..\cl_dll\in_defs.h" />
     <ClInclude Include="..\..\cl_dll\kbutton.h" />
+    <ClInclude Include="..\..\cl_dll\memory_hunt.h" />
     <ClInclude Include="..\..\cl_dll\renderer\BSPModel_Gen.h" />
     <ClInclude Include="..\..\cl_dll\renderer\bsprenderer.h" />
     <ClInclude Include="..\..\cl_dll\renderer\frustum.h" />
