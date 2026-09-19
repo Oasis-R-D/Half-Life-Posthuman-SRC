@@ -135,7 +135,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iBleedAmount, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_STRING),
+		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_MODELNAME),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
 };
