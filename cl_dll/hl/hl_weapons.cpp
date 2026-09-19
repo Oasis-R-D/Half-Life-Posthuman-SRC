@@ -179,11 +179,13 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 		return false;
 
 	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel);
-	gEngfuncs.CL_LoadModel(szAltViewModel, &m_pPlayer->altviewmodel); // ALTVM CODE
-
 	SendWeaponAnim(iAnim, body, false);
-	if (szAltViewModel)
+
+	if (szAltViewModel && iAltAnim != -1)
+	{
+		gEngfuncs.CL_LoadModel(szAltViewModel, &m_pPlayer->altviewmodel); // ALTVM CODE
 		SendWeaponAnim(iAltAnim, body, true);
+	}
 
 	g_irunninggausspred = false;
 	m_pPlayer->m_flNextAttack = 1;

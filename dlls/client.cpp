@@ -1878,6 +1878,7 @@ void UpdateClientData(const edict_t* ent, int sendweapons, struct clientdata_s* 
 
 	cd->viewmodel = MODEL_INDEX(STRING(pev->viewmodel));
 
+	// TO-DO: precache crash happens due to this aswell
 	if (pl->altviewmodel != 0)
 		cd->fuser1 = MODEL_INDEX(STRING(pl->altviewmodel));
 

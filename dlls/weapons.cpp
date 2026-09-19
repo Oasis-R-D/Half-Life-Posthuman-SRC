@@ -937,10 +937,10 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 
 	m_pPlayer->TabulateAmmo();
 	m_pPlayer->pev->viewmodel = MAKE_STRING(szViewModel);
-	m_pPlayer->altviewmodel = MAKE_STRING(szAltViewModel);
-	if (szAltViewModel != 0 && iAltAnim != NULL)
+	
+	if (szAltViewModel && iAltAnim != -1)
 	{
-		
+		m_pPlayer->altviewmodel = MAKE_STRING(szAltViewModel);
 		SendWeaponAnim(iAltAnim, body, true);
 	}
 	

@@ -5243,14 +5243,16 @@ void CBasePlayer ::ClearEffects(void)
 	MESSAGE_END();
 }
 
-// Thanks BUzer // yeah THANKS buddy *kisses you*.
+// Thanks BUzer
 void CBasePlayer ::SendInitMessages(void)
 {
 	CVAR_SET_FLOAT("sv_maxvelocity", 40000); // ugly but required for railcannon bolts and physbullets
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);
 	CBaseEntity* pEntity;
 
-	altviewmodel = 0; // ALTVM CODE // DO NOT REMOVE, WILL BREAK SAVING AND LOADING
+	if (altviewmodel != 0)
+		if (std::strlen(STRING(altviewmodel)) < 5) // Only clear if there isn't an actual model
+			altviewmodel = 0; // ALTVM CODE // DO NOT REMOVE, WILL BREAK SAVING AND LOADING
 
 	if (!pEdict)
 		return;
