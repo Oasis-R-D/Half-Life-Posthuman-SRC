@@ -1880,8 +1880,11 @@ void UpdateClientData(const edict_t* ent, int sendweapons, struct clientdata_s* 
 
 	// TO-DO: precache crash happens due to this aswell
 	if (pl->altviewmodel != 0)
+	{
+		//int numb = pl->altviewmodel;
+		//ALERT(at_console, "FAHHH, %s, %d\n", STRING(pl->altviewmodel), numb);
 		cd->fuser1 = MODEL_INDEX(STRING(pl->altviewmodel));
-
+	}
 	cd->waterlevel = pev->waterlevel;
 	cd->watertype = pev->watertype;
 	cd->weapons = pev->weapons;
