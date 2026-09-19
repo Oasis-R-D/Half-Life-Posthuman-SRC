@@ -1877,7 +1877,9 @@ void UpdateClientData(const edict_t* ent, int sendweapons, struct clientdata_s* 
 	cd->health = pev->health;
 
 	cd->viewmodel = MODEL_INDEX(STRING(pev->viewmodel));
-	cd->fuser1 = MODEL_INDEX(STRING(pl->altviewmodel));
+
+	if (pl->altviewmodel != 0)
+		cd->fuser1 = MODEL_INDEX(STRING(pl->altviewmodel));
 
 	cd->waterlevel = pev->waterlevel;
 	cd->watertype = pev->watertype;

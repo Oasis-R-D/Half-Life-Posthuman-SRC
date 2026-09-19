@@ -135,7 +135,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_iBleedAmount, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeAmnt, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iGrenadeType, FIELD_INTEGER),
-		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_STRING),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
 };
@@ -5249,6 +5249,8 @@ void CBasePlayer ::SendInitMessages(void)
 	CVAR_SET_FLOAT("sv_maxvelocity", 40000); // ugly but required for railcannon bolts and physbullets
 	edict_t* pEdict = g_engfuncs.pfnPEntityOfEntIndex(1);
 	CBaseEntity* pEntity;
+
+	altviewmodel = 0; // ALTVM CODE // DO NOT REMOVE, WILL BREAK SAVING AND LOADING
 
 	if (!pEdict)
 		return;

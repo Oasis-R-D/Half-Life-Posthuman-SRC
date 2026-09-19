@@ -178,7 +178,7 @@ bool CBasePlayerWeapon::DefaultDeploy(const char* szViewModel, const char* szWea
 	if (!CanDeploy())
 		return false;
 
-	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel); // ALTVM CODE
+	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel);
 	gEngfuncs.CL_LoadModel(szAltViewModel, &m_pPlayer->altviewmodel); // ALTVM CODE
 
 	SendWeaponAnim(iAnim, body, false);
