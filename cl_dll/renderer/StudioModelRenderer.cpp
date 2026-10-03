@@ -749,6 +749,7 @@ void CStudioModelRenderer::StudioPreFrame(ref_params_t* pparams)
 	m_dModelPerFrameData.VMprojviewmatrix = m_VM_ProjectionMatrix * gBSPRenderer.m_ViewMatrix;
 	m_dModelPerFrameData.fogcolor_n_fogstart = glm::vec4(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, gHUD.m_pFogSettings.start);
 	m_dModelPerFrameData.fogend_n_fogactive_n_lightdebug = glm::vec4(gHUD.m_pFogSettings.end, gHUD.m_pFogSettings.active, m_pCvarStudioModelLightDebug->value, 0);
+	m_dModelPerFrameData.screen_dimensions = glm::vec2(ScreenWidth, ScreenHeight);
 
 	m_Model_PerFrameBuffer->Bind(GL_BufferHandler::UniformBuffer);
 	m_Model_PerFrameBuffer->BufferSubData(GL_BufferHandler::UniformBuffer, 0, sizeof(m_dModelPerFrameData), &m_dModelPerFrameData);
@@ -2512,6 +2513,12 @@ void CStudioModelRenderer::StudioRenderModel(void)
 			StudioRenderFinal();
 		m_bChromeShell = 0;
 	}
+	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxFlatTexture)
+	{
+		m_bChromeShell = -1;
+			StudioRenderFinal();
+		m_bChromeShell = 0;
+	}
 	else
 	{
 		StudioRenderFinal();
@@ -2736,7 +2743,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_dModelPerEntityData.rendervalues = glm::vec4(colors.r / 255.f, colors.g / 255.f, colors.b / 255.f, m_pCurrentEntity->curstate.renderamt / 255.f);
 
-	if (m_bChromeShell == 0) // dont bother with light data if doing chrome shell
+	if (m_bChromeShell <= 0) // dont bother with light data if doing chrome shell
 	{
 		// lightmap light
 		m_dModelPerEntityData.lightdir = glm::vec4(m_pLighting.lightdir.x, m_pLighting.lightdir.y, m_pLighting.lightdir.z, 0);
@@ -3209,10 +3216,8 @@ void CStudioModelRenderer::StudioDrawMesh(StudioMDL_Mesh* pmesh, StudioMDL_Textu
 
 	m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_texture_flags], ptex->GetTextureFlags());
 
-	if (m_bChromeShell == 0)
-	{
+	if (m_bChromeShell <= 0)
 		gBSPRenderer.BindGLTexture(GL_TEXTURE0, texinfo.iIndex);
-	}
 
 	// draw
 	m_pCurrentStudioMDL->DrawElements(pmesh->GetNumTriangles(), pmesh->GetMeshBufferOffset());

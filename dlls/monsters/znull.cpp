@@ -389,7 +389,6 @@ void CLucigast::Precache()
 int CLucigast::IgnoreConditions()
 {
 	int iIgnore = CBaseMonster::IgnoreConditions();
-
 	if (m_Activity == ACT_MELEE_ATTACK1)
 	{
 #if 0

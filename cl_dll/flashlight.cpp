@@ -77,6 +77,8 @@ bool CHudFlashlight::VidInit()
 	m_hSprite2 = gHUD.GetSprite(HUD_flash_full);
 	m_hBeam = gHUD.GetSprite(HUD_flash_beam);
 
+	m_nvSprite = LoadSprite("sprites/of_nv_a.spr");
+
 	m_hHungBG = gHUD.GetSprite(HUD_hunger_background);
 	m_hHungBar = gHUD.GetSprite(HUD_hunger_bar);
 
@@ -110,7 +112,7 @@ bool CHudFlashlight::MsgFunc_Flashlight(const char* pszName, int iSize, void* pb
 	BEGIN_READ(pbuf, iSize);
 	m_fOn = READ_BYTE() != 0;
 	int x = READ_BYTE();
-	prehuman = READ_BYTE();
+	prehuman = (bool)READ_BYTE();
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
 
@@ -145,173 +147,138 @@ bool CHudFlashlight::Draw(float flTime)
 		g_iNightVision = false;
 	}
 
-	if (prehuman) // draw normal flashlight hud
+	if (prehuman)
+		return Draw_Pre(flTime);
+
+	return Draw_Post(flTime);
+}
+
+bool CHudFlashlight::Draw_Post(float flTime)
+{
+	if ((gHUD.m_iHideHUDDisplay & HIDEHUD_ALL) != 0)
+			return true;
+
+	int x, y;
+	Rect rc;
+
+	y = -2;
+	x = ScreenWidth - m_iHungWidth + 1;
+
+	// Draw the flashlight casing
+	SPR_Set(m_hHungBG, 255, 255, 255);
+	SPR_DrawHoles(0, x, y, m_prcHungBG);
+
+	// draw the flashlight energy level
+	int iOffset = m_iHungBarWidth * (1.0 - ((float)m_iHunger / 100.0));
+	if (iOffset < m_iHungBarWidth)
 	{
-		if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
-			return true;
+		x = ScreenWidth - m_iHungBarWidth;
+		y = (m_iHungHeight*0.33333) / -2;
 
-		if (!gHUD.HasSuit())
-			return true;
+		rc = *m_prcHungBar;
+		rc.left += iOffset;
 
-		int r, g, b, x, y, a;
-		Rect rc;
-
-		if (m_fOn)
-			a = 225;
-		else
-			a = MIN_ALPHA;
-
-		if (gHUD.FlashingHUD > 0)
-		{
-			a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
-			m_flBat = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 1); // make the values go haywire
-		}
-
-		if (m_flBat < 0.20)
-			UnpackRGB(r, g, b, RGB_REDISH);
-		else
-			UnpackRGB(r, g, b, RGB_YELLOWISH);
-
-		ScaleColors(r, g, b, a);
-
-		y = (m_prc1->bottom - m_prc2->top) / 2;
-		x = ScreenWidth - m_iWidth - m_iWidth / 2;
-
-		// Draw the flashlight casing
-		SPR_Set(m_hSprite1, r, g, b);
-		SPR_DrawAdditive(0, x, y, m_prc1);
-
-		if (m_fOn)
-		{ // draw the flashlight beam
-			x = ScreenWidth - m_iWidth / 2;
-
-			SPR_Set(m_hBeam, r, g, b);
-			SPR_DrawAdditive(0, x, y, m_prcBeam);
-		}
-
-		// draw the flashlight energy level
-		x = ScreenWidth - m_iWidth - m_iWidth / 2;
-		int iOffset = m_iWidth * (1.0 - m_flBat);
-		if (iOffset < m_iWidth)
-		{
-			rc = *m_prc2;
-			rc.left += iOffset;
-
-			SPR_Set(m_hSprite2, r, g, b);
-			SPR_DrawAdditive(0, x + iOffset, y, &rc);
-		}
+		SPR_Set(m_hHungBar, 255, 255, 255);
+		SPR_DrawAdditive(0, x + iOffset, y, &rc);
 	}
-	else // draw hunger hud
-	{
-		if ((gHUD.m_iHideHUDDisplay & HIDEHUD_ALL) != 0)
-			return true;
 
-		int x, y;
-		Rect rc;
-		
-		//OLD CODE
-		/*
-		// check if hud needs to enter or exit
-		if ((m_fHungerState == HUNGERSTATE_IDLEOUT) && (m_iHunger <= 10 || m_iHunger % 2 == 0 || (abs(m_iHunger - m_iOldHunger)) > 5)) // show hud
-		{
-			m_fHungerState = HUNGERSTATE_ENTER;
-			m_fHungerTimeStart = flTime;
-		}
-		else if (m_fHungerState == HUNGERSTATE_IDLEIN && !(m_iHunger <= 10 || m_iHunger % 2 == 0))
-		{
-			m_fHungerState = HUNGERSTATE_EXIT;
-			m_fHungerTimeStart = flTime;
-		}
+	// TO-DO: scale with hunger
+	//Draw_HungerOverlay();
 
-		if (m_fHungerState == HUNGERSTATE_IDLEOUT)
-			return true; // doesn't need drawn
+	return true;
+}
 
+bool CHudFlashlight::Draw_Pre(float flTime)
+{
+	if ((gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL)) != 0)
+		return true;
+
+	if (!gHUD.HasSuit())
+		return true;
+
+	int r, g, b, x, y, a;
+	Rect rc;
+
+	if (m_fOn)
 		a = 225;
+	else
+		a = MIN_ALPHA;
 
+	if (gHUD.FlashingHUD > 0)
+	{
+		a = (int)(fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 256.0);
+		m_flBat = (fabs(sin(flTime * gEngfuncs.pfnRandomLong(10, 20))) * 1); // make the values go haywire
+	}
+
+	if (m_flBat < 0.20)
 		UnpackRGB(r, g, b, RGB_REDISH);
+	else
+		UnpackRGB(r, g, b, RGB_YELLOWISH);
 
-		ScaleColors(r, g, b, a);
+	ScaleColors(r, g, b, a);
 
-		float timedif = flTime - m_fHungerTimeStart;
-		float pos = ScreenHeight / 32;
+	y = (m_prc1->bottom - m_prc2->top) / 2;
+	x = ScreenWidth - m_iWidth - m_iWidth / 2;
 
-		switch(m_fHungerState)
-		{
-			case HUNGERSTATE_EXIT:
-			{
-				double math = ((3*pow(timedif, 2)) - (2*pow(timedif, 3)));
-				if (timedif < 1)
-				{
-					float Ybuffer = (-math * pos + pos) - (m_prc1->bottom + m_prc2->top);
-					y = round(Ybuffer);
-				}
-				else
-				{
-					m_fHungerState = HUNGERSTATE_IDLEOUT;
-					return true;
-				}
-				break;
-			}
-			case HUNGERSTATE_ENTER: 
-			{
-				double math = ((3*pow(timedif, 2)) - (2*pow(timedif, 3)));
-				if (timedif < 1)
-				{
-					float Ybuffer = (math * pos) - (m_prc1->bottom + m_prc2->top);
-					y = round(Ybuffer);
-				}
-				else
-				{
-					m_fHungerState = HUNGERSTATE_IDLEIN;
-					y = -(m_prc1->bottom + m_prc2->top)/2;
-				}
-				break;
-			}
-			case HUNGERSTATE_IDLEIN: y = -(m_prc1->bottom + m_prc2->top)/2; break;
-		}
+	// Draw the flashlight casing
+	SPR_Set(m_hSprite1, r, g, b);
+	SPR_DrawAdditive(0, x, y, m_prc1);
 
-		//gEngfuncs.pfnCenterPrint(UTIL_VarArgs_client("%d, %d, %d, %d\n", m_iHunger, m_fHungerState, y, (abs(m_iHunger - m_iOldHunger))));
-		x = ScreenWidth - m_iWidth - m_iWidth / 2;
+	if (m_fOn)
+	{ // draw the flashlight beam
+		x = ScreenWidth - m_iWidth / 2;
 
-		// Draw the flashlight casing
-		SPR_Set(m_hSprite1, r, g, b);
-		SPR_DrawAdditive(0, x, y, m_prc1);
+		SPR_Set(m_hBeam, r, g, b);
+		SPR_DrawAdditive(0, x, y, m_prcBeam);
+	}
 
-		// draw the flashlight energy level
-		x = ScreenWidth - m_iWidth - m_iWidth / 2;
-		float buff = m_iHunger / 100;
-		int iOffset = m_iWidth * (buff-1.0);
-		if (iOffset < m_iWidth)
-		{
-			rc = *m_prc2;
-			rc.left += iOffset;
+	// draw the flashlight energy level
+	x = ScreenWidth - m_iWidth - m_iWidth / 2;
+	int iOffset = m_iWidth * (1.0 - m_flBat);
+	if (iOffset < m_iWidth)
+	{
+		rc = *m_prc2;
+		rc.left += iOffset;
 
-			SPR_Set(m_hSprite2, r, g, b);
-			SPR_DrawAdditive(0, x + iOffset, y, &rc);
-		}
-		*/
-
-		y = -2;
-		x = ScreenWidth - m_iHungWidth + 1;
-
-		// Draw the flashlight casing
-		SPR_Set(m_hHungBG, 255, 255, 255);
-		SPR_DrawHoles(0, x, y, m_prcHungBG);
-
-		// draw the flashlight energy level
-		int iOffset = m_iHungBarWidth * (1.0 - ((float)m_iHunger / 100.0));
-		if (iOffset < m_iHungBarWidth)
-		{
-			x = ScreenWidth - m_iHungBarWidth;
-			y = (m_iHungHeight*0.33333) / -2;
-
-			rc = *m_prcHungBar;
-			rc.left += iOffset;
-
-			SPR_Set(m_hHungBar, 255, 255, 255);
-			SPR_DrawAdditive(0, x + iOffset, y, &rc);
-		}
+		SPR_Set(m_hSprite2, r, g, b);
+		SPR_DrawAdditive(0, x + iOffset, y, &rc);
 	}
 
 	return true;
+}
+
+const void CHudFlashlight::Draw_HungerOverlay()
+{
+	static int lastFrame = 0;
+
+	auto frameIndex = rand() % SPR_Frames(m_nvSprite);
+
+	if (frameIndex == lastFrame)
+		frameIndex = (frameIndex + 1) % SPR_Frames(m_nvSprite);
+
+	lastFrame = frameIndex;
+
+	if (0 != m_nvSprite)
+	{
+		const auto width = SPR_Width(m_nvSprite, 0);
+		const auto height = SPR_Width(m_nvSprite, 0);
+
+		SPR_Set(m_nvSprite, 170, 0, 0);
+
+		Rect drawingRect;
+
+		for (int x = 0; x < ScreenWidth; x += width)
+		{
+			drawingRect.left = 0;
+			drawingRect.right = x + width >= ScreenWidth ? ScreenWidth - x : width;
+
+			for (int y = 0; y < ScreenHeight; y += height)
+			{
+				drawingRect.top = 0;
+				drawingRect.bottom = y + height >= ScreenHeight ? ScreenHeight - y : height;
+
+				SPR_DrawAdditive(frameIndex, x, y, &drawingRect);
+			}
+		}
+	}
 }

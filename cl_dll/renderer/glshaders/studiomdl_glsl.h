@@ -14,8 +14,6 @@ char glsl330_studiomdl_vert[] = R"(
 	#define STUDIO_NF_ADDITIVE 32
 	#define STUDIO_NF_MASKED 64
 
-
-
 	//for gpu skinning
 	layout(std140) uniform BonesUBO
 	{								
@@ -30,12 +28,14 @@ char glsl330_studiomdl_vert[] = R"(
 		vec4 fogcolor_n_fogstart; //w = fogstart
 		vec4 fogend_n_fogactive_n_lightdebug; //x = fogend, y = fogactive, z = light debug cvar
 	
+		vec2 screen_dimensions;
+
 		vec4 renderorigin;
 		vec4 renderright;
 	};
 
 	#define _NUMLIGHTS 0
-	#define _CHROMESHELL_BOOL 1
+	#define _SPECIALFX 1
 	#define _ISSTATIC_BOOL 2
 
 	layout(std140) uniform studiomdl_PerEntity
@@ -46,7 +46,7 @@ char glsl330_studiomdl_vert[] = R"(
 	
 		mat4 modelmatrix; //64 bytes
 	
-		ivec4 int_values; //x = numlights; y = chromeshell boolean; z = is this entity is static (prop_static) or not |||| 16 bytes
+		ivec4 int_values; //x = numlights; y = special FX int (1 chrome, 2 fullbright, 3 no depth); z = is this entity is static (prop_static) or not |||| 16 bytes
 
 		vec4 rendervalues; //rendercolor.r, rendercolor.g, rendercolor.b, renderamt
 		
@@ -72,6 +72,7 @@ char glsl330_studiomdl_vert[] = R"(
 	out vec4 projectedCoord;
 	out vec2 texcoord;
 	out vec3 fragPos;
+	flat out int nodepth;
 
 	vec3 translated_vertpos;
 	vec3 translated_normal;
@@ -110,6 +111,8 @@ char glsl330_studiomdl_vert[] = R"(
 			pvmatrix = projviewmatrix;
 		else
 			pvmatrix = VMprojviewmatrix;
+
+		nodepth = int_values[_SPECIALFX] == -1 ? 1 : 0;
 
 		gl_Position = pvmatrix * vec4(translated_vertpos, 1);
 	}
@@ -216,8 +219,6 @@ char glsl330_studiomdl_vert[] = R"(
 			diffuselighting += DefaultDiffuseLight(i);
 			specularlighting += DefaultSpecularLight(i);
 		}
-		
-		//
 
 		diffuselighting = clamp(diffuselighting, 0.0, 1.0);
 		specularlighting = clamp(specularlighting, 0.0, 1.0);
@@ -230,7 +231,7 @@ char glsl330_studiomdl_vert[] = R"(
 		vertexdiffusecolor = vec4(1.0);
 		vertexspecularcolor = vec4(1.0); // remove for funny
 										 // ^^ Use in ICH? Maybe if the player is damaged by a noise guy it does this?
-		if (int_values[_CHROMESHELL_BOOL] == 2)
+		if (int_values[_SPECIALFX] == 2)
 		{
 			vertexdiffusecolor = vec4(10);
 			vertexspecularcolor = vec4(10);
@@ -253,7 +254,7 @@ char glsl330_studiomdl_vert[] = R"(
 			translated_normal = normalize( transpose(inverse(mat3(modelmatrix))) * aNormal );
 		}
 
-		if ( (texture_flags & STUDIO_NF_FULLBRIGHT) > 0 || int_values[_CHROMESHELL_BOOL] != 0 )
+		if ( (texture_flags & STUDIO_NF_FULLBRIGHT) > 0 || int_values[_SPECIALFX] > 0)
 			Vertex_NoLight();
 		else if(!wireframe)
 			NormalVertexLight();
@@ -265,13 +266,11 @@ char glsl330_studiomdl_vert[] = R"(
 		fragPos = translated_vertpos;
 		gl_ClipDistance[0] = dot(vec4(translated_vertpos, 1.0), clipplane);
 	}
-
-
-
 )";
 
 char glsl330_studiomdl_frag[] = R"(
 
+	flat in int nodepth;
 	in vec3 fragPos;
 	in vec2 texcoord;
 	in vec4 projectedCoord;
@@ -288,7 +287,6 @@ char glsl330_studiomdl_frag[] = R"(
 	#define STUDIO_NF_ALPHATEST 16
 	#define STUDIO_NF_ADDITIVE 32
 	#define STUDIO_NF_MASKED 64
-	
 
 	layout(std140) uniform studiomdl_PerFrame
 	{	
@@ -296,7 +294,9 @@ char glsl330_studiomdl_frag[] = R"(
 		mat4 VMprojviewmatrix;
 		vec4 fogcolor_n_fogstart; //w = fogstart
 		vec4 fogend_n_fogactive_n_lightdebug; //x = fogend, y = fogactive
-	
+
+		vec2 screen_dimensions;
+
 		vec4 renderorigin;
 		vec4 renderright;
 	};
@@ -364,12 +364,20 @@ char glsl330_studiomdl_frag[] = R"(
 		}
 		vec4 texcolor = vec4(1.0, 1.0, 1.0, 1.0);
 
-		if(texture(texture0, texcoord).a < 0.5)
+		vec2 newTexcoord = texcoord;
+		if (nodepth == 1)
+		{
+			vec2 dimensions = screen_dimensions;
+			//dimensions.x *= (screen_dimensions.x / screen_dimensions.y);
+			newTexcoord = gl_FragCoord.xy / dimensions;
+		}
+
+		if(texture(texture0, newTexcoord).a < 0.5)
 			discard;
 
 		if(fogend_n_fogactive_n_lightdebug.z == 0)
 		{
-			texcolor = texture(texture0, texcoord);
+			texcolor = texture(texture0, newTexcoord);
 			if(!studiodecal)
 				texcolor.rgb *= 2;
 		}

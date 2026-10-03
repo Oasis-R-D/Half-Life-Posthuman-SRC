@@ -490,6 +490,9 @@ public:
 	bool Init() override;
 	bool VidInit() override;
 	bool Draw(float flTime) override;
+	bool Draw_Pre(float flTime);
+	bool Draw_Post(float flTime);
+	const void Draw_HungerOverlay();
 	void Reset() override;
 	bool MsgFunc_Flashlight(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf);
@@ -500,6 +503,7 @@ private:
 	HSPRITE_GOLDSRC m_hBeam;
 	HSPRITE_GOLDSRC m_hHungBG;
 	HSPRITE_GOLDSRC m_hHungBar;
+	HSPRITE_GOLDSRC m_nvSprite;
 	Rect* m_prcHungBG;
 	Rect* m_prcHungBar;
 	Rect* m_prc1;

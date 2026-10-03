@@ -716,14 +716,12 @@ void CPitdrone::Spawn()
 	pev->movetype = MOVETYPE_STEP;
 	m_bloodColor = BLOOD_COLOR_GREEN;
 	pev->effects = 0;
+
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		pev->health = gSkillData.pitdroneHealth;
-	}
 	else
-	{
-		pev->health = 85;
-	}
+		pev->health = 100;
+
 	m_flFieldOfView = VIEW_FIELD_WIDE; // width of this monster's FOV ( dotproduct result )
 	m_MonsterState = MONSTERSTATE_NONE;
 

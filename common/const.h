@@ -730,6 +730,7 @@ enum
 	kRenderFxGlowShell,		  // Glowing Shell
 	kRenderFxClampMinScale,	  // Keep this sprite from getting very small (SPRITES only!)
 	kRenderFxLightMultiplier, // CTM !!!CZERO added to tell the studiorender that the value in iuser2 is a lightmultiplier
+	kRenderFxFlatTexture,	  // CTM !!!CZERO added to tell the studiorender that the texture should be rendered in screen space
 	kRenderFxAlly,
 };
 

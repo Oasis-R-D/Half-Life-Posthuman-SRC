@@ -207,7 +207,7 @@ void CShotgun::PrimaryAttack()
 		CPhysbullet::BulletCreate(6, gSkillData.plrDmgBuckshot, 5760, vecSrc, vecAiming, spread, spreadvert, 0.75, 12, m_pPlayer->edict());
 	}
 	else
-		CPhysbullet::BulletCreate(9, 11, 5760, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
+		CPhysbullet::BulletCreate(9, 15, 5760, vecSrc, vecAiming, spread, spread, 1, 12, m_pPlayer->edict()); // 1.5 degree spread
 
 	CBasePlayerWeapon::Recoil((m_pPlayer->pev->button & IN_DUCK) != 0 ? 3 : 4, 2);
 	#endif

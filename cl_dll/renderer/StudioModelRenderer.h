@@ -351,6 +351,8 @@ public:
 		glm::vec4 fogcolor_n_fogstart; // w = fogstart
 		glm::vec4 fogend_n_fogactive_n_lightdebug;  // x = fogend, y = fogactive, z = light debug cvar
 
+		glm::vec2 screen_dimensions;
+
 		// w is empty for both these :( wasted space
 
 		glm::vec4 renderorigin;
