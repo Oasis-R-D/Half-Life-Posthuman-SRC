@@ -97,8 +97,6 @@ GL_ShaderProgram *overlayShader;
 GL_VertexArrayObject* overlayVAO;
 GL_FBOHandler* overlayFBO;
 
-GLuint sceneTex;
-
 //==========================
 //	stristr
 //
@@ -681,7 +679,6 @@ void R_DrawMultiViews()
 
 GLuint R_GetTexture()
 {
-	/* This does literally nothing
 	GLuint textureColorbuffer;
 	glGenTextures(1, &textureColorbuffer);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
@@ -695,10 +692,9 @@ GLuint R_GetTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	// attach to the buffer
-	glFramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	overlayFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, textureColorbuffer, 0);
 
 	return textureColorbuffer;
-	*/
 }
 
 void R_DrawMainView()
@@ -769,7 +765,7 @@ void R_DrawMainView()
 	overlayVAO->BindVAO();
 
 	// TO-DO: Give the overlay the texture somehow
-	glBindTexture(GL_TEXTURE0, sceneTex);
+	glBindTexture(GL_TEXTURE0, texture);
 
 	g_GlobalGLState.SetBlend(false);
 	g_GlobalGLState.SetCullFace(false);
