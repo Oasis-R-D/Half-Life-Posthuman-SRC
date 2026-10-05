@@ -311,7 +311,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 
 	// Add water hit VFX
 	if (pev->waterlevel != 0 || UTIL_PointContents(m_Endpos - m_vecDir * 1) == CONTENTS_WATER)
-		FindWaterSurface();
+		FindWaterSurface(); // would be better to detect change in waterlevel in think then trace backwards
 
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (owner == nullptr)
@@ -416,8 +416,6 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 		{
 			Vector vReflection = (2.0f * tr.vecPlaneNormal * hitDot) + vecDir;
 
-			//CPhysbullet::BulletCreate(1, pev->dmg/3, m_fMuzzleVel * 0.75f, tr.vecEndPos + vReflection * 8, vReflection, CONE_2DEGREES, CONE_2DEGREES, V_max(1.0, pev->gravity) /* fall more */, m_Flare, Owner, m_bsubsonic, m_flPenetrationPow, pOther->pev->takedamage ? pOther : nullptr);
-
 			// Damage
 			if (DAMAGE_NO != pOther->pev->takedamage)
 			{
@@ -511,7 +509,7 @@ void CPhysbullet::AirThink()
 	float flWindVel = 6;
 	float flwindmult = 0.25;
 
-	double calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
+	float calculatedWind = sin(gpGlobals->time * flwindmult) * flWindVel; // only calculate this once
 
 	pev->velocity = pev->velocity + (gpGlobals->v_up * calculatedWind);
 	pev->velocity = pev->velocity + (gpGlobals->v_right * calculatedWind);
@@ -537,6 +535,7 @@ void CPhysbullet::AirThink()
 	}
 
 	m_flPenetrationPow -= 0.1;
+	
 	if (pev->waterlevel != 0)
 		UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1f, pev->origin, 1);
 

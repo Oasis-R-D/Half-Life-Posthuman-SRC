@@ -121,7 +121,6 @@ void CParticleEngine::Init()
 	// 9600000 bytes = 9.6 mb
 	m_pQuadBuffer->BufferData(GL_BufferHandler::ArrayBuffer, sizeof(ParticleQuad) * 100000, nullptr, GL_BufferHandler::DynamicDraw);
 
-
 	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, pos));
 	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, uv));
 	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, color));

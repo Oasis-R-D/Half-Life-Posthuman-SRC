@@ -82,6 +82,9 @@ model_t* cl_sprite_shell;
 
 extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
+GL_ShaderProgram *overlayShader;
+GL_VertexArrayObject* overlayVAO;
+
 //==========================
 //	stristr
 //
@@ -674,6 +677,10 @@ void R_DrawMainView()
 	glMatrixMode(GL_PROJECTION);
 		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
 	
+	// Bind overlay
+	//overlayShader->Bind();
+	//overlayVAO->BindVAO();
+	
 	gBSPRenderer.m_bMainPass = true;
 	
 	// Render world
@@ -718,8 +725,16 @@ void R_DrawMainView()
 	gBSPRenderer.m_bMainPass = false;
 
 	g_BeamRenderer.NewFrame();
+
+
+	// Give the overlay the texture
+	//gBSPRenderer.BindGLTexture(GL_TEXTURE0, FBOtextureThing);
+
+	// Turn overlay off?
+	//GL_ShaderProgram::ResetShaderBind();
 }
 
+// is this not literally an overlay shader? What exactly is this?
 void DrawQuadDebugTest()
 {
 	if (!gBSPRenderer.m_pSunShadowMap)
@@ -1086,6 +1101,12 @@ void R_Init(void)
 	g_IGLDebug.Initialize();
 
 	gpTempEnts.clear();
+
+	//overlayShader = new GL_ShaderProgram(glsl_overlay_vp, glsl_overlay_fp);
+	//overlayShader->Bind();
+	//overlayShader->Uniform1i(overlayShader->GetUniformLoc("texture0"), 0);
+	//overlayVAO = new GL_VertexArrayObject();
+	//overlayVAO->BindVAO();
 
 	gPropManager.Init();
 	gTextureLoader.Init();
