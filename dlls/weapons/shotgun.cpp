@@ -69,8 +69,6 @@ void CShotgun::Precache()
 
 	m_usSingleFire = PRECACHE_EVENT(1, "scripts/events/shotgun1.sc");
 	m_usDoubleFire = PRECACHE_EVENT(1, "scripts/events/shotgun2.sc");
-	m_usSemiSingleFire = PRECACHE_EVENT(1, "scripts/events/shotgun_semi1.sc");
-	m_usSemiDoubleFire = PRECACHE_EVENT(1, "scripts/events/shotgun_semi2.sc");
 }
 
 bool CShotgun::GetItemInfo(ItemInfo* p)
@@ -184,13 +182,6 @@ void CShotgun::PrimaryAttack()
 
 	m_iClip--;
 
-	int flags;
-#if defined(CLIENT_WEAPONS)
-	flags = FEV_NOTHOST;
-#else
-	flags = 0;
-#endif
-
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
 	m_flTimeSincePrimary = gpGlobals->time;
@@ -212,14 +203,16 @@ void CShotgun::PrimaryAttack()
 	CBasePlayerWeapon::Recoil((m_pPlayer->pev->button & IN_DUCK) != 0 ? 3 : 4, 2);
 	#endif
 
+	int flags;
+#if defined(CLIENT_WEAPONS)
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
 
-	if (m_iFiremode == 0)
-	{
-		PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usSingleFire, 0.0, g_vecZero, g_vecZero, 0,  0, 0, 0, 0, m_iClip);
-		m_flPumpTime = UTIL_WeaponTimeBase() + 0.5;
-	}
-	else
-		PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usSemiSingleFire, 0.0, g_vecZero, g_vecZero, 0,  0, 0, 0, 0, m_iClip);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usSingleFire, 0.0, g_vecZero, g_vecZero, 0, 0, m_iClip, m_iFiremode, m_iFiremode, 0);
+
+	m_flPumpTime = UTIL_WeaponTimeBase() + (m_iFiremode == 1 ? 0.5 : 0.1);
 
 	if (0 == m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) // HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", false, 0);
@@ -306,16 +299,9 @@ void CShotgun::SecondaryAttack()
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2;
 	m_fInSpecialReload = 0;
 
-	if (m_iFiremode == 1)
-	{
-		PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usSemiDoubleFire, 0.0, g_vecZero, g_vecZero, 0, 0, 0, 0, 0, m_iClip);
-		m_flPumpTime = UTIL_WeaponTimeBase() + 1;
-	}
-	else
-	{
-		PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, g_vecZero, g_vecZero, 0, 0, 0, 0, 0, m_iClip);
-		m_flPumpTime = UTIL_WeaponTimeBase() + 0.6;
-	}
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, g_vecZero, g_vecZero, 0, 0, m_iClip, m_iFiremode, m_iFiremode, 0);
+	
+	m_flPumpTime = UTIL_WeaponTimeBase() + (m_iFiremode == 1 ? 1 : 0.6);
 
 	pev->armortype = 2;
 }

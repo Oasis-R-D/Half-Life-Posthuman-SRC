@@ -959,7 +959,9 @@ enum shotgun_e
 	SHOTGUN_SHOOT2_PUMP,
 	SHOTGUN_SHOOT2_PUMP_EMPTY,
 	SHOTGUN_SHOOT1_SEMI,
+	SHOTGUN_SHOOT1_SEMI_EMPTY,
 	SHOTGUN_SHOOT2_SEMI,
+	SHOTGUN_SHOOT2_SEMI_EMPTY,
 	SHOTGUN_RELOAD_START,
 	SHOTGUN_RELOAD_START_SEMI,
 	SHOTGUN_RELOAD_START_EMPTY,
@@ -1018,8 +1020,6 @@ public:
 private:
 	unsigned short m_usDoubleFire;
 	unsigned short m_usSingleFire;
-	unsigned short m_usSemiDoubleFire;
-	unsigned short m_usSemiSingleFire;
 };
 
 /*
