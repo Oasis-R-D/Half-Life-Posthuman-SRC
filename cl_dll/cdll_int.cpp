@@ -534,7 +534,8 @@ int DLLEXPORT HUD_UpdateClientData(client_data_t* pcldata, float flTime)
 
 	IN_Commands();
 
-	if (engine_cl->worldmodel && restore_numleafs) // from what i've understood we need to restore leafs before sv_frame so entities wont get culled to only 1 visframe
+	// from what i've understood we need to restore leafs before sv_frame so entities wont get culled to only 1 visframe
+	if (engine_cl->worldmodel && restore_numleafs) 
 		engine_cl->worldmodel->numleafs = restore_numleafs;
 
 	return static_cast<int>(gHUD.UpdateClientData(pcldata, flTime));

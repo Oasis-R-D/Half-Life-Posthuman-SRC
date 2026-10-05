@@ -265,6 +265,7 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\decal_glsl.h" />
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\gaussianblur_glsl.h" />
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\mirror_glsl.h" />
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\overlay_glsl.h" />
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\particle_glsl.h" />
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\shadow\bsp_solid_glsl.h" />
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\shadow\studiomdl_solid_glsl.h" />

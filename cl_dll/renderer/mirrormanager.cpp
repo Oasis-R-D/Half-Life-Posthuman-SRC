@@ -123,7 +123,6 @@ void CMirrorManager::VidInit(void)
 	mirrorFBO->FramebufferRenderbuffer(GL_FBOHandler::Framebuffer, GL_FBOHandler::DepthAttachment, mirrorDepthBuffer);
 
 	GL_FBOHandler::ResetToMainFBO();
-
 }
 
 GL_TextureHandler::gl_texturecreationinfo_t mirror_textureinfo =
@@ -427,7 +426,7 @@ void CMirrorManager::FinishMirrorPass(void)
 {
 	GL_FBOHandler::ResetToMainFBO();
 
-		// Completely clear everything
+	// Completely clear everything
 	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 

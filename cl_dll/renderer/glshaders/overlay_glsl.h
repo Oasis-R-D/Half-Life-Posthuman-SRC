@@ -7,7 +7,6 @@ char glsl_overlay_vp[] = R"(
 	void main()
 	{
 		frag_texcoord = aTexCoord;
-		frag_color = aColor;
 		gl_Position = vec4(aPosition, 1); // 2nd and third should be 0, 1?
 	}
 

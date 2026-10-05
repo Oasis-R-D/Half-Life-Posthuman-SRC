@@ -51,6 +51,17 @@ Overhauled by SalsaTobias
 
 #include "BSPModel_Gen.h"
 
+//===========================================
+// GLSL SHADER START
+//
+//===========================================
+
+#include "glshaders/overlay_glsl.h"
+
+//===========================================
+// GLSL SHADER END
+//
+//===========================================
 
 #ifndef BOX_ON_PLANE_SIDE
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p)                                                                 \
@@ -84,6 +95,7 @@ extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
 GL_ShaderProgram *overlayShader;
 GL_VertexArrayObject* overlayVAO;
+GL_FBOHandler* overlayFBO;
 
 //==========================
 //	stristr
@@ -667,6 +679,8 @@ void R_DrawMultiViews()
 
 void R_DrawMainView()
 {
+	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
+
 	glEnable(GL_DEPTH_CLAMP);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
@@ -676,11 +690,7 @@ void R_DrawMainView()
 	
 	glMatrixMode(GL_PROJECTION);
 		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
-	
-	// Bind overlay
-	//overlayShader->Bind();
-	//overlayVAO->BindVAO();
-	
+
 	gBSPRenderer.m_bMainPass = true;
 	
 	// Render world
@@ -726,9 +736,17 @@ void R_DrawMainView()
 
 	g_BeamRenderer.NewFrame();
 
+	GL_FBOHandler::ResetToMainFBO();
+	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
 
-	// Give the overlay the texture
-	//gBSPRenderer.BindGLTexture(GL_TEXTURE0, FBOtextureThing);
+	// Bind overlay
+	overlayShader->Bind();
+
+	// Give the overlay the texture somehow
+	gBSPRenderer.BindGLTexture(GL_TEXTURE0, 0);
+
+	overlayVAO->BindVAO();
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// Turn overlay off?
 	//GL_ShaderProgram::ResetShaderBind();
@@ -805,7 +823,6 @@ int V_FadeAlpha()
 
 void R_PolyBlend()
 {
-
 	int alpha = V_FadeAlpha();
 	if (!alpha)
 		return;
@@ -1102,11 +1119,11 @@ void R_Init(void)
 
 	gpTempEnts.clear();
 
-	//overlayShader = new GL_ShaderProgram(glsl_overlay_vp, glsl_overlay_fp);
-	//overlayShader->Bind();
-	//overlayShader->Uniform1i(overlayShader->GetUniformLoc("texture0"), 0);
-	//overlayVAO = new GL_VertexArrayObject();
-	//overlayVAO->BindVAO();
+	overlayShader = new GL_ShaderProgram(glsl_overlay_vp, glsl_overlay_fp);
+	overlayShader->Bind();
+	overlayShader->Uniform1i(overlayShader->GetUniformLoc("texture0"), 0);
+	overlayVAO = new GL_VertexArrayObject();
+	overlayVAO->BindVAO();
 
 	gPropManager.Init();
 	gTextureLoader.Init();
@@ -1134,6 +1151,13 @@ void R_VidInit(void)
 
 	if (mainfbo < 0)
 		mainfbo = 0;
+
+	if (!overlayFBO)
+		overlayFBO = new GL_FBOHandler();
+
+	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
+
+	GL_FBOHandler::ResetToMainFBO();
 
 	gpTempEnts.clear();
 

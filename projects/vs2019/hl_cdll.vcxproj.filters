@@ -806,5 +806,8 @@
     <ClInclude Include="..\..\cl_dll\memory_hunt.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\glshaders\overlay_glsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
