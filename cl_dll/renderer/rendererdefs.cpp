@@ -97,6 +97,8 @@ GL_ShaderProgram *overlayShader;
 GL_VertexArrayObject* overlayVAO;
 GL_FBOHandler* overlayFBO;
 
+GLuint sceneTex;
+
 //==========================
 //	stristr
 //
@@ -677,9 +679,32 @@ void R_DrawMultiViews()
 	gBSPRenderer.Make_ShadowMaps();
 }
 
+GLuint R_GetTexture()
+{
+	/* This does literally nothing
+	GLuint textureColorbuffer;
+	glGenTextures(1, &textureColorbuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ScreenWidth, ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	// filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// attach to the buffer
+	glFramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
+	return textureColorbuffer;
+	*/
+}
+
 void R_DrawMainView()
 {
 	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
+	GLuint texture = R_GetTexture();
 
 	glEnable(GL_DEPTH_CLAMP);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -741,15 +766,19 @@ void R_DrawMainView()
 
 	// Bind overlay
 	overlayShader->Bind();
-
-	// Give the overlay the texture somehow
-	gBSPRenderer.BindGLTexture(GL_TEXTURE0, 0);
-
 	overlayVAO->BindVAO();
-	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	// Turn overlay off?
-	//GL_ShaderProgram::ResetShaderBind();
+	// TO-DO: Give the overlay the texture somehow
+	glBindTexture(GL_TEXTURE0, sceneTex);
+
+	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetCullFace(false);
+	g_GlobalGLState.SetDepthTest(false);
+	
+	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_TopRight, 6);
+
+	GL_ShaderProgram::ResetShaderBind();
+	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 }
 
 // is this not literally an overlay shader? What exactly is this?
@@ -1156,7 +1185,6 @@ void R_VidInit(void)
 		overlayFBO = new GL_FBOHandler();
 
 	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
-
 	GL_FBOHandler::ResetToMainFBO();
 
 	gpTempEnts.clear();
