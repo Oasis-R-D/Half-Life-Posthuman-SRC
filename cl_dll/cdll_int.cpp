@@ -51,7 +51,7 @@
 #include "../renderer/watershader.h"
 #include "../renderer/mirrormanager.h"
 
-#include "../renderer/opengl_utils/GL_StateHandler.h"
+#include "../renderer/opengl_utils/glWrapper.h"
 
 #include "studio.h"
 #include "../renderer/StudioModelRenderer.h"

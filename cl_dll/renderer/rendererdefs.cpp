@@ -42,14 +42,13 @@ Overhauled by SalsaTobias
 
 #include "goldsrc_spriterenderer.h"
 
-#include "opengl_utils/GL_FBO.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_DebugInterface.h"
+#define GLAD_GL_IMPLEMENTATION
+#include "opengl_utils/glWrapper.h"
 #include "opengl_utils/GL_ShadowMap.h"
-#include "opengl_utils/GL_StateHandler.h"
 
 #include "BSPModel_Gen.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_opengl.h"
 
 //===========================================
 // GLSL SHADER START
@@ -93,9 +92,10 @@ model_t* cl_sprite_shell;
 
 extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
-GL_ShaderProgram *overlayShader;
-GL_VertexArrayObject* overlayVAO;
-GL_FBOHandler* overlayFBO;
+GLShader *overlayShader;
+GLFramebuffer* s_render_redirect;
+GLRenderbuffer* s_depthbuffer;
+GLTexture2D* s_rendercolorbuffer;
 
 //==========================
 //	stristr
@@ -677,34 +677,12 @@ void R_DrawMultiViews()
 	gBSPRenderer.Make_ShadowMaps();
 }
 
-GLuint R_GetTexture()
-{
-	GLuint textureColorbuffer;
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ScreenWidth, ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	// filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// attach to the buffer
-	overlayFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-	return textureColorbuffer;
-}
-
 void R_DrawMainView()
 {
-	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
-	GLuint texture = R_GetTexture();
-
-	glEnable(GL_DEPTH_CLAMP);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
+	GLContext::SetDepthClamp(false);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
+	GLContext::SetColorBufferClearValue(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
 	
 	glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
@@ -757,46 +735,7 @@ void R_DrawMainView()
 
 	g_BeamRenderer.NewFrame();
 
-	GL_FBOHandler::ResetToMainFBO();
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
-
-	// Bind overlay
-	overlayShader->Bind();
-	overlayVAO->BindVAO();
-
-	// TO-DO: Give the overlay the texture somehow
-	glBindTexture(GL_TEXTURE0, texture);
-
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetCullFace(false);
-	g_GlobalGLState.SetDepthTest(false);
-	
-	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_TopRight, 6);
-
-	GL_ShaderProgram::ResetShaderBind();
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
-}
-
-// is this not literally an overlay shader? What exactly is this?
-void DrawQuadDebugTest()
-{
-	if (!gBSPRenderer.m_pSunShadowMap)
-		return;
-
-	gBSPRenderer.m_FilterShader->Bind();
-	gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
-	gBSPRenderer.m_pScreenQuadVAO->BindVAO();
-
-	gBSPRenderer.BindGLTexture(GL_TEXTURE0, gBSPRenderer.m_iEngineLightmapIndex);
-
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetCullFace(false);
-	g_GlobalGLState.SetDepthTest(false);
-
-	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_TopRight, 6);
-
-	GL_ShaderProgram::ResetShaderBind();
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
+	GLContext::BindShader(nullptr);
 }
 
 int V_FadeAlpha()
@@ -859,19 +798,19 @@ void R_PolyBlend()
 	int glheight = r_refdef->viewport[3];
 
 	// GL_DisableMultitexture();
-	g_GlobalGLState.SetBlend(true);
-	g_GlobalGLState.SetCullFace(false);
-	g_GlobalGLState.SetDepthTest(false);
+	GLContext::SetBlending(true);
+	GLContext::SetFaceCulling(false);
+	GLContext::SetDepthTesting(false);
 	glDisable(GL_TEXTURE_2D);
 	if ((engine_cl->sf.fadeFlags & FFADE_MODULATE) != 0)
 	{
-		g_GlobalGLState.SetBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		GLContext::SetBlendFunc_rgba(eGL_blendfactor_zero, eGL_blendfactor_srccolor);
 		color[3] = -1;
 		color[0] = color[1] = color[2] = (alpha * (engine_cl->sf.fader - 255) - 511) >> 8;
 	}
 	else
 	{
-		g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_1_minus_srcalpha);
 		color[3] = alpha;
 		color[0] = color[1] = color[2] = engine_cl->sf.fadeb;
 	}
@@ -893,12 +832,36 @@ void R_PolyBlend()
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	g_GlobalGLState.SetDepthTest(true);
-	g_GlobalGLState.SetCullFace(true);
+	GLContext::SetDepthTesting(true);
+	GLContext::SetFaceCulling(true);
 	glEnable(GL_TEXTURE_2D);
 }
 
 extern cvar_t* cl_first_person_uses_world_model;
+
+static void sample_BindCustomFBO() {
+	GLContext::BindFramebuffer(s_render_redirect);
+	GLContext::SetViewportSize(ScreenWidth, ScreenHeight);
+}
+static void sample_BindMainFBO()
+{
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
+	GLContext::SetViewportSize(ScreenWidth, ScreenHeight);
+}
+static void sample_DrawFBOBuffer()
+{
+	GLContext::BindShader(gBSPRenderer.m_FilterShader);
+	gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+	GLContext::BindVertexArray(gBSPRenderer.m_pScreenQuadVAO);
+
+	GLContext::BindTexture(s_rendercolorbuffer);
+
+	GLContext::SetBlending(false);
+	GLContext::SetFaceCulling(false);
+	GLContext::SetDepthTesting(false);
+
+	GLContext::DrawPolys(eGL_drawmode_triangles, 6, gBSPRenderer.quad_FullScreen);
+}
 
 /*
 =================
@@ -911,18 +874,19 @@ void R_DrawNormalTriangles(void)
 	g_StudioRenderer.m_fStudioMDLRenderTime = 0;
 
 	R_DrawMultiViews(); //shadowmaps, water povs, mirrors, etc
-	
-	R_DrawMainView();
 
-	//just for debugging certain textures
-	//DrawQuadDebugTest();
+	sample_BindCustomFBO();
+	R_DrawMainView();
+	sample_BindMainFBO();
+	
+	sample_DrawFBOBuffer();
 
 	// Restore fog params
 	gWaterShader.Restore();
 
-	GL_ShaderProgram::ResetShaderBind();
-	GL_VertexArrayObject::ResetVAOBinding();
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
+	GLContext::BindShader(nullptr);
+	GLContext::BindVertexArray(nullptr);
+	GLContext::BindArrayBuffer(nullptr);
 
 	R_PolyBlend(); // restore goldsrc's ugly screen fade code
 }
@@ -939,10 +903,10 @@ void RenderersDumpInfo(void)
 	gEngfuncs.Con_Printf("Number of vertexes: %i.\n", gBSPRenderer.m_iTotalVertCount);
 	gEngfuncs.Con_Printf("Number of client side entities: %i.\n", gPropManager.m_pEntities.size());
 	gEngfuncs.Con_Printf("Number of detail textures: %i.\n", gBSPRenderer.m_iNumDetailTextures);
-	gEngfuncs.Con_Printf("Number of OpenGL Buffers: %i.\n", GL_BufferHandler::GetNumBuffers());
-	gEngfuncs.Con_Printf("Approximated total size of buffers in kb: %f.\n", GL_BufferHandler::GetTotalMemorySize() * 0.001);
-	gEngfuncs.Con_Printf("Number of OpenGL FrameBuffers: %i.\n", GL_FBOHandler::GetNumFrameBuffers());
-	gEngfuncs.Con_Printf("Number of OpenGL RenderBuffers: %i.\n\n\n", GL_RBOHandler::GetNumRenderBuffers());
+	//gEngfuncs.Con_Printf("Number of OpenGL Buffers: %i.\n", GL_BufferHandler::GetNumBuffers());
+	//gEngfuncs.Con_Printf("Approximated total size of buffers in kb: %f.\n", GL_BufferHandler::GetTotalMemorySize() * 0.001);
+	//gEngfuncs.Con_Printf("Number of OpenGL FrameBuffers: %i.\n", GL_FBOHandler::GetNumFrameBuffers());
+	//gEngfuncs.Con_Printf("Number of OpenGL RenderBuffers: %i.\n\n\n", GL_RBOHandler::GetNumRenderBuffers());
 
 	const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
@@ -1073,7 +1037,7 @@ void SetupFlashlight(Vector origin, Vector angles, float time, float frametime)
 	if (flashlight->depth)
 		GL_ShadowMap::DeAllocateShadowMap(flashlight->depth);
 
-	flashlight->depth = GL_ShadowMap::AllocateShadowMap(GL_ShadowMap::_2DTexture_Storage, GL_RG16F, sm_res, sm_res, 0, GL_RG, GL_FLOAT);
+	flashlight->depth = GL_ShadowMap::AllocateShadowMap(false, eGL_texformat_r16f, sm_res, sm_res, eGL_pixelformat_rg, eGL_type_float);
 	VectorCopy(angles, flashlight->angles);
 }
 
@@ -1123,6 +1087,7 @@ int ByteToInt(byte* byte)
 	return iValue;
 }
 
+
 /*
 =================
 R_Init
@@ -1138,17 +1103,19 @@ void R_Init(void)
 	cl_sprite_ricochet = IEngineStudio.Mod_ForName("sprites/richo1.spr", true);
 	cl_sprite_shell = IEngineStudio.Mod_ForName("sprites/shellchrome.spr", true);
 
-	glewInit();
-
-	g_IGLDebug.Initialize();
+	GLContext::glcontext_initinfo_t info;
+	info.debuglayer = true;
+	info.fn = (GLADloadfunc)SDL_GL_GetProcAddress;
+	info.gl_loggerFn = nullptr;
+	GLContext::Init_GLContext(info);
 
 	gpTempEnts.clear();
 
-	overlayShader = new GL_ShaderProgram(glsl_overlay_vp, glsl_overlay_fp);
-	overlayShader->Bind();
-	overlayShader->Uniform1i(overlayShader->GetUniformLoc("texture0"), 0);
-	overlayVAO = new GL_VertexArrayObject();
-	overlayVAO->BindVAO();
+	overlayShader = new GLShader({glsl_overlay_vp, glsl_overlay_fp, s_CommonAttribs});
+	overlayShader->SetUniformInt(overlayShader->GetUniformLoc("texture0"), 0);
+	//empty vao..?
+	//overlayVAO = new GL_VertexArrayObject();
+	//overlayVAO->BindVAO();
 
 	gPropManager.Init();
 	gTextureLoader.Init();
@@ -1172,16 +1139,33 @@ void R_VidInit(void)
 	GLint mainfbo;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &mainfbo);
 
-	GL_FBOHandler::SetMainGameFBO(mainfbo);
+	//set once & never again
+	GLContext::SetMainFBOHandle(mainfbo);
 
-	if (mainfbo < 0)
-		mainfbo = 0;
+	if (!s_render_redirect)
+	{
+		s_render_redirect = new GLFramebuffer();
+		s_depthbuffer = new GLRenderbuffer(eGL_texformat_depth16, ScreenWidth, ScreenHeight);
+		gltex2d_createinfo_t colorbuffer_textureinfo = {
+			ScreenWidth, ScreenHeight,
+			{
+				nullptr,
+				8 * ScreenWidth * ScreenHeight,
+				8,
+				eGL_texformat_rgba8,
+				eGL_pixelformat_rgba,
+				eGL_type_uint8,
+				eGL_texfilter_linear, eGL_texfilter_linear,
+				eGL_texwrap_clamptoborder,
+				{1, 1, 1, 1}
+			}
+		};
+		s_rendercolorbuffer = new GLTexture2D(&colorbuffer_textureinfo);
+		s_render_redirect->AttachTexture(eGL_fboattachment_color0, s_rendercolorbuffer);
+		s_render_redirect->AttachRenderBuffer(eGL_fboattachment_depth, s_depthbuffer);
+	}
 
-	if (!overlayFBO)
-		overlayFBO = new GL_FBOHandler();
-
-	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
-	GL_FBOHandler::ResetToMainFBO();
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
 
 	gpTempEnts.clear();
 

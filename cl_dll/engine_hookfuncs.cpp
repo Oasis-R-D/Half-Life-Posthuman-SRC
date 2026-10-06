@@ -15,7 +15,7 @@
 #include "renderer/bsprenderer.h"
 #include "renderer/goldsrc_beamrenderer.h"
 #include "renderer/goldsrc_tracerrenderer.h"
-#include "renderer/opengl_utils/GL_StateHandler.h"
+#include "renderer/opengl_utils/glWrapper.h"
 
 //
 //	Dont worry, this doesnt do any intense raw dll-level function hacking, (like some other mods...) 
@@ -1739,11 +1739,11 @@ FuncHook(CullFace, void, TRICULLSTYLE style)
 	if (style)
 	{
 		if (style == TRI_NONE)
-			g_GlobalGLState.SetCullFace(false);
+			GLContext::SetFaceCulling(false);
 	}
 	else
 	{
-		g_GlobalGLState.SetCullFace(true);
+		GLContext::SetFaceCulling(true);
 		glCullFace(GL_FRONT);
 	}
 }

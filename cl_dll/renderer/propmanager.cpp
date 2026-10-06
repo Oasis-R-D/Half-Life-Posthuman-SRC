@@ -37,10 +37,7 @@ Transparency code by Neil "Jed" Jedrzejewski
 
 #include "textureloader.h"
 #include "particle_engine.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include "StudioModelRenderer.h"
 #include "StudioMDL_MeshGen.h"
@@ -170,9 +167,8 @@ void CPropManager::Init(void)
 {
 	m_pCvarDrawClientEntities = CVAR_CREATE("r_drawstudiomdl_staticprops", "1", 0);
 
-	m_CableShader = new GL_ShaderProgram(glsl_cable_vp, glsl_cable_fp);
-	m_CableShader->Bind();
-	m_CableShader->Uniform1i(m_CableShader->GetUniformLoc("wireframe"), 0);
+	m_CableShader = new GLShader({glsl_cable_vp, glsl_cable_fp, s_CommonAttribs});
+	m_CableShader->SetUniformInt(m_CableShader->GetUniformLoc("wireframe"), 0);
 }
 
 /*
@@ -856,33 +852,17 @@ void CPropManager::SetupVBO(void)
 
 	m_iNumCableVerts = cabletris.size() * 3;
 
-	m_pStaticModelVAO = new GL_VertexArrayObject();
-
-	m_pStaticModelBuffer = new GL_BufferHandler();
-	m_pStaticModelBuffer->Bind(GL_BufferHandler::ElementArrayBuffer);
-	m_pStaticModelBuffer->BufferData(GL_BufferHandler::ElementArrayBuffer, iTotalIndexes * sizeof(unsigned int), m_pIndexBuffer, GL_BufferHandler::StaticDraw);
+	m_pStaticModelBuffer = new GLElementArrayBuffer(iTotalIndexes, (uint32_t*)nullptr);
 
 	// we set up m_pStaticModelVAO in CBSPRenderer::GenerateVertexArray() since we need m_pMainBuffer
 
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ElementArrayBuffer);
 
-	m_pCableVertsVAO = new GL_VertexArrayObject();
-	m_pCableVertsVAO->BindVAO();
-
-	m_pCableVertsBuffer = new GL_BufferHandler;
-	m_pCableVertsBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	m_pCableVertsBuffer->BufferData(GL_BufferHandler::ArrayBuffer, (cabletris.size() * 3) * sizeof(tempvert_struct_t), cabletris.data(), GL_BufferHandler::StaticDraw);
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(tempvert_struct_t), (void*)0);
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Normal);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Normal, 3, GL_FLOAT, GL_FALSE, sizeof(tempvert_struct_t), (void*)offsetof(tempvert_struct_t, tangent));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID);
-	glVertexAttribIPointer(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID, 1, GL_UNSIGNED_SHORT, sizeof(tempvert_struct_t), (void*)offsetof(tempvert_struct_t, width));
-
-	GL_VertexArrayObject::ResetVAOBinding();
+	m_pCableVertsBuffer = new GLArrayBuffer((cabletris.size() * 3) * sizeof(tempvert_struct_t), (uint8_t*)cabletris.data());
+	m_pCableVertsVAO = new GLVertexArray(m_pCableVertsBuffer, {
+		{VERTPOS_LOC, offsetof(tempvert_struct_t, pos), sizeof(tempvert_struct_t), 3, false, eGL_type_float},
+		{NORMAL_LOC, offsetof(tempvert_struct_t, tangent), sizeof(tempvert_struct_t), 2, false, eGL_type_float},
+		{STUDIOMDL_BONEID_LOC, offsetof(tempvert_struct_t, width), sizeof(tempvert_struct_t), 3, true, eGL_type_uint16},
+	});
 }
 
 /*
@@ -903,14 +883,14 @@ void CPropManager::RenderProps(bool bSkybox)
 		return;
 
 	if (m_pStaticModelVAO)
-		m_pStaticModelVAO->BindVAO();
+		GLContext::BindVertexArray(m_pStaticModelVAO);
 	else
 		return;
 
 	if (m_pCvarDrawClientEntities->value == 2)
-		g_GlobalGLState.SetDepthTest(false);
+		GLContext::SetDepthTesting(false);
 
-	g_StudioRenderer.m_ModelShader->Bind();
+	GLContext::BindShader(g_StudioRenderer.m_ModelShader);
 
 	g_StudioRenderer.m_bExternalEntity = true;
 
@@ -938,11 +918,9 @@ void CPropManager::RenderProps(bool bSkybox)
 	}
 
 	if (m_pCvarDrawClientEntities->value == 2)
-		g_GlobalGLState.SetDepthTest(true);
+		GLContext::SetDepthTesting(true);
 
 	g_StudioRenderer.m_bExternalEntity = true;
-
-	GL_VertexArrayObject::ResetVAOBinding();
 }
 
 /*
@@ -1147,33 +1125,31 @@ void CPropManager::DrawCables(void)
 	static int renderorigin_loc = m_CableShader->GetUniformLoc("renderorigin");
 	static int wireframe_loc = m_CableShader->GetUniformLoc("wireframe");
 
-	g_GlobalGLState.SetCullFace(false);
-	g_GlobalGLState.SetBlend(false);
+	GLContext::SetFaceCulling(false);
+	GLContext::SetBlending(false);
 
 	auto proj = gBSPRenderer.m_ProjectionMatrix;
 	auto view = gBSPRenderer.m_ViewMatrix;
 
-	m_CableShader->Bind();
-	m_CableShader->UniformMatrix4fv(projviewmatrix_loc, 1, GL_FALSE, glm::value_ptr(proj * view));
-	m_CableShader->Uniform3fv(renderorigin_loc, 1, gBSPRenderer.m_vRenderOrigin);
+	GLContext::BindShader(m_CableShader);
+	m_CableShader->SetUniformMatrix4x4(projviewmatrix_loc, glm::value_ptr(proj * view));
+	m_CableShader->SetUniformVec3(renderorigin_loc, gBSPRenderer.m_vRenderOrigin);
 
-	m_pCableVertsVAO->BindVAO();
+	GLContext::BindVertexArray(m_pCableVertsVAO);
 
-	glDrawArrays(GL_TRIANGLES, 0, m_iNumCableVerts); // beautiful
+	GLContext::DrawPolys(eGL_drawmode_triangles, m_iNumCableVerts);
 	if (gBSPRenderer.m_pCvarWireFrame->value)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		GLContext::SetPolygonRasterMode(eGL_polymode_line);
 
-		m_CableShader->Uniform1i(wireframe_loc, 1);
-		glDrawArrays(GL_LINES, 0, m_iNumCableVerts);
-		m_CableShader->Uniform1i(wireframe_loc, 0);
+		m_CableShader->SetUniformInt(wireframe_loc, 1);
+		GLContext::DrawPolys(eGL_drawmode_lines, m_iNumCableVerts);
+		m_CableShader->SetUniformInt(wireframe_loc, 0);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		GLContext::SetPolygonRasterMode(eGL_polymode_fill);
 	}
 
-	GL_VertexArrayObject::ResetVAOBinding();
-
-	g_GlobalGLState.SetCullFace(true);
+	GLContext::SetFaceCulling(true);
 }
 
 /*
@@ -1196,9 +1172,9 @@ void CPropManager::RenderPropsSolid(void)
 	if (!m_pStaticModelVAO)
 		return;
 
-	m_pStaticModelVAO->BindVAO();
+	GLContext::BindVertexArray(m_pStaticModelVAO);
 
-	g_StudioRenderer.m_ModelSolidShader->Bind();
+	GLContext::BindShader(g_StudioRenderer.m_ModelSolidShader);
 
 	g_StudioRenderer.m_dSolidModelData.projviewmatrix = gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix;
 
@@ -1206,7 +1182,7 @@ void CPropManager::RenderPropsSolid(void)
 	g_StudioRenderer.m_dSolidModelData.light_pos = glm::vec4(dynl->origin.x, dynl->origin.y, dynl->origin.z, dynl->radius);
 	g_StudioRenderer.m_dSolidModelData.int_values.x = 1;
 
-	g_StudioRenderer.m_ModelSolid_Buffer->Bind(GL_BufferHandler::UniformBuffer);
+	GLContext::BindUniformBuffer(g_StudioRenderer.m_ModelSolid_Buffer, STUDIOMDL_SOLIDUBO_UBOINDEX);
 
 	g_StudioRenderer.m_bExternalEntity = true;
 
@@ -1214,7 +1190,7 @@ void CPropManager::RenderPropsSolid(void)
 	if (gBSPRenderer.m_bSunShadowMapPass)
 	{
 		// flip
-		g_StudioRenderer.m_ModelSolidShader->Uniform1i(g_StudioRenderer.m_ModelShaderSolidLocs[CStudioModelRenderer::mdlshadersolid_sunshadow], 1);
+		g_StudioRenderer.m_ModelSolidShader->SetUniformInt(g_StudioRenderer.m_ModelShaderSolidLocs[CStudioModelRenderer::mdlshadersolid_sunshadow], 1);
 		glCullFace(GL_BACK);
 	}
 
@@ -1246,12 +1222,10 @@ void CPropManager::RenderPropsSolid(void)
 	if (gBSPRenderer.m_bSunShadowMapPass)
 	{
 		// flip
-		g_StudioRenderer.m_ModelSolidShader->Uniform1i(g_StudioRenderer.m_ModelShaderSolidLocs[CStudioModelRenderer::mdlshadersolid_sunshadow], 0);
+		g_StudioRenderer.m_ModelSolidShader->SetUniformInt(g_StudioRenderer.m_ModelShaderSolidLocs[CStudioModelRenderer::mdlshadersolid_sunshadow], 0);
 		glCullFace(GL_FRONT);
 	}
 
 	g_StudioRenderer.m_dSolidModelData.int_values.x = 0;
 	g_StudioRenderer.m_bExternalEntity = false;
-
-	GL_VertexArrayObject::ResetVAOBinding();
 }

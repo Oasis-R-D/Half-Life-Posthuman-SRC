@@ -38,10 +38,7 @@ Written by Andrew Lucas
 #include "event_args.h"
 
 #include "StudioModelRenderer.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 #include "goldsrc_spriterenderer.h"
 
 
@@ -106,33 +103,15 @@ void CParticleEngine::Init()
 	m_pCvarParticleDebug = gEngfuncs.pfnRegisterVariable("r_particles_debug", "0", 0);
 	m_pCvarGravity = gEngfuncs.pfnGetCvarPointer("sv_gravity");
 
-	m_ParticleShader = new GL_ShaderProgram(glsl_particle_vp, glsl_particle_fp);
+	m_ParticleShader = new GLShader({glsl_particle_vp, glsl_particle_fp, s_CommonAttribs});
+	m_ParticleShader->SetUniformInt(m_ParticleShader->GetUniformLoc("texture0"), 0);
 
-	m_ParticleShader->Bind();
-	m_ParticleShader->Uniform1i(m_ParticleShader->GetUniformLoc("texture0"), 0);
-
-	m_pParticleVAO = new GL_VertexArrayObject();
-	m_pParticleVAO->BindVAO();
-
-	m_pQuadBuffer = new GL_BufferHandler();
-
-	m_pQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	// limit of 100 thousand particles, i dont think this limit can be reached
-	// 9600000 bytes = 9.6 mb
-	m_pQuadBuffer->BufferData(GL_BufferHandler::ArrayBuffer, sizeof(ParticleQuad) * 100000, nullptr, GL_BufferHandler::DynamicDraw);
-
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, pos));
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, uv));
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ParticleVertex), (void*)offsetof(ParticleVertex, color));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Color);
-
-	GL_VertexArrayObject::ResetVAOBinding();
-
-	GL_ShaderProgram::ResetShaderBind();
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
+	m_pQuadBuffer = new GLArrayBuffer(sizeof(ParticleQuad) * 100000);
+	m_pParticleVAO = new GLVertexArray(m_pQuadBuffer, {
+		{VERTPOS_LOC, offsetof(ParticleVertex, pos), sizeof(ParticleVertex), 3, false, eGL_type_float},
+		{TEXCOORD_LOC, offsetof(ParticleVertex, uv), sizeof(ParticleVertex), 2, false, eGL_type_float},
+		{COLOR_LOC, offsetof(ParticleVertex, color), sizeof(ParticleVertex), 3, true, eGL_type_uint8},
+	});
 };
 
 /*
@@ -2347,26 +2326,24 @@ void CParticleEngine::DrawParticles()
 	if (particlebatch.empty())
 		return;
 
-	glEnable(GL_DEPTH_CLAMP);
-	m_ParticleShader->Bind();
+	GLContext::SetDepthClamp(true);
+	GLContext::BindShader(m_ParticleShader);
 
 	DrawQuadList(particlebatch, psystem);
-
-	GL_ShaderProgram::ResetShaderBind();
-	glDisable(GL_DEPTH_CLAMP);
+	GLContext::SetDepthClamp(false);
 }
 
 void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, std::vector<ParticleQuad>, ParticlePairHash>& particlebatch, particle_system_t* psystem)
 {
-	g_GlobalGLState.SetBlend(true);
-	g_GlobalGLState.SetDepthWrite(false);
-	g_GlobalGLState.SetCullFace(false);
+	GLContext::SetBlending(true);
+	GLContext::SetDepthWriting(false);
+	GLContext::SetFaceCulling(false);
 
-	m_pParticleVAO->BindVAO();
+	GLContext::BindVertexArray(m_pParticleVAO);
 
 	static int projviewmatrixloc = m_ParticleShader->GetUniformLoc("projviewmatrix");
 
-	m_ParticleShader->UniformMatrix4fv(projviewmatrixloc, 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
+	m_ParticleShader->SetUniformMatrix4x4(projviewmatrixloc, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
 
 	std::vector<ParticleVertex> verts;
 	for (auto batch : particlebatch)
@@ -2381,9 +2358,8 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 			verts.push_back(quad.vert[3]);
 		}
 	}
-	m_pQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	m_pQuadBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, sizeof(ParticleVertex) * verts.size(), verts.data());
-
+	m_pQuadBuffer->MemCpy(sizeof(ParticleVertex) * verts.size(), (uint8_t*)verts.data());
+	
 	int offset = 0;
 	int currendermode = -1;
 	GLuint curtexture = 0;
@@ -2398,17 +2374,17 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 			{
 				case SYSTEM_RENDERMODE_ADDITIVE:
 				{
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_one);
 					break;
 				}
 				case SYSTEM_RENDERMODE_ALPHABLEND:
 				{
-					g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_one, eGL_blendfactor_one);
 					break;
 				}
 				default:
 				{
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_1_minus_srcalpha);
 					break;
 				}
 			}
@@ -2417,16 +2393,16 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 		if (curtexture != batch.first.first)
 		{
 			curtexture = batch.first.first;
-			gBSPRenderer.BindGLTexture(GL_TEXTURE0, batch.first.first);
+			GLContext::BindTextureLegacy(batch.first.first, GL_TEXTURE_2D);
 		}
 
-		glDrawArrays(GL_QUADS, offset, batch.second.size() * 4);
+		GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size(), offset);
 		offset += batch.second.size() * 4;
 	}
 
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetDepthWrite(true);
-	g_GlobalGLState.SetCullFace(true);
+	GLContext::SetBlending(false);
+	GLContext::SetDepthWriting(true);
+	GLContext::SetFaceCulling(true);
 }
 
 /*

@@ -66,6 +66,8 @@ char glsl330_studiomdl_vert[] = R"(
 	uniform vec2 decalsize;
 	uniform vec4 clipplane;
 
+	uniform float chromeshell_factor; //sin(gEngfuncs.GetClientTime())*m_pCvarGlowShellFreq->value;
+
 	
 	out vec4 vertexdiffusecolor;
 	out vec4 vertexspecularcolor;
@@ -127,6 +129,8 @@ char glsl330_studiomdl_vert[] = R"(
 		tmp = normalize(tmp);
 		vec3 chromeupvec = cross(tmp, renderright.xyz);
 		vec3 chromerightvec = cross(tmp, chromeupvec);
+		chromeupvec.z += chromeshell_factor;
+		chromerightvec.z += chromeshell_factor;
 
 		vec3 vChromeUp = VectorIRotate(chromeupvec, matrix);
 		vec3 vChromeRight = VectorIRotate(chromerightvec, matrix);
@@ -245,7 +249,10 @@ char glsl330_studiomdl_vert[] = R"(
 
 		if(int_values.z == 0)
 		{
-			translated_vertpos = VectorTransform(aPosition, bonematrixes[vertbone]);
+			if(int_values.y == 1) //chrome shell. expand model a bit
+				translated_vertpos = VectorTransform(aPosition*1.01, bonematrixes[vertbone]);
+			else
+				translated_vertpos = VectorTransform(aPosition, bonematrixes[vertbone]);
 			translated_normal = VectorRotate(aNormal, bonematrixes[vertbone]);
 		}
 		else //static prop
@@ -396,13 +403,16 @@ char glsl330_studiomdl_frag[] = R"(
 			else
 				gl_FragColor = texcolor;
 		}
-		
-		gl_FragColor.a = rendervalues.a;
+
+		if (int_values.y == 1)
+		{
+			gl_FragColor = texcolor;
+		}
 
 		if (int_values.y == 2)
 		{
-			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
-			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
+			//gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
+			//gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
 		}
 	}
 

@@ -31,7 +31,7 @@ Additional code taken from Id Software
 
 class GL_FBOHandler;
 class GL_RBOHandler;
-class GL_ShaderProgram;
+class GLShader;
 
 /*
 ====================
@@ -70,9 +70,9 @@ public:
 
 	int m_iNumPasses;
 
-	GL_FBOHandler* mirrorFBO;
-	GL_RBOHandler* mirrorDepthBuffer;
-	GL_ShaderProgram* m_MirrorShader;
+	GLFramebuffer* mirrorFBO;
+	GLRenderbuffer* mirrorDepthBuffer;
+	GLShader* m_MirrorShader;
 
 	double m_fRenderTime;
 };

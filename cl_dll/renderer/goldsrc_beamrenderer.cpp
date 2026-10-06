@@ -32,8 +32,7 @@
 
 #include "goldsrc_beamrenderer.h"
 
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/glWrapper.h"
 
 std::vector<std::unique_ptr<particle_t>> m_DummyParticles;
 
@@ -318,7 +317,7 @@ void CGoldSrc_BeamRenderer::R_DrawBeams(float frametime)
 	if (m_BeamEnt_List.empty() && m_BeamTempEnt_List.empty())
 		return;
 
-	GL_ShaderProgram::ResetShaderBind();
+	GLContext::BindShader(nullptr);
 
 	for (auto beament : m_BeamEnt_List)
 	{
@@ -521,15 +520,15 @@ void CGoldSrc_BeamRenderer::R_BeamDraw(BEAM* pbeam, float frametime)
 
 	if (pbeam->flags & FBEAM_SOLID)
 	{
-		g_GlobalGLState.SetBlend(false);
-		g_GlobalGLState.SetDepthWrite(true);
+		GLContext::SetBlending(false);
+		GLContext::SetDepthWriting(true);
 		glShadeModel(GL_FLAT);
 	}
 	else
 	{
-		g_GlobalGLState.SetBlendFunc(GL_ONE, GL_ONE);
-		g_GlobalGLState.SetBlend(true);
-		g_GlobalGLState.SetDepthWrite(false);
+		GLContext::SetBlendFunc_rgba(eGL_blendfactor_one, eGL_blendfactor_one);
+		GLContext::SetBlending(true);
+		GLContext::SetDepthWriting(false);
 		glShadeModel(GL_SMOOTH);
 	}
 
@@ -595,9 +594,9 @@ void CGoldSrc_BeamRenderer::R_BeamDraw(BEAM* pbeam, float frametime)
 
 	if (!(pbeam->flags & FBEAM_SOLID))
 	{
-		g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-		g_GlobalGLState.SetBlend(false);
-		g_GlobalGLState.SetDepthWrite(true);
+		GLContext::SetBlendFunc_rgba(eGL_blendfactor_dstcolor, eGL_blendfactor_srccolor);
+		GLContext::SetBlending(false);
+		GLContext::SetDepthWriting(true);
 		glShadeModel(GL_FLAT);
 	}
 }

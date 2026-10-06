@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "rendererdefs.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #undef clamp
@@ -31,9 +31,9 @@ class StudioMDL_SubModel;
 class StudioMDL_Mesh;
 class StudioMDL_Texture;
 
-class GL_BufferHandler;
-class GL_ShaderProgram;
-class GL_VertexArrayObject;
+class GLArrayBuffer;
+class GLShader;
+class GLVertexArray;
 
 struct studiomdl_vertbufferdata_t
 {
@@ -53,13 +53,13 @@ class StudioMDL_Model
 public:
 	StudioMDL_Model(model_t* model);
 
-	__forceinline void EnableBuffers() const noexcept { m_pModelVAO->BindVAO(); };
-	__forceinline bool IsBufferEnabled() const noexcept { return m_pModelVAO == GL_VertexArrayObject::GetBoundVAO(); }
-	__forceinline void DisableBuffers() const noexcept { GL_VertexArrayObject::ResetVAOBinding(); };
+	__forceinline void EnableBuffers() const noexcept { GLContext::BindVertexArray(m_pModelVAO); };
+	__forceinline bool IsBufferEnabled() const noexcept { return m_pModelVAO == GLContext::GetBoundVAO(); }
+	__forceinline void DisableBuffers() const noexcept {  };
 
 	__forceinline void DrawElements(int indexcount, int indexoffset) noexcept
 	{
-		glDrawElements(GL_TRIANGLES, indexcount * 3, GL_UNSIGNED_INT, (const void*)(indexoffset * sizeof(uint32_t)));
+		GLContext::DrawPolys(eGL_drawmode_triangles, indexcount * 3, indexoffset * sizeof(uint32_t), true);
 	};
 
 	__forceinline int GetNumBodyParts() const noexcept { return m_iNumBodyParts; };
@@ -86,10 +86,10 @@ private:
 	std::vector<StudioMDL_Texture*> m_vTextures;
 	std::vector<short> m_vSkinIndexes;
 
-	GL_BufferHandler* m_pModelVertBuffer = nullptr; // includes vert pos, vert normal, and vert texcoord. update with BufferSubData
-	GL_BufferHandler* m_pModelVertIndexBuffer = nullptr; // includes vertex indexes
+	GLArrayBuffer* m_pModelVertBuffer = nullptr; // includes vert pos, vert normal, and vert texcoord. update with BufferSubData
+	GLElementArrayBuffer* m_pModelVertIndexBuffer = nullptr; // includes vertex indexes
 public:
-	GL_VertexArrayObject* m_pModelVAO = nullptr;
+	GLVertexArray* m_pModelVAO = nullptr;
 
 private:
 	

@@ -25,9 +25,7 @@
 
 #include "studio_util.h"
 #include "r_studioint.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include "BSPModel_Gen.h"
 

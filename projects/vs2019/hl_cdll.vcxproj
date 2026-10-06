@@ -45,7 +45,7 @@
     <TargetName>client</TargetName>
     <IntDir>$(SolutionDir)$(Configuration)\\$(ProjectName)\int\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <OutDir>C:\Program Files (x86)\Steam\SteamApps\common\Half-Life\posthuman\cl_dlls</OutDir>
+    <OutDir>D:\SteamLibrary\steamapps\common\Half-Life\PostHuman\cl_dlls</OutDir>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -53,7 +53,7 @@
     <TargetName>client</TargetName>
     <IntDir>$(SolutionDir)$(Configuration)\\$(ProjectName)\int\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <OutDir>..\..\..\..\..\SteamLibrary\steamapps\common\Half-Life\PostHuman\cl_dlls</OutDir>
+    <OutDir>D:\SteamLibrary\steamapps\common\Half-Life\PostHuman\cl_dlls</OutDir>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -166,20 +166,20 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClCompile Include="..\..\cl_dll\renderer\BSPModelGen.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\bsprenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\frustum.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\glew\glew.c" />
     <ClCompile Include="..\..\cl_dll\renderer\goldsrc_beamrenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\goldsrc_spriterenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\goldsrc_tracerrenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\HLHudSprites.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\mirrormanager.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLBuffer.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLContext.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLDebugLayer.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLFramebuffer.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLRenderbuffer.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLShader.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.cpp" />
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLTexture.cpp" />
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLVertexArray.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\particle_engine.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\propmanager.cpp" />
     <ClCompile Include="..\..\cl_dll\renderer\rendererdefs.cpp" />
@@ -277,14 +277,11 @@ cmd /c ""$(ProjectDir)..\..\filecopy.bat" "$(SolutionDir)../../network" "" "delt
     <ClInclude Include="..\..\cl_dll\renderer\goldsrc_spriterenderer.h" />
     <ClInclude Include="..\..\cl_dll\renderer\goldsrc_tracerrenderer.h" />
     <ClInclude Include="..\..\cl_dll\renderer\mirrormanager.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.h" />
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glad.h" />
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glcommon.h" />
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glcommon_internal.h" />
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glWrapper.h" />
     <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.h" />
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.h" />
     <ClInclude Include="..\..\cl_dll\renderer\particle_engine.h" />
     <ClInclude Include="..\..\cl_dll\renderer\propmanager.h" />
     <ClInclude Include="..\..\cl_dll\renderer\rendererdefs.h" />

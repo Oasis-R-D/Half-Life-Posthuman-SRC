@@ -17,7 +17,7 @@ Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 
 #include "PlatformHeaders.h"
 
-#include "gl/glew.h"
+#include "renderer/opengl_utils/glWrapper.h"
 
 #include "gl/gl.h"
 #include "gl/glu.h"
@@ -42,13 +42,8 @@ Written by Andrew Lucas, Richard Rohac, BUzer, Laurie, Botman and Id Software
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class GL_FBOHandler;
-class GL_StateHandler;
 class GL_ShadowMap;
-class GL_TextureHandler;
 class StudioMDL_Model;
-
-extern GL_StateHandler g_GlobalGLState;
 
 constexpr char WATER_PASS_TIME[] = "Water_RenderTime";
 constexpr char MIRROR_PASS_TIME[] = "Mirror_RenderTime";
@@ -586,8 +581,8 @@ struct cl_water_t
 	Vector origin;
 	bool draw;
 
-	GL_TextureHandler* refract;
-	GL_TextureHandler* reflect;
+	GLTexture2D* refract;
+	GLTexture2D* reflect;
 
 	clientmsurface_t** surfaces;
 	int numsurfaces;
@@ -618,7 +613,7 @@ struct cl_mirror_t
 
 	bool draw;
 
-	GL_TextureHandler* texture;
+	GLTexture2D* texture;
 };
 //==============================
 //		STUDIO RENDERER DEFS

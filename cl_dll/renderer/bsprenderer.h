@@ -39,12 +39,12 @@ Extended and/or recoded by Andrew Lucas
 
 #include "stb_image_write.h"
 
-#define LIGHTMAP_TEXUNIT GL_TEXTURE0
-#define SURFTEXTURE_TEXUNIT GL_TEXTURE1
-#define SURF_DETAILTEXTURE_TEXUNIT GL_TEXTURE2
-#define SPOTLIGHT_TEXUNIT GL_TEXTURE3
-#define SHADOWMAP_TEXUNIT GL_TEXTURE4
-#define CUBEMAPSHADOW_TEXUNIT GL_TEXTURE5
+#define LIGHTMAP_TEXUNIT 0
+#define SURFTEXTURE_TEXUNIT 1
+#define SURF_DETAILTEXTURE_TEXUNIT 2
+#define SPOTLIGHT_TEXUNIT 3
+#define SHADOWMAP_TEXUNIT 4
+#define CUBEMAPSHADOW_TEXUNIT 5
 
 #define DEFAULT_SHADOWMAP_RES 256
 
@@ -69,9 +69,9 @@ struct skyvert_t
 };
 
 class GL_FBOHandler;
-class GL_BufferHandler;
-class GL_ShaderProgram;
-class GL_VertexArrayObject;
+class GLArrayBuffer;
+class GLShader;
+class GLVertexArray;
 
 /*
 ====================
@@ -172,13 +172,11 @@ public:
 	void BuildLightmap(clientmsurface_t* surf, int surfindex, color24* out);
 	void AddLightStyle(int iNum, const char* szStyle);
 
-	void BindGLTexture(GLenum texture, GLuint id);
-
 	texture_t* TextureAnimation(texture_t* base, int frame);
 
 public:
 	void DrawDecals(bool m_bTransPass = false);
-	void BlendDecals(int src, int dest, bool m_bTransPass, size_t decalvertlist_buffer_size, std::unordered_map<GLuint, std::vector<DecalVert_t>> &decalbatch, int lastdecalvertbuffersize);
+	void BlendDecals(eGL_blendfactor src, eGL_blendfactor dest, bool m_bTransPass, size_t decalvertlist_buffer_size, std::unordered_map<GLuint, std::vector<DecalVert_t>>& decalbatch, int lastdecalvertbuffersize);
 	void LoadDecals(void);
 	void DeleteDecals(void);
 	void DecalVertsLight(DecalVert_t* v, clientmsurface_t* psurf, int vertCount);
@@ -226,18 +224,18 @@ public:
 		
 	};
 
-	GL_BufferHandler *m_pMainBuffer;
-	GL_BufferHandler *m_pBasicFullscreenQuad;
-	GL_BufferHandler *m_pDecalsBuffer;
+	GLArrayBuffer *m_pMainBuffer;
+	GLArrayBuffer *m_pBasicFullscreenQuad;
+	GLArrayBuffer *m_pDecalsBuffer;
 	brushvertex_t* m_pBufferData;
 	brushface_t* m_pFacesExtraData;
 
-	GL_BufferHandler* m_pSimpleSky_Buffer;
+	GLArrayBuffer* m_pSimpleSky_Buffer;
 
-	GL_VertexArrayObject* m_pBSP_VAO;
-	GL_VertexArrayObject* m_pDecalVAO;
-	GL_VertexArrayObject* m_pSimpleSkyVAO;
-	GL_VertexArrayObject* m_pScreenQuadVAO;
+	GLVertexArray* m_pBSP_VAO;
+	GLVertexArray* m_pDecalVAO;
+	GLVertexArray* m_pSimpleSkyVAO;
+	GLVertexArray* m_pScreenQuadVAO;
 
 	
 	int m_iNumTotalShadows; // total number of shadowmaps made in this frame
@@ -362,11 +360,11 @@ public:
 	int m_iNumTextures;
 
 
-	GL_ShaderProgram *m_WorldShader;
-	GL_ShaderProgram *m_WorldSolidShader;
-	GL_ShaderProgram *m_DecalShader;
-	GL_ShaderProgram *m_SimpleSkyboxShader;
-	GL_ShaderProgram *m_FilterShader;
+	GLShader *m_WorldShader;
+	GLShader *m_WorldSolidShader;
+	GLShader *m_DecalShader;
+	GLShader *m_SimpleSkyboxShader;
+	GLShader *m_FilterShader;
 
 	enum worldshader_uniforms
 	{

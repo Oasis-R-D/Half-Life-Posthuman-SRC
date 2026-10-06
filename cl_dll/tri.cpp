@@ -35,10 +35,7 @@
 
 #include "renderer/goldsrc_spriterenderer.h"
 
-#include "renderer/opengl_utils/GL_Buffers.h"
-
-#include "renderer/opengl_utils/GL_StateHandler.h"
-#include "renderer/opengl_utils/GL_VertexArrayObject.h"
+#include "renderer/opengl_utils/glWrapper.h"
 
 
 extern int cl_numvisedicts;
@@ -198,22 +195,27 @@ bool should_reset_numleafs = false;
 void DLLEXPORT HUD_DrawNormalTriangles()
 {
 	// god fucking dammit developer cvar, stop messing up our RENDERER FOR CHRIST SAKE
-	g_GlobalGLState.ResetStates();
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-	g_GlobalGLState.SetAlphaTest(false);
-	g_GlobalGLState.SetDepthTest(true);
-	g_GlobalGLState.SetDepthWrite(true);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	GLContext::ResetStates();
+	GLContext::SetSrcBlendFunc_rgb(eGL_blendfactor_dstcolor);
+	GLContext::SetDstBlendFunc_rgb(eGL_blendfactor_srccolor);
+	GLContext::SetSrcBlendFunc_alpha(eGL_blendfactor_dstcolor);
+	GLContext::SetDstBlendFunc_alpha(eGL_blendfactor_srccolor);
+	GLContext::SetAlphaTest(false);
+	GLContext::SetDepthTesting(true);
+	GLContext::SetDepthWriting(true);
+	GLContext::BindTexture(nullptr);
+	GLContext::SetDepthBufferClearValue(1.0);
+	GLContext::SetDepthCompare(eGL_comparefunc_less_or_equal); //comparefunc_less causes skybox to go bad
 	glColor4f(1, 1, 1, 1);
-
+	
 	R_DrawNormalTriangles();
-
+	
 	gHUD.m_Spectator.DrawOverview();
-
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ElementArrayBuffer);
-	GL_VertexArrayObject::ResetVAOBinding();
+	
+	GLContext::BindShader(nullptr);
+	GLContext::BindArrayBuffer(nullptr);
+	GLContext::BindVertexArray(nullptr);
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
 
 	r_refdef->onlyClientDraw = 0; // for sound
 	should_reset_numleafs = true;

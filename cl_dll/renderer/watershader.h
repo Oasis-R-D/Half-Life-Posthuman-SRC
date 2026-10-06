@@ -30,7 +30,7 @@ Written by Andrew Lucas
 
 class GL_FBOHandler;
 class GL_RBOHandler;
-class GL_ShaderProgram;
+class GLShader;
 
 /*
 ====================
@@ -109,7 +109,7 @@ public:
 	double m_fRenderTime;
 
 public:
-	GL_ShaderProgram *m_WaterFragmentShader;
+	GLShader *m_WaterFragmentShader;
 
 	GL_FBOHandler* m_waterFBO;
 	GL_RBOHandler* m_waterDepthBuffer;

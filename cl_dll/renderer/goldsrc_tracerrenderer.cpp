@@ -13,8 +13,7 @@
 #include <vector>
 
 #include "goldsrc_tracerrenderer.h"
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_ShaderProgram.h"
+#include "opengl_utils/glWrapper.h"
 
 extern model_t* cl_sprite_dot;
 
@@ -105,7 +104,7 @@ void CGoldSrc_TracerRenderer::CL_DrawTracers()
 	if (!gEngfuncs.pTriAPI->SpriteTexture(cl_sprite_dot, 0))
 		return;
 
-	GL_ShaderProgram::ResetShaderBind();
+	GLContext::BindShader(nullptr);
 
 	static cvar_t* tracerred = gEngfuncs.pfnGetCvarPointer("tracerred");
 	static cvar_t* tracergreen = gEngfuncs.pfnGetCvarPointer("tracergreen");
@@ -117,12 +116,12 @@ void CGoldSrc_TracerRenderer::CL_DrawTracers()
 	customColors->g = (byte)(tracergreen->value * traceralpha->value * 255);
 	customColors->b = (byte)(tracerblue->value * traceralpha->value * 255);
 
-	g_GlobalGLState.SetBlend(true);
+	GLContext::SetBlending(true);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-	g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	g_GlobalGLState.SetAlphaTest(false);
-	g_GlobalGLState.SetDepthWrite(false);
+	GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_one);
+	GLContext::SetAlphaTest(false);
+	GLContext::SetDepthWriting(false);
 
 	gravity = frametime * gEngfuncs.pfnGetCvarFloat("sv_gravity"); // tr.movevars->gravity;
 	scale = 1.0 - (frametime * 0.9);
@@ -210,10 +209,10 @@ void CGoldSrc_TracerRenderer::CL_DrawTracers()
 
 	CL_RunTracerLogic();
 
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-	g_GlobalGLState.SetAlphaTest(false);
-	g_GlobalGLState.SetDepthWrite(true);
+	GLContext::SetBlending(false);
+	GLContext::SetBlendFunc_rgba(eGL_blendfactor_dstcolor, eGL_blendfactor_srccolor);
+	GLContext::SetAlphaTest(false);
+	GLContext::SetDepthWriting(true);
 }
 
 void CGoldSrc_TracerRenderer::CL_RunTracerLogic()

@@ -31,7 +31,7 @@ Transparency code by Neil "Jed" Jedrzejewski
 
 class GL_BufferHandler;
 class GL_VertexArrayObject;
-class GL_ShaderProgram;
+class GLShader;
 
 class CPropManager
 {
@@ -90,14 +90,14 @@ public:
 	brushvertex_t* m_pVertexData;
 	int m_iNumTotalVerts;
 
-	GL_ShaderProgram* m_CableShader;
+	GLShader* m_CableShader;
 
-	GL_BufferHandler *m_pStaticModelBuffer;
-	GL_VertexArrayObject *m_pStaticModelVAO;
+	GLElementArrayBuffer *m_pStaticModelBuffer;
+	GLVertexArray *m_pStaticModelVAO;
 
 	//may be best to merge this with CBSPRenderer::m_pMainBuffer
-	GL_BufferHandler* m_pCableVertsBuffer; 
-	GL_VertexArrayObject* m_pCableVertsVAO;
+	GLArrayBuffer* m_pCableVertsBuffer; 
+	GLVertexArray* m_pCableVertsVAO;
 
 	int m_iNumCableVerts;
 

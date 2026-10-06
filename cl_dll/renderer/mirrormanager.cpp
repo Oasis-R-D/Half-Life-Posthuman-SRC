@@ -46,11 +46,7 @@ Additional code taken from Id Software
 #include "event_api.h"
 #include "event_args.h"
 
-#include "opengl_utils/GL_FBO.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_TextureHandler.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include "goldsrc_spriterenderer.h"
 #include "StudioModelRenderer.h"
@@ -88,12 +84,9 @@ void CMirrorManager::Init(void)
 {
 	m_pCvarDrawMirrors = gEngfuncs.pfnRegisterVariable("r_mirrors", "1", 0);
 
-	m_MirrorShader = new GL_ShaderProgram(mirror_vertex, mirror_fragment);
+	m_MirrorShader = new GLShader({mirror_vertex, mirror_fragment, s_CommonAttribs});
 
-	m_MirrorShader->Bind();
-	m_MirrorShader->Uniform1i(m_MirrorShader->GetUniformLoc("texture0"), 0);
-
-	GL_ShaderProgram::ResetShaderBind();
+	m_MirrorShader->SetUniformInt(m_MirrorShader->GetUniformLoc("texture0"), 0);
 }
 
 /*
@@ -112,22 +105,24 @@ void CMirrorManager::VidInit(void)
 	m_iNumPasses = 0;
 
 	if (!mirrorFBO)
-		mirrorFBO = new GL_FBOHandler();
+		mirrorFBO = new GLFramebuffer();
 	if (!mirrorDepthBuffer)
-		mirrorDepthBuffer = new GL_RBOHandler();
+		mirrorDepthBuffer = new GLRenderbuffer(eGL_texformat_depth24, MIRROR_RESOLUTION, MIRROR_RESOLUTION);
 
-	mirrorFBO->Bind(GL_FBOHandler::Framebuffer);
-
-	mirrorDepthBuffer->Bind();
-	mirrorDepthBuffer->RenderBufferStorage(GL_DEPTH_COMPONENT24, MIRROR_RESOLUTION, MIRROR_RESOLUTION);
-	mirrorFBO->FramebufferRenderbuffer(GL_FBOHandler::Framebuffer, GL_FBOHandler::DepthAttachment, mirrorDepthBuffer);
-
-	GL_FBOHandler::ResetToMainFBO();
+	mirrorFBO->AttachRenderBuffer(eGL_fboattachment_depth, mirrorDepthBuffer);
 }
 
-GL_TextureHandler::gl_texturecreationinfo_t mirror_textureinfo =
-{
-	std::string(), GL_TextureHandler::_2DTexture, GL_RGBA8, MIRROR_RESOLUTION, MIRROR_RESOLUTION, 0, GL_RGBA, GL_UNSIGNED_BYTE
+gltex2d_createinfo_t mirror_textureinfo = {
+	MIRROR_RESOLUTION, MIRROR_RESOLUTION,
+	{
+		nullptr,
+		8 * MIRROR_RESOLUTION * MIRROR_RESOLUTION,
+		8,
+		eGL_texformat_rgba8,
+		eGL_pixelformat_rgba,
+		eGL_type_uint8,
+		eGL_texfilter_linear, eGL_texfilter_linear
+	}
 };
 
 /*
@@ -181,7 +176,7 @@ void CMirrorManager::AllocNewMirror(cl_entity_t* entity)
 	pMirror->entity = entity;
 	pMirror->entity->efrag = (efrag_s*)pMirror;
 
-	pMirror->texture = new GL_TextureHandler(&mirror_textureinfo);
+	pMirror->texture = new GLTexture2D(&mirror_textureinfo);
 	pMirror->origin[0] = (pMirror->mins[0] + pMirror->maxs[0]) * 0.5f;
 	pMirror->origin[1] = (pMirror->mins[1] + pMirror->maxs[1]) * 0.5f;
 	pMirror->origin[2] = (pMirror->mins[2] + pMirror->maxs[2]) * 0.5f;
@@ -397,8 +392,8 @@ void CMirrorManager::SetupMirrorPass(void)
 
 	gBSPRenderer.m_ViewMatrix = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 
-	mirrorFBO->Bind(GL_FBOHandler::Framebuffer);
-	mirrorFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, m_pCurrentMirror->texture->GetTextureID(), 0);
+	mirrorFBO->AttachTexture(eGL_fboattachment_color0, m_pCurrentMirror->texture);
+	GLContext::BindFramebuffer(mirrorFBO);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ViewMatrix * gBSPRenderer.m_ModelMatrix));
@@ -407,10 +402,11 @@ void CMirrorManager::SetupMirrorPass(void)
 	glLoadMatrixf(glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
 
 	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+	GLContext::SetColorBufferClearValue(0, 0, 0, 1);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
 
-	glViewport(GL_ZERO, GL_ZERO, MIRROR_RESOLUTION, MIRROR_RESOLUTION);
+	GLContext::SetViewportSize(MIRROR_RESOLUTION, MIRROR_RESOLUTION);
 
 	// Set up clipping
 	SetupClipping();
@@ -424,11 +420,12 @@ FinishMirrorPass
 */
 void CMirrorManager::FinishMirrorPass(void)
 {
-	GL_FBOHandler::ResetToMainFBO();
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
 
 	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+	GLContext::SetColorBufferClearValue(0, 0, 0, 1);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
 
 	// Turn culling off
 	gHUD.viewFrustum.DisableExtraCullBox();
@@ -464,13 +461,13 @@ void CMirrorManager::DrawMirrors(void)
 		return;
 
 
-	m_MirrorShader->Bind();
+	GLContext::BindShader(m_MirrorShader);
 
-	m_MirrorShader->UniformMatrix4fv(m_MirrorShader->GetUniformLoc("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
-	m_MirrorShader->UniformMatrix4fv(m_MirrorShader->GetUniformLoc("modelMatrix"), 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ModelMatrix));
+	m_MirrorShader->SetUniformMatrix4x4(m_MirrorShader->GetUniformLoc("projectionMatrix"), glm::value_ptr(gBSPRenderer.m_ProjectionMatrix));
+	m_MirrorShader->SetUniformMatrix4x4(m_MirrorShader->GetUniformLoc("modelMatrix"), glm::value_ptr(gBSPRenderer.m_ModelMatrix));
 
 
-	gBSPRenderer.m_pBSP_VAO->BindVAO();
+	GLContext::BindVertexArray(gBSPRenderer.m_pBSP_VAO);
 
 	for (int i = 0; i < m_iNumMirrors; i++)
 	{
@@ -484,17 +481,15 @@ void CMirrorManager::DrawMirrors(void)
 
 		GLuint location = m_MirrorShader->GetUniformLoc("viewMatrix");
 
-		m_MirrorShader->UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ViewMatrix));
+		m_MirrorShader->SetUniformMatrix4x4(location, glm::value_ptr(gBSPRenderer.m_ViewMatrix));
 
 		model_t* model = m_pMirrors[i].entity->model;
 		clientmsurface_t* psurf = &BSPWorld_Model::m_pWorldSurfaces[model->firstmodelsurface];
 
-		gBSPRenderer.BindGLTexture(GL_TEXTURE0, m_pCurrentMirror->texture->GetTextureID());
-		gBSPRenderer.BindGLTexture(GL_TEXTURE1, m_pCurrentMirror->surface->texinfo->texture->gl_texturenum);
+		GLContext::BindTexture(m_pCurrentMirror->texture, 0);
+		GLContext::BindTextureLegacy(m_pCurrentMirror->surface->texinfo->texture->gl_texturenum, GL_TEXTURE_2D, 1);
 
 		gBSPRenderer.DrawPolyFromArray(BSPWorld_Model::m_pWorldSurfaces, psurf);
 		psurf->visframe = gBSPRenderer.m_iFrameCount; // For decals
 	}
-
-	GL_ShaderProgram::ResetShaderBind();
 }

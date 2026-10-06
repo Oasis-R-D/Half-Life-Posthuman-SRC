@@ -33,13 +33,21 @@ Transparency code by Neil "Jed" Jedrzejewski
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class GL_ShaderProgram;
-class GL_BufferHandler;
-class GL_VertexArrayObject;
+class GLShader;
+class GLArrayBuffer;
+class GLUniformBuffer;
+class GLVertexArray;
+
 class StudioMDL_Model;
 class StudioMDL_BodyPart;
 class StudioMDL_Mesh;
 class StudioMDL_Texture;
+
+
+#define STUDIOMDL_BONES_UBOINDEX 0
+#define STUDIOMDL_PERFRAME_UBOINDEX 1
+#define STUDIOMDL_PERENTITY_UBOINDEX 2
+#define STUDIOMDL_SOLIDUBO_UBOINDEX 3
 
 
 // salsatobias: more viewmodels
@@ -292,16 +300,16 @@ public:
 
 	// glsl start
 
-	static GL_BufferHandler* m_Model_PerEntityBuffer;
-	static GL_BufferHandler* m_Model_PerFrameBuffer;
-	static GL_BufferHandler* m_ModelBones_Buffer;
-	static GL_BufferHandler* m_ModelSolid_Buffer;
+	static GLUniformBuffer* m_Model_PerEntityBuffer;
+	static GLUniformBuffer* m_Model_PerFrameBuffer;
+	static GLUniformBuffer* m_ModelBones_Buffer;
+	static GLUniformBuffer* m_ModelSolid_Buffer;
 
-	static GL_BufferHandler* m_ModelDecal_Buffer;
-	static GL_VertexArrayObject* m_ModelDecal_VAO;
+	static GLArrayBuffer* m_ModelDecal_Buffer;
+	static GLVertexArray* m_ModelDecal_VAO;
 
-	static GL_ShaderProgram *m_ModelShader;
-	static GL_ShaderProgram *m_ModelSolidShader;
+	static GLShader *m_ModelShader;
+	static GLShader *m_ModelSolidShader;
 
 	enum modelshader_uniforms
 	{
@@ -317,6 +325,7 @@ public:
 
 		mdlshader_clipplane,
 
+		mdlshader_chromeshell_factor,
 
 
 		_mdlshader_uniformsize //must be last

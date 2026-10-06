@@ -60,7 +60,7 @@ struct ParticleQuad
 };
 
 class GL_BufferHandler;
-class GL_ShaderProgram;
+class GLShader;
 class GL_VertexArrayObject;
 
 /*
@@ -103,9 +103,9 @@ public:
 	int MsgCreateSystem(const char* pszName, int iSize, void* pbuf);
 
 public:
-	GL_BufferHandler* m_pQuadBuffer;
-	GL_ShaderProgram *m_ParticleShader;
-	GL_VertexArrayObject* m_pParticleVAO;
+	GLArrayBuffer* m_pQuadBuffer;
+	GLShader *m_ParticleShader;
+	GLVertexArray* m_pParticleVAO;
 	GLuint goldsrc_particletexture;
 
 	particle_system_t* m_pSystemHeader;

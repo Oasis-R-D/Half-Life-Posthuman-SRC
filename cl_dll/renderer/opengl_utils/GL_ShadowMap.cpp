@@ -5,39 +5,52 @@
 
 #include "renderer/rendererdefs.h"
 #include "renderer/bsprenderer.h"
-#include "GL_ShaderProgram.h"
-#include "GL_Buffers.h"
-
-#include "GL_Buffers.h"
-#include "GL_FBO.h"
+#include "glWrapper.h"
 #include "GL_ShadowMap.h"
-#include "GL_StateHandler.h"
 
-GL_FBOHandler* GL_ShadowMap::m_pMainShadowFBO = nullptr;
-std::vector<GL_RBOHandler*> GL_ShadowMap::m_pShadowRBOs;
+GLFramebuffer* GL_ShadowMap::m_pMainShadowFBO = nullptr;
+std::vector<GLRenderbuffer*> GL_ShadowMap::m_pShadowRBOs;
 
 
 std::vector<GL_ShadowMap*> GL_ShadowMap::m_vShadowMapList;
 
-GL_ShadowMap* GL_ShadowMap::AllocateShadowMap(GL_TextureType target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, bool canuseblur)
+GL_ShadowMap* GL_ShadowMap::AllocateShadowMap(bool cubemap, eGL_texformat format, int width, int height, eGL_pixelformat pixelformat, eGL_type type, bool canuseblur)
 {
+	GLenum target = GL_TEXTURE_2D;
+	if (cubemap)	target = GL_TEXTURE_CUBE_MAP;
 	for (auto& shadowmap : m_vShadowMapList)
 	{
-		if (!shadowmap->m_bInUse && 
-			shadowmap->GetTextureType() == target && 
-			shadowmap->m_iWidth == width && 
-			shadowmap->m_iHeight == height &&
-			shadowmap->m_TexInfo.internalformat == internalformat)
+		if (!shadowmap->m_bInUse &&
+			shadowmap->m_pMainTexture->GetTargetType() == target &&
+			shadowmap->m_pMainTexture->GetWidth() == width &&
+			shadowmap->m_pMainTexture->GetHeight() == height)
 		{
 			shadowmap->m_bInUse = true;
 			return shadowmap;
 		}
 	}
 
-	gl_texturecreationinfo_t textureinfo;
-	textureinfo.SetInfo(std::string(), target, internalformat, width, height, depth, format, type);
+	gltexcommon_createinfo_t commoninfo = {
+		nullptr,
+		0,
+		0,
+		format,
+		pixelformat,
+		type,
+		eGL_texfilter_linear,
+		eGL_texfilter_linear
+	};
 
-	return new GL_ShadowMap(&textureinfo, canuseblur);
+	if (cubemap)
+	{
+		gltexcubemap_createinfo_t cubeinfo = {width, height, commoninfo};
+		return new GL_ShadowMap(cubeinfo, canuseblur);
+	}
+	else
+	{
+		gltex2d_createinfo_t tex2dinfo = {width, height, commoninfo};
+		return new GL_ShadowMap(tex2dinfo, canuseblur);
+	}
 }
 
 void GL_ShadowMap::DeAllocateShadowMap(GL_ShadowMap* pSM)
@@ -49,24 +62,6 @@ void GL_ShadowMap::DeAllocateShadowMap(GL_ShadowMap* pSM)
 
 void GL_ShadowMap::ClearAllShadowMaps()
 {
-	for (auto it = m_vTextureList.begin(); it != m_vTextureList.end();)
-	{
-		bool shoulderase = false;
-		for (auto shadowmap : m_vShadowMapList)
-		{
-			if (shadowmap == it->get())
-			{
-				shoulderase = true;
-				break;
-			}
-		}
-
-		if (shoulderase)
-			it = m_vTextureList.erase(it);
-		else
-			++it;
-	}
-
 	m_vShadowMapList.clear();
 }
 
@@ -74,9 +69,7 @@ void GL_ShadowMap::CheckFBO(GLsizei width, GLsizei height)
 {
 	if (m_pShadowRBOs.empty())
 	{
-		GL_RBOHandler* shadowrbo = new GL_RBOHandler();
-		shadowrbo->Bind();
-		shadowrbo->RenderBufferStorage(GL_DEPTH_COMPONENT24, width, height);
+		GLRenderbuffer* shadowrbo = new GLRenderbuffer(eGL_texformat_depth24, width, height);
 		m_pShadowRBOs.push_back(shadowrbo);
 	}
 	else
@@ -84,8 +77,8 @@ void GL_ShadowMap::CheckFBO(GLsizei width, GLsizei height)
 		bool bNeedsNewRenderBuffer = true;
 		for (auto shadowrbo : m_pShadowRBOs)
 		{
-			GLsizei m_iwidth, m_iheight;
-			shadowrbo->GetWidthHeight(&m_iwidth, &m_iheight);
+			uint32_t m_iwidth, m_iheight;
+			shadowrbo->GetWidthHeight(m_iwidth, m_iheight);
 			if (width == m_iwidth && height == m_iheight)
 			{
 				bNeedsNewRenderBuffer = false;
@@ -94,24 +87,21 @@ void GL_ShadowMap::CheckFBO(GLsizei width, GLsizei height)
 		}
 		if (bNeedsNewRenderBuffer)
 		{
-			GL_RBOHandler* shadowrbo = new GL_RBOHandler();
-			shadowrbo->Bind();
-			shadowrbo->RenderBufferStorage(GL_DEPTH_COMPONENT16, width, height);
+			GLRenderbuffer* shadowrbo = new GLRenderbuffer(eGL_texformat_depth16, width, height);
 			m_pShadowRBOs.push_back(shadowrbo);
 		}
 	}
 }
 
-GL_ShadowMap::GL_ShadowMap(gl_texturecreationinfo_t* texinfo, bool canuseblur)
-	: GL_TextureHandler(texinfo)
+GL_ShadowMap::GL_ShadowMap(const gltex2d_createinfo_t& info, bool canuseblur)
 {
-	CheckFBO(texinfo->width, texinfo->height);
+	CheckFBO(info.width, info.height);
 
 	for (auto shadowrbo : m_pShadowRBOs)
 	{
-		GLsizei width, height;
-		shadowrbo->GetWidthHeight(&width, &height);
-		if (width == m_iWidth && height == m_iHeight)
+		uint32_t width, height;
+		shadowrbo->GetWidthHeight(width, height);
+		if (width == info.width && height == info.height)
 		{
 			m_pShadowRBO = shadowrbo;
 			break;
@@ -122,9 +112,37 @@ GL_ShadowMap::GL_ShadowMap(gl_texturecreationinfo_t* texinfo, bool canuseblur)
 	m_bCanBlur = canuseblur;
 
 	m_vShadowMapList.push_back(this);
-	gl_texturecreationinfo_t dummyinfo = *texinfo;
-	dummyinfo.texturetype = _2DTexture_Storage;
-	m_pDummyTexture = new GL_TextureHandler(&dummyinfo);
+	m_pDummyTexture = new GLTexture2D(&info);
+	m_pMainTexture = new GLTexture2D(&info);
+}
+
+GL_ShadowMap::GL_ShadowMap(const gltexcubemap_createinfo_t& info, bool canuseblur)
+{
+	CheckFBO(info.width, info.height);
+
+	for (auto shadowrbo : m_pShadowRBOs)
+	{
+		uint32_t width, height;
+		shadowrbo->GetWidthHeight(width, height);
+		if (width == info.width && height == info.height)
+		{
+			m_pShadowRBO = shadowrbo;
+			break;
+		}
+	}
+
+	m_bInUse = true;
+	m_bCanBlur = canuseblur;
+
+	m_vShadowMapList.push_back(this);
+	gltex2d_createinfo_t dummyinfo;
+	dummyinfo.width = info.width;
+	dummyinfo.height = info.height;
+	dummyinfo.common = info.common;
+
+	m_pDummyTexture = new GLTexture2D(&dummyinfo);
+	m_pMainTexture = new GLTextureCubeMap(&info);
+
 }
 
 GL_ShadowMap::~GL_ShadowMap()
@@ -136,109 +154,95 @@ void GL_ShadowMap::InitRendering(Vector cleancolor, GLsizei layer)
 {
 	m_iCurrentLayer = layer;
 
-	if (m_TexInfo.texturetype == _2DTexture || m_TexInfo.texturetype == _2DTexture_Storage)
-	{
-		m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, m_uiTextureHandle, 0);
-	}
-	else if (m_TexInfo.texturetype == _2DTextureArray)
-	{
-		m_pMainShadowFBO->FramebufferTextureLayer(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D_ARRAY, m_uiTextureHandle, 0, layer);
-	}
-	else
-	{
-#ifdef _DEBUG
-		assert(m_iCubeMapIteration <= 5);
-#endif
-		m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X + m_iCubeMapIteration++, m_uiTextureHandle, 0);
-	}
+	GLContext::BindFramebuffer(m_pMainShadowFBO);
+	m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, m_pMainTexture, eGL_fbotarget_draw, m_iCurrentLayer);
+	m_pMainShadowFBO->AttachRenderBuffer(eGL_fboattachment_depth, m_pShadowRBO, eGL_fbotarget_draw);
 
-	m_pMainShadowFBO->FramebufferRenderbuffer(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::DepthAttachment, m_pShadowRBO);
-
-	glViewport(GL_ZERO, GL_ZERO, m_iWidth, m_iHeight);
+	GLContext::SetViewportSize(m_pMainTexture->GetWidth(), m_pMainTexture->GetHeight());
 
 	// Completely clear everything
-	glClearColor((int)cleancolor.x, (int)cleancolor.y, GL_ZERO, GL_ZERO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
+	GLContext::SetColorBufferClearValue(cleancolor.x, cleancolor.y, 0, 0);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
 }
 
 void GL_ShadowMap::BlurShadows()
 {
+	GLContext::BindFramebuffer(m_pMainShadowFBO, eGL_fbotarget_draw);
+	
+	GLContext::BindShader(gBSPRenderer.m_FilterShader);
 
-	m_pMainShadowFBO->Bind(GL_FBOHandler::DrawFramebuffer);
-	
-	gBSPRenderer.m_FilterShader->Bind();
-	gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("texture_"), 0);
-	gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("horizontal"), 1);
-	
-	gBSPRenderer.m_pScreenQuadVAO->BindVAO();
-	
-	g_GlobalGLState.SetDepthTest(false);
-	g_GlobalGLState.SetCullFace(false);
+	gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("texture_"), 0);
+	gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("horizontal"), 1);
 
-	for (auto &shadowmap : m_vShadowMapList)
+	GLContext::BindVertexArray(gBSPRenderer.m_pScreenQuadVAO);
+
+	GLContext::SetDepthTesting(false);
+	GLContext::SetFaceCulling(false);
+
+	for (auto& shadowmap : m_vShadowMapList)
 	{
 		if (!shadowmap->m_bInUse || !shadowmap->m_bCanBlur)
 			continue;
 
-		//only blur closest light sources, my poor attempt at optimization
+		// only blur closest light sources, my poor attempt at optimization
 		float distance = (gBSPRenderer.m_vRenderOrigin - shadowmap->position).Length();
 		if (distance > 512)
 			continue;
 
-		m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, shadowmap->m_pDummyTexture->GetTextureID(), 0);
-	
-		glViewport(0, 0, shadowmap->m_iWidth, shadowmap->m_iHeight);
+		m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, shadowmap->m_pDummyTexture, eGL_fbotarget_draw);
 
-		if (shadowmap->GetTextureType() == _2DTexture || shadowmap->GetTextureType() == _2DTexture_Storage)
+		GLTexture* shadowtexture = shadowmap->m_pMainTexture;
+
+		GLContext::SetViewportSize(shadowtexture->GetWidth(), shadowtexture->GetHeight());
+
+		if (shadowtexture->GetTargetType() == GL_TEXTURE_2D)
 		{
-			gBSPRenderer.BindGLTexture(GL_TEXTURE0, shadowmap->m_uiTextureHandle);
-			gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 1);
-	
-			//blur shadow into m_pDummyTexture
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-	
-			m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, shadowmap->GetTextureID(), 0);
-	
-			gBSPRenderer.BindGLTexture(GL_TEXTURE0, shadowmap->m_pDummyTexture->GetTextureID());
-			gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
-	
-			//now render blurred shadow into the actual shadowmap texture
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+			GLContext::BindTexture(shadowtexture, 0);
+			gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 1);
+
+			// blur shadow into m_pDummyTexture
+			GLContext::DrawPolys(eGL_drawmode_triangles, 6);
+
+			m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, shadowtexture, eGL_fbotarget_draw);
+
+			GLContext::BindTexture(shadowmap->m_pDummyTexture, 0);
+			gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+
+			// now render blurred shadow into the actual shadowmap texture
+			GLContext::DrawPolys(eGL_drawmode_triangles, 6);
 		}
-		else if (shadowmap->GetTextureType() == _CubeMap || shadowmap->GetTextureType() == _CubeMap_Storage)
+		else if (shadowtexture->GetTargetType() == GL_TEXTURE_CUBE_MAP)
 		{
-			gBSPRenderer.BindGLTexture(GL_TEXTURE1, shadowmap->m_uiTextureHandle);
-			gBSPRenderer.BindGLTexture(GL_TEXTURE0, shadowmap->m_pDummyTexture->GetTextureID());
+			GLContext::BindTexture(shadowtexture, 1);
+			GLContext::BindTexture(shadowmap->m_pDummyTexture, 0);
 			for (int i = 0; i < 6; i++)
 			{
-				m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, shadowmap->m_pDummyTexture->GetTextureID(), 0);
-		
-				gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 1);
-				gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap"), 1);
-				gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap_layer"), i);
-		
+				m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, shadowmap->m_pDummyTexture, eGL_fbotarget_draw);
+
+				gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 1);
+				gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap"), 1);
+				gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap_layer"), i);
+
 				// blur shadow into m_pDummyTexture
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-		
-				m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, shadowmap->GetTextureID(), 0);
-		
-				gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
-				gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap"), 0);
-		
+				GLContext::DrawPolys(eGL_drawmode_triangles, 6);
+
+				m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, shadowtexture, eGL_fbotarget_draw, i);
+
+				gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+				gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("cubemap"), 0);
+
 				// now render blurred shadow into the actual shadowmap texture
-				glDrawArrays(GL_TRIANGLES, 0, 6);
+				GLContext::DrawPolys(eGL_drawmode_triangles, 6);
 			}
 		}
 	}
-	
-	g_GlobalGLState.SetDepthTest(true);
-	g_GlobalGLState.SetCullFace(true);
-	
-	GL_FBOHandler::ResetToMainFBO();
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
 
+	GLContext::SetDepthTesting(true);
+	GLContext::SetFaceCulling(true);
+
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
+	GLContext::SetViewportSize(ScreenWidth, ScreenHeight);
 }
 
 void GL_ShadowMap::FinishRendering()
@@ -249,12 +253,9 @@ void GL_ShadowMap::FinishRendering()
 void GL_ShadowMap::StartShadowMapping()
 {
 	if (!m_pMainShadowFBO)
-		m_pMainShadowFBO = new GL_FBOHandler();
+		m_pMainShadowFBO = new GLFramebuffer();
 
-	m_pMainShadowFBO->Bind(GL_FBOHandler::DrawFramebuffer);
-
-	m_pMainShadowFBO->FramebufferTexture2D(GL_FBOHandler::DrawFramebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, 0, 0); // clear that shit
-
+	//m_pMainShadowFBO->AttachTexture(eGL_fboattachment_color0, nullptr, eGL_fbotarget_draw);
 }
 
 void GL_ShadowMap::EndShadowMapping()
@@ -262,8 +263,6 @@ void GL_ShadowMap::EndShadowMapping()
 	if (gBSPRenderer.m_pCvarBlurShadows->value > 0)
 		BlurShadows();
 
-	GL_FBOHandler::ResetToMainFBO();
-
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
-
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
+	GLContext::SetViewportSize(ScreenWidth, ScreenHeight);
 }

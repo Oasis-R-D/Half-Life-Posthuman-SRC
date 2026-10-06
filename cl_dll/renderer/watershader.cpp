@@ -41,12 +41,7 @@ Written by Andrew Lucas
 #include "mirrormanager.h"
 #include "goldsrc_beamrenderer.h"
 
-#include "opengl_utils/GL_FBO.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_TextureHandler.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include "r_efx.h"
 #include "r_studioint.h"
@@ -65,8 +60,8 @@ CWaterShader gWaterShader;
 
 #include "glshaders/water_glsl.h"
 
-static GL_FBOHandler* s_waterFBO;
-static GL_RBOHandler* s_waterDepthBuffer;
+static GLFramebuffer* s_waterFBO;
+static GLRenderbuffer* s_waterDepthBuffer;
 
 enum watershader_uniforms
 {
@@ -122,7 +117,7 @@ void CWaterShader::Init(void)
 	m_pCvarWaterForceExpensive = gEngfuncs.pfnRegisterVariable("r_waterforceexpensive", "1", FCVAR_ARCHIVE);
 	m_pCvarWaterForceReflectEntities = gEngfuncs.pfnRegisterVariable("r_waterforcereflectentities", "1", FCVAR_ARCHIVE);
 
-	m_WaterFragmentShader = new GL_ShaderProgram(water_depth_vertex, water_fragment_water_regular);
+	m_WaterFragmentShader = new GLShader({water_depth_vertex, water_fragment_water_regular, s_CommonAttribs});
 
 	s_WaterShader_locs[watershader_renderorigin] = m_WaterFragmentShader->GetUniformLoc("renderorigin");
 
@@ -142,13 +137,10 @@ void CWaterShader::Init(void)
 	// s_WaterShader_locs[watershader_reflection_scale] = m_WaterFragmentShader->GetUniformLoc("reflection_scale");
 
 
-	m_WaterFragmentShader->Bind();
-	m_WaterFragmentShader->Uniform1i(m_WaterFragmentShader->GetUniformLoc("texture0"), 0);
-	m_WaterFragmentShader->Uniform1i(m_WaterFragmentShader->GetUniformLoc("texture1"), 1);
-	m_WaterFragmentShader->Uniform1i(m_WaterFragmentShader->GetUniformLoc("texture2"), 2);
-	m_WaterFragmentShader->Uniform1i(m_WaterFragmentShader->GetUniformLoc("texture3"), 3);
-
-	GL_ShaderProgram::ResetShaderBind();
+	m_WaterFragmentShader->SetUniformInt(m_WaterFragmentShader->GetUniformLoc("texture0"), 0);
+	m_WaterFragmentShader->SetUniformInt(m_WaterFragmentShader->GetUniformLoc("texture1"), 1);
+	m_WaterFragmentShader->SetUniformInt(m_WaterFragmentShader->GetUniformLoc("texture2"), 2);
+	m_WaterFragmentShader->SetUniformInt(m_WaterFragmentShader->GetUniformLoc("texture3"), 3);
 }
 
 /*
@@ -209,15 +201,10 @@ void CWaterShader::VidInit(void)
 
 	if (!s_waterFBO && !s_waterDepthBuffer)
 	{
-		s_waterFBO = new GL_FBOHandler();
-		s_waterDepthBuffer = new GL_RBOHandler();
+		s_waterFBO = new GLFramebuffer();
+		s_waterDepthBuffer = new GLRenderbuffer(eGL_texformat_depth16, m_pCvarWaterResolution->value, m_pCvarWaterResolution->value);
 
-		s_waterFBO->Bind(GL_FBOHandler::Framebuffer);
-		s_waterDepthBuffer->Bind();
-		s_waterDepthBuffer->RenderBufferStorage(GL_DEPTH_COMPONENT16, m_pCvarWaterResolution->value, m_pCvarWaterResolution->value);
-		s_waterFBO->FramebufferRenderbuffer(GL_FBOHandler::Framebuffer, GL_FBOHandler::DepthAttachment, s_waterDepthBuffer);
-
-		GL_FBOHandler::ResetToMainFBO();
+		s_waterFBO->AttachRenderBuffer(eGL_fboattachment_depth, s_waterDepthBuffer);
 	}
 
 
@@ -397,12 +384,21 @@ void CWaterShader::AddEntity(cl_entity_t* entity)
 	pWater->wplane.signbits = psurfaces->plane->signbits;
 	pWater->wplane.normal[2] = 1;
 
-	GL_TextureHandler::gl_texturecreationinfo_t waternormal_texinfo =
+	gltex2d_createinfo_t waternormal_texinfo = {
+		m_pCvarWaterResolution->value, m_pCvarWaterResolution->value,
 		{
-			std::string(), GL_TextureHandler::_2DTexture, GL_RGB8, (int)m_pCvarWaterResolution->value, (int)m_pCvarWaterResolution->value, 0, GL_RGB, GL_UNSIGNED_BYTE};
+			nullptr,
+			8*m_pCvarWaterResolution->value*m_pCvarWaterResolution->value,
+			8,
+			eGL_texformat_rgb8,
+			eGL_pixelformat_rgb,
+			eGL_type_uint8,
+			eGL_texfilter_linear, eGL_texfilter_linear
+		}
+	};
 
-	pWater->reflect = new GL_TextureHandler(&waternormal_texinfo);
-	pWater->refract = new GL_TextureHandler(&waternormal_texinfo);
+	pWater->reflect = new GLTexture2D(&waternormal_texinfo);
+	pWater->refract = new GLTexture2D(&waternormal_texinfo);
 
 	pWater->origin[0] = pWater->entity->curstate.origin[0] + ((pWater->mins[0] + pWater->maxs[0]) * 0.5f);
 	pWater->origin[1] = pWater->entity->curstate.origin[1] + ((pWater->mins[1] + pWater->maxs[1]) * 0.5f);
@@ -522,7 +518,7 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 
 	FrustumCheck oldfrustum = gHUD.viewFrustum;
 
-	s_waterFBO->Bind(GL_FBOHandler::Framebuffer);
+	GLContext::BindFramebuffer(s_waterFBO);
 
 	glViewport(0, 0, m_pCvarWaterResolution->value, m_pCvarWaterResolution->value);
 
@@ -593,10 +589,10 @@ void CWaterShader::DrawWaterPasses(ref_params_t* pparams)
 
 	gBSPRenderer.m_bMirroring = false;
 
-	GL_FBOHandler::ResetToMainFBO();
-	glViewport(0, 0, ScreenWidth, ScreenHeight);
+	GLContext::BindFramebuffer(GLContext::GetMainFramebuffer());
+	GLContext::SetViewportSize(ScreenWidth, ScreenHeight);
 
-	g_GlobalGLState.SetBlend(false);
+	GLContext::SetBlending(false);
 }
 
 /*
@@ -609,8 +605,8 @@ void CWaterShader::DrawScene(ref_params_t* pparams, bool isrefracting)
 {
 	R_SetupView(pparams);
 
-	// glClearColor(gHUD.m_pFogSettings.color[0], gHUD.m_pFogSettings.color[1], gHUD.m_pFogSettings.color[2], 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
 
 	// Draw world
 	if (m_pCvarWaterForceExpensive->value)
@@ -648,11 +644,12 @@ SetupRefract
 */
 void CWaterShader::SetupRefract(void)
 {
-	s_waterFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, m_pCurWater->refract->GetTextureID(), 0);
+	s_waterFBO->AttachTexture(eGL_fboattachment_color0, m_pCurWater->refract);
 
 	// Completely clear everything
-	glClearColor(GL_ZERO, GL_ZERO, GL_ZERO, GL_ONE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+	GLContext::SetColorBufferClearValue(0, 0, 0, 1);
+	GLContext::ClearColorBuffer();
+	GLContext::ClearDepthBuffer();
 
 	if (!ViewInWater())
 	{
@@ -709,7 +706,7 @@ void CWaterShader::SetupReflect(void)
 	AngleVectors(m_pWaterParams.viewangles, &m_pWaterParams.forward, &m_pWaterParams.right, &m_pWaterParams.up);
 	VectorCopy(m_pWaterParams.viewangles, m_pWaterParams.cl_viewangles);
 
-	s_waterFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, m_pCurWater->reflect->GetTextureID(), 0);
+	s_waterFBO->AttachTexture(eGL_fboattachment_color0, m_pCurWater->reflect);
 
 	// Cull everything below the water plane
 	VectorCopy(engine_cl->worldmodel->maxs, vMaxs);
@@ -782,15 +779,15 @@ void CWaterShader::DrawWater(void)
 
 	float flTime = engine_cl->time * 0.5;
 
-	glEnable(GL_DEPTH_CLAMP);
+	GLContext::SetDepthClamp(true);
 
-	m_WaterFragmentShader->Bind();
+	GLContext::BindShader(m_WaterFragmentShader);
 
-	m_WaterFragmentShader->Uniform3fv(s_WaterShader_locs[watershader_renderorigin], 1, gBSPRenderer.m_vRenderOrigin);
-	m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_flTime], flTime);
-	m_WaterFragmentShader->Uniform1i(s_WaterShader_locs[watershader_underwater], m_bViewInWater ? 1 : 0);
+	m_WaterFragmentShader->SetUniformVec3(s_WaterShader_locs[watershader_renderorigin], gBSPRenderer.m_vRenderOrigin);
+	m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_flTime], flTime);
+	m_WaterFragmentShader->SetUniformInt(s_WaterShader_locs[watershader_underwater], m_bViewInWater ? 1 : 0);
 
-	gBSPRenderer.m_pBSP_VAO->BindVAO();
+	GLContext::BindVertexArray(gBSPRenderer.m_pBSP_VAO);
 
 	bool onlyrenderthiswater = false;
 
@@ -820,11 +817,11 @@ void CWaterShader::DrawWater(void)
 				m_pWaterFogSettings.start = m_pWaterEntInfo[j].waterfog_start;
 				m_pWaterFogSettings.end = m_pWaterEntInfo[j].waterfog_end;
 
-				m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_normalscale], m_pWaterEntInfo[j].normal_scale);
-				m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_watertex_scale], m_pWaterEntInfo[j].watertex_scale);
-				// m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_refraction_scale], m_pWaterEntInfo[j].refraction_scale);
-				// m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_reflection_scale], m_pWaterEntInfo[j].reflection_scale);
-				m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_m_flFresnelTerm], m_pWaterEntInfo[j].fresnel);
+				m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_normalscale], m_pWaterEntInfo[j].normal_scale);
+				m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_watertex_scale], m_pWaterEntInfo[j].watertex_scale);
+				// m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_refraction_scale], m_pWaterEntInfo[j].refraction_scale);
+				// m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_reflection_scale], m_pWaterEntInfo[j].reflection_scale);
+				m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_m_flFresnelTerm], m_pWaterEntInfo[j].fresnel);
 
 				normalMapIndex = m_pWaterEntInfo[j].m_pNormalTexture->iIndex;
 
@@ -833,7 +830,7 @@ void CWaterShader::DrawWater(void)
 		}
 
 		if (ViewInWater())
-			glCullFace(GL_BACK);
+			GLContext::SetFaceToCull(eGL_face_back);
 
 		glm::mat4 modelmatrix = glm::mat4(1.0f);
 		modelmatrix = glm::translate(modelmatrix, glm::vec3(m_pCurWater->entity->curstate.origin.x, m_pCurWater->entity->curstate.origin.y, m_pCurWater->entity->curstate.origin.z));
@@ -841,12 +838,12 @@ void CWaterShader::DrawWater(void)
 		modelmatrix = glm::rotate(modelmatrix, glm::radians(m_pCurWater->entity->curstate.angles.x), glm::vec3(0.0f, 1.0f, 0.0f));
 		modelmatrix = glm::rotate(modelmatrix, glm::radians(m_pCurWater->entity->curstate.angles.z), glm::vec3(1.0f, 0.0f, 0.0f));
 
-		m_WaterFragmentShader->UniformMatrix4fv(s_WaterShader_locs[watershader_projviewmodelmatrix], 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix * modelmatrix));
-		m_WaterFragmentShader->Uniform3fv(s_WaterShader_locs[watershader_waterfog], 1, m_pWaterFogSettings.color);
-		m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_fogstart], m_pWaterFogSettings.start);
-		m_WaterFragmentShader->Uniform1f(s_WaterShader_locs[watershader_fogend], m_pWaterFogSettings.end);
+		m_WaterFragmentShader->SetUniformMatrix4x4(s_WaterShader_locs[watershader_projviewmodelmatrix], glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix * modelmatrix));
+		m_WaterFragmentShader->SetUniformVec3(s_WaterShader_locs[watershader_waterfog], m_pWaterFogSettings.color);
+		m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_fogstart], m_pWaterFogSettings.start);
+		m_WaterFragmentShader->SetUniformFloat(s_WaterShader_locs[watershader_fogend], m_pWaterFogSettings.end);
 
-		gBSPRenderer.BindGLTexture(GL_TEXTURE0, normalMapIndex);
+		GLContext::BindTextureLegacy(normalMapIndex, GL_TEXTURE_2D);
 		const char* texturemode = gEngfuncs.pfnGetCvarString("gl_texturemode");
 		if (!stricmp(texModes[0].name, texturemode))
 		{
@@ -854,7 +851,7 @@ void CWaterShader::DrawWater(void)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texModes[0].maximize);
 		}
 
-		gBSPRenderer.BindGLTexture(GL_TEXTURE3, m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum);
+		GLContext::BindTextureLegacy(m_pCurWater->surfaces[0]->texinfo->texture->gl_texturenum, GL_TEXTURE_2D, 3);
 
 		// Optimization: Try and find a water entity on the same z coord
 		// int j = 0;
@@ -864,8 +861,8 @@ void CWaterShader::DrawWater(void)
 		//	{
 		//		if (GetWaterOrigin(&m_pWaterEntities[j]).z == GetWaterOrigin().z)
 		//		{
-		//			gBSPRenderer.BindGLTexture(GL_TEXTURE1, m_pWaterEntities[j].refract->GetTextureID());
-		//			gBSPRenderer.BindGLTexture(GL_TEXTURE2, m_pWaterEntities[j].reflect->GetTextureID());
+		//			gBSPRenderer.GLContext::BindTextureLegacy(GL_TEXTURE1, m_pWaterEntities[j].refract->GetTextureID());
+		//			gBSPRenderer.GLContext::BindTextureLegacy(GL_TEXTURE2, m_pWaterEntities[j].reflect->GetTextureID());
 		//			break;
 		//		}
 		//	}
@@ -873,8 +870,8 @@ void CWaterShader::DrawWater(void)
 		//
 		// if (j == i)
 		//{
-		gBSPRenderer.BindGLTexture(GL_TEXTURE2, m_pCurWater->reflect->GetTextureID());
-		gBSPRenderer.BindGLTexture(GL_TEXTURE1, m_pCurWater->refract->GetTextureID());
+		GLContext::BindTexture(m_pCurWater->reflect, 2);
+		GLContext::BindTexture(m_pCurWater->refract, 1);
 		//}
 
 		for (int j = 0; j < m_pCurWater->numsurfaces; j++)
@@ -885,14 +882,12 @@ void CWaterShader::DrawWater(void)
 			break;
 	}
 
-	glCullFace(GL_FRONT);
+	GLContext::SetFaceToCull(eGL_face_front);
 
-	GL_ShaderProgram::ResetShaderBind();
+	GLContext::BindTexture(nullptr, 3);
+	GLContext::BindTexture(nullptr, 4);
 
-	gBSPRenderer.BindGLTexture(GL_TEXTURE3, 0);
-	gBSPRenderer.BindGLTexture(GL_TEXTURE4, 0);
-
-	glDisable(GL_DEPTH_CLAMP);
+	GLContext::SetDepthClamp(false);
 }
 
 /*

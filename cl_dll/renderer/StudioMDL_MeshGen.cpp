@@ -24,9 +24,7 @@
 #include "r_studioint.h"
 
 #include "StudioMDL_MeshGen.h"
-#include "opengl_utils/GL_Buffers.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include <unordered_map>
 
@@ -90,33 +88,14 @@ StudioMDL_Model::StudioMDL_Model(model_t* model)
 	// generate opengl mesh buffer
 	//
 
-	m_pModelVAO = new GL_VertexArrayObject();
-	m_pModelVAO->BindVAO();
-
-	m_pModelVertBuffer = new GL_BufferHandler();
-	m_pModelVertBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	m_pModelVertBuffer->BufferData(GL_BufferHandler::ArrayBuffer, m_vTotalVerts.size() * sizeof(studiomdl_vertbufferdata_t), m_vTotalVerts.data(), GL_BufferHandler::StaticDraw);
-
-	m_pModelVertIndexBuffer = new GL_BufferHandler();
-	m_pModelVertIndexBuffer->Bind(GL_BufferHandler::ElementArrayBuffer);
-	m_pModelVertIndexBuffer->BufferData(GL_BufferHandler::ElementArrayBuffer, m_vTotalIndices.size() * sizeof(uint32_t), m_vTotalIndices.data(), GL_BufferHandler::StaticDraw);
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, pos));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Normal);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Normal, 3, GL_SHORT, GL_TRUE, /*GL_FLOAT, GL_FALSE,*/ sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, normal));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::TexCoord);
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, texcoord));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID);
-	glVertexAttribIPointer(GL_ShaderProgram::ShaderAttribs::StudioMDL_BoneID, 1, GL_UNSIGNED_INT, sizeof(studiomdl_vertbufferdata_t), (const void*)offsetof(studiomdl_vertbufferdata_t, bonedata));
-
-	GL_VertexArrayObject::ResetVAOBinding();
-
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ElementArrayBuffer);
+	m_pModelVertBuffer = new GLArrayBuffer(m_vTotalVerts.size() * sizeof(studiomdl_vertbufferdata_t), (uint8_t*)m_vTotalVerts.data());
+	m_pModelVertIndexBuffer = new GLElementArrayBuffer(m_vTotalIndices.size(), m_vTotalIndices.data());
+	m_pModelVAO = new GLVertexArray(m_pModelVertBuffer, {
+		{VERTPOS_LOC, offsetof(studiomdl_vertbufferdata_t, pos), sizeof(studiomdl_vertbufferdata_t), 3, false, eGL_type_float},
+		{NORMAL_LOC, offsetof(studiomdl_vertbufferdata_t, normal), sizeof(studiomdl_vertbufferdata_t), 3, true, eGL_type_int16},
+		{TEXCOORD_LOC, offsetof(studiomdl_vertbufferdata_t, texcoord), sizeof(studiomdl_vertbufferdata_t), 2, false, eGL_type_float},
+		{STUDIOMDL_BONEID_LOC, offsetof(studiomdl_vertbufferdata_t, bonedata), sizeof(studiomdl_vertbufferdata_t), 1, false, eGL_type_uint32},
+	}, m_pModelVertIndexBuffer);
 }
 
 extern char* UTIL_VarArgs_client(const char* format, ...);

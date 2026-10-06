@@ -76,9 +76,6 @@
     <Filter Include="Header Files\cl_dll\renderer\opengl_utils">
       <UniqueIdentifier>{11395e50-b2bb-484d-aed6-3ec0668429c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\cl_dll\renderer\glew">
-      <UniqueIdentifier>{6c08719c-370f-4dac-a4b5-487500bc53ba}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cl_dll\ev_hldm.cpp">
@@ -336,33 +333,6 @@
     <ClCompile Include="..\..\cl_dll\renderer\StudioModelRenderer.cpp">
       <Filter>Source Files\cl_dll\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.cpp">
-      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\renderer\glew\glew.c">
-      <Filter>Source Files\cl_dll\renderer\glew</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cl_dll\engine_hookfuncs.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
@@ -413,6 +383,33 @@
     </ClCompile>
     <ClCompile Include="..\..\cl_dll\memory_hunt.cpp">
       <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLBuffer.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLContext.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLDebugLayer.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLFramebuffer.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLRenderbuffer.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLShader.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLTexture.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GLVertexArray.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.cpp">
+      <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -767,30 +764,6 @@
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\shadow\studiomdl_solid_glsl.h">
       <Filter>Header Files\cl_dll\renderer\glshaders\shadow</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_Buffers.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_DebugInterface.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_FBO.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShaderProgram.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_StateHandler.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_TextureHandler.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_VertexArrayObject.h">
-      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\game_shared\arraysize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -808,6 +781,21 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\renderer\glshaders\overlay_glsl.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glad.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glcommon.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glcommon_internal.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\glWrapper.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.h">
+      <Filter>Header Files\cl_dll\renderer\opengl_utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 class GL_BufferHandler;
-class GL_ShaderProgram;
+class GLShader;
 class GL_VertexArrayObject;
 
 class CSpriteRenderer
@@ -53,9 +53,9 @@ private:
 	std::vector<cl_entity_s*> m_vSpriteDrawList;
 	std::unordered_map<int, std::vector<sprite_quad_t>> m_vSpriteQuadList;
 
-	GL_BufferHandler* m_pSpriteQuadBuffer;
-	GL_ShaderProgram* m_pSpriteShader;
-	GL_VertexArrayObject* m_pSpriteVAO;
+	GLArrayBuffer* m_pSpriteQuadBuffer;
+	GLShader* m_pSpriteShader;
+	GLVertexArray* m_pSpriteVAO;
 
 	cl_entity_s* m_pCurrentEntity;
 

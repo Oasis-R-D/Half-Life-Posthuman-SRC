@@ -20,9 +20,7 @@
 #include "renderer/watershader.h"
 #include "renderer/mirrormanager.h"
 #include "renderer/goldsrc_beamrenderer.h"
-#include "opengl_utils/GL_StateHandler.h"
-#include "opengl_utils/GL_ShaderProgram.h"
-#include "opengl_utils/GL_VertexArrayObject.h"
+#include "opengl_utils/glWrapper.h"
 
 #include <algorithm> //std::clamp
 #include "client_state.h"
@@ -30,7 +28,6 @@
 
 #include "studio.h"
 #include "StudioModelRenderer.h"
-#include "opengl_utils/GL_Buffers.h"
 
 #include "goldsrc_spriterenderer.h"
 
@@ -48,27 +45,14 @@ extern int CL_FxBlend(cl_entity_t* ent);
 
 void CSpriteRenderer::Init()
 {
-	m_pSpriteVAO = new GL_VertexArrayObject();
-	m_pSpriteVAO->BindVAO();
+	m_pSpriteQuadBuffer = new GLArrayBuffer((sizeof(sprite_vertex_t) * 4) * 8196);
+	m_pSpriteVAO = new GLVertexArray(m_pSpriteQuadBuffer, {
+		{VERTPOS_LOC, offsetof(sprite_vertex_t, point), sizeof(sprite_vertex_t), 3, false, eGL_type_float},
+		{COLOR_LOC, offsetof(sprite_vertex_t, color), sizeof(sprite_vertex_t), 4, false, eGL_type_uint8}
+	});
 
-	m_pSpriteQuadBuffer = new GL_BufferHandler();
-	m_pSpriteQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	//enough space for 8196 sprites. occupies 1 mb in vram
-	m_pSpriteQuadBuffer->BufferData(GL_BufferHandler::ArrayBuffer, (sizeof(sprite_vertex_t) * 4) * 8196, nullptr, GL_BufferHandler::StaticDraw);
-
-	m_pSpriteShader = new GL_ShaderProgram(glsl_sprite_vp, glsl_sprite_fp);
-	m_pSpriteShader->Bind();
-	m_pSpriteShader->Uniform1i(m_pSpriteShader->GetUniformLoc("texture0"), 0);
-
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::VertexPos, 3, GL_FLOAT, GL_FALSE, sizeof(sprite_vertex_t), (void*)offsetof(sprite_vertex_t, point));
-	glVertexAttribPointer(GL_ShaderProgram::ShaderAttribs::Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(sprite_vertex_t), (void*)offsetof(sprite_vertex_t, color));
-
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::VertexPos);
-	glEnableVertexAttribArray(GL_ShaderProgram::ShaderAttribs::Color);
-
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
-	GL_ShaderProgram::ResetShaderBind();
-	GL_VertexArrayObject::ResetVAOBinding();
+	m_pSpriteShader = new GLShader({glsl_sprite_vp, glsl_sprite_fp, s_CommonAttribs});
+	m_pSpriteShader->SetUniformInt(m_pSpriteShader->GetUniformLoc("texture0"), 0);
 }
 
 void CSpriteRenderer::VidInit()
@@ -125,20 +109,19 @@ void CSpriteRenderer::DrawSpriteQuads()
 			verts.push_back(quads.vert[3]);
 		}
 	}
-	m_pSpriteShader->Bind();
-	m_pSpriteShader->UniformMatrix4fv(projviewmatrix_loc, 1, false, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
+	GLContext::BindShader(m_pSpriteShader);
+	m_pSpriteShader->SetUniformMatrix4x4(projviewmatrix_loc, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
 
 
-	m_pSpriteVAO->BindVAO();
-	m_pSpriteQuadBuffer->Bind(GL_BufferHandler::ArrayBuffer);
-	m_pSpriteQuadBuffer->BufferSubData(GL_BufferHandler::ArrayBuffer, 0, verts.size() * sizeof(sprite_vertex_t), verts.data());
-
+	m_pSpriteQuadBuffer->MemCpy(verts.size() * sizeof(sprite_vertex_t), (uint8_t*)verts.data());
+	GLContext::BindVertexArray(m_pSpriteVAO);
+	
 
 	int offset = 0;
 	int currendermode = -999;
 	for (auto& entry : m_vSpriteQuadList)
 	{
-		gBSPRenderer.BindGLTexture(GL_TEXTURE0, entry.first);
+		GLContext::BindTextureLegacy(entry.first, GL_TEXTURE_2D);
 		for (auto& quad : entry.second)
 		{
 			if (currendermode != quad.rendermode)
@@ -149,34 +132,34 @@ void CSpriteRenderer::DrawSpriteQuads()
 				switch (currendermode)
 				{
 				case kRenderTransAlpha:
-					g_GlobalGLState.SetDepthWrite(false);
-					g_GlobalGLState.SetDepthTest(true);
-					g_GlobalGLState.SetBlend(true);
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					GLContext::SetDepthWriting(false);
+					GLContext::SetDepthTesting(true);
+					GLContext::SetBlending(true);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_1_minus_srcalpha);
 					break;
 				case kRenderTransColor:
 				case kRenderTransTexture:
-					g_GlobalGLState.SetBlend(true);
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					g_GlobalGLState.SetDepthTest(true);
+					GLContext::SetBlending(true);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_1_minus_srcalpha);
+					GLContext::SetDepthTesting(true);
 					break;
 				case kRenderGlow:
-					g_GlobalGLState.SetDepthTest(false);
-					g_GlobalGLState.SetBlend(true);
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					g_GlobalGLState.SetDepthWrite(false);
+					GLContext::SetDepthTesting(false);
+					GLContext::SetBlending(true);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_one);
+					GLContext::SetDepthWriting(false);
 					break;
 				case kRenderTransAdd:
-					g_GlobalGLState.SetBlend(true);
-					g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					g_GlobalGLState.SetDepthWrite(false);
-					g_GlobalGLState.SetDepthTest(true);
+					GLContext::SetBlending(true);
+					GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_one);
+					GLContext::SetDepthWriting(false);
+					GLContext::SetDepthTesting(true);
 					break;
 				case kRenderNormal:
 				default:
-					g_GlobalGLState.SetBlend(false);
-					g_GlobalGLState.SetDepthWrite(true);
-					g_GlobalGLState.SetDepthTest(true);
+					GLContext::SetBlending(false);
+					GLContext::SetDepthWriting(true);
+					GLContext::SetDepthTesting(true);
 					break;
 				}
 			}
@@ -190,12 +173,9 @@ void CSpriteRenderer::DrawSpriteQuads()
 
 	verts.clear();
 
-	g_GlobalGLState.SetDepthWrite(true);
-	g_GlobalGLState.SetDepthTest(true);
-	g_GlobalGLState.SetBlend(false);
-
-	GL_ShaderProgram::ResetShaderBind();
-	GL_VertexArrayObject::ResetVAOBinding();
+	GLContext::SetDepthWriting(true);
+	GLContext::SetDepthTesting(true);
+	GLContext::SetBlending(false);
 }
 
 void CSpriteRenderer::QuadifySpriteEnt(cl_entity_t* e)
