@@ -405,14 +405,11 @@ char glsl330_studiomdl_frag[] = R"(
 		}
 
 		if (int_values.y == 1)
-		{
 			gl_FragColor = texcolor;
-		}
-
-		if (int_values.y == 2)
+		else if (int_values.y == 2)
 		{
-			//gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
-			//gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
+			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
+			gl_FragColor = vec4(rendervalues.x*255, rendervalues.y*255, rendervalues.z*255, rendervalues.a);
 		}
 	}
 

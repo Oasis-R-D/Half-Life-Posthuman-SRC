@@ -3994,18 +3994,21 @@ void CBasePlayer::FlashlightTurnOn()
 		SetBits(pev->effects, EF_BRIGHTLIGHT);
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
-		{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HECU ||
-				pEntity->Classify() == CLASS_BLACKOPS || pEntity->Classify() == CLASS_BMRF_STAFF || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
-				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
+		{	
+			auto monster = CBaseEntity::GetMonsterPointer(pEntity->edict());
+			if (!monster)
+				continue;
+			
+			int relations = monster->IRelationship(this);
+			if (relations == R_AL)
+			{
+				pEntity->pev->renderfx = kRenderFxGlowShell; // TO-DO: kRenderFxAlly isn't working! (and is probably useless anyways)
+				pEntity->pev->rendercolor = Vector(128, 128, 128);
+			}
+			else if (relations != 0 && relations >= R_DL && monster->BloodColor() != DONT_BLEED)
 			{
 				pEntity->pev->renderfx = kRenderFxLightMultiplier;
 				pEntity->pev->rendercolor = Vector(255, 0, 0);
-			}
-			else if (pEntity->Classify() == CLASS_PLAYER_ALLY) // TO-DO: replace this to a call to IRelationship
-			{
-				pEntity->pev->renderfx = kRenderFxAlly;
-				pEntity->pev->rendercolor = Vector(128, 128, 128);
 			}
 		}
 	}
@@ -4040,16 +4043,13 @@ void CBasePlayer::FlashlightTurnOff()
 		CBaseEntity* pEntity = NULL; // iterate on all entities in the vicinity.
 		while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 8192)) != NULL)
 		{
-			if (pEntity->Classify() == CLASS_ALIEN_MILITARY || pEntity->Classify() == CLASS_ALIEN_MONSTER || pEntity->Classify() == CLASS_HECU ||
-				pEntity->Classify() == CLASS_BLACKOPS || pEntity->Classify() == CLASS_BMRF_STAFF || pEntity->Classify() == CLASS_ALIEN_PREDATOR ||
-				pEntity->Classify() == CLASS_ALIEN_PREDATOR)
-			{
+			auto monster = CBaseEntity::GetMonsterPointer(pEntity->edict());
+			if (!monster)
+				continue;
+			
+			int relations = monster->IRelationship(this);
+			if (relations == R_AL || (relations >= R_DL && monster->BloodColor() != DONT_BLEED))
 				pEntity->pev->renderfx = kRenderFxNone;
-			}
-			else if (pEntity->Classify() == CLASS_PLAYER_ALLY)
-			{
-				pEntity->pev->renderfx = kRenderFxNone;
-			}
 		}
 	}
 	else

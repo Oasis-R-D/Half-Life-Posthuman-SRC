@@ -157,6 +157,15 @@ const char glsl_gaussianblur_fp[] = R"(
 		return result;
 	}
 	
+	vec3 PISS(sampler2D tex, vec2 coord)
+	{
+		vec4 screen = texture(tex, coord);
+		float lum = dot(screen.rgb, vec3(0.299, 0.587, 0.114));
+		vec3 pissTint = vec3(1.2, 1.0, 0.6);
+		vec3 finalColor = lum * pissTint;
+		return mix(screen.rgb, finalColor, 0.5);
+	}
+
 	void main()
 	{
 		if(gaussian_pass)
@@ -167,7 +176,10 @@ const char glsl_gaussianblur_fp[] = R"(
 				gl_FragColor = vec4(gaussian_blur_cubemap(cube_texture_, frag_texcoord), 1);
 		}
 		else
-			gl_FragColor = texture(texture_, frag_texcoord);
+		{
+			gl_FragColor.rgb = PISS(texture_, frag_texcoord);
+			gl_FragColor.a = 1;
+		}
 	}
 
 )";

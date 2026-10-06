@@ -2487,13 +2487,6 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	}
 	else if (m_pCurrentEntity->curstate.renderfx == kRenderFxLightMultiplier)
 	{
-		/* // this seemingly does nothing
-		int oldfx = m_pCurrentEntity->curstate.renderfx;
-		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
-		m_bChromeShell = 0;
-		StudioRenderFinal();
-		*/
-
 		m_bChromeShell = 2;
 			StudioRenderFinal();
 		m_bChromeShell = 0;
@@ -2726,7 +2719,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_dModelPerEntityData.rendervalues = glm::vec4(colors.r / 255.f, colors.g / 255.f, colors.b / 255.f, m_pCurrentEntity->curstate.renderamt / 255.f);
 
-	if (m_bChromeShell <= 0) // dont bother with light data if doing chrome shell
+	if (m_bChromeShell != 1) // dont bother with light data if doing chrome shell
 	{
 		// lightmap light
 		m_dModelPerEntityData.lightdir = glm::vec4(m_pLighting.lightdir.x, m_pLighting.lightdir.y, m_pLighting.lightdir.z, 0);
@@ -3207,7 +3200,7 @@ void CStudioModelRenderer::StudioDrawMesh(StudioMDL_Mesh* pmesh, StudioMDL_Textu
 
 	m_ModelShader->SetUniformInt(m_ModelShaderLocs[mdlshader_texture_flags], ptex->GetTextureFlags());
 
-	if (m_bChromeShell <= 0)
+	if (m_bChromeShell != 1)
 	{
 		GLContext::BindTextureLegacy(texinfo.iIndex, GL_TEXTURE_2D);
 		m_ModelShader->SetUniformFloat(m_ModelShaderLocs[mdlshader_chromeshell_factor], 0);
