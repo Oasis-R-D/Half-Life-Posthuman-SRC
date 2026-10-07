@@ -453,6 +453,18 @@ public:
 		skybox_shaderlocs_size,
 	};
 
+	enum filtershader_uniforms
+	{
+		filterUTIL_resolution = 0,// TO-DO: since this
+		
+		filter_pixelation,
+		filter_saturation,
+		filter_brightness,
+		filter_gamma, // might not add
+
+		filter_shaderlocs_size,
+	};
+
 	GLuint m_WorldShader_locs[world_shaderlocs_size];
 
 	GLuint m_WorldSolidShader_locs[worldsolid_shaderlocs_size];
@@ -460,6 +472,8 @@ public:
 	GLuint m_SimpleSkyboxShader_locs[skybox_shaderlocs_size];
 
 	GLuint m_DecalShader_locs[decal_shaderlocs_size];
+
+	GLuint m_FilterShader_locs[filter_shaderlocs_size];
 
 	glm::mat4 m_ProjectionMatrix; //	fov, aspect, near, far
 	glm::mat4 m_ViewMatrix;  //	camera position, camera angles
