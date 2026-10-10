@@ -34,7 +34,6 @@ Written by Andrew Lucas
 #include "r_efx.h"
 #include "r_studioint.h"
 #include "studio_util.h"
-#include "event_api.h"
 #include "event_args.h"
 
 #include "StudioModelRenderer.h"
@@ -110,7 +109,7 @@ void CParticleEngine::Init()
 	m_pParticleVAO = new GLVertexArray(m_pQuadBuffer, {
 		{VERTPOS_LOC, offsetof(ParticleVertex, pos), sizeof(ParticleVertex), 3, false, eGL_type_float},
 		{TEXCOORD_LOC, offsetof(ParticleVertex, uv), sizeof(ParticleVertex), 2, false, eGL_type_float},
-		{COLOR_LOC, offsetof(ParticleVertex, color), sizeof(ParticleVertex), 3, true, eGL_type_uint8},
+		{COLOR_LOC, offsetof(ParticleVertex, color), sizeof(ParticleVertex), 4, true, eGL_type_uint8},
 	});
 };
 
@@ -2346,11 +2345,11 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 	m_ParticleShader->SetUniformMatrix4x4(projviewmatrixloc, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
 
 	std::vector<ParticleVertex> verts;
-	for (auto batch : particlebatch)
+	for (auto& batch : particlebatch)
 	{
 		if (batch.second.empty())
 			continue;
-		for (auto quad : batch.second)
+		for (auto& quad : batch.second)
 		{
 			verts.push_back(quad.vert[0]);
 			verts.push_back(quad.vert[1]);
@@ -2363,7 +2362,7 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 	int offset = 0;
 	int currendermode = -1;
 	GLuint curtexture = 0;
-	for (auto batch : particlebatch)
+	for (auto& batch : particlebatch)
 	{
 		if (batch.second.empty())
 			continue;
