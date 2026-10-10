@@ -1,6 +1,10 @@
 #include "glWrapper.h"
 #include "glcommon_internal.h"
 
+#include <SDL2/SDL_messagebox.h>
+
+extern SDL_Window* hlWindow;
+
 static const std::vector<uint16_t> s_default_versions = {
     130, 140, 150, 330, 400, 410, 420, 430, 440, 450, 460
 };
@@ -104,7 +108,7 @@ static void(*gl_uniformmatrix3func)(GLShader*, uint32_t, bool, const float*) = l
 static void(*gl_uniformmatrix3x4func)(GLShader*, uint32_t, bool, const float*) = legacyuniformmatrix3x4func;
 static void(*gl_uniformmatrix4func)(GLShader*, uint32_t, bool, const float*) = legacyuniformmatrix4func;
 
-static bool checkCompileError(GLuint shaderhandle)
+static bool checkCompileError(GLuint shaderhandle, bool vertex)
 {
     GLint status;
     glGetShaderiv(shaderhandle, GL_COMPILE_STATUS, &status);
@@ -114,7 +118,11 @@ static bool checkCompileError(GLuint shaderhandle)
     char msgbuffer[512];
 	GLsizei msgsize = sizeof(msgbuffer);
     glGetShaderInfoLog(shaderhandle, msgsize, NULL, msgbuffer);
-    _GLError(msgbuffer);
+    //_GLError(msgbuffer);
+	std::string str = vertex ? "a vertex shader has failed to compile.\n" : "a fragment shader has failed to compile.\n";
+	str += msgbuffer;
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
+	exit(-1);
     return false;
 }
 static void checkLinkError(GLuint proghandle)
@@ -127,7 +135,11 @@ static void checkLinkError(GLuint proghandle)
     char msgbuffer[512];
     GLsizei msgsize = sizeof(msgbuffer);
     glGetProgramInfoLog(proghandle, msgsize, NULL, msgbuffer);
-    _GLError(msgbuffer);
+    //_GLError(msgbuffer);
+	std::string str = "a shader has failed to link.\n";
+	str += msgbuffer;
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
+	exit(-1);
 }
 
 void GLShader_initenv()
@@ -176,9 +188,9 @@ GLShader::GLShader(const glshader_createinfo_t& info)
         glShaderSource(fragshader, 1, &fragstringcstr, NULL);
 
         glCompileShader(vertshader);
-        if (!checkCompileError(vertshader)) continue;
+        if (!checkCompileError(vertshader, true)) continue;
         glCompileShader(fragshader);
-        if (!checkCompileError(fragshader)) continue;
+        if (!checkCompileError(fragshader, false)) continue;
 
         break;
     }
