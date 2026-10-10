@@ -1088,6 +1088,10 @@ int ByteToInt(byte* byte)
 }
 
 
+static void glprint(const char* message) {
+	gEngfuncs.Con_DPrintf(message);
+}
+
 /*
 =================
 R_Init
@@ -1106,7 +1110,7 @@ void R_Init(void)
 	GLContext::glcontext_initinfo_t info;
 	info.debuglayer = true;
 	info.fn = (GLADloadfunc)SDL_GL_GetProcAddress;
-	info.gl_loggerFn = nullptr;
+	info.gl_loggerFn = glprint;
 	GLContext::Init_GLContext(info);
 
 	gpTempEnts.clear();
