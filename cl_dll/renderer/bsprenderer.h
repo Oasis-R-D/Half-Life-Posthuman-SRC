@@ -410,8 +410,6 @@ public:
 		world_fogstart,
 		world_fogend,
 
-		world_nightvision,
-
 		world_lightgamma,
 		world_texgamma,
 

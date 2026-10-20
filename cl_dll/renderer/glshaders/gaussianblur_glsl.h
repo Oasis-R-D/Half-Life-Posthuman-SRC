@@ -159,6 +159,7 @@ const char glsl_gaussianblur_fp[] = R"(
 	
 	vec3 filter(sampler2D tex, vec2 coord)
 	{
+#ifdef DISABLED
 		vec2 sceneTexCoord = coord;
 
 		if (pixelation)
@@ -172,6 +173,13 @@ const char glsl_gaussianblur_fp[] = R"(
 
 		vec3 tint = lum * vec3(1.2, 1.0, 0.6);
 		return mix(sceneTex.rgb, tint, 0.5);
+#else
+		vec4 screen = texture(tex, coord);
+		float lum = dot(screen.rgb, vec3(0.2126, 0.7152, 0.0722));
+		vec3 pissTint = vec3(1.2, 1.0, 0.6);
+		vec3 finalColor = lum * pissTint;
+		return mix(screen.rgb, finalColor, 0.5);
+#endif
 	}
 
 	void main()
@@ -183,10 +191,11 @@ const char glsl_gaussianblur_fp[] = R"(
 			else
 				gl_FragColor = vec4(gaussian_blur_cubemap(cube_texture_, frag_texcoord), 1);
 
-			return
+			return;
 		}
 
-		gl_FragColor.rgb = filter(texture_, frag_texcoord);
+		vec3 final = filter(texture_, frag_texcoord)
+		gl_FragColor.rgb = final;
 		gl_FragColor.a = 1;
 	}
 

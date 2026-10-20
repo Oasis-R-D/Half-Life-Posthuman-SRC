@@ -852,6 +852,8 @@ static void sample_DrawFBOBuffer()
 {
 	GLContext::BindShader(gBSPRenderer.m_FilterShader);
 	gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+	gBSPRenderer.m_FilterShader->SetUniformInt(gBSPRenderer.m_FilterShader->GetUniformLoc("nightvision"), (int)g_iNightVision);
+
 	GLContext::BindVertexArray(gBSPRenderer.m_pScreenQuadVAO);
 
 	GLContext::BindTexture(s_rendercolorbuffer);

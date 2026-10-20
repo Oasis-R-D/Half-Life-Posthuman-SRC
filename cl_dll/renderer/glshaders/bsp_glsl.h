@@ -180,10 +180,6 @@ const char glsl330_world_fp[] = R"(
 	uniform float fogend;
 	uniform bool fog_active;
 
-	//MOD SPECIFIC
-	uniform bool nightvision;
-	//
-
 	uniform float lightgamma;
 	uniform float texgamma;
 
@@ -500,13 +496,6 @@ const char glsl330_world_fp[] = R"(
 
 		basetex_pixel.a *= float(renderamt) / 255.0;
 
-		//MOD SPECIFIC: nightvision
-		// TO-DO: the red tint is supposed to be a screen effect, this is a temp fix
-		if(nightvision)
-		{
-			basetex_pixel.rgb *= vec3(1.1, 0.1, 0.1);
-		}
-
 		basetex_pixel.rgb = ApplyFog(basetex_pixel.rgb);
 
 		gl_FragColor = basetex_pixel;
@@ -557,20 +546,10 @@ const char glsl330_world_fp[] = R"(
 		float finalAlpha = lightmap_pixel.a *
 			float(renderamt) / 255.0;
 
-		if(nightvision)
-		{
-			gl_FragColor = vec4(
-				lightmap_pixel.rgb * vec3(1.1, 0.1, 0.1),
-				finalAlpha
-			);
-		}
-		else
-		{
-			gl_FragColor = vec4(
-				lightmap_pixel.rgb,
-				finalAlpha
-			);
-		}
+		gl_FragColor = vec4(
+			lightmap_pixel.rgb,
+			finalAlpha
+		);
 	}
 
 	void main()
