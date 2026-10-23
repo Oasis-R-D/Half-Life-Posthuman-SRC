@@ -2369,11 +2369,11 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 	m_ParticleShader->UniformMatrix4fv(projviewmatrixloc, 1, GL_FALSE, glm::value_ptr(gBSPRenderer.m_ProjectionMatrix * gBSPRenderer.m_ViewMatrix));
 
 	std::vector<ParticleVertex> verts;
-	for (auto batch : particlebatch)
+	for (auto& batch : particlebatch)
 	{
 		if (batch.second.empty())
 			continue;
-		for (auto quad : batch.second)
+		for (auto& quad : batch.second)
 		{
 			verts.push_back(quad.vert[0]);
 			verts.push_back(quad.vert[1]);
@@ -2387,7 +2387,7 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 	int offset = 0;
 	int currendermode = -1;
 	GLuint curtexture = 0;
-	for (auto batch : particlebatch)
+	for (auto& batch : particlebatch)
 	{
 		if (batch.second.empty())
 			continue;

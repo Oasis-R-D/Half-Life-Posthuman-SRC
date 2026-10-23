@@ -93,10 +93,6 @@ model_t* cl_sprite_shell;
 
 extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
-GL_ShaderProgram *overlayShader;
-GL_VertexArrayObject* overlayVAO;
-GL_FBOHandler* overlayFBO;
-
 //==========================
 //	stristr
 //
@@ -677,31 +673,8 @@ void R_DrawMultiViews()
 	gBSPRenderer.Make_ShadowMaps();
 }
 
-GLuint R_GetTexture()
-{
-	GLuint textureColorbuffer;
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ScreenWidth, ScreenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	// filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// attach to the buffer
-	overlayFBO->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-	return textureColorbuffer;
-}
-
 void R_DrawMainView()
 {
-	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
-	GLuint texture = R_GetTexture();
-
 	glEnable(GL_DEPTH_CLAMP);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(gHUD.m_pFogSettings.color.x, gHUD.m_pFogSettings.color.y, gHUD.m_pFogSettings.color.z, 1.0);
@@ -756,28 +729,8 @@ void R_DrawMainView()
 	gBSPRenderer.m_bMainPass = false;
 
 	g_BeamRenderer.NewFrame();
-
-	GL_FBOHandler::ResetToMainFBO();
-	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
-
-	// Bind overlay
-	overlayShader->Bind();
-	overlayVAO->BindVAO();
-
-	// TO-DO: Give the overlay the texture somehow
-	glBindTexture(GL_TEXTURE0, texture);
-
-	g_GlobalGLState.SetBlend(false);
-	g_GlobalGLState.SetCullFace(false);
-	g_GlobalGLState.SetDepthTest(false);
-	
-	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_TopRight, 6);
-
-	GL_ShaderProgram::ResetShaderBind();
-	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 }
 
-// is this not literally an overlay shader? What exactly is this?
 void DrawQuadDebugTest()
 {
 	if (!gBSPRenderer.m_pSunShadowMap)
@@ -1144,12 +1097,6 @@ void R_Init(void)
 
 	gpTempEnts.clear();
 
-	overlayShader = new GL_ShaderProgram(glsl_overlay_vp, glsl_overlay_fp);
-	overlayShader->Bind();
-	overlayShader->Uniform1i(overlayShader->GetUniformLoc("texture0"), 0);
-	overlayVAO = new GL_VertexArrayObject();
-	overlayVAO->BindVAO();
-
 	gPropManager.Init();
 	gTextureLoader.Init();
 	gBSPRenderer.Init();
@@ -1176,12 +1123,6 @@ void R_VidInit(void)
 
 	if (mainfbo < 0)
 		mainfbo = 0;
-
-	if (!overlayFBO)
-		overlayFBO = new GL_FBOHandler();
-
-	overlayFBO->Bind(GL_FBOHandler::Framebuffer);
-	GL_FBOHandler::ResetToMainFBO();
 
 	gpTempEnts.clear();
 
