@@ -679,6 +679,8 @@ void R_DrawMultiViews()
 
 void R_DrawMainView()
 {
+	glEnable(GL_MULTISAMPLE); // TO-DO: this doesn't work due to the custom overlay FBO
+
 	GLContext::SetDepthClamp(false);
 	GLContext::ClearColorBuffer();
 	GLContext::ClearDepthBuffer();

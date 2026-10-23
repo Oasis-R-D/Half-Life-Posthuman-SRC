@@ -253,6 +253,9 @@ int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 		auto fullScreenFlags = flags & SDL_WINDOW_FULLSCREEN_DESKTOP;
 		flags |= SDL_WINDOW_HIDDEN; // only start hidden seems to work properly
 
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
 		SDL_Window* window = SDL_CreateWindow(titlecp, x, y, w, h, flags);
 		auto engineBase = GetModuleHandleA("hw.dll");
 		auto size = GetModuleSize(engineBase);
