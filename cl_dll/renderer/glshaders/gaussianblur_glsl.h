@@ -194,7 +194,7 @@ const char glsl_gaussianblur_fp[] = R"(
 			return;
 		}
 
-		vec3 final = filter(texture_, frag_texcoord)
+		vec3 final = filter(texture_, frag_texcoord);
 		gl_FragColor.rgb = final;
 		gl_FragColor.a = 1;
 	}
