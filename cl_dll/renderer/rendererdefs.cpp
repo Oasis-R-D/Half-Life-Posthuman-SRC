@@ -93,6 +93,13 @@ model_t* cl_sprite_shell;
 
 extern std::vector<std::unique_ptr<TEMPENTITY>> gpTempEnts;
 
+#if 0
+GL_ShaderProgram *overlayShader;
+GL_FBOHandler* s_render_redirect;
+GL_RBOHandler* s_depthbuffer;
+GL_TextureHandler* s_rendercolorbuffer; // should be texture handler?
+#endif
+
 //==========================
 //	stristr
 //
@@ -729,8 +736,11 @@ void R_DrawMainView()
 	gBSPRenderer.m_bMainPass = false;
 
 	g_BeamRenderer.NewFrame();
+
+	//GL_ShaderProgram::ResetShaderBind();
 }
 
+/*
 void DrawQuadDebugTest()
 {
 	if (!gBSPRenderer.m_pSunShadowMap)
@@ -751,6 +761,7 @@ void DrawQuadDebugTest()
 	GL_ShaderProgram::ResetShaderBind();
 	GL_BufferHandler::ResetBufferBinding(GL_BufferHandler::ArrayBuffer);
 }
+*/
 
 int V_FadeAlpha()
 {
@@ -852,6 +863,33 @@ void R_PolyBlend()
 }
 
 extern cvar_t* cl_first_person_uses_world_model;
+/*
+static void sample_BindCustomFBO() {
+	//s_render_redirect->Bind(s_render_redirect);
+	GLContext::BindFramebuffer(s_render_redirect);
+	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
+}
+static void sample_BindMainFBO()
+{
+	GL_FBOHandler::ResetToMainFBO();
+	glViewport(GL_ZERO, GL_ZERO, ScreenWidth, ScreenHeight);
+}
+static void sample_DrawFBOBuffer()
+{
+	gBSPRenderer.m_FilterShader->Bind();
+	gBSPRenderer.m_FilterShader->Uniform1i(gBSPRenderer.m_FilterShader->GetUniformLoc("gaussian_pass"), 0);
+	GLContext::BindVertexArray(gBSPRenderer.m_pScreenQuadVAO);
+
+	// gBSPRenderer.BindGLTexture(
+	GLContext::BindTexture(s_rendercolorbuffer);
+
+	g_GlobalGLState.SetBlend(false);
+	g_GlobalGLState.SetDepthTest(false);
+	g_GlobalGLState.SetCullFace(false);
+
+	glDrawArrays(GL_TRIANGLES, gBSPRenderer.quad_FullScreen, 6);
+}
+*/
 
 /*
 =================
@@ -865,10 +903,11 @@ void R_DrawNormalTriangles(void)
 
 	R_DrawMultiViews(); //shadowmaps, water povs, mirrors, etc
 	
+	//sample_BindCustomFBO();
 	R_DrawMainView();
-
-	//just for debugging certain textures
-	//DrawQuadDebugTest();
+	//sample_BindMainFBO();
+	
+	//sample_DrawFBOBuffer();
 
 	// Restore fog params
 	gWaterShader.Restore();
@@ -1121,6 +1160,41 @@ void R_VidInit(void)
 
 	GL_FBOHandler::SetMainGameFBO(mainfbo);
 
+#if 0
+	if (!s_render_redirect)
+	{
+		s_render_redirect = new GL_FBOHandler();
+		s_depthbuffer = new GL_RBOHandler(); // eGL_texformat_depth16, ScreenWidth, ScreenHeight);
+		s_depthbuffer->Bind();
+		//s_depthbuffer->RenderBufferStorage(GL_DEPTH_COMPONENT16, ScreenWidth, ScreenHeight); // bind first?
+		//glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind?
+
+		/*
+		gl_texturecreationinfo_t colorbuffer_textureinfo = {
+			ScreenWidth, ScreenHeight,
+			{
+				nullptr,
+				8 * ScreenWidth * ScreenHeight,
+				8,
+				eGL_texformat_rgba8,
+				eGL_pixelformat_rgba,
+				eGL_type_uint8,
+				eGL_texfilter_linear, eGL_texfilter_linear,
+				eGL_texwrap_clamptoborder,
+				{1, 1, 1, 1}
+			}
+		};
+		*/
+
+		//s_rendercolorbuffer = new GL_TextureHandler(&colorbuffer_textureinfo);
+
+		s_render_redirect->FramebufferTexture2D(GL_FBOHandler::Framebuffer, GL_FBOHandler::ColorAttachment, GL_TEXTURE_2D, s_rendercolorbuffer->GetTextureID(), 0);
+		//s_render_redirect->AttachTexture(eGL_fboattachment_color0, s_rendercolorbuffer);
+		
+		s_render_redirect->FramebufferRenderbuffer(GL_FBOHandler::Framebuffer, GL_FBOHandler::DepthAttachment, s_depthbuffer);
+		//s_render_redirect->AttachRenderBuffer(eGL_fboattachment_depth, s_depthbuffer);
+	}
+#endif
 	if (mainfbo < 0)
 		mainfbo = 0;
 
