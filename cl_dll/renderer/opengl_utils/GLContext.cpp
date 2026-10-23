@@ -26,6 +26,8 @@ static struct glstates_t
     bool m_bDepthWrite;
 
     bool m_bPolyOffsetFill;
+	float m_fPolyOffsetFactor;
+	float m_fPolyOffsetUnits;
 
     eGL_face m_cullfacemode;
     bool m_bCullFace;
@@ -347,6 +349,8 @@ namespace GLContext
 			s_gl_states.m_x, s_gl_states.m_y,
 			s_gl_states.m_width, s_gl_states.m_height);
 
+		glPolygonOffset(s_gl_states.m_fPolyOffsetFactor, s_gl_states.m_fPolyOffsetUnits);
+
         if (s_gl_states.m_bDepthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
         if (s_gl_states.m_bPolyOffsetFill) glEnable(GL_POLYGON_OFFSET_FILL); else glDisable(GL_POLYGON_OFFSET_FILL);
         if (s_gl_states.m_bBlending) glEnable(GL_BLEND); else glDisable(GL_BLEND);
@@ -453,6 +457,12 @@ namespace GLContext
     void SetPolygonOffsetFill(bool enable) {
 		s_gl_states.m_bPolyOffsetFill = enable;
         if (enable) glEnable(GL_POLYGON_OFFSET_FILL); else glDisable(GL_POLYGON_OFFSET_FILL);
+    }
+
+    void SetPolygonOffset(float factor, float units) {
+		s_gl_states.m_fPolyOffsetFactor = factor;
+		s_gl_states.m_fPolyOffsetUnits = units;
+		glPolygonOffset(s_gl_states.m_fPolyOffsetFactor, s_gl_states.m_fPolyOffsetUnits);
     }
 
     static void UpdateBlendFunc() {

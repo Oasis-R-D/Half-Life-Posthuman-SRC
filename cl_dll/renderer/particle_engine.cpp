@@ -2396,6 +2396,16 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 		}
 
 		GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size(), offset);
+
+		if (gBSPRenderer.m_pCvarWireFrame->value)
+		{
+			GLContext::SetBlending(false);
+			GLContext::SetPolygonRasterMode(eGL_polymode_line);
+			GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size(), offset);
+			GLContext::SetPolygonRasterMode(eGL_polymode_fill);
+			GLContext::SetBlending(true);
+		}
+
 		offset += batch.second.size() * 4;
 	}
 

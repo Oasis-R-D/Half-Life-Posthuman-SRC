@@ -137,6 +137,12 @@ enum eGL_texwrap : uint8_t{
 
     eGL_texwrap_enummax
 };
+enum eGL_bufferusage : uint8_t{
+	eGL_bufferusage_dynamicdraw = 0,
+	eGL_bufferusage_staticdraw,
+	eGL_bufferusage_dynamicread,
+	eGL_bufferusage_staticread,
+};
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -174,7 +180,7 @@ class GLRenderbuffer : public GLObject
 {
     friend GLFramebuffer;
 public:
-    GLRenderbuffer(eGL_texformat format, uint32_t width, uint32_t height);
+    GLRenderbuffer(eGL_texformat format, uint32_t width, uint32_t height, int numsamples = 1);
     ~GLRenderbuffer();
 
     void GetWidthHeight(uint32_t& width, uint32_t& height) {
@@ -276,6 +282,15 @@ public:
 	GLTextureCubeMap(const gltexcubemap_createinfo_t* info);
 };
 
+////////////////////////////////////////////
+
+class GLTexture2DMS : public GLTexture
+{
+public:
+	GLTexture2DMS(const gltex2d_createinfo_t* info, int numsamples);
+};
+
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -322,7 +337,7 @@ public:
 
 protected:
 
-    GLBuffer(GLuint target, uint32_t numbytes, uint8_t* data = nullptr);
+    GLBuffer(GLuint target, uint32_t numbytes, uint8_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
 
     GLuint m_eTarget;
     uint32_t m_uiSize;
@@ -333,7 +348,7 @@ protected:
 class GLArrayBuffer : public GLBuffer
 {
 public:
-    GLArrayBuffer(uint32_t numbytes, uint8_t* data = nullptr);
+    GLArrayBuffer(uint32_t numbytes, uint8_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -341,9 +356,9 @@ public:
 class GLElementArrayBuffer : public GLBuffer
 {
 public:
-    GLElementArrayBuffer(uint32_t numindices, uint32_t* data = nullptr);
-    GLElementArrayBuffer(uint32_t numindices, uint16_t* data = nullptr);
-    GLElementArrayBuffer(uint32_t numindices, uint8_t* data = nullptr);
+    GLElementArrayBuffer(uint32_t numindices, uint32_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
+    GLElementArrayBuffer(uint32_t numindices, uint16_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
+	GLElementArrayBuffer(uint32_t numindices, uint8_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
 
     eGL_type GetType() { return m_eType; };
 
@@ -356,7 +371,7 @@ private:
 class GLUniformBuffer : public GLBuffer
 {
 public:
-    GLUniformBuffer(uint32_t numbytes, uint8_t* data = nullptr);
+	GLUniformBuffer(uint32_t numbytes, uint8_t* data = nullptr, eGL_bufferusage usage = eGL_bufferusage_dynamicdraw);
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -471,6 +486,7 @@ namespace GLContext
     void SetDepthWriting(bool enable);
 
     void SetPolygonOffsetFill(bool enable);
+	void SetPolygonOffset(float min, float max);
 
     void SetSrcBlendFunc_rgb(eGL_blendfactor factor);
     void SetDstBlendFunc_rgb(eGL_blendfactor factor);

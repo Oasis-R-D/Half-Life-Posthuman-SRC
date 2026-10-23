@@ -379,7 +379,7 @@ void CBSPRenderer::Init(void)
 			Vector(0.0, 1.0, 0.0)	// Top-right
 		};
 
-	m_pBasicFullscreenQuad = new GLArrayBuffer(sizeof(verts), (uint8_t*)verts);
+	m_pBasicFullscreenQuad = new GLArrayBuffer(sizeof(verts), (uint8_t*)verts, eGL_bufferusage_staticdraw);
 	m_pScreenQuadVAO = new GLVertexArray(m_pBasicFullscreenQuad, {{VERTPOS_LOC, 0, sizeof(Vector), 3, false, eGL_type_float}});
 
 	m_pDecalsBuffer = new GLArrayBuffer(sizeof(DecalVert_t) * 524288);
@@ -431,7 +431,7 @@ void CBSPRenderer::Init(void)
 		skyVerts.push_back({{m_vPoints[d].x, m_vPoints[d].y, m_vPoints[d].z}, {0.0f, 0.0f}});
 	}
 
-	m_pSimpleSky_Buffer = new GLArrayBuffer(skyVerts.size() * sizeof(skyvert_t), (uint8_t*)skyVerts.data());
+	m_pSimpleSky_Buffer = new GLArrayBuffer(skyVerts.size() * sizeof(skyvert_t), (uint8_t*)skyVerts.data(), eGL_bufferusage_staticdraw);
 	m_pSimpleSkyVAO = new GLVertexArray(m_pSimpleSky_Buffer, {
 		{VERTPOS_LOC, offsetof(skyvert_t, pos), sizeof(skyvert_t), 3, false, eGL_type_float},
 		{TEXCOORD_LOC, offsetof(skyvert_t, texcoord), sizeof(skyvert_t), 2, false, eGL_type_float}
@@ -1387,7 +1387,7 @@ void CBSPRenderer::GenerateVertexArray(void)
 	if(m_pBSP_VAO)
 		delete m_pBSP_VAO;
 
-	m_pMainBuffer = new GLArrayBuffer(sizeof(brushvertex_t) * iNumVerts, (uint8_t*)m_pBufferData);
+	m_pMainBuffer = new GLArrayBuffer(sizeof(brushvertex_t) * iNumVerts, (uint8_t*)m_pBufferData, eGL_bufferusage_staticdraw);
 	m_pBSP_VAO = new GLVertexArray(m_pMainBuffer, {
 		{VERTPOS_LOC, offsetof(brushvertex_t, pos), sizeof(brushvertex_t), 3, false, eGL_type_float},
 		{NORMAL_LOC, offsetof(brushvertex_t, normal), sizeof(brushvertex_t), 3, false, eGL_type_float},
@@ -4107,6 +4107,7 @@ void CBSPRenderer::BlendDecals(eGL_blendfactor src, eGL_blendfactor dest, bool m
 	GLContext::SetBlending(true);
 	GLContext::SetBlendFunc_rgba(src, dest);
 
+	GLContext::SetPolygonOffset(-1, -1);
 	GLContext::SetPolygonOffsetFill(true);
 
 	m_DecalShader->SetUniformMatrix4x4(m_DecalShader_locs[decal_projviewmatrix], glm::value_ptr(m_ProjectionMatrix * m_ViewMatrix));

@@ -108,7 +108,7 @@ static void(*gl_uniformmatrix3func)(GLShader*, uint32_t, bool, const float*) = l
 static void(*gl_uniformmatrix3x4func)(GLShader*, uint32_t, bool, const float*) = legacyuniformmatrix3x4func;
 static void(*gl_uniformmatrix4func)(GLShader*, uint32_t, bool, const float*) = legacyuniformmatrix4func;
 
-static bool checkCompileError(GLuint shaderhandle, bool vertex)
+static bool checkCompileError(GLuint shaderhandle, bool vertex, bool critical)
 {
     GLint status;
     glGetShaderiv(shaderhandle, GL_COMPILE_STATUS, &status);
@@ -119,13 +119,16 @@ static bool checkCompileError(GLuint shaderhandle, bool vertex)
 	GLsizei msgsize = sizeof(msgbuffer);
     glGetShaderInfoLog(shaderhandle, msgsize, NULL, msgbuffer);
     //_GLError(msgbuffer);
-	std::string str = vertex ? "a vertex shader has failed to compile.\n" : "a fragment shader has failed to compile.\n";
-	str += msgbuffer;
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
-	exit(-1);
+	if (critical)
+	{
+		std::string str = vertex ? "a vertex shader has failed to compile.\n" : "a fragment shader has failed to compile.\n";
+		str += msgbuffer;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
+		exit(-1);
+	}
     return false;
 }
-static void checkLinkError(GLuint proghandle)
+static void checkLinkError(GLuint proghandle, bool critical)
 {
     GLint status;
     glGetProgramiv(proghandle, GL_LINK_STATUS, &status);
@@ -136,10 +139,13 @@ static void checkLinkError(GLuint proghandle)
     GLsizei msgsize = sizeof(msgbuffer);
     glGetProgramInfoLog(proghandle, msgsize, NULL, msgbuffer);
     //_GLError(msgbuffer);
-	std::string str = "a shader has failed to link.\n";
-	str += msgbuffer;
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
-	exit(-1);
+	if (critical)
+	{
+		std::string str = "a shader has failed to link.\n";
+		str += msgbuffer;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FATAL OPENGL ERROR", str.c_str(), hlWindow);
+		exit(-1);
+	}
 }
 
 void GLShader_initenv()
@@ -188,9 +194,9 @@ GLShader::GLShader(const glshader_createinfo_t& info)
         glShaderSource(fragshader, 1, &fragstringcstr, NULL);
 
         glCompileShader(vertshader);
-        if (!checkCompileError(vertshader, true)) continue;
+		if (!checkCompileError(vertshader, true, i == versions[versions.size()-1])) continue;
         glCompileShader(fragshader);
-        if (!checkCompileError(fragshader, false)) continue;
+        if (!checkCompileError(fragshader, false, i == versions[versions.size()-1])) continue;
 
         break;
     }
@@ -202,7 +208,7 @@ GLShader::GLShader(const glshader_createinfo_t& info)
         glBindAttribLocation(m_hGLHandle, i.loc, i.name.c_str());
 
     glLinkProgram(m_hGLHandle);
-    checkLinkError(m_hGLHandle);
+    checkLinkError(m_hGLHandle, true);
 
     //formally index the program's variables
     GLint numuniforms, numuniformblocks, numattribs;

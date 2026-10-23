@@ -852,12 +852,12 @@ void CPropManager::SetupVBO(void)
 
 	m_iNumCableVerts = cabletris.size() * 3;
 
-	m_pStaticModelBuffer = new GLElementArrayBuffer(iTotalIndexes, (uint32_t*)nullptr);
+	m_pStaticModelBuffer = new GLElementArrayBuffer(iTotalIndexes, (uint32_t*)nullptr, eGL_bufferusage_staticdraw);
 
 	// we set up m_pStaticModelVAO in CBSPRenderer::GenerateVertexArray() since we need m_pMainBuffer
 
 
-	m_pCableVertsBuffer = new GLArrayBuffer((cabletris.size() * 3) * sizeof(tempvert_struct_t), (uint8_t*)cabletris.data());
+	m_pCableVertsBuffer = new GLArrayBuffer((cabletris.size() * 3) * sizeof(tempvert_struct_t), (uint8_t*)cabletris.data(), eGL_bufferusage_staticdraw);
 	m_pCableVertsVAO = new GLVertexArray(m_pCableVertsBuffer, {
 		{VERTPOS_LOC, offsetof(tempvert_struct_t, pos), sizeof(tempvert_struct_t), 3, false, eGL_type_float},
 		{NORMAL_LOC, offsetof(tempvert_struct_t, tangent), sizeof(tempvert_struct_t), 2, false, eGL_type_float},

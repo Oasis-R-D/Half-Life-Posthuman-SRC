@@ -88,8 +88,8 @@ StudioMDL_Model::StudioMDL_Model(model_t* model)
 	// generate opengl mesh buffer
 	//
 
-	m_pModelVertBuffer = new GLArrayBuffer(m_vTotalVerts.size() * sizeof(studiomdl_vertbufferdata_t), (uint8_t*)m_vTotalVerts.data());
-	m_pModelVertIndexBuffer = new GLElementArrayBuffer(m_vTotalIndices.size(), m_vTotalIndices.data());
+	m_pModelVertBuffer = new GLArrayBuffer(m_vTotalVerts.size() * sizeof(studiomdl_vertbufferdata_t), (uint8_t*)m_vTotalVerts.data(), eGL_bufferusage_staticdraw);
+	m_pModelVertIndexBuffer = new GLElementArrayBuffer(m_vTotalIndices.size(), m_vTotalIndices.data(), eGL_bufferusage_staticdraw);
 	m_pModelVAO = new GLVertexArray(m_pModelVertBuffer, {
 		{VERTPOS_LOC, offsetof(studiomdl_vertbufferdata_t, pos), sizeof(studiomdl_vertbufferdata_t), 3, false, eGL_type_float},
 		{NORMAL_LOC, offsetof(studiomdl_vertbufferdata_t, normal), sizeof(studiomdl_vertbufferdata_t), 3, true, eGL_type_int16},

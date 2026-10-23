@@ -200,3 +200,176 @@ const char glsl_gaussianblur_fp[] = R"(
 	}
 
 )";
+
+
+
+
+
+const char glsl_gaussianblur_multisampled2dtexture_fp[] = R"(
+
+	uniform sampler2DMS texture_;
+	uniform samplerCube cube_texture_;
+	in vec2 frag_texcoord;
+	
+	uniform bool gaussian_pass;
+	uniform bool horizontal;
+
+	uniform bool cubemap;
+	uniform int cubemap_layer;
+	
+	//unused for now
+	//float gaussian(float x, float mean, float stddev) {
+	//	float a = (x - mean) / stddev;
+	//	
+	//	return exp(-0.5 * a * a);
+	//}
+	
+	vec3 gaussian_blur(sampler2D _texture, vec2 texcoord)
+	{
+		float weight[5];
+		weight[0] = 0.227027;
+		weight[1] =  0.1945946;
+		weight[2] =  0.1216216;
+		weight[3] =  0.054054;
+		weight[4] =  0.016216;
+	
+		vec2 tex_offset = 1.0 / textureSize(_texture, 0); // gets size of single texel
+		vec3 result = texture(_texture, texcoord).rgb * weight[0]; // current fragment's contribution
+	
+		if(horizontal)
+		{
+		    for(int i = 1; i < 5; ++i)
+		    {
+		        result += texture(_texture, texcoord + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+		        result += texture(_texture, texcoord - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+		    }
+		}
+		else
+		{
+		    for(int i = 1; i < 5; ++i)
+		    {
+		        result += texture(_texture, texcoord + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+		        result += texture(_texture, texcoord - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+		    }
+		}
+	
+		return result;
+	}
+
+	vec3 sample_cubemap(samplerCube _cubetexture, vec2 texcoord)
+	{
+		const vec3 faceNormals[6] = vec3[6](
+			vec3( 1, 0, 0),  // +X
+			vec3(-1, 0, 0),  // -X
+			vec3( 0, 1, 0),  // +Y
+			vec3( 0,-1, 0),  // -Y
+			vec3( 0, 0, 1),  // +Z
+			vec3( 0, 0,-1)   // -Z
+		);
+		
+		const vec3 faceUps[6] = vec3[6](
+			vec3(0,-1, 0), // +X
+			vec3(0,-1, 0), // -X
+			vec3(0, 0, 1), // +Y
+			vec3(0, 0,-1), // -Y
+			vec3(0,-1, 0), // +Z
+			vec3(0,-1, 0)  // -Z
+		);
+		
+		const vec3 faceRights[6] = vec3[6](
+			vec3(0,0,-1),  // +X
+			vec3(0,0, 1),  // -X
+			vec3(1,0, 0),  // +Y
+			vec3(1,0, 0),  // -Y
+			vec3(1,0, 0),  // +Z
+			vec3(-1,0,0)   // -Z
+		);
+		
+		vec2 uv = texcoord * 2.0 - 1.0;
+		vec3 projcoord = normalize(	faceNormals[cubemap_layer] + uv.x * faceRights[cubemap_layer] + uv.y * faceUps[cubemap_layer] );
+
+		return texture(_cubetexture, projcoord).xyz;
+	}
+
+	vec3 gaussian_blur_cubemap(samplerCube _cubetexture, vec2 texcoord)
+	{
+		float weight[5];
+		weight[0] = 0.227027;
+		weight[1] =  0.1945946;
+		weight[2] =  0.1216216;
+		weight[3] =  0.054054;
+		weight[4] =  0.016216;
+	
+		vec2 tex_offset = 1.0 / textureSize(_cubetexture, 0); // gets size of single texel
+		vec3 result = sample_cubemap(_cubetexture, texcoord) * weight[0]; // current fragment's contribution
+	
+		if(horizontal)
+		{
+		    for(int i = 1; i < 5; ++i)
+		    {
+		        result += sample_cubemap(_cubetexture, texcoord + vec2(tex_offset.x * i, 0.0)) * weight[i];
+		        result += sample_cubemap(_cubetexture, texcoord - vec2(tex_offset.x * i, 0.0)) * weight[i];
+		    }
+		}
+		else
+		{
+		    for(int i = 1; i < 5; ++i)
+		    {
+		        result += sample_cubemap(_cubetexture, texcoord + vec2(0.0, tex_offset.y * i)) * weight[i];
+		        result += sample_cubemap(_cubetexture, texcoord - vec2(0.0, tex_offset.y * i)) * weight[i];
+		    }
+		}
+	
+		return result;
+	}
+
+    vec4 fetchtexturesample(vec2 texcoord)
+	{
+		ivec2 size = textureSize(texture_);
+		ivec2 pixelcoord = ivec2(texcoord * vec2(size));
+		return texelFetch(texture_, pixelcoord, 0);
+	}
+	
+	vec3 gaussfilter(sampler2DMS tex, vec2 coord)
+	{
+#ifdef DISABLED
+		vec2 sceneTexCoord = coord;
+
+		//if (pixelation)
+		//{
+		//	vec2 blockSize = u_pixelSize / u_resolution;
+		//	sceneTexCoord = floor(sceneTexCoord / blockSize) * blockSize;
+		//}
+
+		vec4 sceneTex = fetchtexturesample(sceneTexCoord);
+		float lum = dot(sceneTex.rgb, vec3(0.2126, 0.7152, 0.0722));
+
+		vec3 tint = lum * vec3(1.2, 1.0, 0.6);
+		return mix(sceneTex.rgb, tint, 0.5);
+#else
+		vec4 screen = fetchtexturesample(coord);
+		float lum = dot(screen.rgb, vec3(0.2126, 0.7152, 0.0722));
+		vec3 pissTint = vec3(1.2, 1.0, 0.6);
+		vec3 finalColor = lum * pissTint;
+		return mix(screen.rgb, finalColor, 0.5);
+#endif
+	}
+
+	void main()
+	{
+		//if(gaussian_pass)
+		//{
+		//	if(!cubemap)
+		//		gl_FragColor = vec4(gaussian_blur(texture_, frag_texcoord), 1);
+		//	else
+		//		gl_FragColor = vec4(gaussian_blur_cubemap(cube_texture_, frag_texcoord), 1);
+		//
+		//	return;
+		//}
+
+		vec3 final = gaussfilter(texture_, frag_texcoord);
+		gl_FragColor.rgb = final;
+		gl_FragColor.a = 1;
+	}
+
+)";

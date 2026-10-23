@@ -144,6 +144,21 @@ static void legacytexturecubemapcreate(GLTextureCubeMap* tex, const gltexcubemap
 		glTexParameterfv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, GL_TEXTURE_BORDER_COLOR, info->common.bordercolor);
 	}
 }
+static void legacytexture2dmscreate(GLTexture2DMS* tex, const gltex2d_createinfo_t* info, int numsamples)
+{
+	GLContext::BindTexture(tex);
+	_GLASSERT(!isCompressed(info->common.texformat), "multisampled texture with compressed textures not supported.");
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,
+		numsamples,
+		gltexformat_map[info->common.texformat],
+		info->width, info->height,
+		GL_FALSE);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, gltexfilter_map[info->common.minfilter]);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, gltexfilter_map[info->common.maxfilter]);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, gltexwrap_map[info->common.wrapmode]);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, gltexwrap_map[info->common.wrapmode]);
+	glTexParameterfv(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_BORDER_COLOR, info->common.bordercolor);
+}
 //////////////////////////////
 //////////////////////////////
 static GLuint newtexturecreate(GLuint target) {
@@ -257,6 +272,13 @@ static void newtexturecubemapcreate(GLTextureCubeMap* tex, const gltexcubemap_cr
 			info->common.pixeldata);
 	}
 }
+static void newtexture2dmscreate(GLTexture2DMS* tex, const gltex2d_createinfo_t* info, int numsamples)
+{
+	glTextureStorage2DMultisample(tex->GetHandle(), numsamples, gltexformat_map[info->common.texformat],
+		info->width, info->height, GL_FALSE);
+
+    _GLASSERT(!info->common.pixeldata, "opengl does not allow texture data to be uploaded manually to multisampled textures");
+}
 //////////////////////////////
 //////////////////////////////
 static GLuint(*gl_texturecreatefunc)(GLuint target) = legacytexturecreate;
@@ -264,6 +286,7 @@ static void (*gl_texture1dcreatefunc)(GLTexture1D* tex, const gltex1d_createinfo
 static void (*gl_texture2dcreatefunc)(GLTexture2D* tex, const gltex2d_createinfo_t* info) = legacytexture2dcreate;
 static void (*gl_texture3dcreatefunc)(GLTexture3D* tex, const gltex3d_createinfo_t* info) = legacytexture3dcreate;
 static void (*gl_texturecubemapcreatefunc)(GLTextureCubeMap* tex, const gltexcubemap_createinfo_t* info) = legacytexturecubemapcreate;
+static void (*gl_texture2dmscreatefunc)(GLTexture2DMS* tex, const gltex2d_createinfo_t* info, int numsamples) = legacytexture2dmscreate;
 //////////////////////////////
 //////////////////////////////
 
@@ -276,6 +299,7 @@ void GLTexture_initenv()
         gl_texture2dcreatefunc = newtexture2dcreate;
         gl_texture3dcreatefunc = newtexture3dcreate;
 		gl_texturecubemapcreatefunc = newtexturecubemapcreate;
+		gl_texture2dmscreatefunc = newtexture2dmscreate;
     }
 }
 
@@ -334,3 +358,10 @@ GLTextureCubeMap::GLTextureCubeMap(const gltexcubemap_createinfo_t* info)
 }
 
 ////////////////////////////////////////////
+
+
+GLTexture2DMS::GLTexture2DMS(const gltex2d_createinfo_t* info, int numsamples)
+	: GLTexture(GL_TEXTURE_2D_MULTISAMPLE, info->width, info->height)
+{
+	gl_texture2dmscreatefunc(this, info, numsamples);
+}

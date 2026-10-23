@@ -30,6 +30,7 @@ static void legacyfbotextureattach(GLFramebuffer* fbo, eGL_fbotarget target, eGL
     case GL_TEXTURE_2D: glFramebufferTexture2D(glfbotarget_map[target], glfboattach_map[attach], GL_TEXTURE_2D, tex->GetHandle(), 0); break;
     case GL_TEXTURE_3D: glFramebufferTexture3D(glfbotarget_map[target], glfboattach_map[attach], GL_TEXTURE_3D, tex->GetHandle(), 0, 0); break;
 	case GL_TEXTURE_CUBE_MAP: glFramebufferTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + depth, glfboattach_map[attach], GL_TEXTURE_2D, tex->GetHandle(), 0); break;
+	case GL_TEXTURE_2D_MULTISAMPLE: glFramebufferTexture2D(glfbotarget_map[target], glfboattach_map[attach], GL_TEXTURE_2D_MULTISAMPLE, tex->GetHandle(), 0); break;
     }
     if(target==eGL_fbotarget_draw){
         GLContext::BindFramebuffer(popdrawfbo, eGL_fbotarget_draw);
@@ -48,7 +49,7 @@ static void legacyfborenderbufferattach(GLFramebuffer* fbo, eGL_fbotarget target
 
     GLContext::BindFramebuffer(fbo, target);
 
-    glFramebufferRenderbuffer(GL_RENDERBUFFER, glfboattach_map[attach], GL_RENDERBUFFER, rbo->GetHandle());
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, glfboattach_map[attach], GL_RENDERBUFFER, rbo->GetHandle());
     
     if (target == eGL_fbotarget_draw) {
         GLContext::BindFramebuffer(popdrawfbo, eGL_fbotarget_draw);

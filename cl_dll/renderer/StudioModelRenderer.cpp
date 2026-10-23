@@ -2565,6 +2565,7 @@ void CStudioModelRenderer::StudioDrawWireframe(void)
 	{
 		m_ModelShader->SetUniformInt(m_ModelShaderLocs[mdlshader_studiodecal], 1);
 
+		GLContext::SetPolygonOffset(-1, -1);
 		GLContext::SetPolygonOffsetFill(true);
 		auto prev_vao = GLContext::GetBoundVAO();
 		GLContext::BindVertexArray(m_ModelDecal_VAO);
@@ -4446,6 +4447,7 @@ void CStudioModelRenderer::StudioDrawDecals(void)
 	GLContext::SetBlending(true);
 	GLContext::SetDepthWriting(false);
 	GLContext::SetBlendFunc_rgba(eGL_blendfactor_dstcolor, eGL_blendfactor_srccolor);
+	GLContext::SetPolygonOffset(-1, -1);
 	GLContext::SetPolygonOffsetFill(true);
 
 	auto prev_vao = GLContext::GetBoundVAO();
