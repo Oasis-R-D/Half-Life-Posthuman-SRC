@@ -46,6 +46,8 @@ Transparency code by Neil "Jed" Jedrzejewski
 #include "../renderer/opengl_utils/GL_VertexArrayObject.h"
 #include "../renderer/StudioMDL_MeshGen.h"
 
+#include "goldsrc_spriterenderer.h"
+
 #include "StudioModelRenderer.h"
 
 #include "BSPModel_Gen.h"
@@ -323,6 +325,8 @@ void CStudioModelRenderer::Init(void)
 	m_ModelShaderLocs[mdlshader_studiodecal] = m_ModelShader->GetUniformLoc("studiodecal");
 	m_ModelShaderLocs[mdlshader_decalsize] = m_ModelShader->GetUniformLoc("decalsize");
 	m_ModelShaderLocs[mdlshader_clipplane] = m_ModelShader->GetUniformLoc("clipplane");
+
+	m_ModelShaderLocs[mdlshader_chromeshell_factor] = m_ModelShader->GetUniformLoc("chromeshell_factor");
 
 	m_ModelShaderSolidLocs[mdlshadersolid_sunshadow] = m_ModelSolidShader->GetUniformLoc("bSunShadowMapPass");
 	m_ModelShaderSolidLocs[mdlshadersolid_texture_flags] = m_ModelSolidShader->GetUniformLoc("texture_flags");
@@ -2736,7 +2740,7 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 
 	m_dModelPerEntityData.rendervalues = glm::vec4(colors.r / 255.f, colors.g / 255.f, colors.b / 255.f, m_pCurrentEntity->curstate.renderamt / 255.f);
 
-	if (m_bChromeShell != 0) // dont bother with light data if doing chrome shell
+	if (m_bChromeShell != 1) // dont bother with light data if doing chrome shell
 	{
 		// lightmap light
 		m_dModelPerEntityData.lightdir = glm::vec4(m_pLighting.lightdir.x, m_pLighting.lightdir.y, m_pLighting.lightdir.z, 0);
@@ -2758,6 +2762,16 @@ void CStudioModelRenderer::StudioSetupRenderer(int rendermode)
 			m_dModelPerEntityData.modellight_info[i][1] = glm::vec4(mdlight->color.x, mdlight->color.y, mdlight->color.z, mdlight->radius);
 			m_dModelPerEntityData.modellight_info[i][2] = glm::vec4(flForward[0], flForward[1], flForward[2], cos((mdlight->spotcos * 2) * 0.3 * (M_PI2 / 360)));
 		}
+	}
+	else
+	{
+		g_GlobalGLState.SetBlend(true);
+		g_GlobalGLState.SetDepthWrite(false);
+		//GLContext::SetBlendFunc_rgba(eGL_blendfactor_srcalpha, eGL_blendfactor_one);
+		g_GlobalGLState.SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		mspriteframe_t *frame = g_LegacySpriteRenderer.GetSpriteFrame(m_pChromeSprite, 0, 0);
+		//GLContext::BindTextureLegacy(frame->gl_texturenum, GL_TEXTURE_2D);
+		gBSPRenderer.BindGLTexture(GL_TEXTURE0, frame->gl_texturenum);
 	}
 
 	m_Model_PerEntityBuffer->Bind(GL_BufferHandler::UniformBuffer);
@@ -3209,8 +3223,16 @@ void CStudioModelRenderer::StudioDrawMesh(StudioMDL_Mesh* pmesh, StudioMDL_Textu
 
 	m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_texture_flags], ptex->GetTextureFlags());
 
-	if (m_bChromeShell != 0)
+	if (m_bChromeShell != 1)
+	{
 		gBSPRenderer.BindGLTexture(GL_TEXTURE0, texinfo.iIndex);
+		m_ModelShader->Uniform1f(m_ModelShaderLocs[mdlshader_chromeshell_factor], 0);
+	}
+	else
+	{
+		m_ModelShader->Uniform1i(m_ModelShaderLocs[mdlshader_texture_flags], ptex->GetTextureFlags() | STUDIO_NF_CHROME );
+		m_ModelShader->Uniform1f(m_ModelShaderLocs[mdlshader_chromeshell_factor], sin(gEngfuncs.GetClientTime()) * m_pCvarGlowShellFreq->value);
+	}
 
 	// draw
 	m_pCurrentStudioMDL->DrawElements(pmesh->GetNumTriangles(), pmesh->GetMeshBufferOffset());

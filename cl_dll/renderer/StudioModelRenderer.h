@@ -317,7 +317,7 @@ public:
 
 		mdlshader_clipplane,
 
-
+		mdlshader_chromeshell_factor,
 
 		_mdlshader_uniformsize //must be last
 	};

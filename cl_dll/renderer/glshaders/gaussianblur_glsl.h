@@ -165,9 +165,16 @@ const char glsl_gaussianblur_fp[] = R"(
 				gl_FragColor = vec4(gaussian_blur(texture_, frag_texcoord), 1);
 			else
 				gl_FragColor = vec4(gaussian_blur_cubemap(cube_texture_, frag_texcoord), 1);
+
+			return;
 		}
-		else
-			gl_FragColor = texture(texture_, frag_texcoord);
+		
+		vec4 sceneTex = texture(texture_, frag_texcoord);
+		float lum = dot(sceneTex.rgb, vec3(0.2126, 0.7152, 0.0722));
+
+		vec3 tint = lum * vec3(1.2, 1.0, 0.6);
+		gl_FragColor.rgb = mix(sceneTex.rgb, tint, 0.5);
+		gl_FragColor.a = 1;
 	}
 
 )";
