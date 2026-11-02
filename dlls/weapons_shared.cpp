@@ -329,35 +329,49 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 		case 0: // HE
 			flMultiplier = 6.5f;
 			maxvel = 1000;
+			time = 3;
 			break;
 		case 1: // IMPACT
 			flMultiplier = 10;
 			maxvel = 1500;
+			time = -1;
 		case 2: // FLASH
 			flMultiplier = 9;
 			maxvel = 1400;
+			time = 2;
 			break;
 		case 3: // LANDMINE
 			flMultiplier = 6.5f;
 			maxvel = 1000;
+			time = 2;
 			break;
 		case 4: // SMOKE
 			flMultiplier = 6.5f;
 			maxvel = 1000;
+			time = 2;
 			break;
 		case 5: // BRICK
 			flMultiplier = 10;
 			maxvel = 1500;
+			time = 2;
 			break;
-		case 6: // SIGNAL FLARE?
+		case 6: // SIGNAL FLARE
 			flMultiplier = 6.5f;
 			maxvel = 1000;
+			time = RANDOM_FLOAT(0.45, 0.55);
 			break;
 		case 7: // INCENDIARY
 			flMultiplier = 6.5f;
 			maxvel = 1000;
+			time = 3;
+			break;
+		case 8: // HORNET (MMOD tertiary ripoff)
+			flMultiplier = 10;
+			maxvel = 1250;
+			time = -1;
 			break;
 	}
+
 	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 8 + gpGlobals->v_right * -6 + gpGlobals->v_up * -4;
 	Vector angThrow = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
 
@@ -374,34 +388,6 @@ void CBasePlayerWeapon::ShootGrenade(int type)
 	UTIL_MakeVectors(angThrow);
 
 	Vector vecThrow = gpGlobals->v_forward * flVel + m_pPlayer->pev->velocity;
-	switch (type) // -1 time is impact
-	{
-		default:
-		case 0: // H.E
-			time = 3;
-			break;
-		case 1: // IMPACT
-			time = -1;
-			break;
-		case 2: // FLASH
-			time = 2;
-			break;
-		case 3: // LANDMINE
-			time = 2; // doesn't matter
-			break;
-		case 4: // SMOKE
-			time = 2; // doesn't matter
-			break;
-		case 5: // BRICK
-			time = 2; // doesn't matter
-			break;
-		case 6: // Signal Flare?
-			time = RANDOM_FLOAT(0.45, 0.55);
-			break;
-		case 7: // INCENDIARY
-			time = 3.0;
-			break;
-	}
 	CGrenade::ShootOffhand(m_pPlayer->pev, vecSrc, vecThrow, type, time);
 }
 

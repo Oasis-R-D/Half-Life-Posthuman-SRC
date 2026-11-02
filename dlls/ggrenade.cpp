@@ -399,7 +399,13 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr);
 	
-	ExplodeHE(&tr, DMG_SONIC);
+	if (m_iGrenType == 1 || !m_iGrenType)
+		ExplodeHE(&tr, DMG_SONIC);
+	else if (m_iGrenType == 7) // Hornet
+	{
+		ExplodeHE(&tr, DMG_ACID)
+		// TO-DO: Spawn a ton of hornets here
+	}
 }
 
 void CGrenade::DangerSoundThink()
@@ -460,7 +466,7 @@ void CGrenade::ExplSpray()
 			SetThink(&CGrenade::SUB_Remove);	
 		}
 	}
-	else if (m_iGrenType == 6) // Signal flare?
+	else if (m_iGrenType == 6) // Signal flare
 	{	
 		if (!m_bGeneralBool)
 		{
@@ -645,12 +651,14 @@ void CGrenade::CallDetonate()
 		case 5: // Brick (shouldn't be called)
 			ALERT(at_warning, "Throwing brick calling CGrenade::CallDetonate()!");
 			break;
-		case 6: // Signal flare?
+		case 6: // Signal flare
 			SetThink(&CGrenade::ExplSpray);
 			break;
-		case 7: // Incendiary? (shouldn't be called)
+		case 7: // Incendiary
 			SetThink(&CGrenade::DetonateIncen);
 			break;
+		case 8: // Hornet
+			ALERT(at_warning, "Hornet Grenade calling CGrenade::CallDetonate()!");
 	}
 
 	pev->nextthink = gpGlobals->time;
@@ -701,13 +709,9 @@ void CGrenade::Spawn()
 	SET_MODEL(ENT(pev), "models/grenade.mdl");
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	if (g_iSkillLevel != SKILL_REALISM)
-	{
 		pev->dmg = 100;
-	}
 	else
-	{
 		pev->dmg = 160;
-	}
 
 	m_fRegisteredSound = false;
 }
@@ -855,7 +859,7 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 				pGrenade->pev->angles[i] = RANDOM_LONG(-180, 180);
 			}
 			break;
-		case 6: // Signal flare?
+		case 6: // Signal flare
 			pGrenade->m_iGeneralInt = RANDOM_LONG(15, 20);
 			SET_MODEL(ENT(pGrenade->pev), "models/w_flare.mdl");
 			pGrenade->SetThink(&CGrenade::TumbleThink);
@@ -868,6 +872,12 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			SET_MODEL(ENT(pGrenade->pev), "models/w_igrenade.mdl");
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
+		case 8: // Hornet
+		SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+		pGrenade->pev->dmg = 30;
+		// Tumble through the air
+		pGrenade->pev->avelocity.x = -400;
+		break;
 	}
 
 	pGrenade->m_iGrenType = type;
