@@ -241,6 +241,7 @@ void CFireVoxel::Think()
 	DealDamage(firesize); 
 
 	// don't run spread code while falling
+	// TO-DO: does this not break the grid?
 	if (CheckFall(((float)firesize / 2) + 2))
 		return;
 
@@ -282,6 +283,59 @@ void CFireVoxel::Think()
 	heat -= 150;
 }
 
+static bool CFireVoxel::CheckCorners(Vector pos)
+{
+	bool foundSolid, foundEmpty;
+	
+	const float radius = sv_firesize.value / 2; // pretty sure firesize is diameter and not radius already
+
+	for (int i = 0; i < 8; i++)
+	{
+		int dx = (i & 4) ? 1 : -1;
+		int dy = (i & 2) ? 1 : -1;
+		int dz = (i & 1) ? 1 : -1;
+
+		Vector corner;
+
+		corner.x = pos.x + dx * radius;
+		corner.y = pos.y + dy * radius;
+		corner.z = pos.z + dz * radius;
+
+		int contents = UTIL_PointContents(corner);
+
+		if (contents == CONTENTS_SOLID)
+			foundSolid = true;
+		else
+			foundEmpty = true;
+
+		if (foundSolid && foundEmpty)
+			return true; // Can spread here
+	}
+
+	return false; // Can't spread here
+}
+
+bool CFireVoxel::SpreadVertical()
+{
+	if (RANDOM_LONG(0,2) == 2)
+		return false;
+
+	Vector dir = Vector(0, 0, sv_firesize.value);
+	Vector up = origin + dir;
+	Vector down = origin - dir;
+
+	if (CheckCorners(up))
+	{
+		return true;
+	}
+	else if (CheckCorners(down))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void FireRadiusDamage2(Vector vecSrc, float flDamage, float flRadius)
 {
 	CBaseEntity* pEntity = NULL;
@@ -304,12 +358,12 @@ void FireRadiusDamage2(Vector vecSrc, float flDamage, float flRadius)
 	}
 }
 
-void CFireVoxel::DealDamage(int size)
+void CFireVoxel::DealDamage(float size)
 {
 	if (dmgTime > gpGlobals->time)
 		return;
 
-	::FireRadiusDamage2(origin, 5, (float)size * 0.75);
+	::FireRadiusDamage2(origin, 5, size * 0.75);
 	dmgTime = gpGlobals->time + 0.5;
 }
 

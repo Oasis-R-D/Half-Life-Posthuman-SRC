@@ -21,6 +21,10 @@ public:
 private:
 	const void SpawnParticles(int size);
 	void DealDamage(int size);
+	
+	static bool CheckCorners(Vector pos);
+
+	bool SpreadVertical();
 	bool CheckFall(float size);
 };
 
