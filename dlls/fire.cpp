@@ -304,7 +304,7 @@ void CFireVoxel::Think()
 }
 
 // Returns true if the fire should "stick" there
-static bool CFireVoxel::CheckWallStick(Vector pos)
+bool CFireVoxel::CheckWallStick(Vector pos)
 {
 	bool foundSolid, foundEmpty;
 	

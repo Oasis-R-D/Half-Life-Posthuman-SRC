@@ -22,7 +22,7 @@ public:
 
 private:
 	const void SpawnParticles(int size);
-	void DealDamage(int size);
+	void DealDamage(float size);
 	
 	static bool CheckWallStick(Vector pos);
 
