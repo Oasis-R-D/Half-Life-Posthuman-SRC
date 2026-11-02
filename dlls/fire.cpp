@@ -121,6 +121,8 @@ void CFireManager::AddFire(Vector pos, int heat)
 		newFire->heat = heat;
 		newFire->thinktime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.1);
 		newFire->spreadTime = gpGlobals->time + RANDOM_FLOAT(0.5, 1);
+		newFire->activeCheckTime = gpGlobals->time + RANDOM_FLOAT(0.01, 0.33);
+
 		voxelTemp.emplace_back(pos, std::move(newFire));
 
 		if (RANDOM_LONG(0, 2) == 0)
@@ -240,15 +242,33 @@ void CFireVoxel::Think()
 	
 	DealDamage(firesize); 
 
+	if (activeCheckTime && activeCheckTime <= gpGlobals->time)
+	{	
+		if (CheckWallStick(origin))
+			// Still stuck to a wall
+			activeCheckTime = gpGlobals->time + 3;
+		else
+			// HOLY CRAP LOIS THE WALL MOVED
+			activeCheckTime = 0;
+	}
+
 	// don't run spread code while falling
+	// don't fall if stuck to a wall either
 	// TO-DO: does this not break the grid?
-	if (CheckFall(((float)firesize / 2) + 2))
+	if (!activeCheckTime && CheckFall(((float)firesize / 2) + 2))
 		return;
 
 	heat -= 1;
 
 	if (spreadTime > gpGlobals->time || heat < 160)
 		return;
+
+	if (SpreadVertical())
+	{
+		spreadTime = gpGlobals->time + RANDOM_LONG(4, 10);
+		heat -= 150; // water saps heat
+		return;
+	}
 
 	// spread
 	Vector VecFireSpread;
@@ -283,7 +303,8 @@ void CFireVoxel::Think()
 	heat -= 150;
 }
 
-static bool CFireVoxel::CheckCorners(Vector pos)
+// Returns true if the fire should "stick" there
+static bool CFireVoxel::CheckWallStick(Vector pos)
 {
 	bool foundSolid, foundEmpty;
 	
@@ -324,12 +345,18 @@ bool CFireVoxel::SpreadVertical()
 	Vector up = origin + dir;
 	Vector down = origin - dir;
 
-	if (CheckCorners(up))
+	if (CheckWallStick(up))
 	{
+		if (UTIL_PointContents(up) != CONTENTS_WATER)
+			FireManager->AddFire(up, 150);
+
 		return true;
 	}
-	else if (CheckCorners(down))
+	else if (CheckWallStick(down))
 	{
+		if (UTIL_PointContents(down) != CONTENTS_WATER)
+			FireManager->AddFire(down, 150);
+
 		return true;
 	}
 

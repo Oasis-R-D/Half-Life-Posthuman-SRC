@@ -16,13 +16,15 @@ public:
 
 	float dmgTime;
 
+	float activeCheckTime;
+
 	int heat;
 
 private:
 	const void SpawnParticles(int size);
 	void DealDamage(int size);
 	
-	static bool CheckCorners(Vector pos);
+	static bool CheckWallStick(Vector pos);
 
 	bool SpreadVertical();
 	bool CheckFall(float size);
