@@ -403,8 +403,16 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 		ExplodeHE(&tr, DMG_SONIC);
 	else if (m_iGrenType == 7) // Hornet
 	{
-		ExplodeHE(&tr, DMG_ACID)
+		Smoke();
 
+		entvars_t* pevOwner;
+		if (pev->owner)
+			pevOwner = VARS(pev->owner);
+		else
+			pevOwner = NULL;
+		
+		RadiusDamage(vecSpot, pev, pevOwner, pev->dmg, CLASS_NONE, DMG_ACID);
+		
 		for (int i = 0; i < 6; i++)
 		{
 			Vector dir = RANDOM_VECTOR(0, 1);
