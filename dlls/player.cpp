@@ -4620,14 +4620,14 @@ int CBasePlayer::GiveAmmo(int iCount, const char* szName, int iMax)
 	return i;
 }
 
-void CBasePlayer::UpdateCrosshair(double spread, int crosshairtype)
+void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 {
 	GetAutoaimVector(AUTOAIM_10DEGREES); // All guns use 10 degrees now
 	TraceResult spreadTR;
 	Vector bulletorg;
 	bulletorg = GetGunPosition();
 
-	double spreadfixed = spread;
+	float spreadfixed = spread;
 	if (crosshairtype > 0 && spreadfixed < CONE_4DEGREES)
 		spreadfixed = CONE_4DEGREES;
 	else if (crosshairtype == 0 && spreadfixed < CONE_1DEGREES)

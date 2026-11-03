@@ -199,10 +199,11 @@ public:
 	int GetDecalType(char modifier);
 	enum DecalTypes
 	{
-		DECAL_NOTYPE = 0,
-		DECAL_WET,
-		DECAL_NVWET,
-		DECAL_GLOW,
+		DECAL_NOTYPE = 0, // Goldsource blending
+		DECAL_WET, // Appears 'wet'
+		DECAL_NVWET, // WET but uses GLOW when in nightvision
+		DECAL_GLOW, // Fullbright
+		DECAL_CLUE, // Only appears with nightvision on 
 	};
 
 	customdecal_t* AllocDecal(void);

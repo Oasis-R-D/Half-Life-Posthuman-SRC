@@ -390,7 +390,7 @@ public:
 	}
 
 	// Post-Human
-	void UpdateCrosshair(double spread, int crosshairtype = 0);
+	void UpdateCrosshair(float spread, int crosshairtype = 0);
 
 	int altviewmodel;
 	int altweaponanim;

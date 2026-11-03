@@ -325,7 +325,7 @@ void CPhysbullet::BulletImpact(CBaseEntity* pOther)
 	{
 		TraceResult beam_tr;
 		TraceResult beam_tr2;
-		double p;
+		float p;
 		int i = 0;
 
 		do // Raymarching

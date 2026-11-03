@@ -3190,6 +3190,7 @@ int CBSPRenderer::GetDecalType(char modifier)
 		case '!': return DECAL_WET;		break;
 		case '~': return DECAL_NVWET;	break;
 		case '+': return DECAL_GLOW;	break;
+		case '?': return DECAL_CLUE;	break;
 		case '{':
 				  gEngfuncs.Con_Printf("WARNING: GetDecalType receiving transparency symbol ('{')!");
 				  return DECAL_NOTYPE;	break;
@@ -4062,6 +4063,7 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 
 		eGL_blendfactor src = eGL_blendfactor_srcalpha;
 		eGL_blendfactor dst = eGL_blendfactor_1_minus_srcalpha;
+
 		switch (i)
 		{
 		case DECAL_WET:
@@ -4076,6 +4078,11 @@ void CBSPRenderer::DrawDecals(bool m_bTransPass)
 		case DECAL_GLOW:
 			src = eGL_blendfactor_one;
 			break;
+		case DECAL_CLUE:
+			if (g_iNightVision)
+				src = eGL_blendfactor_one;
+			else
+				src = eGL_blendfactor_zero;
 		}
 
 		BlendDecals(
@@ -4106,16 +4113,17 @@ void CBSPRenderer::BlendDecals(eGL_blendfactor src, eGL_blendfactor dest, bool m
 
 	GLContext::SetBlending(true);
 	GLContext::SetBlendFunc_rgba(src, dest);
-
-	GLContext::SetPolygonOffset(-1, -1);
+	
 	GLContext::SetPolygonOffsetFill(true);
+	GLContext::SetPolygonOffset(-1, -1);
 
 	m_DecalShader->SetUniformMatrix4x4(m_DecalShader_locs[decal_projviewmatrix], glm::value_ptr(m_ProjectionMatrix * m_ViewMatrix));
 
 	int bufferoffset = 0;
 	if (m_bTransPass)
 		bufferoffset = lastdecalvertbuffersize;
-	for (auto texture : decalbatch)
+
+	for (auto& texture : decalbatch)
 	{
 		GLContext::BindTextureLegacy(texture.first, GL_TEXTURE_2D, SURFTEXTURE_TEXUNIT);
 		GLContext::DrawPolys(eGL_drawmode_triangles, texture.second.size(), bufferoffset);
@@ -4141,6 +4149,7 @@ void CBSPRenderer::BlendDecals(eGL_blendfactor src, eGL_blendfactor dest, bool m
 
 	GLContext::SetBlending(false);
 	GLContext::SetBlendFunc_rgba(eGL_blendfactor_dstcolor, eGL_blendfactor_srccolor);
+
 	GLContext::SetPolygonOffsetFill(false);
 }
 

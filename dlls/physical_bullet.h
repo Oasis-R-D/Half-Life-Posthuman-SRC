@@ -56,9 +56,9 @@ public:
 	Vector m_SpawnPos;
 	Vector m_vecDir;
 
-	double m_Spread;
-	double m_SpreadVert;
-	double m_flPenetrationPow;
+	float m_Spread;
+	float m_SpreadVert;
+	float m_flPenetrationPow;
 
 	bool m_bsubsonic;
 
@@ -67,6 +67,6 @@ private:
 	bool m_bTryRefl;
 	bool m_bTryPen;
 
-	double m_fPenoverride = NULL;
+	float m_fPenoverride = NULL;
 	Vector m_Endpos;
 };
