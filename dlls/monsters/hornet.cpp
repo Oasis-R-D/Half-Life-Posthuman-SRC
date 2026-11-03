@@ -290,7 +290,7 @@ void CHornet::TrackTarget()
 	}
 
 	// no flying backwards, but we don't want to invert this, cause we'd go fast when we have to turn REAL far.
-	if (flDelta <= 0 && m_iHornetType == HORNET_TYPE_RED)y
+	if (flDelta <= 0 && m_iHornetType == HORNET_TYPE_RED)
 		flDelta = 0.25;
 
 	// scramble the flight dir a bit.
