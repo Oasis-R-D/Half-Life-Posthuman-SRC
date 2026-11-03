@@ -67,7 +67,7 @@ inline enginefuncs_t g_engfuncs;
 #define CRC32_FINAL (*g_engfuncs.pfnCRC32_Final)
 #define RANDOM_LONG (*g_engfuncs.pfnRandomLong)
 #define RANDOM_FLOAT (*g_engfuncs.pfnRandomFloat)
-inline Vector RANDOM_VECTOR(double min, double max)
+inline Vector RANDOM_VECTOR(float min, float max)
 {
 	return Vector(RANDOM_FLOAT(min, max), RANDOM_FLOAT(min, max), RANDOM_FLOAT(min, max));
 }

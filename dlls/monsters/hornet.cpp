@@ -138,9 +138,7 @@ void CHornet::Precache()
 int CHornet::IRelationship(CBaseEntity* pTarget)
 {
 	if (pTarget->pev->modelindex == pev->modelindex)
-	{
 		return R_NO;
-	}
 
 	return CBaseMonster::IRelationship(pTarget);
 }
@@ -261,13 +259,9 @@ void CHornet::TrackTarget()
 	}
 
 	if (m_hEnemy != NULL && FVisible(m_hEnemy))
-	{
 		m_vecEnemyLKP = m_hEnemy->BodyTarget(pev->origin);
-	}
 	else
-	{
 		m_vecEnemyLKP = m_vecEnemyLKP + pev->velocity * m_flFlySpeed * 0.1;
-	}
 
 	vecDirToEnemy = (m_vecEnemyLKP - pev->origin).Normalize();
 
@@ -295,18 +289,13 @@ void CHornet::TrackTarget()
 		}
 	}
 
-	if (flDelta <= 0 && m_iHornetType == HORNET_TYPE_RED)
-	{ // no flying backwards, but we don't want to invert this, cause we'd go fast when we have to turn REAL far.
+	// no flying backwards, but we don't want to invert this, cause we'd go fast when we have to turn REAL far.
+	if (flDelta <= 0 && m_iHornetType == HORNET_TYPE_RED)y
 		flDelta = 0.25;
-	}
 
-	pev->velocity = (vecFlightDir + vecDirToEnemy).Normalize();
-
-
-		pev->velocity.x += RANDOM_FLOAT(-0.10, 0.10); // scramble the flight dir a bit.
-		pev->velocity.y += RANDOM_FLOAT(-0.10, 0.10);
-		pev->velocity.z += RANDOM_FLOAT(-0.10, 0.10);
-
+	// scramble the flight dir a bit.
+	pev->velocity = (vecFlightDir + vecDirToEnemy).Normalize() + RANDOM_VECTOR(-0.10, 0.10);
+		
 	switch (m_iHornetType)
 	{
 	case HORNET_TYPE_RED:

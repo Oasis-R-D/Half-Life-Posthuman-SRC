@@ -404,7 +404,15 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	else if (m_iGrenType == 7) // Hornet
 	{
 		ExplodeHE(&tr, DMG_ACID)
-		// TO-DO: Spawn a ton of hornets here
+
+		for (int i = 0; i < 6; i++)
+		{
+			Vector dir = RANDOM_VECTOR(0, 1);
+	
+			CBaseEntity* pHornet = CBaseEntity::Create("hornet", vecSpot + RANDOM_VECTOR(-6,6), pev->angles, pev->owner);
+			pHornet->pev->velocity = RANDOM_VECTOR(0, 1) * 300;
+			pHornet->pev->angles = UTIL_VecToAngles(pHornet->pev->velocity);
+		}
 	}
 }
 
