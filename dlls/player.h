@@ -390,7 +390,7 @@ public:
 	}
 
 	// Post-Human
-	void UpdateCrosshair(float spread, int crosshairtype = 0);
+	void UpdateCrosshair(float spread, int crosshairtype = CROSSHAIR_DEFAULT);
 
 	int altviewmodel;
 	int altweaponanim;
@@ -398,6 +398,10 @@ public:
 	int CrowbarFlinch;
 
 	float FlashingHUDDelay;
+
+	// Campaign set mutation values, powers up the player
+	int m_iMutation;
+	int m_iClientMutation;
 
 	int m_iHunger;
 	float HungerDamageTime;

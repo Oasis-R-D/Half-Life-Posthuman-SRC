@@ -138,6 +138,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, altviewmodel, FIELD_MODELNAME),
 		DEFINE_FIELD(CBasePlayer, altweaponanim, FIELD_INTEGER),
 		DEFINE_FIELD(CBasePlayer, m_iSpeedOverride, FIELD_INTEGER),
+		DEFINE_FIELD(CBasePlayer, m_iMutation, FIELD_INTEGER),
 };
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -4890,6 +4891,8 @@ void CBasePlayer::UpdateClientData()
 					}
 			};
 		}
+
+		// TO-DO: this is a VERY irresponsible use of bandwith
 		MESSAGE_BEGIN(MSG_ONE, gmsgDamageLIMB, NULL, pev);
 		WRITE_BYTE(health_head);
 		WRITE_BYTE(health_chest);
@@ -5226,6 +5229,17 @@ void CBasePlayer::UpdateClientData()
 		WRITE_SHORT((short)m_SndRoomtype); // sequence number
 		MESSAGE_END();
 	}
+
+	/*
+	if (m_iClientMutation ~= m_iMutation)
+	{
+		m_iClientMutation = m_iMutation;
+
+		MESSAGE_BEGIN(MSG_ONE, gmsgMutation, nullptr, edict());
+		WRITE_BYTE(m_iMutation); // sequence number
+		MESSAGE_END();
+	}
+	*/
 
 	//Handled anything that needs resetting
 	m_bRestored = false;
