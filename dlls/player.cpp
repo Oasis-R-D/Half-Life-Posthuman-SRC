@@ -5230,7 +5230,7 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_END();
 	}
 
-	if (m_iClientMutation ~= m_iMutation)
+	if (m_iClientMutation != m_iMutation)
 	{
 		m_iClientMutation = m_iMutation;
 
