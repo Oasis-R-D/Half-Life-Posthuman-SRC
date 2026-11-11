@@ -497,6 +497,7 @@ public:
 	bool MsgFunc_Flashlight(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_FlashBat(const char* pszName, int iSize, void* pbuf);
 	bool MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf);
+	bool MsgFunc_Mutation(const char* pszName, int iSize, void* pbuf);
 private:
 	HSPRITE_GOLDSRC m_hSprite1;
 	HSPRITE_GOLDSRC m_hSprite2;
@@ -513,6 +514,7 @@ private:
 	int m_iBat;
 	int m_iHunger;
 	int m_iOldHunger;
+	int m_iMutation;
 	bool m_fOn;
 	float m_fFade;
 	float m_fHungerTimeStart;

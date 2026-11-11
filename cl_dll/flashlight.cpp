@@ -38,6 +38,7 @@ bool prehuman;
 DECLARE_MESSAGE(m_Flash, FlashBat)
 DECLARE_MESSAGE(m_Flash, Flashlight)
 DECLARE_MESSAGE(m_Flash, Hunger)
+DECLARE_MESSAGE(m_Flash, Mutation)
 
 #define BAT_NAME "sprites/%d_Flashlight.spr"
 
@@ -51,7 +52,8 @@ bool CHudFlashlight::Init()
 	HOOK_MESSAGE(Flashlight);
 	HOOK_MESSAGE(FlashBat);
 	HOOK_MESSAGE(Hunger);
-
+	HOOK_MESSAGE(Mutation);
+	
 	m_iFlags |= HUD_ACTIVE;
 
 	gHUD.AddHudElem(this);
@@ -131,8 +133,15 @@ bool CHudFlashlight::MsgFunc_Hunger(const char* pszName, int iSize, void* pbuf)
 	return true;
 }
 
-extern char * UTIL_VarArgs_client(const char* format, ...);
+bool CHudFlashlight::MsgFunc_Mutation(const char* pszName, int iSize, void* pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+	m_iMutation = READ_BYTE();
 
+	return true;
+}
+
+extern char * UTIL_VarArgs_client(const char* format, ...);
 
 bool CHudFlashlight::Draw(float flTime)
 {

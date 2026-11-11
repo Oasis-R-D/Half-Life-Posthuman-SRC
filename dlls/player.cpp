@@ -5230,16 +5230,14 @@ void CBasePlayer::UpdateClientData()
 		MESSAGE_END();
 	}
 
-	/*
-	if (m_iClientMutation ~= m_iMutation)
+	if (m_iClientMutation != m_iMutation)
 	{
 		m_iClientMutation = m_iMutation;
 
-		MESSAGE_BEGIN(MSG_ONE, gmsgMutation, nullptr, edict());
+		MESSAGE_BEGIN(MSG_ONE, gmsgMutation, NULL, edict());
 		WRITE_BYTE(m_iMutation); // sequence number
 		MESSAGE_END();
 	}
-	*/
 
 	//Handled anything that needs resetting
 	m_bRestored = false;
