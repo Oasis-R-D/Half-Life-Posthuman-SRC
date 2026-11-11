@@ -480,10 +480,14 @@ void DrawCrosshair()
 
 	SPR_Set(ghCrosshair, r, g, b);
 	
-	SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), &gCrosshairRc);		  // upper bar
-	SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, &gCrosshairRc);		// lower bar
-	SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], &gCrosshairRc);	  // right bar
-	SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1], &gCrosshairRc);		// left bar
+	if (gCrosshairType != 4)
+	{
+		SPR_DrawAdditive(0, center[0], center[1] + (spreadvec.y * MOVE_UP), &gCrosshairRc);		  // upper bar
+		SPR_DrawAdditive(1, center[0], center[1] - (spreadvec.y * MOVE_DOWN) + 1, &gCrosshairRc);		// lower bar
+		SPR_DrawAdditive(2, center[0] + (spreadvec.x * MOVE_RIGHT), center[1], &gCrosshairRc);	  // right bar
+		SPR_DrawAdditive(3, center[0] - (spreadvec.x * MOVE_LEFT) + 1, center[1], &gCrosshairRc);		// left bar
+	}
+	
 	if (DRAW_MIDDLE)
 		SPR_DrawAdditive(4, center[0], center[1], &gCrosshairRc); // CENTER
 

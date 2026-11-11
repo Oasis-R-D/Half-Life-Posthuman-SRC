@@ -325,7 +325,8 @@ typedef enum
 	CROSSHAIR_DEFAULT = 0,
 	CROSSHAIR_NOCENTER,		// don't draw a center dot
 	CROSSHAIR_DUCKBILL,		// no center but top and bottom are squished in
-	CROSSHAIR_NONE			// don't draw a crosshair
+	CROSSHAIR_NONE,			// don't draw a crosshair
+	CROSSHAIR_DOT			// only draw the center dot
 } Crosshair;
 
 // inventory items that go bang/boom/alien noises/metal noises
