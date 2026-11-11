@@ -71,6 +71,7 @@ void LinkUserMessages()
 	// POST-HUMAN
 	gmsgFlashHUD = REG_USER_MSG("FlashHUD", -1);
 	gmsgHunger = REG_USER_MSG("Hunger", -1);
+	gmsgMutation = REG_USER_MSG("Hunger", -1);
 	gmsgFireMode = REG_USER_MSG("FireMode", -1);
 	gmsgCrossHair = REG_USER_MSG("CrossHair", -1);
 	gmsgConcuss = REG_USER_MSG( "Concuss", 4 );

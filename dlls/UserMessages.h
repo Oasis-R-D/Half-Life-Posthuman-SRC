@@ -60,6 +60,7 @@ inline int gmsgWeapons = 0;
 // POST-HUMAN
 inline int gmsgFlashHUD = 0;
 inline int gmsgHunger = 0;
+inline int gmsgMutation = 0;
 inline int gmsgFireMode = 0;
 inline int gmsgCrossHair = 0;
 inline int gmsgConcuss = 0;
