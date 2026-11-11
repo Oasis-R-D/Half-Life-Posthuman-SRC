@@ -5990,6 +5990,63 @@ void CStripWeapons::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE 
 		pPlayer->RemoveAllItems(false);
 }
 
+class CPlayerMutator : public CPointEntity
+{
+public:
+	bool KeyValue( KeyValueData *pkvd ) override
+	{
+		if (FStrEq(pkvd->szKeyName, "increment"))
+		{
+			m_iIncrement = atoi(pkvd->szValue);
+			return true;
+		}
+		else
+			return CPointEntity::KeyValue(pkvd);
+	}
+
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value) override;
+
+private:
+	int m_iIncrement;
+};
+
+LINK_ENTITY_TO_CLASS(player_mutate, CPlayerMutator);
+
+void CPlayerMutator::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+{
+	CBasePlayer* pPlayer = NULL;
+
+	if (pActivator && pActivator->IsPlayer())
+	{
+		pPlayer = (CBasePlayer*)pActivator;
+	}
+	else if (!g_pGameRules->IsDeathmatch())
+	{
+		pPlayer = (CBasePlayer*)UTIL_GetLocalPlayer();
+	}
+	else
+	{
+		/*
+		for (int i=1; i<10; i++)
+		{
+			pPlayer = (CBasePlayer*)UTIL_PlayerByIndex(i)
+			
+			if (pPlayer)
+			{
+				pPlayer->m_iMutation += m_iIncrement;
+				pPlayer = NULL;
+			}
+		}
+		*/
+		// TO-DO: set for ALL players
+		return;
+	}
+
+	if (pPlayer)
+	{
+		pPlayer->m_iMutation += m_iIncrement;
+	}
+}
 
 class CRevertSaved : public CPointEntity
 {
