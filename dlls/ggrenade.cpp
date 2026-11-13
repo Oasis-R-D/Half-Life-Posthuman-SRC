@@ -215,9 +215,7 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 
 	// Pull out of the wall a bit
 	if (pTrace->flFraction != 1.0)
-	{
 		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * 0.6);
-	}
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
 	entvars_t* pevOwner;
@@ -327,9 +325,8 @@ void CGrenade::ExplodeFlash(TraceResult* pTrace, int bitsDamageType)
 void CGrenade::Smoke()
 {
 	if (UTIL_PointContents(pev->origin) == CONTENTS_WATER)
-	{
 		UTIL_Bubbles(pev->origin - Vector(64, 64, 64), pev->origin + Vector(64, 64, 64), 100);
-	}
+
 	UTIL_Remove(this);
 }
 
@@ -401,7 +398,7 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 	
 	if (m_iGrenType == 1 || !m_iGrenType)
 		ExplodeHE(&tr, DMG_SONIC);
-	else if (m_iGrenType == 7) // Hornet
+	else if (m_iGrenType == 8) // Hornet
 	{
 		Smoke();
 
@@ -415,10 +412,10 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 		
 		for (int i = 0; i < 6; i++)
 		{
-			Vector dir = RANDOM_VECTOR(0, 1);
+			Vector dir = tr.vecPlaneNormal + RANDOM_VECTOR(-0.25, 0.25);
 	
-			CBaseEntity* pHornet = CBaseEntity::Create("hornet", vecSpot + RANDOM_VECTOR(-6,6), pev->angles, pev->owner);
-			pHornet->pev->velocity = RANDOM_VECTOR(0, 1) * 300;
+			CBaseEntity* pHornet = CBaseEntity::Create("hornet", vecSpot + dir * 6 + RANDOM_VECTOR(-6,6), pev->angles, pev->owner);
+			pHornet->pev->velocity = dir * 300;
 			pHornet->pev->angles = UTIL_VecToAngles(pHornet->pev->velocity);
 		}
 	}
