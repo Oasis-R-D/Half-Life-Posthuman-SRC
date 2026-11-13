@@ -411,6 +411,9 @@
     <ClCompile Include="..\..\cl_dll\renderer\opengl_utils\GL_ShadowMap.cpp">
       <Filter>Source Files\cl_dll\renderer\opengl_utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\weapons_melee.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">

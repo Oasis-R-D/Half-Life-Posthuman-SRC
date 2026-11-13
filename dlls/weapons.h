@@ -442,6 +442,7 @@ typedef enum
 // TO-DO: Left4Dead styled melee attack
 class CBasePlayerMelee : public CBasePlayerWeapon
 {
+public:
 	int m_iSwingType;
 
 	float m_flSwingTime;
@@ -454,7 +455,11 @@ class CBasePlayerMelee : public CBasePlayerWeapon
 	int m_iRaycastAmount;
 	float m_flRaycastDelay;
 
+	void StartSwing();
 	void SwingRaycast();
+	void EndSwing();
+
+private:
 };
 
 class CBasePlayerAmmo : public CBaseEntity
@@ -1424,19 +1429,6 @@ public:
 	}
 };
 
-enum tripmine_e
-{
-	TRIPMINE_IDLE1 = 0,
-	TRIPMINE_IDLE2,
-	TRIPMINE_ARM1,
-	TRIPMINE_ARM2,
-	TRIPMINE_FIDGET,
-	TRIPMINE_HOLSTER,
-	TRIPMINE_DRAW,
-	TRIPMINE_WORLD,
-	TRIPMINE_GROUND,
-};
-
 class CTripmine : public CBasePlayerWeapon
 {
 public:
@@ -1469,6 +1461,19 @@ private:
 	unsigned short m_usTripFire;
 };
 */
+
+enum tripmine_e
+{
+	TRIPMINE_IDLE1 = 0,
+	TRIPMINE_IDLE2,
+	TRIPMINE_ARM1,
+	TRIPMINE_ARM2,
+	TRIPMINE_FIDGET,
+	TRIPMINE_HOLSTER,
+	TRIPMINE_DRAW,
+	TRIPMINE_WORLD,
+	TRIPMINE_GROUND,
+};
 
 enum squeak_e
 {
@@ -1897,6 +1902,7 @@ class CTripmineGrenade : public CGrenade
 class CRpgRocket : public CGrenade
 {
 public:
+
 	bool Save(CSave& save) override;
 	bool Restore(CRestore& restore) override;
 	static TYPEDESCRIPTION m_SaveData[];
