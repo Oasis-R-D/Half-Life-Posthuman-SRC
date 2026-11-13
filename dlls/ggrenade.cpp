@@ -980,15 +980,534 @@ void CGrenade::UseSatchelCharges(entvars_t* pevOwner, SATCHELCODE code)
 	}
 }
 
+LINK_ENTITY_TO_CLASS(monster_tripmine, CTripmineGrenade);
+
+TYPEDESCRIPTION CTripmineGrenade::m_SaveData[] =
+	{
+		DEFINE_FIELD(CTripmineGrenade, m_flPowerUp, FIELD_TIME),
+		DEFINE_FIELD(CTripmineGrenade, m_vecDir, FIELD_VECTOR),
+		DEFINE_FIELD(CTripmineGrenade, m_vecEnd, FIELD_POSITION_VECTOR),
+		DEFINE_FIELD(CTripmineGrenade, m_flBeamLength, FIELD_FLOAT),
+		DEFINE_FIELD(CTripmineGrenade, m_hOwner, FIELD_EHANDLE),
+		//Don't save, recreate.
+		//DEFINE_FIELD(CTripmineGrenade, m_pBeam, FIELD_CLASSPTR),
+		DEFINE_FIELD(CTripmineGrenade, m_posOwner, FIELD_POSITION_VECTOR),
+		DEFINE_FIELD(CTripmineGrenade, m_angleOwner, FIELD_VECTOR),
+		DEFINE_FIELD(CTripmineGrenade, m_pRealOwner, FIELD_EDICT),
+};
+
+IMPLEMENT_SAVERESTORE(CTripmineGrenade, CGrenade);
+
+
+void CTripmineGrenade::Spawn()
+{
+	Precache();
+	// motor
+	pev->movetype = MOVETYPE_FLY;
+	pev->solid = SOLID_NOT;
+
+	SET_MODEL(ENT(pev), "models/v_tripmine.mdl");
+	pev->frame = 0;
+	pev->body = 3;
+	pev->sequence = TRIPMINE_WORLD;
+	ResetSequenceInfo();
+	pev->framerate = 0;
+
+	UTIL_SetSize(pev, Vector(-8, -8, -8), Vector(8, 8, 8));
+	UTIL_SetOrigin(pev, pev->origin);
+
+	//TODO: define constant
+	if ((pev->spawnflags & 1) != 0)
+	{
+		// power up quickly
+		m_flPowerUp = gpGlobals->time + 1.0;
+	}
+	else
+	{
+		// power up in 2.5 seconds
+		m_flPowerUp = gpGlobals->time + 2.5;
+	}
+
+	SetThink(&CTripmineGrenade::PowerupThink);
+	pev->nextthink = gpGlobals->time + 0.2;
+
+	pev->takedamage = DAMAGE_YES;
+	pev->dmg = gSkillData.plrDmgTripmine;
+	pev->health = 1; // don't let die normally
+
+	if (pev->owner != NULL)
+	{
+		// play deploy sound
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/mine_deploy.wav", 1.0, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_BODY, "weapons/mine_charge.wav", 0.2, ATTN_NORM); // chargeup
+
+		m_pRealOwner = pev->owner; // see CTripmineGrenade for why.
+	}
+
+	UTIL_MakeAimVectors(pev->angles);
+
+	m_vecDir = gpGlobals->v_forward;
+	m_vecEnd = pev->origin + m_vecDir * 2048;
+}
+
+
+void CTripmineGrenade::Precache()
+{
+	PRECACHE_MODEL("models/v_tripmine.mdl");
+	PRECACHE_SOUND("weapons/mine_deploy.wav");
+	PRECACHE_SOUND("weapons/mine_activate.wav");
+	PRECACHE_SOUND("weapons/mine_charge.wav");
+}
+
+
+void CTripmineGrenade::WarningThink()
+{
+	// play warning sound
+	// EMIT_SOUND( ENT(pev), CHAN_VOICE, "buttons/Blip2.wav", 1.0, ATTN_NORM );
+
+	// set to power up
+	SetThink(&CTripmineGrenade::PowerupThink);
+	pev->nextthink = gpGlobals->time + 1.0;
+}
+
+
+void CTripmineGrenade::PowerupThink()
+{
+	TraceResult tr;
+
+	if (m_hOwner == NULL)
+	{
+		// find an owner
+		edict_t* oldowner = pev->owner;
+		pev->owner = NULL;
+		UTIL_TraceLine(pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 32, dont_ignore_monsters, ENT(pev), &tr);
+		if (0 != tr.fStartSolid || (oldowner && tr.pHit == oldowner))
+		{
+			pev->owner = oldowner;
+			m_flPowerUp += 0.1;
+			pev->nextthink = gpGlobals->time + 0.1;
+			return;
+		}
+		if (tr.flFraction < 1.0)
+		{
+			pev->owner = tr.pHit;
+			m_hOwner = CBaseEntity::Instance(pev->owner);
+			m_posOwner = m_hOwner->pev->origin;
+			m_angleOwner = m_hOwner->pev->angles;
+		}
+		else
+		{
+			STOP_SOUND(ENT(pev), CHAN_VOICE, "weapons/mine_deploy.wav");
+			STOP_SOUND(ENT(pev), CHAN_BODY, "weapons/mine_charge.wav");
+			SetThink(&CTripmineGrenade::SUB_Remove);
+			pev->nextthink = gpGlobals->time + 0.1;
+			ALERT(at_console, "WARNING:Tripmine at %.0f, %.0f, %.0f removed\n", pev->origin.x, pev->origin.y, pev->origin.z);
+			KillBeam();
+			return;
+		}
+	}
+	else if (m_posOwner != m_hOwner->pev->origin || m_angleOwner != m_hOwner->pev->angles)
+	{
+		// disable
+		STOP_SOUND(ENT(pev), CHAN_VOICE, "weapons/mine_deploy.wav");
+		STOP_SOUND(ENT(pev), CHAN_BODY, "weapons/mine_charge.wav");
+		CBaseEntity* pMine = Create("weapon_tripmine", pev->origin + m_vecDir * 24, pev->angles);
+		pMine->pev->spawnflags |= SF_NORESPAWN;
+
+		SetThink(&CTripmineGrenade::SUB_Remove);
+		KillBeam();
+		pev->nextthink = gpGlobals->time + 0.1;
+		return;
+	}
+	// ALERT( at_console, "%d %.0f %.0f %0.f\n", pev->owner, m_pOwner->pev->origin.x, m_pOwner->pev->origin.y, m_pOwner->pev->origin.z );
+
+	if (gpGlobals->time > m_flPowerUp)
+	{
+		// make solid
+		pev->solid = SOLID_BBOX;
+		UTIL_SetOrigin(pev, pev->origin);
+
+		MakeBeam();
+
+		// play enabled sound
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "weapons/mine_activate.wav", 0.5, ATTN_NORM, 1.0, 75);
+	}
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+
+void CTripmineGrenade::KillBeam()
+{
+	if (m_pBeam)
+	{
+		UTIL_Remove(m_pBeam);
+		m_pBeam = NULL;
+	}
+}
+
+
+void CTripmineGrenade::MakeBeam()
+{
+	TraceResult tr;
+
+	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
+
+	UTIL_TraceLine(pev->origin, m_vecEnd, dont_ignore_monsters, ENT(pev), &tr);
+
+	m_flBeamLength = tr.flFraction;
+
+	// set to follow laser spot
+	SetThink(&CTripmineGrenade::BeamBreakThink);
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	Vector vecTmpEnd = pev->origin + m_vecDir * 2048 * m_flBeamLength;
+
+	m_pBeam = CBeam::BeamCreate(g_pModelNameLaser, 10);
+	//Mark as temporary so the beam will be recreated on save game load and level transitions.
+	m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
+	//PointEntInit causes clients to use the position of whatever the previous entity to use this edict had until the server updates them.
+	//m_pBeam->PointEntInit(vecTmpEnd, entindex());
+	m_pBeam->PointsInit(pev->origin, vecTmpEnd);
+	m_pBeam->SetColor(0, 214, 198);
+	m_pBeam->SetScrollRate(255);
+	m_pBeam->SetBrightness(64);
+}
+
+
+void CTripmineGrenade::BeamBreakThink()
+{
+	bool bBlowup = false;
+
+	TraceResult tr;
+
+	// HACKHACK Set simple box using this really nice global!
+	gpGlobals->trace_flags = FTRACE_SIMPLEBOX;
+	UTIL_TraceLine(pev->origin, m_vecEnd, dont_ignore_monsters, ENT(pev), &tr);
+
+	// ALERT( at_console, "%f : %f\n", tr.flFraction, m_flBeamLength );
+
+	// respawn detect.
+	if (!m_pBeam)
+	{
+		// Use the same trace parameters as the original trace above so the right entity is hit.
+		TraceResult tr2;
+		// Clear out old owner so it can be hit by traces.
+		pev->owner = nullptr;
+		UTIL_TraceLine(pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 32, dont_ignore_monsters, ENT(pev), &tr2);
+		MakeBeam();
+		if (tr2.pHit)
+		{
+			// reset owner too
+			pev->owner = tr2.pHit;
+			m_hOwner = CBaseEntity::Instance(tr2.pHit);
+		}
+	}
+
+	if (fabs(m_flBeamLength - tr.flFraction) > 0.001)
+		bBlowup = true;
+	else
+	{
+		if (m_hOwner == NULL)
+			bBlowup = true;
+		else if (m_posOwner != m_hOwner->pev->origin)
+			bBlowup = true;
+		else if (m_angleOwner != m_hOwner->pev->angles)
+			bBlowup = true;
+	}
+
+	if (bBlowup)
+	{
+		// a bit of a hack, but all CGrenade code passes pev->owner along to make sure the proper player gets credit for the kill
+		// so we have to restore pev->owner from pRealOwner, because an entity's tracelines don't strike it's pev->owner which meant
+		// that a player couldn't trigger his own tripmine. Now that the mine is exploding, it's safe the restore the owner so the
+		// CGrenade code knows who the explosive really belongs to.
+		pev->owner = m_pRealOwner;
+		pev->health = 0;
+		Killed(VARS(pev->owner), GIB_NORMAL);
+		return;
+	}
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+bool CTripmineGrenade::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
+{
+	if (gpGlobals->time < m_flPowerUp && flDamage < pev->health)
+	{
+		SetThink(&CTripmineGrenade::SUB_Remove);
+		pev->nextthink = gpGlobals->time + 0.1;
+		KillBeam();
+		return false;
+	}
+	return CGrenade::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
+}
+
+void CTripmineGrenade::Killed(entvars_t* pevAttacker, int iGib)
+{
+	pev->takedamage = DAMAGE_NO;
+
+	if (pevAttacker && (pevAttacker->flags & FL_CLIENT) != 0)
+	{
+		// some client has destroyed this mine, he'll get credit for any kills
+		pev->owner = ENT(pevAttacker);
+	}
+
+	SetThink(&CTripmineGrenade::DelayDeathThink);
+	pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.1, 0.3);
+
+	EMIT_SOUND(ENT(pev), CHAN_BODY, "common/null.wav", 0.5, ATTN_NORM); // shut off chargeup
+}
+
+
+void CTripmineGrenade::DelayDeathThink()
+{
+	KillBeam();
+	TraceResult tr;
+	UTIL_TraceLine(pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 64, dont_ignore_monsters, ENT(pev), &tr);
+
+	ExplodeHE(&tr, DMG_BLAST);
+}
+
+
+LINK_ENTITY_TO_CLASS(laser_spot, CLaserSpot);
+
+//=========================================================
+//=========================================================
+CLaserSpot* CLaserSpot::CreateSpot()
+{
+	CLaserSpot* pSpot = GetClassPtr((CLaserSpot*)NULL);
+	pSpot->Spawn();
+
+	pSpot->pev->classname = MAKE_STRING("laser_spot");
+
+	return pSpot;
+}
+
+//=========================================================
+//=========================================================
+void CLaserSpot::Spawn()
+{
+	Precache();
+	pev->movetype = MOVETYPE_NONE;
+	pev->solid = SOLID_NOT;
+
+	pev->rendermode = kRenderGlow;
+	pev->renderfx = kRenderFxNoDissipation;
+	pev->renderamt = 255;
+
+	SET_MODEL(ENT(pev), "sprites/laserdot.spr");
+	UTIL_SetOrigin(pev, pev->origin);
+};
+
+//=========================================================
+// Suspend- make the laser sight invisible.
+//=========================================================
+void CLaserSpot::Suspend(float flSuspendTime)
+{
+	pev->effects |= EF_NODRAW;
+
+	SetThink(&CLaserSpot::Revive);
+	pev->nextthink = gpGlobals->time + flSuspendTime;
+}
+
+//=========================================================
+// Revive - bring a suspended laser sight back.
+//=========================================================
+void CLaserSpot::Revive()
+{
+	pev->effects &= ~EF_NODRAW;
+
+	SetThink(NULL);
+}
+
+void CLaserSpot::Precache()
+{
+	PRECACHE_MODEL("sprites/laserdot.spr");
+};
+
+LINK_ENTITY_TO_CLASS(rpg_rocket, CRpgRocket);
+
+CRpgRocket::~CRpgRocket()
+{
+	if (m_pLauncher)
+	{
+		// my launcher is still around, tell it I'm dead.
+		static_cast<CRpg*>(static_cast<CBaseEntity*>(m_pLauncher))->m_cActiveRockets--;
+	}
+}
+
+//=========================================================
+//=========================================================
+CRpgRocket* CRpgRocket::CreateRpgRocket(Vector vecOrigin, Vector vecAngles, CBaseEntity* pOwner, CRpg* pLauncher)
+{
+	CRpgRocket* pRocket = GetClassPtr((CRpgRocket*)NULL);
+
+	UTIL_SetOrigin(pRocket->pev, vecOrigin);
+	pRocket->pev->angles = vecAngles;
+	pRocket->Spawn();
+	pRocket->SetTouch(&CRpgRocket::RocketTouch);
+	pRocket->m_pLauncher = pLauncher; // remember what RPG fired me.
+	pLauncher->m_cActiveRockets++;	  // register this missile as active for the launcher
+	pRocket->pev->owner = pOwner->edict();
+
+	return pRocket;
+}
+
+//=========================================================
+//=========================================================
+void CRpgRocket::Spawn()
+{
+	Precache();
+	// motor
+	pev->movetype = MOVETYPE_BOUNCE;
+	pev->solid = SOLID_BBOX;
+
+	SET_MODEL(ENT(pev), "models/rpgrocket.mdl");
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
+	UTIL_SetOrigin(pev, pev->origin);
+
+	pev->classname = MAKE_STRING("rpg_rocket");
+
+	SetThink(&CRpgRocket::IgniteThink);
+	SetTouch(&CRpgRocket::ExplodeTouch);
+
+	pev->angles.x -= 30;
+	UTIL_MakeVectors(pev->angles);
+	pev->angles.x = -(pev->angles.x + 30);
+
+	pev->velocity = gpGlobals->v_forward * 250;
+	pev->gravity = 0.5;
+
+	pev->nextthink = gpGlobals->time + 0.4;
+
+	pev->dmg = gSkillData.plrDmgRPG;
+}
+
+//=========================================================
+//=========================================================
+void CRpgRocket::RocketTouch(CBaseEntity* pOther)
+{
+	STOP_SOUND(edict(), CHAN_VOICE, "weapons/rocket1.wav");
+	ExplodeTouch(pOther);
+}
+
+//=========================================================
+//=========================================================
+void CRpgRocket::Precache()
+{
+	PRECACHE_MODEL("models/rpgrocket.mdl");
+	m_iTrail = PRECACHE_MODEL("sprites/smoke.spr");
+	PRECACHE_SOUND("weapons/rocket1.wav");
+}
+
+
+void CRpgRocket::IgniteThink()
+{
+	// pev->movetype = MOVETYPE_TOSS;
+
+	pev->movetype = MOVETYPE_FLY;
+	pev->effects |= EF_LIGHT;
+
+	// make rocket sound
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/rocket1.wav", 1, 0.5);
+
+	// rocket trail
+	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
+		WRITE_BYTE(TE_BEAMFOLLOW);
+		WRITE_SHORT(entindex()); // entity
+		WRITE_SHORT(m_iTrail);	 // model
+		WRITE_BYTE(40);			 // life
+		WRITE_BYTE(5);			 // width
+		WRITE_BYTE(224);		 // r, g, b
+		WRITE_BYTE(224);		 // r, g, b
+		WRITE_BYTE(255);		 // r, g, b
+		WRITE_BYTE(255);		 // brightness
+	MESSAGE_END(); // move PHS/PVS data sending into here (SEND_ALL, SEND_PVS, SEND_PHS)
+
+	m_flIgniteTime = gpGlobals->time;
+
+	// set to follow laser spot
+	SetThink(&CRpgRocket::FollowThink);
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
+
+void CRpgRocket::FollowThink()
+{
+	CBaseEntity* pOther = NULL;
+	Vector vecTarget;
+	Vector vecDir;
+	float flDist, flMax, flDot;
+	TraceResult tr;
+
+	UTIL_MakeAimVectors(pev->angles);
+
+	vecTarget = gpGlobals->v_forward;
+	flMax = 4096;
+
+	// Examine all entities within a reasonable radius
+	while ((pOther = UTIL_FindEntityByClassname(pOther, "laser_spot")) != NULL)
+	{
+		UTIL_TraceLine(pev->origin, pOther->pev->origin, dont_ignore_monsters, ENT(pev), &tr);
+		// ALERT( at_console, "%f\n", tr.flFraction );
+		if (tr.flFraction >= 0.90)
+		{
+			vecDir = pOther->pev->origin - pev->origin;
+			flDist = vecDir.Length();
+			vecDir = vecDir.Normalize();
+			flDot = DotProduct(gpGlobals->v_forward, vecDir);
+			if ((flDot > 0) && (flDist * (1 - flDot) < flMax))
+			{
+				flMax = flDist * (1 - flDot);
+				vecTarget = vecDir;
+			}
+		}
+	}
+
+	pev->angles = UTIL_VecToAngles(vecTarget);
+
+	// this acceleration and turning math is totally wrong, but it seems to respond well so don't change it.
+	float flSpeed = pev->velocity.Length();
+	if (gpGlobals->time - m_flIgniteTime < 1.0)
+	{
+		pev->velocity = pev->velocity * 0.2 + vecTarget * (flSpeed * 0.8 + 400);
+		if (pev->waterlevel == 3)
+		{
+			// go slow underwater
+			if (pev->velocity.Length() > 300)
+			{
+				pev->velocity = pev->velocity.Normalize() * 300;
+			}
+			UTIL_BubbleTrail(pev->origin - pev->velocity * 0.1, pev->origin, 4);
+		}
+		else
+		{
+			if (pev->velocity.Length() > 2000)
+			{
+				pev->velocity = pev->velocity.Normalize() * 2000;
+			}
+		}
+	}
+	else
+	{
+		if ((pev->effects & EF_LIGHT) != 0)
+		{
+			pev->effects = 0;
+			STOP_SOUND(ENT(pev), CHAN_VOICE, "weapons/rocket1.wav");
+		}
+		pev->velocity = pev->velocity * 0.2 + vecTarget * flSpeed * 0.798;
+		if (pev->waterlevel == 0 && pev->velocity.Length() < 1500)
+		{
+			Detonate();
+		}
+	}
+	// ALERT( at_console, "%.0f\n", flSpeed );
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
+
 //======================end grenade
 
-
-
-
-
-
-
-// WE'RE DONE WHEN I SAY WE'RE DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class CGrenadePickup : public CBaseButton
 {
 	int m_iPickUpType = 0;

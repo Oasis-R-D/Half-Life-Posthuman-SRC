@@ -1832,6 +1832,41 @@ enum offhandgren_e
 	OH_GRAB,
 };
 
+#define TRIPMINE_PRIMARY_VOLUME 450
+
+class CTripmineGrenade : public CGrenade
+{
+	void Spawn() override;
+	void Precache() override;
+
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+
+	static TYPEDESCRIPTION m_SaveData[];
+
+	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+
+	void EXPORT WarningThink();
+	void EXPORT PowerupThink();
+	void EXPORT BeamBreakThink();
+	void EXPORT DelayDeathThink();
+	void Killed(entvars_t* pevAttacker, int iGib) override;
+
+	void MakeBeam();
+	void KillBeam();
+
+	float m_flPowerUp;
+	Vector m_vecDir;
+	Vector m_vecEnd;
+	float m_flBeamLength;
+
+	EHANDLE m_hOwner;
+	CBeam* m_pBeam;
+	Vector m_posOwner;
+	Vector m_angleOwner;
+	edict_t* m_pRealOwner; // tracelines don't hit PEV->OWNER, which means a player couldn't detonate his own trip mine, so we store the owner here.
+};
+
 class CRpgRocket : public CGrenade
 {
 public:

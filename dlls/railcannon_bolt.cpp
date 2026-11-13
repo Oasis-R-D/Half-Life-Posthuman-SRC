@@ -13,6 +13,7 @@
 *
 ****/
 
+// TO-DO: adapt to use physbullet code
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -98,17 +99,10 @@ int CCrossbowBolt::ShouldCollide(CBaseEntity* pentTouched)
 {
 	CBaseEntity* owner = CBaseEntity::Instance(Owner);
 	if (pentTouched == owner || pentTouched->IsBullet())
-	{
 		return 0;
-	}
 
-	if (m_pIgnore)
-	{
-		if (pentTouched == m_pIgnore)
-		{
-			return 0;
-		}
-	}
+	if (m_pIgnore && pentTouched == m_pIgnore)
+		return 0;
 
 	return 1;
 }
