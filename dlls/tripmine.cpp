@@ -25,6 +25,7 @@
 
 #ifndef CLIENT_DLL
 
+/*
 class CTripmineGrenade : public CGrenade
 {
 	void Spawn() override;
@@ -526,3 +527,4 @@ void CTripmine::WeaponIdle()
 
 	SendWeaponAnim(iAnim);
 }
+*/

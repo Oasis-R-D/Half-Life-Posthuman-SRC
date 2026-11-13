@@ -429,6 +429,33 @@ public:
 	bool NotFirstDraw;
 };
 
+typedef enum
+{
+	SWING_RIGHT_LEFT = 0,
+	SWING_LEFT_RIGHT,
+	SWING_UP_DOWN,
+	SWING_DOWN_UP,
+	SWING_45_135,
+	SWING_135_45,
+} Swings;
+
+// TO-DO: Left4Dead styled melee attack
+class CBasePlayerMelee : public CBasePlayerWeapon
+{
+	int m_iSwingType;
+
+	float m_flSwingTime;
+	float m_flSwingEnd;
+	float m_flSwingStart;
+	int m_iSwingEdgeTaper;
+	
+	int m_iAngRadius;
+
+	int m_iRaycastAmount;
+	float m_flRaycastDelay;
+
+	void SwingRaycast();
+};
 
 class CBasePlayerAmmo : public CBaseEntity
 {
@@ -1830,6 +1857,41 @@ enum offhandgren_e
 	OH_DONOTHING = 0, // hides the hand
 	OH_THROW,
 	OH_GRAB,
+};
+
+#define TRIPMINE_PRIMARY_VOLUME 450
+
+class CTripmineGrenade : public CGrenade
+{
+	void Spawn() override;
+	void Precache() override;
+
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+
+	static TYPEDESCRIPTION m_SaveData[];
+
+	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
+
+	void EXPORT WarningThink();
+	void EXPORT PowerupThink();
+	void EXPORT BeamBreakThink();
+	void EXPORT DelayDeathThink();
+	void Killed(entvars_t* pevAttacker, int iGib) override;
+
+	void MakeBeam();
+	void KillBeam();
+
+	float m_flPowerUp;
+	Vector m_vecDir;
+	Vector m_vecEnd;
+	float m_flBeamLength;
+
+	EHANDLE m_hOwner;
+	CBeam* m_pBeam;
+	Vector m_posOwner;
+	Vector m_angleOwner;
+	edict_t* m_pRealOwner; // tracelines don't hit PEV->OWNER, which means a player couldn't detonate his own trip mine, so we store the owner here.
 };
 
 class CRpgRocket : public CGrenade
