@@ -429,6 +429,32 @@ public:
 	bool NotFirstDraw;
 };
 
+typedef enum
+{
+	SWING_RIGHT_LEFT = 0,
+	SWING_LEFT_RIGHT,
+	SWING_UP_DOWN,
+	SWING_DOWN_UP,
+	SWING_45_135,
+	SWING_135_45,
+} Swings;
+
+// TO-DO: Left4Dead styled melee attack
+class CBasePlayerMelee : public CBasePlayerWeapon
+{
+	int m_iSwingType;
+
+	float m_flSwingTime;
+	float m_flSwingEnd;
+	float m_flSwingStart;
+
+	int m_iAngRadius;
+
+	int m_iRaycastAmount;
+	float m_flRaycastDelay;
+
+	void SwingRaycast();
+};
 
 class CBasePlayerAmmo : public CBaseEntity
 {
