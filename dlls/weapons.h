@@ -447,7 +447,8 @@ class CBasePlayerMelee : public CBasePlayerWeapon
 	float m_flSwingTime;
 	float m_flSwingEnd;
 	float m_flSwingStart;
-
+	int m_iSwingEdgeTaper;
+	
 	int m_iAngRadius;
 
 	int m_iRaycastAmount;

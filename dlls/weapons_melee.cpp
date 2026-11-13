@@ -25,6 +25,9 @@ void CBasePlayerMelee::StartSwing()
 {
     m_flSwingStart = gpGlobals->time;
 
+    float timeSpan = m_flSwingEnd - m_flSwingStart;
+
+    m_flRaycastDelay = m_iRaycastAmount / timeSpan
     // Calculate delay between raycasts
 }
 
