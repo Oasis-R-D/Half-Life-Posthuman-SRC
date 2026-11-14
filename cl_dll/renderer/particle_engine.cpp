@@ -105,6 +105,8 @@ void CParticleEngine::Init()
 	m_ParticleShader = new GLShader({glsl_particle_vp, glsl_particle_fp, s_CommonAttribs});
 	m_ParticleShader->SetUniformInt(m_ParticleShader->GetUniformLoc("texture0"), 0);
 
+	// limit of 100 thousand particles, i dont think this limit can be reached
+	// 9600000 bytes = 9.6 mb
 	m_pQuadBuffer = new GLArrayBuffer(sizeof(ParticleQuad) * 100000);
 	m_pParticleVAO = new GLVertexArray(m_pQuadBuffer, {
 		{VERTPOS_LOC, offsetof(ParticleVertex, pos), sizeof(ParticleVertex), 3, false, eGL_type_float},
@@ -2358,7 +2360,7 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 		}
 	}
 	m_pQuadBuffer->MemCpy(sizeof(ParticleVertex) * verts.size(), (uint8_t*)verts.data());
-	
+
 	int offset = 0;
 	int currendermode = -1;
 	GLuint curtexture = 0;
@@ -2395,13 +2397,13 @@ void CParticleEngine::DrawQuadList(std::unordered_map<std::pair<GLuint, int>, st
 			GLContext::BindTextureLegacy(batch.first.first, GL_TEXTURE_2D);
 		}
 
-		GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size(), offset);
+		GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size()*4, offset);
 
 		if (gBSPRenderer.m_pCvarWireFrame->value)
 		{
 			GLContext::SetBlending(false);
 			GLContext::SetPolygonRasterMode(eGL_polymode_line);
-			GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size(), offset);
+			GLContext::DrawPolys(eGL_drawmode_quads, batch.second.size()*4, offset);
 			GLContext::SetPolygonRasterMode(eGL_polymode_fill);
 			GLContext::SetBlending(true);
 		}
