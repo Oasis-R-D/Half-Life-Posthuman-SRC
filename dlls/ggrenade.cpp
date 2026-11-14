@@ -415,9 +415,12 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 		{
 			CHornet* pHornet = (CHornet*) CBaseEntity::Create("hornet", vecSpot + tr.vecPlaneNormal * 16, Vector(0,0,0), pev->owner);
 			pHornet->pev->owner = pev->owner;
-			pHornet->pev->velocity = tr.vecPlaneNormal + RANDOM_VECTOR(-0.5, 0.5);
-			pHornet->m_flFlySpeed *= 0.66;
-			pHornet->m_flFieldOfView = VIEW_FIELD_FULL; // wider fov // Thanks Gunship
+			pHornet->pev->velocity = RANDOM_VECTOR(-1, 1) * 300;
+
+			// Thanks Gunship
+			pHornet->m_flFlySpeed = 300;
+			pHornet->m_flFieldOfView = VIEW_FIELD_FULL; // wider fov
+			pHornet->m_flStopAttack = gpGlobals->time + RANDOM_FLOAT(1.5, 2.5);
 		}
 	}
 }

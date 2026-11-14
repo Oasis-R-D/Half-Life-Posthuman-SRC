@@ -26,6 +26,7 @@
 #include "hornet.h"
 #include "gamerules.h"
 
+#define GRENADE_SPAWNED m_flFlySpeed == 300
 
 int iHornetTrail;
 int iHornetPuff;
@@ -310,8 +311,16 @@ void CHornet::TrackTarget()
 	switch (m_iHornetType)
 	{
 	case HORNET_TYPE_RED:
-		pev->velocity = pev->velocity * (m_flFlySpeed * flDelta); // scale the dir by the ( speed * width of turn )
-		pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.1, 0.3);
+		if (GRENADE_SPAWNED)
+		{
+			pev->velocity = pev->velocity * m_flFlySpeed; // do not have to slow down to turn.
+			pev->nextthink = gpGlobals->time + 0.1;		  // fixed think time
+		}
+		else
+		{
+			pev->velocity = pev->velocity * (m_flFlySpeed * flDelta); // scale the dir by the ( speed * width of turn )
+			pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.1, 0.3);
+		}
 		break;
 	case HORNET_TYPE_ORANGE:
 		pev->velocity = pev->velocity * m_flFlySpeed; // do not have to slow down to turn.
@@ -322,6 +331,9 @@ void CHornet::TrackTarget()
 	pev->angles = UTIL_VecToAngles(pev->velocity);
 
 	pev->solid = SOLID_BBOX;
+
+	if (GRENADE_SPAWNED)
+		return;
 
 	// if hornet is close to the enemy, jet in a straight line for a half second.
 	// (only in the single player game)
