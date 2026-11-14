@@ -30,6 +30,7 @@
 #include "shake.h"
 #include "effects.h" // probably can be removed once fire is fully added
 #include "fire.h"
+#include "monsters/hornet.h"
 
 //===================grenade
 
@@ -412,11 +413,11 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 		
 		for (int i = 0; i < 6; i++)
 		{
-			Vector dir = tr.vecPlaneNormal + RANDOM_VECTOR(-0.25, 0.25);
-	
-			CBaseEntity* pHornet = CBaseEntity::Create("hornet", vecSpot + dir * 6 + RANDOM_VECTOR(-6,6), pev->angles, pev->owner);
-			pHornet->pev->velocity = dir * 300;
-			pHornet->pev->angles = UTIL_VecToAngles(pHornet->pev->velocity);
+			CHornet* pHornet = (CHornet*) CBaseEntity::Create("hornet", vecSpot + tr.vecPlaneNormal * 16, Vector(0,0,0), pev->owner);
+			pHornet->pev->owner = pev->owner;
+			pHornet->pev->velocity = tr.vecPlaneNormal + RANDOM_VECTOR(-0.5, 0.5);
+			pHornet->m_flFlySpeed *= 0.66;
+			pHornet->m_flFieldOfView = VIEW_FIELD_FULL; // wider fov // Thanks Gunship
 		}
 	}
 }
@@ -886,10 +887,10 @@ CGrenade* CGrenade::ShootOffhand(entvars_t* pevOwner, Vector vecStart, Vector ve
 			pGrenade->SetThink(&CGrenade::TumbleThink);
 			break;
 		case 8: // Hornet
-		SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
-		pGrenade->pev->dmg = 30;
-		// Tumble through the air
-		pGrenade->pev->avelocity.x = -400;
+			SET_MODEL(ENT(pGrenade->pev), "models/grenade.mdl");
+			pGrenade->pev->dmg = 60;
+			// Tumble through the air
+			pGrenade->pev->avelocity.x = -400;
 		break;
 	}
 

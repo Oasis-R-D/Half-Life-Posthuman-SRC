@@ -46,7 +46,6 @@ void CM727::Precache()
 	PRECACHE_MODEL("models/w_727.mdl");
 	PRECACHE_MODEL("models/p_727.mdl");
 	PRECACHE_MODEL("models/v_727.mdl");
-	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_727mag.mdl");
 
 	m_iShell = PRECACHE_MODEL("models/saw_shell.mdl"); // brass shell

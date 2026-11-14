@@ -132,6 +132,14 @@ void CHornet::Precache()
 	iHornetTrail = PRECACHE_MODEL("sprites/laserbeam.spr");
 }
 
+int CHornet::ShouldCollide(CBaseEntity* pentTouched)
+{
+	if (pentTouched->pev->modelindex == pev->modelindex)
+		return 0;
+
+	return 1;
+}
+
 //=========================================================
 // hornets will never get mad at each other, no matter who the owner is.
 //=========================================================
@@ -139,6 +147,9 @@ int CHornet::IRelationship(CBaseEntity* pTarget)
 {
 	if (pTarget->pev->modelindex == pev->modelindex)
 		return R_NO;
+
+	if (pTarget->edict() == pev->owner)
+		return R_AL;
 
 	return CBaseMonster::IRelationship(pTarget);
 }
@@ -354,7 +365,7 @@ void CHornet::TrackTarget()
 //=========================================================
 void CHornet::TrackTouch(CBaseEntity* pOther)
 {
-	if (pOther->edict() == pev->owner || pOther->pev->modelindex == pev->modelindex)
+	if (pOther->edict() == pev->owner)
 	{ // bumped into the guy that shot it.
 		pev->solid = SOLID_NOT;
 		return;

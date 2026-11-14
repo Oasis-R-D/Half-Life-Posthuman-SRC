@@ -318,7 +318,8 @@ void CMirrorManager::DrawMirrorPass(void)
 
 	g_LegacySpriteRenderer.DrawSpriteEntities();
 
-	g_BeamRenderer.R_DrawBeams(engine_cl->time - engine_cl->oldtime);
+	// TO-DO: this is breaking beams
+	//g_BeamRenderer.R_DrawBeams(engine_cl->time - engine_cl->oldtime);
 
 	// TO-DO: why aren't we doing these?
 	//// Draw props

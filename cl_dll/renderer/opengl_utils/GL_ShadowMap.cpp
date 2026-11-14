@@ -75,7 +75,7 @@ void GL_ShadowMap::CheckFBO(GLsizei width, GLsizei height)
 	else
 	{
 		bool bNeedsNewRenderBuffer = true;
-		for (auto shadowrbo : m_pShadowRBOs)
+		for (auto& shadowrbo : m_pShadowRBOs)
 		{
 			uint32_t m_iwidth, m_iheight;
 			shadowrbo->GetWidthHeight(m_iwidth, m_iheight);
@@ -97,7 +97,7 @@ GL_ShadowMap::GL_ShadowMap(const gltex2d_createinfo_t& info, bool canuseblur)
 {
 	CheckFBO(info.width, info.height);
 
-	for (auto shadowrbo : m_pShadowRBOs)
+	for (auto& shadowrbo : m_pShadowRBOs)
 	{
 		uint32_t width, height;
 		shadowrbo->GetWidthHeight(width, height);
@@ -120,7 +120,7 @@ GL_ShadowMap::GL_ShadowMap(const gltexcubemap_createinfo_t& info, bool canuseblu
 {
 	CheckFBO(info.width, info.height);
 
-	for (auto shadowrbo : m_pShadowRBOs)
+	for (auto& shadowrbo : m_pShadowRBOs)
 	{
 		uint32_t width, height;
 		shadowrbo->GetWidthHeight(width, height);

@@ -48,7 +48,7 @@ void CSpriteRenderer::Init()
 	m_pSpriteQuadBuffer = new GLArrayBuffer((sizeof(sprite_vertex_t) * 4) * 8196);
 	m_pSpriteVAO = new GLVertexArray(m_pSpriteQuadBuffer, {
 		{VERTPOS_LOC, offsetof(sprite_vertex_t, point), sizeof(sprite_vertex_t), 3, false, eGL_type_float},
-		{COLOR_LOC, offsetof(sprite_vertex_t, color), sizeof(sprite_vertex_t), 4, false, eGL_type_uint8}
+		{COLOR_LOC, offsetof(sprite_vertex_t, color), sizeof(sprite_vertex_t), 4, true, eGL_type_uint8}
 	});
 
 	m_pSpriteShader = new GLShader({glsl_sprite_vp, glsl_sprite_fp, s_CommonAttribs});
@@ -83,7 +83,7 @@ void CSpriteRenderer::DrawSpriteEntities()
 		return;
 
 	//first make quad list
-	for (auto ent : m_vSpriteDrawList)
+	for (auto& ent : m_vSpriteDrawList)
 	{
 		QuadifySpriteEnt(ent);
 	}

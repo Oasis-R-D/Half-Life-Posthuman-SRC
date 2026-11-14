@@ -319,7 +319,7 @@ void CGoldSrc_BeamRenderer::R_DrawBeams(float frametime)
 
 	GLContext::BindShader(nullptr);
 
-	for (auto beament : m_BeamEnt_List)
+	for (auto& beament : m_BeamEnt_List)
 	{
 		// draw it
 		R_BeamDrawCustomEntity(beament);
@@ -460,7 +460,7 @@ void CGoldSrc_BeamRenderer::R_BeamDraw(BEAM* pbeam, float frametime)
 		return;
 	}
 
-	// don't draw really short or inactive beams
+	// don't draw really short or inactive beams // TO-DO: Broken
 	if (!(pbeam->flags & FBEAM_ISACTIVE) || pbeam->delta.Length() < 0.1f)
 	{
 		// return;

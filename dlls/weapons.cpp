@@ -318,6 +318,7 @@ void W_Precache()
 	PRECACHE_SOUND("weapons/flashbang-1.wav");
 	PRECACHE_SOUND("weapons/smokegrenade-1.wav");
 	PRECACHE_SOUND("weapons/hopwire_fly.wav");
+	UTIL_PrecacheOther("hornet");
 
 	// common world objects
 	UTIL_PrecacheOther("item_suit");

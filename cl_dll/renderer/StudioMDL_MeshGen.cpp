@@ -315,7 +315,7 @@ Vector* StudioMDL_SubModel::GetNormInfo()
 
 void CheckNewVertex(studiovert_t vert, std::vector<studiovert_t>& vertlist)
 {
-	for (auto vertex : vertlist)
+	for (auto& vertex : vertlist)
 	{
 		if (vertex.normindex == vert.normindex &&
 			vertex.texcoord[0] == vert.texcoord[0] &&

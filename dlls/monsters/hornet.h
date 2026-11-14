@@ -53,6 +53,8 @@ public:
 
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 
+	int ShouldCollide(CBaseEntity* pentTouched) override;
+
 	float m_flStopAttack;
 	int m_iHornetType;
 	float m_flFlySpeed;

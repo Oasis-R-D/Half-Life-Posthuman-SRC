@@ -1174,7 +1174,7 @@ void CStudioModelRenderer::StudioDrawModelsSolid()
 	for (auto& model : m_vStudioDrawList)
 	{
 		m_pCurrentStudioMDL = model.first;
-		for (auto ents : model.second)
+		for (auto& ents : model.second)
 		{
 			m_pCurrentEntity = ents;
 			if (ents->player)
@@ -4511,7 +4511,7 @@ void CStudioModelRenderer::StudioDecalExternal(Vector vpos, Vector vnorm, const 
 
 	// SALSATOBIAS: if decals for external models dont work look at code below plis its pretty messy
 
-	for (auto propent : gPropManager.m_pEntities)
+	for (auto& propent : gPropManager.m_pEntities)
 	{
 		if (!propent.efrag)
 			propent.efrag = (efrag_t*)StudioAllocEntityData();

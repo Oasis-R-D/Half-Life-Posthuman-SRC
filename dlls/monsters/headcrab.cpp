@@ -508,6 +508,17 @@ Schedule_t* CHeadCrab::GetScheduleOfType(int Type)
 {
 	switch (Type)
 	{
+	case SCHED_CHASE_ENEMY_FAILED:
+	{
+		if (FBitSet(pev->flags, FL_ONGROUND) && m_hEnemy != 0 && HasConditions(bits_COND_SEE_ENEMY) && FBitSet(m_afCapability, bits_CAP_RANGE_ATTACK1))
+		{
+			if (CanDoLeapForChase(m_hEnemy->pev->origin, 650, 120))
+			{
+				return &slHCRangeAttack1[0];
+			}
+		}
+	}
+	break;
 	case SCHED_RANGE_ATTACK1:
 	{
 		return &slHCRangeAttack1[0];
@@ -577,191 +588,3 @@ Schedule_t* CBabyCrab::GetScheduleOfType(int Type)
 
 	return CHeadCrab::GetScheduleOfType(Type);
 }
-/*
-class CHeadcrabSuper : public CHeadCrab
-{
-	virtual float GetDamageAmount()
-	{
-		return gSkillData.headcrabDmgBite * 2;
-	}
-	int Classify()
-	{
-		return CLASS_DISLIKE_ALL;
-	}
-	void Spawn()
-	{
-		Precache();
-
-		SET_MODEL(ENT(pev), "models/headcrab_super.mdl");
-		UTIL_SetSize(pev, Vector(-12, -12, 0), Vector(12, 12, 24));
-
-		pev->health = gSkillData.headcrabHealth * 2;
-		pev->solid = SOLID_SLIDEBOX;
-		pev->movetype = MOVETYPE_STEP;
-		pev->effects = 0;
-		pev->view_ofs = Vector(0, 0, 20); // position of the eyes relative to monster's origin.
-		pev->yaw_speed = 5;				  //!!! should we put this in the monster's changeanim function since turn rates may vary with state/anim?
-
-		m_bloodColor = BLOOD_COLOR_INFECTION;
-		m_flFieldOfView = 0.5;			  // indicates the width of this monster's forward view cone ( as a dotproduct result )
-		m_MonsterState = MONSTERSTATE_NONE;
-
-		MonsterInit();
-	}
-	void Precache()
-	{
-		PRECACHE_MODEL("models/shgibs.mdl");
-		PRECACHE_MODEL("models/headcrab_super.mdl");
-		PRECACHE_MODEL("sprites/bblood.spr");
-		PRECACHE_SOUND("superhc/cheek1.wav");
-		PRECACHE_SOUND("superhc/cheek2.wav");
-		PRECACHE_SOUND_ARRAY(pIdleSounds);
-		PRECACHE_SOUND_ARRAY(pAlertSounds);
-		PRECACHE_SOUND_ARRAY(pPainSounds);
-		PRECACHE_SOUND_ARRAY(pAttackSounds);
-		PRECACHE_SOUND_ARRAY(pDeathSounds);
-		PRECACHE_SOUND_ARRAY(pBiteSounds);
-	}
-
-	void GibMonster()
-	{
-		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
-		int cSplat;
-
-		for (cSplat = 0; cSplat < 6; cSplat++)
-		{
-			auto pGib = Create("sh_gibs", pev->origin, pev->angles, edict());
-
-			if (pev)
-			{
-				// spawn the gib somewhere in the monster's bounding volume
-				pGib->pev->origin.x = pev->absmin.x + pev->size.x * (RANDOM_FLOAT(0, 1));
-				pGib->pev->origin.y = pev->absmin.y + pev->size.y * (RANDOM_FLOAT(0, 1));
-				pGib->pev->origin.z = pev->absmin.z + pev->size.z * (RANDOM_FLOAT(0, 1)) + 1; // absmin.z is in the floor because the engine subtracts 1 to enlarge the box
-
-				// make the gib fly away from the attack vector
-				pGib->pev->velocity = g_vecAttackDir * -1;
-
-				// mix in some noise
-				pGib->pev->velocity.x += RANDOM_FLOAT(-0.25, 0.25);
-				pGib->pev->velocity.y += RANDOM_FLOAT(-0.25, 0.25);
-				pGib->pev->velocity.z += RANDOM_FLOAT(-0.25, 0.25);
-
-				pGib->pev->velocity = pGib->pev->velocity * RANDOM_FLOAT(300, 400);
-
-				pGib->pev->avelocity.x = RANDOM_FLOAT(100, 200);
-				pGib->pev->avelocity.y = RANDOM_FLOAT(100, 300);
-
-				if (pev->health > -50)
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 0.7;
-				}
-				else if (pev->health > -200)
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 2;
-				}
-				else
-				{
-					pGib->pev->velocity = pGib->pev->velocity * 4;
-				}
-
-				pGib->pev->solid = SOLID_BBOX;
-				UTIL_SetSize(pGib->pev, Vector(0, 0, 0), Vector(0, 0, 0));
-			}
-		}
-
-		CBaseEntity* pOwner = CBaseEntity::Instance(pev->owner);
-		if (pOwner)
-		{
-			pOwner->DeathNotice(pev);
-		}
-		
-		SetThink(&CBaseMonster::SUB_Remove);
-		pev->nextthink = gpGlobals->time;
-	}
-};
-
-LINK_ENTITY_TO_CLASS(monster_headcrab_super, CHeadcrabSuper);
-class SHGibs : public CBaseEntity
-{
-	void Spawn()
-	{
-		SET_MODEL(edict(), "models/shgibs.mdl");
-		pev->solid = SOLID_BBOX;
-		pev->movetype = MOVETYPE_BOUNCE;
-		pev->nextthink = gpGlobals->time + 0.1;
-		pev->dmgtime = gpGlobals->time + 10;
-		pev->body = RANDOM_LONG(0, 5);
-	}
-	void Think()
-	{
-		pev->nextthink = gpGlobals->time + 0.1;
-		pev->avelocity = pev->velocity * 2;
-		if (pev->dmgtime < gpGlobals->time)
-		{
-			if (pev->renderamt == 0 && pev->armorvalue == 0)
-			{
-				pev->armorvalue = 1;
-				pev->renderamt = 255;
-				return;
-			}
-
-			if (pev->renderamt <= 0)
-				UTIL_Remove(this);
-			else
-			{
-				pev->renderfx = kRenderFxNone;
-				pev->rendermode = kRenderTransTexture;
-				pev->renderamt -= 2;
-			}
-		}
-	}
-	void Touch(CBaseEntity* pOther)
-	{
-		if (!pOther->IsBSPModel())
-			return;
-
-		pev->velocity = pev->velocity / 2;
-		pev->angles.x = pev->angles.z = 0;
-		if (pev->armortype < gpGlobals->time)
-		{
-			//Create("sh_spr", pev->origin, pev->angles, edict());
-			TraceResult tr;
-			UTIL_TraceLine(pev->origin, pev->velocity, dont_ignore_monsters, edict(), &tr);
-			UTIL_DecalTrace(&tr, RANDOM_LONG(DECAL_BBLOOD1, DECAL_BBLOOD3));
-			pev->armortype = gpGlobals->time + 0.5;
-		}
-	}
-};
-
-LINK_ENTITY_TO_CLASS(sh_gibs, SHGibs);
-
-class CSHSpr : public CBaseEntity
-{
-	void Spawn()
-	{
-		SET_MODEL(edict(), "sprites/bblood.spr");
-		pev->angles.x = 90;
-		pev->origin.z += 1;
-		pev->renderfx = kRenderFxPulseFast;
-		pev->rendermode = kRenderTransAdd;
-		pev->renderamt = 255;
-		pev->frame = RANDOM_LONG(0, 3);
-		pev->nextthink = gpGlobals->time + 0.1;
-		pev->dmgtime = gpGlobals->time + 15;
-	}
-	void Think()
-	{
-		pev->nextthink = gpGlobals->time + 0.1;
-		if (pev->dmgtime < gpGlobals->time)
-		{
-			if (pev->renderamt <= 0)
-				UTIL_Remove(this);
-			else
-				pev->renderamt -= 2;
-		}
-	}
-};
-
-LINK_ENTITY_TO_CLASS(sh_spr, CSHSpr);
-*/

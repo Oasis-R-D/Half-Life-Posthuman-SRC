@@ -49,7 +49,6 @@ void CMP5::Precache()
 	PRECACHE_MODEL("models/v_9mmAR.mdl");
 	PRECACHE_MODEL("models/w_9mmAR.mdl");
 	PRECACHE_MODEL("models/p_9mmAR.mdl");
-	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 
 	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shell

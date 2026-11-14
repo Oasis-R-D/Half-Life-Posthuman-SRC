@@ -1066,6 +1066,30 @@ void CBaseMonster::RadiusDamage(Vector vecSrc, entvars_t* pevInflictor, entvars_
 	::RadiusDamage(vecSrc, pevInflictor, pevAttacker, flDamage, flDamage * 2.5, iClassIgnore, bitsDamageType);
 }
 
+bool CBaseMonster::CanDoLeapForChase(const Vector& vecTarget, float dist, float height)
+{
+	Vector distance = vecTarget - pev->origin;
+
+	if (distance.Length2D() < dist * 0.5f)
+	{
+		return true;
+	}
+	else
+	{
+		distance = distance.Normalize() * dist * 0.5f;
+		distance.z = 0;
+		TraceResult tr;
+
+		Vector pos = pev->origin + distance;
+		pos.z = V_min(pev->origin.z, vecTarget.z);
+
+		const Vector bottom = pos - Vector(0,0,height);
+		UTIL_TraceLine(pos, bottom, ignore_monsters, edict(), &tr);
+		//DrawBeamLine(pos, bottom, Color3(255, 255, 0), 20);
+		return tr.flFraction < 1.0f;
+	}
+	return false;
+}
 
 //=========================================================
 // CheckTraceHullAttack - expects a length to trace, amount
