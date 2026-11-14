@@ -410,10 +410,13 @@ void CGrenade::ExplodeTouch(CBaseEntity* pOther)
 			pevOwner = NULL;
 		
 		RadiusDamage(vecSpot, pev, pevOwner, pev->dmg, CLASS_NONE, DMG_ACID);
-		
-		for (int i = 0; i < 6; i++)
+		EMIT_SOUND(ENT(pev), CHAN_WEAPON, "funghoul/explosion.wav", 1, ATTN_NORM);
+
+		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, vecSpot + tr.vecPlaneNormal * 6, g_vecZero, 0.0, 0.0, PE_SMOKE_HORNET, 0, 0, 0);
+
+		for (int i = 0; i < 5; i++)
 		{
-			CHornet* pHornet = (CHornet*) CBaseEntity::Create("hornet", vecSpot + tr.vecPlaneNormal * 16, Vector(0,0,0), pev->owner);
+			CHornet* pHornet = (CHornet*) CBaseEntity::Create("hornet", vecSpot + tr.vecPlaneNormal * 6, Vector(0,0,0), pev->owner);
 			pHornet->pev->owner = pev->owner;
 			pHornet->pev->velocity = RANDOM_VECTOR(-1, 1) * 300;
 

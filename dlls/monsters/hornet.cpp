@@ -129,6 +129,8 @@ void CHornet::Precache()
 	PRECACHE_SOUND("hornet/ag_hornethit2.wav");
 	PRECACHE_SOUND("hornet/ag_hornethit3.wav");
 
+	PRECACHE_SOUND("funghoul/explosion.wav");
+
 	iHornetPuff = PRECACHE_MODEL("sprites/muz1.spr");
 	iHornetTrail = PRECACHE_MODEL("sprites/laserbeam.spr");
 }

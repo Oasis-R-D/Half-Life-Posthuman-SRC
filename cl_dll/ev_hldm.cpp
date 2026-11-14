@@ -1425,6 +1425,7 @@ void EV_Particles(event_args_t* args)
 		case PE_NPC_H20_IMPACT: PE_UnderwaterBloodImpact(args); break;
 		case PE_SMOKE_BLOATER: gParticleEngine.CreateSystem("bloaterexpl.txt", args->origin, args->origin, 0); break;
 		case PE_SMOKE_FUNGHOUL: gParticleEngine.CreateCluster("engine_funghoul_cluster.txt", args->origin, g_vecZero, 0); break;
+		case PE_SMOKE_HORNET: gParticleEngine.CreateCluster("engine_hornet_cluster.txt", args->origin, g_vecZero, 0); break;
 		case PE_BLD_SPLASH: // phys blood hit the ground
 			switch (args->iparam2)
 			{
