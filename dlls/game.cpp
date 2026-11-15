@@ -418,6 +418,7 @@ void GameDLLInit()
 	REGISTER_SKILL_CVARS(massassin_health);
 	REGISTER_SKILL_CVARS(massassin_kick);
 	REGISTER_SKILL_CVARS(massassin_gspeed);
+	REGISTER_SKILL_CVARS(plr_556_bullet);
 
 	// Houndeye
 	REGISTER_SKILL_CVARS(houndeye_health);
@@ -474,6 +475,43 @@ void GameDLLInit()
 	REGISTER_SKILL_CVARS(pitdrone_dmg_bite);
 	REGISTER_SKILL_CVARS(pitdrone_dmg_spit);
 	REGISTER_SKILL_CVARS(pitdrone_dmg_whip);
+
+	// Shock Roach
+	REGISTER_SKILL_CVARS(shockroach_health);
+	REGISTER_SKILL_CVARS(shockroach_dmg_bite);
+	REGISTER_SKILL_CVARS(shockroach_lifespan);
+	REGISTER_SKILL_CVARS(plr_shockroachs);
+
+	// Shock Trooper
+	REGISTER_SKILL_CVARS(shocktrooper_health);
+	REGISTER_SKILL_CVARS(shocktrooper_kick);
+	REGISTER_SKILL_CVARS(shocktrooper_gspeed);
+	REGISTER_SKILL_CVARS(shocktrooper_maxcharge);
+	REGISTER_SKILL_CVARS(shocktrooper_rchgspeed);
+
+	// Spore Launcher
+	REGISTER_SKILL_CVARS(plr_spore);
+
+	// Voltigore
+	REGISTER_SKILL_CVARS(voltigore_health);
+	REGISTER_SKILL_CVARS(voltigore_dmg_punch);
+	REGISTER_SKILL_CVARS(voltigore_dmg_beam);
+
+	// Baby Voltigore
+	REGISTER_SKILL_CVARS(babyvoltigore_health);
+	REGISTER_SKILL_CVARS(babyvoltigore_dmg_punch);
+
+	// Funghoul
+	REGISTER_SKILL_CVARS(funghoul_health);
+	REGISTER_SKILL_CVARS(funghoul_dmg_slash);
+	REGISTER_SKILL_CVARS(funghoul_dmg_bite);
+
+	// Panthereye
+	REGISTER_SKILL_CVARS(panthereye_health);
+	REGISTER_SKILL_CVARS(panthereye_dmg_claw);
+	REGISTER_SKILL_CVARS(panthereye_dmg_leap);
+
+	// PLAYER WEAPONS
 
 	// M727
 	REGISTER_SKILL_CVARS(plr_m727);

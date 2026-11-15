@@ -4657,13 +4657,13 @@ void CBasePlayer::UpdateCrosshair(float spread, int crosshairtype)
 		Vector direction = gpGlobals->v_forward + (gpGlobals->v_up * spreadfixed) + (gpGlobals->v_right * spreadfixed);
 		UTIL_TraceLine(bulletorg, bulletorg + direction * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(FEV_HOSTONLY, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_DEBUG_POINT, 0, 0, 1);
 
 		// Draw bottom notch
 		Vector oppdirection = gpGlobals->v_forward - (gpGlobals->v_up * spreadfixed) - (gpGlobals->v_right * spreadfixed);
 		UTIL_TraceLine(bulletorg, bulletorg + oppdirection * 3072, dont_ignore_monsters, ignore_glass, edict(), &spreadTR);
 
-		PLAYBACK_EVENT_FULL(0, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_BULLET_HITGLOW, 0, 0, 1);
+		PLAYBACK_EVENT_FULL(FEV_HOSTONLY, edict(), g_sParticleEvent, 0.0, spreadTR.vecEndPos + spreadTR.vecPlaneNormal * 0.1f, spreadTR.vecPlaneNormal, 0.0, 0.0, PE_DEBUG_POINT, 0, 0, 1);
 	}
 }
 

@@ -228,6 +228,29 @@ lightmaps 0
 mainalpha 0.75
 )";
 
+char debug_point[] = R"(
+life 1
+
+minvel 0
+maxvel 0
+
+texture gloworg
+rendermode 0
+
+scale 3.5
+
+pcolr %d
+pcolg %d
+pcolb %d
+
+gravity 0
+
+startparticles 1
+
+lightmaps 0
+mainalpha 1
+)";
+
 char innacuracydebug[] = R"(
 life 0.05
 

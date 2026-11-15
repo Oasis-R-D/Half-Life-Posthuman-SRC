@@ -59,6 +59,8 @@ enum ParticleEngine
 	PE_SMOKE_CLOUD,
 	PE_FIRE,
 	PE_SMOKE_BILLOW,
+
+	PE_DEBUG_POINT,
 };
 
 enum Acoustics

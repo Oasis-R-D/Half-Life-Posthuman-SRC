@@ -19,6 +19,7 @@ extern char impactsmoke[];
 
 extern char bulletholeglow[];
 
+extern char debug_point[];
 extern char innacuracydebug[];
 
 extern char bloodsprite[];

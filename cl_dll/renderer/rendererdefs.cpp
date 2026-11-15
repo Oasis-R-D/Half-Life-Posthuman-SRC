@@ -1114,7 +1114,8 @@ void R_Init(void)
 	GLContext::glcontext_initinfo_t info;
 	info.debuglayer = true;
 	info.fn = (GLADloadfunc)SDL_GL_GetProcAddress;
-	info.gl_loggerFn = glprint;
+	//info.gl_loggerFn = glprint;
+	info.gl_loggerFn = nullptr;
 	GLContext::Init_GLContext(info);
 
 	gpTempEnts.clear();

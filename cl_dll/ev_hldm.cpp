@@ -1436,14 +1436,7 @@ void EV_Particles(event_args_t* args)
 			}
 			break;
 		case PE_BULLET_WATERHIT: gParticleEngine.CreateCluster("water_impact_cluster.txt", args->origin, Vector(0,0,1), 0); break;
-		case PE_BULLET_HITGLOW: // glowing bullet impact 'crater'
-		{
-			if (args->bparam2 != 1)
-				gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
-			else if (EV_IsLocal(idx))
-				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
-			break;
-		}
+		case PE_BULLET_HITGLOW: gParticleEngine.CreateSystem_File(bulletholeglow, args->origin, args->angles, 0);
 		case PE_BLD_EXPLCLOUD: PE_GibCloud(args); break;
 		case PE_SMOKE_CLOUD: gParticleEngine.CreateSystem("engine_smokegren.txt", args->origin, gpGlobals->v_up, 0); break;
 		case PE_FIRE: // fire
@@ -1451,6 +1444,14 @@ void EV_Particles(event_args_t* args)
 			else					gParticleEngine.CreateSystem("blueflames.txt", args->origin, gpGlobals->v_up, 0);
 			break;
 		case PE_SMOKE_BILLOW: gParticleEngine.CreateSystem("engine_smoke.txt", args->origin, gpGlobals->v_up, 0); break;
+		case PE_DEBUG_POINT:
+		{
+			if (args->bparam2 != 1)
+				gParticleEngine.CreateSystem_File(UTIL_VarArgs_client(debug_point, (int)args->angles.x, (int)args->angles.y, (int)args->angles.z), args->origin, args->angles, 0);
+			else if (EV_IsLocal(idx))
+				gParticleEngine.CreateSystem_File(innacuracydebug, args->origin, args->angles, 0);
+			break;
+		}
 	}
 }
 

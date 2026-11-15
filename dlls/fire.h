@@ -24,9 +24,9 @@ private:
 	const void SpawnParticles(int size);
 	void DealDamage(float size);
 	
-	static bool CheckWallStick(Vector pos);
+	bool CheckWallStick(Vector pos);
 
-	bool SpreadVertical();
+	const bool SpreadVertical();
 	bool CheckFall(float size);
 };
 
