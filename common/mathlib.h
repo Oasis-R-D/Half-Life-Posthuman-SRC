@@ -136,6 +136,19 @@ inline Vector VectorLerp(const Vector& src1, const Vector& src2, vec_t t )
 	return result;
 }
 
+inline void Vector2DLerp(const Vector2D& src1, const Vector2D& src2, vec_t t, Vector2D& dest )
+{
+	dest.x = src1.x + (src2.x - src1.x) * t;
+	dest.y = src1.y + (src2.y - src1.y) * t;
+}
+
+inline Vector2D Vector2DLerp(const Vector2D& src1, const Vector2D& src2, vec_t t )
+{
+	Vector2D result;
+	Vector2DLerp( src1, src2, t, result );
+	return result;
+}
+
 void VectorMA(const float* veca, float scale, const float* vecb, float* vecc);
 
 bool VectorCompare(const float* v1, const float* v2);

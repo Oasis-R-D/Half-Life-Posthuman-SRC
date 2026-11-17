@@ -449,16 +449,17 @@ public:
 	float m_flSwingEnd;
 	float m_flSwingStart;
 	int m_iSwingEdgeTaper;
-	
-	int m_iAngRadius;
+	Vector2D m_2DvecStartAng;
+	Vector2D m_2DvecEndAng;
 
 	int m_iRaycastAmount;
+	int m_iRaycastsComplete;
 	float m_flRaycastDelay;
-
-	void StartSwing();
+	
+	void StartSwing(float length, int amount, Vector2D start, Vector2D end);
 	void SwingRaycast();
 	void EndSwing();
-
+	Vector GetSwingDir();
 private:
 };
 
