@@ -78,6 +78,7 @@ CEagle g_Eagle;
 CM727 g_M727;
 CM29 g_M29;
 CSledgeHammer g_Melee;
+CSwingMelee g_L4D;
 
 /*
 ======================
@@ -489,6 +490,7 @@ void HUD_InitClientWeapons()
 	HUD_PrepEntity(&g_M727, &player);
 	HUD_PrepEntity(&g_M29, &player);
 	HUD_PrepEntity(&g_Melee, &player);
+	HUD_PrepEntity(&g_L4D, &player);
 }
 
 /*
@@ -613,6 +615,8 @@ void HUD_WeaponsPostThink(local_state_s* from, local_state_s* to, usercmd_t* cmd
 		break;
 	case WEAPON_SLEDGE: 
 		pWeapon = &g_Melee;
+	case WEAPON_L4D: 
+		pWeapon = &g_L4D;
 		break;
 	}
 

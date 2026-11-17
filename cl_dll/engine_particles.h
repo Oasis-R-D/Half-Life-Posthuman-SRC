@@ -9,7 +9,7 @@
 #pragma once
 
 //8================================================================D
-// ENGINE_PARTICLES.H: File to store liks to code defined particles
+// ENGINE_PARTICLES.H: File storing hardcoded particle identifiers
 //8================================================================D
 
 extern char bonefragment1[];

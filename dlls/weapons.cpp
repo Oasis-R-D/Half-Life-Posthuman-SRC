@@ -381,7 +381,8 @@ void W_Precache()
 	// M29 (shhhhhh it's a secret)
 	UTIL_PrecacheOtherWeapon("weapon_m29");
 
-	
+	UTIL_PrecacheOtherWeapon("weapon_l4dtest");
+
 	if (g_pGameRules->IsDeathmatch())
 	{
 		UTIL_PrecacheOther("weaponbox"); // container for dropped deathmatch weapons

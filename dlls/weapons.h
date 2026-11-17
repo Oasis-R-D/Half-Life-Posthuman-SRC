@@ -1916,3 +1916,30 @@ public:
 	int m_iTrail;
 	float m_flIgniteTime;
 };
+
+class CSwingMelee : public CBasePlayerMelee
+{
+public:
+	void Spawn() override;
+	void Precache() override;
+	int iItemSlot() override { return 1; }
+	bool GetItemInfo(ItemInfo* p) override;
+
+	void PrimaryAttack() override;
+	bool Deploy() override;
+	void Holster() override;
+
+	void WeaponIdle() override;
+
+	bool UseDecrement() override
+	{
+#if defined(CLIENT_WEAPONS)
+		return true;
+#else
+		return false;
+#endif
+	}
+
+private:
+	//unsigned short m_usCrowbar;
+};

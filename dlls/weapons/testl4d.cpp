@@ -30,7 +30,7 @@ LINK_ENTITY_TO_CLASS(weapon_l4dtest, CSwingMelee);
 void CSwingMelee::Spawn()
 {
 	Precache();
-	m_iId = WEAPON_CROWBAR;
+	m_iId = WEAPON_L4D;
 	SET_MODEL(ENT(pev), "models/w_crowbar.mdl");
 	m_iClip = -1;
 
@@ -62,7 +62,7 @@ bool CSwingMelee::GetItemInfo(ItemInfo* p)
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iSlot = 0;
-	p->iPosition = 0;
+	p->iPosition = 2;
 	p->iId = WEAPON_L4D;
 	p->iWeight = CROWBAR_WEIGHT;
 	return true;
@@ -72,6 +72,7 @@ bool CSwingMelee::GetItemInfo(ItemInfo* p)
 
 bool CSwingMelee::Deploy()
 {
+	m_iCrossHairType = CROSSHAIR_NONE;
 	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", CROWBAR_DRAW, "crowbar");
 }
 
@@ -79,12 +80,15 @@ void CSwingMelee::Holster()
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim(CROWBAR_HOLSTER);
-    StopSwing();
+    EndSwing();
 }
 
 void CSwingMelee::PrimaryAttack()
 {
-	StartSwing();
+	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
+		return;
+	m_flNextPrimaryAttack = GetNextAttackDelay(1.25f);
+	StartSwing(2, 12, Vector2D(60, 0), Vector2D(-60, 0));
 }
 
 void CSwingMelee::WeaponIdle()

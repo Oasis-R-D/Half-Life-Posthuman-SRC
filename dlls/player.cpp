@@ -4324,6 +4324,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_sledge");
 		GiveNamedItem("weapon_10mmhandgun");
 		GiveNamedItem("ammo_10mmclip");
+		GiveNamedItem("weapon_l4dtest");
 		m_iGrenadeAmnt = 3;
 		MESSAGE_BEGIN(MSG_ONE, gmsgGrenadeHUD, NULL, pev);
 		WRITE_BYTE(m_iGrenadeType);

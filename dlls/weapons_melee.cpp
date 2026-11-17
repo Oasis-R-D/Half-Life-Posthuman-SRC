@@ -28,23 +28,29 @@ void CBasePlayerMelee::StartSwing(float length, int amount, Vector2D start, Vect
     m_flSwingStart = gpGlobals->time;
     m_flSwingEnd = gpGlobals->time + length;
 
-    float timeSpan = m_flSwingEnd - m_flSwingStart;
-
-    m_flRaycastDelay = m_iRaycastAmount / timeSpan;
+    m_flRaycastDelay = m_iRaycastAmount / length;
     m_iRaycastAmount = amount;
     m_iRaycastsComplete = 0;
 
     m_2DvecStartAng = start;
     m_2DvecEndAng = end;
+
+	ALERT(at_console, "START SWING\n");
 }
 
 void CBasePlayerMelee::EndSwing()
 {
+	m_flSwingStart = 0;
+    m_flSwingEnd = 0;
+
+    m_flRaycastDelay = 0;
+    m_iRaycastAmount = 0;
+    m_iRaycastsComplete = 0;
 }
 
 Vector CBasePlayerMelee::GetSwingDir()
 {
-    Vector2D Raycast2DAng = Vector2DLerp(m_2DvecStartAng, m_2DvecEndAng, m_iRaycastsComplete / m_iRaycastAmount)
+	Vector2D Raycast2DAng = Vector2DLerp(m_2DvecStartAng, m_2DvecEndAng, (float)m_iRaycastsComplete / m_iRaycastAmount);
 
     // Convert to radians
     Raycast2DAng.x = Raycast2DAng.x * 0.01745329251994329576923690768489;
@@ -69,15 +75,23 @@ void CBasePlayerMelee::SwingRaycast()
     if (m_flSwingEnd < gpGlobals->time)
         return;
 
-    float timeRemaining = m_flSwingEnd - gpGlobals->time;
-
+    float elapsed = gpGlobals->time - m_flSwingStart;
+	ALERT(at_console, "SWING %f\n", elapsed);
     // Should work?
-    if (floor(timeRemaining % m_flRaycastDelay) <= m_iRaycastsComplete)
+    if (floor(elapsed / m_flRaycastDelay) >= m_iRaycastsComplete)
         return; // not time for another raycast yet
 
-    ALERT(at_console, "SWING %f\n", timeRemaining)
+	m_iRaycastsComplete++;
+
+    
     Vector RaycastStart = m_pPlayer->GetGunPosition() - gpGlobals->v_forward * MELEE_EYEOFFSET;
 
     Vector DebugVec = RaycastStart + GetSwingDir() * 64;
-    PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, DebugVec, Vector(255, 255, 255), 0.0, 0.0, PE_DEBUG_POINT, 0, 0, 0);
+
+#ifndef CLIENT_DLL
+    UTIL_DebugPoint(DebugVec);
+#endif // !CLIENT_DLL
+
+	if (m_iRaycastsComplete >= m_iRaycastAmount)
+		EndSwing();
 }
