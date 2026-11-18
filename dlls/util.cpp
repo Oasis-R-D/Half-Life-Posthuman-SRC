@@ -1458,7 +1458,7 @@ void UTIL_Ricochet(const Vector& position, float scale)
 	WRITE_COORD(position.x);
 	WRITE_COORD(position.y);
 	WRITE_COORD(position.z);
-	WRITE_BYTE((int)(scale * 10));
+	WRITE_BYTE((byte)(scale * 10));
 	MESSAGE_END();
 }
 
@@ -2711,7 +2711,7 @@ void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio, Vector or
 
 	MESSAGE_BEGIN( MSG_PAS, gmsgCaption, origin );
 		WRITE_BYTE(holdTime * 2);
-		WRITE_BYTE(radio ? 1 : 0);
+		WRITE_BYTE((byte)radio);
 		WRITE_STRING(messageId);
 	MESSAGE_END();
 }

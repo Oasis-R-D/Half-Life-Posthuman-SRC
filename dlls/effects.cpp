@@ -729,13 +729,13 @@ void CLightning::StrikeThink()
 
 		WRITE_SHORT(m_spriteTexture);
 		WRITE_BYTE(m_frameStart);			 // framestart
-		WRITE_BYTE((int)pev->framerate);	 // framerate
-		WRITE_BYTE((int)(m_life * 10.0));	 // life
+		WRITE_BYTE((byte)pev->framerate);	 // framerate
+		WRITE_BYTE((byte)(m_life * 10.0));	 // life
 		WRITE_BYTE(m_boltWidth);			 // width
 		WRITE_BYTE(m_noiseAmplitude);		 // noise
-		WRITE_BYTE((int)pev->rendercolor.x); // r, g, b
-		WRITE_BYTE((int)pev->rendercolor.y); // r, g, b
-		WRITE_BYTE((int)pev->rendercolor.z); // r, g, b
+		WRITE_BYTE((byte)pev->rendercolor.x); // r, g, b
+		WRITE_BYTE((byte)pev->rendercolor.y); // r, g, b
+		WRITE_BYTE((byte)pev->rendercolor.z); // r, g, b
 		WRITE_BYTE(pev->renderamt);			 // brightness
 		WRITE_BYTE(m_speed);				 // speed
 		MESSAGE_END();
@@ -795,13 +795,13 @@ void CLightning::Zap(const Vector& vecSrc, const Vector& vecDest)
 	WRITE_COORD(vecDest.z);
 	WRITE_SHORT(m_spriteTexture);
 	WRITE_BYTE(m_frameStart);			 // framestart
-	WRITE_BYTE((int)pev->framerate);	 // framerate
-	WRITE_BYTE((int)(m_life * 10.0));	 // life
+	WRITE_BYTE((byte)pev->framerate);	 // framerate
+	WRITE_BYTE((byte)(m_life * 10.0));	 // life
 	WRITE_BYTE(m_boltWidth);			 // width
 	WRITE_BYTE(m_noiseAmplitude);		 // noise
-	WRITE_BYTE((int)pev->rendercolor.x); // r, g, b
-	WRITE_BYTE((int)pev->rendercolor.y); // r, g, b
-	WRITE_BYTE((int)pev->rendercolor.z); // r, g, b
+	WRITE_BYTE((byte)pev->rendercolor.x); // r, g, b
+	WRITE_BYTE((byte)pev->rendercolor.y); // r, g, b
+	WRITE_BYTE((byte)pev->rendercolor.z); // r, g, b
 	WRITE_BYTE(pev->renderamt);			 // brightness
 	WRITE_BYTE(m_speed);				 // speed
 	MESSAGE_END();

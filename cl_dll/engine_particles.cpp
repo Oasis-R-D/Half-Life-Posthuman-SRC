@@ -234,10 +234,10 @@ life 1
 minvel 0
 maxvel 0
 
-texture gloworg
+texture water_drop
 rendermode 0
 
-scale 3.5
+scale 1.75
 
 pcolr %d
 pcolg %d

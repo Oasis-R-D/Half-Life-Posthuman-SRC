@@ -185,19 +185,27 @@ bool CFireManager::MergeFirePoints(Vector pos, int heat)
 void CFireManager::ManagerThink()
 {
 	// move in fire added from last think or elsewhere
-	MergeInTemp();
+	if (m_flNextMerge < gpGlobals->time)
+	{
+		MergeInTemp();
+		m_flNextMerge = gpGlobals->time + 1;
+	}
 
 	// nothing to simulate
 	if (voxelMap.empty())
 	{
-		pev->nextthink = gpGlobals->time + 0.5;
+		pev->nextthink = gpGlobals->time + 0.75;
 		return;
 	}
 	
 	pev->nextthink = gpGlobals->time;
 
 	// destroy dead fires this frame
-	RemoveDead();
+	if (m_flNextClear < gpGlobals->time)
+	{
+		RemoveDead();
+		m_flNextClear = gpGlobals->time + 2;
+	}
 
 	for (const auto& voxFire : voxelMap)
 	{
@@ -210,7 +218,6 @@ void CFireManager::ManagerThink()
 void CFireManager::FireExplosion(Vector pos, int radius, int heat)
 {
 	int firesize = sv_firesize.value; // spread out more
-	firesize *= 2;
 	int totalDist = radius * firesize;
 
 	for (int i = -radius; i < radius; i++)
@@ -235,74 +242,60 @@ void CFireManager::FireExplosion(Vector pos, int radius, int heat)
 
 void CFireVoxel::Think()
 {
+	if (!heat)
+		return;
+
 	const int firesize = sv_firesize.value;
 	thinktime = gpGlobals->time + 0.125;
 
-	SpawnParticles(firesize*0.66);
+	SpawnParticles(sv_firesize.value*0.66);
 	
-	DealDamage(firesize); 
+	DealDamage(sv_firesize.value); 
 
 	if (activeCheckTime > 0 && activeCheckTime <= gpGlobals->time)
 	{	
 		if (CheckWallStick(origin))
 			// Still stuck to a wall
-			activeCheckTime = gpGlobals->time + RANDOM_FLOAT(2.66, 3.25);
+			activeCheckTime = gpGlobals->time + RANDOM_FLOAT(3, 4);
 		else
 			// HOLY CRAP LOIS THE WALL MOVED
 			activeCheckTime = -1;
 	}
 
 	// don't run spread code while falling
-	if (CheckFall(firesize))
-		return;
+	//if (CheckFall())
+		//return;
 
-	heat -= 1;
+	//heat -= 1;
 
-	if (spreadTime > gpGlobals->time || heat < 160)
+	if (spreadTime > gpGlobals->time /*|| heat < 160*/)
 		return;
 
 	if (SpreadVertical())
 	{
 		spreadTime = gpGlobals->time + RANDOM_LONG(4, 10);
-		heat -= 150; // water saps heat
+		//heat -= 150;
 		return;
 	}
 
 	// spread
 	Vector VecFireSpread;
-	int times = 0;
-	int opp1, opp2;
-		
-	do {
-		if (times >= 10) // don't spawn if it isn't finding any good spots
-		{
-			//ALERT(at_warning, "Env_Fire: couldn't spawn fire!\n");
-			return;
-		}
-		times += 1;
-
-		opp1 = RANDOM_LONG(-1, 0);
-		opp2 = RANDOM_LONG(-1, 0);
-		
-		if (opp1 == 0)
-			opp1 = 1;
-		if (opp2 == 0)
-			opp2 = 1;
 			
-		// spreads in 8 directions
-		VecFireSpread = origin;
-		VecFireSpread.x += firesize * opp1;
-		VecFireSpread.y += firesize * opp2;
-	} while (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID);
+	// spreads in 8 directions
+	VecFireSpread = origin;
+	VecFireSpread.x += firesize * (RANDOM_LONG(0, 1) * 2 - 1);
+	VecFireSpread.y += firesize * (RANDOM_LONG(0, 1) * 2 - 1);
 
-	spreadTime = gpGlobals->time + RANDOM_LONG(4, 10);
+	if (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID)
+		return; // Not a good spot
 
-	// always true?
+	spreadTime = gpGlobals->time + RANDOM_LONG(2, 6);
+
 	if (activeCheckTime > 0 && !CheckWallStick(VecFireSpread))
 		return;
 
 	FireManager->AddFire(VecFireSpread, 150);
-	heat -= 150;
+	//heat -= 150;
 }
 
 // Returns true if the fire should "stick" there
@@ -324,9 +317,7 @@ bool CFireVoxel::CheckWallStick(Vector pos)
 		corner.y = pos.y + dy * radius;
 		corner.z = pos.z + dz * radius;
 
-		int contents = UTIL_PointContents(corner);
-
-		if (contents != CONTENTS_EMPTY)
+		if (UTIL_PointContents(corner) != CONTENTS_EMPTY)
 		{
 			foundSolid = true;
 			UTIL_DebugPoint(corner, Vector(255, 0, 0));
@@ -336,7 +327,7 @@ bool CFireVoxel::CheckWallStick(Vector pos)
 			foundEmpty = true;
 			UTIL_DebugPoint(corner, Vector(0, 255, 0));
 		}
-
+		
 		if (foundSolid && foundEmpty)
 			return true; // Does stick here
 	}
@@ -347,28 +338,31 @@ bool CFireVoxel::CheckWallStick(Vector pos)
 	return false; // Fall
 }
 
-const bool CFireVoxel::SpreadVertical()
+bool CFireVoxel::SpreadVertical()
 {
-	//if (RANDOM_LONG(0,4) == 2)
-		//return false;
+	int RNG = RANDOM_LONG(0, 4);
+	if (RNG == 2)
+		return false;
 
-	Vector dir = Vector(0, 0, sv_firesize.value);
-	Vector up = origin + dir;
-	Vector down = origin - dir;
-
-	if (CheckWallStick(up))
+	if (RNG < 2) // only do one or the other this check
 	{
-		if (UTIL_PointContents(up) != CONTENTS_WATER)
+		Vector up = origin + Vector(0, 0, sv_firesize.value);
+		if (CheckWallStick(up))
+		{
 			FireManager->AddFire(up, 150);
-
-		return true;
+			UTIL_DebugPoint(up, Vector(0, 0, 255));
+			UTIL_DebugPoint(origin, Vector(0, 255, 255));
+			return true;
+		}
 	}
-	else if (CheckWallStick(down))
+	else
 	{
-		if (UTIL_PointContents(down) != CONTENTS_WATER)
+		Vector down = origin - Vector(0, 0, sv_firesize.value);
+		if (CheckWallStick(down))
+		{
 			FireManager->AddFire(down, 150);
-
-		return true;
+			return true;
+		}
 	}
 
 	return false;
@@ -402,7 +396,7 @@ void CFireVoxel::DealDamage(float size)
 		return;
 
 	::FireRadiusDamage2(origin, 5, size * 0.75);
-	dmgTime = gpGlobals->time + 0.5;
+	dmgTime = gpGlobals->time + RANDOM_FLOAT(0,1);
 }
 
 const void CFireVoxel::SpawnParticles(int size)
@@ -414,7 +408,7 @@ const void CFireVoxel::SpawnParticles(int size)
 
 	//if (RANDOM_LONG(0, heat) < 50)
 		//return;
-
+	/*
 	if (heat < 1000)
 		//PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 0);
 		UTIL_DebugPoint(origin, Vector(255, 255, 0));
@@ -423,14 +417,15 @@ const void CFireVoxel::SpawnParticles(int size)
 		heat = V_min(heat, 1250);
 		PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, VecflameOrg, g_vecZero, 0.0, 0.0, PE_FIRE, 0, 0, 1);
 	}
+	*/
 }
 
-bool CFireVoxel::CheckFall(float size)
+bool CFireVoxel::CheckFall()
 {
 	if (activeCheckTime > 0)
 		return false; // Don't fall when stuck on a wall
 
-	Vector newOrigin = origin - Vector(0, 0, size);
+	Vector newOrigin = origin - Vector(0, 0, sv_firesize.value);
 	
 	const float radius = sv_firesize.value / 2; // pretty sure firesize is diameter and not radius already
 
@@ -447,11 +442,7 @@ bool CFireVoxel::CheckFall(float size)
 		corner.y = newOrigin.y + dy * radius;
 		corner.z = newOrigin.z + dz * radius;
 
-		UTIL_DebugPoint(corner, Vector(0, 255, 0));
-
-		int contents = UTIL_PointContents(corner);
-
-		if (contents == CONTENTS_EMPTY)
+		if (UTIL_PointContents(corner) == CONTENTS_EMPTY)
 		{
 			foundEmpty = true;
 			break;
@@ -460,11 +451,9 @@ bool CFireVoxel::CheckFall(float size)
 
 	if (!foundEmpty)
 		return false;
-
-	heat -= 3; // falling is very bad
 	
 	if (UTIL_PointContents(newOrigin) != CONTENTS_WATER)
-		FireManager->AddFire(newOrigin, heat);
+		FireManager->AddFire(newOrigin, heat - 3); // falling is very bad
 	
 	// mark for death
 	heat = 0;

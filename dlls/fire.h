@@ -26,8 +26,8 @@ private:
 	
 	bool CheckWallStick(Vector pos);
 
-	const bool SpreadVertical();
-	bool CheckFall(float size);
+	bool SpreadVertical();
+	bool CheckFall();
 };
 
 class CFireManager : public CBaseEntity
@@ -49,6 +49,8 @@ private:
 	void MergeInTemp();
 	void RemoveDead();
 	
+	float m_flNextClear;
+	float m_flNextMerge;
 
 	std::map<Vector, std::unique_ptr<CFireVoxel>> voxelMap;
 	std::vector<std::pair<Vector, std::unique_ptr<CFireVoxel>>> voxelTemp;
