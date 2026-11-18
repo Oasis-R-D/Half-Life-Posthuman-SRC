@@ -2694,11 +2694,6 @@ void UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType
 	MESSAGE_END();
 }
 
-void UTIL_DebugPoint(Vector vecOrigin, Vector color, int iType)
-{
-	PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, vecOrigin, color, 0.0, 0.0, PE_DEBUG_POINT, 0, 0, 0);
-}
-
 void UTIL_ShowCaption(const char *messageId, int holdTime, bool radio, Vector origin)
 {
 	if (!messageId || !*messageId)

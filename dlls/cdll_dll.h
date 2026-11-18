@@ -166,3 +166,5 @@ constexpr Vector VEC_DUCK_HULL_MAX(16, 16, 18);
 constexpr Vector VEC_DUCK_VIEW(0, 0, 12);
 
 constexpr Vector VEC_DEAD_VIEW(0, 0, -8);
+
+#define UTIL_DebugPoint(vecOrigin, color) (PLAYBACK_EVENT_FULL(0, NULL, g_sParticleEvent, 0.0, vecOrigin, color, 0.0, 0.0, PE_DEBUG_POINT, 0, 0, 0))

@@ -72,26 +72,46 @@ bool CSwingMelee::GetItemInfo(ItemInfo* p)
 
 bool CSwingMelee::Deploy()
 {
+	EndSwing();
+
 	m_iCrossHairType = CROSSHAIR_NONE;
 	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", CROWBAR_DRAW, "crowbar");
 }
 
 void CSwingMelee::Holster()
 {
+	EndSwing();
+
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim(CROWBAR_HOLSTER);
-    EndSwing();
 }
 
 void CSwingMelee::PrimaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
 		return;
-	m_flNextPrimaryAttack = GetNextAttackDelay(1.25f);
-	StartSwing(2, 12, Vector2D(60, 0), Vector2D(-60, 0));
-}
+	m_flNextPrimaryAttack = GetNextAttackDelay(0.33);
+	Vector2D start, end;
+	
+	switch (RANDOM_LONG(0, 3))
+	{
+	case 0: 
+		start = Vector2D(-45, -25);
+		end   = Vector2D(45, 25);
+		break;
+	case 1: 
+		start = Vector2D(35, 35);
+		end   = Vector2D(-35, -35);
+		break;
+	case 2: 
+		start = Vector2D(-35, 0);
+		end   = Vector2D(35, 0);
+		break;
+	case 3: 
+		start = Vector2D(35, 0);
+		end   = Vector2D(-35, 0);
+		break;
+	}
 
-void CSwingMelee::WeaponIdle()
-{
-    SwingRaycast();
+	StartSwing(0.25, 0, 12, start, end);
 }

@@ -255,7 +255,6 @@ inline void UTIL_MakeVectorsPrivate(const Vector& vecAngles, float* p_vForward, 
 
 //RENDERERS START
 extern void			UTIL_Particle( char *szName, Vector vecOrigin, Vector vDirection, int iType );
-extern void			UTIL_DebugPoint( Vector vecOrigin, Vector color = Vector(255,255,255), int iType = 0);
 extern void			UTIL_StudioDecal( Vector normal, Vector position, const char *name, int entindex );
 extern void			UTIL_ShowCaption(const char* messageId, int holdTime, bool radio, Vector origin);
 //RENDERERS END

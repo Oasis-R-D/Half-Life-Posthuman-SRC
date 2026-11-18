@@ -445,7 +445,6 @@ class CBasePlayerMelee : public CBasePlayerWeapon
 public:
 	int m_iSwingType;
 
-	float m_flSwingTime;
 	float m_flSwingEnd;
 	float m_flSwingStart;
 	int m_iSwingEdgeTaper;
@@ -456,10 +455,16 @@ public:
 	int m_iRaycastsComplete;
 	float m_flRaycastDelay;
 	
-	void StartSwing(float length, int amount, Vector2D start, Vector2D end);
+	void StartSwing(float length, float delay, int amount, Vector2D start, Vector2D end);
 	void SwingRaycast();
 	void EndSwing();
 	Vector GetSwingDir();
+	void ItemPostFrame() override
+	{
+		SwingRaycast();
+		CBasePlayerWeapon::ItemPostFrame();
+	};
+
 private:
 };
 
@@ -1928,8 +1933,6 @@ public:
 	void PrimaryAttack() override;
 	bool Deploy() override;
 	void Holster() override;
-
-	void WeaponIdle() override;
 
 	bool UseDecrement() override
 	{

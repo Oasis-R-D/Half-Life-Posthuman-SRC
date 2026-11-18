@@ -332,7 +332,6 @@ const char glsl_gaussianblur_multisampled2dtexture_fp[] = R"(
 	
 	vec3 gaussfilter(sampler2DMS tex, vec2 coord)
 	{
-#ifdef DISABLED
 		vec2 sceneTexCoord = coord;
 
 		//if (pixelation)
@@ -344,15 +343,8 @@ const char glsl_gaussianblur_multisampled2dtexture_fp[] = R"(
 		vec4 sceneTex = fetchtexturesample(sceneTexCoord);
 		float lum = dot(sceneTex.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-		vec3 tint = lum * vec3(1.2, 1.0, 0.6);
-		return mix(sceneTex.rgb, tint, 0.5);
-#else
-		vec4 screen = fetchtexturesample(coord);
-		float lum = dot(screen.rgb, vec3(0.2126, 0.7152, 0.0722));
-		vec3 pissTint = vec3(1.2, 1.0, 0.6);
-		vec3 finalColor = lum * pissTint;
-		return mix(screen.rgb, finalColor, 0.5);
-#endif
+		vec3 tint = lum * vec3(1.2, 1.0, 0.6); // vec3 needs input
+		return mix(sceneTex.rgb, tint, 0); // 0 needs input
 	}
 
 	void main()
