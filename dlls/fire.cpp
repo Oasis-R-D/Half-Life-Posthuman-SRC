@@ -245,7 +245,6 @@ void CFireVoxel::Think()
 	if (!heat)
 		return;
 
-	const int firesize = sv_firesize.value;
 	thinktime = gpGlobals->time + 0.125;
 
 	SpawnParticles(sv_firesize.value*0.66);
@@ -266,7 +265,7 @@ void CFireVoxel::Think()
 	//if (CheckFall())
 		//return;
 
-	//heat -= 1;
+	heat -= 1;
 
 	if (spreadTime > gpGlobals->time /*|| heat < 160*/)
 		return;
@@ -278,24 +277,12 @@ void CFireVoxel::Think()
 		return;
 	}
 
-	// spread
-	Vector VecFireSpread;
-			
-	// spreads in 8 directions
-	VecFireSpread = origin;
-	VecFireSpread.x += firesize * (RANDOM_LONG(0, 1) * 2 - 1);
-	VecFireSpread.y += firesize * (RANDOM_LONG(0, 1) * 2 - 1);
-
-	if (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID)
-		return; // Not a good spot
-
-	spreadTime = gpGlobals->time + RANDOM_LONG(2, 6);
-
-	if (activeCheckTime > 0 && !CheckWallStick(VecFireSpread))
+	if (SpreadNormal())
+	{
+		spreadTime = gpGlobals->time + RANDOM_LONG(2, 6);
+		//heat -= 150;
 		return;
-
-	FireManager->AddFire(VecFireSpread, 150);
-	//heat -= 150;
+	}
 }
 
 // Returns true if the fire should "stick" there
@@ -336,6 +323,24 @@ bool CFireVoxel::CheckWallStick(Vector pos)
 		heat -= 100; // stuck in wall, kill
 
 	return false; // Fall
+}
+
+bool CFireVoxel::SpreadNormal()
+{
+	// spreads in 8 directions
+	Vector VecFireSpread = origin;
+	VecFireSpread.x += sv_firesize.value * (RANDOM_LONG(0, 1) * 2 - 1);
+	VecFireSpread.y += sv_firesize.value * (RANDOM_LONG(0, 1) * 2 - 1);
+
+	if (UTIL_PointContents(VecFireSpread) == CONTENTS_SOLID)
+		return false; // Not a good spot // TO-DO: this breaks spreading on walls
+
+	if (activeCheckTime > 0 && !CheckWallStick(VecFireSpread))
+		return false;
+
+	FireManager->AddFire(VecFireSpread, 150);
+
+	return true;
 }
 
 bool CFireVoxel::SpreadVertical()

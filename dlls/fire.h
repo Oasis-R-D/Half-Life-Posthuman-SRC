@@ -27,6 +27,8 @@ private:
 	bool CheckWallStick(Vector pos);
 
 	bool SpreadVertical();
+	bool SpreadNormal():
+	
 	bool CheckFall();
 };
 

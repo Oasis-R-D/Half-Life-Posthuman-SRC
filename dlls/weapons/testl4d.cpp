@@ -90,9 +90,10 @@ void CSwingMelee::PrimaryAttack()
 {
 	if ((m_pPlayer->m_afButtonLast & IN_ATTACK) != 0)
 		return;
+
 	m_flNextPrimaryAttack = GetNextAttackDelay(0.33);
-	Vector2D start, end;
 	
+	Vector2D start, end;
 	switch (RANDOM_LONG(0, 3))
 	{
 	case 0: 
